@@ -1193,8 +1193,7 @@ Ext.define('Imt.purpose.controller.Readings', {
 
         confirmationWindow.show({
             title: Uni.I18n.translate('preValidate.noPotentialSuspectsFound', 'IMT', 'No potential suspect readings found.'),
-            msg: Uni.I18n.translate('preValidate.noPotentialSuspectsFoundMsg', 'IMT', 'No potential suspect readings found in visible part of data starting from {0}.', [Uni.DateTime.formatDateTimeShort(firstModifiedReadingTimestamp)], false),
-            icon: 'icon-checkmark'
+            msg: Uni.I18n.translate('preValidate.noPotentialSuspectsFoundMsg', 'IMT', 'No potential suspect readings found in visible part of data starting from {0}.', Uni.DateTime.formatDateTimeShort(firstModifiedReadingTimestamp), false)
         });
 
         function getConfirmationWindow() {

@@ -448,6 +448,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 itemId: 'purpose-validateNowConfirmationWindow',
                 confirmText: Uni.I18n.translate('general.validate', 'IMT', 'Validate'),
                 closeAction: 'destroy',
+                green: true,
                 confirmation: Ext.bind(me.onValidateNow, me, [purpose, usagePoint, getConfirmationWindow])
             });
 
@@ -465,8 +466,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         });
         confirmationWindow.show({
             title: Uni.I18n.translate('purpose.validateNow', 'IMT', "Validate data for '{0}' purpose on usage point '{1}'?",
-                [purpose.get('name'), usagePoint.get('name')], false),
-            icon: 'icon-question4'
+                [purpose.get('name'), usagePoint.get('name')], false)
         });
 
         function getConfirmationWindow() {
@@ -510,7 +510,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 itemId: 'estimate-now-confirmation-window',
                 closeAction: 'destroy',
                 confirmText: Uni.I18n.translate('general.estimate', 'IMT', 'Estimate'),
-                confirmation: _.once(Ext.bind(me.onEstimateNow, me, [purpose, usagePoint, getConfirmationWindow]))
+                confirmation: _.once(Ext.bind(me.onEstimateNow, me, [purpose, usagePoint, getConfirmationWindow])),
+                green: true
             });
 
         confirmationWindow.insert(1, {
@@ -533,8 +534,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
         confirmationWindow.show({
             title: Uni.I18n.translate('purpose.estimateData', 'IMT', "Estimate data of '{0}' purpose on usage point '{1}'?",
-                [purpose.get('name'), usagePoint.get('name')], false),
-            icon: 'icon-question4'
+                [purpose.get('name'), usagePoint.get('name')], false)
         });
 
         function getConfirmationWindow() {
