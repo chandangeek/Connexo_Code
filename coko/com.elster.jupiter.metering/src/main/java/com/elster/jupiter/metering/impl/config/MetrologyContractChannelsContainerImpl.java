@@ -145,6 +145,7 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
                     .collect(Collectors.toMap(Channel::getMainReadingType, Function.identity()));
             this.mappedChannels = getMetrologyContract().getDeliverables()
                     .stream()
+                    .filter(deliverable -> channelMap.containsKey(deliverable.getReadingType()))
                     .map(deliverable -> createAggregatedChannel((ChannelContract) channelMap.get(deliverable.getReadingType()), deliverable))
                     .collect(Collectors.toList());
         }
@@ -167,13 +168,6 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
     @Override
     public Channel createChannel(ReadingType main, ReadingType... readingTypes) {
         throw new UnsupportedOperationException("This channels container does not support manual creation for channels.");
-    }
-
-    @Override
-    public ZoneId getZoneId() {
-        return this.getMetrologyConfigurationOnUsagePoint()
-                .getUsagePoint()
-                .getZoneId();
     }
 
     @Override
