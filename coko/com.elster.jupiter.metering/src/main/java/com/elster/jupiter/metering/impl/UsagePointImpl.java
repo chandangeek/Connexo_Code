@@ -1218,10 +1218,10 @@ public class UsagePointImpl implements ServerUsagePoint {
 
     @Override
     public ZoneId getZoneId() {
-        return getCurrentMeterActivations()
-                .stream()
-                .filter(ma -> ma.getMeter().isPresent())
-                .map(ma -> ma.getMeter().get().getZoneId())
+        return getEffectiveMetrologyConfigurations().stream()
+                .flatMap(emc -> emc.getMetrologyConfiguration().getContracts().stream().map(emc::getChannelsContainer))
+                .flatMap(Functions.asStream())
+                .map(ChannelsContainer::getZoneId)
                 .findAny()
                 .orElse(ZoneId.systemDefault());
     }
