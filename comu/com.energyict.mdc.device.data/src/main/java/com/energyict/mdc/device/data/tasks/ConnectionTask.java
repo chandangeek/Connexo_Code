@@ -108,6 +108,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
 
         /**
          * Active means the ConnectionTask is completely validated and ready to be used by the ComServer.
+         * KeyAccessors or their actual value might still be missing on the device.
          */
         ACTIVE,
         /**
@@ -116,7 +117,8 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
         INACTIVE,
         /**
          * The ConnectionTask is created but not valid and can not be used by the ComServer to execute tasks yet.
-         * This means that some properties may not be present yet.
+         * This means that some properties may not be present yet. Even if a KeyAccessorType property is present, the
+         * presence of a KeyAccessor or it's actual value is not covered by this state.
          */
         INCOMPLETE
     }

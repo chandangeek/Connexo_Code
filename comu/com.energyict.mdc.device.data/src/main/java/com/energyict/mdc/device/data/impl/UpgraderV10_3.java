@@ -16,7 +16,9 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
+import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -110,16 +112,39 @@ class UpgraderV10_3 implements Upgrader {
 
     // Move ProtocolDialectProperties from Communication Task to Connection Task
     private void moveProtocolDialectProperties(){
-        dataModel.useConnectionRequiringTransaction(connection -> {
-            try (Statement retrieveDialectPropertiesIdStatement = connection.createStatement();
-                Statement updateConnectionTaskStatement = connection.createStatement()) {
-                String sql = "SELECT DISTINCT NVL(DDC_COMTASKEXEC.PROTOCOLDIALECTCONFIGPROPS, DTC_PARTIALCONNECTIONTASK.DIALECTCONFIGPROPERTIES), NVL(CONNECTIONTASK, DECODE(USEDEFAULTCONNECTIONTASK, 0, NULL, 1, DDC_CONNECTIONTASK.ID )) AS CONNECTIONTASKID FROM DDC_COMTASKEXEC,DTC_PARTIALCONNECTIONTASK, DDC_CONNECTIONTASK WHERE DDC_COMTASKEXEC.CONNECTIONTASK = DDC_CONNECTIONTASK.ID AND DDC_CONNECTIONTASK.ISDEFAULT = 1 AND DDC_CONNECTIONTASK.PARTIALCONNECTIONTASK = DTC_PARTIALCONNECTIONTASK.ID";
-                ResultSet rs = retrieveDialectPropertiesIdStatement.executeQuery(sql);
-                while (rs.next()){
-                    updateConnectionTaskStatement.addBatch(String.format("UPDATE DDC_CONNECTIONTASK SET PROTOCOLDIALECTCONFIGPROPS = %1s WHERE ID = %2s", rs.getLong(1), rs.getLong(2)));
-                }
-                updateConnectionTaskStatement.executeBatch();
+        dataModel.useConnectionRequiringTransaction(this::doMoveProtocolDialectProperties);
+        dataModel.useConnectionRequiringTransaction(this::doMoveProtocolDialectPropertiesInCaseNoComTaskExecutionsExistsYet);
+    }
+
+    /**
+      * Move the ProtocolDialectProperties to Connection Task</br>
+      * The ProtocolDialectProperties of the Communication Task linked to the Connection will be taken
+      */
+    private void doMoveProtocolDialectProperties(Connection connection) throws SQLException {
+        try (Statement retrieveDialectPropertiesIdStatement = connection.createStatement();
+             Statement updateConnectionTaskStatement = connection.createStatement()) {
+            String sql = "SELECT DISTINCT NVL(DDC_COMTASKEXEC.PROTOCOLDIALECTCONFIGPROPS, DTC_PARTIALCONNECTIONTASK.DIALECTCONFIGPROPERTIES), NVL(CONNECTIONTASK, DECODE(USEDEFAULTCONNECTIONTASK, 0, NULL, 1, DDC_CONNECTIONTASK.ID )) AS CONNECTIONTASKID FROM DDC_COMTASKEXEC,DTC_PARTIALCONNECTIONTASK, DDC_CONNECTIONTASK WHERE DDC_COMTASKEXEC.CONNECTIONTASK = DDC_CONNECTIONTASK.ID AND DDC_CONNECTIONTASK.PARTIALCONNECTIONTASK = DTC_PARTIALCONNECTIONTASK.ID";
+            ResultSet rs = retrieveDialectPropertiesIdStatement.executeQuery(sql);
+            while (rs.next()){
+                updateConnectionTaskStatement.addBatch(String.format("UPDATE DDC_CONNECTIONTASK SET PROTOCOLDIALECTCONFIGPROPS = %1s WHERE ID = %2s", rs.getLong(1), rs.getLong(2)));
             }
-        });
+            updateConnectionTaskStatement.executeBatch();
+        }
+    }
+
+    /**
+     * Move the ProtocolDialectProperties to Connection Task</br>
+     * As there are no Communication Tasks linked to the Connection, we take over the ProtocolDialectProperties configured on the partial Connection
+     */
+    private void doMoveProtocolDialectPropertiesInCaseNoComTaskExecutionsExistsYet(Connection connection) throws SQLException {
+        try (Statement retrieveDialectPropertiesIdStatement = connection.createStatement();
+             Statement updateConnectionTaskStatement = connection.createStatement()) {
+            String sql = "SELECT DISTINCT DTC_PARTIALCONNECTIONTASK.DIALECTCONFIGPROPERTIES, DDC_CONNECTIONTASK.ID FROM DDC_CONNECTIONTASK, DTC_PARTIALCONNECTIONTASK WHERE DDC_CONNECTIONTASK.PARTIALCONNECTIONTASK = DTC_PARTIALCONNECTIONTASK.ID AND PROTOCOLDIALECTCONFIGPROPS IS NULL";
+            ResultSet rs = retrieveDialectPropertiesIdStatement.executeQuery(sql);
+            while (rs.next()) {
+                updateConnectionTaskStatement.addBatch(String.format("UPDATE DDC_CONNECTIONTASK SET PROTOCOLDIALECTCONFIGPROPS = %1s WHERE ID = %2s", rs.getLong(1), rs.getLong(2)));
+            }
+            updateConnectionTaskStatement.executeBatch();
+        }
     }
 }
