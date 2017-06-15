@@ -8,6 +8,7 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
@@ -28,7 +29,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,11 +58,12 @@ class EstimationEngine {
 
     private static Stream<EstimationBlock> findBlocksToEstimate(QualityCodeSystem system, Channel channel, Range<Instant> period, ReadingType readingType, Set<QualityCodeIndex> qualityCodes) {
         if (qualityCodes.size() > 1) {
+            Map<Instant, BaseReadingRecord> readings = channel.getReadings(period).stream()
+                    .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
             List<Estimatable> estimatables = channel.toList(period).stream()
-                    .map(instant -> channel.getReadings(period).stream()
-                            .filter(reading ->
-                                    reading.getTimeStamp().equals(instant)).findFirst()
-                            .map(BaseReadingRecordEstimatable::new).map(Estimatable.class::cast)
+                    .map(instant -> Optional.ofNullable(readings.get(instant))
+                            .map(BaseReadingRecordEstimatable::new)
+                            .map(Estimatable.class::cast)
                             .orElseGet(() -> new MissingReadingRecordEstimatable(instant)))
                     .collect(Collectors.toList());
             return Stream.of(SimpleEstimationBlock.of(channel, readingType, estimatables));
