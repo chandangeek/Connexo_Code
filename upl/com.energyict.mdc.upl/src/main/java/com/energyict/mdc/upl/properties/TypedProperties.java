@@ -1,5 +1,7 @@
 package com.energyict.mdc.upl.properties;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Set;
 
 /**
@@ -15,6 +17,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-14 (10:55)
  */
+@ProviderType
 public interface TypedProperties {
 
     /**

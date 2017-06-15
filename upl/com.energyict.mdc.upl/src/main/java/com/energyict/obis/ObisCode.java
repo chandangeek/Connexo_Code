@@ -11,7 +11,11 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 @XmlRootElement
 public class ObisCode implements Serializable {
@@ -49,6 +53,7 @@ public class ObisCode implements Serializable {
     private int e;
     private int f;
     private boolean relativeBillingPeriod;
+    private boolean invalid = false;
 
     //needed for Flex synchronization
 
@@ -58,27 +63,27 @@ public class ObisCode implements Serializable {
 
     public ObisCode(int a, int b, int c, int d, int e, int f, boolean relativeBillingPeriod) {
         if (a < 0 || a > 255) {
-            throw new IllegalArgumentException("Invalid a value " + a);
+            this.invalid = true;
         }
         if (b < -1 || b > 255) {
-            throw new IllegalArgumentException("Invalid b value " + b);
+            this.invalid = true;
         }
         if (c < 0 || c > 255) {
-            throw new IllegalArgumentException("Invalid c value " + c);
+            this.invalid = true;
         }
         if (d < 0 || d > 255) {
-            throw new IllegalArgumentException("Invalid d value " + d);
+            this.invalid = true;
         }
         if (e < 0 || e > 255) {
-            throw new IllegalArgumentException("Invalid e value " + e);
+            this.invalid = true;
         }
         if (relativeBillingPeriod) {
             if (f < -99 || f > 1) {
-                throw new IllegalArgumentException("Invalid f value " + f);
+                this.invalid = true;
             }
         } else {
             if (f < 0 || f > 255) {
-                throw new IllegalArgumentException("Invalid f value " + f);
+                this.invalid = true;
             }
         }
         this.a = a;
@@ -116,6 +121,14 @@ public class ObisCode implements Serializable {
                         ((billingPeriodIndex + base.getF()) % 100) :
                         base.getF(),
                 false);
+    }
+
+    public boolean isInvalid() {
+        return invalid;
+    }
+
+    public void setInvalid(boolean invalid) {
+        this.invalid = invalid;
     }
 
     public boolean useRelativeBillingPeriod() {
@@ -266,37 +279,50 @@ public class ObisCode implements Serializable {
     }
 
     public static ObisCode fromString(String codeString) {
-        StringTokenizer tokenizer = new StringTokenizer(codeString, ".");
-        if (tokenizer.countTokens() != 6) {
-            throw new IllegalArgumentException(codeString);
+        boolean invalid = false;
+        List<String> obisFields = new ArrayList<>();
+        if(codeString != null && codeString.length()>0) {
+            obisFields = new ArrayList<>(Arrays.asList(codeString.split("\\."))).stream().map(s -> s.trim()).collect(Collectors.toList());
         }
-        String token = nextToken(tokenizer);
-        int a = Integer.parseInt(token);
-        token = nextToken(tokenizer);
-        int b = "x".equalsIgnoreCase(token) ? -1 : Integer.parseInt(token);
-        token = nextToken(tokenizer);
-        int c = Integer.parseInt(token);
-        token = nextToken(tokenizer);
-        int d = Integer.parseInt(token);
-        token = nextToken(tokenizer);
-        int e = Integer.parseInt(token);
-        token = nextToken(tokenizer);
-        boolean hasRelativeBillingPoint = token.startsWith("VZ");
-        int f;
-        if (hasRelativeBillingPoint) {
-            if (token.trim().length() == 2) {
-                f = 0;
-            } else {
-                String billingPointOffset = token.substring(2).trim();
-                if (billingPointOffset.startsWith("+")) {
-                    billingPointOffset = billingPointOffset.substring(1);
-                }
-                f = Integer.parseInt(billingPointOffset);
+
+        if(obisFields.size() != 6){
+            invalid = true;
+            while(obisFields.size() < 6){
+                obisFields.add("0");
             }
-        } else {
-            f = Integer.parseInt(token);
         }
-        return new ObisCode(a, b, c, d, e, f, hasRelativeBillingPoint);
+        try {
+            int a = Integer.parseInt(obisFields.get(0));
+            int b = "x".equalsIgnoreCase(obisFields.get(1)) ? -1 : Integer.parseInt(obisFields.get(1));
+            int c = Integer.parseInt(obisFields.get(2));
+            int d = Integer.parseInt(obisFields.get(3));
+            int e = Integer.parseInt(obisFields.get(4));
+            boolean hasRelativeBillingPoint = obisFields.get(5).startsWith("VZ");
+            int f;
+            if (hasRelativeBillingPoint) {
+                if (obisFields.get(5).trim().length() == 2) {
+                    f = 0;
+                } else {
+                    String billingPointOffset = obisFields.get(5).substring(2).trim();
+                    if (billingPointOffset.startsWith("+")) {
+                        billingPointOffset = billingPointOffset.substring(1);
+                    }
+                    f = Integer.parseInt(billingPointOffset);
+                }
+            } else {
+                f = Integer.parseInt(obisFields.get(5));
+            }
+            ObisCode o = new ObisCode(a, b, c, d, e, f, hasRelativeBillingPoint);
+            if(invalid){
+                o.setInvalid(invalid);
+            }
+            return o;
+        } catch(Exception e) {
+            ObisCode o = new ObisCode(0, 0, 0, 0, 0, 0, false);
+            o.setInvalid(true);
+            return o;
+        }
+
     }
 
     private static String nextToken(StringTokenizer tokenizer) {

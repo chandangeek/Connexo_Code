@@ -373,7 +373,12 @@ public class ChannelInfo implements java.io.Serializable {
      * @return the <CODE>ObisCode</CODE> of this channel
      */
     public ObisCode getChannelObisCode() throws IllegalArgumentException {
-        return ObisCode.fromString(this.name);
+        ObisCode obisCode = ObisCode.fromString(this.name);
+        if(obisCode.isInvalid()){
+            throw new IllegalArgumentException(this.name);
+        } else {
+            return obisCode;
+        }
     }
 
     /**
