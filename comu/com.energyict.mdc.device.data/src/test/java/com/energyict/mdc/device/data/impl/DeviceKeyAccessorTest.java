@@ -133,6 +133,11 @@ public class DeviceKeyAccessorTest {
         public Object[] getPrimaryKey() {
             return new Object[0];
         }
+
+        @Override
+        public void clearCachedObject() {
+
+        }
     }
 
 }

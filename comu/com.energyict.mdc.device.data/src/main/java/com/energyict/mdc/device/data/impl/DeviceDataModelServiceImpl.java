@@ -38,6 +38,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.common.Constants;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.data.BatchService;
@@ -268,7 +269,9 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     @Reference
     public void setNlsService(NlsService nlsService) {
         Thesaurus meteringThesaurus = nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
-        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN).join(meteringThesaurus);
+        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN)
+                .join(meteringThesaurus)
+                .join(nlsService.getThesaurus(Constants.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Override
