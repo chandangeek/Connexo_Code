@@ -60,6 +60,8 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.pluggable.rest.impl.MdcPropertyUtilsImpl;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -161,6 +163,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static BpmService bpmService;
     private static ThreadPrincipalService threadPrincipalService;
     private static PkiService pkiService;
+    private static MdcPropertyUtils mdcPropertyUtils;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
@@ -190,7 +193,6 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         pkiService = mock(PkiService.class);
         obisCodeDescriptor = mock(ObisCodeDescriptor.class);
         when(obisCodeDescriptor.describe(any(ObisCode.class))).thenReturn("obisCodeDescription");
-
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
         inMemoryPersistence.initializeDatabase("PersistenceIntegrationTest.mdc.device.data", false);
@@ -409,6 +411,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setDeviceLifeCycleConfigurationService(inMemoryPersistence.getDeviceLifeCycleConfigurationService());
         application.setObisCodeDescriptor(obisCodeDescriptor);
         application.setPkiService(pkiService);
+        application.setMdcPropertyUtils(inMemoryPersistence.getMdcPropertyUtils());
         return application;
     }
 
