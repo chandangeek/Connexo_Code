@@ -79,7 +79,7 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             durations.loadData(me.interval.get('duration'));
         } else {
             duration = {
-                defaultFromDate: moment().startOf('day').subtract(1, 'years').toDate(),
+                defaultFromDate: moment().startOf('day').subtract(1, 'years').add('d', 1).toDate(),
                 defaultDuration: '1years'
             };
         }
