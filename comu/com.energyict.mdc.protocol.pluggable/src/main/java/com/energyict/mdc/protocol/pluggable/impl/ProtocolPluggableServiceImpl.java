@@ -85,6 +85,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnectionTypePluggableClassTranslationKeys;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageCategoryAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
@@ -136,9 +137,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 
@@ -524,7 +527,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     }
 
     @Override
-    public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClassByName(String name) {
+    public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClassByNameTranslationKey(String name) {
         Optional<PluggableClass> pluggableClasses = this.pluggableService.findByTypeAndName(PluggableClassType.ConnectionType, name);
         return pluggableClasses.map(pc -> ConnectionTypePluggableClassImpl.from(this.dataModel, pc));
     }
@@ -1035,7 +1038,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
+        return Stream.of(
+                Stream.of(TranslationKeys.values()),
+                Stream.of(ConnectionTypePluggableClassTranslationKeys.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override

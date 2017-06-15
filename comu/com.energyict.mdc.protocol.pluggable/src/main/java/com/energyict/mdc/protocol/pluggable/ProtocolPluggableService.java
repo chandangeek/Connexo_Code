@@ -6,7 +6,6 @@ package com.energyict.mdc.protocol.pluggable;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.LicensedProtocol;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -24,6 +23,7 @@ import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.upl.TypedProperties;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -204,7 +204,13 @@ public interface ProtocolPluggableService {
 
     List<ConnectionTypePluggableClass> findConnectionTypePluggableClassByClassName(String javaClassName);
 
-    Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClassByName(String name);
+    /**
+     * Finds the {@link ConnectionTypePluggableClass} based on the given <b>untranslated</b> name
+     *
+     * @param name the untranslated name (~ the translation key)
+     * @return an optional containing the connectionTypePluggableCass
+     */
+    Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClassByNameTranslationKey(String name);
 
     Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClass(long id);
 
