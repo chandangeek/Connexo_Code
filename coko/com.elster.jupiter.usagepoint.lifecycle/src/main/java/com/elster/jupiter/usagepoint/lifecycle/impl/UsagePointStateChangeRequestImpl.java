@@ -135,7 +135,7 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
         this.transitionTime = transitionTime;
         this.scheduleTime = this.clock.instant();
         // skip if the user cannot be found
-        User user = userService.findUser(usagePoint.getOriginator()).orElse(userService.findUser("admin").orElse(null));
+        User user = userService.findUser(usagePoint.getOriginator()).orElseGet(() -> userService.findUser("admin").orElse(null));
         if (user != null) {
             this.originator.set(user);
             this.dataModel.persist(this);
