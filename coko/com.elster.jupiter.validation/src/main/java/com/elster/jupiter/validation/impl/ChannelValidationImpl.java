@@ -9,8 +9,10 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
 import com.google.common.collect.ImmutableSet;
@@ -22,6 +24,7 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -128,15 +131,19 @@ final class ChannelValidationImpl implements ChannelValidation {
         }
         Instant newValue = instant.isBefore(minLastChecked()) ? minLastChecked() : instant;
         if (lastChecked.isAfter(newValue)) {
-            getChannel().findReadingQualities()
-                    .ofQualitySystem(channelsContainerValidation.get().getRuleSet().getQualityCodeSystem())
-                    .inTimeInterval(Range.greaterThan(newValue))
-                    .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.REASONABILITY, QualityCodeCategory.VALIDATION))
-                    .collect()
-                    .forEach(ReadingQualityRecord::delete);
+            removeValidationRelatedReadingQualities(Range.greaterThan(newValue));
         }
         this.lastChecked = newValue;
         return true;
+    }
+
+    private void removeValidationRelatedReadingQualities(Range<Instant> range) {
+        getChannel().findReadingQualities()
+                .ofQualitySystem(channelsContainerValidation.get().getRuleSet().getQualityCodeSystem())
+                .inTimeInterval(range)
+                .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.REASONABILITY, QualityCodeCategory.VALIDATION))
+                .collect()
+                .forEach(ReadingQualityRecord::delete);
     }
 
     @Override
@@ -173,9 +180,17 @@ final class ChannelValidationImpl implements ChannelValidation {
                             .map(currentVersion -> Ranges.nonEmptyIntersection(dataRange, currentVersion.getRange())
                                     .flatMap(rangeToValidate -> {
                                         ChannelValidator validator = new ChannelValidator(channel, rangeToValidate);
-                                        return activeRulesOfVersion(currentVersion).stream()
+                                        Optional<Pair<Instant, Instant>> minMaxLastChecked = activeRulesOfVersion(currentVersion).stream()
                                                 .map(validationRule -> validator.validateRule(validationRule, logger))
-                                                .min(Comparator.naturalOrder()); // minimum by rules
+                                                .map(instant -> Pair.of(instant, instant))
+                                                .reduce((a, b) -> Pair.of(
+                                                        min(a.getFirst(), b.getFirst()),
+                                                        max(a.getLast(), b.getLast())
+                                                ));
+                                        minMaxLastChecked.map(minMax -> Range.openClosed(minMax.getFirst(), minMax.getLast()))
+                                                .filter(Predicates.not(Range::isEmpty))
+                                                .ifPresent(this::removeValidationRelatedReadingQualities);
+                                        return minMaxLastChecked.map(Pair::getFirst); // minimum by rules
                                     }))
                             .flatMap(Functions.asStream())
                             .min(Comparator.naturalOrder()) // minimum by versions TODO CXO-6665: wat?
@@ -187,5 +202,13 @@ final class ChannelValidationImpl implements ChannelValidation {
                     .orElse(lastChecked);
         }
         return lastChecked;
+    }
+
+    private static Instant min(Instant a, Instant b) {
+        return a.isBefore(b) ? a : b;
+    }
+
+    private static Instant max(Instant a, Instant b) {
+        return a.isAfter(b) ? a : b;
     }
 }
