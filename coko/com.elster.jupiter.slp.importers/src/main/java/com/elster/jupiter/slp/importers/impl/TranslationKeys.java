@@ -38,7 +38,7 @@ public class TranslationKeys implements TranslationKeyProvider, MessageSeedProvi
     }
 
     public enum Labels implements TranslationKey {
-        CORRECTION_FACTOR_FILE_IMPORTER("correctionFactorImporter", "Synthetic load profiles Importer"),
+        CORRECTION_FACTOR_FILE_IMPORTER("correctionFactorImporter", "Synthetic load profiles Importer [STD]"),
         SLP_MESSAGE_SUBSCRIBER(SyntheticLoadProfileFileImporterMessageHandler.SUBSCRIBER_NAME, "Handle synthetic load profile import"),
         // Properties translations
         DATA_IMPORTER_DELIMITER("delimiter", "Delimiter"),
