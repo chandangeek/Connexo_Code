@@ -23,6 +23,7 @@ Ext.define('Imt.dashboard.view.AddFavoriteUsagePointGroups', {
                         selectByDefault: false,
                         grid: {
                             itemId: 'usage-point-groups-grid',
+                            padding: '0 0 10 0',
                             xtype: 'favorite-usage-point-groups'
                         },
                         emptyComponent: {
@@ -41,6 +42,30 @@ Ext.define('Imt.dashboard.view.AddFavoriteUsagePointGroups', {
                                 }
                             ]
                         }
+                    },
+                    {
+                        xtype: 'container',
+                        fieldLabel: '&nbsp',
+                        layout: {
+                            type: 'hbox',
+                            align: 'stretch'
+                        },
+                        items: [
+                            {
+                                xtype: 'button',
+                                text: Uni.I18n.translate('general.save', 'IMT', 'Save'),
+                                itemId: 'btn-save-favorite',
+                                action: 'saveFavorites',
+                                ui: 'action'
+                            },
+                            {
+                                xtype: 'button',
+                                itemId: 'btn-cancel-favorite',
+                                text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
+                                href: '#/dashboard',
+                                ui: 'link'
+                            }
+                        ]
                     }
                 ]
             }

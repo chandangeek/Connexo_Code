@@ -27,24 +27,6 @@ Ext.define('Imt.dashboard.view.FavoriteUsagePointGroups', {
                     Uni.I18n.translate('favoriteUsagePointGroups.grid.type.static', 'IMT', 'Static');
             }
         }
-    ],
-
-    buttons: [
-        {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.save', 'IMT', 'Save'),
-            itemId: 'btn-save-favorite',
-            action: 'saveFavorites',
-            ui: 'action'
-        },
-        {
-            xtype: 'button',
-            itemId: 'btn-cancel-favorite',
-            text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
-            href: '#/dashboard',
-            ui: 'link'
-        }
-    ],
-
+    ]
 });
 

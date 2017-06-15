@@ -15,13 +15,12 @@ Ext.define('Imt.dashboard.controller.FavoriteUsagePointGroups', {
     ],
 
     refs: [
-        {ref: 'favoriteUsagePointGroupsGrid', selector: '#usage-point-groups-grid'},
-
+        {ref: 'favoriteUsagePointGroupsGrid', selector: '#usage-point-groups-grid'}
     ],
 
     init: function () {
         this.control({
-            'favorite-usage-point-groups #btn-save-favorite': {
+            'add-favorite-usage-point-groups #btn-save-favorite': {
                 click: this.saveFavofiteUsagePointGroups
             }
         });
