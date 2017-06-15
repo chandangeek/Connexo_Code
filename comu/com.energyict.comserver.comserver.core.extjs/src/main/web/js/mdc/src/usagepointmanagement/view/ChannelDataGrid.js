@@ -58,8 +58,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGrid', {
                 dataIndex: 'readingTime',
                 flex: 1,
                 renderer: function(value){
-                    var date = new Date(value);
-                    return Uni.DateTime.formatDateTimeShort(date)
+                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                 }
             }
         ];
