@@ -284,12 +284,10 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
                 setLocationAttributes(builder.member(), data, ranking).add();
             }
             usagePointBuilder.withLocation(builder.create());
-            isVirtual = false;
         }
         if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
             usagePointBuilder.withGeoCoordinates(new SpatialCoordinatesFactory().fromStringValue((geoCoordinatesData.stream()
                     .collect(Collectors.joining(":")))));
-            isVirtual = false;
         }
         usagePointBuilder.withIsVirtual(isVirtual);
     }
