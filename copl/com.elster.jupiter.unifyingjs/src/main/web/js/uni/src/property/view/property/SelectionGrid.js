@@ -22,7 +22,7 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
     getEditCmp: function () {
         var me = this;
 
-        return  !me.getProperty().getPossibleValues() ?
+        return !me.getProperty().getPossibleValues() || (me.getProperty().getPossibleValues() && me.getProperty().getPossibleValues().length == 0) ?
         {
             xtype: 'displayfield',
             value: Uni.I18n.translate('Uni.property.selectionGrid.noItemsDefined', 'UNI', 'No items have been defined yet.'),

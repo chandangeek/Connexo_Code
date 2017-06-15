@@ -20,7 +20,7 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
     dataIndex: null,
     value: undefined,
     defaultValue: undefined,
-
+    labelText: null,
     initComponent: function () {
         var me = this;
 
@@ -47,6 +47,7 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
                                 xtype: 'uni-grid-filtertop-datetime',
                                 dataIndex: me.dataIndex,
                                 value: me.value,
+                                labelText: me.labelText,
                                 margins: '8 8 0 8'
                             },
                             {
