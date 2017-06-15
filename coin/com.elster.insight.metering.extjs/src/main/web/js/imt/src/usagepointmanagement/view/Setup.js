@@ -91,23 +91,12 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                             margin: '10 10 10 0'
                         },
                         items: [
-                            //{
-                            //    itemId: 'usage-point-going-on',
-                            //    title: 'lllll',//Uni.I18n.translate('general.whatsGoingOn', 'IMT', "What's going on"),
-                            //    ui: 'tile2',
-                            //    flex: 1,
-                            //    minHeight: 185 // todo: remove after implementation of content for this panel
-                            //},
                             {
                                 xtype: 'whatsgoingon',
                                 usagePointId: me.usagePoint.get('name'),
                                 type: 'usagepoint',
                                 router: me.router,
-                                autoBuild: true,
-                                //style: {
-                                //    'margin-bottom': '10px',
-                                //    'margin-top': '16px'
-                                //}
+                                autoBuild: true
                             },
                             {
                                 xtype: 'usage-point-metrology-config',
