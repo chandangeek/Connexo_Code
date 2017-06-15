@@ -19,7 +19,9 @@ Ext.define('Imt.devicemanagement.controller.Device', {
         {ref: 'overviewLink', selector: '#device-overview-link'},
         {ref: 'attributesPanel', selector: '#device-attributes-panel'},
         {ref: 'deviceAttributesDeviceLink', selector: '#usagePointTechnicalAttributesDeviceLink'},
-        {ref: 'usagePointTechnicalAttributesDeviceDates', selector: '#usagePointTechnicalAttributesDeviceDates'}
+        {ref: 'usagePointTechnicalAttributesDeviceDates', selector: '#usagePointTechnicalAttributesDeviceDates'},
+        {ref: 'deviceManagementSideMenu', selector: '#device-management-side-menu'}
+
     ],
 
     init: function () {
@@ -39,14 +41,12 @@ Ext.define('Imt.devicemanagement.controller.Device', {
         deviceModel.load(nameOfMeter, {
             success: function (record) {
                 me.getApplication().fireEvent('deviceLoaded', record);
-                var widget = Ext.widget('device-management-setup', {router: router});
-
-                actualForm = Ext.widget('deviceAttributesFormMain', {router: router});
                 actualModel = Ext.create('Imt.devicemanagement.model.Device', record.data);
-  
+                var widget = Ext.widget('device-management-setup', {router: router, device: actualModel});
+                actualForm = Ext.widget('deviceAttributesFormMain', {router: router});
 
                 me.getApplication().fireEvent('changecontentevent', widget);
-                me.getOverviewLink().setText(actualModel.get('name'));
+                //me.getOverviewLink().setText(actualModel.get('name'));
                 me.getAttributesPanel().add(actualForm);
                 actualForm.getForm().loadRecord(actualModel);
             },
