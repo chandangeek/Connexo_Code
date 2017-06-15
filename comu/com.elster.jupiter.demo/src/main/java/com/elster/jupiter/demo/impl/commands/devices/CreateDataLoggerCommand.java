@@ -99,7 +99,7 @@ public class CreateDataLoggerCommand {
             System.out.println("Nothing was created since a device with name '" + this.name + "' already exists!");
             return;
         }
-        Optional<ConnectionTypePluggableClass> pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName(CONNECTION_TASK_PLUGGABLE_CLASS_NAME);
+        Optional<ConnectionTypePluggableClass> pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByNameTranslationKey(CONNECTION_TASK_PLUGGABLE_CLASS_NAME);
         if (!pluggableClass.isPresent()) {
             System.out.println("Nothing was created since the required pluggable class '" + CONNECTION_TASK_PLUGGABLE_CLASS_NAME + "' couldn't be found!");
             return;

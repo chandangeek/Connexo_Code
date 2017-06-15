@@ -16,7 +16,6 @@ import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -36,6 +35,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.TypedProperties;
 
 import com.energyict.obis.ObisCode;
 
@@ -154,7 +154,7 @@ public class CreateA3DeviceCommand {
         channels.put(RegisterTypeTpl.DELRA_REACTIVE_ENERGY_PLUS.getMrid(), "0.3.128.0.0.255");
         channels.put(RegisterTypeTpl.DELRA_REACTIVE_ENERGY_MINUS.getMrid(), "0.4.128.0.0.255");
         addChannelsOnLoadProfileToDeviceConfiguration(configuration, channels);
-        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIpConnectionType").get();
+        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByNameTranslationKey("OutboundTcpIpConnectionType").get();
         configuration
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(5, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE, configuration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get())

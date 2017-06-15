@@ -89,7 +89,7 @@ public class CreateG3GatewayCommand {
             System.out.println("Nothing was created since a device with name '" + GATEWAY_NAME + "' already exists!");
             return;
         }
-        Optional<ConnectionTypePluggableClass> pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName(REQUIRED_PLUGGABLE_CLASS_NAME);
+        Optional<ConnectionTypePluggableClass> pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByNameTranslationKey(REQUIRED_PLUGGABLE_CLASS_NAME);
         if (!pluggableClass.isPresent()) {
             System.out.println("Nothing was created since the required pluggable class '" + REQUIRED_PLUGGABLE_CLASS_NAME + "' couldn't be found!");
             return;
