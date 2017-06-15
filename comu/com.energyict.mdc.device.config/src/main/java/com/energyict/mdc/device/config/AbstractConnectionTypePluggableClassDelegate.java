@@ -6,11 +6,11 @@ package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.upl.TypedProperties;
 
 import java.time.Instant;
 import java.util.List;
@@ -135,5 +135,10 @@ abstract public class AbstractConnectionTypePluggableClassDelegate implements Co
     @Override
     public String getName() {
         return connectionTypePluggableClass.getName();
+    }
+
+    @Override
+    public String getTranslationKey() {
+        return connectionTypePluggableClass.getTranslationKey();
     }
 }
