@@ -25,7 +25,8 @@ Ext.define('Pkj.view.TrustedCertificatesView', {
             title: ' ',
             items: [
                 {
-                    xtype: 'fieldcontainer',
+                    xtype: 'container',
+                    itemId: 'pkj-truststore-certificates-container',
                     items: [
                         {
                             xtype: 'panel',
@@ -57,7 +58,7 @@ Ext.define('Pkj.view.TrustedCertificatesView', {
                     ]
                 },
                 {
-                    xtype: 'fieldcontainer',
+                    xtype: 'container',
                     items: [
                         {
                             xtype: 'panel',
@@ -110,7 +111,7 @@ Ext.define('Pkj.view.TrustedCertificatesView', {
 
         me.down('#pkj-truststore-certificates-view').setTitle(trustStoreRecord.get('name'));
         me.down('#pkj-truststore-certificates-view-form').loadRecord(trustStoreRecord);
-        me.down('fieldcontainer panel').tools[0].menu.record = trustStoreRecord;
+        me.down('#pkj-truststore-certificates-container panel').tools[0].menu.record = trustStoreRecord;
     }
 
 });
