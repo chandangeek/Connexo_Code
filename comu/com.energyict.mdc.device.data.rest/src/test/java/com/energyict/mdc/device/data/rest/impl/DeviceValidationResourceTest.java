@@ -291,6 +291,10 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         doReturn(Arrays.asList(channelsContainer1, channelsContainer2, channelsContainer3)).when(meter).getChannelsContainers();
         ZonedDateTime fromReg = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
         when(device.getMeterActivationsMostRecentFirst()).thenReturn(Arrays.asList(meterActivation3, meterActivation2, meterActivation1));
+        when(meterActivation1.getStart()).thenReturn(FROM);
+        when(meterActivation1.getChannelsContainer()).thenReturn(channelsContainer1);
+        when(meterActivation2.getStart()).thenReturn(NOW);
+        when(meterActivation2.getChannelsContainer()).thenReturn(channelsContainer2);
         when(meterActivation3.getStart()).thenReturn(TO);
         when(meterActivation3.getChannelsContainer()).thenReturn(channelsContainer3);
         doReturn(Optional.of(meterActivation3)).when(device).getCurrentMeterActivation();
