@@ -1,9 +1,9 @@
 External reference;Type;Version;Origin;Status;Custom attributes;Parent;Object
-ID111111;DisconnectRequest;1.0;CustomerA;success;DR:Customer Move-Out:3:1524753191000;;UP_0001
+ID111111;DisconnectRequest;1.0;CustomerA;success;DR:Customer Move-Out:3:1524753191000;;UP_010000010001
 ID123456;DisconnectGroupRequest;1.0;CustomerA;ongoing;;;;
-ID123456;DisconnectRequest;2.0;CustomerA;pending;DR:Customer Move-Out:1:1524753191000;2;UP_0001
-ID123456;DisconnectRequest;2.0;CustomerA;ongoing;DR:Customer Move-Out:4:1524753191000;2;UP_0002
-ID123456;DisconnectRequest;2.0;CustomerA;failed;DR:Customer Move-Out:2:1524753191000;2;UP_0003
+ID123456;DisconnectRequest;2.0;CustomerA;pending;DR:Customer Move-Out:1:1524753191000;2;UP_010000010001
+ID123456;DisconnectRequest;2.0;CustomerA;ongoing;DR:Customer Move-Out:4:1524753191000;2;UP_010000010002
+ID123456;DisconnectRequest;2.0;CustomerA;failed;DR:Customer Move-Out:2:1524753191000;2;UP_010000010003
 CUST546;BillingDataRequest;1.0;;scheduled;;;;
 ;CIMEndDeviceConfig;3.0;CustomerB;paused;;;SPE010000010001
 20160415;PushMeterReadings;1.1;Connexo;ongoing;;;;
@@ -11,7 +11,7 @@ CUST546;BillingDataRequest;1.0;;scheduled;;;;
 20160415;PushMeterReadings;1.1;Connexo;ongoing;;8;SPE010000010112
 20160415;PushMeterReadings;1.1;Connexo;pending;;8;SPE010000010113
 20160415;PushMeterReadings;1.1;Connexo;pending;;8;SPE010000010114
-SYS15984;CIMUsagePointConfig;1.2;CustomerC;partialsuccess;;;UP_0004
+SYS15984;CIMUsagePointConfig;1.2;CustomerC;partialsuccess;;;UP_010000010004
 SYS98756;CIMGetCustomerConfig;2.1;CustomerC;created;;;;
 NET65478;PushEvents;1.5;Connexo;success;;;SPE010000010004
 EXT57896;GetMeterReadings;1.7;CustomerD;pending;BC:Monthly billing, ToU;;SPE010000010005
