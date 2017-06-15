@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 
 public class StandardEventDataSelectorFactory implements DataSelectorFactory {
 
-    static final String DISPLAY_NAME = "Device events data selector";
+    static final String DISPLAY_NAME = "Device events data selector [STD]";
     static final String TRANSLATION_KEY = DataExportService.STANDARD_EVENT_DATA_SELECTOR;
 
     private final Thesaurus thesaurus;

@@ -92,7 +92,7 @@ public class SingleDeviceDataSelectorFactory implements DataSelectorFactory {
 
     @Override
     public String getDisplayName() {
-        return "Single Device Data Selector";
+        return "Single Device Data Selector [STD]";
     }
 
     @Override

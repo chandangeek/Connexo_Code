@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 public class UsagePointReadingSelectorFactory implements DataSelectorFactory {
 
     static final String TRANSLATION_KEY = DataExportService.STANDARD_USAGE_POINT_DATA_SELECTOR;
-    static final String DISPLAY_NAME = "Usage point readings data selector";
+    static final String DISPLAY_NAME = "Usage point readings data selector [STD]";
 
     private final Thesaurus thesaurus;
 
