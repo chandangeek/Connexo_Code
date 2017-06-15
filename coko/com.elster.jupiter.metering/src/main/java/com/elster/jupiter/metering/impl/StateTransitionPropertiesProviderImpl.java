@@ -18,6 +18,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Component(
@@ -88,10 +89,10 @@ public class StateTransitionPropertiesProviderImpl implements StateTransitionPro
     }
 
     public String getDeviceMRID(long id){
-        return meteringService.findEndDeviceById(id).map(IdentifiedObject::getMRID).orElse(null);
+        return meteringService.findEndDeviceById(id).map(IdentifiedObject::getMRID).orElseThrow(() -> new NoSuchElementException("MRID of device with id " + id +" not found."));
     }
 
     public String getUsagePointMRID(long id){
-        return meteringService.findUsagePointById(id).map(IdentifiedObject::getMRID).orElse(null);
+        return meteringService.findUsagePointById(id).map(IdentifiedObject::getMRID).orElseThrow(() -> new NoSuchElementException("MRID of usage point with id " + id +" not found."));
     }
 }
