@@ -107,7 +107,7 @@ public class PrevalidateChannelDataTest extends DeviceDataRestApplicationJerseyT
                 mockDataValidationStatus(TIMESTAMP.plus(1, ChronoUnit.DAYS), ValidationResult.SUSPECT, ValidationResult.VALID, mockValidationRule("MinMax")),
                 mockDataValidationStatus(TIMESTAMP.plus(2, ChronoUnit.DAYS), ValidationResult.VALID, ValidationResult.VALID),
                 mockDataValidationStatus(TIMESTAMP.plus(3, ChronoUnit.DAYS), ValidationResult.VALID, ValidationResult.SUSPECT, mockValidationRule("Missing")),
-                mockDataValidationStatus(TIMESTAMP.plus(4, ChronoUnit.DAYS), ValidationResult.SUSPECT, ValidationResult.SUSPECT, mockValidationRule("Consecutive zero's"))
+                mockDataValidationStatus(TIMESTAMP.plus(4, ChronoUnit.DAYS), ValidationResult.SUSPECT, ValidationResult.SUSPECT, mockValidationRule("Consecutive zero values"))
         );
         Range<Instant> expectedValidationRange = Range.closed(Instant.ofEpochMilli(editedReading.interval.end), info.validateUntil);
         when(deviceValidation.getValidationStatus(eq(channel), eq(Collections.emptyList()), eq(expectedValidationRange))).thenReturn(dataValidationStatuses);
@@ -149,8 +149,8 @@ public class PrevalidateChannelDataTest extends DeviceDataRestApplicationJerseyT
         assertThat(jsonModel.<List<String>>get("$.potentialSuspects[1].bulkValidationRules[*].name")).containsExactly("Missing");
 
         assertThat(jsonModel.<Number>get("$.potentialSuspects[2].readingTime")).isEqualTo(TIMESTAMP.plus(4, ChronoUnit.DAYS).toEpochMilli());
-        assertThat(jsonModel.<List<String>>get("$.potentialSuspects[2].validationRules[*].name")).containsExactly("Consecutive zero's");
-        assertThat(jsonModel.<List<String>>get("$.potentialSuspects[2].bulkValidationRules[*].name")).containsExactly("Consecutive zero's");
+        assertThat(jsonModel.<List<String>>get("$.potentialSuspects[2].validationRules[*].name")).containsExactly("Consecutive zero values");
+        assertThat(jsonModel.<List<String>>get("$.potentialSuspects[2].bulkValidationRules[*].name")).containsExactly("Consecutive zero values");
     }
 
     private DataValidationStatus mockDataValidationStatus(Instant readingTime, ValidationResult validationResult, ValidationResult bulkValidationResult, ValidationRule... offendedRules) {
