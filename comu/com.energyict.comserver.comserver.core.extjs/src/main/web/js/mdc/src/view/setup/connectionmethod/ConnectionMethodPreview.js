@@ -92,7 +92,10 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'connectionTypePluggableClass',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type')
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type'),
+                                    renderer: function (value) {
+                                        return Ext.String.htmlEncode(value.name);
+                                    }
                                 },
                                 {
                                     xtype: 'displayfield',

@@ -368,6 +368,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 }
                 record.beginEdit();
                 record.set(values);
+                if (!Ext.isEmpty(values.connectionTypePluggableClass)) {
+                    record.set('connectionTypePluggableClass', {id: values.connectionTypePluggableClass});
+                }
                 if (!Ext.isEmpty(values.protocolDialectConfigurationPropertiesId)) {
                     record.set('protocolDialectConfigurationProperties', {id: values.protocolDialectConfigurationPropertiesId});
                 }
@@ -413,6 +416,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                 if (item.id.indexOf("timeUnit") !== -1) {
                                     propertyForm.down('#connectionTimeoutcombobox').markInvalid(item.msg);
                                 }
+                                item.id.indexOf('connectionTypePluggableClass') !== -1 && me.getCommunicationTaskEditForm().down('#connectionTypeComboBox').markInvalid(item.msg);
                                 item.id.indexOf('protocolDialectConfigurationProperties') !== -1 && me.getCommunicationTaskEditForm().down('#protocolDialectConfigurationPropertiesComboBox').markInvalid(item.msg);
                             });
                         }
@@ -540,7 +544,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                     connectionStrategiesStore.load({
                                         callback: function () {
                                             comportPoolStore.clearFilter(true);
-                                            comportPoolStore.getProxy().extraParams = ({compatibleWithConnectionType: connectionTypesStore.findRecord('name', connectionMethod.get('connectionTypePluggableClass')).get('id')});
+                                            comportPoolStore.getProxy().extraParams = ({compatibleWithConnectionType: connectionMethod.get('connectionTypePluggableClass')['id']});
                                             comportPoolStore.load({
                                                 callback: function () {
                                                     var connectionStrategy = connectionMethod.get('connectionStrategyInfo')['connectionStrategy'];
@@ -550,7 +554,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                     widget.down('form').loadRecord(connectionMethod);
                                                     var title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [connectionMethod.get('name')]);
                                                     widget.down('#connectionMethodEditAddTitle').setTitle(title);
-                                                    widget.down('form').down('#connectionTypeComboBox').setValue(connectionMethod.get('connectionTypePluggableClass'));
+                                                    widget.down('form').down('#connectionTypeComboBox').setValue(connectionMethod.get('connectionTypePluggableClass')['id']);
                                                     me.getConnectionTypeComboBox().disable();
                                                     widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
                                                     widget.down('form').down('#protocolDialectConfigurationPropertiesComboBox').setValue(connectionMethod.get('protocolDialectConfigurationProperties')['id']);

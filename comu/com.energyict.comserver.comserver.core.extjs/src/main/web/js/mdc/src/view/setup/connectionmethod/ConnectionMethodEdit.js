@@ -79,7 +79,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 store: this.connectionTypes,
                                 queryMode: 'local',
                                 displayField: 'name',
-                                valueField: 'name',
+                                valueField: 'id',
                                 emptyText: Uni.I18n.translate('connectionmethod.selectConnectionType', 'MDC', 'Select a connection type...'),
                                 required: true,
                                 forceSelection: true,
