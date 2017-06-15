@@ -87,7 +87,7 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return "Main/check comparison";
+        return "Main/check comparison [STD]";
     }
 
     @Override

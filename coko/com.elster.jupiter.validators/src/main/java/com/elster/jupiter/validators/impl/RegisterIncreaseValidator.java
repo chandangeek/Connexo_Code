@@ -118,7 +118,7 @@ class RegisterIncreaseValidator extends AbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return "Register increase";
+        return "Register increase [STD]";
     }
 
     @Override

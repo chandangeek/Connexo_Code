@@ -134,7 +134,7 @@ class ThresholdValidator extends AbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return "Threshold violation";
+        return "Threshold violation [STD]";
     }
 
     @Override

@@ -231,7 +231,7 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return "Reference comparison";
+        return "Reference comparison [STD]";
     }
 
     @Override

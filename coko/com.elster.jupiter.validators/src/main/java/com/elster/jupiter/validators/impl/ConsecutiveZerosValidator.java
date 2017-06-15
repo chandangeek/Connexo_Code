@@ -167,7 +167,7 @@ public class ConsecutiveZerosValidator extends AbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return "Consecutive zero's";
+        return "Consecutive zero's  [STD]";
     }
 
     @Override

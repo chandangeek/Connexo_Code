@@ -453,7 +453,7 @@ public class MeterAdvanceValidator extends AbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return "Meter advance";
+        return "Meter advance [STD]";
     }
 
     @Override

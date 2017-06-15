@@ -137,7 +137,7 @@ class ReadingQualitiesValidator extends AbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return "Reading qualities";
+        return "Reading qualities [STD]";
     }
 
     @Override
