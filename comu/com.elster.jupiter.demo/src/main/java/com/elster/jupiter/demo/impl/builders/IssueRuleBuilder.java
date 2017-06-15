@@ -15,6 +15,7 @@ import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
@@ -141,11 +142,28 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     }
 
     private com.elster.jupiter.issue.share.entity.IssueReason getReasonForRule() {
-        Optional<com.elster.jupiter.issue.share.entity.IssueReason> reasonRef = issueService.findReason(this.reason);
-        if (!reasonRef.isPresent()) {
-            throw new UnableToCreate("Unable to find reason with key = " + this.reason);
-        }
-        return reasonRef.get();
+        return issueService.findReason(reason).isPresent() ? issueService.findReason(reason).get() :
+                issueService.createReason(reason, getCreationRuleTemplate().getIssueType(), new TranslationKey() {
+                    @Override
+                    public String getKey() {
+                        return reason;
+                    }
+
+                    @Override
+                    public String getDefaultFormat() {
+                        return "Alarm reason";
+                    }
+                }, new TranslationKey() {
+                    @Override
+                    public String getKey() {
+                        return reason;
+                    }
+
+                    @Override
+                    public String getDefaultFormat() {
+                        return "Alarm reason";
+                    }
+                });
     }
 
     private CreationRuleTemplate getCreationRuleTemplate() {
