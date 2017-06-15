@@ -4,9 +4,7 @@
 
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -105,4 +103,9 @@ public class UsagePointMeterActivationException extends com.elster.jupiter.meter
         }
     }
 
+    public static class MeterActivationOverlap extends UsagePointMeterActivationException {
+        public MeterActivationOverlap(Thesaurus thesaurus, String meterName, String date) {
+            super(thesaurus, PrivateMessageSeeds.METER_ACTIVATION_OVERLAP, meterName, date);
+        }
+    }
 }
