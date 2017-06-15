@@ -57,14 +57,7 @@ public class DeviceProtocolPropertyResource {
         TypedProperties deviceProperties = device.getDeviceProtocolProperties();
         DeviceProtocolInfo info = new DeviceProtocolInfo();
         device.getDeviceType().getDeviceProtocolPluggableClass().ifPresent(deviceProtocolPluggableClass -> {
-            PropertyDefaultValuesProvider possibleValue = (propertySpec,propertyType)-> {
-                if ((propertySpec.isReference() && (KeyAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())))) {
-                    return device.getDeviceType().getKeyAccessorTypes();
-                }
-                return Collections.emptyList();
-            };
-
-            List<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs(), deviceProperties, possibleValue);
+            List<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs(), deviceProperties, device);
             info.id = deviceProtocolPluggableClass.getId();
             info.name = deviceProtocolPluggableClass.getName();
             info.properties = propertyInfos;

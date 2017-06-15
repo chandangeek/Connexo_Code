@@ -71,7 +71,7 @@ public class ComSessionResource {
         List<ComSession> comSessions = connectionTaskService.findAllSessionsFor(connectionTask).stream().sorted((c1, c2) -> c2.getStartDate().compareTo(c1.getStartDate())).collect(toList());
         List<ComSessionInfo> comSessionsInPage = ListPager.of(comSessions).from(queryParameters).find().stream()
                 .sorted((cs1, cs2) -> cs2.getStartDate().compareTo(cs1.getStartDate()))
-                .map(cs -> comSessionInfoFactory.from(cs, journalEntryInfoFactory, true /*connectionLogsOnly*/)).collect(toList());
+                .map(cs -> comSessionInfoFactory.from(cs, journalEntryInfoFactory, true)).collect(toList());
         PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("comSessions", comSessionsInPage, queryParameters);
         ComSessionsInfo info = new ComSessionsInfo();
         info.connectionMethod = connectionTask.getName();

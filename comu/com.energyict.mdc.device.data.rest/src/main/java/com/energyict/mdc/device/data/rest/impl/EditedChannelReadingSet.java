@@ -22,7 +22,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -40,6 +42,8 @@ class EditedChannelReadingSet {
     private final List<BaseReading> estimatedReadings = new ArrayList<>();
     private final List<BaseReading> estimatedBulkReadings = new ArrayList<>();
     private final List<Instant> removeCandidates = new ArrayList<>();
+
+    private final Map<Long, Optional<ReadingQualityComment>> readingQualitiesComments = new HashMap<>();
 
     EditedChannelReadingSet(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, TopologyService topologyService, Channel channel) {
         this.resourceHelper = resourceHelper;
@@ -85,13 +89,12 @@ class EditedChannelReadingSet {
     }
 
     EditedChannelReadingSet init(List<ChannelDataInfo> channelDataInfos) {
+        validateLinkedToSlave(this.channel, channelDataInfos);
         channelDataInfos.forEach(this::processInfo);
         return this;
     }
 
     private void processInfo(ChannelDataInfo channelDataInfo) {
-        validateLinkedToSlave(this.channel, Range.closedOpen(Instant.ofEpochMilli(channelDataInfo.interval.start), Instant.ofEpochMilli(channelDataInfo.interval.end)));
-
         if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
             this.removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
         } else {
@@ -101,10 +104,18 @@ class EditedChannelReadingSet {
         }
     }
 
-    private void validateLinkedToSlave(Channel channel, Range<Instant> readingTimeStamp) {
-        List<DataLoggerChannelUsage> dataLoggerChannelUsagesForChannels = topologyService.findDataLoggerChannelUsagesForChannels(channel, readingTimeStamp);
-        if (!dataLoggerChannelUsagesForChannels.isEmpty()) {
-            throw this.exceptionFactory.newException(MessageSeeds.CANNOT_ADDEDITREMOVE_CHANNEL_VALUE_WHEN_LINKED_TO_SLAVE);
+    private void validateLinkedToSlave(Channel channel, List<ChannelDataInfo> channelDataInfos) {
+        Optional<Long> min = channelDataInfos.stream().map(channelDataInfo -> channelDataInfo.interval.start).min(Comparator.naturalOrder());
+        Optional<Long> max = channelDataInfos.stream().map(channelDataInfo -> channelDataInfo.interval.end).max(Comparator.naturalOrder());
+        if (min.isPresent() && max.isPresent()) {
+            List<DataLoggerChannelUsage> dataLoggerChannelUsagesForChannels = topologyService.findDataLoggerChannelUsagesForChannels(channel, Range.closedOpen(Instant.ofEpochMilli(min.get()), Instant.ofEpochMilli(max
+                    .get())));
+
+            if (!dataLoggerChannelUsagesForChannels.isEmpty() && !channelDataInfos.stream().map(channelDataInfo -> channelDataInfo.interval)
+                    .map(intervalInfo -> Range.closedOpen(Instant.ofEpochMilli(intervalInfo.start), Instant.ofEpochMilli(intervalInfo.end)))
+                    .allMatch(intervalRange -> dataLoggerChannelUsagesForChannels.stream().anyMatch(channelUsage -> channelUsage.getRange().encloses(intervalRange)))) {
+                throw this.exceptionFactory.newException(MessageSeeds.CANNOT_ADDEDITREMOVE_CHANNEL_VALUE_WHEN_LINKED_TO_SLAVE);
+            }
         }
     }
 
@@ -158,8 +169,8 @@ class EditedChannelReadingSet {
     private String extractComment(MinimalVeeReadingValueInfo channelDataInfo) {
         return Optional.ofNullable(channelDataInfo)
                 .map(info -> info.commentId)
-                .flatMap(this.resourceHelper::getReadingQualityComment)
+                .flatMap(id -> readingQualitiesComments.computeIfAbsent(id, this.resourceHelper::getReadingQualityComment))
                 .map(ReadingQualityComment::getComment)
-                .orElse(null);
+                .orElse(channelDataInfo != null ? channelDataInfo.commentValue : null);
     }
 }

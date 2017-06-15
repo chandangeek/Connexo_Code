@@ -112,6 +112,8 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.pluggable.rest.impl.MdcPropertyUtilsImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -204,6 +206,7 @@ public class InMemoryIntegrationPersistence {
     private FiniteStateMachineService finiteStateMachineService;
     private ServiceCallService serviceCallService;
     private PropertyValueInfoService propertyValueInfoService;
+    private MdcPropertyUtils mdcPropertyUtils;
     private Injector injector;
 
     public InMemoryIntegrationPersistence() {
@@ -346,6 +349,7 @@ public class InMemoryIntegrationPersistence {
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             this.serviceCallService = injector.getInstance(ServiceCallService.class);
             this.propertyValueInfoService = injector.getInstance(PropertyValueInfoService.class);
+            this.mdcPropertyUtils = new MdcPropertyUtilsImpl(propertyValueInfoService, meteringGroupsService);
             injector.getInstance(CustomPropertySetService.class);
             initializePrivileges();
             ctx.commit();
@@ -620,6 +624,10 @@ public class InMemoryIntegrationPersistence {
 
     public PropertyValueInfoService getPropertyValueInfoService() {
         return propertyValueInfoService;
+    }
+
+    public MdcPropertyUtils getMdcPropertyUtils() {
+        return mdcPropertyUtils;
     }
 
     public DeviceMessageSpecificationService getDeviceMessageSpecificationService() {
