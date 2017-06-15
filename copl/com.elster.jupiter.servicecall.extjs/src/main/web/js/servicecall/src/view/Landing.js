@@ -59,12 +59,15 @@ Ext.define('Scs.view.Landing', {
         me.updateLandingPage(me.record);
     },
 
-    updateLandingPage: function (record) {
+    updateLandingPage: function (record, forced) {
         var me = this,
             previewForm = me.down('#service-call-landing-page-form');
+        if (Ext.isDefined(forced)) {
+            me.serviceCallLoaded = false;
+        }
         if (me.serviceCallLoaded === false && !Ext.isEmpty(record)) {
             previewForm.updatePreview(record);
-            me.serviceCallLoaded = true
+            me.serviceCallLoaded = true; // avoid reloading when switching tabs
         }
     }
 });

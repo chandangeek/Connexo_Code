@@ -245,7 +245,7 @@ Ext.define('Scs.controller.ServiceCalls', {
                                 if(me.getLandingPage()) {
                                     me.getModel('Scs.model.ServiceCall').load(newRecord.get('id'), {
                                         success: function (record) {
-                                            me.getLandingPage().updateLandingPage(record);
+                                            me.getLandingPage().updateLandingPage(record, true);
                                             me.getLandingPage().down('#scsActionButton').disable();
                                         }
                                     });
