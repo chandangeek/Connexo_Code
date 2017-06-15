@@ -224,8 +224,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
             purposeId: panel.purpose.getId()
         };
         readingsStore.load();
-
-        Ext.getStore('Imt.purpose.store.IntervalFilter');
     },
 
     showOutputPreview: function (selectionModel, record) {
