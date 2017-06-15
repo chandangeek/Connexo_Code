@@ -6,10 +6,12 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -507,7 +509,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED + "}")
+    @Expected(DeviceMessageNotAllowedException.class)
     public void createWithIncorrectDeviceMessageIdTest() {
         Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
 
@@ -644,7 +646,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG + "}")
+    @Expected(DeviceMessageNotAllowedException.class)
     public void createWithMessageWhichIsNotAllowedByTheDeviceConfigurationTest() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Config2");
         DeviceConfiguration config2 = deviceConfigurationBuilder.add();
@@ -731,6 +733,15 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         DeviceMessage messageSpy = spy(deviceMessage);
         Device mockedDevice = mock(Device.class);
+        DeviceType mockedDeviceType = mock(DeviceType.class);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(mockedDevice.getDeviceType()).thenReturn(mockedDeviceType);
+        when(mockedDeviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec uplDMSpec = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(Collections.singletonList(uplDMSpec));
+        when(uplDMSpec.getId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.isExecuting()).thenReturn(true);
         when(mockedDevice.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
