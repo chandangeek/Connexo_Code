@@ -42,7 +42,7 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<PartialInb
     @Override
     public PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
         this.mdcPropertyUtils = mdcPropertyUtils;
-        ConnectionTypePluggableClass connectionTypePluggableClass = findConnectionTypeOrThrowException(this.connectionTypePluggableClass, protocolPluggableService);
+        ConnectionTypePluggableClass connectionTypePluggableClass = findConnectionTypeOrThrowException(this.connectionTypePluggableClass.id, protocolPluggableService);
         InboundComPortPool inboundComPortPool = (InboundComPortPool) engineConfigurationService.findComPortPoolByName(this.comPortPool).orElse(null);
         PartialInboundConnectionTaskBuilder connectionTaskBuilder =
                 deviceConfiguration

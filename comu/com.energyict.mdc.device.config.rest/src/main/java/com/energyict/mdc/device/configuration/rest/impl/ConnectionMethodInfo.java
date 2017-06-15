@@ -10,8 +10,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
-import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskBuilder;
@@ -21,6 +19,8 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+import com.energyict.mdc.upl.TypedProperties;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -44,7 +44,7 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
 
     public long id;
     public String name;
-    public String connectionTypePluggableClass;
+    public ConnectionTypePluggableClassInfo connectionTypePluggableClass;
     public String comPortPool;
     public String displayDirection;
     public boolean isDefault;
@@ -66,7 +66,7 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.id = partialConnectionTask.getId();
         this.name = partialConnectionTask.getName();
-        this.connectionTypePluggableClass = partialConnectionTask.getPluggableClass().getName();
+        this.connectionTypePluggableClass = ConnectionTypePluggableClassInfo.from(partialConnectionTask.getPluggableClass());
         this.comPortPool = partialConnectionTask.getComPortPool() != null ? partialConnectionTask.getComPortPool().getName() : null;
         this.isDefault = partialConnectionTask.isDefault();
         List<PropertySpec> propertySpecs = partialConnectionTask.getConnectionType().getPropertySpecs();
@@ -94,21 +94,37 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
         }
     }
 
-    protected ConnectionTypePluggableClass findConnectionTypeOrThrowException(String pluggableClassName, ProtocolPluggableService protocolPluggableService) {
-        if (Checks.is(pluggableClassName).emptyOrOnlyWhiteSpace()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "connectionTypePluggableClass");
+    protected ConnectionTypePluggableClass findConnectionTypeOrThrowException(long pluggableClassId, ProtocolPluggableService protocolPluggableService) {
+        if (pluggableClassId == 0) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "connectionTypePluggableClassId");
         }
-        Optional<ConnectionTypePluggableClass> pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName(pluggableClassName);
-        return pluggableClass.orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.CONNECTION_TYPE_UNKNOWN, "connectionTypePluggableClass", pluggableClassName));
+        Optional<ConnectionTypePluggableClass> pluggableClass = protocolPluggableService.findConnectionTypePluggableClass(pluggableClassId);
+        return pluggableClass.orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.CONNECTION_TYPE_UNKNOWN, "connectionTypePluggableClass", pluggableClassId));
     }
 
     protected void writeTo(T partialConnectionTask, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService) {
-        ConnectionTypePluggableClass connectionTypePluggableClass = findConnectionTypeOrThrowException(this.connectionTypePluggableClass, protocolPluggableService);
+        ConnectionTypePluggableClass connectionTypePluggableClass = findConnectionTypeOrThrowException(this.connectionTypePluggableClass.id, protocolPluggableService);
         partialConnectionTask.setConnectionTypePluggableClass(connectionTypePluggableClass);
         partialConnectionTask.setName(this.name);
     }
 
     public abstract PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus);
+
+    public static class ConnectionTypePluggableClassInfo {
+        public Long id;
+        public String name;
+        public ConnectionTypePluggableClassInfo() {
+        }
+
+        public static ConnectionTypePluggableClassInfo from(ConnectionTypePluggableClass connectionTypePluggableClass) {
+            ConnectionTypePluggableClassInfo connectionTypePluggableClassInfo = new ConnectionTypePluggableClassInfo();
+            if (connectionTypePluggableClass != null) {
+                connectionTypePluggableClassInfo.id = connectionTypePluggableClass.getId();
+                connectionTypePluggableClassInfo.name = connectionTypePluggableClass.getName();
+            }
+            return connectionTypePluggableClassInfo;
+        }
+    }
 
     public static class ProtocolDialectConfigurationPropertiesInfo {
         public static final Long DEFAULT_PROTOCOL_DIALECT_ID = -1L;

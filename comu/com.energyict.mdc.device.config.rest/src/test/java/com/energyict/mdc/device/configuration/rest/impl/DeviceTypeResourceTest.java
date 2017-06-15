@@ -1413,7 +1413,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         PartialScheduledConnectionTask partialScheduledConnectionTask = mockPartialScheduledConnectionTask(connectionMethodId, deviceConfiguration);
 
         ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
-        when(protocolPluggableService.findConnectionTypePluggableClassByName("ConnType")).thenReturn(Optional.of(connectionTypePluggableClass));
+        when(protocolPluggableService.findConnectionTypePluggableClass(connectionMethodId)).thenReturn(Optional.of(connectionTypePluggableClass));
+        when(protocolPluggableService.findConnectionTypePluggableClassByNameTranslationKey("ConnType")).thenReturn(Optional.of(connectionTypePluggableClass));
 
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(protocolDialectConfigurationProperties.getId()).thenReturn(1234L);
@@ -1427,7 +1428,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         connectionMethodInfo.comWindowEnd = 7200;
         connectionMethodInfo.isDefault = true;
         connectionMethodInfo.numberOfSimultaneousConnections = 2;
-        connectionMethodInfo.connectionTypePluggableClass = "ConnType";
+        connectionMethodInfo.connectionTypePluggableClass = new ConnectionMethodInfo.ConnectionTypePluggableClassInfo();
+        connectionMethodInfo.connectionTypePluggableClass.id = 71L;
+        connectionMethodInfo.connectionTypePluggableClass.name = "ConnType";
         connectionMethodInfo.version = OK_VERSION;
         connectionMethodInfo.parent = new VersionInfo<>(deviceConfig_id, OK_VERSION);
         connectionMethodInfo.protocolDialectConfigurationProperties = new ConnectionMethodInfo.ProtocolDialectConfigurationPropertiesInfo();
