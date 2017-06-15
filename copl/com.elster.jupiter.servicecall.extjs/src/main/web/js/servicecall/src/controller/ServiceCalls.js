@@ -95,8 +95,11 @@ Ext.define('Scs.controller.ServiceCalls', {
             store = Ext.getStore('Scs.store.ServiceCalls'),
             logStore = Ext.getStore('Scs.store.Logs'),
             view,
-            servicecallId = arguments[arguments.length - 1];
+            servicecallId = arguments[arguments.length - 1],
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
         if (servicecallId) {
+            viewport.setLoading();
             store.setProxy({
                 type: 'rest',
                 url: '/api/scs/servicecalls/' + servicecallId + '/children',
@@ -108,7 +111,6 @@ Ext.define('Scs.controller.ServiceCalls', {
             });
             me.getModel('Scs.model.ServiceCall').load(servicecallId, {
                 success: function (record) {
-
                     logStore.getProxy().setUrl(servicecallId);
                     var parents = record.get('parents');
                     parents.push({id:record.get('id'),name:record.get('name')});
@@ -134,17 +136,16 @@ Ext.define('Scs.controller.ServiceCalls', {
                         });
                         me.setBreadcrumb(parents);
                     }
-
+                    viewport.setLoading(false);
                     me.getApplication().fireEvent('changecontentevent', view);
-
                 },
                 failure: function (record, operation) {
                     view = Ext.widget('errorNotFound');
                     me.getBreadcrumbs().hide();
+                    viewport.setLoading(false);
                     me.getApplication().fireEvent('changecontentevent', view);
                 }
             });
-
         }
     },
 
