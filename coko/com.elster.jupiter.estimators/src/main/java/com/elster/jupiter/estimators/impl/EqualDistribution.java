@@ -66,7 +66,7 @@ class EqualDistribution extends AbstractEstimator implements Estimator {
      * @since 2015-12-07 (14:03)
      */
     public enum TranslationKeys implements TranslationKey {
-        ESTIMATOR_NAME(EqualDistribution.class.getName(), "Equal distribution"),
+        ESTIMATOR_NAME(EqualDistribution.class.getName(), "Equal distribution [STD]"),
         MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS("equaldistribution.maxPeriodOfConsecutiveSuspects", "Maximum period of consecutive suspects"),
         MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("equaldistribution.maxPeriodOfConsecutiveSuspects.description",
                 "The maximum period of consecutive suspects that is allowed. If this period is exceeded, data is not estimated, but can be manually edited or estimated."),

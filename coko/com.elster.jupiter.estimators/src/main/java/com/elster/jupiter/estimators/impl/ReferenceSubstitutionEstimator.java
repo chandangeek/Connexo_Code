@@ -285,7 +285,7 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
     }
 
     public enum TranslationKeys implements TranslationKey {
-        ESTIMATOR_NAME(ReferenceSubstitutionEstimator.class.getName(), "Reference substitution"),
+        ESTIMATOR_NAME(ReferenceSubstitutionEstimator.class.getName(), "Reference substitution [STD]"),
 
         CHECK_USAGE_POINT("reference.check.usagepoint", "Check usage point"),
         CHECK_USAGE_POINT_DESCRIPTION("reference.check.usagepoint.description", "Check usage point"),

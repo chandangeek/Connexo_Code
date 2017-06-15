@@ -51,7 +51,7 @@ class LinearInterpolation extends AbstractEstimator {
      * @since 2015-12-07 (14:03)
      */
     public enum TranslationKeys implements TranslationKey {
-        ESTIMATOR_NAME(LinearInterpolation.class.getName(), "Linear interpolation"),
+        ESTIMATOR_NAME(LinearInterpolation.class.getName(), "Linear interpolation [STD]"),
         MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS("linearinterpolation.maxPeriodOfConsecutiveSuspects", "Maximum period of consecutive suspects"),
         MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("linearinterpolation.maxPeriodOfConsecutiveSuspects.description",
                 "The maximum period of consecutive suspects that is allowed. If this period is exceeded, data is not estimated, but can be manually edited or estimated.");

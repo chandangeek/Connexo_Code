@@ -85,7 +85,7 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
     private final Set<Instant> skippedDays = new HashSet<>();
 
     public enum TranslationKeys implements TranslationKey {
-        ESTIMATOR_NAME(NearestAvgValueDayEstimator.class.getName(), "Nearest average value (Day)"),
+        ESTIMATOR_NAME(NearestAvgValueDayEstimator.class.getName(), "Nearest average value (Day) [STD]"),
         DISCARD_SPECIFIC_DAY("nearestaveragevalueday.discardSpecificDay", "Discard specific day"),
         DISCARD_SPECIFIC_DAY_DESCRIPTION("nearestaveragevalueday.discardSpecificDay.description",
                 "Estimated and sample days can be discarded if they contain a chosen event code"),

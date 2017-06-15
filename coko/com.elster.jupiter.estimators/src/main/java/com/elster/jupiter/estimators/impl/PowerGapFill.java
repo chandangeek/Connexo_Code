@@ -51,7 +51,7 @@ class PowerGapFill extends AbstractEstimator implements Estimator {
      * @since 2015-12-07 (14:03)
      */
     public enum TranslationKeys implements TranslationKey {
-        ESTIMATOR_NAME(PowerGapFill.class.getName(), "Power gap fill"),
+        ESTIMATOR_NAME(PowerGapFill.class.getName(), "Power gap fill [STD]"),
         MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS("powergapfill.maxPeriodOfConsecutiveSuspects", "Maximum period of consecutive suspects"),
         MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("powergapfill.maxPeriodOfConsecutiveSuspects.description",
                 "The maximum period of consecutive suspects that is allowed. If this period is exceeded, data is not estimated, but can be manually edited or estimated.");

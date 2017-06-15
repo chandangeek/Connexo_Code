@@ -47,7 +47,7 @@ public class ValueFillEstimator extends AbstractEstimator {
      * @since 2015-12-07 (14:03)
      */
     public enum TranslationKeys implements TranslationKey {
-        ESTIMATOR_NAME(ValueFillEstimator.class.getName(), "Value fill"),
+        ESTIMATOR_NAME(ValueFillEstimator.class.getName(), "Value fill [STD]"),
         MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS("valuefill.maxPeriodOfConsecutiveSuspects", "Maximum period of consecutive suspects"),
         MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("valuefill.maxPeriodOfConsecutiveSuspects.description",
                 "The maximum period of consecutive suspects that is allowed. If this period is exceeded, data is not estimated, but can be manually edited or estimated."),

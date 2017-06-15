@@ -77,7 +77,7 @@ public class MainCheckEstimator extends AbstractMainCheckEstimator {
     }
 
     public enum TranslationKeys implements TranslationKey {
-        ESTIMATOR_NAME(MainCheckEstimator.class.getName(), "Main/Check substitution");
+        ESTIMATOR_NAME(MainCheckEstimator.class.getName(), "Main/Check substitution [STD]");
 
         private final String key;
         private final String defaultFormat;
