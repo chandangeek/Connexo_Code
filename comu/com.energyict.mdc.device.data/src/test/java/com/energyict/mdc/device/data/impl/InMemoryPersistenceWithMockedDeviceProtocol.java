@@ -53,7 +53,6 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
@@ -110,6 +109,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.mdc.upl.TypedProperties;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -536,8 +536,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
-        public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClassByName(String name) {
-            return protocolPluggableService.findConnectionTypePluggableClassByName(name);
+        public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClassByNameTranslationKey(String name) {
+            return protocolPluggableService.findConnectionTypePluggableClassByNameTranslationKey(name);
         }
 
         @Override
