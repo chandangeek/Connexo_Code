@@ -17,6 +17,7 @@ import com.elster.jupiter.util.streams.Functions;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,7 +52,7 @@ abstract class AbstractDataSelector implements DataSelector {
         AbstractItemDataSelector itemDataSelector = getItemDataSelector();
 
         try {
-            Map<Long, Optional<MeterReadingData>> selectedData = new HashMap<>();
+            Map<Long, Optional<MeterReadingData>> selectedData = new LinkedHashMap<>();
             Map<Long, Optional<MeterReadingData>> updateData = new HashMap<>();
             for (IReadingTypeDataExportItem activeItem : activeItems) {
                 selectedData.put(activeItem.getId(), itemDataSelector.selectData(occurrence, activeItem));
@@ -74,7 +75,7 @@ abstract class AbstractDataSelector implements DataSelector {
 
             List<ExportData> collect = selectedData.entrySet().stream()
                     .flatMap(item -> Stream.of(
-                            selectedData.get(item.getKey()),
+                            item.getValue(),
                             updateData.get(item.getKey())))
                     .flatMap(Functions.asStream()).collect(Collectors.toList());
             return collect.stream();
