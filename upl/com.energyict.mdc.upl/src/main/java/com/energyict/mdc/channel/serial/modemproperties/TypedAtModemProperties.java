@@ -94,7 +94,7 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     }
 
     public PropertySpec phoneNumberSpec() {
-        return propertySpecService.durationSpec().named(PHONE_NUMBER_PROPERTY_NAME, PHONE_NUMBER_PROPERTY_NAME).describedAs(PHONE_NUMBER_PROPERTY_NAME).finish();
+        return propertySpecService.stringSpec().named(PHONE_NUMBER_PROPERTY_NAME, PHONE_NUMBER_PROPERTY_NAME).describedAs(PHONE_NUMBER_PROPERTY_NAME).finish();
     }
 
     @Override
