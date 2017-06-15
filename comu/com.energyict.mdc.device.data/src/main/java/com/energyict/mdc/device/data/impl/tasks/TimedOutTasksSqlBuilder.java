@@ -37,6 +37,7 @@ public class TimedOutTasksSqlBuilder {
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct ");
         sqlBuilder.append(" WHERE cte.connectiontask = ct.id");
+        sqlBuilder.append("   AND cte.COMPORT is not null");
         sqlBuilder.append("   AND ct.comportpool = ");
         sqlBuilder.addLong(comPortPool.getId());
         sqlBuilder.append("   AND ct.lastcommunicationstart + ");
