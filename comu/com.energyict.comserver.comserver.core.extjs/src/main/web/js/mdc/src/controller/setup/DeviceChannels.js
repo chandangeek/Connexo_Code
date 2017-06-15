@@ -199,6 +199,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'validateNowChannelConfirmationWindow',
                 confirmText: Uni.I18n.translate('general.validate', 'MDC', 'Validate'),
+                green: true,
                 confirmation: function () {
                     me.activateDataValidation(record, this);
                 }
@@ -519,6 +520,11 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                 errorMsgPnl.show();
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
+                    Ext.Array.each(json.errors, function (item) {
+                        if (item.id === 'readingTypeObisCodeUsages[0].obisCode.obisCode') {
+                            form.down('#obis-code-container').setActiveError(item.msg);
+                        }
+                    });
                     baseForm.markInvalid(json.errors);
                 }
                 Ext.resumeLayouts(true);

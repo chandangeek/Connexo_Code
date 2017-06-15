@@ -122,8 +122,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
 					owner.insert(1, me.getButtonContent(confirmationWindow));
 					
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'MDC', 'Activate data validation on device {0}?', [me.deviceId]),
-                        msg: ''
+                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'MDC', 'Activate data validation on device {0}?', me.deviceId)
                     });
                 } else {
                     confirmationWindow.insert(1,[{
@@ -136,8 +135,8 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                         padding: '0 0 15px 48px'
                     }]);
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'MDC', 'Activate data validation on device {0}?', [me.deviceId]),
-                        msg: Uni.I18n.translate('device.dataValidation.activateMsg', 'MDC', 'There are currently no readings for this device')
+                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'MDC', 'Activate data validation on device {0}?', me.deviceId),
+                        msg: Uni.I18n.translate('device.dataValidation.activateMsg', 'MDC', 'There are currently no readings for this device.')
                     });
                 }
             }
@@ -149,9 +148,9 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
 
     activateDataValidation: function (view, confWindow, runNow) {
         var me = this,
-			validationOnStorage, isValidationOnStorage = 'false';
+			validationOnStorage = confWindow.down('#validationOnStorage'),
+            isValidationOnStorage = 'false';
         
-		validationOnStorage = confWindow.down('#validationOnStorage');
 		if (validationOnStorage){
 			isValidationOnStorage = confWindow.down('#validationOnStorage').getValue();
 		}
@@ -178,8 +177,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                     });
                 } else {
                     me.destroyConfirmationWindow();
-                    me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translate('device.dataValidation.activation.activated', 'MDC', 'Data validation activated'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.dataValidation.activation.activated', 'MDC', 'Data validation activated'));
                 }
             },
             failure: function (response) {
@@ -395,9 +393,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
     },
 
     destroyConfirmationWindow: function () {
-		var activationConfirmationWindow;
-		
-		activationConfirmationWindow = Ext.ComponentQuery.query('#activationConfirmationWindow')[0];
+		var activationConfirmationWindow = Ext.ComponentQuery.query('#activationConfirmationWindow')[0];
         if (activationConfirmationWindow) {
             activationConfirmationWindow.removeAll(true);
             activationConfirmationWindow.destroy();

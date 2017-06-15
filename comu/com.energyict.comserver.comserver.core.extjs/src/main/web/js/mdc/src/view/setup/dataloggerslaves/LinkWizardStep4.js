@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
                     {
                         xtype: 'uni-form-empty-message',
                         itemId: 'automatic-linking-date',
-                        text: Uni.I18n.translate('general.linkingDate.set.automatically', 'MDC', 'The linking date is set automatically.'),
+                        text: Uni.I18n.translate('general.linkingDate.set.automatically.cannot.be.changed', 'MDC', 'Linking date is automatically generated and cannot be changed.'),
                         hidden: true
                        },
                     {

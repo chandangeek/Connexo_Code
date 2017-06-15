@@ -422,6 +422,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'validateNowRegisterConfirmationWindow',
                 confirmText: Uni.I18n.translate('general.validate', 'MDC', 'Validate'),
+                green: true,
                 confirmation: function () {
                     me.activateDataValidation(record, this);
                 }
@@ -439,12 +440,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     }
                     confirmationWindow.insert(1, me.getValidationContent());
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('registerconfiguration.validation.validateNow', 'MDC', 'Validate data of register configuration {0}?', [record.get('readingType').fullAliasName]),
-                        msg: ''
+                        title: Uni.I18n.translate('registerconfiguration.validation.validateNow', 'MDC', 'Validate data of register configuration {0}?', record.get('readingType').fullAliasName)
                     });
                 } else {
                     var title =Uni.I18n.translate('registerconfiguration.validateNow.errorTitle', 'MDC', 'Couldn\'t perform your action'),
-                        message = Uni.I18n.translate('registerconfiguration.validateNow.error', 'MDC', 'Failed to validate data of register configuration {0}', [record.get('readingType').fullAliasName]) + '.' + Uni.I18n.translate('registerconfiguration.validation.noData', 'MDC', 'There is currently no data for this register configuration'),
+                        message = Uni.I18n.translate('registerconfiguration.validateNow.error', 'MDC', 'Failed to validate data of register configuration {0}', record.get('readingType').fullAliasName)
+                            + '. ' + Uni.I18n.translate('registerconfiguration.validation.noData', 'MDC', 'There is currently no data for this register configuration.'),
                         code = '',
                         config = {
                             icon: Ext.MessageBox.WARNING
@@ -783,6 +784,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 errorMsgPnl.show();
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
+                    Ext.Array.each(json.errors, function (item) {
+                        if (item.id === 'readingTypeObisCodeUsages[0].obisCode.obisCode') {
+                            form.down('#obis-code-container').setActiveError(item.msg);
+                        }
+                    });
                     baseForm.markInvalid(json.errors);
                 }
                 Ext.resumeLayouts(true);
