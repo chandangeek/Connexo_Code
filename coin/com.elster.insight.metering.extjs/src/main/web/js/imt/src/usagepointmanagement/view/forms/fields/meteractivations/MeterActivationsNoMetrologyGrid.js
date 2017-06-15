@@ -53,7 +53,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                                 field.setVisible(false);
                             }
                         },
-                        expand: function (field) {
+                        focus: function (field) {
                             var store = field.getStore();
 
                             store.filters.clear();
@@ -65,6 +65,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                                         }) === -1;
                                 }
                             });
+                        },
+                        select: function (field) {
+                            field.fireEvent('focus', field);
                         }
                     },
                     setValue: function (value) {
