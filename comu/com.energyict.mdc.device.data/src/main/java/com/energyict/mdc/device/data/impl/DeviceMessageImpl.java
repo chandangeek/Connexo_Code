@@ -317,14 +317,13 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         return releaseDateUpdater;
     }
 
-    public boolean isValidDeviceMessageId() {
+    private void isValidDeviceMessageId() {
         if (!isMessageSupportedByProtocol()){
             throw new DeviceMessageNotAllowedException(getThesaurus(), MessageSeeds.DEVICE_MESSAGE_ID_NOT_SUPPORTED) ;
         }
         if (!isMessageAllowedByConfig()){
             throw new DeviceMessageNotAllowedException(getThesaurus(), MessageSeeds.DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG) ;
         }
-        return true;
     }
 
     private boolean isMessageSupportedByProtocol(){
