@@ -37,10 +37,13 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 xtype: 'uni-actioncolumn',
                 width: 120,
                 items: [
-
                     {
                         text: Uni.I18n.translate('general.edit','MDC','Edit'),
                         action: this.editActionName
+                    },
+                    {
+                        xtype: 'menuseparator',
+                        action:'none'
                     },
                     {
                         text: Uni.I18n.translate('general.remove','MDC','Remove'),

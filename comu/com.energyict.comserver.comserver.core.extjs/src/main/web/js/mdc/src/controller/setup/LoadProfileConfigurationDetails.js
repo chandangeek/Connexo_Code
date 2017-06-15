@@ -227,111 +227,131 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             record = form.getRecord(),
             formErrorsPanel = formPanel.down('uni-form-error-message[name=errors]'),
             formValues = form.getValues(),
-            preloader,
             jsonValues,
             useMultiplier = formPanel.down('#mdc-channel-config-multiplier-checkbox').getValue(),
             collectedReadingTypeField = formPanel.down('#mdc-channel-config-collected-readingType-field'),
             calculatedReadingTypeField = formPanel.down('#mdc-channel-config-calculated-readingType-field'),
             calculatedReadingTypeCombo = formPanel.down('#mdc-channel-config-calculated-readingType-combo'),
+            obisCodeField = formPanel.down('#mdc-channel-config-editOverruledObisCodeField'),
+            obisCodeFieldContainer = formPanel.down('#obis-code-container'),
             router = this.getController('Uni.controller.history.Router');
 
         Ext.suspendLayouts();
         form.clearInvalid();
+        obisCodeFieldContainer.unsetActiveError();
+        obisCodeField.unsetActiveError();
         formErrorsPanel.hide();
         Ext.resumeLayouts(true);
+        if (btn.action === 'add') {
+            formValues.measurementType = {id: me.getRegisterTypeCombo().getValue()};
+            formValues.collectedReadingType = collectedReadingTypeField.isVisible() ? collectedReadingTypeField.getValue() : null;
+            formValues.useMultiplier = useMultiplier;
 
-        if (form.isValid()) {
-
-            if (btn.action === 'add') {
-                formValues.measurementType = {id: me.getRegisterTypeCombo().getValue()};
-                formValues.collectedReadingType = collectedReadingTypeField.getValue();
-                formValues.useMultiplier = useMultiplier;
-
-                if (useMultiplier) {
-                    if (calculatedReadingTypeField.isVisible()) {
-                        formValues.multipliedCalculatedReadingType = calculatedReadingTypeField.getValue();
-                    } else if (calculatedReadingTypeCombo.isVisible()) {
-                        var possibleCalculatedReadingTypes = calculatedReadingTypeCombo.getStore().getRange(),
-                            calculatedReadingType = null;
-                        Ext.Array.forEach(possibleCalculatedReadingTypes, function (item) {
-                            if (item.get('mRID') === calculatedReadingTypeCombo.getValue()) {
-                                calculatedReadingType = item;
-                                return false; // stop iterating
-                            }
-                        });
-                        formValues.multipliedCalculatedReadingType = calculatedReadingType.getData();
-                    }
-                } else {
-                    if (calculatedReadingTypeField.isVisible()) {
-                        formValues.calculatedReadingType = calculatedReadingTypeField.getValue();
-                    } else {
-                        formValues.calculatedReadingType = null;
-                    }
-                }
-
-                jsonValues = Ext.JSON.encode(formValues);
-
-                preloader = Ext.create('Ext.LoadMask', {
-                    msg: Uni.I18n.translate('general.adding', 'MDC', 'Adding...'),
-                    target: formPanel
-                });
-                preloader.show();
-                Ext.Ajax.request({
-                    url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels',
-                    method: 'POST',
-                    jsonData: jsonValues,
-                    success: function () {
-                        me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowledgment.added', 'MDC', 'Channel configuration added'));
-                        router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward();
-                    },
-                    callback: function () {
-                        preloader.destroy();
-                    }
-                });
-
-            } else if (btn.action === 'edit') {
-                form.updateRecord();
-
-                if (useMultiplier) {
-                    if (calculatedReadingTypeField.isVisible()) {
-                        record.setMultipliedCalculatedReadingType(calculatedReadingTypeField.getValue());
-                    } else if (calculatedReadingTypeCombo.isVisible()) {
-                        record.setMultipliedCalculatedReadingType(
-                            calculatedReadingTypeCombo.getStore().findRecord(calculatedReadingTypeCombo.valueField, calculatedReadingTypeCombo.getValue())
-                        );
-                    }
-                } else {
-                    record.setMultipliedCalculatedReadingType(null);
-                    if (calculatedReadingTypeField.isVisible()) {
-                        record.setCalculatedReadingType(calculatedReadingTypeField.getValue());
-                    } else {
-                        record.setCalculatedReadingType(null);
-                    }
-                }
-
-                formPanel.setLoading();
-                record.save({
-                    backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(),
-                    success: function () {
-                        me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowledgment.saved', 'MDC', 'Channel configuration saved'));
-                        router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.arguments);
-                    },
-                    failure: function (record, operation) {
-                        Ext.suspendLayouts();
-                        formErrorsPanel.show();
-                        var json = Ext.decode(operation.response.responseText);
-                        if (json && json.errors) {
-                            form.markInvalid(json.errors);
+            if (useMultiplier) {
+                if (calculatedReadingTypeField.isVisible()) {
+                    formValues.multipliedCalculatedReadingType = calculatedReadingTypeField.getValue();
+                } else if (calculatedReadingTypeCombo.isVisible()) {
+                    var possibleCalculatedReadingTypes = calculatedReadingTypeCombo.getStore().getRange(),
+                        calculatedReadingType = null;
+                    Ext.Array.forEach(possibleCalculatedReadingTypes, function (item) {
+                        if (item.get('mRID') === calculatedReadingTypeCombo.getValue()) {
+                            calculatedReadingType = item;
+                            return false; // stop iterating
                         }
-                        Ext.resumeLayouts(true);
-                    },
-                    callback: function () {
-                        formPanel.setLoading(false);
-                    }
-                });
+                    });
+                    formValues.multipliedCalculatedReadingType = calculatedReadingType.getData();
+                }
+            } else {
+                if (calculatedReadingTypeField.isVisible()) {
+                    formValues.calculatedReadingType = calculatedReadingTypeField.getValue();
+                } else {
+                    formValues.calculatedReadingType = null;
+                }
             }
-        } else {
-            formErrorsPanel.show();
+
+            jsonValues = Ext.JSON.encode(formValues);
+            formPanel.setLoading();
+            Ext.Ajax.request({
+                url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels',
+                method: 'POST',
+                jsonData: jsonValues,
+                success: function () {
+                    me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowledgment.added', 'MDC', 'Channel configuration added'));
+                    router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward();
+                },
+                failure: function (response) {
+                    if (response && response.status === 400) {
+                        var json = Ext.decode(response.responseText, true);
+                        if (json && json.errors) {
+                            Ext.Array.each(json.errors, function (error) {
+                                if (error.id === 'overruledObisCode.obisCode' || error.id === 'overruledObisCode') {
+                                    obisCodeFieldContainer.setActiveError(error.msg);
+                                    obisCodeField.setActiveError(''); // to give the Obis code field a red border
+                                }
+                                if (error.id === 'channelType') {
+                                    formPanel.down('#mdc-channel-config-registerTypeComboBox').setActiveError(error.msg);
+                                }
+                                if (error.id === 'overflow') {
+                                    error.id = 'overflowValue';
+                                }
+                            });
+                            form.markInvalid(json.errors);
+                            formErrorsPanel.show();
+                        }
+                    }
+                },
+                callback: function () {
+                    formPanel.setLoading(false);
+                }
+            });
+
+        } else if (btn.action === 'edit') {
+            form.updateRecord();
+            if (useMultiplier) {
+                if (calculatedReadingTypeField.isVisible()) {
+                    record.setMultipliedCalculatedReadingType(calculatedReadingTypeField.getValue());
+                } else if (calculatedReadingTypeCombo.isVisible()) {
+                    record.setMultipliedCalculatedReadingType(
+                        calculatedReadingTypeCombo.getStore().findRecord(calculatedReadingTypeCombo.valueField, calculatedReadingTypeCombo.getValue())
+                    );
+                }
+            } else {
+                record.setMultipliedCalculatedReadingType(null);
+                if (calculatedReadingTypeField.isVisible()) {
+                    record.setCalculatedReadingType(calculatedReadingTypeField.getValue());
+                } else {
+                    record.setCalculatedReadingType(null);
+                }
+            }
+
+            formPanel.setLoading();
+            record.save({
+                backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(),
+                success: function () {
+                    me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowledgment.saved', 'MDC', 'Channel configuration saved'));
+                    router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.arguments);
+                },
+                failure: function (record, operation) {
+                    if (operation.response.status === 400) {
+                        var json = Ext.decode(operation.response.responseText, true);
+                        if (json && json.errors) {
+                            Ext.Array.each(json.errors, function (error) {
+                                if (error.id === 'overruledObisCode.obisCode') {
+                                    obisCodeFieldContainer.setActiveError(error.msg);
+                                }
+                                if (error.id === 'overflow') {
+                                    error.id = 'overflowValue';
+                                }
+                            });
+                            form.markInvalid(json.errors);
+                            formErrorsPanel.show();
+                        }
+                    }
+                },
+                callback: function () {
+                    formPanel.setLoading(false);
+                }
+            });
         }
     },
 

@@ -104,6 +104,10 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                             action: this.editActionName
                         },
                         {
+                            xtype: 'menuseparator',
+                            action:'none'
+                        },
+                        {
                             text: Uni.I18n.translate('general.remove','MDC','Remove'),
                             action: this.deleteActionName
                         }

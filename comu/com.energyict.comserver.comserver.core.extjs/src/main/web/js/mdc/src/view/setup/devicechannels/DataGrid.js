@@ -219,7 +219,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
 
     formatColumn: function (v, metaData, record, validationInfo) {
         var me = this,
-            validationFlag = validationInfo === 'mainValidationInfo' ? 'mainValidationInfo' : validationInfo ==='bulkValidationInfo' ? 'bulkValidationInfo' : null,
+            validationFlag = validationInfo === 'mainValidationInfo' ? 'mainValidationInfo' : validationInfo === 'bulkValidationInfo' ? 'bulkValidationInfo' : null,
             validationInfo = validationFlag ? record.get(validationInfo) : validationInfo,
             status = validationInfo.validationResult ? validationInfo.validationResult.split('.')[1] : '',
             icon = '',
@@ -266,7 +266,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         if ((record.get('potentialSuspect') || record.get('bulkPotentialSuspect')) && validationRules.length) {
             icon = this.addPotentialSuspectFlag(icon, record, validationRules);
         }
-        return value + icon + '<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+        return '<div style=" display:inline;">' + value + '</div>' + icon + '<span style=" display:inline;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
     },
 
     addPotentialSuspectFlag: function (icon, record, validationRules) {
