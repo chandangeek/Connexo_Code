@@ -58,8 +58,8 @@ Ext.define('Idc.view.OutboundIssueDetailsForm', {
                             },
                             {
                                 itemId: 'outbound-issue-serial-number',
-                                fieldLabel: Uni.I18n.translate('general.serialNumberUnknownDevice', 'IDC', 'Serial number of unknown slave device'),
-                                name: 'slaveDeviceId',
+                                fieldLabel: Uni.I18n.translate('general.identificationOfUnknownDevice', 'IDC', 'Identification of unknown slave device'),
+                                name: 'slaveDeviceIdentification',
                                 renderer: function (value) {
                                     return value ? Ext.String.htmlEncode(value) : '';
                                 }
