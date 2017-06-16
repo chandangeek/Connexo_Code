@@ -212,31 +212,25 @@ class DataQualityOverviewSqlBuilder {
 
     private void appendAllDataWithClause() {
         this.sqlBuilder.append("allData (usagepoint, channelscontainer, kpitype, value, latest) as (");
-        this.sqlBuilder.append("    select usagepoint, channelscontainer, kpitype, sum(value), max(timestamp) from (");
-        this.sqlBuilder.append("        select to_number(regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\2')) as usagepoint,");
-        this.sqlBuilder.append("               to_number(regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\3')) as channelscontainer,");
-        this.sqlBuilder.append("                         regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\1') as kpitype,");
-        this.sqlBuilder.append("               kpivalues.slot0 as value,");
-        this.sqlBuilder.append("               kpivalues.utcstamp as timestamp,");
-        this.sqlBuilder.append("               case when kpivalues.recordtime = max(kpivalues.recordtime)");
-        this.sqlBuilder.append("                            over (partition by kpivalues.utcstamp,");
-        this.sqlBuilder.append("                                               to_number(regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\2')),"); // usage point id
-        this.sqlBuilder.append("                                               to_number(regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\3')),"); // channelscontainer id
-        this.sqlBuilder.append("                                               regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\1'))");            // kpitype
-        this.sqlBuilder.append("               then 'Y' else 'N' end as latest");
-        this.sqlBuilder.append("        from DQK_DATAQUALITYKPI dqkpi");
-        this.sqlBuilder.append("        join DQK_DATAQUALITYKPIMEMBER dqkpim on dqkpim.dataqualitykpi = dqkpi.id and dqkpi.discriminator = 'UPDQ'");
-        this.sqlBuilder.append("        join KPI_KPIMEMBER kpim on kpim.kpi = dqkpim.childkpi");
-        this.sqlBuilder.append("        join IDS_VAULT_KPI_1 kpivalues on kpim.timeseries = kpivalues.timeseriesid");
-        this.sqlBuilder.append("        where ");
+        this.sqlBuilder.append("    select to_number(regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\2')),");// usagepoint
+        this.sqlBuilder.append("           to_number(regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\3')),");// channelscontainer
+        this.sqlBuilder.append("                     regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\1'),"); // kpitype
+        this.sqlBuilder.append("           sum(kpivalues.slot0),");
+        this.sqlBuilder.append("           max(kpivalues.utcstamp)");
+        this.sqlBuilder.append("    from DQK_DATAQUALITYKPI dqkpi");
+        this.sqlBuilder.append("    join DQK_DATAQUALITYKPIMEMBER dqkpim on dqkpim.dataqualitykpi = dqkpi.id and dqkpi.discriminator = 'UPDQ'");
+        this.sqlBuilder.append("    join KPI_KPIMEMBER kpim on kpim.kpi = dqkpim.childkpi");
+        this.sqlBuilder.append("    join IDS_VAULT_KPI_1 kpivalues on kpim.timeseries = kpivalues.timeseriesid");
+        this.sqlBuilder.append("    where ");
         this.appendPeriod("kpivalues");
         if (!this.specification.getUsagePointGroups().isEmpty()) {
             this.sqlBuilder.append("        and dqkpi.usagepointgroup in (");
             this.appendIds(this.specification.getUsagePointGroups());
             this.sqlBuilder.append(")");
         }
-        this.sqlBuilder.append("    ) where latest = 'Y' and value > 0");
-        this.sqlBuilder.append("    group by usagepoint, channelscontainer, kpitype");
+        this.sqlBuilder.append("    group by to_number(regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\2')),");// usagepoint
+        this.sqlBuilder.append("             to_number(regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\3')),");// channelscontainer
+        this.sqlBuilder.append("                       regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\1')");  // kpitype
         this.sqlBuilder.append(")");
     }
 
