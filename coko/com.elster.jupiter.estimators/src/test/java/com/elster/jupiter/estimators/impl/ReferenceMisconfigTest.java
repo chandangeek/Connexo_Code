@@ -47,7 +47,7 @@ public class ReferenceMisconfigTest extends ReferenceEstimatorTest {
         assertEquals(1, estimationResult.remainingToBeEstimated().size());
         assertEquals(2, estimationResult.remainingToBeEstimated().get(0).estimatables().size());
 
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) using method Reference substitution since the check usage point, purpose and reading type are not specified")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) using method Reference substitution [STD] since the check usage point, purpose and reading type are not specified")).atLevel(Level.WARNING);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class ReferenceMisconfigTest extends ReferenceEstimatorTest {
         assertEquals(1, estimationResult.remainingToBeEstimated().size());
         assertEquals(2, estimationResult.remainingToBeEstimated().get(0).estimatables().size());
 
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) using method Reference substitution since the specified purpose/reading type doesn't exist on the usage point name")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) using method Reference substitution [STD] since the specified purpose/reading type doesn't exist on the usage point name")).atLevel(Level.WARNING);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class ReferenceMisconfigTest extends ReferenceEstimatorTest {
         assertEquals(1, estimationResult.remainingToBeEstimated().size());
         assertEquals(2, estimationResult.remainingToBeEstimated().get(0).estimatables().size());
 
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) using method Reference substitution since specified 'check' output doesnt match the 'main' reading type")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) using method Reference substitution [STD] since specified 'check' output doesnt match the 'main' reading type")).atLevel(Level.WARNING);
     }
 
     @Test
@@ -133,7 +133,7 @@ public class ReferenceMisconfigTest extends ReferenceEstimatorTest {
         assertEquals(1, estimationResult.remainingToBeEstimated().size());
         assertEquals(2, estimationResult.remainingToBeEstimated().get(0).estimatables().size());
 
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Reference substitution on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Reference substitution [STD] on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
     }
 
     @Test
@@ -159,7 +159,7 @@ public class ReferenceMisconfigTest extends ReferenceEstimatorTest {
         assertEquals(1, estimationResult.remainingToBeEstimated().size());
         assertEquals(2, estimationResult.remainingToBeEstimated().get(0).estimatables().size());
 
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Reference substitution on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Reference substitution [STD] on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
     }
 
 

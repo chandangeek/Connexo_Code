@@ -47,7 +47,7 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
         assertEquals(1, estimationResult.remainingToBeEstimated().size());
         assertEquals(2, estimationResult.remainingToBeEstimated().get(0).estimatables().size());
 
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Main/Check substitution on [Daily] Secondary Delta A+ (kWh) since the specified purpose doesn't exist on the usage point name")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Main/Check substitution [STD] on [Daily] Secondary Delta A+ (kWh) since the specified purpose doesn't exist on the usage point name")).atLevel(Level.WARNING);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
         assertEquals(1, estimationResult.remainingToBeEstimated().size());
         assertEquals(2, estimationResult.remainingToBeEstimated().get(0).estimatables().size());
 
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Main/Check substitution on [Daily] Secondary Delta A+ (kWh) since 'check' output with matching reading type on the specified purpose doesn't exist on usage point name")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Main/Check substitution [STD] on [Daily] Secondary Delta A+ (kWh) since 'check' output with matching reading type on the specified purpose doesn't exist on usage point name")).atLevel(Level.WARNING);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
         assertEquals(1, estimationResult.remainingToBeEstimated().size());
         assertEquals(2, estimationResult.remainingToBeEstimated().get(0).estimatables().size());
 
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Main/Check substitution on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Main/Check substitution [STD] on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
     }
 
     @Test
@@ -130,7 +130,7 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
         assertEquals(1, estimationResult.remainingToBeEstimated().size());
         assertEquals(2, estimationResult.remainingToBeEstimated().get(0).estimatables().size());
 
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Main/Check substitution on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Main/Check substitution [STD] on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
     }
 
 }

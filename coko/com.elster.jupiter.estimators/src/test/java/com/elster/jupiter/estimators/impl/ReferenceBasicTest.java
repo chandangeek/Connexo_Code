@@ -94,7 +94,7 @@ public class ReferenceBasicTest extends ReferenceEstimatorTest{
         assertEquals(BIG_DECIMAL_100, findEstimatedValue(referenceEstimationConfiguration, INSTANT_2016_FEB_01));
         assertEquals(BIG_DECIMAL_200, findEstimatedValue(referenceEstimationConfiguration, INSTANT_2016_FEB_02));
 
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Wed, 3 Feb 2016 12:00 AM until Fri, 5 Feb 2016 12:00 AM\" using method Reference substitution on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Wed, 3 Feb 2016 12:00 AM until Fri, 5 Feb 2016 12:00 AM\" using method Reference substitution [STD] on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
 
     }
 
