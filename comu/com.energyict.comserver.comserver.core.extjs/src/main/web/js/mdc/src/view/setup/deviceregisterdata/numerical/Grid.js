@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                         }
                         if (!Ext.isEmpty(record.get('deviceReadingQualities'))) {
                             Ext.Array.forEach(record.get('deviceReadingQualities'), function (readingQualityObject) {
-                                tooltipContent += readingQualityObject + '<br>';
+                                tooltipContent += readingQualityObject.indexName + '<br>';
                             });
                             if (tooltipContent.length > 0) {
                                 tooltipContent += '<br>';

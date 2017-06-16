@@ -231,7 +231,10 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
             }
         }
 
-        me.setDataQualities(registerRecord.get('readingQualities'));
+        var dataQualities = registerRecord.get('readingQualities');
+        var dataDeviceQualities = registerRecord.get('deviceReadingQualities');
+        dataQualities = (dataDeviceQualities && dataDeviceQualities.length > 0) ? dataQualities.concat(dataDeviceQualities) : dataQualities;
+        me.setDataQualities(dataQualities);
 
         Ext.resumeLayouts(true);
         me.setLoading(false);
