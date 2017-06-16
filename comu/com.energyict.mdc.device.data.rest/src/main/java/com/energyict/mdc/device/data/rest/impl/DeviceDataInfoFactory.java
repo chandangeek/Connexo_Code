@@ -295,14 +295,15 @@ public class DeviceDataInfoFactory {
                 .collect(Collectors.toList());
     }
 
-    private List<String> createDeviceReadingQualitiesInfo(Reading reading) {
+    private List<ReadingQualityInfo> createDeviceReadingQualitiesInfo(Reading reading) {
         return reading.getActualReading().getReadingQualities().stream()
                 .distinct()
                 .filter(record -> record.getType().system().isPresent())
                 .filter(record -> record.getType().category().isPresent())
                 .filter(record -> record.getType().qualityIndex().isPresent())
                 .filter(record -> (record.getType().getSystemCode() == QualityCodeSystem.ENDDEVICE.ordinal()))
-                .map(rq -> getSimpleName(rq.getType()))
+                .map(ReadingQuality::getType)
+                .map(readingQualityInfoFactory::fromReadingQualityType)
                 .collect(Collectors.toList());
     }
 

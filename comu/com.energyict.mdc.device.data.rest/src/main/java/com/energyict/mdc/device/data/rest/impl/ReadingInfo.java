@@ -36,7 +36,7 @@ public abstract class ReadingInfo {
     @JsonProperty("readingQualities")
     public List<ReadingQualityInfo> readingQualities;
     @JsonProperty("deviceReadingQualities")
-    public List<String> deviceReadingQualities;
+    public List<ReadingQualityInfo> deviceReadingQualities;
     @JsonProperty("modificationFlag")
     @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
     public ReadingModificationFlag modificationFlag;
