@@ -79,6 +79,11 @@ public class UPLOfflineDeviceAdapter implements OfflineDevice {
     }
 
     @Override
+    public String getmRID() {
+        return uplOfflineDevice.getmRID();
+    }
+
+    @Override
     public String getExternalName() {
         return uplOfflineDevice.getExternalName();
     }
