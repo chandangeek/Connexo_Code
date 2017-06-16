@@ -159,6 +159,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile UserService userService;
     private volatile PkiService pkiService;
+    private volatile MdcPropertyUtils mdcPropertyUtils;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -348,6 +349,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
         this.propertyValueInfoService = propertyValueInfoService;
+    }
+
+    @Reference
+    public void setMdcPropertyUtils(MdcPropertyUtils mdcPropertyUtils) {
+        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
     @Override
@@ -546,7 +552,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(EstimationHelper.class).to(EstimationHelper.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
-            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
+            bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);

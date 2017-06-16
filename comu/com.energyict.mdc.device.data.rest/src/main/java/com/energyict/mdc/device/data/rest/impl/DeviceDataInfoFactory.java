@@ -16,7 +16,6 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.units.Quantity;
-import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -274,6 +273,7 @@ public class DeviceDataInfoFactory {
                 ((JournaledRegisterReadingRecord) reading.getActualReading()).getUserName() : "";
         readingInfo.reportedDateTime = reading.getReportedDateTime();
         readingInfo.readingQualities = createReadingQualitiesInfo(reading);
+        readingInfo.deviceReadingQualities = createDeviceReadingQualitiesInfo(reading);
         Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading);
         if (modificationFlag != null) {
             readingInfo.modificationFlag = modificationFlag.getFirst();
@@ -292,6 +292,17 @@ public class DeviceDataInfoFactory {
                 .filter(type -> type.category().isPresent())
                 .filter(type -> type.qualityIndex().isPresent())
                 .map(readingQualityInfoFactory::fromReadingQualityType)
+                .collect(Collectors.toList());
+    }
+
+    private List<String> createDeviceReadingQualitiesInfo(Reading reading) {
+        return reading.getActualReading().getReadingQualities().stream()
+                .distinct()
+                .filter(record -> record.getType().system().isPresent())
+                .filter(record -> record.getType().category().isPresent())
+                .filter(record -> record.getType().qualityIndex().isPresent())
+                .filter(record -> (record.getType().getSystemCode() == QualityCodeSystem.ENDDEVICE.ordinal()))
+                .map(rq -> getSimpleName(rq.getType()))
                 .collect(Collectors.toList());
     }
 

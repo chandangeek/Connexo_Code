@@ -232,7 +232,7 @@ public class DeviceComTaskResource {
         List<ComTaskExecutionSession> comTaskExecutionSessions = communicationTaskService.findSessionsByComTaskExecutionAndComTask(comTaskExecution, comTask).from(queryParameters).find();
         for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
             ComTaskExecutionSessionInfo comTaskExecutionSessionInfo = comTaskExecutionSessionInfoFactory.from(comTaskExecutionSession);
-            comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession(), journalEntryInfoFactory);
+            comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession(), journalEntryInfoFactory, true);
             infos.add(comTaskExecutionSessionInfo);
         }
         return PagedInfoList.fromPagedList("comTaskExecutionSessions", infos, queryParameters);

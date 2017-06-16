@@ -35,6 +35,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @DeviceStagesRestricted({EndDeviceStage.POST_OPERATIONAL})
 public class DeviceScheduleResource {
@@ -57,8 +58,12 @@ public class DeviceScheduleResource {
     public Response getAllComTaskExecutions(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
-        List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements();
+        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions().stream()
+                .filter(comTaskExecution -> !comTaskExecution.getComTask().isSystemComTask())
+                .collect(Collectors.toList());
+        List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> !comTaskEnablement.getComTask().isSystemComTask())
+                .collect(Collectors.toList());
         List<DeviceSchedulesInfo> deviceSchedulesInfos = DeviceSchedulesInfo.from(comTaskExecutions, comTaskEnablements, device);
         return Response.ok(PagedInfoList.fromPagedList("schedules", deviceSchedulesInfos, queryParameters)).build();
     }

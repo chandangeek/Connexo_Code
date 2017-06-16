@@ -25,6 +25,8 @@ import com.energyict.mdc.device.config.DeviceKeyAccessorType;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.pluggable.rest.impl.MdcPropertyUtilsImpl;
+
 import com.jayway.jsonpath.JsonModel;
 import net.minidev.json.JSONObject;
 import org.assertj.core.data.MapEntry;
@@ -86,6 +88,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         PropertyValueInfoServiceImpl propertyValueInfoService = new PropertyValueInfoServiceImpl();
         propertyValueInfoService.activate();
         application.setPropertyValueInfoService(propertyValueInfoService); // use the real thing
+        application.setMdcPropertyUtils(new MdcPropertyUtilsImpl(propertyValueInfoService, meteringGroupService)); // use the real thing
         return application;
     }
 
