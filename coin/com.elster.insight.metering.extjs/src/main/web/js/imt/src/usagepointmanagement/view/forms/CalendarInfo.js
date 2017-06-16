@@ -61,7 +61,8 @@ Ext.define('Imt.usagepointmanagement.view.forms.CalendarInfo', {
         var me = this;
 
         Ext.suspendLayouts();
-        me.getForm().markInvalid(errors);
+        me.getForm().markInvalid(me.mapErrors(errors));
+        me.down('#calendar-date-field-errors').show();
         Ext.resumeLayouts(true);
     },
 
@@ -70,6 +71,40 @@ Ext.define('Imt.usagepointmanagement.view.forms.CalendarInfo', {
 
         Ext.suspendLayouts();
         me.getForm().clearInvalid();
+        me.down('#calendar-date-field-errors').hide();
         Ext.resumeLayouts(true);
+    },
+
+    mapErrors: function (errors) {
+        var map = {},
+            errMsg = [],
+            errorsField = this.down('#calendar-date-field-errors');
+
+        Ext.Array.each(errors, function (error) {
+
+            if (Ext.String.startsWith(error.id, 'activationOn')) {
+                error.id = 'activationOn.calendar-date-field-errors';
+                errMsg.push(error.msg);
+                if (!map[error.id]) {
+                    map[error.id] = {
+                        id: error.id
+                    };
+                } else {
+                    map[error.id].msg.push(error.msg);
+                }
+            } else {
+                if (!map[error.id]) {
+                    map[error.id] = {
+                        id: error.id,
+                        msg: [' '+error.msg]
+                    };
+                }
+            }
+            errorsField.show();
+            errorsField.update(' '+errMsg.join('<br> '));
+
+        });
+
+        return _.values(map);
     }
 });

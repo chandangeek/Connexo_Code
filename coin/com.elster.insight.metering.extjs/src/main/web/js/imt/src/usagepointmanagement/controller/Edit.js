@@ -539,6 +539,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
                                         dateTime.setValue(installationTime);
                                         dateTime.setMinValue(installationTime);
+                                        me.getWizard().down('#calendar-date-field-errors').hide();
                                         field.clearInvalid();
                                         if (Ext.isEmpty(newValue)) {
                                             me.getWizard().down('#activate-calendar-'+ category.get('name')).hide();
@@ -628,7 +629,18 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                                 }
                             ]
                         }
-                    )
+                    );
+
+                    me.getWizard().down('calendar-info-form').add({
+                        xtype: 'component',
+                        itemId: 'calendar-date-field-errors',
+                        cls: 'x-form-invalid-under',
+                        style: {
+                            'white-space': 'normal',
+                            'padding': '0px 0px 10px 275px'
+                        },
+                        hidden: true
+                    });
 
                 })
             });
