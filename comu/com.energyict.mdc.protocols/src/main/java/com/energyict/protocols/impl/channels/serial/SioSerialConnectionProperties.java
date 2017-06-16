@@ -365,7 +365,6 @@ public class SioSerialConnectionProperties extends AbstractVersionedPersistentDo
             table
                     .column(this.databaseName())
                     .varChar()
-                    .conversion(ColumnConversion.NUMBER2ENUM)
                     .map(this.javaName())
                     .add();
         }
