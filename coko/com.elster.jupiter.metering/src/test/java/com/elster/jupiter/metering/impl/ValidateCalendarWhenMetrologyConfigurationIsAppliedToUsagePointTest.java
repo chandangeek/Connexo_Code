@@ -13,6 +13,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.metering.MeterActivation;
@@ -131,6 +132,8 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
     private Calendar calendarWithOtherEvents;
     @Mock
     private DestinationSpec destinationSpec;
+    @Mock
+    private LicenseService licenseService;
 
     private Injector injector;
 
@@ -249,6 +252,7 @@ public class ValidateCalendarWhenMetrologyConfigurationIsAppliedToUsagePointTest
                 bind(DestinationSpec.class)
                         .annotatedWith(Names.named(CalendarTimeSeriesCacheHandlerFactory.TASK_DESTINATION))
                         .toInstance(destinationSpec);
+                bind(LicenseService.class).toInstance(licenseService);
             }
         };
     }

@@ -78,6 +78,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     private final Clock clock;
     private final CalendarService calendarService;
+    private Optional<Category> touCategory;
     private final ServerMeteringService meteringService;
     private final InstantTruncaterFactory truncaterFactory;
     private final SourceChannelSetFactory sourceChannelSetFactory;
@@ -596,9 +597,10 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     @Override
     public Category getTimeOfUseCategory() {
-        return this.calendarService
-                .findCategoryByName(OutOfTheBoxCategory.TOU.name())
-                .orElseThrow(() -> new IllegalStateException("Calendar service installer failure, time of use category is missing"));
+        if (touCategory == null) {
+            touCategory = this.calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.name());
+        }
+        return touCategory.orElseThrow(() -> new IllegalStateException("Calendar service installer failure, time of use category is missing"));
     }
 
     @Override
