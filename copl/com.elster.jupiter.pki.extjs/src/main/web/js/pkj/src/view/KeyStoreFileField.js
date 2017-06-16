@@ -11,7 +11,7 @@ Ext.define('Pkj.view.KeyStoreFileField', {
     buttonText: Uni.I18n.translate('general.selectFile', 'PKJ', 'Select file...'),
     afterBodyEl: [
         '<div class="x-form-display-field"><i>',
-        Uni.I18n.translate('general.maxKeyStoreFileSize', 'PKJ', 'Maximum file size is 250kB'),
+        Uni.I18n.translate('general.maxKeyStoreFileSize', 'PKJ', 'Maximum file size is 250kB and file type should be JKS'),
         '</i></div>'
     ]
 });
