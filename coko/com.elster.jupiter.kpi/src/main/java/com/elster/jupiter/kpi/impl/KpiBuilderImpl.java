@@ -18,6 +18,7 @@ import java.util.TimeZone;
 class KpiBuilderImpl implements KpiBuilder {
 
     private String name;
+    private boolean keepZeros = true;
     private List<KpiMemberBuilderImpl> members = new ArrayList<>();
     private TimeZone timeZone = TimeZone.getTimeZone("UTC");
     private TemporalAmount intervalLength;
@@ -30,7 +31,7 @@ class KpiBuilderImpl implements KpiBuilder {
 
     @Override
     public Kpi create() {
-        KpiImpl kpi = KpiImpl.from(dataModel, name, timeZone, intervalLength);
+        KpiImpl kpi = KpiImpl.from(dataModel, name, timeZone, intervalLength, keepZeros);
         for (KpiMemberBuilderImpl member : members) {
             member.create(kpi);
         }
@@ -41,6 +42,12 @@ class KpiBuilderImpl implements KpiBuilder {
     @Override
     public KpiBuilder named(String name) {
         this.name = name;
+        return this;
+    }
+
+    @Override
+    public KpiBuilder keepZeros(boolean keepZeros) {
+        this.keepZeros = keepZeros;
         return this;
     }
 

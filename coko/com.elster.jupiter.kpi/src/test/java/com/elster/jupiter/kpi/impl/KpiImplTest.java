@@ -12,6 +12,9 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.orm.DataModel;
 
+import java.time.Duration;
+import java.util.TimeZone;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -21,9 +24,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Duration;
-import java.util.TimeZone;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +59,7 @@ public class KpiImplTest extends EqualsContractTest {
     public void setUp() {
         kpi = new KpiImpl(dataModel, idsService, kpiService, eventService);
 
-        kpi.init("name", UTC, Duration.ofMinutes(30));
+        kpi.init("name", UTC, Duration.ofMinutes(30), true);
 
         when(kpiService.getVault()).thenReturn(vault);
         when(kpiService.getRecordSpec()).thenReturn(recordSpec);
@@ -97,7 +97,7 @@ public class KpiImplTest extends EqualsContractTest {
     protected Object getInstanceA() {
         if (instanceA == null) {
             instanceA = new KpiImpl(dataModel, idsService, kpiService, eventService);
-            instanceA.init("name", UTC, Duration.ofMinutes(30));
+            instanceA.init("name", UTC, Duration.ofMinutes(30), true);
             field("id").ofType(Long.TYPE).in(instanceA).set(INSTANCE_A_ID);
 
         }
@@ -107,7 +107,7 @@ public class KpiImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceEqualToA() {
         KpiImpl other = new KpiImpl(dataModel, idsService, kpiService, eventService);
-        other.init("name", UTC, Duration.ofMinutes(30));
+        other.init("name", UTC, Duration.ofMinutes(30), true);
         field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID);
         return other;
     }
@@ -115,7 +115,7 @@ public class KpiImplTest extends EqualsContractTest {
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
         KpiImpl other = new KpiImpl(dataModel, idsService, kpiService, eventService);
-        other.init("name", UTC, Duration.ofMinutes(30));
+        other.init("name", UTC, Duration.ofMinutes(30), true);
         field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID + 1);
         return singletonList(other);
     }
@@ -128,7 +128,7 @@ public class KpiImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
         KpiImpl other = new KpiImpl(dataModel, idsService, kpiService, eventService){};
-        other.init("name", UTC, Duration.ofMinutes(30));
+        other.init("name", UTC, Duration.ofMinutes(30), true);
         field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID);
         return other;
     }

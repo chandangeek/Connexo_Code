@@ -20,6 +20,8 @@ enum TableSpecs {
             table.map(KpiImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar(Table.NAME_LENGTH).map("name").add();
+            table.column("KEEPZEROS").bool().installValue("'Y'").map("keepZeros").add().since(Version.version(10, 3));
+
             table.addAuditColumns().forEach(c -> c.since(Version.version(10, 2)));
             table.primaryKey("KPI_PK_KPI").on(idColumn).add();
             table.unique("KPI_U_NAME").on(nameColumn).add();
