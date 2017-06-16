@@ -35,6 +35,7 @@ import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
@@ -176,6 +177,10 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     @Override
     public OfflineDevice getOfflineDevice() {
         return this.groupedDeviceCommand.getOfflineDevice();
+    }
+
+    protected boolean isEmpty(String meterSerialNumber) {
+        return meterSerialNumber == null || meterSerialNumber.isEmpty();
     }
 
     @Override

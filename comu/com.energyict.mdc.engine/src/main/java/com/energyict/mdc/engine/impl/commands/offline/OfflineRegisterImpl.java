@@ -212,4 +212,41 @@ public class OfflineRegisterImpl implements OfflineRegister {
     public void setXmlType(String ignore) {
         // For xml unmarshalling purposes only
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        OfflineRegisterImpl that = (OfflineRegisterImpl) o;
+
+        if (getRegisterId() != that.getRegisterId()) {
+            return false;
+        }
+        if (!deviceRegisterObisCode.equals(that.deviceRegisterObisCode)) {
+            return false;
+        }
+        if (registerUnit != null ? !registerUnit.equals(that.registerUnit) : that.registerUnit != null) {
+            return false;
+        }
+        if (getSerialNumber() != null ? !getSerialNumber().equals(that.getSerialNumber()) : that.getSerialNumber() != null) {
+            return false;
+        }
+        return getReadingTypeMRID() != null ? getReadingTypeMRID().equals(that.getReadingTypeMRID()) : that.getReadingTypeMRID() == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = deviceRegisterObisCode.hashCode();
+        result = 31 * result + (registerUnit != null ? registerUnit.hashCode() : 0);
+        result = 31 * result + (int) (getRegisterId() ^ (getRegisterId() >>> 32));
+        result = 31 * result + (getSerialNumber() != null ? getSerialNumber().hashCode() : 0);
+        result = 31 * result + (getReadingTypeMRID() != null ? getReadingTypeMRID().hashCode() : 0);
+        return result;
+    }
 }

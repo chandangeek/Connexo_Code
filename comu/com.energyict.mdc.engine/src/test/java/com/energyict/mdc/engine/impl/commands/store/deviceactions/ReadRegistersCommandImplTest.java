@@ -162,8 +162,8 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         collectedRegisters.add(createCollectedRegister(regObisCode4));
         when(deviceProtocol.readRegisters(anyList())).thenReturn(collectedRegisters);
 
-        readRegistersCommand.execute(deviceProtocol, newTestExecutionContext());
         readRegistersCommand.addRegisters(Arrays.asList(register1, register2, register3, register4, register2, register4, register5, register6));
+        readRegistersCommand.execute(deviceProtocol, newTestExecutionContext());
         String infoJournalMessage = readRegistersCommand.toJournalMessageDescription(LogLevel.INFO);
         String debugJournalMessage = readRegistersCommand.toJournalMessageDescription(LogLevel.DEBUG);
 
@@ -172,17 +172,63 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         assertEquals(ComCommandDescriptionTitle.ReadRegistersCommandImpl.getDescription() + " {registers: (1.0.1.8.1.255 - 1.2 Wh), (1.0.1.8.2.255 - 1.2 Wh), (1.0.1.8.3.255 - 1.2 Wh), (1.0.1.8.4.255 - 1.2 Wh)}", debugJournalMessage);
     }
 
+    @Test
+    public void testAnyChannelWithoutSerialNumber() {
+
+        final ObisCode regObisCode1 = ObisCode.fromString("1.0.1.8.1.255");
+        final ObisCode regObisCode2 = ObisCode.fromString("1.0.1.8.2.255");
+        final ObisCode regObisCode3 = ObisCode.fromString("1.x.1.8.3.255");
+        final ObisCode regObisCode4 = ObisCode.fromString("1.0.1.8.4.255");
+
+        Register reg1 = createMockedRegisters(regObisCode1);
+        Register reg2 = createMockedRegisters(regObisCode2);
+        Register reg3 = createMockedRegisters(regObisCode3, null);
+        Register reg4 = createMockedRegisters(regObisCode4);
+
+        GroupedDeviceCommand groupedDeviceCommand = getGroupedDeviceCommand();
+        RegisterCommand registerCommand = mock(RegisterCommand.class);
+        ReadRegistersCommandImpl readRegistersCommand = (ReadRegistersCommandImpl) groupedDeviceCommand.getReadRegistersCommand(registerCommand, comTaskExecution);
+        OfflineRegister register1 = new OfflineRegisterImpl(reg1, this.identificationService);
+        OfflineRegister register2 = new OfflineRegisterImpl(reg2, identificationService);
+        OfflineRegister register3 = new OfflineRegisterImpl(reg3, identificationService);
+        OfflineRegister register4 = new OfflineRegisterImpl(reg4, identificationService);
+        OfflineRegister register5 = new OfflineRegisterImpl(reg1, identificationService);
+        OfflineRegister register6 = new OfflineRegisterImpl(reg3, identificationService);
+
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        List<CollectedRegister> collectedRegisters = new ArrayList<>(3);
+        collectedRegisters.add(createCollectedRegister(regObisCode1));
+        collectedRegisters.add(createCollectedRegister(regObisCode2));
+        collectedRegisters.add(createCollectedRegister(regObisCode4));
+        when(deviceProtocol.readRegisters(anyList())).thenReturn(collectedRegisters);
+
+        readRegistersCommand.addRegisters(Arrays.asList(register1, register2, register3, register4, register2, register4, register5, register6));
+        readRegistersCommand.execute(deviceProtocol, newTestExecutionContext());
+        String infoJournalMessage = readRegistersCommand.toJournalMessageDescription(LogLevel.INFO);
+        String debugJournalMessage = readRegistersCommand.toJournalMessageDescription(LogLevel.DEBUG);
+
+        assertThat(readRegistersCommand.getOfflineRegisters()).hasSize(3);
+        assertEquals(ComCommandDescriptionTitle.ReadRegistersCommandImpl.getDescription() + " {nrOfRegistersToRead: 3}", infoJournalMessage);
+        assertEquals(ComCommandDescriptionTitle.ReadRegistersCommandImpl.getDescription() + " {nrOfWarnings: 0; nrOfProblems: 1; registers: (1.0.1.8.1.255 - 1.2 Wh), (1.0.1.8.2.255 - 1.2 Wh), (1.0.1.8.4.255 - 1.2 Wh)}", debugJournalMessage);
+        assertEquals(readRegistersCommand.getIssues().size(), 1);
+        assertEquals(readRegistersCommand.getIssues().get(0).getDescription(), "anyChannelObisCodeRequiresSerialNumber");
+    }
+
     private Register createMockedRegisters(final ObisCode obisCode) {
-        final String serialNumber = "MeterSerialNumber";
+        return createMockedRegisters(obisCode, "MeterSerialNumber");
+    }
+
+    private Register createMockedRegisters(final ObisCode obisCode, String serialNumber) {
         RegisterSpec registerSpec = mock(RegisterSpec.class, withSettings().extraInterfaces(NumericalRegisterSpec.class));
         when(((NumericalRegisterSpec) registerSpec).getOverflowValue()).thenReturn(Optional.empty());
         RegisterGroup registerGroup = mock(RegisterGroup.class);
         when(registerGroup.getId()).thenReturn(1L);
         Device mockedDevice = mock(Device.class);
         when(mockedDevice.getSerialNumber()).thenReturn(serialNumber);
-        when(mockedDevice.getmRID()).thenReturn(serialNumber);
+        when(mockedDevice.getmRID()).thenReturn("MeterSerialNumber");
         Register register = mock(Register.class);
         when(register.getDeviceObisCode()).thenReturn(obisCode);
+        when(register.getObisCode()).thenReturn(obisCode);
         when(register.getRegisterSpec()).thenReturn(registerSpec);
         when(register.getDevice()).thenReturn(mockedDevice);
         RegisterType registerType = mock(RegisterType.class);

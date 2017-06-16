@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
@@ -18,9 +19,12 @@ import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTextRegister;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+
 import com.energyict.obis.ObisCode;
 
 import java.util.ArrayList;
@@ -84,9 +88,36 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
 
     @Override
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        List<OfflineRegister> offlineRegisters = this.getOfflineRegisters();
-        collectedRegisters = deviceProtocol.readRegisters(offlineRegisters);
-        this.commandOwner.addListOfCollectedDataItems(convertToTextRegistersIfRequired(offlineRegisters, collectedRegisters));
+        verifyObisCodeRequiresSerialNumber();
+        collectedRegisters = deviceProtocol.readRegisters(this.registers);
+        this.commandOwner.addListOfCollectedDataItems(convertToTextRegistersIfRequired(this.registers, collectedRegisters));
+    }
+
+    /**
+     * An obis code that contains an x (any channel) for the B-field requires the serial number to be filled in.
+     * If it's not filled in, that specific register cannot (and will not) be read out. A proper issue will be logged.
+     */
+    private void verifyObisCodeRequiresSerialNumber() {
+        List<OfflineRegister> registersToRemove = new ArrayList<>();
+        for (OfflineRegister offlineRegister : this.registers) {
+            if (offlineRegister.getObisCode().anyChannel() && (isEmpty(offlineRegister.getSerialNumber()))) {
+                Problem issue = getIssueService().newProblem(
+                        offlineRegister.getObisCode(),
+                        MessageSeeds.ANY_CHANNEL_OBIS_CODE_REQUIRES_SERIAL_NUMBER,
+                        offlineRegister.getObisCode()
+                );
+                registersToRemove.add(offlineRegister);
+                createAndAddFailedCollectedRegister(offlineRegister, issue, ResultType.ConfigurationError);
+            }
+        }
+
+        registersToRemove.forEach(registerToRemove -> this.registers.remove(registerToRemove));
+    }
+
+    private void createAndAddFailedCollectedRegister(OfflineRegister offlineRegister, Issue issues, ResultType resultType) {
+        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(offlineRegister.getRegisterIdentifier());
+        collectedRegister.setFailureInformation(resultType, issues);
+        addCollectedDataItem(collectedRegister);
     }
 
     public CompositeComCommand getCommandOwner() {
