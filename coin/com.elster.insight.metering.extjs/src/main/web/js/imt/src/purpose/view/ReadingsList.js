@@ -88,8 +88,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 dataIndex: 'reportedDateTime',
                 flex: 1,
                 renderer: function (value) {
-                    var date = new Date(value);
-                    return Uni.DateTime.formatDateTimeShort(date);
+                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                 }
             },
             {
@@ -208,7 +207,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         if (record.get('potentialSuspect')) {
             icon = this.addPotentialSuspectFlag(icon, record);
         }
-        return value + icon + '<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+        return '<div style=" display:inline;">' + value + '</div>' + icon + '<span style=" display:inline;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
     },
 
     addPotentialSuspectFlag: function (icon, record) {

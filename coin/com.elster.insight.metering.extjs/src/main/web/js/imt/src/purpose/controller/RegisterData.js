@@ -245,7 +245,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
                 delete reading.data.interval;
             }
             addReadingView.setLoading(true);
-            reading.getProxy().setParams(router.arguments.usagePointId, router.arguments.purposeId, router.arguments.outputId);
+            reading.getProxy().setParams(decodeURIComponent(router.arguments.usagePointId), router.arguments.purposeId, router.arguments.outputId);
             reading.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagepoint.registerData.updated', 'IMT', 'Register data saved'));
@@ -313,7 +313,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
             record = cfg.config.readingToDelete,
             router = me.getController('Uni.controller.history.Router');
         if (btn === 'confirm') {
-            record.getProxy().setParams(router.arguments.usagePointId, router.arguments.purposeId, router.arguments.outputId);
+            record.getProxy().setParams(decodeURIComponent(router.arguments.usagePointId), router.arguments.purposeId, router.arguments.outputId);
             record.destroy({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', msg);
@@ -328,7 +328,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
         mainView.setLoading();
-        record.getProxy().setParams(router.arguments.usagePointId, router.arguments.purposeId, router.arguments.outputId);
+        record.getProxy().setParams(decodeURIComponent(router.arguments.usagePointId), router.arguments.purposeId, router.arguments.outputId);
         record.set('isConfirmed', true);
         record.save({
             callback: function (rec, operation, success) {

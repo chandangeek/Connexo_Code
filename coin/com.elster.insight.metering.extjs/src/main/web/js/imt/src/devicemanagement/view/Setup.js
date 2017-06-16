@@ -35,7 +35,8 @@ Ext.define('Imt.devicemanagement.view.Setup', {
                     {
                         xtype: 'device-management-side-menu',
                         itemId: 'device-management-side-menu',
-                        router: me.router
+                        router: me.router,
+                        device: me.device
  //                       mRID: me.mRID
                     }
                 ]
@@ -59,7 +60,7 @@ Ext.define('Imt.devicemanagement.view.Setup', {
                 items: [
                     {
                         xtype: 'panel',
-                        title: Uni.I18n.translate('devicemanagement.label.device.attributes', 'IMT', 'Device Attributes'),
+                        title: Uni.I18n.translate('devicemanagement.label.device.attributes', 'IMT', 'Device attributes'),
                         ui: 'tile',
                         itemId: 'device-attributes-panel',
                         router: me.router

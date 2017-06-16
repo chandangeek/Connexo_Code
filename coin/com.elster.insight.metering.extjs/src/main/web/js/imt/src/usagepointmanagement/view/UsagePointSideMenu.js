@@ -53,7 +53,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                     {
                         text: Uni.I18n.translate('general.servicecalls', 'IMT', 'Service calls'),
                         itemId: 'usage-point-service-calls-link',
-                        privileges: Imt.privileges.UsagePoint.view,
+                        privileges: Scs.privileges.ServiceCall.view,
                         href: me.router.getRoute('usagepoints/view/servicecalls').buildUrl()
                     }
                 ]
