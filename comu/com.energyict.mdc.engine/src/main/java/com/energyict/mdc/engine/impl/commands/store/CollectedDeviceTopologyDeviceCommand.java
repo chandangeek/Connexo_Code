@@ -58,6 +58,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
      * List containing the serial numbers of all known slave devices (present in EIServer, but not linked to this device) who are added to the device.
      */
     private List<String> knownSerialNumbersAddedToTopology = new ArrayList<>();
+    private com.energyict.mdc.protocol.api.device.offline.OfflineDevice offlineMasterDevice;
 
     public CollectedDeviceTopologyDeviceCommand(CollectedTopology deviceTopology, ComTaskExecution comTaskExecution, MeterDataStoreCommand meterDataStoreCommand, ServiceProvider serviceProvider) {
         super(comTaskExecution, serviceProvider);
@@ -83,6 +84,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
         try {
             Optional<com.energyict.mdc.protocol.api.device.offline.OfflineDevice> device = comServerDAO.findOfflineDevice(deviceTopology.getDeviceIdentifier(), new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
             if (device.isPresent()) {
+                this.offlineMasterDevice = device.get();
                 this.topologyChanged = false;
                 try {
                     handlePhysicalTopologyUpdate(comServerDAO, device.get());
@@ -289,10 +291,10 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
      * In this case a new slave device - unknown to EIServer - has been added to the device.
      *
      * @param comServerDAO the ComServerDAO to be used
-     * @param addedSlave   the new slave that has been added to the device
+     * @param addedSlave the new slave that has been added to the device
      */
     private void handleAdditionOfSlave(ComServerDAO comServerDAO, DeviceIdentifier addedSlave) {
-        UnknownSlaveDeviceEvent event = new UnknownSlaveDeviceEvent(deviceTopology.getDeviceIdentifier(), addedSlave);
+        UnknownSlaveDeviceEvent event = new UnknownSlaveDeviceEvent(this.offlineMasterDevice.getmRID(), addedSlave);
         comServerDAO.signalEvent(EventType.UNKNOWN_SLAVE_DEVICE.topic(), event);
     }
 
@@ -301,7 +303,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
      * In this case in the real world the slave device has been moved to a new master, but EIServer is not yet aware of this move.
      *
      * @param comServerDAO the ComServerDAO to be used
-     * @param movedSlave   the slave that is moved and for which we should update its gateway
+     * @param movedSlave the slave that is moved and for which we should update its gateway
      */
     private void handleMoveOfSlave(ComServerDAO comServerDAO, DeviceIdentifier movedSlave) {
         if (deviceTopology.getTopologyAction() == TopologyAction.UPDATE) {
