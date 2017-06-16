@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
@@ -14,9 +15,14 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.protocol.LogBookReader;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
+import com.energyict.protocol.LogBookReader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,17 +52,48 @@ public class ReadLogBooksCommandImpl extends SimpleComCommand implements ReadLog
 
     @Override
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        List<LogBookReader> logBookReaders = this.getLogBooksToCollect();
-        setCollectedLogBooks(deviceProtocol.getLogBookData(logBookReaders));
+        verifyObisCodeRequiresSerialNumber();
+        collectedLogBooks.addAll(deviceProtocol.getLogBookData(getLogBooksToCollect()));
         this.logBooksCommand.addListOfCollectedDataItems(collectedLogBooks);
+    }
+
+    /**
+     * An obis code that contains an x (any channel) for the B-field requires the serial number to be filled in.
+     * If it's not filled in, that specific logbook cannot (and will not) be read out. A proper issue will be logged.
+     */
+    private void verifyObisCodeRequiresSerialNumber() {
+        List<LogBookReader> logBookReadersToRemove = new ArrayList<>();
+        for (LogBookReader logBookReader : getLogBooksToCollect()) {
+            if (logBookReader.getLogBookObisCode().anyChannel() && (isEmpty(logBookReader.getMeterSerialNumber()))) {
+                Problem issue = getIssueService().newProblem(
+                        logBookReader.getLogBookObisCode(),
+                        MessageSeeds.ANY_CHANNEL_OBIS_CODE_REQUIRES_SERIAL_NUMBER,
+                        logBookReader.getLogBookObisCode()
+                );
+                logBookReadersToRemove.add(logBookReader);
+                createAndAddFailedCollectedLogBook(logBookReader, ResultType.ConfigurationError, issue);
+            }
+        }
+
+        logBookReadersToRemove.forEach(logBookReader -> this.logBooksCommand.removeLogBookReader(logBookReader));
+    }
+
+    private void createAndAddFailedCollectedLogBook(LogBookReader logBookReader, ResultType resultType, Issue issue) {
+        DeviceLogBook collectedLogBook = createFailedCollectedLogBook(
+                logBookReader,
+                issue,
+                resultType);
+        collectedLogBooks.add(collectedLogBook);
+    }
+
+    private DeviceLogBook createFailedCollectedLogBook(LogBookReader logBookReader, Issue issue, ResultType resultType) {
+        DeviceLogBook collectedLogBook = new DeviceLogBook(logBookReader.getLogBookIdentifier());
+        collectedLogBook.setFailureInformation(resultType, issue);
+        return collectedLogBook;
     }
 
     protected List<LogBookReader> getLogBooksToCollect() {
         return this.logBooksCommand.getLogBookReaders();
-    }
-
-    private void setCollectedLogBooks(List<CollectedLogBook> collectedLogBooks) {
-        this.collectedLogBooks = collectedLogBooks;
     }
 
     @Override

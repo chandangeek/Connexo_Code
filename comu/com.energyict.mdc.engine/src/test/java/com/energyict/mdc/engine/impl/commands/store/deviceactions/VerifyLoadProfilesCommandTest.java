@@ -408,6 +408,60 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
     }
 
     @Test
+    public void executeWithMissingSerialNumberAndAnyChannelObisCodeOnLP() {
+        List<ChannelInfo> listOfChannelInfos = createSimpleChannelInfoList();
+
+        DeviceLoadProfileConfiguration loadProfileConfiguration = new DeviceLoadProfileConfiguration(LoadProfileObisCode, new TestSerialNumberDeviceIdentifier(METER_SERIAL_NUMBER), METER_SERIAL_NUMBER, true);
+        loadProfileConfiguration.setChannelInfos(listOfChannelInfos);
+
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenReturn(Collections.<CollectedLoadProfileConfiguration>singletonList(loadProfileConfiguration));
+
+        LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
+        LoadProfileReader loadProfileReader = createAnyChannelLoadProfileReader();
+        when(loadProfileReader.getChannelInfos()).thenReturn(listOfChannelInfos);
+
+        LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
+        when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Collections.singletonList(loadProfileReader));
+
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = spy(new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand));
+        verifyLoadProfilesCommand.execute(deviceProtocol, newTestExecutionContext());
+
+        // asserts
+        assertEquals("1 issue should be logged", 1, verifyLoadProfilesCommand.getIssues().size());
+        assertEquals("anyChannelObisCodeRequiresSerialNumber", verifyLoadProfilesCommand.getIssues().get(0).getDescription());
+    }
+
+    @Test
+    public void executeWithMissingSerialNumberAndAnyChannelObisCodeOnChannel() {
+        List<ChannelInfo> listOfChannelInfos = createWildCardChannelInfoList();
+
+        DeviceLoadProfileConfiguration loadProfileConfiguration = new DeviceLoadProfileConfiguration(LoadProfileObisCode, new TestSerialNumberDeviceIdentifier(METER_SERIAL_NUMBER), METER_SERIAL_NUMBER, true);
+        loadProfileConfiguration.setChannelInfos(listOfChannelInfos);
+
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenReturn(Collections.<CollectedLoadProfileConfiguration>singletonList(loadProfileConfiguration));
+
+        LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
+        LoadProfileReader loadProfileReader = createSimpleLoadProfileReaderWithoutSerialNumber();
+        when(loadProfileReader.getChannelInfos()).thenReturn(listOfChannelInfos);
+
+        LoadProfileCommandImpl loadProfileCommand = mock(LoadProfileCommandImpl.class);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
+        when(loadProfileCommand.getLoadProfileReaders()).thenReturn(Collections.singletonList(loadProfileReader));
+
+        VerifyLoadProfilesCommandImpl verifyLoadProfilesCommand = spy(new VerifyLoadProfilesCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfileCommand));
+        verifyLoadProfilesCommand.execute(deviceProtocol, newTestExecutionContext());
+
+        // asserts
+        assertEquals("1 issue should be logged", 1, verifyLoadProfilesCommand.getIssues().size());
+        assertEquals("anyChannelObisCodeRequiresSerialNumber", verifyLoadProfilesCommand.getIssues().get(0).getDescription());
+    }
+
+    @Test
     public void executeNotSupportedByTheMeter() {
 
         DeviceLoadProfileConfiguration loadProfileConfiguration = new DeviceLoadProfileConfiguration(LoadProfileObisCode, new TestSerialNumberDeviceIdentifier(METER_SERIAL_NUMBER), METER_SERIAL_NUMBER, false);
@@ -483,6 +537,15 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         return listOfChannelInfos;
     }
 
+    private List<ChannelInfo> createWildCardChannelInfoList() {
+        List<ChannelInfo> listOfChannelInfos = new ArrayList<>();
+        ChannelInfo channelInfoMock1 = new ChannelInfo(0, ChannelInfoObisCode1.toString(), Unit.get("Wh"));
+        listOfChannelInfos.add(channelInfoMock1);
+        ChannelInfo channelInfoMock2 = new ChannelInfo(1, ObisCode.fromString("1.x.2.8.0.255").toString(), Unit.get("Wh"));
+        listOfChannelInfos.add(channelInfoMock2);
+        return listOfChannelInfos;
+    }
+
     private LoadProfilesTask createSimpleLoadProfilesTask() {
         LoadProfilesTask loadProfilesTask = mock(LoadProfilesTask.class);
         when(loadProfilesTask.failIfLoadProfileConfigurationMisMatch()).thenReturn(FailIfConfigurationMisMatch);
@@ -493,6 +556,20 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         LoadProfileReader loadProfileReader = mock(LoadProfileReader.class);
         when(loadProfileReader.getProfileObisCode()).thenReturn(LoadProfileObisCode);
         when(loadProfileReader.getMeterSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
+        return loadProfileReader;
+    }
+
+    private LoadProfileReader createSimpleLoadProfileReaderWithoutSerialNumber() {
+        LoadProfileReader loadProfileReader = mock(LoadProfileReader.class);
+        when(loadProfileReader.getProfileObisCode()).thenReturn(LoadProfileObisCode);
+        when(loadProfileReader.getMeterSerialNumber()).thenReturn(null);
+        return loadProfileReader;
+    }
+
+    private LoadProfileReader createAnyChannelLoadProfileReader() {
+        LoadProfileReader loadProfileReader = mock(LoadProfileReader.class);
+        when(loadProfileReader.getProfileObisCode()).thenReturn(ObisCode.fromString("1.x.99.1.0.255"));
+        when(loadProfileReader.getMeterSerialNumber()).thenReturn(null);
         return loadProfileReader;
     }
 

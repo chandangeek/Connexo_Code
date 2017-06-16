@@ -20,6 +20,8 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
@@ -32,17 +34,22 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 /**
  * Tests for the ReadLogBooksCommandImpl component
@@ -142,5 +149,66 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         assertEquals("Expected only the three unique LogBookReaders", 3, ((ReadLogBooksCommandImpl) readLogBooksCommand).getLogBooksToCollect().size());
         assertEquals(ComCommandDescriptionTitle.ReadLogBooksCommandImpl.getDescription() + " {nrOfLogbooksToRead: 3}", infoJournalMessage);
         assertEquals(ComCommandDescriptionTitle.ReadLogBooksCommandImpl.getDescription() + " {logbooks: (1.0.1.8.1.255 - Supported - nrOfEvents: 1), (1.0.1.8.2.255 - Supported - nrOfEvents: 0), (1.0.1.8.3.255 - Supported - nrOfEvents: 0)}", debugJournalMessage);
+    }
+
+    @Test
+    public void testAnyChannelLogBook() {
+        final ObisCode logBookObisCode1 = ObisCode.fromString("1.0.1.8.1.255");
+        final ObisCode logBookObisCode2 = ObisCode.fromString("1.0.1.8.2.255");
+        final ObisCode logBookObisCode3 = ObisCode.fromString("1.x.1.8.3.255");
+
+        final String SERIAL_NUMBER = "SerialNumber";
+
+        final Instant lastLogBookDate1 = Instant.ofEpochMilli(1354320000L * 1000L); // 01 Dec 2012 00:00:00 GMT
+        final Instant lastLogBookDate2 = Instant.ofEpochMilli(1351728000L * 1000L); // 01 Nov 2012 00:00:00 GMT
+        final Instant lastLogBookDate3 = Instant.ofEpochMilli(1349049600L * 1000L); // 01 Oct 2012 00:00:00 GMT
+
+        LogBookIdentifier logBookIdentifier1 = mock(LogBookIdentifier.class);
+        LogBook logBook1 = mock(LogBook.class);
+        when((logBookIdentifier1).getLogBookObisCode()).thenReturn(logBookObisCode1);
+        when(logBook1.getId()).thenReturn(10L);
+        LogBookIdentifier logBookIdentifier2 = mock(LogBookIdentifier.class);
+        LogBook logBook2 = mock(LogBook.class);
+        when((logBookIdentifier2).getLogBookObisCode()).thenReturn(logBookObisCode2);
+        when(logBook2.getId()).thenReturn(20L);
+        LogBookIdentifier logBookIdentifier3 = mock(LogBookIdentifier.class);
+        LogBook logBook3 = mock(LogBook.class);
+        when((logBookIdentifier3).getLogBookObisCode()).thenReturn(logBookObisCode3);
+        when(logBook3.getId()).thenReturn(30L);
+
+        LogBookReader logBookReader1 = new LogBookReader(logBookObisCode1, Date.from(lastLogBookDate1), logBookIdentifier1, SERIAL_NUMBER);
+        LogBookReader logBookReader2 = new LogBookReader(logBookObisCode2, Date.from(lastLogBookDate2), logBookIdentifier2, SERIAL_NUMBER);
+        LogBookReader logBookReader3 = new LogBookReader(logBookObisCode3, Date.from(lastLogBookDate3), logBookIdentifier3, null);
+
+        OfflineDevice device = mock(OfflineDevice.class);
+        CommandRoot commandRoot = createCommandRoot();
+        GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, device, deviceProtocol, null);
+        LogBooksCommand logBooksCommand = mock(LogBooksCommand.class);
+        when(logBooksCommand.getCommandRoot()).thenReturn(commandRoot);
+        when(logBooksCommand.getLogBookReaders()).thenReturn(Arrays.asList(logBookReader1, logBookReader2, logBookReader3));
+        ReadLogBooksCommand readLogBooksCommand = groupedDeviceCommand.getReadLogBooksCommand(logBooksCommand, comTaskExecution);
+
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        CollectedLogBook collectedLogBook1 = new DeviceLogBook(logBookIdentifier1);
+        collectedLogBook1.setCollectedMeterEvents(Collections.singletonList(mock(MeterProtocolEvent.class)));
+        CollectedLogBook collectedLogBook2 = new DeviceLogBook(logBookIdentifier2);
+        when(deviceProtocol.getLogBookData(Matchers.<List<LogBookReader>>any())).thenReturn(Arrays.asList(collectedLogBook1, collectedLogBook2));
+
+        readLogBooksCommand.execute(deviceProtocol, newTestExecutionContext());
+        String infoJournalMessage = readLogBooksCommand.toJournalMessageDescription(LogLevel.INFO);
+        String debugJournalMessage = readLogBooksCommand.toJournalMessageDescription(LogLevel.DEBUG);
+
+        assertEquals("Expected only the three unique LogBookReaders", 3, ((ReadLogBooksCommandImpl) readLogBooksCommand).getLogBooksToCollect().size());
+        assertEquals(ComCommandDescriptionTitle.ReadLogBooksCommandImpl.getDescription() + " {nrOfLogbooksToRead: 3}", infoJournalMessage);
+        assertEquals(ComCommandDescriptionTitle.ReadLogBooksCommandImpl.getDescription() + " {logbooks: (1.0.1.8.1.255 - Supported - nrOfEvents: 1), (1.0.1.8.2.255 - Supported - nrOfEvents: 0), (1.x.1.8.3.255 - ConfigurationError - nrOfEvents: 0)}", debugJournalMessage);
+
+        ArgumentCaptor<List> collectedDataCaptor = ArgumentCaptor.forClass(List.class);
+        verify(logBooksCommand, times(1)).addListOfCollectedDataItems(collectedDataCaptor.capture());
+
+        List<? extends CollectedData> value = (List<? extends CollectedData>) collectedDataCaptor.getValue();
+        Optional<List<Issue>> issues = value.stream().map(CollectedData.class::cast).map(CollectedData::getIssues).filter(list -> !list.isEmpty()).findAny();
+        assertTrue(issues.isPresent());
+        assertEquals(issues.get().size(), 1);
+        assertEquals(issues.get().get(0).getDescription(), "anyChannelObisCodeRequiresSerialNumber");
     }
 }

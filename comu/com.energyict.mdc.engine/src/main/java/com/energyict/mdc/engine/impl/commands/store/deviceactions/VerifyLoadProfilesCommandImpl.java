@@ -24,6 +24,7 @@ import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
@@ -31,6 +32,7 @@ import com.energyict.protocol.LoadProfileReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -99,15 +101,52 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
 
     @Override
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
+        this.readersToRemove = new ArrayList<>();
+        verifyObisCodeRequiresSerialNumber();
         setLoadProfileConfigurations(deviceProtocol.fetchLoadProfileConfiguration(loadProfileCommand.getLoadProfileReaders()));
         verifyConfigurations();
+    }
+
+    /**
+     * An obis code that contains an x (any channel) for the B-field requires the serial number to be filled in.
+     * If it's not filled in, that specific LP cannot (and will not) be read out. A proper issue will be logged.
+     */
+    private void verifyObisCodeRequiresSerialNumber() {
+        for (LoadProfileReader loadProfileReader : loadProfileCommand.getLoadProfileReaders()) {
+            Optional<ObisCode> obisCodeWithAnyChannelAndMissingSerialNumber = findObisCodeWithAnyChannelAndMissingSerialNumber(loadProfileReader);
+            if (obisCodeWithAnyChannelAndMissingSerialNumber.isPresent()) {
+                this.addLoadProfileReaderToTheListOfReadersToRemove(loadProfileReader);
+                Problem issue = getIssueService().newProblem(
+                        loadProfileReader.getProfileObisCode(),
+                        MessageSeeds.ANY_CHANNEL_OBIS_CODE_REQUIRES_SERIAL_NUMBER,
+                        obisCodeWithAnyChannelAndMissingSerialNumber.get()
+                );
+                createAndAddFailedCollectedLoadProfile(loadProfileReader, ResultType.ConfigurationError, issue);
+            }
+        }
+        this.loadProfileCommand.removeIncorrectLoadProfileReaders(readersToRemove);
+    }
+
+    /**
+     * Return the first obis code (of the LP or a channel) that has -1 for its B-field (any channel) AND has no serial number
+     */
+    private Optional<ObisCode> findObisCodeWithAnyChannelAndMissingSerialNumber(LoadProfileReader loadProfileReader) {
+        if (loadProfileReader.getProfileObisCode().anyChannel() && isEmpty(loadProfileReader.getMeterSerialNumber())) {
+            return Optional.of(loadProfileReader.getProfileObisCode());
+        } else {
+            return loadProfileReader.getChannelInfos()
+                    .stream()
+                    .filter(channelInfo -> isEmpty(channelInfo.getMeterIdentifier()))
+                    .map(ChannelInfo::getChannelObisCode)
+                    .filter(ObisCode::anyChannel)
+                    .findAny();
+        }
     }
 
     /**
      * Verify all configuration read from the device with the configuration in EIServer.
      */
     private void verifyConfigurations() {
-        this.readersToRemove = new ArrayList<>();
         if (getLoadProfileConfigurations() != null && !getLoadProfileConfigurations().isEmpty()) {
             for (CollectedLoadProfileConfiguration loadProfileConfiguration : getLoadProfileConfigurations()) {
                 LoadProfileReader loadProfileReader = getLoadProfileReaderForGivenLoadProfileConfiguration(loadProfileConfiguration);
@@ -175,7 +214,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
     /**
      * Verify that the configuration of the channels match. If the baseUnit is the same, then we can store the data, otherwise we should not even fetch the data
      *
-     * @param loadProfileReader        the given reader
+     * @param loadProfileReader the given reader
      * @param loadProfileConfiguration the given configuration
      * @return the list of all issues
      */
@@ -282,7 +321,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
      * Verify if the interval of the {@link LoadProfileReader} is equal to the interval which is read from the device.
      * If the interval of the device is '0', then the capture period is asynchronous, for ex. monthly, in this case we don't fail.
      *
-     * @param loadProfileReader        the given reader
+     * @param loadProfileReader the given reader
      * @param loadProfileConfiguration the given configuration
      */
     protected List<Issue> verifyProfileInterval(final LoadProfileReader loadProfileReader, final CollectedLoadProfileConfiguration loadProfileConfiguration) {
@@ -305,7 +344,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
      * Verify that the number of channels from the {@link LoadProfileReader}
      * are equal to the number of channels from the DeviceLoadProfileConfiguration.
      *
-     * @param loadProfileReader        the LoadProfileReader
+     * @param loadProfileReader the LoadProfileReader
      * @param loadProfileConfiguration The CollectedLoadProfileConfiguration
      */
     protected List<Issue> verifyNumberOfChannels(final LoadProfileReader loadProfileReader, final CollectedLoadProfileConfiguration loadProfileConfiguration) {
@@ -337,7 +376,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
     protected LoadProfileReader getLoadProfileReaderForGivenLoadProfileConfiguration(final CollectedLoadProfileConfiguration loadProfileConfiguration) {
         for (LoadProfileReader loadProfileReader : loadProfileCommand.getLoadProfileReaders()) {
             if (loadProfileReader.getProfileObisCode().equalsIgnoreBChannel(loadProfileConfiguration.getObisCode()) &&
-                    loadProfileReader.getMeterSerialNumber().equals(loadProfileConfiguration.getMeterSerialNumber())) {
+                    Objects.equals(loadProfileReader.getMeterSerialNumber(), loadProfileConfiguration.getMeterSerialNumber())) {
                 return loadProfileReader;
             }
         }

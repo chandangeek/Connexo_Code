@@ -27,6 +27,7 @@ import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -197,7 +198,9 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
                     this.timeDifferenceCommand = getGroupedDeviceCommand().getTimeDifferenceCommand(this, comTaskExecution);
                     this.markIntervalsAsBadTimeCommand = getGroupedDeviceCommand().getMarkIntervalsAsBadTimeCommand(this, comTaskExecution);
                 } else {
-                    if (this.loadProfilesTaskOptions.getMinClockDiffBeforeBadTime().orElse(new TimeDuration(0)).getMilliSeconds() > loadProfilesTask.getMinClockDiffBeforeBadTime().orElse(new TimeDuration(0)).getMilliSeconds()) {
+                    if (this.loadProfilesTaskOptions.getMinClockDiffBeforeBadTime().orElse(new TimeDuration(0)).getMilliSeconds() > loadProfilesTask.getMinClockDiffBeforeBadTime()
+                            .orElse(new TimeDuration(0))
+                            .getMilliSeconds()) {
                         this.loadProfilesTaskOptions.setMinClockDiffBeforeBadTime(loadProfilesTask.getMinClockDiffBeforeBadTime()); // Set the most strict of the 2 timing
                     }
                 }
@@ -247,6 +250,11 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
     @Override
     public CreateMeterEventsFromStatusFlagsCommand getCreateMeterEventsFromStatusFlagsCommand() {
         return createMeterEventsFromStatusFlagsCommand;
+    }
+
+    @Override
+    public void removeLogBookReader(LogBookReader logBookReader) {
+        getLogBookReaders().remove(logBookReader);
     }
 
     @Override

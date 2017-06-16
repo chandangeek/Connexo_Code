@@ -76,6 +76,11 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
     }
 
     @Override
+    public void removeLogBookReader(LogBookReader logBookReader) {
+        getLogBookReaders().remove(logBookReader);
+    }
+
+    @Override
     public ComCommandType getCommandType() {
         return ComCommandTypes.LOGBOOKS_COMMAND;
     }
