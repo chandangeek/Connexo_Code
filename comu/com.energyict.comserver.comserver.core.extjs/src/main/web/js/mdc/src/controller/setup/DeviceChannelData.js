@@ -708,7 +708,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     getChangedData: function (store) {
         var changedData = [],
             confirmedObj = {};
-
+debugger;
         Ext.Array.each(store.getUpdatedRecords(), function (record) {
 
             if (record.get('confirmed')) {
@@ -754,6 +754,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 }
                 confirmedObj.value = record.get('value');
                 confirmedObj.interval = record.get('interval');
+                confirmedObj.mainValidationInfo.ruleId = record.get('mainValidationInfo').ruleId;
                 confirmedObj.mainValidationInfo.commentId = record.get('mainValidationInfo').commentId;
                 confirmedObj.mainValidationInfo.isConfirmed = record.get('mainValidationInfo').confirmedNotSaved || false;
             }
@@ -763,6 +764,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 }
                 confirmedObj.collectedValue = record.get('collectedValue');
                 confirmedObj.interval = record.get('interval');
+                confirmedObj.bulkValidationInfo.ruleId = record.get('bulkValidationInfo').ruleId;
                 confirmedObj.bulkValidationInfo.commentId = record.get('bulkValidationInfo').commentId;
                 confirmedObj.bulkValidationInfo.isConfirmed = record.get('bulkValidationInfo').confirmedNotSaved || false;
             }
