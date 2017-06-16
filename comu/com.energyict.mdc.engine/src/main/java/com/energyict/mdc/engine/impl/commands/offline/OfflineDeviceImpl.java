@@ -145,6 +145,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     private MacException macException;
     private List<OfflineKeyAccessor> keyAccessors = Collections.emptyList();
     private HashMap<String, TypedProperties> securityPropertySetAttributeToKeyAccessorTypeMapping;
+    private String mRid;
 
     public OfflineDeviceImpl(Device device, OfflineDeviceContext offlineDeviceContext, ServiceProvider serviceProvider) {
         this.device = device;
@@ -162,6 +163,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         setUsagePoint(device.getUsagePoint().map(Object::toString).orElse(""));
         setId(this.device.getId());
         setSerialNumber(this.device.getSerialNumber());
+        setmRid(this.device.getmRID());
         addProperties(this.device.getDeviceProtocolProperties());
 
         if (this.device.getDeviceProtocolPluggableClass().isPresent()) {
@@ -358,6 +360,15 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
 
     private void setSerialNumber(final String serialNumber) {
         this.serialNumber = serialNumber;
+    }
+
+    @Override
+    public String getmRID() {
+        return mRid;
+    }
+
+    public void setmRid(String mRid) {
+        this.mRid = mRid;
     }
 
     @Override

@@ -20,10 +20,10 @@ public class UnknownSlaveDeviceEvent {
     private final String masterDeviceId;
     private final String deviceIdentifier;
 
-    public UnknownSlaveDeviceEvent(DeviceIdentifier masterDeviceIdentifier, DeviceIdentifier deviceIdentifier) {
+    public UnknownSlaveDeviceEvent(String masterDeviceMRID, DeviceIdentifier unknownSlaveDeviceIdentifier) {
         super();
-        this.masterDeviceId = masterDeviceIdentifier.toString();
-        this.deviceIdentifier = deviceIdentifier.toString();
+        this.masterDeviceId = masterDeviceMRID;
+        this.deviceIdentifier = unknownSlaveDeviceIdentifier.toString();
     }
 
     public String getMasterDeviceId() {

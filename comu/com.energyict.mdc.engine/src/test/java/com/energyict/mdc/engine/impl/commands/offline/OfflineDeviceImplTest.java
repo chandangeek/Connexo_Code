@@ -119,6 +119,7 @@ public class OfflineDeviceImplTest {
     private static final String device_propValue2 = "DEVICE_PropValue2";
     private static final String device_propValue3 = "DEVICE_PropValue3";
 
+    private static final String mRID = "mRID";
     private static final String meterSerialNumber = "MeterSerialNumber";
     private static final int DEVICE_ID = 93;
     private static final TimeZone deviceProtocolPluggableClassTimeZone = TimeZone.getTimeZone("GMT");
@@ -207,6 +208,10 @@ public class OfflineDeviceImplTest {
         return createMockedDevice(deviceId, meterSerialNumber, meterSerialNumber, mock(DeviceProtocol.class));
     }
 
+    private Device createMockedDevice(long deviceId, String meterSerialNumber, String mRID) {
+        return createMockedDevice(deviceId, meterSerialNumber, mRID, mock(DeviceProtocol.class));
+    }
+
     private Device createMockedDevice(long deviceId, String meterSerialNumber, final DeviceProtocol deviceProtocol) {
         return createMockedDevice(deviceId, meterSerialNumber, meterSerialNumber, deviceProtocol);
     }
@@ -231,7 +236,7 @@ public class OfflineDeviceImplTest {
     }
 
     private Device createMockedDevice() {
-        return createMockedDevice(DEVICE_ID, meterSerialNumber);
+        return createMockedDevice(DEVICE_ID, mRID, meterSerialNumber);
     }
 
     @Before
@@ -281,6 +286,7 @@ public class OfflineDeviceImplTest {
         Device device = createMockedDevice();
         OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         assertEquals("The SerialNumber should match", meterSerialNumber, offlineRtu.getSerialNumber());
+        assertEquals("The mRID should match", mRID, offlineRtu.getmRID());
         assertEquals("The ID should match", DEVICE_ID, offlineRtu.getId());
         assertNotNull("The DeviceProtocol PluggableClass should not be null", offlineRtu.getDeviceProtocolPluggableClass());
     }
