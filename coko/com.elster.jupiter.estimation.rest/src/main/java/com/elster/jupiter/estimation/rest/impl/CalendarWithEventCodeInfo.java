@@ -32,7 +32,7 @@ public class CalendarWithEventCodeInfo {
     }
 
     public String toString() {
-        if (discardDays=true){
+        if (discardDays){
             return discardDays + ":" + calendar + ":" + eventCode;
         }
     else {
