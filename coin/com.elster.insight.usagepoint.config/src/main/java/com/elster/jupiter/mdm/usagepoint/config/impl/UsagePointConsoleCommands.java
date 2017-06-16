@@ -75,7 +75,7 @@ public class UsagePointConsoleCommands {
             if (serviceCategory.isPresent()) {
                 transactionService.builder()
                         .principal(() -> "console")
-                        .run(() -> metrologyConfigurationService.newMetrologyConfiguration(name, serviceCategory.get()));
+                        .run(() -> metrologyConfigurationService.newMetrologyConfiguration(name, serviceCategory.get()).create());
             } else {
                 System.out.println("No ServiceCategory for: " + serviceKindName);
             }
