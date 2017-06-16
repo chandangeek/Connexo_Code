@@ -33,6 +33,7 @@ import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
+import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
 import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -1088,18 +1089,13 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             try {
                 modifiedDevice.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(Instant.now()).add(); // should fail!
-            } catch (ConstraintViolationException e) {
-                if (!e.getMessage().contains("deviceMessage.not.allowed.config")) {
+                fail("Damn, we should have landed in the constraintviolationexception ...");
+            } catch (DeviceMessageNotAllowedException e) {
+                if (!e.getMessage().contains("This command is not specified on the device configuration level")) {
                     fail("Should have gotten an exception indicating that we could not create the message");
-                } else {
-                    ok = true;
                 }
             }
             context.commit();
-        }
-
-        if (!ok) {
-            fail("Damn, we should have landed in the constraintviolationexception ...");
         }
     }
 
