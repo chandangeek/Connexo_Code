@@ -83,14 +83,20 @@ Ext.define('Imt.usagepointmanagement.view.forms.CalendarInfo', {
         Ext.Array.each(errors, function (error) {
 
             if (Ext.String.startsWith(error.id, 'activationOn')) {
-                error.id = 'activationOn.calendar-date-field-errors';
                 errMsg.push(error.msg);
                 if (!map[error.id]) {
                     map[error.id] = {
-                        id: error.id
+                        id: error.id,
+                        msg: ''
                     };
                 } else {
                     map[error.id].msg.push(error.msg);
+                }
+
+                if (!map['activationOn.calendar-date-field-errors']) {
+                    map['activationOn.calendar-date-field-errors'] = {
+                        id: 'activationOn.calendar-date-field-errors'
+                    };
                 }
             } else {
                 if (!map[error.id]) {

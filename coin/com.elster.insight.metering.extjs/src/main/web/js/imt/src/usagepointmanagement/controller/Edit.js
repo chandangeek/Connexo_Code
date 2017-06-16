@@ -637,7 +637,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                         cls: 'x-form-invalid-under',
                         style: {
                             'white-space': 'normal',
-                            'padding': '0px 0px 10px 275px'
+                            'padding': '0px 0px 10px 335px',
+                            'margin': '-35px 0px 0px 0px'
                         },
                         hidden: true
                     });
