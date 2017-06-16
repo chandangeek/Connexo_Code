@@ -2519,7 +2519,7 @@ Ext.define('Dxp.controller.Tasks', {
             method: 'PUT',
             jsonData: sendingData,
             success: function (response1) {
-                if (page.down('#updated-data-trigger').getValue().exportUpdate && updatePeriodId !== null && updatePeriodId != '') {
+                if (page.down('#updated-data-trigger').getValue().exportUpdate && !Ext.isEmpty(updatePeriodId) && typeof updatePeriodId !== 'object') {
                     Ext.Ajax.request({
                         url: '/api/tmr/relativeperiods/' + updatePeriodId + '/preview',
                         method: 'PUT',
