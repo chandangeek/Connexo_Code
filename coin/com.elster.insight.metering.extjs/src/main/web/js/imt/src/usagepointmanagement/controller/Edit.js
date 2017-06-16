@@ -538,7 +538,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                                             installationTime = wizard.getRecord().get('installationTime');
 
                                         dateTime.setValue(installationTime);
-                                        dateTime.setMinValue(installationTime);
+                                        dateTime.down('#date-time-field-date').setMinValue(moment(installationTime).startOf('day').toDate());
                                         me.getWizard().down('#calendar-date-field-errors').hide();
                                         field.clearInvalid();
                                         if (Ext.isEmpty(newValue)) {
