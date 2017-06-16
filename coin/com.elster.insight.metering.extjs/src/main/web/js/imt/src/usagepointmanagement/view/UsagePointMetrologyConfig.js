@@ -120,7 +120,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
             count = meterRolesWithMeters.length,
             meterActivation = _.some(meterRolesWithMeters, function (meterRole) {
                     return meterRole.get('activationTime');
-                }) || meterRoles,
+                }),
             metersContainer = me.down('#up-metrology-config-meters');
 
         if (count && count <= 2 && meterActivation) {
@@ -158,7 +158,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 fieldLabel: Uni.I18n.translate('general.label.countedMeters', 'IMT', '{0} meters', count),
                 value: '-'
             });
-        } else if (count !== 0) {
+        } else if (count !== 0 || meterRoles) {
             metersContainer.add({
                 xtype: 'displayfield',
                 labelWidth: 120,
