@@ -337,8 +337,7 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                         .stream()
                         .map(EventOccurrence::getEvent)
                         .map(HasId::getId)
-                        .anyMatch(eventId -> eventId == calendarEventId)
-                        && discardDay) {
+                        .anyMatch(eventId -> eventId == calendarEventId)) {
                     String message = getThesaurus().getFormat(MessageSeeds.NEAREST_AVG_VALUE_DAY_ESTIMATOR_FAIL_ESTIMATED_DAY_DISCARDED)
                             .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
                                     .format(), estimateOn, estimationBlock.getReadingType()
