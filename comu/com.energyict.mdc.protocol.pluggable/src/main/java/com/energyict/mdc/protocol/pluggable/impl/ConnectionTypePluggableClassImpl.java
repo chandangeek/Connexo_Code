@@ -12,7 +12,6 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
@@ -21,6 +20,8 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLConnectionTypeAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnectionTypePluggableClassTranslationKeys;
+import com.energyict.mdc.upl.TypedProperties;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -75,6 +76,16 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
 
     private ConnectionType newInstance(String javaClassName) {
         return this.protocolPluggableService.createConnectionType(javaClassName);
+    }
+
+    @Override
+    public String getTranslationKey() {
+        return super.getName();
+    }
+
+    @Override
+    public String getName() {
+        return ConnectionTypePluggableClassTranslationKeys.translationFor(this, getThesaurus());
     }
 
     @Override

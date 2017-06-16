@@ -49,6 +49,14 @@ public interface ConnectionTypePluggableClass extends PluggableClass {
     String NR_OF_RETRIES_ATTRIBUTE_NAME = "connectionTypeRetries";
     int DEFAULT_NR_OF_RETRIES = 3;
 
+    @Override
+    /**
+     * Returns he <b>translated</b> name of this {@link ConnectionTypePluggableClass}
+     */
+    String getName();
+
+    String getTranslationKey();
+
     List<PropertySpec> getPropertySpecs();
 
     /**
