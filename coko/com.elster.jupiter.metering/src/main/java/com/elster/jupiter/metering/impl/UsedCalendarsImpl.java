@@ -75,7 +75,7 @@ public class UsedCalendarsImpl implements UsagePoint.UsedCalendars {
 
     @Override
     public UsagePoint.CalendarUsage addCalendar(Calendar calendar, Instant startAt) {
-        if (startAt.isBefore(this.clock.instant())) {
+        if (this.usagePoint.getUsedCalendars().getCalendars().isEmpty() && startAt.isBefore(this.clock.instant())) {
             throw new CannotStartCalendarBeforeNow();
         }
         return this.doAddCalendar(startAt, calendar);
