@@ -35,6 +35,7 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -374,6 +375,10 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      * @return
      */
     public int getPhysicalAddressFromSerialNumber(String serialNumber) throws IOException {
+        if (serialNumber == null || serialNumber.isEmpty()) {
+            throw DeviceConfigurationException.missingProperty("SerialNumber");
+        }
+
         for (MbusDevice mbusDevice : messageProtocol.getMbusDevices()) {
             if (serialNumber.equalsIgnoreCase(mbusDevice.getCustomerID())) {
                 return mbusDevice.getPhysicalAddress();

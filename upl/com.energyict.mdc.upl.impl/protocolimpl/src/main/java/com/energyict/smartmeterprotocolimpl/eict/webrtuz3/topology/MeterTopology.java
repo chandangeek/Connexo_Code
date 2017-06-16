@@ -1,16 +1,23 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -153,8 +160,7 @@ public class MeterTopology {
      * If the serialNumber can't be retrieved from the device then we just log and try the next one.
      *
      * @return a List of <CODE>DeviceMappings</CODE>
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          if interframeTimeout has passed and maximum retries have been reached
+     * @throws com.energyict.dialer.connection.ConnectionException if interframeTimeout has passed and maximum retries have been reached
      */
     protected List<DeviceMapping> getMbusMapper() throws ConnectionException {
         String mbusSerial;
@@ -216,6 +222,9 @@ public class MeterTopology {
      * @return the physicalAddress or -1 if the serialNumber was not found.
      */
     public int getPhysicalAddress(String serialNumber) {
+        if (serialNumber == null || serialNumber.isEmpty()) {
+            throw DeviceConfigurationException.missingProperty("SerialNumber");
+        }
 
         if (serialNumber.equals(this.meterProtocol.getSerialNumber())) {
             return this.meterProtocol.getPhysicalAddress();
@@ -231,7 +240,7 @@ public class MeterTopology {
                 return dm.getPhysicalAddress();
             }
         }
-        return -1;
+        throw DeviceConfigurationException.unsupportedPropertyValue("SerialNumber", serialNumber);
     }
 
     public List<DeviceMapping> geteMeterMap() {
