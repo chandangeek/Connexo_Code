@@ -104,7 +104,7 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
     /**
      * Find the requested RegisterValue corresponding to the given Register in the provided list
      *
-     * @param register       the register to find
+     * @param register the register to find
      * @param registerValues the list of registerValues
      * @return the requested registerValue
      */
