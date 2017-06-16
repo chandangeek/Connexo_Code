@@ -37,6 +37,7 @@ Ext.define('Uni.grid.filtertop.Duration', {
                 value: me.defaultFromDate,
                 text: me.text,
                 margin: '0 10 0 0',
+                itemId: me.itemId + 'datetime-select',
                 hidden: me.hideDateTtimeSelect
             },
             {
@@ -46,6 +47,7 @@ Ext.define('Uni.grid.filtertop.Duration', {
                 displayField: 'localizeValue',
                 valueField: 'id',
                 emptyText: Uni.I18n.translate('general.duration', 'UNI', 'Duration'),
+                itemId: me.itemId + 'combobox',
                 store: me.store,
                 value: me.defaultDuration
             }
