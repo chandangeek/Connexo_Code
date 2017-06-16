@@ -11,12 +11,12 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
 
     ignoreFields: ['id', 'lifeCycleId'],
     availableFields: [
-        {id: 'deviceStates.lifeCycleName', value: Uni.I18n.translate('process.deviceCycleName', 'UNI', 'Device life cycle')},
-        {id: 'deviceStates.name', value: Uni.I18n.translate('process.deviceState', 'UNI', 'Device state')},
-        {id: 'issueReasons.name', value: Uni.I18n.translate('process.issueReasons', 'UNI', 'Issue reason')},
-        {id: 'alarmReasons.name', value: Uni.I18n.translate('process.alarmReasons', 'UNI', 'Alarm reason')},
-        {id: 'metrologyConfigurations.name', value: Uni.I18n.translate('process.metrologyConfiguration', 'UNI', 'Metrology configuration')},
-        {id: 'connectionStates.name', value: Uni.I18n.translate('process.connectionState', 'UNI', 'Connection state')}
+        {id: 'deviceStates.lifeCycleName', value: Uni.I18n.translate('process.deviceCycleName', 'UNI', 'Device life cycle'), order: 2},
+        {id: 'deviceStates.name', value: Uni.I18n.translate('process.deviceState', 'UNI', 'Device state'), order: 1},
+        {id: 'issueReasons.name', value: Uni.I18n.translate('process.issueReasons', 'UNI', 'Issue reason'), order: 1},
+        {id: 'alarmReasons.name', value: Uni.I18n.translate('process.alarmReasons', 'UNI', 'Alarm reason'), order: 1},
+        {id: 'metrologyConfigurations.name', value: Uni.I18n.translate('process.metrologyConfiguration', 'UNI', 'Metrology configuration'), order: 1},
+        {id: 'connectionStates.name', value: Uni.I18n.translate('process.connectionState', 'UNI', 'Connection state'), order: 1}
     ],
 
     getEditCmp: function () {
@@ -106,8 +106,7 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
                 }
             }
         }
-
-        return Ext.create('Ext.data.Store',{fields: fields});
+        return Ext.create('Ext.data.Store', {fields: fields});
     },
 
     getGridColumns: function() {
@@ -136,9 +135,13 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
                     columns.push({
                         header: obj.value,
                         dataIndex: dataIndex,
-                        flex: 1
+                        flex: 1,
+                        order: obj.order
                     });
                 }
+                columns.sort(function (a, b) {
+                    return a.order - b.order;
+                });
             }
         }
 
