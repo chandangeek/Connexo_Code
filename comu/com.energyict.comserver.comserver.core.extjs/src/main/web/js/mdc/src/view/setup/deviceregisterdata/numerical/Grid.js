@@ -25,15 +25,31 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
             {
                 header: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
                 dataIndex: 'interval',
-                renderer: function (value) {
+                renderer: function (value, metaData, record) {
+                    var text = '', showDeviceQualityIcon = false,
+                        tooltipContent = '', icon = '';
+
                     if(!Ext.isEmpty(value)) {
                         var endDate = new Date(value.end);
                         if (!!value.start && !!value.end) {
                             var startDate = new Date(value.start);
-                            return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
+                            text = Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
                         } else {
-                            return Uni.DateTime.formatDateTimeShort(endDate);
+                            text = Uni.DateTime.formatDateTimeShort(endDate);
                         }
+                        if (!Ext.isEmpty(record.get('deviceReadingQualities'))) {
+                            Ext.Array.forEach(record.get('deviceReadingQualities'), function (readingQualityObject) {
+                                tooltipContent += readingQualityObject + '<br>';
+                            });
+                            if (tooltipContent.length > 0) {
+                                tooltipContent += '<br>';
+                                tooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'MDC', 'View reading quality details for more information.');
+                                icon = '<span class="icon-price-tags" style="margin-left:10px; position:absolute;" data-qtitle="'
+                                    + Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality') + '" data-qtip="'
+                                    + tooltipContent + '"></span>';
+                            }
+                        }
+                        return text + icon;
                     }
                     return '-';
                 },

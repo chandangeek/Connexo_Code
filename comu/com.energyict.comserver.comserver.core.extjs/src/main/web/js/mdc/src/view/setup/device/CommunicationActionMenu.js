@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
                 action: 'run',
                 visible: function () {
                     return this.record.get('connectionDefinedOnDevice') &&
-                        this.record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS' && !this.record.get('isOnHold');
+                        this.record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS' && !this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask;
                 },
                 section: this.SECTION_ACTION
             },
@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
                 text: Uni.I18n.translate('general.runNow', 'MDC', 'Run now'),
                 action: 'runNow',
                 visible: function () {
-                    return this.record.get('connectionDefinedOnDevice') && !this.record.get('isOnHold');
+                    return this.record.get('connectionDefinedOnDevice') && !this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask;;
                 },
                 section: this.SECTION_ACTION
             },
@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
                 text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
                 action: 'toggleActivation',
                 visible: function () {
-                    return !!this.record.get('isOnHold')
+                    return !!this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask;
                 },
                 section: this.SECTION_ACTION
             },
@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
                 text: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
                 action: 'toggleActivation',
                 visible: function () {
-                    return !this.record.get('isOnHold')
+                    return !this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask;
                 },
                 section: this.SECTION_ACTION
             },

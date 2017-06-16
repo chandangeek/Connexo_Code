@@ -1036,63 +1036,25 @@ debugger;
     },
 
     estimateValue: function (record) {
-        var me = this,
-            bothSuspected = false,
-            mainValueSuspect = false,
-            bulkValueSuspect = false;
-
-        // if (!Ext.isArray(record)) {
-        //     bothSuspected = record.get('validationResult') &&
-        //         record.get('validationResult').main == 'suspect' &&
-        //         record.get('validationResult').bulk == 'suspect';
-        // } else {
-        //     Ext.Array.findBy(record, function (item) {
-        //         mainValueSuspect = item.get('validationResult') && item.get('validationResult').main == 'suspect';
-        //         return mainValueSuspect;
-        //     });
-        //     Ext.Array.findBy(record, function (item) {
-        //         bulkValueSuspect = item.get('validationResult') && item.get('validationResult').bulk == 'suspect';
-        //         return bulkValueSuspect;
-        //     });
-        //     bothSuspected = mainValueSuspect && bulkValueSuspect;
-        // }
+        var me = this;
         me.getPage().setLoading();
         me.getStore('Mdc.store.Estimators').load(function () {
             me.getPage().setLoading(false);
             Ext.widget('reading-estimation-window', {
                 itemId: 'channel-reading-estimation-window',
                 record: record,
-                bothSuspected: true
+                currentChannel: me.currentChannel,
+                bothSuspected: !!me.currentChannel.get('calculatedReadingType')
             }).show();
         });
     },
 
     estimateValueWithRule: function (record) {
         var me = this,
-            bothSuspected = false,
-            mainValueSuspect = false,
-            bulkValueSuspect = false,
             estimationRulesStore = me.getStore('Mdc.store.EstimationRulesOnChannelMainValue');
 
-        // if (!Ext.isArray(record)) {
-        //     if (record.get('validationResult')) {
-        //         mainValueSuspect = record.get('validationResult').main == 'suspect';
-        //         bulkValueSuspect = record.get('validationResult').bulk == 'suspect';
-        //         bothSuspected = mainValueSuspect && bulkValueSuspect;
-        //     }
-        // } else {
-        //     Ext.Array.findBy(record, function (item) {
-        //         mainValueSuspect = item.get('validationResult') && item.get('validationResult').main == 'suspect';
-        //         return mainValueSuspect;
-        //     });
-        //     Ext.Array.findBy(record, function (item) {
-        //         bulkValueSuspect = item.get('validationResult') && item.get('validationResult').bulk == 'suspect';
-        //         return bulkValueSuspect;
-        //     });
-        //     bothSuspected = mainValueSuspect && bulkValueSuspect;
-        // }
 
-        estimationRulesStore.getProxy().setExtraParam('isBulk', !bothSuspected ? bulkValueSuspect : false);
+        estimationRulesStore.getProxy().setExtraParam('isBulk', false);
         estimationRulesStore.load(function (records) {
             showWindow(Boolean(records.length));
         });
@@ -1101,7 +1063,8 @@ debugger;
             Ext.widget('reading-estimation-with-rule-window', {
                 itemId: 'channel-reading-estimation-with-rule-window',
                 record: record,
-                bothSuspected: true,
+                currentChannel: me.currentChannel,
+                bothSuspected: !!me.currentChannel.get('calculatedReadingType'),
                 hasRules: hasRules
             }).show();
         }

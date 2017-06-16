@@ -132,11 +132,11 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
         }
 
         if (communicationTaskHistory.get('comSession').warnings && communicationTaskHistory.get('comSession').warnings.length > 0) {
-            errorListCommunication.push((Uni.I18n.translate('deviceconnectionhistory.warningsTitle', 'MDC', 'Warnings:')));
+            errorListConnection.push((Uni.I18n.translate('deviceconnectionhistory.warningsTitle', 'MDC', 'Warnings:')));
             Ext.Array.forEach(communicationTaskHistory.get('comSession').warnings, function (warn){
-                errorListCommunication.push(Uni.DateTime.formatDateTime(warn.timestamp, Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS) + ' - ' + warn.details);
+                errorListConnection.push(Uni.DateTime.formatDateTime(warn.timestamp, Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS) + ' - ' + warn.details);
             });
-            errorListCommunication.push(' '); //new empty line
+            errorListConnection.push(' '); //new empty line
         }
 
         if (communicationTaskHistory.get('errors') && communicationTaskHistory.get('errors').length > 0) {
