@@ -20,8 +20,8 @@ public interface IssueDataCollection extends Issue {
     Optional<ComTaskExecution> getCommunicationTask();
     void setCommunicationTask(ComTaskExecution task);
 
-    String getDeviceMRID();
-    void setDeviceMRID(String deviceMRID);
+    String getDeviceIdentification();
+    void setDeviceIdentification(String deviceIdentification);
     
     Optional<ComSession> getComSession();
     void setComSession(ComSession comSession);

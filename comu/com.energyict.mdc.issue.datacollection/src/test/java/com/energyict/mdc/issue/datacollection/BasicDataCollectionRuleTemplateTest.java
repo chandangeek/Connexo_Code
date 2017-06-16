@@ -58,7 +58,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
 
         OpenIssueDataCollection issue = template.createIssue(baseIssue, event);
         assertThat(issue.getId()).isEqualTo(baseIssue.getId());
-        assertThat(issue.getDeviceMRID()).isEqualTo("1");
+        assertThat(issue.getDeviceIdentification()).isEqualTo("1");
     }
 
     @Test
@@ -69,7 +69,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         OpenIssue baseIssue = createBaseIssue(rule, meter);
         OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
         idcIssue.setIssue(baseIssue);
-        idcIssue.setDeviceMRID("001234");
+        idcIssue.setDeviceIdentification("001234");
         idcIssue.save();
 
         meter = createMeter("2", "Name2");
@@ -80,7 +80,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
 
         OpenIssueDataCollection issue = template.createIssue(baseIssue, event);
         assertThat(issue.getId()).isEqualTo(baseIssue.getId());
-        assertThat(issue.getDeviceMRID()).isEqualTo("2");
+        assertThat(issue.getDeviceIdentification()).isEqualTo("2");
     }
 
     @Test
@@ -91,7 +91,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         OpenIssue baseIssue = createBaseIssue(rule, meter);
         OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
         idcIssue.setIssue(baseIssue);
-        idcIssue.setDeviceMRID("1");
+        idcIssue.setDeviceIdentification("1");
         idcIssue.setStatus(getIssueService().findStatus(IssueStatus.IN_PROGRESS).get());
         idcIssue.save();
 
@@ -114,7 +114,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         // Create data-collection issue
         OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
         idcIssue.setIssue((OpenIssue) baseIssue);
-        idcIssue.setDeviceMRID("1");
+        idcIssue.setDeviceIdentification("1");
         idcIssue.save();
         // Mock event
         IssueEvent event = mock(IssueEvent.class);

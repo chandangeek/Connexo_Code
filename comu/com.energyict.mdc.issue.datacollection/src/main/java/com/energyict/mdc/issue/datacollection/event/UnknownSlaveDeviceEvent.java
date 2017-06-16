@@ -24,7 +24,7 @@ import java.util.Map;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class UnknownSlaveDeviceEvent extends DataCollectionEvent {
-    protected String deviceMRID;
+    protected String slaveDeviceIdentification;
 
     @Inject
     public UnknownSlaveDeviceEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus, Injector injector) {
@@ -35,14 +35,14 @@ public class UnknownSlaveDeviceEvent extends DataCollectionEvent {
     public void apply(Issue issue) {
         if (issue instanceof OpenIssueDataCollection) {
             OpenIssueDataCollection dcIssue = (OpenIssueDataCollection) issue;
-            dcIssue.setDeviceMRID(deviceMRID);
+            dcIssue.setDeviceIdentification(slaveDeviceIdentification);
         }
     }
 
     @Override
     public UnknownSlaveDeviceEvent clone() {
         UnknownSlaveDeviceEvent clone = (UnknownSlaveDeviceEvent) super.clone();
-        clone.deviceMRID = deviceMRID;
+        clone.slaveDeviceIdentification = slaveDeviceIdentification;
         return clone;
     }
 
@@ -55,13 +55,12 @@ public class UnknownSlaveDeviceEvent extends DataCollectionEvent {
     }
 
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription) {
-        // TODO: check what comes here: id, MRID or name, and refactor as name if needed
-        this.deviceMRID = (String) rawEvent.get(ModuleConstants.DEVICE_IDENTIFIER);
+        this.slaveDeviceIdentification = (String) rawEvent.get(ModuleConstants.DEVICE_IDENTIFIER); // Which should be the 'toString()' of the slave DeviceIdentifier
     }
 
     @Override
     protected Condition getConditionForExistingIssue() {
-        return where("deviceMRID").isEqualTo(deviceMRID);
+        return where("deviceMRID").isEqualTo(slaveDeviceIdentification);
     }
 
 }

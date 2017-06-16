@@ -217,7 +217,7 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
-    public String getDeviceMRID() {
+    public String getDeviceIdentification() {
         if (!is(deviceMRID).emptyOrOnlyWhiteSpace()) {
             return deviceMRID;
         } else if (getBaseIssue() != null && getBaseIssue().getDevice() != null) {
@@ -227,8 +227,8 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
-    public void setDeviceMRID(String deviceMRID) {
-        this.deviceMRID = deviceMRID;
+    public void setDeviceIdentification(String deviceIdentification) {
+        this.deviceMRID = deviceIdentification;
     }
 
     @Override
