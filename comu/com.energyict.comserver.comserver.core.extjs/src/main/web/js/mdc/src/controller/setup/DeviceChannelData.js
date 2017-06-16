@@ -708,7 +708,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     getChangedData: function (store) {
         var changedData = [],
             confirmedObj = {};
-debugger;
+
         Ext.Array.each(store.getUpdatedRecords(), function (record) {
 
             if (record.get('confirmed')) {
