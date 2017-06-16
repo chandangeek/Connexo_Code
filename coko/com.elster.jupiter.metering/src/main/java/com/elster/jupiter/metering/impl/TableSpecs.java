@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -34,7 +35,6 @@ import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
-import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
@@ -1116,6 +1116,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<Formula> table = dataModel.addTable(name(), Formula.class);
             table.map(FormulaImpl.class);
+            table.cache();
             table.since(version(10, 2));
             table.setJournalTableName("MTR_FORMULA_JRNL");
             Column idColumn = table.addAutoIdColumn();

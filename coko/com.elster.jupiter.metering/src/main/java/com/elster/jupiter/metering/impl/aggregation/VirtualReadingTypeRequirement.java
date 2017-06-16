@@ -289,6 +289,14 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append("' AND channelid = ");
         sqlBuilder.addLong(this.getPreferredChannel().getId());
         sqlBuilder.append(" AND (TYPE LIKE '%.5.258' OR TYPE LIKE '%.5.259' OR TYPE LIKE '%.7.%' OR TYPE LIKE '%.8.%')");
+        if (rawDataPeriod.hasLowerBound()) {
+            sqlBuilder.append(" AND readingtimestamp > ");
+            sqlBuilder.addLong(this.rawDataPeriod.lowerEndpoint().toEpochMilli());
+        }
+        if (rawDataPeriod.hasUpperBound()) {
+        sqlBuilder.append(" AND readingtimestamp <= ");
+            sqlBuilder.addLong(this.rawDataPeriod.upperEndpoint().toEpochMilli());
+        }
         sqlBuilder.append(" GROUP BY readingtimestamp) rq");
         sqlBuilder.append(" ON rawts.utcstamp = rq.readingtimestamp");
     }

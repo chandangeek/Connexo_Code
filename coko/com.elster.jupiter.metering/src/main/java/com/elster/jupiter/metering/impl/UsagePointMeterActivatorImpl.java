@@ -224,17 +224,25 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         this.activationChanges.forEach(activation -> {
             Meter meter = activation.getMeter();
             MeterRole meterRole = activation.getMeterRole();
+            Instant activationStart = activation.getStart();
             if (meter != null && meterRole != null && activation.getUsagePoint() != null && activation.getRange() != null) {
                 MeterActivationImpl meterActivation = this.metrologyConfigurationService.getDataModel()
                         .query(MeterActivationImpl.class).select(Where.where("meter").isEqualTo(meter)).stream()
                         .filter(ma -> ma.getEnd() == null)
                         .findFirst().get();
 
-                if (meterActivation.getRange().contains(activation.getStart())) {
-                    MeterActivation newActivation = meterActivation.split(activation.getStart());
+                if (meterActivation.getRange().contains(activationStart)) {
+                    MeterActivation newActivation = meterActivation.split(activationStart);
                     saveMeterActivation(((MeterActivationImpl)newActivation), meterRole);
                 } else {
-                    saveMeterActivation(meterActivation, meterRole);
+                    try {
+                        meterActivation.doSetUsagePoint(usagePoint);
+                        meterActivation.doSetMeterRole(meterRole);
+                        meterActivation.advanceStartDate(activationStart);
+                    } catch (IllegalArgumentException ex) {
+                        throw new UsagePointMeterActivationException.MeterActivationOverlap(metrologyConfigurationService.getThesaurus(),
+                                meter.getName(), formatDate(activationStart));
+                    }
                 }
 
                 this.meterTimeLines = new HashMap<>();
