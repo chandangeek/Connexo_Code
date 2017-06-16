@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.meterdata.LoadProfileType;
 import com.energyict.mdc.upl.meterdata.RegisterGroup;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -50,6 +51,9 @@ public interface OfflineDevice extends Offline {
      */
     @XmlAttribute
     String getSerialNumber();
+
+    @XmlAttribute
+    String getmRID();
 
     /**
      * Returns the external name of the device
