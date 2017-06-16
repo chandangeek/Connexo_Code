@@ -17,8 +17,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
     initComponent: function () {
         var me = this,
             metrologyConfiguration = me.usagePoint.get('metrologyConfiguration'),
-            meterRoles = me.usagePoint.get('meterRoles') ? me.usagePoint.get('meterRoles') :
-                me.usagePoint.get('metrologyConfiguration') ? me.usagePoint.get('metrologyConfiguration').meterRoles : null,
+            meterRoles = !Ext.isEmpty(me.usagePoint.get('meterRoles')),
             meterRolesStore = Ext.getStore('Imt.usagepointmanagement.store.MeterRoles'),
             stage = me.usagePoint.get('state').stage.id.split('.')[2],
             isReadyForLinkingMC = me.usagePoint.get('isReadyForLinkingMC');
@@ -82,7 +81,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 itemId: 'up-metrology-config-meters-empty',
                 fieldLabel: ' ',
                 privileges: stage === 'preoperational'
-                && Ext.isEmpty(meterRoles)
+                && meterRoles
                 && Imt.privileges.UsagePoint.canAdministrate(),
                 htmlEncode: false,
                 renderer: function () {
@@ -119,9 +118,12 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
         var me = this,
             first = true,
             count = meterRolesWithMeters.length,
+            meterActivation = _.some(meterRolesWithMeters, function (meterRole) {
+                    return meterRole.get('activationTime');
+                }),
             metersContainer = me.down('#up-metrology-config-meters');
 
-        if (count && count <= 2) {
+        if (count && count <= 2 && meterActivation) {
             Ext.Array.each(meterRolesWithMeters, function (meterRoleWithMeter) {
                 metersContainer.add({
                     xtype: 'displayfield',
@@ -156,7 +158,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 fieldLabel: Uni.I18n.translate('general.label.countedMeters', 'IMT', '{0} meters', count),
                 value: '-'
             });
-        } else if (!count) {
+        } else if (count !== 0) {
             metersContainer.add({
                 xtype: 'displayfield',
                 labelWidth: 120,
