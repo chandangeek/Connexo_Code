@@ -55,5 +55,21 @@ Ext.define('Imt.usagepointmanagement.view.forms.CalendarInfo', {
         });
 
         return calendars;
+    },
+
+    markInvalid: function (errors) {
+        var me = this;
+
+        Ext.suspendLayouts();
+        me.getForm().markInvalid(errors);
+        Ext.resumeLayouts(true);
+    },
+
+    clearInvalid: function () {
+        var me = this;
+
+        Ext.suspendLayouts();
+        me.getForm().clearInvalid();
+        Ext.resumeLayouts(true);
     }
 });
