@@ -481,4 +481,27 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
         return this.timeOfUseEvent;
     }
 
+    /**
+     * Initializes this {@link CalculatedReadingRecordImpl}
+     * and mark it as being missing.
+     *
+     * @param usagePoint The UsagePoint
+     * @param readingType The ReadingType
+     * @param timestamp The utc timestamp
+     * @return The initialized CalculatedReadingRecord
+     */
+    CalculatedReadingRecordImpl initMissing(UsagePoint usagePoint, IReadingType readingType, Instant timestamp) {
+        this.usagePoint = usagePoint;
+        this.timeOfUseEvent = Optional.empty();
+        this.readingType = readingType;
+        this.readingTypeMRID = readingType.getMRID();
+        this.rawValue = null;
+        this.localDate = new java.sql.Timestamp(timestamp.toEpochMilli());
+        this.timestamp = timestamp;
+        this.recordTime = null;
+        this.readingQuality = 0;
+        this.count = 0;
+        this.sourceChannelSet = sourceChannelSetFactory.empty();
+        return this;
+    }
 }

@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.CalendarTimeSeries;
 import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.impl.ServerCalendar;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -33,6 +34,7 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ChannelContract;
+import com.elster.jupiter.metering.impl.IReadingType;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.ServerCalendarUsage;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
@@ -61,6 +63,8 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
+import java.time.Year;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
@@ -138,14 +142,24 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
     private MeteringDataModelService meteringDataModelService;
     @Mock
     private NlsService nlsService;
+    @Mock
+    private ReadingTypeDeliverable deliverable1;
+    @Mock
+    private ServerCalendar.ZonedView zonedView;
+    @Mock
+    private Event event1;
 
     private Clock clock = Clock.systemDefaultZone();
     private ServerMetrologyConfigurationService metrologyConfigurationService;
 
+    private ZoneId zoneId;
+
     @Before
     public void initializeMocks() throws SQLException {
+        zoneId = ZoneId.of("UTC");
         when(this.usagePoint.getName()).thenReturn("DataAggregationServiceImplCalculateTimeOfUseTest");
         when(this.usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(this.effectiveMetrologyConfiguration));
+        when(this.usagePoint.getZoneId()).thenReturn(zoneId);
         when(this.metrologyPurpose.getName()).thenReturn("DataAggregationServiceImplCalculateTimeOfUseTest");
         when(this.contract.getMetrologyPurpose()).thenReturn(this.metrologyPurpose);
         when(this.meteringService.getDataModel()).thenReturn(this.dataModel);
@@ -195,7 +209,7 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         // Setup configuration deliverables
         ReadingTypeDeliverable peakConsumption = mock(ReadingTypeDeliverable.class);
         when(peakConsumption.getName()).thenReturn("peakConsumption");
-        ReadingType peakConsumptionReadingType = this.mock15minReadingType("0.0.2.1.4.2.12.0.0.0.0.22.0.0.0.3.72.0");   // 22 is code for peak tariff
+        IReadingType peakConsumptionReadingType = this.mock15minIReadingType("0.0.2.1.4.2.12.0.0.0.0.22.0.0.0.3.72.0");   // 22 is code for peak tariff
         when(peakConsumptionReadingType.getTou()).thenReturn(22);
         when(peakConsumption.getReadingType()).thenReturn(peakConsumptionReadingType);
         ServerFormulaBuilder peakFormulaBuilder = this.newFormulaBuilder();
@@ -239,6 +253,9 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         SqlFragment sqlFragment = mock(SqlFragment.class);
         when(calendarTimeSeries.joinSql(any(SqlFragment.class), anyString(), any(Event.class), any(Range.class))).thenReturn(sqlFragment);
         when(calendar.toTimeSeries(Duration.ofMinutes(15), ZoneOffset.UTC)).thenReturn(calendarTimeSeries);
+        when(calendar.forZone(zoneId, getStartYear(aggregationPeriod, zoneId), getEndYear(aggregationPeriod, zoneId))).thenReturn(zonedView);
+        when(zonedView.eventFor(any(Instant.class))).thenReturn(event1);
+        when(event1.getCode()).thenReturn(22l);
 
         MeterActivationSet meterActivationSet = mock(MeterActivationSet.class);
         when(meterActivationSet.getCalendar()).thenReturn(calendar);
@@ -261,6 +278,7 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         when(consumption.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(consumptionChannel));
         when(this.virtualFactory.allRequirements()).thenReturn(Collections.singletonList(virtualConsumption));
         when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
+
         // Business method
         service.calculate(this.usagePoint, this.contract, aggregationPeriod);
 
@@ -309,7 +327,7 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         // Setup configuration deliverables
         ReadingTypeDeliverable peakConsumption = mock(ReadingTypeDeliverable.class);
         when(peakConsumption.getName()).thenReturn("peakConsumption");
-        ReadingType peakConsumptionReadingType = this.mockMonhtlyReadingType("13.0.0.1.4.2.12.0.0.0.0.22.0.0.0.3.72.0");   // 22 is code for peak tariff
+        IReadingType peakConsumptionReadingType = this.mockMonhtlyIReadingType("13.0.0.1.4.2.12.0.0.0.0.22.0.0.0.3.72.0");   // 22 is code for peak tariff
         when(peakConsumptionReadingType.getTou()).thenReturn(22);
         when(peakConsumption.getReadingType()).thenReturn(peakConsumptionReadingType);
         ServerFormulaBuilder peakFormulaBuilder = this.newFormulaBuilder();
@@ -353,6 +371,9 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         SqlFragment sqlFragment = mock(SqlFragment.class);
         when(calendarTimeSeries.joinSql(any(SqlFragment.class), anyString(), any(Event.class), any(Range.class))).thenReturn(sqlFragment);
         when(calendar.toTimeSeries(Period.ofMonths(1), ZoneOffset.UTC)).thenReturn(calendarTimeSeries);
+        when(calendar.forZone(zoneId, getStartYear(aggregationPeriod, zoneId), getEndYear(aggregationPeriod, zoneId))).thenReturn(zonedView);
+        when(zonedView.eventFor(any(Instant.class))).thenReturn(event1);
+        when(event1.getCode()).thenReturn(22l);
 
         MeterActivationSet meterActivationSet = mock(MeterActivationSet.class);
         when(meterActivationSet.getCalendar()).thenReturn(calendar);
@@ -375,6 +396,8 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         when(consumption.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(consumptionChannel));
         when(this.virtualFactory.allRequirements()).thenReturn(Collections.singletonList(virtualConsumption));
         when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
+
+        IReadingType readingType15min = this.mock15minIReadingType("13.0.0.1.4.2.12.0.0.0.0.22.0.0.0.3.72.0");
 
         // Business method
         service.calculate(this.usagePoint, this.contract, aggregationPeriod);
@@ -402,6 +425,22 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
 
     private Range<Instant> year2016() {
         return Range.atLeast(Instant.ofEpochMilli(1451606400000L));
+    }
+
+    private Year getStartYear(Range<Instant> period, ZoneId zoneId) {
+        if (period.hasLowerBound()) {
+            return Year.from(period.lowerEndpoint().atZone(zoneId));
+        } else {
+            return Year.now(this.clock);
+        }
+    }
+
+    private Year getEndYear(Range<Instant> period, ZoneId zoneId) {
+        if (period.hasUpperBound()) {
+            return Year.from(period.upperEndpoint().atZone(zoneId));
+        } else {
+            return Year.now(this.clock).plusYears(1);
+        }
     }
 
     private ReadingType mock15minReadingType(String mRID) {
@@ -449,5 +488,28 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
     private ServerFormulaBuilder newFormulaBuilder() {
         return this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
     }
+
+    private IReadingType mock15minIReadingType(String mRID) {
+        IReadingType readingType = mock(IReadingType.class);
+        when(readingType.getMRID()).thenReturn(mRID);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        return readingType;
+    }
+
+    private IReadingType mockMonhtlyIReadingType(String mRID) {
+        IReadingType readingType = mock(IReadingType.class);
+        when(readingType.getMRID()).thenReturn(mRID);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        return readingType;
+    }
+
 
 }

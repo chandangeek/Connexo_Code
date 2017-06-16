@@ -30,6 +30,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ChannelContract;
+import com.elster.jupiter.metering.impl.IReadingType;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.ServerUsagePoint;
@@ -55,6 +56,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -137,6 +139,10 @@ public class DataAggregationServiceImplCalculateTest {
     @Mock
     private MeteringDataModelService meteringDataModelService;
     @Mock
+    private ReadingTypeDeliverable deliverable1;
+    @Mock
+    private ReadingTypeDeliverable deliverable2;
+    @Mock
     private NlsService nlsService;
 
     private Clock clock = Clock.systemDefaultZone();
@@ -144,11 +150,14 @@ public class DataAggregationServiceImplCalculateTest {
     private SqlBuilder withClauseBuilder;
     private SqlBuilder selectClauseBuilder;
     private SqlBuilder completeSqlBuilder;
+    private ZoneId zoneId;
 
     @Before
     public void initializeMocks() throws SQLException {
+        zoneId = ZoneId.of("UTC");
         when(this.usagePoint.getName()).thenReturn("DataAggregationServiceImplCalculateTest");
         when(this.usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(this.effectiveMetrologyConfiguration));
+        when(this.usagePoint.getZoneId()).thenReturn(zoneId);
         when(this.metrologyPurpose.getName()).thenReturn("DataAggregationServiceImplCalculateTest");
         when(this.contract.getMetrologyPurpose()).thenReturn(this.metrologyPurpose);
         this.withClauseBuilder = new SqlBuilder();
@@ -296,15 +305,20 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.virtualFactory.allRequirements()).thenReturn(Arrays.asList(virtualConsumption, virtualProduction));
         ReadingTypeDeliverableForMeterActivationSet netConsumptionForMeterActivation = mock(ReadingTypeDeliverableForMeterActivationSet.class);
         when(netConsumptionForMeterActivation.sqlName()).thenReturn("vrt-netConsumption");
+
+        IReadingType readingType15min = this.mock15minIReadingType("0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        when(netConsumptionForMeterActivation.getDeliverable()).thenReturn(deliverable1);
+        when(deliverable1.getReadingType()).thenReturn(readingType15min);
+
         when(this.readingTypeDeliverableForMeterActivationFactory
                 .from(
-                    eq(Formula.Mode.AUTO),
-                    eq(netConsumption),
-                    any(MeterActivationSet.class),
-                    eq(aggregationPeriod),
-                    anyInt(),
-                    any(ServerExpressionNode.class),
-                    any(VirtualReadingType.class)))
+                        eq(Formula.Mode.AUTO),
+                        eq(netConsumption),
+                        any(MeterActivationSet.class),
+                        eq(aggregationPeriod),
+                        anyInt(),
+                        any(ServerExpressionNode.class),
+                        any(VirtualReadingType.class)))
                 .thenReturn(netConsumptionForMeterActivation);
 
         // Business method
@@ -415,16 +429,22 @@ public class DataAggregationServiceImplCalculateTest {
         when(production.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(chn2));
         when(this.virtualFactory.allRequirements()).thenReturn(Arrays.asList(virtualConsumption, virtualProduction));
         ReadingTypeDeliverableForMeterActivationSet netConsumptionForMeterActivation = mock(ReadingTypeDeliverableForMeterActivationSet.class);
+
+        IReadingType readingType15min = this.mock15minIReadingType("13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        when(netConsumptionForMeterActivation.getDeliverable()).thenReturn(deliverable1);
+        when(deliverable1.getReadingType()).thenReturn(readingType15min);
+
         when(netConsumptionForMeterActivation.sqlName()).thenReturn("vrt-netConsumption");
+
         when(this.readingTypeDeliverableForMeterActivationFactory
                 .from(
-                    eq(Formula.Mode.AUTO),
-                    eq(netConsumption),
-                    any(MeterActivationSet.class),
-                    eq(aggregationPeriod),
-                    anyInt(),
-                    any(ServerExpressionNode.class),
-                    any(VirtualReadingType.class)))
+                        eq(Formula.Mode.AUTO),
+                        eq(netConsumption),
+                        any(MeterActivationSet.class),
+                        eq(aggregationPeriod),
+                        anyInt(),
+                        any(ServerExpressionNode.class),
+                        any(VirtualReadingType.class)))
                 .thenReturn(netConsumptionForMeterActivation);
 
         // Business method
@@ -556,18 +576,25 @@ public class DataAggregationServiceImplCalculateTest {
         when(netConsumptionForJan.sqlName()).thenReturn("vrt-netConsumption-jan");
         ReadingTypeDeliverableForMeterActivationSet netConsumptionForFeb = mock(ReadingTypeDeliverableForMeterActivationSet.class);
         when(netConsumptionForJan.sqlName()).thenReturn("vrt-netConsumption-feb");
+
+        IReadingType readingType15min = this.mock15minIReadingType("0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        when(netConsumptionForJan.getDeliverable()).thenReturn(deliverable1);
+        when(netConsumptionForFeb.getDeliverable()).thenReturn(deliverable2);
+        when(deliverable1.getReadingType()).thenReturn(readingType15min);
+        when(deliverable2.getReadingType()).thenReturn(readingType15min);
+
         when(this.readingTypeDeliverableForMeterActivationFactory
                 .from(
-                    eq(Formula.Mode.AUTO),
-                    eq(netConsumption),
-                    any(MeterActivationSet.class),
-                    eq(aggregationPeriod),
-                    anyInt(),
-                    any(ServerExpressionNode.class),
-                    any(VirtualReadingType.class)))
+                        eq(Formula.Mode.AUTO),
+                        eq(netConsumption),
+                        any(MeterActivationSet.class),
+                        eq(aggregationPeriod),
+                        anyInt(),
+                        any(ServerExpressionNode.class),
+                        any(VirtualReadingType.class)))
                 .thenReturn(
-                    netConsumptionForJan,
-                    netConsumptionForFeb);
+                        netConsumptionForJan,
+                        netConsumptionForFeb);
 
         // Business method
         service.calculate(this.usagePoint, this.contract, aggregationPeriod);
@@ -622,6 +649,18 @@ public class DataAggregationServiceImplCalculateTest {
         when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
         return readingType;
     }
+
+    private IReadingType mock15minIReadingType(String mRID) {
+        IReadingType readingType = mock(IReadingType.class);
+        when(readingType.getMRID()).thenReturn(mRID);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        return readingType;
+    }
+
 
     private ReadingType mockMonhtlyReadingType(String mRID) {
         ReadingType readingType = mock(ReadingType.class);

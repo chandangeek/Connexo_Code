@@ -166,16 +166,32 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                         usagePoint,
                         contract,
                         period,
-                        this.execute(
-                                this.generateSql(
-                                        this.sqlBuilderFactory.newClauseAwareSqlBuilder(),
-                                        deliverablesPerMeterActivation,
-                                        virtualFactory),
-                                deliverablesPerMeterActivation));
+                        generateSQL(virtualFactory, deliverablesPerMeterActivation));
             } catch (SQLException e) {
                 throw new UnderlyingSQLFailedException(e);
             }
         }
+    }
+
+    private Map<ReadingType, List<CalculatedReadingRecordImpl>> generateSQL(VirtualFactory virtualFactory, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) throws
+            SQLException {
+        Map<ReadingType, List<CalculatedReadingRecordImpl>> readingTypesAndRecords = new HashMap<>();
+        Map<ReadingType, List<CalculatedReadingRecordImpl>> readingTypeListMap = this.execute(
+                this.generateSql(
+                        this.sqlBuilderFactory.newClauseAwareSqlBuilder(),
+                        deliverablesPerMeterActivation,
+                        virtualFactory),
+                deliverablesPerMeterActivation);
+        deliverablesPerMeterActivation.forEach((meterActivationSet, readingTypeDeliverableForMeterActivationSets) -> {
+            readingTypeDeliverableForMeterActivationSets.forEach(readingTypeDeliverableForMeterActivationSet -> {
+                ReadingType readingType = readingTypeDeliverableForMeterActivationSet.getDeliverable().getReadingType();
+                if (!readingTypeListMap.containsKey(readingType)) {
+                    readingTypesAndRecords.put(readingType, new ArrayList<>());
+                }
+            });
+        });
+        readingTypesAndRecords.putAll(readingTypeListMap);
+        return readingTypesAndRecords;
     }
 
     @Override
@@ -520,6 +536,18 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                                                     timestamp,
                                                     zoneId,
                                                     withMissings)));
+            IntervalLength
+                    .from(readingTypeAndRecords.getKey())
+                    .toTimeSeries(extendedPeriod, zoneId)
+                    .forEach(timestamp -> {
+                        if (!this.findInWithMissings(withMissings, timestamp).isPresent()) {
+                            this.addMissingRecord(
+                                    readingTypeAndRecords.getKey(),
+                                    timestamp,
+                                    withMissings,
+                                    introspector.getUsagePoint());
+                        }
+                    });
         }
         return withMissings;
     }
@@ -548,6 +576,10 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         return calendarUsages.stream().filter(each -> each.contains(timestamp)).findAny();
     }
 
+    private Optional<CalculatedReadingRecordImpl> findInWithMissings(List<CalculatedReadingRecordImpl> withMissings, Instant timestamp) {
+        return withMissings.stream().filter(cr -> cr.getTimeStamp().equals(timestamp)).findAny();
+    }
+
     private void addMissingIfDifferentTimeOfUse(ZonedCalendarUsage calendarUsage, ReadingType readingType, Instant timestamp, ZoneId zoneId, List<CalculatedReadingRecordImpl> readingRecords) {
         Instant calendarTimestamp = IntervalLength.from(readingType).subtractFrom(timestamp, zoneId);
         int tou = readingType.getTou();
@@ -560,6 +592,12 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                             timestamp,
                             event));
         }
+    }
+
+    private void addMissingRecord(ReadingType readingType, Instant timestamp, List<CalculatedReadingRecordImpl> readingRecords, UsagePoint usagePoint) {
+        CalculatedReadingRecordImpl crr = new CalculatedReadingRecordImpl(this.truncaterFactory, this.sourceChannelSetFactory);
+        crr.initMissing(usagePoint, (IReadingType)readingType, timestamp);
+        readingRecords.add(crr);
     }
 
     private CalculatedReadingRecordImpl addMissing(UsagePoint usagePoint, IReadingType readingType, Instant timeStamp, Event event) {
