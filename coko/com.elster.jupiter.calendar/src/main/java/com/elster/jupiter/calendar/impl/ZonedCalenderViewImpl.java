@@ -325,8 +325,6 @@ public class ZonedCalenderViewImpl implements ServerCalendar.ZonedView {
         DayType dayType(DayOfWeek dayOfWeek) {
             return this.zonedDayTypeMap.get(dayOfWeek);
         }
-
-        ;
     }
 
 }
