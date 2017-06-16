@@ -7,6 +7,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.EventType;
@@ -73,6 +74,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     private final EventService eventService;
     private final UserService userService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final LicenseService licenseService;
 
     private List<Activation> activationChanges;
     private List<Activation> deactivationChanges;
@@ -82,13 +84,14 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     private FormValidation formValidation = FormValidation.SET_METERS;
 
     @Inject
-    public UsagePointMeterActivatorImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, UserService userService, ThreadPrincipalService threadPrincipalService) {
+    public UsagePointMeterActivatorImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, UserService userService, ThreadPrincipalService threadPrincipalService, LicenseService licenseService) {
         this.userService = userService;
         this.threadPrincipalService = threadPrincipalService;
         this.activationChanges = new ArrayList<>();
         this.deactivationChanges = new ArrayList<>();
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.eventService = eventService;
+        this.licenseService = licenseService;
     }
 
     UsagePointMeterActivatorImpl init(UsagePointImpl usagePoint) {
@@ -157,7 +160,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     private void validateOperationalStageWithGaps(Meter meter, Instant meterStartDate) {
         meter.getState(meterStartDate).get().getStage().ifPresent(deviceStage -> {
-            if(!EndDeviceStage.fromKey(deviceStage.getName()).equals(EndDeviceStage.OPERATIONAL)) {
+            if(!EndDeviceStage.fromKey(deviceStage.getName()).equals(EndDeviceStage.OPERATIONAL) && licenseService.getLicenseForApplication("INS").isPresent()) {
                 throw new UsagePointMeterActivationException.IncorrectMeterActivationDateWhenGapsAreAllowed(metrologyConfigurationService.getThesaurus(), meter.getName(), this.usagePoint.getName());
             }
         });
