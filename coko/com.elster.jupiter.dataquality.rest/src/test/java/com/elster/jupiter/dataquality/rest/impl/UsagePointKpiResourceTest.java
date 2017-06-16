@@ -150,7 +150,7 @@ public class UsagePointKpiResourceTest extends DataQualityApplicationJerseyTest 
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
-        verify(dataQualityKpi).makeObsolete();
+        verify(dataQualityKpi).delete();
     }
 
     @Test
