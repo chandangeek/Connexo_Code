@@ -113,13 +113,6 @@ public final class UsagePointDataQualityKpiImpl extends DataQualityKpiImpl imple
     }
 
     @Override
-    public void makeObsolete() {
-        this.metrologyPurpose.setNull();
-        this.usagePointGroup.setNull();
-        super.makeObsolete();
-    }
-
-    @Override
     public Map<Long, DataQualityKpiMember> updateMembers(Range<Instant> interval) {
         if (getKpiMembers().isEmpty()) {
             return createDataQualityKpiMembers(interval);
@@ -169,6 +162,7 @@ public final class UsagePointDataQualityKpiImpl extends DataQualityKpiImpl imple
         KpiBuilder kpiBuilder = getKpiService().newKpi();
         kpiBuilder.interval(getFrequency());
         kpiBuilder.timeZone(usagePoint.getZoneId());
+        kpiBuilder.keepZeros(false);
 
         actualKpiMemberNames.forEach(member -> kpiBuilder.member().named(member).add());
 

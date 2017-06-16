@@ -22,9 +22,4 @@ public interface DataQualityKpi {
     Optional<Instant> getLatestCalculation();
 
     void delete();
-
-    void makeObsolete();
-
-    Optional<Instant> getObsoleteTime();
-
 }

@@ -145,6 +145,7 @@ public final class DeviceDataQualityKpiImpl extends DataQualityKpiImpl implement
         KpiBuilder kpiBuilder = getKpiService().newKpi();
         kpiBuilder.interval(getFrequency());
         kpiBuilder.timeZone(zoneId);
+        kpiBuilder.keepZeros(false);
 
         actualKpiMemberTypes()
                 .map(DataQualityKpiMemberType::getName)
@@ -186,11 +187,5 @@ public final class DeviceDataQualityKpiImpl extends DataQualityKpiImpl implement
 
     public static String kpiMemberNameSuffix(Meter meter) {
         return "" + meter.getId();
-    }
-
-    @Override
-    public void makeObsolete() {
-        this.deviceGroup.setNull();
-        super.makeObsolete();
     }
 }

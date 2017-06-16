@@ -50,8 +50,7 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
 
     public enum Fields {
         KPI_MEMBERS("kpiMembers"),
-        DATA_QUALITY_KPI_TASK("dataQualityKpiTask"),
-        OBSOLETE_TIME("obsoleteTime");
+        DATA_QUALITY_KPI_TASK("dataQualityKpiTask");
 
         private final String javaFieldName;
 
@@ -66,8 +65,6 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
 
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
-
-    private Instant obsoleteTime;
 
     @SuppressWarnings("unused") // Managed by ORM
     private String userName;
@@ -206,20 +203,6 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
     @Override
     public int hashCode() {
         return (int) (id ^ (id >>> 32));
-    }
-
-    @Override
-    public void makeObsolete() {
-        RecurrentTask recurrentTask = this.dataQualityKpiTask.get();
-        this.dataQualityKpiTask.setNull();
-        this.obsoleteTime = clock.instant();
-        this.dataModel.update(this);
-        recurrentTask.delete();
-    }
-
-    @Override
-    public Optional<Instant> getObsoleteTime() {
-        return Optional.ofNullable(this.obsoleteTime);
     }
 
     DataModel getDataModel() {
