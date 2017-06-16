@@ -14,6 +14,7 @@ import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpecService;
+
 import com.google.common.base.Joiner;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
@@ -130,7 +131,9 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
                     KeyUsage.fromExtension(keyUsageExtension).stream().map(Enum::toString).forEach(usages::add);
 
                     Extension extendedKeyUsage = extensions.getExtension(Extension.extendedKeyUsage);
-                    ExtendedKeyUsage.fromExtension(extendedKeyUsage).stream().map(Enum::toString).forEach(usages::add);
+                    if (extendedKeyUsage != null) {
+                        ExtendedKeyUsage.fromExtension(extendedKeyUsage).stream().map(Enum::toString).forEach(usages::add);
+                    }
                 }
             }
             return Optional.of(Joiner.on(", ").join(usages));
