@@ -6,6 +6,8 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
@@ -16,9 +18,11 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
+import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -27,6 +31,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -51,9 +56,56 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
                 legacyLoadProfileLogBooksCommand.getLogBookReaders());
 
         removeUnwantedChannels(legacyLoadProfileLogBooksCommand.getLoadProfileReaders(), loadProfileLogBooksData);
+        verifyReceivedChannelInfo();
         addReadingTypesToChannelInfos(loadProfileLogBooksData, legacyLoadProfileLogBooksCommand.getLoadProfileReaders());
 
         this.legacyLoadProfileLogBooksCommand.addListOfCollectedDataItems(loadProfileLogBooksData);
+    }
+
+    /**
+     * Now verify that the number of channels match and that the received unit is correct
+     */
+    private void verifyReceivedChannelInfo() {
+        Iterator<CollectedData> iterator = loadProfileLogBooksData.iterator();
+        while (iterator.hasNext()) {
+            CollectedData collectedData = iterator.next();
+            if (collectedData instanceof CollectedLoadProfile) {
+                CollectedLoadProfile collectedLoadProfile = (CollectedLoadProfile) collectedData;
+                LoadProfileReader loadProfileReader = legacyLoadProfileLogBooksCommand.getLoadProfileReaders()
+                        .stream()
+                        .filter(lpr -> lpr.getProfileObisCode().equals(collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode()))
+                        .findAny()
+                        .get();
+                List<ChannelInfo> collectedChannelInfos = collectedLoadProfile.getChannelInfo();
+                List<ChannelInfo> configuredChannelInfos = loadProfileReader.getChannelInfos();
+                if (collectedChannelInfos.size() != configuredChannelInfos.size()) {
+                    Problem problem = getIssueService().newProblem(
+                            collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode(),
+                            MessageSeeds.LOAD_PROFILE_NUMBER_OF_CHANNELS_MISMATCH,
+                            collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode(),
+                            collectedLoadProfile.getChannelInfo().size(),
+                            configuredChannelInfos.size());
+                    addIssue(problem, CompletionCode.ConfigurationError);
+                    iterator.remove();
+                } else {
+                    for (ChannelInfo collectedChannelInfo : collectedChannelInfos) {
+                        ChannelInfo channelInfo = configuredChannelInfos.stream().filter(ci -> ci.getChannelObisCode().equalsIgnoreBChannel(collectedChannelInfo.getChannelObisCode())).findAny().get();
+                        if (!channelInfo.getUnit().equalBaseUnit(collectedChannelInfo.getUnit())) {
+                            Problem problem = getIssueService().newProblem(
+                                    collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode(),
+                                    MessageSeeds.CHANNEL_UNIT_MISMATCH,
+                                    collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode(),
+                                    collectedChannelInfo.getChannelObisCode(),
+                                    collectedChannelInfo.getUnit(),
+                                    channelInfo.getUnit());
+                            addIssue(problem, CompletionCode.ConfigurationError);
+                            iterator.remove();
+                            return;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private Instant getLastLogbookDate(MeterProtocolAdapter deviceProtocol) {

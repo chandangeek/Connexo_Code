@@ -74,7 +74,8 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
         }
 
         this.groupedDeviceCommand = groupedDeviceCommand;
-        this.basicComCommandBehavior = new BasicComCommandBehavior(this, ComCommandDescriptionTitle.getComCommandDescriptionTitleFor(this.getClass()).getDescription(), getServiceProvider().clock(), getServiceProvider().deviceMessageService());
+        this.basicComCommandBehavior = new BasicComCommandBehavior(this, ComCommandDescriptionTitle.getComCommandDescriptionTitleFor(this.getClass())
+                .getDescription(), getServiceProvider().clock(), getServiceProvider().deviceMessageService());
     }
 
     private CommandRoot.ServiceProvider getServiceProvider() {
@@ -105,7 +106,9 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                          * The next comtasks for this connection will be set to 'not executed'. */
                         connectionErrorOccurred(deviceProtocol, e);
                     }
-                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
+                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution()
+                            .getDevice()
+                            .getName());
                 } catch (ConnectionCommunicationException e) {
                     if (e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.NUMBER_OF_RETRIES_REACHED_CONNECTION_STILL_INTACT) {
                         /* A special case applicable for physical slaves that have the same gateway (and thus connection task)
@@ -124,27 +127,39 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                          * The next comtasks for this connection will be set to 'not executed'. */
                         connectionErrorOccurred(deviceProtocol, e);
                     }
-                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
+                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution()
+                            .getDevice()
+                            .getName());
                 } catch (ConnectionSetupException | com.energyict.mdc.upl.io.ConnectionSetupException | ModemException | com.energyict.mdc.upl.io.ModemException e) {
                     connectionErrorOccurred(deviceProtocol, e);
-                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
+                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution()
+                            .getDevice()
+                            .getName());
                 } catch (CommunicationException | DataParseException e) {
                     addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.ProtocolError);
-                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
+                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution()
+                            .getDevice()
+                            .getName());
                 } catch (DeviceConfigurationException | CanNotFindForIdentifier | DuplicateException e) {
                     addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.ConfigurationError);
-                    executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
+                    executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread()
+                            .getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
                 } catch (NestedPropertyValidationException e) {
-                    addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.NOT_EXECUTED_DUE_TO_GENERAL_SETUP_ERROR, e.getUplException()), CompletionCode.ConfigurationError);
-                    executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
+                    addIssue(getServiceProvider().issueService()
+                            .newProblem(deviceProtocol, MessageSeeds.NOT_EXECUTED_DUE_TO_GENERAL_SETUP_ERROR, e.getUplException()), CompletionCode.ConfigurationError);
+                    executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread()
+                            .getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
                 } catch (LegacyProtocolException e) {
                     if (isExceptionCausedByALegacyTimeout(e)) {
                         connectionErrorOccurred(deviceProtocol, e);
                     } else {
-                        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_LEGACY_ISSUE, StackTracePrinter.print(e, getCommunicationLogLevel(executionContext))), CompletionCode.UnexpectedError);
+                        addIssue(getServiceProvider().issueService()
+                                .newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_LEGACY_ISSUE, StackTracePrinter.print(e, getCommunicationLogLevel(executionContext))), CompletionCode.UnexpectedError);
                     }
                     getGroupedDeviceCommand().skipOtherComTaskExecutions();
-                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
+                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution()
+                            .getDevice()
+                            .getName());
                 } finally {
                     if (success) {
                         this.basicComCommandBehavior.setExecutionState(BasicComCommandBehavior.ExecutionState.SUCCESSFULLY_EXECUTED);
@@ -196,7 +211,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     /**
      * Add the given {@link Issue} to the {@link #issueList} and upgrade the {@link CompletionCode} to the given one.
      *
-     * @param issue          the {@link Issue} to add
+     * @param issue the {@link Issue} to add
      * @param completionCode the {@link CompletionCode} to upgrade to
      */
     public void addIssue(Issue issue, CompletionCode completionCode) {
@@ -340,7 +355,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
      * minimum level to be shown in journal messages.
      *
      * @param serverLogLevel The server LogLevel
-     * @param minimumLevel   The minimum level that is required for a message to show up in journaling
+     * @param minimumLevel The minimum level that is required for a message to show up in journaling
      * @return A flag that indicates if message details of the minimum level should show up in journaling
      */
     protected boolean isJournalingLevelEnabled(LogLevel serverLogLevel, LogLevel minimumLevel) {
