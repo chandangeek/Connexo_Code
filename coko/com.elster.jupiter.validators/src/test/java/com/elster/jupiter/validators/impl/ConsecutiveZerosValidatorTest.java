@@ -58,7 +58,7 @@ public class ConsecutiveZerosValidatorTest {
     public static final long START_VALIDATION = 100000L;
     public static final long END_VALIDATION = START_VALIDATION + MAXIMUM_PERIOD.getSeconds() * 2;
     public static final long RECORD_INTERVAL = 900L;
-    public static final String CONSECUTIVE_ZERO = "Consecutive zero's";
+    public static final String CONSECUTIVE_ZERO = "Consecutive zero's [STD]";
 
     private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
 

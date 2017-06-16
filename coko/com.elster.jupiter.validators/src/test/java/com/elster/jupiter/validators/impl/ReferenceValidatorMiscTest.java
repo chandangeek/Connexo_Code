@@ -36,7 +36,7 @@ public class ReferenceValidatorMiscTest extends ReferenceValidatorTest {
                 .passIfNoRefData(false)
                 .useValidatedData(false)
                 .withNoMinThreshold()
-                .notFullyConfigured(),"WARNING: Failed to validate period \"Mon, 1 Feb 2016 12:00 AM until Fri, 5 Feb 2016 12:00 AM\" using method \"Reference comparison\" on Validating usage point/Purpose 1/[Daily] Secondary Delta A+ (kWh) since the check usage point, purpose and reading type are not specified");
+                .notFullyConfigured(),"WARNING: Failed to validate period \"Mon, 1 Feb 2016 12:00 AM until Fri, 5 Feb 2016 12:00 AM\" using method \"Reference comparison [STD]\" on Validating usage point/Purpose 1/[Daily] Secondary Delta A+ (kWh) since the check usage point, purpose and reading type are not specified");
     }
 
     @Test
@@ -50,7 +50,7 @@ public class ReferenceValidatorMiscTest extends ReferenceValidatorTest {
                 .withValuedDifference(BIG_DECIMAL_100)
                 .passIfNoRefData(false)
                 .useValidatedData(false)
-                .withNoMinThreshold(),"WARNING: Failed to validate period \"Mon, 1 Feb 2016 12:00 AM until Fri, 5 Feb 2016 12:00 AM\" using method \"Reference comparison\" on Validating usage point/Purpose 1/[Daily] Secondary Delta A+ (kWh) since specified check output doesnt match the main reading type");
+                .withNoMinThreshold(),"WARNING: Failed to validate period \"Mon, 1 Feb 2016 12:00 AM until Fri, 5 Feb 2016 12:00 AM\" using method \"Reference comparison [STD]\" on Validating usage point/Purpose 1/[Daily] Secondary Delta A+ (kWh) since specified check output doesnt match the main reading type");
     }
 
     @Test
@@ -65,7 +65,7 @@ public class ReferenceValidatorMiscTest extends ReferenceValidatorTest {
                 .withValuedDifference(BIG_DECIMAL_100)
                 .passIfNoRefData(false)
                 .useValidatedData(false)
-                .withNoMinThreshold(),"WARNING: Failed to validate period \"Mon, 1 Feb 2016 12:00 AM until Fri, 5 Feb 2016 12:00 AM\" using method \"Reference comparison\" on Validating usage point/Purpose 1/[Daily] Secondary Delta A+ (kWh) since the specified purpose/reading type doesnt exist on the Reference usage point");
+                .withNoMinThreshold(),"WARNING: Failed to validate period \"Mon, 1 Feb 2016 12:00 AM until Fri, 5 Feb 2016 12:00 AM\" using method \"Reference comparison [STD]\" on Validating usage point/Purpose 1/[Daily] Secondary Delta A+ (kWh) since the specified purpose/reading type doesnt exist on the Reference usage point");
     }
 
     @Test
@@ -79,7 +79,7 @@ public class ReferenceValidatorMiscTest extends ReferenceValidatorTest {
                 .withValuedDifference(BIG_DECIMAL_100)
                 .passIfNoRefData(false)
                 .useValidatedData(false)
-                .withNoMinThreshold(), "WARNING: Failed to validate period \"Mon, 1 Feb 2016 12:00 AM until Fri, 5 Feb 2016 12:00 AM\" using method \"Reference comparison\" on Validating usage point/Purpose 1/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
+                .withNoMinThreshold(), "WARNING: Failed to validate period \"Mon, 1 Feb 2016 12:00 AM until Fri, 5 Feb 2016 12:00 AM\" using method \"Reference comparison [STD]\" on Validating usage point/Purpose 1/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class ReferenceValidatorMiscTest extends ReferenceValidatorTest {
                 .withValuedDifference(BIG_DECIMAL_100)
                 .passIfNoRefData(true)
                 .useValidatedData(false)
-                .withNoMinThreshold(), "WARNING: Failed to validate period \"Mon, 1 Feb 2016 12:00 AM until Fri, 5 Feb 2016 12:00 AM\" using method \"Reference comparison\" on Validating usage point/Purpose 1/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
+                .withNoMinThreshold(), "WARNING: Failed to validate period \"Mon, 1 Feb 2016 12:00 AM until Fri, 5 Feb 2016 12:00 AM\" using method \"Reference comparison [STD]\" on Validating usage point/Purpose 1/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
     }
 
     private void mockLogger(ReferenceComparisonValidator validator) {

@@ -142,7 +142,7 @@ public class RegisterIncreaseTest {
 
     @Test
     public void testDefaultFormat() {
-        assertThat(validator.getDefaultFormat()).isEqualTo("Register increase");
+        assertThat(validator.getDefaultFormat()).isEqualTo("Register increase [STD]");
     }
 
     @Test

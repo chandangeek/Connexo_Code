@@ -155,7 +155,7 @@ public class ReadingQualitiesValidatorTest {
 
     @Test
     public void testDefaultFormat() {
-        assertThat(validator.getDefaultFormat()).isEqualTo("Reading qualities");
+        assertThat(validator.getDefaultFormat()).isEqualTo("Reading qualities [STD]");
     }
 
     @Test

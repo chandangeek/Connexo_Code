@@ -48,7 +48,7 @@ public class ThresholdValidatorTest {
     public static final Quantity BELOW_MINIMUM = Quantity.create(BigDecimal.valueOf(0L), 3, "Wh");
     public static final Quantity ABOVE_MAXIMUM = Quantity.create(BigDecimal.valueOf(6000L), 3, "Wh");
     public static final Quantity IN_THE_MIDDLE = Quantity.create(BigDecimal.valueOf(3000L), 3, "Wh");
-    public static final String THRESHOLD_VIOLATION = "Threshold violation";
+    public static final String THRESHOLD_VIOLATION = "Threshold violation [STD]";
 
     @Mock
     private IntervalReadingRecord intervalReadingRecord;
