@@ -73,8 +73,8 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_VALUE_EXCEEDED(68, "field.value.exceeded", "'The value exceeds the maximum field length"),
     NO_CAS_VERSION_AT_DATE(69, "no.open.cas.version.at.date", "Can''t update values of one of the custom attribute sets because there is no version at {0}"),
     ANOTHER_CAS_VERSION_IN_THE_FUTURE(70, "another.cas.version.in.the.future", "Can''t create new version for one of the custom attribute sets because there is another version with start date after {0}"),
-    CANNOT_LINK_BEFORE_START(71,"usagepoint.calendar.cannot.link.before.start", "Can't link calendar before start date of this calendar."),
-    CANNOT_LINK_BEFORE_CREATION_DATE(72, "usagepoint.calendar.cannot.link.before.creation.date", "Can't link calendar before creation of usage point date."),
+    CANNOT_LINK_BEFORE_START(71,"usagepoint.calendar.cannot.link.before.start", "Can''t link calendar before start date of this calendar."),
+    CANNOT_LINK_BEFORE_CREATION_DATE(72, "usagepoint.calendar.cannot.link.before.creation.date", "Can''t link calendar before creation of usage point date."),
     ;
 
     private final int number;
