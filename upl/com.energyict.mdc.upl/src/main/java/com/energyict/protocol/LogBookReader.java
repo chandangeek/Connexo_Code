@@ -32,8 +32,8 @@ public class LogBookReader {
     private final LogBookIdentifier logBookIdentifier;
 
     /**
-     * @param logBookObisCode   Holds the ObisCode from the {@link com.energyict.mdc.upl.meterdata.LogBook} to read
-     * @param lastLogBook       Holds the Date from where to start fetching data from the LogBook
+     * @param logBookObisCode Holds the ObisCode from the {@link com.energyict.mdc.upl.meterdata.LogBook} to read
+     * @param lastLogBook Holds the Date from where to start fetching data from the LogBook
      * @param logBookIdentifier The LogBookIdentifier, which unique defines the LogBook to read.
      * @param meterSerialNumber The serial number of the meter of the logbook
      */
@@ -46,6 +46,30 @@ public class LogBookReader {
         this.logBookObisCode = logBookObisCode;
         this.logBookIdentifier = logBookIdentifier;
         this.meterSerialNumber = meterSerialNumber;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        LogBookReader that = (LogBookReader) o;
+
+        if (!getLogBookObisCode().equals(that.getLogBookObisCode())) {
+            return false;
+        }
+        return getMeterSerialNumber() != null ? getMeterSerialNumber().equals(that.getMeterSerialNumber()) : that.getMeterSerialNumber() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getLogBookObisCode().hashCode();
+        result = 31 * result + (getMeterSerialNumber() != null ? getMeterSerialNumber().hashCode() : 0);
+        return result;
     }
 
     /**
