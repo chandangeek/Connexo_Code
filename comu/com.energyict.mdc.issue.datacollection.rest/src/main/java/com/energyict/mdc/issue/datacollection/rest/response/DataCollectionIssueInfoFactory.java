@@ -88,14 +88,14 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
             case ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE:
                 UnknownInboundDeviceIssueInfo<?> unknownInboundDeviceIssueInfo = new UnknownInboundDeviceIssueInfo<>(issue, deviceInfoClass);
                 addConnectionAttempts(unknownInboundDeviceIssueInfo, issue);
-                unknownInboundDeviceIssueInfo.deviceName = issue.getDeviceMRID();
+                unknownInboundDeviceIssueInfo.deviceName = issue.getDeviceIdentification();
                 info = unknownInboundDeviceIssueInfo;
                 break;
             case ModuleConstants.REASON_UNKNOWN_OUTBOUND_DEVICE:
                 UnknownOutboundDeviceIssueInfo<?> unknownOutboundDeviceIssueInfo = new UnknownOutboundDeviceIssueInfo<>(issue, deviceInfoClass);
                 addConnectionAttempts(unknownOutboundDeviceIssueInfo, issue);
                 addMeterInfo(unknownOutboundDeviceIssueInfo, issue);
-                unknownOutboundDeviceIssueInfo.slaveDeviceId = issue.getDeviceMRID();
+                unknownOutboundDeviceIssueInfo.slaveDeviceIdentification = issue.getDeviceIdentification();
                 info = unknownOutboundDeviceIssueInfo;
                 break;
         }
