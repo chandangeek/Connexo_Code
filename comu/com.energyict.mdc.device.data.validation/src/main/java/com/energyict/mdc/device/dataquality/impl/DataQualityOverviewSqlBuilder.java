@@ -185,27 +185,22 @@ class DataQualityOverviewSqlBuilder {
 
     private void appendAllDataWithClause() {
         this.sqlBuilder.append("allData (device, kpitype, value, latest) as (");
-        this.sqlBuilder.append("    select device, kpitype, sum(value), max(timestamp) from (");
-        this.sqlBuilder.append("        select to_number(substr(kpim.name, instr(kpim.name, '_') + 1)) as device,");
-        this.sqlBuilder.append("               substr(kpim.name, 1, instr(kpim.name, '_') - 1) as kpitype,");
-        this.sqlBuilder.append("               kpivalues.slot0 as value,");
-        this.sqlBuilder.append("               kpivalues.utcstamp as timestamp,");
-        this.sqlBuilder.append("               case when kpivalues.recordtime = max(kpivalues.recordtime)");
-        this.sqlBuilder.append("                            over (partition by kpivalues.utcstamp, to_number(substr(kpim.name, instr(kpim.name, '_') + 1)), substr(kpim.name, 1, instr(kpim.name, '_') - 1))");
-        this.sqlBuilder.append("               then 'Y' else 'N' end as latest");
-        this.sqlBuilder.append("        from DQK_DATAQUALITYKPI dqkpi");
-        this.sqlBuilder.append("        join DQK_DATAQUALITYKPIMEMBER dqkpim on dqkpim.dataqualitykpi = dqkpi.id and dqkpi.discriminator = 'EDDQ'");
-        this.sqlBuilder.append("        join KPI_KPIMEMBER kpim on kpim.kpi = dqkpim.childkpi");
-        this.sqlBuilder.append("        join IDS_VAULT_KPI_1 kpivalues on kpim.timeseries = kpivalues.timeseriesid");
-        this.sqlBuilder.append("        where ");
+        this.sqlBuilder.append("    select to_number(substr(kpim.name, instr(kpim.name, '_') + 1)),");
+        this.sqlBuilder.append("           substr(kpim.name, 1, instr(kpim.name, '_') - 1),");
+        this.sqlBuilder.append("           sum(kpivalues.slot0),");
+        this.sqlBuilder.append("           max(kpivalues.utcstamp)");
+        this.sqlBuilder.append("    from DQK_DATAQUALITYKPI dqkpi");
+        this.sqlBuilder.append("    join DQK_DATAQUALITYKPIMEMBER dqkpim on dqkpim.dataqualitykpi = dqkpi.id and dqkpi.discriminator = 'EDDQ'");
+        this.sqlBuilder.append("    join KPI_KPIMEMBER kpim on kpim.kpi = dqkpim.childkpi");
+        this.sqlBuilder.append("    join IDS_VAULT_KPI_1 kpivalues on kpim.timeseries = kpivalues.timeseriesid");
+        this.sqlBuilder.append("    where ");
         this.appendPeriod("kpivalues");
         if (!this.specification.getDeviceGroups().isEmpty()) {
-            this.sqlBuilder.append("        and dqkpi.enddevicegroup in (");
+            this.sqlBuilder.append(" and dqkpi.enddevicegroup in (");
             this.appendIds(this.specification.getDeviceGroups());
             this.sqlBuilder.append(")");
         }
-        this.sqlBuilder.append("    ) where latest = 'Y' and value > 0");
-        this.sqlBuilder.append("    group by device, kpitype");
+        this.sqlBuilder.append("     group by to_number(substr(kpim.name, instr(kpim.name, '_') + 1)), substr(kpim.name, 1, instr(kpim.name, '_') - 1)");
         this.sqlBuilder.append(")");
     }
 
