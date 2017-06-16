@@ -236,7 +236,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                     createBtn.action = 'save';
                 }
                 this.getForm().loadRecord(record);
-                if (!this.down('#usagepoint-life-cycle-stage').getValue()) {
+                if (!this.down('#usagepoint-life-cycle-stage').getValue() && record.get('stage')) {
                     this.down('#usagepoint-life-cycle-stage').select(record.get('stage').id);
                 }
                 var processOnEntryStore = this.down('#processesOnEntryGrid').getStore();
