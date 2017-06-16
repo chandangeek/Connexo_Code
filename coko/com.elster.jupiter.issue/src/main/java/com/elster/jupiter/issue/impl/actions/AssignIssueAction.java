@@ -83,6 +83,7 @@ public class AssignIssueAction extends AbstractIssueAction {
                 JSONObject jsonData = new JSONObject(assignee);
                 return issueService.findIssueAssignee(Long.valueOf(jsonData.get("userId").toString()), Long.valueOf(jsonData.get("workgroupId").toString()));
             } catch (JSONException e) {
+                return new IssueAssigneeImpl();
             }
         }
         return new IssueAssigneeImpl();
@@ -97,6 +98,7 @@ public class AssignIssueAction extends AbstractIssueAction {
                 JSONObject jsonData = new JSONObject(assignee);
                 return Optional.ofNullable(jsonData.get("comment").toString());
             } catch (JSONException e) {
+                return Optional.empty();
             }
         }
         return Optional.empty();
@@ -133,7 +135,7 @@ public class AssignIssueAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicableForUser(User user) {
-        return super.isApplicableForUser(user) && user.getPrivileges().stream().filter(p -> Privileges.Constants.ASSIGN_ISSUE.equals(p.getName())).findAny().isPresent();
+        return super.isApplicableForUser(user) && user.getPrivileges().stream().anyMatch(p -> Privileges.Constants.ASSIGN_ISSUE.equals(p.getName()));
     }
 
     private class AssigneeValueFactory implements ValueFactory<Assignee>, AssignPropertyFactory {
@@ -152,8 +154,8 @@ public class AssignIssueAction extends AbstractIssueAction {
                 String comment = jsonData.get("comment").toString();
                 return new Assignee(user, workgroup, comment);
             } catch (JSONException e) {
+                return null;
             }
-            return null;
         }
 
         @Override
@@ -216,8 +218,8 @@ public class AssignIssueAction extends AbstractIssueAction {
                 jsonId.put("comment", comment.orElse(null));
                 return jsonId.toString();
             } catch (JSONException e) {
+                return "";
             }
-            return "";
         }
 
         @Override
@@ -230,8 +232,8 @@ public class AssignIssueAction extends AbstractIssueAction {
                 return jsonId.toString();
             } catch (JSONException e) {
                 e.printStackTrace();
+                return "";
             }
-            return "";
         }
 
     }
