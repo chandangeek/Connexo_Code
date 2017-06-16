@@ -300,10 +300,10 @@ public abstract class JobExecution implements ScheduledJob {
             this.getExecutionContext().getStoreCommand().add(new RescheduleFailedExecution(this));
             doExecuteStoreCommand();
         } else {
-            /* Failure was in the preparation that creates the ExecutionContext.
-             * We need to release the token here because we are not actually
-             * going to execute any DeviceCommand that would release it. */
-            this.releaseToken();
+            executionContext = new ExecutionContext(this, getConnectionTask(), getComPort(), serviceProvider);
+            setExecutionContext(executionContext);
+            executionContext.getStoreCommand().add(new RescheduleFailedExecution(this));
+            doExecuteStoreCommand();
         }
     }
 

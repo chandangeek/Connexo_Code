@@ -9,7 +9,6 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.time.StopWatch;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -57,6 +56,7 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceCommandFactory;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 
 import com.energyict.protocol.exceptions.ConnectionException;
@@ -93,6 +93,14 @@ public final class ExecutionContext implements JournalEntryFactory {
     private CompositeLogger logger;
     private ComTaskExecutionComCommand comTaskExecutionComCommand;
     private CompositeDeviceCommand storeCommand;
+
+    protected ExecutionContext(JobExecution jobExecution, ConnectionTask<?, ?> connectionTask, ComPort comPort, ServiceProvider serviceProvider) {
+        super();
+        this.jobExecution = jobExecution;
+        this.comPort = comPort;
+        this.connectionTask = connectionTask;
+        this.serviceProvider = serviceProvider;
+    }
 
     public ExecutionContext(JobExecution jobExecution, ConnectionTask<?, ?> connectionTask, ComPort comPort, boolean logConnectionProperties, ServiceProvider serviceProvider) {
         super();
@@ -292,7 +300,7 @@ public final class ExecutionContext implements JournalEntryFactory {
      * Note that the Start date is set while initializing and
      * the stop date is set in the close method.
      *
-     * @param e              The ConnectionException that explains the failure
+     * @param e The ConnectionException that explains the failure
      * @param connectionTask The ConnectionTask that failed to connect
      * @see #close()
      */
