@@ -112,6 +112,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.MonthDay;
@@ -1212,6 +1213,17 @@ public class UsagePointResource {
                 usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
                 resourceHelper.activateMeters(info, usagePoint);
             }
+            else if(!info.calendars.isEmpty()){
+                info.calendars.forEach(calendarInfo -> {
+                    Calendar calendar = calendarService.findCalendar(calendarInfo.calendar.id).orElse(null);
+                    Instant start = calendarInfo.fromTime == 0 ? clock.instant() : Instant.ofEpochMilli(calendarInfo.fromTime);
+                    if (Year.from(LocalDateTime.ofInstant(start, clock.getZone())).isBefore(calendar.getStartYear())) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.CANNOT_LINK_BEFORE_START, "activationOn");
+                    } else if(start.isBefore(Instant.ofEpochMilli(info.installationTime))){
+                        throw new LocalizedFieldValidationException(MessageSeeds.CANNOT_LINK_BEFORE_CREATION_DATE, "activationOn");
+                    }
+                });
+            }
         }
     }
 
@@ -1222,6 +1234,11 @@ public class UsagePointResource {
             if (calendarInfo.immediately) {
                 usagePoint.getUsedCalendars().addCalendar(calendar);
             } else {
+                if (Year.from(LocalDateTime.ofInstant(start, clock.getZone())).isBefore(calendar.getStartYear())) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.CANNOT_LINK_BEFORE_START, "activationOn");
+                } else if(start.isBefore(Instant.ofEpochMilli(info.installationTime))){
+                    throw new LocalizedFieldValidationException(MessageSeeds.CANNOT_LINK_BEFORE_CREATION_DATE, "activationOn");
+                }
                 usagePoint.getUsedCalendars().addCalendar(calendar, start);
             }
         });
