@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 
 @LiteralSql
@@ -124,11 +125,27 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
         RecordSpecInVault recordSpecInVault = new RecordSpecInVault(timeSeriesImpl);
         SlaveTimeSeriesDataStorer slaveStorer = storerMap.get(recordSpecInVault);
         if (slaveStorer == null) {
-            slaveStorer = new SlaveTimeSeriesDataStorer(dataModel, clock, entry);
+            slaveStorer = new SlaveTimeSeriesDataStorer(dataModel, clock, timeSeriesImpl);
             storerMap.put(recordSpecInVault, slaveStorer);
-        } else {
-            slaveStorer.add(entry);
         }
+        slaveStorer.add(entry);
+        stats.add(entry);
+    }
+
+    @Override
+    public void remove(TimeSeries timeSeries, Instant timeStamp) {
+        if (!timeSeries.isValidInstant(timeStamp)) {
+            throw new MeasurementTimeIsNotValidException(this.thesaurus);
+        }
+        TimeSeriesImpl timeSeriesImpl = (TimeSeriesImpl) timeSeries;
+        TimeSeriesEntryImpl entry = new TimeSeriesEntryImpl(timeSeriesImpl, timeStamp, new Object[0]);// no values
+        RecordSpecInVault recordSpecInVault = new RecordSpecInVault(timeSeriesImpl);
+        SlaveTimeSeriesDataStorer slaveStorer = storerMap.get(recordSpecInVault);
+        if (slaveStorer == null) {
+            slaveStorer = new SlaveTimeSeriesDataStorer(dataModel, clock, timeSeriesImpl);
+            storerMap.put(recordSpecInVault, slaveStorer);
+        }
+        slaveStorer.remove(entry);
         stats.add(entry);
     }
 
@@ -160,11 +177,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
     public boolean processed(TimeSeries timeSeries, Instant instant) {
         RecordSpecInVault recordSpecInVault = new RecordSpecInVault((TimeSeriesImpl) timeSeries);
         SlaveTimeSeriesDataStorer storer = storerMap.get(recordSpecInVault);
-        if (storer == null) {
-            return false;
-        } else {
-            return storer.processed(timeSeries, instant, updateBehaviour);
-        }
+        return storer != null && storer.processed(timeSeries, instant, updateBehaviour);
     }
 
     @Override
@@ -211,13 +224,13 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
         private final Clock clock;
         private final ThreadPrincipalService threadPrincipalService;
 
-        SlaveTimeSeriesDataStorer(DataModel dataModel, Clock clock, TimeSeriesEntryImpl entry) {
+        SlaveTimeSeriesDataStorer(DataModel dataModel, Clock clock, TimeSeriesImpl timeSeries) {
             this.dataModel = dataModel;
             this.clock = clock;
-            SingleTimeSeriesStorer storer = new SingleTimeSeriesStorer(entry);
-            storerMap.put(entry.getTimeSeries().getId(), storer);
-            vault = (VaultImpl) entry.getTimeSeries().getVault();
-            recordSpec = entry.getTimeSeries().getRecordSpec();
+            SingleTimeSeriesStorer storer = new SingleTimeSeriesStorer(timeSeries);
+            storerMap.put(timeSeries.getId(), storer);
+            vault = (VaultImpl) timeSeries.getVault();
+            recordSpec = timeSeries.getRecordSpec();
             threadPrincipalService = dataModel.getInstance(ThreadPrincipalService.class);
         }
 
@@ -230,14 +243,21 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
         }
 
         void add(TimeSeriesEntryImpl entry) {
+            doUpdate(SingleTimeSeriesStorer::add, entry);
+        }
+
+        void remove(TimeSeriesEntryImpl entry) {
+            doUpdate(SingleTimeSeriesStorer::remove, entry);
+        }
+
+        private void doUpdate(BiConsumer<SingleTimeSeriesStorer, TimeSeriesEntryImpl> action, TimeSeriesEntryImpl entry) {
             Long key = entry.getTimeSeries().getId();
             SingleTimeSeriesStorer storer = storerMap.get(key);
             if (storer == null) {
-                storer = new SingleTimeSeriesStorer(entry);
+                storer = new SingleTimeSeriesStorer(entry.getTimeSeries());
                 storerMap.put(key, storer);
-            } else {
-                storer.add(entry);
             }
+            action.accept(storer, entry);
         }
 
         SqlBuilder selectSql(Collection<SingleTimeSeriesStorer> storers) {
@@ -258,6 +278,10 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 
         String updateSql() {
             return vault.updateSql(recordSpec);
+        }
+
+        String deleteSql() {
+            return vault.deleteSql();
         }
 
         String journalSql() {
@@ -310,6 +334,27 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             }
         }
 
+        void addUnJournaledDeletions(Connection connection, long now) throws SQLException {
+            try (PreparedStatement statement = connection.prepareStatement(deleteSql())) {
+                for (SingleTimeSeriesStorer storer : storerMap.values()) {
+                    storer.addDeletes(statement, now, threadPrincipalService.getPrincipal());
+                }
+                statement.executeBatch();
+            }
+        }
+
+        void addJournaledDeletions(Connection connection, long now, Principal principal) throws SQLException {
+            try (PreparedStatement deleteStatement = connection.prepareStatement(deleteSql())) {
+                try (PreparedStatement journalStatement = connection.prepareStatement(journalSql())) {
+                    for (SingleTimeSeriesStorer storer : storerMap.values()) {
+                        storer.addDeletes(deleteStatement, journalStatement, now, principal);
+                    }
+                    journalStatement.executeBatch();
+                    deleteStatement.executeBatch();
+                }
+            }
+        }
+
         void execute(StorerStatsImpl stats, UpdateBehaviour updateBehaviour) throws SQLException {
             try (Connection connection = dataModel.getConnection(true)) {
                 setOldEntries(connection);
@@ -318,47 +363,56 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
                 if (updateBehaviour.overrules()) {
                     if (vault.hasJournal()) {
                         addJournaledUpdates(connection, now, threadPrincipalService.getPrincipal());
+                        addJournaledDeletions(connection, now, threadPrincipalService.getPrincipal());
                     } else {
                         addUnJournaledUpdates(connection, now);
+                        addUnJournaledDeletions(connection, now);
                     }
                 }
             }
             for (SingleTimeSeriesStorer storer : storerMap.values()) {
                 storer.updateTimeSeries();
-                stats.addCount(storer.insertCount, storer.updateCount);
+                stats.addCount(storer.insertCount, storer.updateCount, storer.deleteCount);
             }
         }
 
         boolean processed(TimeSeries timeSeries, Instant instant, UpdateBehaviour updateBehaviour) {
             SingleTimeSeriesStorer storer = storerMap.get(timeSeries.getId());
-            if (storer == null) {
-                return false;
-            } else {
-                return storer.processed(instant, updateBehaviour);
-            }
+            return storer != null && storer.processed(instant, updateBehaviour);
         }
     }
 
     private static class SingleTimeSeriesStorer {
         private final SortedMap<Instant, TimeSeriesEntryImpl> newEntries = new TreeMap<>();
         private final SortedMap<Instant, TimeSeriesEntryImpl> oldEntries = new TreeMap<>();
+        private final SortedMap<Instant, TimeSeriesEntryImpl> obsoleteEntries = new TreeMap<>();
+
         private Instant minDate;
         private Instant maxDate;
         private int insertCount = 0;
         private int updateCount = 0;
+        private int deleteCount = 0;
+
         private TimeSeriesImpl timeSeries;
 
-        SingleTimeSeriesStorer(TimeSeriesEntryImpl entry) {
-            newEntries.put(entry.getTimeStamp(), entry);
-            timeSeries = entry.getTimeSeries();
+        SingleTimeSeriesStorer(TimeSeriesImpl timeSeries) {
+            this.timeSeries = timeSeries;
         }
 
         void add(TimeSeriesEntryImpl entry) {
-            Instant instant = entry.getTimeStamp();
-            if (newEntries.containsKey(instant)) {
-                throw new IllegalArgumentException("Duplicate date in timeSeries " + entry.getTimeSeries());
+            addEntryInto(newEntries, entry);
+        }
+
+        void remove(TimeSeriesEntryImpl entry) {
+            addEntryInto(obsoleteEntries, entry);
+        }
+
+        private void addEntryInto(SortedMap<Instant, TimeSeriesEntryImpl> entries, TimeSeriesEntryImpl newEntry) {
+            Instant instant = newEntry.getTimeStamp();
+            if (entries.containsKey(instant)) {
+                throw new IllegalArgumentException("Duplicate date in timeSeries " + newEntry.getTimeSeries());
             }
-            newEntries.put(instant, entry);
+            entries.put(instant, newEntry);
         }
 
         TimeSeriesImpl getTimeSeries() {
@@ -366,12 +420,15 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
         }
 
         void appendWhereClause(SqlBuilder builder) {
+            SortedMap<Instant, TimeSeriesEntryImpl> map = new TreeMap<>(this.newEntries);
+            map.putAll(this.obsoleteEntries);
+
             builder.append(" (TIMESERIESID =");
             builder.addLong(this.getTimeSeries().getId());
             builder.append("AND UTCSTAMP between");
-            builder.addLong(this.newEntries.firstKey().toEpochMilli());
+            builder.addLong(map.firstKey().toEpochMilli());
             builder.append("AND");
-            builder.addLong(this.newEntries.lastKey().toEpochMilli());
+            builder.addLong(map.lastKey().toEpochMilli());
             builder.append(")");
         }
 
@@ -387,6 +444,10 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
         private boolean isUpdate(TimeSeriesEntryImpl entry) {
             TimeSeriesEntryImpl oldEntry = oldEntries.get(entry.getTimeStamp());
             return oldEntry != null && !entry.matches(oldEntry);
+        }
+
+        private boolean isDelete(TimeSeriesEntryImpl entry) {
+            return oldEntries.containsKey(entry.getTimeStamp());
         }
 
         void addInserts(PreparedStatement statement, long now) throws SQLException {
@@ -434,7 +495,27 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             }
         }
 
+        void addDeletes(PreparedStatement statement, long now, Principal principal) throws SQLException {
+            addDeletes(statement, null, now, principal);
+        }
+
+        void addDeletes(PreparedStatement deleteStatement, PreparedStatement journalStatement, long now, Principal principal) throws SQLException {
+            for (TimeSeriesEntryImpl entry : obsoleteEntries.values()) {
+                if (isDelete(entry)) {
+                    TimeSeriesEntryImpl oldEntry = oldEntries.get(entry.getTimeStamp());
+                    if (journalStatement != null) {
+                        oldEntry.journal(journalStatement, now, principal);
+                        journalStatement.addBatch();
+                    }
+                    entry.delete(deleteStatement);
+                    deleteCount++;
+                    deleteStatement.addBatch();
+                }
+            }
+        }
+
         void updateTimeSeries() {
+            // TODO take into account removed entries
             if (insertCount + updateCount > 0) {
                 getTimeSeries().updateRange(minDate, maxDate);
             }

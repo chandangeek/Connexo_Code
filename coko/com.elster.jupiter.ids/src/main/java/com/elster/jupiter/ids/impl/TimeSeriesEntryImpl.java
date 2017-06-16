@@ -151,6 +151,11 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
         statement.setLong(offset++, timeStamp);
     }
 
+    void delete(PreparedStatement statement) throws SQLException {
+        statement.setLong(1, getTimeSeries().getId());
+        statement.setLong(2, timeStamp);
+    }
+
     void set(int offset, Object value) {
         values[offset] = value;
     }

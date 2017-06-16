@@ -690,6 +690,10 @@ public final class VaultImpl implements IVault {
         return builder.toString();
     }
 
+    String deleteSql() {
+        return "delete from " + getTableName() + " WHERE TIMESERIESID = ? and UTCSTAMP = ?";
+    }
+
     @Override
     public final boolean equals(Object other) {
         if (this == other) {

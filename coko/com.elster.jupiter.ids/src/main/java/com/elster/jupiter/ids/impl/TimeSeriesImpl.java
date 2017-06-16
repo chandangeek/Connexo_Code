@@ -217,7 +217,7 @@ public final class TimeSeriesImpl implements TimeSeries {
         TimeSeriesDataStorer storer = overrule ? idsService.createOverrulingStorer() : idsService.createNonOverrulingStorer();
         storer.add(this, instant, values);
         StorerStats stats = storer.execute();
-        return stats.getInsertCount() > 0 || stats.getUpdateCount() > 0;
+        return stats.getInsertCount() > 0 || stats.getUpdateCount() > 0 || stats.getDeleteCount() > 0;
     }
 
     void updateRange(Instant minDate, Instant maxDate) {

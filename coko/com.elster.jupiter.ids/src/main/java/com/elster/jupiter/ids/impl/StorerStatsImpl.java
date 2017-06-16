@@ -13,48 +13,58 @@ public class StorerStatsImpl implements StorerStats {
     private int entryCount;
     private int insertCount;
     private int updateCount;
+    private int deleteCount;
     private long nanos;
 
-	@Override
-	public int getEntryCount() {
-		return entryCount;
-	}
+    @Override
+    public int getEntryCount() {
+        return entryCount;
+    }
 
-	@Override
-	public int getInsertCount() {
-		return insertCount;
-	}
+    @Override
+    public int getInsertCount() {
+        return insertCount;
+    }
 
-	@Override
-	public int getUpdateCount() {
-		return updateCount;
-	}
+    @Override
+    public int getUpdateCount() {
+        return updateCount;
+    }
 
-	@Override
-	public long getExecuteTime() {
-		return nanos / NANOS_PER_MILLI;
-	}
+    @Override
+    public int getDeleteCount() {
+        return deleteCount;
+    }
 
-	void start() {
-		nanos = System.nanoTime();
-	}
-	
-	void stop() {
-		nanos = System.nanoTime() - nanos;
-	}
-	
-	void add(TimeSeriesEntry entry) {
-		entryCount++;
-	}
-	
-	@Override
-	public String toString() {
-		return "" + entryCount + " entries ( inserted: "  + insertCount + " updated: " + updateCount + ") in " + getExecuteTime() + " ms ";
-	}
+    @Override
+    public long getExecuteTime() {
+        return nanos / NANOS_PER_MILLI;
+    }
 
-	public void addCount(int inserts, int updates) {
-		this.insertCount += inserts;
-		this.updateCount += updates;
-	}
-	
+    void start() {
+        nanos = System.nanoTime();
+    }
+
+    void stop() {
+        nanos = System.nanoTime() - nanos;
+    }
+
+    void add(TimeSeriesEntry entry) {
+        entryCount++;
+    }
+
+    @Override
+    public String toString() {
+        return "" + entryCount + " entries (" +
+                " inserted: " + insertCount +
+                " updated: " + updateCount +
+                " deleted: " + deleteCount +
+                ") in " + getExecuteTime() + " ms ";
+    }
+
+    public void addCount(int inserts, int updates, int deletes) {
+        this.insertCount += inserts;
+        this.updateCount += updates;
+        this.deleteCount += deletes;
+    }
 }

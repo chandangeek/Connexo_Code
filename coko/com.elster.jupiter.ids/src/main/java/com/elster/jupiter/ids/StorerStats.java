@@ -4,9 +4,18 @@
 
 package com.elster.jupiter.ids;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface StorerStats {
-	int getEntryCount();
-	int getInsertCount();
-	int getUpdateCount();
-	long getExecuteTime();
+
+    int getEntryCount();
+
+    int getInsertCount();
+
+    int getUpdateCount();
+
+    int getDeleteCount();
+
+    long getExecuteTime();
 }
