@@ -13,5 +13,7 @@ Ext.define('Pkj.view.KeyStoreFileField', {
         '<div class="x-form-display-field"><i>',
         Uni.I18n.translate('general.maxKeyStoreFileSize', 'PKJ', 'Maximum file size is 250kB'),
         '</i></div>'
+
+        
     ]
 });
