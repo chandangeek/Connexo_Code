@@ -59,6 +59,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
 
         if(healthTypeStore.data.items.length <= 1){
             me.setVisible(false);
+            me.callParent(arguments);
             return;
         }
 
