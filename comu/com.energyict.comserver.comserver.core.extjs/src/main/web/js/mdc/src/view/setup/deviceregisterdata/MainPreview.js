@@ -238,7 +238,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         var uniqueDataQualities = [];
         for (i = 0; i < dataQualities.length; i++) {
             var found = Ext.Array.findBy(uniqueDataQualities, function (readingQuality) {
-                return Ext.String.startsWith(readingQuality.cimCode, '1.');
+                return readingQuality.cimCode == dataQualities[i].cimCode;
             });
             (found == null) && uniqueDataQualities.push(dataQualities[i]);
         }
