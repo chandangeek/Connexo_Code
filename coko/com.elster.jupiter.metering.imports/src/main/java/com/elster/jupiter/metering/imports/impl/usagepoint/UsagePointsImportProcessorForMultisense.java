@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
+import com.elster.jupiter.transaction.TransactionContext;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -29,8 +30,9 @@ public class UsagePointsImportProcessorForMultisense extends AbstractImportProce
 
     @Override
     public void process(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
-        try {
+        try (TransactionContext context = getContext().getTransactionService().getContext()) {
             processUsagePoint(data);
+            context.commit();
         } catch (ConstraintViolationException e) {
             for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
                 logger.warning(MessageSeeds.IMPORT_USAGEPOINT_CONSTRAINT_VOLATION, data.getLineNumber(),

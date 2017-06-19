@@ -33,11 +33,9 @@ import com.elster.jupiter.metering.imports.impl.parsers.InstantParser;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
-import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
-import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
-import javax.swing.plaf.nimbus.State;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.time.Instant;
@@ -46,7 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePointImportRecord> {
 
@@ -63,7 +60,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
 
     @Override
     public void process(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
-        try {
+        try (TransactionContext context = getContext().getTransactionService().getContext()) {
             validate(data);
             UsagePoint usagePoint = getUsagePoint(data);
             if (usagePoint.getDetail(getClock().instant()).isPresent()) {
@@ -71,8 +68,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
             } else {
                 createDetails(usagePoint, data).create();
             }
-            activateMeters(data, usagePoint);
-            performUsagePointTransition(data, usagePoint);
+            context.commit();
         } catch (ConstraintViolationException e) {
             for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
                 logger.warning(MessageSeeds.IMPORT_USAGEPOINT_CONSTRAINT_VOLATION, data.getLineNumber(),
@@ -141,11 +137,13 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
                     .get();
             return usagePointImportHelper.updateUsagePointForInsight(usagePoint, data);
         } else {
-            return usagePointImportHelper.createUsagePointForInsight(
-                    serviceCategory.get().newUsagePoint(
-                            identifier,
-                            data.getInstallationTime().orElse(getContext().getClock().instant())),
-                    data);
+            UsagePoint usagePoint = usagePointImportHelper.createUsagePointForInsight(serviceCategory.get()
+                    .newUsagePoint(identifier, data.getInstallationTime()
+                            .orElse(getContext().getClock().instant())), data);
+            activateMeters(data, usagePoint);
+            performUsagePointTransition(data, usagePoint);
+
+            return usagePoint;
         }
     }
 
@@ -276,7 +274,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
 
     private void activateMeters(UsagePointImportRecord record, UsagePoint usagePoint) {
         UsagePointMeterActivator usagePointMeterActivator = usagePoint.linkMeters();
-        record.getMeterRoles().stream().forEach(meterRole -> {
+        record.getMeterRoles().forEach(meterRole -> {
             MeterRole role = getContext().getMetrologyConfigurationService()
                     .findMeterRole(meterRole.getMeterRole())
                     .get();
@@ -332,33 +330,12 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
                 .findAny();
     }
 
-
-    private void checkPreTransitionRequirements(UsagePointTransition usagePointTransition, UsagePoint usagePoint, Instant transitionDate) {
-        if (transitionDate == null) {
-            throw new ProcessorException(MessageSeeds.TRANSITION_DATE_IS_NOT_SPECIFIED);
-        } else if (transitionDate.isBefore(getClock().instant())) {
-            throw new ProcessorException(MessageSeeds.ACTIVATION_DATE_OF_TRANSITION_IS_BEFORE_UP_CREATION);
-        }
-        List<ExecutableMicroCheckViolation> violations = usagePointTransition.getChecks().stream()
-                .filter(check -> check instanceof ExecutableMicroCheck)
-                .map(ExecutableMicroCheck.class::cast)
-                .map(check -> check.execute(usagePoint, transitionDate))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-        if (!violations.isEmpty()) {
-            throw new ProcessorException(MessageSeeds.PRE_TRANSITION_CHECK_FAILED, violations.get(0)
-                    .getLocalizedMessage());
-        }
-    }
-
     private void validateUsagePointTransitionValues(UsagePoint usagePoint, UsagePointImportRecord data) {
-        if (data.getTransition().isPresent()) {
-            Optional<UsagePointTransition> optionalTransition = getOptionalTransition(usagePoint, data.getTransition().get());
-            if (!optionalTransition.isPresent()) {
-                throw new ProcessorException(MessageSeeds.NO_SUCH_TRANSITION_FOUND, data.getTransition().get());
+        data.getTransition().ifPresent(transition -> {
+            if (!getOptionalTransition(usagePoint, transition).isPresent()) {
+                throw new ProcessorException(MessageSeeds.NO_SUCH_TRANSITION_FOUND, transition);
             }
-        }
+        });
     }
 
     private void validateMandatoryCustomProperties(UsagePoint usagePoint, UsagePointImportRecord data) {

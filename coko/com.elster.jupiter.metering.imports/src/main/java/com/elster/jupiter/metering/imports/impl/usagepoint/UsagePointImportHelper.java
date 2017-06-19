@@ -78,50 +78,6 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
             .forEach(each -> each.addCalendar(data, usagePoint, this));
     }
 
-    public UsagePoint updateUsagePoint(UsagePoint usagePoint, UsagePointImportRecord data) {
-        List<String> locationData = data.getLocation();
-        List<String> geoCoordinatesData = data.getGeoCoordinates();
-
-        if (locationData.stream().anyMatch(s -> s != null)) {
-            context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                    .filter(LocationTemplate.TemplateField::isMandatory)
-                    .forEach(field -> {
-                        if (locationData.get(field.getRanking()) == null) {
-                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field
-                                    .getName());
-                        } else if (locationData.get(field.getRanking()).isEmpty()) {
-                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field
-                                    .getName());
-                        }
-                    });
-            LocationBuilder builder = usagePoint.updateLocation();
-            Map<String, Integer> ranking = context.getMeteringService()
-                    .getLocationTemplate()
-                    .getTemplateMembers()
-                    .stream()
-                    .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
-
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData.get(ranking.get("locale")));
-            if (memberBuilder.isPresent()) {
-                setLocationAttributes(memberBuilder.get(), data, ranking);
-            } else {
-                setLocationAttributes(builder.member(), data, ranking).add();
-            }
-            usagePoint.setLocation(builder.create().getId());
-        }
-        if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
-            usagePoint.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream()
-                    .reduce((s, t) -> s + ":" + t)
-                    .get()));
-        }
-        usagePoint.setOutageRegion(data.getOutageRegion());
-        usagePoint.setReadRoute(data.getReadRoute());
-        usagePoint.setServicePriority(data.getServicePriority());
-        usagePoint.setServiceDeliveryRemark(data.getServiceDeliveryRemark());
-        usagePoint.update();
-        return usagePoint;
-    }
-
     public UsagePoint updateUsagePointForMultiSense(UsagePoint usagePoint, UsagePointImportRecord data) {
         updateLocation(usagePoint, data);
         usagePoint.update();

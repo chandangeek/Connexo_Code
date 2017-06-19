@@ -19,9 +19,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Savepoint;
 
 public final class CsvImporter<T extends FileImportRecord> implements FileImporter {
 
@@ -85,19 +83,14 @@ public final class CsvImporter<T extends FileImportRecord> implements FileImport
     }
 
     // Parser exceptions should always fail whole importing process
-    private void processRecord(CSVRecord csvRecord, FileImportOccurrence fileImportOccurrence) throws FileImportLineException, ProcessorException, SQLException {
+    private void processRecord(CSVRecord csvRecord, FileImportOccurrence fileImportOccurrence) throws ProcessorException, SQLException {
         try {
             T data = parser.parse(csvRecord);
-            Connection connection = fileImportOccurrence.getCurrentConnection();
-            Savepoint savepoint = connection.setSavepoint();
             try {
                 processor.process(data, logger);
                 logger.importLineFinished(data);
             } catch (Exception exception) {
-                connection.rollback(savepoint);
                 logger.importLineFailed(data, exception);
-            } finally {
-                fileImportOccurrence.save();
             }
         } catch (FileImportLineException lineException) {
             logger.importLineFailed(lineException.getLineNumber(), lineException);
