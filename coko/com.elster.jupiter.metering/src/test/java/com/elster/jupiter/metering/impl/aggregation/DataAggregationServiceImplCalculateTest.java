@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -59,6 +60,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -245,6 +247,7 @@ public class DataAggregationServiceImplCalculateTest {
     public void simplestNetConsumptionOfProsumer() throws SQLException {
         DataAggregationServiceImpl service = this.testInstance();
         Range<Instant> aggregationPeriod = year2016();
+        UsagePoint.UsedCalendars usedCalendars = mock(UsagePoint.UsedCalendars.class);
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
         when(consumption.getName()).thenReturn("A-");
@@ -256,6 +259,9 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.configuration.getMeterRoleFor(consumption)).thenReturn(Optional.of(this.meterRole));
         when(this.configuration.getMeterRoleFor(production)).thenReturn(Optional.of(this.meterRole));
         when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
+        when(this.effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(this.usagePoint);
+        when(this.usagePoint.getUsedCalendars()).thenReturn(usedCalendars);
+        when(usedCalendars.getCalendars()).thenReturn(Collections.emptyMap());
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
         when(netConsumption.getName()).thenReturn("consumption");
@@ -370,6 +376,7 @@ public class DataAggregationServiceImplCalculateTest {
         DataAggregationServiceImpl service = this.testInstance();
         Range<Instant> aggregationPeriod = year2016();
         // Setup configuration requirements
+        UsagePoint.UsedCalendars usedCalendars = mock(UsagePoint.UsedCalendars.class);
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
         when(consumption.getName()).thenReturn("A-");
         when(consumption.getDimension()).thenReturn(Dimension.ENERGY);
@@ -380,6 +387,9 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.configuration.getMeterRoleFor(consumption)).thenReturn(Optional.of(this.meterRole));
         when(this.configuration.getMeterRoleFor(production)).thenReturn(Optional.of(this.meterRole));
         when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
+        when(this.effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(this.usagePoint);
+        when(this.usagePoint.getUsedCalendars()).thenReturn(usedCalendars);
+        when(usedCalendars.getCalendars()).thenReturn(Collections.emptyMap());
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
         when(netConsumption.getName()).thenReturn("consumption");
@@ -494,6 +504,7 @@ public class DataAggregationServiceImplCalculateTest {
     public void simplestNetConsumptionOfProsumerWithMultipleMeterActivations() throws SQLException {
         DataAggregationServiceImpl service = this.testInstance();
         Range<Instant> aggregationPeriod = year2016();
+        UsagePoint.UsedCalendars usedCalendars = mock(UsagePoint.UsedCalendars.class);
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
         when(consumption.getName()).thenReturn("A-");
@@ -505,6 +516,9 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.configuration.getMeterRoleFor(consumption)).thenReturn(Optional.of(this.meterRole));
         when(this.configuration.getMeterRoleFor(production)).thenReturn(Optional.of(this.meterRole));
         when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
+        when(this.effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(this.usagePoint);
+        when(this.usagePoint.getUsedCalendars()).thenReturn(usedCalendars);
+        when(usedCalendars.getCalendars()).thenReturn(Collections.emptyMap());
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
         when(netConsumption.getName()).thenReturn("consumption");

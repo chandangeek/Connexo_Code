@@ -1218,10 +1218,10 @@ public class UsagePointImpl implements ServerUsagePoint {
 
     @Override
     public ZoneId getZoneId() {
-        return getCurrentMeterActivations()
-                .stream()
-                .filter(ma -> ma.getMeter().isPresent())
-                .map(ma -> ma.getMeter().get().getZoneId())
+        return getEffectiveMetrologyConfigurations().stream()
+                .flatMap(emc -> emc.getMetrologyConfiguration().getContracts().stream().map(emc::getChannelsContainer))
+                .flatMap(Functions.asStream())
+                .map(ChannelsContainer::getZoneId)
                 .findAny()
                 .orElse(ZoneId.systemDefault());
     }
@@ -1540,8 +1540,8 @@ public class UsagePointImpl implements ServerUsagePoint {
     public void makeObsolete() {
         this.obsoleteTime = this.clock.instant();
         this.dataModel.update(this, "obsoleteTime");
-        this.getEffectiveMetrologyConfiguration(this.obsoleteTime)
-                .ifPresent(efmc -> efmc.close(this.obsoleteTime));
+        this.getEffectiveMetrologyConfigurations(Range.atLeast(obsoleteTime)).stream()
+                .forEach(efmc -> efmc.close(efmc.isEffectiveAt(obsoleteTime) ?  this.obsoleteTime : efmc.getStart()));
         this.calendarUsages.clear();
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
