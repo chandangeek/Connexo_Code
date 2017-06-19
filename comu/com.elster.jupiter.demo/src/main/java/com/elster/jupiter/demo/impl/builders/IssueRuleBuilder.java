@@ -163,7 +163,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
 
                     @Override
                     public String getDefaultFormat() {
-                        return "Reason format";
+                        return "Alarm reason";
                     }
                 }, new TranslationKey() {
                     @Override
@@ -173,7 +173,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
 
                     @Override
                     public String getDefaultFormat() {
-                        return "Reason format";
+                        return "Alarm reason";
                     }
                 });
     }

@@ -10,8 +10,6 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ValidatedDataOption;
-import com.elster.jupiter.export.processor.impl.CsvMeterDataFormatterFactory;
-import com.elster.jupiter.export.processor.impl.CsvUsagePointDataFormatterFactory;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
@@ -119,7 +117,8 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
                     .fromExportPeriod(yesterday)
                     .fromUpdatePeriod(yesterday)
                     .exportComplete(MissingDataOption.EXCLUDE_INTERVAL)
-                    .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                    .exportComplete(MissingDataOption.EXCLUDE_INTERVAL)
+                .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
                     .fromEndDeviceGroup(deviceGroup)
                     .continuousData(false)
                     .exportUpdate(true)

@@ -7,6 +7,8 @@ package com.elster.jupiter.demo.impl.templates;
 import com.elster.jupiter.demo.impl.builders.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 
+import java.math.BigDecimal;
+
 public enum SecurityPropertySetTpl implements Template<SecurityPropertySet, SecurityPropertySetBuilder> {
     NO_SECURITY("No security",
             1,
@@ -48,7 +50,7 @@ public enum SecurityPropertySetTpl implements Template<SecurityPropertySet, Secu
 
     @Override
     public SecurityPropertySetBuilder get(SecurityPropertySetBuilder builder) {
-        return builder.withClient(String.valueOf(client)).withAuthLevel(authLevel).withEncLevel(encLevel).withName(name);
+        return builder.withClient(BigDecimal.valueOf(client)).withAuthLevel(authLevel).withEncLevel(encLevel).withName(name);
     }
 
     public String getName() {

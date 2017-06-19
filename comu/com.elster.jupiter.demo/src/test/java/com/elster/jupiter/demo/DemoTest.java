@@ -24,6 +24,7 @@ import com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl;
 import com.elster.jupiter.demo.impl.templates.LogBookTypeTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
+import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.dualcontrol.impl.DualControlModule;
@@ -63,9 +64,13 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.PassphraseFactory;
+import com.elster.jupiter.pki.PassphraseWrapper;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.pki.impl.PkiServiceImpl;
+import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultPassphraseFactory;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.properties.rest.PropertyValueInfoServiceModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -99,7 +104,6 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
 import com.energyict.mdc.app.impl.MdcAppInstaller;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmModule;
 import com.energyict.mdc.device.alarms.impl.templates.AbstractDeviceAlarmTemplate;
@@ -185,6 +189,7 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -192,12 +197,13 @@ import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 
 import com.energyict.protocolimpl.elster.a3.AlphaA3;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
@@ -209,12 +215,12 @@ import org.osgi.service.log.LogService;
 import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.security.Security;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.TimeZone;
-import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -223,17 +229,15 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Ignore
 public class DemoTest {
-    private static final Logger LOG = Logger.getLogger(DemoTest.class.getName());
 
     protected static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    private User currentUser;
     private PassphraseFactory passphraseFactory;
 
     private static class MockModule extends AbstractModule {
@@ -457,7 +461,7 @@ public class DemoTest {
     }
 
     @Test
-    @Ignore // don't support A3 for now
+    @Ignore // don't support A3 for now because AnsiC12SecuritySupport is not yet conform latest pki changes
     public void testCreateA3Device() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         demoService.createA3Device();
@@ -465,7 +469,7 @@ public class DemoTest {
     }
 
     @Test
-    @Ignore
+    @Ignore // don't support A3 for now because AnsiC12SecuritySupport is not yet conform latest pki changes
     public void testExecuteCreateA3DeviceTwice() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         demoService.createA3Device();
@@ -546,12 +550,12 @@ public class DemoTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             assertThat(scheduledConnectionTask.getProperty("host").getValue()).isEqualTo("10.0.0.135");
             assertThat(scheduledConnectionTask.getProperty("portNumber").getValue()).isEqualTo(new BigDecimal(4059));
-            assertThat(securityPropertySet.getClient()).isEqualTo("1");
+            assertThat(securityPropertySet.getClient()).isEqualTo(BigDecimal.ONE);
             TypedProperties securityProperties = gateway.getSecurityProperties(securityPropertySet);
             assertThat(securityProperties.propertyNames()).hasSize(2);
 
-            assertThat(securityProperties.getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.getKey())).isEqualTo("00112233445566778899AABBCCDDEEFF");
-            assertThat(securityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.getKey())).isEqualTo("11223344556677889900AABBCCDDEEFF");
+            assertThat(securityProperties.getProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.getKey())).isEqualTo("00112233445566778899AABBCCDDEEFF");
+            assertThat(securityProperties.getProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.getKey())).isEqualTo("11223344556677889900AABBCCDDEEFF");
             ctx.commit();
         }
         assertThat(gateway.getDeviceProtocolProperties().getProperty("ValidateInvokeId")).isEqualTo(Boolean.TRUE);
@@ -561,7 +565,6 @@ public class DemoTest {
     private void checkCreatedG3SlaveDevice(String deviceName) {
         String SERIAL_NUMBER = "Demo board AS3000".equals(deviceName) ? "E0023000520685414" : "123457S";
         String MAC_ADDRESS = "Demo board AS3000".equals(deviceName) ? "02237EFFFEFD835B" : "02237EFFFEFD82F4";
-        String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
         Optional<Device> deviceOptional = deviceService.findDeviceByName(deviceName);
@@ -618,7 +621,7 @@ public class DemoTest {
         assertThat(configuration.getGatewayType()).isEqualTo(GatewayType.HOME_AREA_NETWORK);
         assertThat(configuration.getSecurityPropertySets()).hasSize(1);
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().get(0);
-        assertThat(securityPropertySet.getName()).isEqualTo(SECURITY_SET_NAME);
+        assertThat(securityPropertySet.getName()).isEqualTo(SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5.getName());
         assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(3);      //HIGH_LEVEL_MD5
         assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(0);          //NO_ENCRYPTION
         assertThat(configuration.getPartialOutboundConnectionTasks().isEmpty()).isTrue();
@@ -667,7 +670,7 @@ public class DemoTest {
             }
         }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            assertThat(securityPropertySet.getClient()).isEqualTo("1");
+            assertThat(securityPropertySet.getClient()).isEqualTo(BigDecimal.ONE);
             TypedProperties securityProperties = device.getSecurityProperties(securityPropertySet);
             assertThat(securityProperties.getProperty("Password")).isEqualTo("1234567890123456");
             ctx.commit();
@@ -769,6 +772,11 @@ public class DemoTest {
     }
 
     protected void doPreparations() {
+        passphraseFactory = mock(PassphraseFactory.class);
+        when(passphraseFactory.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        PassphraseWrapper passphraseWrapper = mock(PassphraseWrapper.class);
+        when(passphraseFactory.newPassphraseWrapper(any())).thenReturn(passphraseWrapper);
+
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             Services.nlsService(injector.getInstance(com.energyict.mdc.upl.nls.NlsService.class));
             Services.propertySpecService(injector.getInstance(com.energyict.mdc.upl.properties.PropertySpecService.class));
@@ -783,11 +791,18 @@ public class DemoTest {
             createDefaultStuff();
             injector.getInstance(DemoServiceImpl.class);
             prepareSearchDomain();
+            preparePKIService();
             ctx.commit();
         }
-        passphraseFactory = mock(PassphraseFactory.class);
-        injector.getInstance(PkiServiceImpl.class).addPassphraseFactory(passphraseFactory);
         tuneDeviceCountForSpeedTest();
+    }
+
+    private void preparePKIService() {
+        PkiServiceImpl pkiService = (PkiServiceImpl) injector.getInstance(PkiService.class);
+        pkiService.addPrivateKeyFactory(injector.getInstance(DataVaultPrivateKeyFactory.class));
+        pkiService.addSymmetricKeyFactory(injector.getInstance(DataVaultSymmetricKeyFactory.class));
+        pkiService.addPassphraseFactory(injector.getInstance(DataVaultPassphraseFactory.class));
+        Security.addProvider(new BouncyCastleProvider());
     }
 
     private void initializeCustomPropertySets() {

@@ -28,7 +28,7 @@ public enum DeviceConfigurationTpl implements Template<DeviceConfiguration, Devi
             Arrays.<LogBookTypeTpl>asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG),
             Arrays.asList(ComTaskTpl.excludeTopologyTpls()), true),
     AM540("Default", GatewayType.HOME_AREA_NETWORK,
-            Collections.emptyList(),
+            Collections.singletonList(SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5),
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_BULK_A_MINUS, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2),
             Arrays.<LoadProfileTypeTpl>asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY, LoadProfileTypeTpl.DAILY_ELECTRICITY, LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
             Collections.singletonList(LogBookTypeTpl.GENERIC),

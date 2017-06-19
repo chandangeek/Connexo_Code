@@ -15,6 +15,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet, SecurityPropertySetBuilder> {
@@ -22,7 +23,7 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
     private final PkiService pkiService;
 
     private DeviceConfiguration deviceConfiguration;
-    private String client;
+    private BigDecimal client;
     private int authLevel;
     private int encLevel;
 
@@ -47,7 +48,7 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
         return this;
     }
 
-    public SecurityPropertySetBuilder withClient(String client) {
+    public SecurityPropertySetBuilder withClient(BigDecimal client) {
         this.client = client;
         return this;
     }
@@ -95,10 +96,9 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
 
     private KeyType createOrGetKeyType(String keyAccessorTypeName) {
         if (keyAccessorTypeName.equals("Password")) {
-            return pkiService.getKeyType("Passphrase").orElseGet(() -> pkiService.newPassphraseType("Passphrase").withSpecialCharacters().length(30).add());
+            return pkiService.getKeyType("Password").orElseGet(() -> pkiService.newPassphraseType("Password").withSpecialCharacters().length(30).add());
         } else {
             return pkiService.getKeyType("AES 128").orElseGet(() -> pkiService.newSymmetricKeyType("AES 128", "AES", 128).add());
         }
-
     }
 }
