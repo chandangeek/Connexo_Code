@@ -34,6 +34,7 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.conditions.Order;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -48,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.domain.util.Save.CREATE;
@@ -128,6 +130,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     @SuppressWarnings("unused")
     private String userName;
 
+    private static final Logger LOG = Logger.getLogger(MetrologyConfigurationImpl.class.getName());
+
     @Inject
     MetrologyConfigurationImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, Clock clock, Publisher publisher) {
         this.dataModel = dataModel;
@@ -204,11 +208,14 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     private void checkLinkedUsagePoints() {
-        if (!metrologyConfigurationService.getDataModel()
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> linkedUsagePoint = metrologyConfigurationService.getDataModel()
                 .query(EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class)
                 .select(where("metrologyConfiguration").isEqualTo(this)
-                        .and(where("interval").isEffective()), Order.NOORDER, false, null, 1, 1)
-                .isEmpty()) {
+                        .and(where("interval").isEffective(Range.atLeast(clock.instant()))))
+                .stream()
+                .filter(emc -> !emc.getRange().hasUpperBound() || !emc.getRange().lowerEndpoint().equals(emc.getRange().upperEndpoint()))
+                .findAny();
+        if (linkedUsagePoint.isPresent()) {
             throw new CannotDeactivateMetrologyConfiguration(this.metrologyConfigurationService.getThesaurus());
         }
     }

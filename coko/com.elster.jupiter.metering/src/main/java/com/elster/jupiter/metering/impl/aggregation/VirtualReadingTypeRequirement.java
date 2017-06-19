@@ -278,17 +278,26 @@ class VirtualReadingTypeRequirement {
     }
 
     private void appendAggregatedReadingQuality(SqlBuilder sqlBuilder) {
-        sqlBuilder.append(" FULL OUTER JOIN (SELECT readingtimestamp, CASE");
+        sqlBuilder.append(" FULL OUTER JOIN (SELECT readingtimestamp, MAX(CASE");
         sqlBuilder.append(" WHEN TYPE LIKE '%.5.258' THEN " + CalculatedReadingRecordImpl.SUSPECT);
         sqlBuilder.append(" WHEN TYPE LIKE '%.5.259' THEN " + CalculatedReadingRecordImpl.MISSING);
         sqlBuilder.append(" ELSE " + CalculatedReadingRecordImpl.ESTIMATED_EDITED);
-        sqlBuilder.append(" END AS ");
+        sqlBuilder.append(" END) AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
         sqlBuilder.append(" FROM mtr_readingquality WHERE readingtype = '");
         sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
         sqlBuilder.append("' AND channelid = ");
         sqlBuilder.addLong(this.getPreferredChannel().getId());
-        sqlBuilder.append(" AND (TYPE LIKE '%.5.258' OR TYPE LIKE '%.5.259' OR TYPE LIKE '%.7.%' OR TYPE LIKE '%.8.%')) rq");
+        sqlBuilder.append(" AND (TYPE LIKE '%.5.258' OR TYPE LIKE '%.5.259' OR TYPE LIKE '%.7.%' OR TYPE LIKE '%.8.%')");
+        if (rawDataPeriod.hasLowerBound()) {
+            sqlBuilder.append(" AND readingtimestamp > ");
+            sqlBuilder.addLong(this.rawDataPeriod.lowerEndpoint().toEpochMilli());
+        }
+        if (rawDataPeriod.hasUpperBound()) {
+        sqlBuilder.append(" AND readingtimestamp <= ");
+            sqlBuilder.addLong(this.rawDataPeriod.upperEndpoint().toEpochMilli());
+        }
+        sqlBuilder.append(" GROUP BY readingtimestamp) rq");
         sqlBuilder.append(" ON rawts.utcstamp = rq.readingtimestamp");
     }
 

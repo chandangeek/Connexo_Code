@@ -1006,10 +1006,10 @@ public class MeteringConsoleCommands {
             UsagePoint usagePoint = this.meteringService.findUsagePointByName(usagePointName)
                     .orElseThrow(() -> new IllegalArgumentException("Usage point " + usagePointName + " does not exist"));
             Instant endDate = LocalDateTime.from(dateTimeFormat.parse(timestamp)).atZone(ZoneId.systemDefault()).toInstant();
-            EffectiveMetrologyConfigurationOnUsagePoint configurationOnUsagePoint = usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                    .orElseThrow(() -> new IllegalArgumentException("Usage point " + usagePointName + " does not have open metrology configuration"));
-            if (endDate.isBefore(configurationOnUsagePoint.getStart())) {
-                throw new IllegalArgumentException("Specified end date is before the start of current effective metrology configuration");
+            EffectiveMetrologyConfigurationOnUsagePoint configurationOnUsagePoint = usagePoint.getEffectiveMetrologyConfiguration(endDate)
+                    .orElseThrow(() -> new IllegalArgumentException("Usage point " + usagePointName + " does not have a metrology configuration effective at the provided timestamp."));
+            if (configurationOnUsagePoint.getRange().hasUpperBound()) {
+                throw new IllegalArgumentException("Metrology configuration, that is effective at the provided timestamp, is already closed.");
             }
             configurationOnUsagePoint.close(endDate);
             context.commit();

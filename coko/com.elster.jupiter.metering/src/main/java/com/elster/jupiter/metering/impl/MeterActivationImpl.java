@@ -521,11 +521,11 @@ public final class MeterActivationImpl implements IMeterActivation {
             throw new IllegalArgumentException("Break time is not within meter activation range. Range = " + sourceRange + ", time = " + breakTime);
         }
         Range<Instant> newRange = sourceRange.hasUpperBound()
-                ? Range.closedOpen(breakTime, sourceRange.upperEndpoint())
-                : Range.atLeast(breakTime);
+                ? Range.openClosed(breakTime, sourceRange.upperEndpoint())
+                : Range.greaterThan(breakTime);
         MeterActivationImpl newActivation = dataModel.getInstance(MeterActivationImpl.class)
                 .initInternal(this.meter.orElse(null), this.meterRole.orElse(null), this.usagePoint.orElse(null), newRange);
-        getMultipliers().entrySet().stream()
+        getMultipliers().entrySet()
                 .forEach(entry -> newActivation.multipliers.add(MultiplierValueImpl.from(dataModel, newActivation, entry.getKey(), entry.getValue())));
         newActivation.saveInternal();
         // create the same channels for the new activation

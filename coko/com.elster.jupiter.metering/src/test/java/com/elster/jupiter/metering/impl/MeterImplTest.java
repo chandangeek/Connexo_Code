@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -26,6 +27,7 @@ import javax.inject.Provider;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -45,6 +47,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -129,6 +132,7 @@ public class MeterImplTest {
 
     @Test
     public void testActivateWithUsagePoint() {
+        when(usagePoint.getState(any(Instant.class))).thenReturn(mock(State.class, RETURNS_DEEP_STUBS));
         MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
         meter.init(amrSystem, "1", "Name", null);
 

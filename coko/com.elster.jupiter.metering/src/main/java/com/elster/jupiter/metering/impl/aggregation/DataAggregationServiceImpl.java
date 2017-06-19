@@ -78,6 +78,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     private final Clock clock;
     private final CalendarService calendarService;
+    private Optional<Category> touCategory;
     private final ServerMeteringService meteringService;
     private final InstantTruncaterFactory truncaterFactory;
     private final SourceChannelSetFactory sourceChannelSetFactory;
@@ -235,30 +236,37 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         Loggers.ANALYSIS.debug(startLoggingSupplier);
         List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities = this.getEffectiveMetrologyConfigurationForUsagePointInPeriod(usagePoint, period);
         this.validateContractAppliesToUsagePoint(effectivities, usagePoint, contract, period);
-        Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period);
         Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation = new LinkedHashMap<>();
-        List<MeterActivationSet> meterActivationSets = this.getMeterActivationSets(usagePoint, clippedPeriod);
-        if (meterActivationSets.isEmpty()) {
-            if (usagePoint.isVirtual()) {
+        if (this.clipToContractActivePeriod(effectivities, contract, period).isPresent()){
+            Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period).get();
+            List<MeterActivationSet> meterActivationSets = this.getMeterActivationSets(usagePoint, clippedPeriod);
+            if (meterActivationSets.isEmpty()) {
+                if (usagePoint.isVirtual()) {
                 /* No meter activations is only supported for unmeasured usage points
                  * if all formulas of the contract are using only constants
                  * or expressions that behave as a constant (e.g. custom properties). */
-                if (this.onlyConstantLikeExpressions(contract)) {
-                    MeterActivationSetImpl meterActivationSet =
-                            new MeterActivationSetImpl(
-                                    usagePoint,
-                                    (UsagePointMetrologyConfiguration) contract.getMetrologyConfiguration(),
-                                    1,
-                                    period,
-                                    period.lowerEndpoint());
-                    this.prepare(usagePoint, meterActivationSet, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation);
-                } else {
-                    throw new VirtualUsagePointsOnlySupportConstantLikeExpressionsException(this.getThesaurus());
+                    if (this.onlyConstantLikeExpressions(contract)) {
+                        MeterActivationSetImpl meterActivationSet =
+                                new MeterActivationSetImpl(
+                                        usagePoint,
+                                        (UsagePointMetrologyConfiguration) contract.getMetrologyConfiguration(),
+                                        1,
+                                        period,
+                                        period.lowerEndpoint());
+                        this.prepare(usagePoint, meterActivationSet, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation);
+                    } else {
+                        throw new VirtualUsagePointsOnlySupportConstantLikeExpressionsException(this.getThesaurus());
+                    }
                 }
+            } else {
+                meterActivationSets.forEach(set -> {
+                    if (!set.getMeterActivations().isEmpty()) {
+                        this.prepare(usagePoint, set, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation);
+                    }
+                });
             }
-        } else {
-            meterActivationSets.forEach(set -> this.prepare(usagePoint, set, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation));
         }
+
         return deliverablesPerMeterActivation;
     }
 
@@ -288,14 +296,19 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         }
     }
 
-    private Range<Instant> clipToContractActivePeriod(List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities, MetrologyContract contract, Range<Instant> period) {
-        Range<Instant> clippedPeriod = effectivities
+    private Optional<Range<Instant>> clipToContractActivePeriod(List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities, MetrologyContract contract, Range<Instant> period) {
+        Optional<Range<Instant>> clippedPeriod = effectivities
                 .stream()
                 .filter(each -> !each.getRange().isEmpty())
                 .filter(each -> this.hasContract(each, contract))
                 .findFirst()
-                .map(EffectiveMetrologyConfigurationOnUsagePoint::getRange)
-                .map(period::intersection)
+                .map(e -> e.getUsagePoint().getUsedCalendars().getCalendars().isEmpty()
+                        ? Optional.of(e.getRange())
+                        : e.getUsagePoint().getUsedCalendars().getCalendars().values().stream()
+                        .flatMap(Collection::stream)
+                        .map(UsagePoint.CalendarUsage::getRange)
+                        .filter(range -> Ranges.nonEmptyIntersection(range, period).isPresent())
+                        .findAny())
                 .orElseThrow(() -> new IllegalStateException("Validation that contract was active on contract failed before"));
         if (!clippedPeriod.equals(period)) {
             Loggers.ANALYSIS.debug(() -> "Requested period clipped to effectivity of the contract: " + clippedPeriod);
@@ -485,40 +498,38 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
 
     private List<CalculatedReadingRecordImpl> addMissings(Map.Entry<ReadingType, List<CalculatedReadingRecordImpl>> readingTypeAndRecords, MetrologyContractCalculationIntrospector introspector, Range<Instant> period) {
+        List<CalculatedReadingRecordImpl> withMissings = new ArrayList<>(readingTypeAndRecords.getValue());
         if (!IntervalLength.NOT_SUPPORTED.equals(IntervalLength.from(readingTypeAndRecords.getKey()))) {
-            List<CalculatedReadingRecordImpl> withMissings = new ArrayList<>(readingTypeAndRecords.getValue());
             ZoneId zoneId = introspector.getUsagePoint().getZoneId();
             Year startYear = this.getStartYear(period, zoneId);
             Year endYear = this.getEndYear(period, zoneId);
             Range<Instant> extendedPeriod = this.extendToEndOfInterval(period, readingTypeAndRecords.getKey(), zoneId);
             List<ZonedCalendarUsage> calendarUsages =
                     introspector
-                        .getMetrologyContract()
-                        .getDeliverables()
-                        .stream()
-                        .filter(deliverable -> deliverable.getReadingType().equals(readingTypeAndRecords.getKey()))
-                        .findAny()
-                        .map(introspector::getCalendarUsagesFor)
-                        .orElseGet(Collections::emptyList)
-                        .stream()
-                        .map(calendarUsage -> new ZonedCalendarUsage(introspector.getUsagePoint(), zoneId, startYear, endYear, calendarUsage))
-                        .collect(Collectors.toList());
+                            .getMetrologyContract()
+                            .getDeliverables()
+                            .stream()
+                            .filter(deliverable -> deliverable.getReadingType().equals(readingTypeAndRecords.getKey()))
+                            .findAny()
+                            .map(introspector::getCalendarUsagesFor)
+                            .orElseGet(Collections::emptyList)
+                            .stream()
+                            .map(calendarUsage -> new ZonedCalendarUsage(introspector.getUsagePoint(), zoneId, startYear, endYear, calendarUsage))
+                            .collect(Collectors.toList());
             IntervalLength
                     .from(readingTypeAndRecords.getKey())
                     .toTimeSeries(extendedPeriod, zoneId)
                     .forEach(timestamp ->
                             this.findCalendarUsage(calendarUsages, timestamp)
-                                .ifPresent(calendarUsage ->
-                                        this.addMissingIfDifferentTimeOfUse(
-                                                calendarUsage,
-                                                readingTypeAndRecords.getKey(),
-                                                timestamp,
-                                                zoneId,
-                                                withMissings)));
-            return withMissings;
-        } else {
-            return Collections.emptyList();
+                                    .ifPresent(calendarUsage ->
+                                            this.addMissingIfDifferentTimeOfUse(
+                                                    calendarUsage,
+                                                    readingTypeAndRecords.getKey(),
+                                                    timestamp,
+                                                    zoneId,
+                                                    withMissings)));
         }
+        return withMissings;
     }
 
     private Year getStartYear(Range<Instant> period, ZoneId zoneId) {
@@ -586,9 +597,10 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     @Override
     public Category getTimeOfUseCategory() {
-        return this.calendarService
-                .findCategoryByName(OutOfTheBoxCategory.TOU.name())
-                .orElseThrow(() -> new IllegalStateException("Calendar service installer failure, time of use category is missing"));
+        if (touCategory == null) {
+            touCategory = this.calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.name());
+        }
+        return touCategory.orElseThrow(() -> new IllegalStateException("Calendar service installer failure, time of use category is missing"));
     }
 
     @Override

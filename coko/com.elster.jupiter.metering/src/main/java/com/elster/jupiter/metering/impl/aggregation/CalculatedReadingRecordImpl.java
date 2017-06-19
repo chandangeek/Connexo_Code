@@ -411,7 +411,7 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
             if (meterActivation.isPresent()) {
                 this.timePeriod = this.getTimePeriod(meterActivation.get().getStart(), meterActivation.get().getChannelsContainer().getZoneId());
             } else {
-                ZoneId zoneId = ZoneId.of("UTC");
+                ZoneId zoneId = usagePoint.getZoneId();
                 IntervalLength intervalLength = IntervalLength.from(this.getReadingType());
                 Instant start = truncaterFactory.truncaterFor(this.getReadingType()).truncate(this.getTimeStamp(), intervalLength, zoneId);
                 this.timePeriod = this.getTimePeriod(start, zoneId);

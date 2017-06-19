@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -34,7 +35,6 @@ import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
-import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
@@ -87,6 +87,7 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 
 import com.google.common.collect.Range;
 
@@ -114,7 +115,7 @@ import static com.elster.jupiter.orm.Version.version;
 public enum TableSpecs {
     MTR_SERVICECATEGORY {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ServiceCategory> table = dataModel.addTable(name(), ServiceCategory.class);
             table.map(ServiceCategoryImpl.class);
             table.cache();
@@ -129,7 +130,7 @@ public enum TableSpecs {
     },
     MTR_SERVICELOCATION {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ServiceLocation> table = dataModel.addTable(name(), ServiceLocation.class);
             table.map(ServiceLocationImpl.class);
             table.setJournalTableName("MTR_SERVICELOCATIONJRNL");
@@ -220,7 +221,7 @@ public enum TableSpecs {
 
     MTR_LOCATION_TEMPLATE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<LocationTemplate> table = dataModel.addTable(name(), LocationTemplate.class);
             table.since(version(10, 2));
             table.map(LocationTemplateImpl.class);
@@ -239,7 +240,7 @@ public enum TableSpecs {
 
     MTR_LOCATION {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<Location> table = dataModel.addTable(name(), Location.class);
             table.since(version(10, 2));
             table.map(LocationImpl.class);
@@ -250,7 +251,7 @@ public enum TableSpecs {
 
     MTR_LOCATIONMEMBER {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<LocationMember> table = dataModel.addTable(name(), LocationMember.class);
             table.since(version(10, 2));
             table.setJournalTableName("MTR_LOCATIONMEMBER_JRNL");
@@ -261,7 +262,7 @@ public enum TableSpecs {
     },
     MTR_AMRSYSTEM {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<AmrSystem> table = dataModel.addTable(name(), AmrSystem.class);
             table.map(AmrSystemImpl.class);
             table.cache();
@@ -274,7 +275,7 @@ public enum TableSpecs {
     },
     MTR_USAGEPOINT {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<UsagePoint> table = dataModel.addTable(name(), UsagePoint.class);
             table.map(UsagePointImpl.class);
             table.setJournalTableName("MTR_USAGEPOINTJRNL");
@@ -311,7 +312,7 @@ public enum TableSpecs {
                     .add();
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
             Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).since(version(10, 3)).add();
-            Column lifeCycle = table.column("LIFECYCLE").number().notNull().since(version(10, 3)).add();
+            Column lifeCycle = table.column("LIFECYCLE").number().notNull().installValue(String.valueOf(usagePointLifeCycleConfigurationService.getDefaultLifeCycle().getId())).since(version(10, 3)).add();
             table.addAuditColumns();
 
             table.primaryKey("PK_MTR_USAGEPOINT").on(idColumn).add();
@@ -349,7 +350,7 @@ public enum TableSpecs {
     },
     MTR_READINGTYPE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<IReadingType> table = dataModel.addTable(name(), IReadingType.class);
             table.map(ReadingTypeImpl.class).alsoReferredToAs(ReadingType.class);
             table.setJournalTableName("MTR_READINGTYPE_JNRL").since(version(10, 2));
@@ -367,7 +368,7 @@ public enum TableSpecs {
     },
     MTR_ENDDEVICE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<EndDevice> table = dataModel.addTable(name(), EndDevice.class);
             table.map(EndDeviceImpl.IMPLEMENTERS);
             table.setJournalTableName("MTR_ENDDEVICEJRNL").since(version(10, 2));
@@ -433,7 +434,7 @@ public enum TableSpecs {
     },
     MTR_ENDDEVICESTATUS {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<EndDeviceLifeCycleStatus> table = dataModel.addTable(name(), EndDeviceLifeCycleStatus.class);
             table.map(EndDeviceLifeCycleStatusImpl.class);
             Column endDevice = table.column("ENDDEVICE").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
@@ -459,7 +460,7 @@ public enum TableSpecs {
     },
     MTR_METERROLE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<MeterRole> table = dataModel.addTable(name(), MeterRole.class);
             table.map(MeterRoleImpl.class);
             table.setJournalTableName("MTR_METERROLE_JRNL").since(version(10, 2));
@@ -475,7 +476,7 @@ public enum TableSpecs {
     },
     MTR_METERACTIVATION {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<MeterActivation> table = dataModel.addTable(name(), MeterActivation.class);
             table.map(MeterActivationImpl.class);
             Column idColumn = table.addAutoIdColumn();
@@ -522,7 +523,7 @@ public enum TableSpecs {
     },
     MTR_UPACCOUNTABILITY {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<UsagePointAccountability> table = dataModel.addTable(name(), UsagePointAccountability.class);
             table.map(UsagePointAccountabilityImpl.class);
             table.setJournalTableName("MTR_UPACCOUNTABILITYJRNL");
@@ -561,7 +562,7 @@ public enum TableSpecs {
     },
     MTR_ENDDEVICEEVENTTYPE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<EndDeviceEventType> table = dataModel.addTable(name(), EndDeviceEventType.class);
             table.map(EndDeviceEventTypeImpl.class);
             table.cache();
@@ -574,7 +575,7 @@ public enum TableSpecs {
     },
     MTR_ENDDEVICEEVENTRECORD {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<EndDeviceEventRecord> table = dataModel.addTable(name(), EndDeviceEventRecord.class);
             table.map(EndDeviceEventRecordImpl.class);
             Column endDeviceColumn = table.column("ENDDEVICEID").number().notNull().conversion(NUMBER2LONG).add();
@@ -622,7 +623,7 @@ public enum TableSpecs {
     },
     MTR_ENDDEVICEEVENTDETAIL {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<EndDeviceEventRecordImpl.EndDeviceEventDetailRecord> table = dataModel.addTable(name(), EndDeviceEventRecordImpl.EndDeviceEventDetailRecord.class);
             table.map(EndDeviceEventRecordImpl.EndDeviceEventDetailRecord.class);
             Column endDeviceColumn = table.column("ENDDEVICEID")
@@ -659,7 +660,7 @@ public enum TableSpecs {
         }
     },
     MTR_USAGEPOINTDETAIL {
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<UsagePointDetail> table = dataModel.addTable(name(), UsagePointDetail.class);
             table.map(UsagePointDetailImpl.IMPLEMENTERS);
             table.setJournalTableName("MTR_USAGEPOINTDETAILJRNL");
@@ -712,7 +713,7 @@ public enum TableSpecs {
     },
     MTR_USAGEPOINTSTATE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<UsagePointConnectionState> table = dataModel.addTable(name(), UsagePointConnectionState.class);
             table.map(UsagePointConnectionStateImpl.class);
             Column usagePoint = table.column("USAGEPOINT").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
@@ -731,7 +732,7 @@ public enum TableSpecs {
         }
     },
     MTR_METROLOGYCONFIG {
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<MetrologyConfiguration> table = dataModel.addTable(name(), MetrologyConfiguration.class);
             table.map(MetrologyConfigurationImpl.IMPLEMENTERS);
             table.since(version(10, 2));
@@ -786,7 +787,7 @@ public enum TableSpecs {
     },
     MTR_M_CONFIG_CPS_USAGES {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<MetrologyConfigurationCustomPropertySetUsage> table = dataModel.addTable(name(), MetrologyConfigurationCustomPropertySetUsage.class);
             table.since(version(10, 2));
             table.map(MetrologyConfigurationCustomPropertySetUsageImpl.class);
@@ -825,7 +826,7 @@ public enum TableSpecs {
         }
     },
     MTR_USAGEPOINTMTRCONFIG {
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<EffectiveMetrologyConfigurationOnUsagePoint> table = dataModel.addTable(name(), EffectiveMetrologyConfigurationOnUsagePoint.class);
             table.map(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
             table.since(version(10, 2));
@@ -853,7 +854,7 @@ public enum TableSpecs {
     },
     MTR_MULTIPLIERTYPE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<MultiplierType> table = dataModel.addTable(name(), MultiplierType.class);
             table.map(MultiplierTypeImpl.class);
 
@@ -867,7 +868,7 @@ public enum TableSpecs {
     },
     MTR_MULTIPLIERVALUE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<MultiplierValue> table = dataModel.addTable(name(), MultiplierValue.class);
             table.map(MultiplierValueImpl.class);
             table.setJournalTableName("MTR_MULTIPLIERVALUE_JRNL").since(version(10, 2));
@@ -894,7 +895,7 @@ public enum TableSpecs {
     },
     MTR_METER_CONFIG {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<MeterConfiguration> table = dataModel.addTable(name(), MeterConfiguration.class);
             table.map(MeterConfigurationImpl.class);
 
@@ -918,7 +919,7 @@ public enum TableSpecs {
     },
     MTR_RT_METER_CONFIG {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<MeterReadingTypeConfiguration> table = dataModel.addTable(name(), MeterReadingTypeConfiguration.class);
             table.map(MeterReadingTypeConfigurationImpl.class);
 
@@ -958,7 +959,7 @@ public enum TableSpecs {
     },
     MTR_UP_CONFIG {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<UsagePointConfiguration> table = dataModel.addTable(name(), UsagePointConfiguration.class);
             table.map(UsagePointConfigurationImpl.class);
 
@@ -982,7 +983,7 @@ public enum TableSpecs {
     },
     MTR_RT_UP_CONFIG {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<UsagePointReadingTypeConfiguration> table = dataModel.addTable(name(), UsagePointReadingTypeConfiguration.class);
             table.map(UsagePointReadingTypeConfigurationImpl.class);
             table.since(version(10, 2));
@@ -1023,7 +1024,7 @@ public enum TableSpecs {
 
     MTR_SERVICECATEGORY_CPS_USAGE {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ServiceCategoryCustomPropertySetUsage> table = dataModel.addTable(name(), ServiceCategoryCustomPropertySetUsage.class);
             table.since(version(10, 2));
             table.map(ServiceCategoryCustomPropertySetUsage.class);
@@ -1059,7 +1060,7 @@ public enum TableSpecs {
     },
     MTR_FORMULA_NODE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ExpressionNode> table = dataModel.addTable(name(), ExpressionNode.class);
             table.map(AbstractNode.IMPLEMENTERS);
             table.since(version(10, 2));
@@ -1112,9 +1113,10 @@ public enum TableSpecs {
     },
     MTR_FORMULA {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<Formula> table = dataModel.addTable(name(), Formula.class);
             table.map(FormulaImpl.class);
+            table.cache();
             table.since(version(10, 2));
             table.setJournalTableName("MTR_FORMULA_JRNL");
             Column idColumn = table.addAutoIdColumn();
@@ -1128,7 +1130,7 @@ public enum TableSpecs {
     },
     MTR_SERVICECAT_METERROLE_USAGE {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ServiceCategoryMeterRoleUsage> table = dataModel.addTable(name(), ServiceCategoryMeterRoleUsage.class);
             table.map(ServiceCategoryMeterRoleUsage.class);
             table.since(version(10, 2));
@@ -1155,7 +1157,7 @@ public enum TableSpecs {
     },
     MTR_M_CONFIG_ROLE_USAGE {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<MetrologyConfigurationMeterRoleUsageImpl> table = dataModel.addTable(name(), MetrologyConfigurationMeterRoleUsageImpl.class);
             table.map(MetrologyConfigurationMeterRoleUsageImpl.class);
             table.since(version(10, 2));
@@ -1189,7 +1191,7 @@ public enum TableSpecs {
     },
     MTR_RT_TEMPLATE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ReadingTypeTemplate> table = dataModel.addTable(name(), ReadingTypeTemplate.class);
             table.map(ReadingTypeTemplateImpl.class);
             table.since(version(10, 2));
@@ -1220,7 +1222,7 @@ public enum TableSpecs {
     },
     MTR_RT_TEMPLATE_ATTR {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ReadingTypeTemplateAttribute> table = dataModel.addTable(name(), ReadingTypeTemplateAttribute.class);
             table.map(ReadingTypeTemplateAttributeImpl.class);
             table.since(version(10 ,2));
@@ -1259,7 +1261,7 @@ public enum TableSpecs {
     },
     MTR_RT_TEMPLATE_ATTR_VALUE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ReadingTypeTemplateAttributeValueImpl> table = dataModel.addTable(name(), ReadingTypeTemplateAttributeValueImpl.class);
             table.map(ReadingTypeTemplateAttributeValueImpl.class);
             table.since(version(10, 2));
@@ -1291,7 +1293,7 @@ public enum TableSpecs {
     },
     MTR_RT_REQUIREMENT {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ReadingTypeRequirement> table = dataModel.addTable(name(), ReadingTypeRequirement.class);
             table.map(ReadingTypeRequirementImpl.IMPLEMENTERS);
             table.since(version(10, 2));
@@ -1345,7 +1347,7 @@ public enum TableSpecs {
     },
     MTR_RT_REQUIREMENT_ATTR_VALUE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<PartiallySpecifiedReadingTypeAttributeValueImpl> table = dataModel.addTable(name(), PartiallySpecifiedReadingTypeAttributeValueImpl.class);
             table.map(PartiallySpecifiedReadingTypeAttributeValueImpl.class);
             table.since(version(10, 2));
@@ -1383,7 +1385,7 @@ public enum TableSpecs {
     },
     MTR_REQUIREMENT_2_METER_ROLE {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ReadingTypeRequirementMeterRoleUsage> table = dataModel.addTable(name(), ReadingTypeRequirementMeterRoleUsage.class);
             table.map(ReadingTypeRequirementMeterRoleUsage.class);
             table.since(version(10, 2));
@@ -1428,7 +1430,7 @@ public enum TableSpecs {
     },
     MTR_METROLOGY_PURPOSE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<MetrologyPurpose> table = dataModel.addTable(name(), MetrologyPurpose.class);
             table.map(MetrologyPurposeImpl.class);
             table.since(version(10, 2));
@@ -1462,7 +1464,7 @@ public enum TableSpecs {
     },
     MTR_METROLOGY_CONTRACT {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<MetrologyContract> table = dataModel.addTable(name(), MetrologyContract.class);
             table.map(MetrologyContractImpl.class);
             table.setJournalTableName("MTR_METROLOGY_CONTRACT_JRNL").since(version(10, 2));
@@ -1505,7 +1507,7 @@ public enum TableSpecs {
     },
     MTR_RT_DELIVERABLE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ReadingTypeDeliverable> table = dataModel.addTable(name(), ReadingTypeDeliverable.class);
             table.map(ReadingTypeDeliverableImpl.class);
             table.since(version(10, 2));
@@ -1583,7 +1585,7 @@ public enum TableSpecs {
     },
     MTR_CONTRACT_TO_DELIVERABLE {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<MetrologyContractReadingTypeDeliverableUsage> table = dataModel.addTable(name(), MetrologyContractReadingTypeDeliverableUsage.class);
             table.map(MetrologyContractReadingTypeDeliverableUsage.class);
             table.since(version(10, 2));
@@ -1619,7 +1621,7 @@ public enum TableSpecs {
     },
     MTR_UP_REQUIREMENT {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<UsagePointRequirement> table = dataModel.addTable(name(), UsagePointRequirement.class);
             table.map(UsagePointRequirementImpl.class);
             table.since(version(10, 2));
@@ -1655,7 +1657,7 @@ public enum TableSpecs {
     },
     MTR_UP_REQUIREMENT_VALUE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<UsagePointRequirementValue> table = dataModel.addTable(name(), UsagePointRequirementValue.class);
             table.map(UsagePointRequirementValue.class);
             table.since(version(10, 2));
@@ -1695,7 +1697,7 @@ public enum TableSpecs {
     },
     MTR_EFFECTIVE_CONTRACT {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<EffectiveMetrologyContractOnUsagePoint> table = dataModel.addTable(name(), EffectiveMetrologyContractOnUsagePoint.class);
             table.map(EffectiveMetrologyContractOnUsagePointImpl.class);
             table.since(version(10, 2));
@@ -1722,7 +1724,7 @@ public enum TableSpecs {
     },
     MTR_CHANNEL_CONTAINER {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ChannelsContainer> table = dataModel.addTable(name(), ChannelsContainer.class);
             table.since(version(10, 2));
 
@@ -1766,7 +1768,7 @@ public enum TableSpecs {
     },
     ADD_MTR_EFFECTIVE_CONTRACT_CHANNEL_CONTAINER {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<?> table = dataModel.getTable(MTR_EFFECTIVE_CONTRACT.name());
             Column channelContainerColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.CHANNELS_CONTAINER
                     .name()).number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).add();
@@ -1781,7 +1783,7 @@ public enum TableSpecs {
     },
     MTR_CHANNEL {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<Channel> table = dataModel.addTable(name(), Channel.class);
             table.map(ChannelImpl.class);
             Column idColumn = table.addAutoIdColumn();
@@ -1832,7 +1834,7 @@ public enum TableSpecs {
     },
     MTR_READINGTYPEINCHANNEL {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ReadingTypeInChannel> table = dataModel.addTable(name(), ReadingTypeInChannel.class);
             table.map(ReadingTypeInChannel.class);
             Column channelIdColumn = table.column("CHANNNELID").type("number").notNull().conversion(NUMBER2LONG).add();
@@ -1859,7 +1861,7 @@ public enum TableSpecs {
     },
     MTR_READINGQUALITY {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ReadingQualityRecord> table = dataModel.addTable(name(), ReadingQualityRecord.class);
             table.map(ReadingQualityRecordImpl.class);
             table.setJournalTableName("MTR_READINGQUALITYJRNL");
@@ -1895,7 +1897,7 @@ public enum TableSpecs {
     },
     ADD_IN_OUT_DEPENDENCIES_TO_FORMULA_NODE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<?> table = dataModel.getTable(MTR_FORMULA_NODE.name());
             // ReadingTypeDeliverableNodeImpl readingTypeDeliverable value
             Column readingTypeDeliverableColumn = table.getColumn("READINGTYPE_DELIVERABLE").get();
@@ -1916,7 +1918,7 @@ public enum TableSpecs {
 
     MTR_ENDDEVICECONTROLTYPE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<EndDeviceControlType> table = dataModel.addTable(name(), EndDeviceControlType.class);
             table.map(EndDeviceControlTypeImpl.class);
             table.cache();
@@ -1930,7 +1932,7 @@ public enum TableSpecs {
 
     MTR_GASDAYOPTIONS {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<GasDayOptions> table = dataModel.addTable(name(), GasDayOptions.class);
             table.since(version(10, 2));
             table.map(GasDayOptionsImpl.class);
@@ -1953,7 +1955,7 @@ public enum TableSpecs {
     },
     MTR_UPL_STATE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<UsagePointStateTemporalImpl> table = dataModel.addTable(name(), UsagePointStateTemporalImpl.class);
             table.map(UsagePointStateTemporalImpl.class);
             table.since(version(10, 3));
@@ -1980,7 +1982,7 @@ public enum TableSpecs {
     },
     MTR_CALENDAR_ON_USAGEPOINT {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<UsagePoint.CalendarUsage> table = dataModel.addTable(this.name(), UsagePoint.CalendarUsage.class).since(version(10, 3));
             table.map(CalendarUsageImpl.class);
             Column idColumn = table.addAutoIdColumn();
@@ -2006,7 +2008,7 @@ public enum TableSpecs {
     },
     MTR_EVENTSET_ON_METROCONFIG {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<EventSetOnMetrologyConfiguration> table = dataModel.addTable(this.name(), EventSetOnMetrologyConfiguration.class).since(version(10, 3));
             table.map(EventSetOnMetrologyConfigurationImpl.class);
             Column metrologyConfiguration = table.column("METROLOGYCONFIGURATION").number().notNull().add();
@@ -2032,7 +2034,7 @@ public enum TableSpecs {
     },
     MTR_SYNTHETICLOADPROFILE{
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<SyntheticLoadProfile> table = dataModel.addTable(name(), SyntheticLoadProfile.class);
             table.since(Version.version(10, 3));
             table.map(SyntheticLoadProfileImpl.class);
@@ -2063,7 +2065,7 @@ public enum TableSpecs {
     },
     MTR_READINGQUALITY_COMMENT {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ReadingQualityComment> table = dataModel.addTable(name(), ReadingQualityComment.class);
             table.since(Version.version(10, 3));
             table.map(ReadingQualityCommentImpl.class);
@@ -2077,7 +2079,7 @@ public enum TableSpecs {
         }
     };
 
-    abstract void addTo(DataModel dataModel);
+    abstract void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService);
 
     private static class Constants {
         static final String JOURNAL_TABLE_SUFFIX = "JRNL";

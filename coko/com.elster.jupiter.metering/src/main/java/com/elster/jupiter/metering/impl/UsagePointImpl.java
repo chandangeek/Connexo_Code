@@ -589,12 +589,12 @@ public class UsagePointImpl implements ServerUsagePoint {
     private void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Set<MetrologyContract> optionalContractsToActivate, Instant start, Instant end) {
         validateApplyTimeAndCreateDate(start);
         validateUsagePointStage(start);
-        validateMetersIfGapsAreNotAllowedWithMeterRoles(metrologyConfiguration, start);
+        validateMetersActivationsMatch(metrologyConfiguration, start);
         validateEndDeviceStage(this.getMeterActivations(), start);
         validateMetrologyConfigOverlapping(metrologyConfiguration, start);
         validateMetersForOptionalContracts(this.getMeterActivations(start), optionalContractsToActivate);
         Stage stage = this.getState(start).getStage().get();
-        if (!stage.getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey())) {
+        if (!stage.getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey()) && !stage.getName().equals(UsagePointStage.SUSPENDED.getKey())) {
             throw UsagePointManagementException.incorrectStage(thesaurus);
         }
         validateEffectiveMetrologyConfigurationInterval(start, end);
@@ -604,23 +604,20 @@ public class UsagePointImpl implements ServerUsagePoint {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration =
                 createEffectiveMetrologyConfigurationWithContracts(metrologyConfiguration, optionalContractsToActivate, effectiveInterval);
         this.metrologyConfigurations.add(effectiveMetrologyConfiguration);
-        activateMetersOnMetrologyConfiguration(this.getMeterActivations(start));
+        activateMetersOnMetrologyConfiguration(this.getMeterActivations(Range.atLeast(start)));
         this.postCalendarTimeSeriesCacheHandlerMessage(start);
     }
 
-    private void validateMetersIfGapsAreNotAllowedWithMeterRoles(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start) {
-        if (   !metrologyConfiguration.areGapsAllowed()
-            && !metrologyConfiguration.getRequirements().isEmpty()
+    private void validateMetersActivationsMatch(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start) {
+        if (!metrologyConfiguration.getRequirements().isEmpty()
             && !metrologyConfiguration.getMeterRoles().isEmpty()) {
-            List<ChannelsContainer> channelsContainers = getMeterActivations(start)
-                    .stream()
-                    .map(MeterActivation::getChannelsContainer)
-                    .collect(Collectors.toList());
+            List<MeterActivation> meterActivations = getMeterActivations(Range.atLeast(start));
+            if(meterActivations.isEmpty() && metrologyConfiguration.areGapsAllowed()) {
+                return;
+            }
             List<ReadingTypeRequirement> metrologyConfigRequirements = metrologyConfiguration.getRequirements();
-            boolean meterActivationsMatched = channelsContainers.stream()
-                    .filter(channelsContainer ->  metersActivationsMatched(metrologyConfigRequirements, channelsContainer))
-                    .findAny()
-                    .isPresent();
+            boolean meterActivationsMatched = metrologyConfigRequirements.stream()
+                    .allMatch(rq -> hasMeterActivationForRequirementMeterRole(rq, metrologyConfiguration, meterActivations));
 
             if (!meterActivationsMatched) {
                 throw UsagePointManagementException.incorrectMetersSpecification(
@@ -634,11 +631,15 @@ public class UsagePointImpl implements ServerUsagePoint {
         }
     }
 
+    private boolean hasMeterActivationForRequirementMeterRole(ReadingTypeRequirement rq, UsagePointMetrologyConfiguration metrologyConfiguration, List<MeterActivation> meterActivations) {
+        Optional<MeterRole> meterRoleFor = metrologyConfiguration.getMeterRoleFor(rq);
+        return meterRoleFor.map(meterRole -> meterActivations.stream().anyMatch(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole().get().equals(meterRole)))
+                .orElse(true);
+    }
+
     private boolean metersActivationsMatched(List<ReadingTypeRequirement> metrologyConfigRequirements, ChannelsContainer channelsContainer) {
         return metrologyConfigRequirements.stream()
-                .filter(readingTypeRequirement -> !readingTypeRequirement.getMatchesFor(channelsContainer).isEmpty())
-                .findAny()
-                .isPresent();
+                .anyMatch(readingTypeRequirement -> !readingTypeRequirement.getMatchesFor(channelsContainer).isEmpty());
     }
 
     private void activateMetersOnMetrologyConfiguration(List<MeterActivation> meterActivations) {
@@ -755,7 +756,9 @@ public class UsagePointImpl implements ServerUsagePoint {
 
     private void validateEndDeviceStage(List<MeterActivation> meterActivations, Instant mcStart) {
         if (!meterActivations.isEmpty()) {
-            meterActivations.forEach(meterActivation -> {
+            meterActivations.stream()
+                    .filter(meterActivation -> meterActivation.isEffectiveAt(mcStart))
+                    .forEach(meterActivation -> {
                 if (meterActivation.getMeter().isPresent() && meterActivation.getMeter().get().getState(mcStart).isPresent()) {
                     checkOperationalStage(meterActivation.getMeter().get().getState(mcStart).get().getStage(), mcStart);
                 }
@@ -1215,10 +1218,10 @@ public class UsagePointImpl implements ServerUsagePoint {
 
     @Override
     public ZoneId getZoneId() {
-        return getCurrentMeterActivations()
-                .stream()
-                .filter(ma -> ma.getMeter().isPresent())
-                .map(ma -> ma.getMeter().get().getZoneId())
+        return getEffectiveMetrologyConfigurations().stream()
+                .flatMap(emc -> emc.getMetrologyConfiguration().getContracts().stream().map(emc::getChannelsContainer))
+                .flatMap(Functions.asStream())
+                .map(ChannelsContainer::getZoneId)
                 .findAny()
                 .orElse(ZoneId.systemDefault());
     }
@@ -1377,8 +1380,8 @@ public class UsagePointImpl implements ServerUsagePoint {
 
         comparisons.add(Operator.GREATERTHAN.compare("readingtimestamp", range.lowerEndpoint().toEpochMilli()));
         comparisons.add(Operator.LESSTHANOREQUAL.compare("readingtimestamp", range.upperEndpoint().toEpochMilli()));
-        if (readingTypes.size() > 0) {
-            comparisons.add(Operator.IN.compare("readingtype", readingTypes.stream().map(IdentifiedObject::getMRID).collect(Collectors.toList()).toArray()));
+        if (!readingTypes.isEmpty()) {
+            comparisons.add(Operator.IN.compare("readingtype", readingTypes.stream().map(IdentifiedObject::getMRID).toArray((String[]::new))));
         }
         comparisons.add(Operator.IN.compare("channelid", aggregatedChannel.getId()));
 
@@ -1387,6 +1390,21 @@ public class UsagePointImpl implements ServerUsagePoint {
                 .find(comparisons);
         result.addAll(journalEntries);
         return result;
+    }
+
+    @Override
+    public String getOriginator() {
+        return dataModel.mapper(UsagePoint.class)
+                .at(Instant.EPOCH)
+                .find(Collections.singletonList(Operator.EQUAL.compare("id", this.getId())))
+                .stream()
+                .min(Comparator.naturalOrder())
+                .map(journalEntry -> journalEntry.get().getUserName()).orElse(userName);
+    }
+
+    @Override
+    public String getUserName() {
+        return userName;
     }
 
     @Override
@@ -1522,8 +1540,8 @@ public class UsagePointImpl implements ServerUsagePoint {
     public void makeObsolete() {
         this.obsoleteTime = this.clock.instant();
         this.dataModel.update(this, "obsoleteTime");
-        this.getEffectiveMetrologyConfiguration(this.obsoleteTime)
-                .ifPresent(efmc -> efmc.close(this.obsoleteTime));
+        this.getEffectiveMetrologyConfigurations(Range.atLeast(obsoleteTime)).stream()
+                .forEach(efmc -> efmc.close(efmc.isEffectiveAt(obsoleteTime) ?  this.obsoleteTime : efmc.getStart()));
         this.calendarUsages.clear();
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }

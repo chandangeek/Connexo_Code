@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.LocalizedException;
@@ -11,7 +12,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,12 +25,14 @@ import java.util.stream.Collectors;
 public class MeterHasUnsatisfiedRequirements extends LocalizedException {
     private final Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements;
 
-    public MeterHasUnsatisfiedRequirements(Thesaurus thesaurus, MessageSeed messageSeed, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
+    public MeterHasUnsatisfiedRequirements(Thesaurus thesaurus, MessageSeed messageSeed, Map<EffectiveMetrologyConfigurationOnUsagePoint, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
         super(thesaurus, messageSeed, descriptions(unsatisfiedRequirements));
-        this.unsatisfiedRequirements = Collections.unmodifiableMap(unsatisfiedRequirements);
+        this.unsatisfiedRequirements = unsatisfiedRequirements.entrySet()
+                .stream()
+                .collect(Collectors.toMap(entry -> entry.getKey().getMetrologyConfiguration(), Map.Entry::getValue));
     }
 
-    private static String descriptions(Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
+    private static String descriptions(Map<EffectiveMetrologyConfigurationOnUsagePoint, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
         return unsatisfiedRequirements
                 .values()
                 .stream()

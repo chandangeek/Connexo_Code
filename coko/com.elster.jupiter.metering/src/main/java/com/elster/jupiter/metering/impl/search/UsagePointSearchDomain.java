@@ -45,8 +45,12 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-06-02 (14:50)
  */
-@Component(name = "com.elster.jupiter.metering.search", service = SearchDomain.class, immediate = true)
+@Component(name = "com.elster.jupiter.metering.search",
+        service = SearchDomain.class,
+        property = "name=" + UsagePointSearchDomain.USAGE_POINT_SEARCH_DOMAIN,
+        immediate = true)
 public class UsagePointSearchDomain implements SearchDomain {
+    public static final String USAGE_POINT_SEARCH_DOMAIN = "Usage point search domain";
 
     private volatile PropertySpecService propertySpecService;
     private volatile ServerMeteringService meteringService;

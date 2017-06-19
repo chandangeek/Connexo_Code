@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
@@ -22,7 +23,6 @@ import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
@@ -31,8 +31,6 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Provider;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorFactory;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
@@ -57,6 +55,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -137,6 +136,7 @@ public class MeterActivationChannelCreationTest {
         when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, aggregationService, channelBuilder));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(usagePoint.getId()).thenReturn(USAGEPOINT_ID);
+        when(usagePoint.getState(any(Instant.class))).thenReturn(mock(State.class, RETURNS_DEEP_STUBS));
         when(meter.getId()).thenReturn(METER_ID);
         when(meter.getState(any())).thenReturn(Optional.empty());
         when(meter.getUsagePoint(any())).thenReturn(Optional.empty());

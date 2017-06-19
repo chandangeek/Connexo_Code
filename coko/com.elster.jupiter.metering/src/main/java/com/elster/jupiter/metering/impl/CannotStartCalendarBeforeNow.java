@@ -8,6 +8,6 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 
 public class CannotStartCalendarBeforeNow extends LocalizedFieldValidationException {
     public CannotStartCalendarBeforeNow() {
-        super(PrivateMessageSeeds.CANNOT_START_BEFORE_NOW, "fromTime");
+        super(PrivateMessageSeeds.CANNOT_START_BEFORE_NOW, "activationOn");
     }
 }

@@ -10,6 +10,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -675,7 +676,7 @@ public class MeterActivationImplIT {
 
         expectedException.expect(UsagePointMeterActivationException.IncorrectMeterActivationDateWhenGapsAreAllowed.class);
         expectedException.expectMessage("Meter linking error. Meter testMeter cannot be linked to usage point usagePointForActivation," +
-                " as the linking would occur after the metrology configuration's activation and before the meter's activation.");
+                " as the linking would occur after the metrology configuration's activation and before the meter becomes operational.");
 
         usagePoint.linkMeters()
                 .activate(now.plusSeconds(60), meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
@@ -685,7 +686,7 @@ public class MeterActivationImplIT {
     @Test
     @Transactional
     public void testIncorrectDeviceStageWithoutMetrologyConfig() {
-        expectedException.expect(UsagePointMeterActivationException.IncorrectDeviceStageWithoutMetrologyConfig.class);
+        expectedException.expect(UsagePointMeterActivationException.IncorrectLifeCycleStage.class);
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
@@ -704,7 +705,7 @@ public class MeterActivationImplIT {
     @Test
     @Transactional
     public void testIncorrectStartTimeOfMeterAndMetrologyConfig() {
-        expectedException.expect(UsagePointManagementException.class);
+        expectedException.expect(VerboseConstraintViolationException.class);
 
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();

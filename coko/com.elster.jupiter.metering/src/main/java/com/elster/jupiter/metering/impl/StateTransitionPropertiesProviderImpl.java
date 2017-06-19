@@ -18,6 +18,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Component(
@@ -52,9 +53,9 @@ public class StateTransitionPropertiesProviderImpl implements StateTransitionPro
             Optional<UsagePointConnectionState> currentConnectionState = usagePoint.getCurrentConnectionState();
             Optional<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration = usagePoint
                     .getCurrentEffectiveMetrologyConfiguration();
-            if(currentConnectionState.isPresent() && metrologyConfiguration.isPresent()){
-                boolean connectionCheck = true;
-                if(processProperties.get(CONNECTION_STATES) != null) {
+            boolean connectionCheck = true;
+            if(currentConnectionState.isPresent()) {
+                if (processProperties.get(CONNECTION_STATES) != null) {
                     connectionCheck = List.class.isInstance(processProperties.get(CONNECTION_STATES)) && ((List<Object>) processProperties
                             .get(CONNECTION_STATES))
                             .stream()
@@ -63,8 +64,12 @@ public class StateTransitionPropertiesProviderImpl implements StateTransitionPro
                                     .toString()
                                     .equals(currentConnectionState.get().getConnectionState().getId()));
                 }
-                boolean metrologyConfigurationCheck = true;
-                if(processProperties.get(METROLOGY_CONFIG) != null) {
+            }else {
+                connectionCheck = processProperties.get(CONNECTION_STATES) == null;
+            }
+            boolean metrologyConfigurationCheck = true;
+            if(metrologyConfiguration.isPresent()) {
+                if (processProperties.get(METROLOGY_CONFIG) != null) {
                     metrologyConfigurationCheck = List.class.isInstance(processProperties.get(METROLOGY_CONFIG)) && ((List<Object>) processProperties
                             .get(METROLOGY_CONFIG))
                             .stream()
@@ -75,17 +80,19 @@ public class StateTransitionPropertiesProviderImpl implements StateTransitionPro
                                             .getMetrologyConfiguration()
                                             .getId())));
                 }
-                result = connectionCheck && metrologyConfigurationCheck;
+            }else {
+                metrologyConfigurationCheck = processProperties.get(METROLOGY_CONFIG) == null;
             }
+            result = connectionCheck && metrologyConfigurationCheck;
         }
         return result;
     }
 
     public String getDeviceMRID(long id){
-        return meteringService.findEndDeviceById(id).map(IdentifiedObject::getMRID).orElse(null);
+        return meteringService.findEndDeviceById(id).map(IdentifiedObject::getMRID).orElseThrow(() -> new NoSuchElementException("MRID of device with id " + id +" not found."));
     }
 
     public String getUsagePointMRID(long id){
-        return meteringService.findUsagePointById(id).map(IdentifiedObject::getMRID).orElse(null);
+        return meteringService.findUsagePointById(id).map(IdentifiedObject::getMRID).orElseThrow(() -> new NoSuchElementException("MRID of usage point with id " + id +" not found."));
     }
 }

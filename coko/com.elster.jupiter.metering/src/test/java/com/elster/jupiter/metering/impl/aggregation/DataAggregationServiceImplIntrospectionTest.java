@@ -205,6 +205,7 @@ public class DataAggregationServiceImplIntrospectionTest {
     public void simplestNetConsumptionOfProsumer() throws SQLException {
         DataAggregationServiceImpl service = this.testInstance();
         Range<Instant> aggregationPeriod = year2016();
+        UsagePoint.UsedCalendars usedCalendars = mock(UsagePoint.UsedCalendars.class);
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
         when(consumption.getName()).thenReturn("A-");
@@ -233,6 +234,9 @@ public class DataAggregationServiceImplIntrospectionTest {
         VirtualReadingTypeRequirement virtualProduction = mock(VirtualReadingTypeRequirement.class);
         when(virtualProduction.sqlName()).thenReturn("vrt-production");
         when(usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfiguration));
+        when(this.effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(this.usagePoint);
+        when(this.usagePoint.getUsedCalendars()).thenReturn(usedCalendars);
+        when(usedCalendars.getCalendars()).thenReturn(Collections.emptyMap());
 
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
@@ -308,6 +312,7 @@ public class DataAggregationServiceImplIntrospectionTest {
     public void monthlyNetConsumptionOfProsumer() throws SQLException {
         DataAggregationServiceImpl service = this.testInstance();
         Range<Instant> aggregationPeriod = year2016();
+        UsagePoint.UsedCalendars usedCalendars = mock(UsagePoint.UsedCalendars.class);
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
         when(consumption.getName()).thenReturn("A-");
@@ -364,6 +369,9 @@ public class DataAggregationServiceImplIntrospectionTest {
         when(consumption.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(chn1));
         when(production.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(chn2));
         when(usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfiguration));
+        when(this.effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(this.usagePoint);
+        when(this.usagePoint.getUsedCalendars()).thenReturn(usedCalendars);
+        when(usedCalendars.getCalendars()).thenReturn(Collections.emptyMap());
 
         // Business method
         MetrologyContractCalculationIntrospector introspector = service.introspect(this.usagePoint, this.contract, aggregationPeriod);
@@ -411,6 +419,7 @@ public class DataAggregationServiceImplIntrospectionTest {
     @Test
     public void simplestNetConsumptionOfProsumerWithMultipleMeterActivations() throws SQLException {
         DataAggregationServiceImpl service = this.testInstance();
+        UsagePoint.UsedCalendars usedCalendars = mock(UsagePoint.UsedCalendars.class);
         when(this.effectiveMetrologyConfiguration.getRange()).thenReturn(year2015AndBeyond());
         when(this.effectiveMetrologyConfiguration.getInterval()).thenReturn(Interval.of(year2015AndBeyond()));
         Range<Instant> aggregationPeriod = year2015AndBeyond();
@@ -489,6 +498,9 @@ public class DataAggregationServiceImplIntrospectionTest {
         when(consumption.getMatchingChannelsFor(channelsContainer2)).thenReturn(Collections.singletonList(chnFeb1));
         when(production.getMatchingChannelsFor(channelsContainer2)).thenReturn(Collections.singletonList(chnFeb2));
         when(usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfiguration));
+        when(this.effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(this.usagePoint);
+        when(this.usagePoint.getUsedCalendars()).thenReturn(usedCalendars);
+        when(usedCalendars.getCalendars()).thenReturn(Collections.emptyMap());
 
         // Business method
         MetrologyContractCalculationIntrospector introspector = service.introspect(this.usagePoint, this.contract, aggregationPeriod);
@@ -534,6 +546,7 @@ public class DataAggregationServiceImplIntrospectionTest {
     public void multipleChannelsForSameRequirement() throws SQLException {
         DataAggregationServiceImpl service = this.testInstance();
         Range<Instant> aggregationPeriod = year2016();
+        UsagePoint.UsedCalendars usedCalendars = mock(UsagePoint.UsedCalendars.class);
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
         when(consumption.getName()).thenReturn("A-");
@@ -580,6 +593,9 @@ public class DataAggregationServiceImplIntrospectionTest {
         when(consumption.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(chn60min));
         when(virtualConsumption.getPreferredChannel()).thenReturn(chn60min);
         when(usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfiguration));
+        when(this.effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(this.usagePoint);
+        when(this.usagePoint.getUsedCalendars()).thenReturn(usedCalendars);
+        when(usedCalendars.getCalendars()).thenReturn(Collections.emptyMap());
 
         // Business method
         MetrologyContractCalculationIntrospector introspector = service.introspect(this.usagePoint, this.contract, aggregationPeriod);

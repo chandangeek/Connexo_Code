@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
+
 class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     @SuppressWarnings("unused")
@@ -54,7 +56,7 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
     ReadingQualityRecordImpl(DataModel dataModel, EventService eventService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
-        this.actual = true;
+        doMakeActual();
     }
 
     ReadingQualityRecordImpl init(ReadingQualityType type, CimChannel cimChannel, BaseReading baseReading) {
@@ -173,11 +175,24 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
     }
 
 
-    static void saveAll(DataModel model, List<ReadingQualityRecordImpl> records) {
+    static void saveAll(DataModel model, List<ReadingQualityRecord> records) {
         List<ReadingQualityRecord> myRecords = new ArrayList<>(records);
         model.mapper(ReadingQualityRecord.class).persist(myRecords);
-        records.forEach(ReadingQualityRecordImpl::notifyCreated);
+        decorate(records.stream()).filterSubType(ReadingQualityRecordImpl.class).forEach(ReadingQualityRecordImpl::notifyCreated);
     }
+
+    static void updateAll(DataModel model, List<ReadingQualityRecord> records) {
+        List<ReadingQualityRecord> myRecords = new ArrayList<>(records);
+        model.mapper(ReadingQualityRecord.class).update(myRecords);
+        decorate(records.stream()).filterSubType(ReadingQualityRecordImpl.class).forEach(ReadingQualityRecordImpl::notifyUpdated);
+    }
+
+    static void deleteAll(DataModel model, List<ReadingQualityRecord> records) {
+        List<ReadingQualityRecord> myRecords = new ArrayList<>(records);
+        model.mapper(ReadingQualityRecord.class).remove(myRecords);
+        decorate(records.stream()).filterSubType(ReadingQualityRecordImpl.class).forEach(ReadingQualityRecordImpl::notifyDeleted);
+    }
+
 
     @Override
     public Instant getReadingTimestamp() {
@@ -198,7 +213,7 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
         eventService.postEvent(EventType.READING_QUALITY_UPDATED.topic(), new LocalEventSource(this));
     }
 
-    void notifyDeleted() {
+    private void notifyDeleted() {
         eventService.postEvent(EventType.READING_QUALITY_DELETED.topic(), new LocalEventSource(this));
     }
 
@@ -209,14 +224,22 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     @Override
     public void makePast() {
-        this.actual = false;
+        doMakePast();
         this.update("actual");
+    }
+
+    void doMakePast() {
+        this.actual = false;
     }
 
     @Override
     public void makeActual() {
-        this.actual = true;
+        doMakeActual();
         this.update("actual");
+    }
+
+    void doMakeActual() {
+        this.actual = true;
     }
 
     @Override

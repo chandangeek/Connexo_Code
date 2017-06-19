@@ -182,6 +182,7 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
     public void simplestNetConsumptionOfProsumer() throws SQLException {
         DataAggregationServiceImpl service = this.testInstance();
         Range<Instant> aggregationPeriod = year2016();
+        UsagePoint.UsedCalendars usedCalendars = mock(UsagePoint.UsedCalendars.class);
 
         // Setup configuration requirements
         ReadingType consumptionReadingType15min = this.mock15minReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0");
@@ -261,6 +262,9 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         when(consumption.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(consumptionChannel));
         when(this.virtualFactory.allRequirements()).thenReturn(Collections.singletonList(virtualConsumption));
         when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
+        when(this.effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(this.usagePoint);
+        when(this.usagePoint.getUsedCalendars()).thenReturn(usedCalendars);
+        when(usedCalendars.getCalendars()).thenReturn(Collections.emptyMap());
         // Business method
         service.calculate(this.usagePoint, this.contract, aggregationPeriod);
 
@@ -296,6 +300,7 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
     public void monthlyNetConsumptionOfProsumer() throws SQLException {
         DataAggregationServiceImpl service = this.testInstance();
         Range<Instant> aggregationPeriod = year2016();
+        UsagePoint.UsedCalendars usedCalendars = mock(UsagePoint.UsedCalendars.class);
 
         // Setup configuration requirements
         ReadingType consumptionReadingType15min = this.mock15minReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0");
@@ -375,6 +380,9 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         when(consumption.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(consumptionChannel));
         when(this.virtualFactory.allRequirements()).thenReturn(Collections.singletonList(virtualConsumption));
         when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
+        when(this.effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(this.usagePoint);
+        when(this.usagePoint.getUsedCalendars()).thenReturn(usedCalendars);
+        when(usedCalendars.getCalendars()).thenReturn(Collections.emptyMap());
 
         // Business method
         service.calculate(this.usagePoint, this.contract, aggregationPeriod);

@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.RangeComparatorFactory;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -37,8 +38,6 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
     private final CustomPropertySetService customPropertySetService;
     private final Thesaurus thesaurus;
     private final UsagePointImpl usagePoint;
-
-    private List<UsagePointPropertySet> allProperties;
 
     @Inject
     UsagePointCustomPropertySetExtensionImpl(
@@ -78,6 +77,7 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
         return getUsagePoint().getServiceCategory().getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                // in case of null pointer exception: rcps.getCustomPropertySet() returns null - refer to CXO-7100
                 .map(rcps -> rcps.getCustomPropertySet()
                         .isVersioned() ? new UsagePointVersionedPropertySetImpl(rcps) : new UsagePointPropertySetImpl(rcps))
                 .collect(Collectors.toList());
@@ -85,14 +85,12 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
 
     @Override
     public List<UsagePointPropertySet> getAllPropertySets() {
-        if (this.allProperties == null) {
-            List<UsagePointPropertySet> mcCPS = getPropertySetsOnMetrologyConfiguration();
-            List<UsagePointPropertySet> scCPS = getPropertySetsOnServiceCategory();
-            this.allProperties = new ArrayList<>(mcCPS.size() + scCPS.size());
-            this.allProperties.addAll(mcCPS);
-            this.allProperties.addAll(scCPS);
-        }
-        return this.allProperties;
+        List<UsagePointPropertySet> mcCPS = getPropertySetsOnMetrologyConfiguration();
+        List<UsagePointPropertySet> scCPS = getPropertySetsOnServiceCategory();
+        List<UsagePointPropertySet> allProperties = new ArrayList<>(mcCPS.size() + scCPS.size());
+        allProperties.addAll(mcCPS);
+        allProperties.addAll(scCPS);
+        return allProperties;
     }
 
     @Override
