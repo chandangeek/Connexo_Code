@@ -17,6 +17,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
     initComponent: function () {
         var me = this,
             metrologyConfiguration = me.usagePoint.get('metrologyConfiguration'),
+            meterRoles = !Ext.isEmpty(me.usagePoint.get('meterRoles')) || !metrologyConfiguration,
             meterRolesStore = Ext.getStore('Imt.usagepointmanagement.store.MeterRoles'),
             stage = me.usagePoint.get('state').stage.id.split('.')[2],
             isReadyForLinkingMC = me.usagePoint.get('isReadyForLinkingMC');
@@ -80,8 +81,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 itemId: 'up-metrology-config-meters-empty',
                 fieldLabel: ' ',
                 privileges: stage === 'preoperational'
-                && !Ext.isEmpty(metrologyConfiguration)
-                && !Ext.isEmpty(metrologyConfiguration.meterRoles)
+                && meterRoles
                 && Imt.privileges.UsagePoint.canAdministrate(),
                 htmlEncode: false,
                 renderer: function () {
@@ -108,19 +108,22 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
         meterRolesStore.load({
             scope: me,
             callback: function (records) {
-                me.addMeters(records);
+                me.addMeters(records, meterRoles);
                 me.setLoading(false);
             }
         });
     },
 
-    addMeters: function (meterRolesWithMeters) {
+    addMeters: function (meterRolesWithMeters, meterRoles) {
         var me = this,
             first = true,
             count = meterRolesWithMeters.length,
+            meterActivation = _.some(meterRolesWithMeters, function (meterRole) {
+                    return meterRole.get('activationTime');
+                }),
             metersContainer = me.down('#up-metrology-config-meters');
 
-        if (count && count <= 2) {
+        if (count && count <= 2 && meterActivation) {
             Ext.Array.each(meterRolesWithMeters, function (meterRoleWithMeter) {
                 metersContainer.add({
                     xtype: 'displayfield',
@@ -155,7 +158,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 fieldLabel: Uni.I18n.translate('general.label.countedMeters', 'IMT', '{0} meters', count),
                 value: '-'
             });
-        } else if (!count) {
+        } else if (count !== 0 || meterRoles) {
             metersContainer.add({
                 xtype: 'displayfield',
                 labelWidth: 120,

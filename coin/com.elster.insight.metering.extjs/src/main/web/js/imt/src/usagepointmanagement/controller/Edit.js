@@ -533,6 +533,13 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                             listeners: {
                                 change: {
                                     fn: function (field, newValue) {
+                                        var wizard = me.getWizard(),
+                                            dateTime = wizard.down('#activation-on'),
+                                            installationTime = wizard.getRecord().get('installationTime');
+
+                                        dateTime.setValue(installationTime);
+                                        dateTime.down('#date-time-field-date').setMinValue(moment(installationTime).startOf('day').toDate());
+                                        me.getWizard().down('#calendar-date-field-errors').hide();
                                         field.clearInvalid();
                                         if (Ext.isEmpty(newValue)) {
                                             me.getWizard().down('#activate-calendar-'+ category.get('name')).hide();
@@ -606,8 +613,6 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                                             //    disabled: true,
                                             dateConfig: {
                                                 allowBlank: true,
-                                                value: new Date(),
-                                                minValue: new Date(),
                                                 editable: true,
                                                 format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                                             },
@@ -624,7 +629,19 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                                 }
                             ]
                         }
-                    )
+                    );
+
+                    me.getWizard().down('calendar-info-form').add({
+                        xtype: 'component',
+                        itemId: 'calendar-date-field-errors',
+                        cls: 'x-form-invalid-under',
+                        style: {
+                            'white-space': 'normal',
+                            'padding': '0px 0px 10px 335px',
+                            'margin': '-35px 0px 0px 0px'
+                        },
+                        hidden: true
+                    });
 
                 })
             });

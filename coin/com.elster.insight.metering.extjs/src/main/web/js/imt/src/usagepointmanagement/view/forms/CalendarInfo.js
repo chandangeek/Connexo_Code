@@ -55,5 +55,62 @@ Ext.define('Imt.usagepointmanagement.view.forms.CalendarInfo', {
         });
 
         return calendars;
+    },
+
+    markInvalid: function (errors) {
+        var me = this;
+
+        Ext.suspendLayouts();
+        me.getForm().markInvalid(me.mapErrors(errors));
+        me.down('#calendar-date-field-errors').show();
+        Ext.resumeLayouts(true);
+    },
+
+    clearInvalid: function () {
+        var me = this;
+
+        Ext.suspendLayouts();
+        me.getForm().clearInvalid();
+        me.down('#calendar-date-field-errors').hide();
+        Ext.resumeLayouts(true);
+    },
+
+    mapErrors: function (errors) {
+        var map = {},
+            errMsg = [],
+            errorsField = this.down('#calendar-date-field-errors');
+
+        Ext.Array.each(errors, function (error) {
+
+            if (Ext.String.startsWith(error.id, 'activationOn')) {
+                errMsg.push(error.msg);
+                if (!map[error.id]) {
+                    map[error.id] = {
+                        id: error.id,
+                        msg: ''
+                    };
+                } else {
+                    map[error.id].msg.push(error.msg);
+                }
+
+                if (!map['activationOn.calendar-date-field-errors']) {
+                    map['activationOn.calendar-date-field-errors'] = {
+                        id: 'activationOn.calendar-date-field-errors'
+                    };
+                }
+            } else {
+                if (!map[error.id]) {
+                    map[error.id] = {
+                        id: error.id,
+                        msg: [' '+error.msg]
+                    };
+                }
+            }
+            errorsField.show();
+            errorsField.update(' '+errMsg.join('<br> '));
+
+        });
+
+        return _.values(map);
     }
 });

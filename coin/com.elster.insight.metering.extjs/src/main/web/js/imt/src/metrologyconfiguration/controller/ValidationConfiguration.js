@@ -125,7 +125,10 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
             view.down('#purpose-no-validation-rule-set').show();
 
             if (view.down('#purpose-add-rule-set-button')) {
-                view.down('#purpose-add-rule-set-button').setHref('#/administration/validation/rulesets/' + ruleSet.get('id') + '/versions/add');
+                view.down('#purpose-add-rule-set-button').setHref(me.getController('Uni.controller.history.Router')
+                    .getRoute('administration/rulesets/overview/versions/add').buildUrl({
+                        ruleSetId: ruleSet.get('id')
+                    }));
             }
         }
         Ext.resumeLayouts(true);

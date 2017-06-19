@@ -572,13 +572,13 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
 
         Ext.suspendLayouts();
-        menu.down('#edit-estimation-comment').setVisible(canEditingComment);
-        menu.down('#copy-form-value').setVisible(canCopyFromReference);
-        menu.down('#confirm-value').setVisible(canConfirm);
-        menu.down('#reset-value').setVisible(canReset);
-        menu.down('#correct-value').setVisible(canCorrect);
-        menu.down('#clear-projected').setVisible(canClearProjected);
-        menu.down('#mark-projected').setVisible(canMarkProjected);
+        menu.down('#edit-estimation-comment') && menu.down('#edit-estimation-comment').setVisible(canEditingComment);
+        menu.down('#copy-form-value') && menu.down('#copy-form-value').setVisible(canCopyFromReference);
+        menu.down('#confirm-value') && menu.down('#confirm-value').setVisible(canConfirm);
+        menu.down('#reset-value') && menu.down('#reset-value').setVisible(canReset);
+        menu.down('#correct-value') && menu.down('#correct-value').setVisible(canCorrect);
+        menu.down('#clear-projected') && menu.down('#clear-projected').setVisible(canClearProjected);
+        menu.down('#mark-projected') && menu.down('#mark-projected').setVisible(canMarkProjected);
         menu.reorderItems();
         button.setDisabled(!selectedRecords.length || !menu.query('menuitem[hidden=false]').length);
         Ext.resumeLayouts();

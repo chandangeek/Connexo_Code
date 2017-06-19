@@ -49,8 +49,9 @@ Ext.define('Imt.devicemanagement.controller.Device', {
                 //me.getOverviewLink().setText(actualModel.get('name'));
                 me.getAttributesPanel().add(actualForm);
                 actualForm.getForm().loadRecord(actualModel);
+            },
+            callback: function () {
                 pageMainContent.setLoading(false);
-             
             }
         });
     }

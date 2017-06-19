@@ -264,6 +264,9 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
                 usagePointLifeCycleRecord = record;
                 me.getApplication().fireEvent('usagepointlifecycleload', record);
                 onDependenciesLoad();
+            },
+            failure: function () {
+                mainView.setLoading(false);
             }
         });
         me.usagePointLifeCycleState = null;
