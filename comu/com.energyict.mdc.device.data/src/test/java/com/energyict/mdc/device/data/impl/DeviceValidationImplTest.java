@@ -112,6 +112,9 @@ public class DeviceValidationImplTest {
         when(meterActivation3.getChannelsContainer()).thenReturn(channelsContainer3);
         when(channelsContainer1.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         when(channelsContainer1.getChannels()).thenReturn(Collections.singletonList(koreChannel));
+        when(channelsContainer1.getStart()).thenReturn(Instant.EPOCH);
+        when(channelsContainer2.getStart()).thenReturn(Instant.EPOCH);
+        when(channelsContainer3.getStart()).thenReturn(Instant.EPOCH);
         when(clock.instant()).thenReturn(NOW);
         when(channel.getReadingType()).thenReturn(readingType1);
 

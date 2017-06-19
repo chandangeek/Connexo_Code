@@ -30,6 +30,7 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 import com.energyict.mdc.device.data.impl.properties.ChannelValidationRuleOverriddenPropertiesImpl;
 import com.energyict.mdc.device.data.impl.properties.ValidationEstimationRuleOverriddenPropertiesImpl;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
@@ -359,7 +360,7 @@ class DeviceValidationImpl implements DeviceValidation {
         return meter.getMeterActivations().stream()
                 .sorted(MOST_RECENT_FIRST)
                 .map(MeterActivation::getChannelsContainer)
-                .map(validationService::getLastChecked)  // may be use evaluator to allow caching this
+                .map(channelsContainer -> validationService.getLastChecked(channelsContainer).filter(lastChecked -> lastChecked.isAfter(channelsContainer.getStart()))) // may be use evaluator to allow caching this
                 .flatMap(asStream())
                 .findFirst();
     }
