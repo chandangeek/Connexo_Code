@@ -8,7 +8,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannelInputStreamAdapter;
 import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
@@ -41,6 +40,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -187,8 +187,8 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
      * Initializes the inheritance classes.
      */
     private void initInheritors() {
-        if (this.meterProtocol instanceof HHUEnabler) {
-            this.hhuEnabler = (HHUEnabler) this.meterProtocol;
+        if (getUplSmartMeterProtocol() instanceof HHUEnabler) {
+            this.hhuEnabler = (HHUEnabler) getUplSmartMeterProtocol();
         }
     }
 
@@ -198,7 +198,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     protected void initializeAdapters() {
         this.propertiesAdapter = new PropertiesAdapter();
         this.smartMeterProtocolClockAdapter = new SmartMeterProtocolClockAdapter(getSmartMeterProtocol());
-        this.smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory, identificationService, offlineDevice);
+        this.smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory, identificationService);
         this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService, collectedDataFactory);
         this.smartMeterProtocolLogBookAdapter = new SmartMeterProtocolLogBookAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory, meteringService);
         this.smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory);
@@ -225,16 +225,13 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     }
 
     protected Class getProtocolClass() {
-        if (meterProtocol instanceof UPLProtocolAdapter) {
-            return ((UPLProtocolAdapter) meterProtocol).getActualClass();
-        } else {
-            return meterProtocol.getClass();
-        }
+        return getUplSmartMeterProtocol().getClass();
     }
 
     @Override
     public void init(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, com.energyict.mdc.protocol.ComChannel comChannel) {
         this.offlineDevice = new UPLOfflineDeviceAdapter(offlineDevice);
+        smartMeterProtocolLoadProfileAdapter.setOfflineDevice(this.offlineDevice);
         doInit(comChannel);
     }
 
@@ -523,7 +520,6 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
             getDeviceSecuritySupport().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
         } else {
             this.smartMeterProtocolSecuritySupportAdapter.setSecurityPropertySet(deviceProtocolSecurityPropertySet);
-            this.meterProtocol.addProperties(this.propertiesAdapter.getProperties());
         }
         this.meterProtocol.addProperties(this.propertiesAdapter.getProperties());
     }
@@ -548,6 +544,12 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
 
     public SmartMeterProtocol getSmartMeterProtocol() {
         return meterProtocol;
+    }
+
+    private com.energyict.mdc.upl.SmartMeterProtocol getUplSmartMeterProtocol() {
+        return (this.meterProtocol instanceof UPLProtocolAdapter)
+                ? (com.energyict.mdc.upl.SmartMeterProtocol) ((UPLProtocolAdapter) this.meterProtocol).getActual()
+                : this.meterProtocol;
     }
 
     private boolean delegateDeviceMessagesToActualProtocol() {

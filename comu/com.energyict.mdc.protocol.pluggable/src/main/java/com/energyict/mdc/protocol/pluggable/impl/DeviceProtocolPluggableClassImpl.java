@@ -14,7 +14,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableClass;
@@ -164,9 +164,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
 
     @Override
     protected void validateLicense() {
-        if (!this.protocolPluggableService.isLicensedProtocolClassName(this.getJavaClassName())) {
-            throw new ProtocolNotAllowedByLicenseException(this.getThesaurus(), this.getJavaClassName());
-        }
+        // No license information to validate since 10.3 (CXO-2089)
     }
 
     @Override

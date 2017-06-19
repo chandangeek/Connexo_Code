@@ -20,7 +20,7 @@ public enum MessageSeeds implements MessageSeed {
     PROTOCOL_CONNECT(102, "protocolConnect", "The logical connect to a device failed: {0}"),
     PROTOCOL_DISCONNECT(103, "protocolDisonnect", "The logical disconnect to a device failed: {0}"),
     UNSUPPORTED_METHOD(104, "unsupportedMethod", "Method {1} is not supported for class {0}"),
-    NON_EXISTING_MAP_ELEMENT(105, "nonExistingMapElement", "'{2}' is not known to the Map ''{1}'' in ''{0}'', only predefined protocols can make use of the DeviceProtocolAdapters"),
+    NON_EXISTING_MAP_ELEMENT(105, "nonExistingMapElement", "''{2}'' is not known to the Map ''{1}'' in ''{0}'', only predefined protocols can make use of the DeviceProtocolAdapters"),
     GENERIC_JAVA_REFLECTION_ERROR(106, "genericJavaReflectionError", "Unable to create an instance of the class {0}."),
     UNSUPPORTED_LEGACY_PROTOCOL_TYPE(107, "unsupportedLegacyProtocolType", "The legacy protocol class {0} is not or no longer supported"),
     UNKNOWN_DEVICE_SECURITY_SUPPORT_CLASS(108, "unknownDeviceSecuritySupportClass", "The DeviceSecuritySupport class ''{0}'' is not known on the classpath"),

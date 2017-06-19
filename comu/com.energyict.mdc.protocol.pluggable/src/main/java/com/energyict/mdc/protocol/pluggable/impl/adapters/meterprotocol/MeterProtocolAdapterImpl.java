@@ -7,7 +7,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannelInputStreamAdapter;
 import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
@@ -24,6 +23,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
+import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
@@ -42,6 +42,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -69,6 +70,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -182,8 +184,8 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
-        if (meterProtocol instanceof RegisterProtocol) {
-            this.registerProtocol = (RegisterProtocol) meterProtocol;
+        if (getUplMeterProtocol() instanceof RegisterProtocol) {
+            this.registerProtocol = (RegisterProtocol) getUplMeterProtocol();
         } else {
             this.registerProtocol = null;
         }
@@ -195,8 +197,8 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
      * Initializes the inheritance classes.
      */
     private void initInheritors() {
-        if (this.meterProtocol instanceof HHUEnabler) {
-            this.hhuEnabler = (HHUEnabler) this.meterProtocol;
+        if (getUplMeterProtocol() instanceof HHUEnabler) {
+            this.hhuEnabler = (HHUEnabler) getUplMeterProtocol();
         }
     }
 
@@ -206,7 +208,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     protected void initializeAdapters() {
         this.propertiesAdapter = new PropertiesAdapter();
         this.meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(registerProtocol, issueService, collectedDataFactory);
-        this.meterProtocolLoadProfileAdapter = new MeterProtocolLoadProfileAdapter(meterProtocol, issueService, collectedDataFactory, identificationService, offlineDevice);
+        this.meterProtocolLoadProfileAdapter = new MeterProtocolLoadProfileAdapter(meterProtocol, issueService, collectedDataFactory, identificationService);
         this.meterProtocolClockAdapter = new MeterProtocolClockAdapter(meterProtocol);
         this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService, collectedDataFactory);
 
@@ -233,6 +235,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     @Override
     public void init(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = new UPLOfflineDeviceAdapter(offlineDevice);
+        meterProtocolLoadProfileAdapter.setOfflineDevice(this.offlineDevice);
         doInit(comChannel);
     }
 
@@ -484,15 +487,17 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     /**
      * This <i>forwards</i> the {@link PropertiesAdapter#getProperties()} to the {@link MeterProtocol} via the
-     * {@link MeterProtocol#setProperties(java.util.Properties)} method.
+     * {@link MeterProtocol#setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties)} method.
      * <p>
      * <b>This should happen only once!</b>
      */
     private void setPropertiesToMeterProtocol() {
         try {
-            this.meterProtocol.setProperties(this.propertiesAdapter.getProperties().toStringProperties());
+            this.meterProtocol.setUPLProperties(this.propertiesAdapter.getProperties());
         } catch (InvalidPropertyException | MissingPropertyException e) {
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
+        } catch (PropertyValidationException e) {
+            throw new NestedPropertyValidationException(e);
         }
     }
 
@@ -581,15 +586,17 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     @Override
     protected Class getProtocolClass() {
-        if (meterProtocol instanceof UPLProtocolAdapter) {
-            return ((UPLProtocolAdapter) meterProtocol).getActualClass();
-        } else {
-            return meterProtocol.getClass();
-        }
+        return getUplMeterProtocol().getClass();
     }
 
     public MeterProtocol getMeterProtocol() {
         return meterProtocol;
+    }
+
+    private com.energyict.mdc.upl.MeterProtocol getUplMeterProtocol() {
+        return (this.meterProtocol instanceof UPLProtocolAdapter)
+                    ? (com.energyict.mdc.upl.MeterProtocol) ((UPLProtocolAdapter) this.meterProtocol).getActual()
+                    : this.meterProtocol;
     }
 
     @Override

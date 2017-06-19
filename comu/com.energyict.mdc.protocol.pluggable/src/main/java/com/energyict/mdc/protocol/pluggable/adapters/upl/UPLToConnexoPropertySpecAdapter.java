@@ -74,7 +74,7 @@ public class UPLToConnexoPropertySpecAdapter implements PropertySpec {
         } catch (MissingPropertyException e) {
             throw new ValueRequiredException(this.getName());
         } catch (PropertyValidationException e) {
-            throw new InvalidValueException("XisNotValidValueForAttributeY", "The value \\\"{1}\\\" is not valid for the attribute specification {0}.", this.getName(), value);
+            throw new InvalidValueException("XisNotValid", "{0} is not valid.", this.getName());
         }
     }
 

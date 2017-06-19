@@ -52,7 +52,7 @@ public class UPLOfflineDeviceAdapter implements OfflineDevice {
     }
 
     @Override
-    public Map<String, com.energyict.mdc.common.TypedProperties> getSecurityPropertySetAttributeToKeyAccessorTypeMapping() {
+    public Map<String, com.energyict.mdc.upl.TypedProperties> getSecurityPropertySetAttributeToKeyAccessorTypeMapping() {
         // Todo: let's wait and see, I think we can get away with this
         return null;
     }

@@ -6,7 +6,7 @@ package com.energyict.mdc.protocol.pluggable.mocks;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -235,7 +235,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
                 new TestDeviceMessageSpecImpl(DeviceMessageId.CONTACTOR_CLOSE),
                 new TestDeviceMessageSpecImpl(DeviceMessageId.CONTACTOR_OPEN),
                 new TestDeviceMessageSpecImpl(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE),
-                new TestDeviceMessageSpecImpl(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER),
+                new TestDeviceMessageSpecImpl(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE),
                 new TestDeviceMessageSpecImpl(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE),
                 new TestDeviceMessageSpecImpl(DeviceMessageId.FIRMWARE_UPGRADE_URL_AND_ACTIVATE_DATE));
     }

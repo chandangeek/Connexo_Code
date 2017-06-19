@@ -2,9 +2,10 @@ package com.energyict.mdc.protocol.pluggable.adapters.upl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.pluggable.UPLEndDeviceGroupHolder;
+import com.energyict.mdc.upl.TypedProperties;
 
 import java.util.Properties;
 
@@ -39,13 +40,15 @@ public class TypedPropertiesValueAdapter {
             value = ((TimeDuration) value).asTemporalAmount();
         } else if (value instanceof Calendar) {
             value = new TariffCalendarAdapter(((Calendar) value));
+        } else if (value instanceof KeyAccessorType) {
+            value = new KeyAccessorTypeAdapter(((KeyAccessorType) value));
         } else if (value instanceof EndDeviceGroup) {
             return UPLEndDeviceGroupHolder.from((EndDeviceGroup) value);
         }
-        //TODO complete
         return value;
     }
 
     // Hide utility class constructor
-    private TypedPropertiesValueAdapter() {}
+    private TypedPropertiesValueAdapter() {
+    }
 }

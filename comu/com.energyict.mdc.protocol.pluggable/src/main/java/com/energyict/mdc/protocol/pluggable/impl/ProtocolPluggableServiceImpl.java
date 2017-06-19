@@ -27,7 +27,6 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.services.WrappingFinder;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
@@ -89,6 +88,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageCategoryAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
@@ -113,6 +113,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.security.CertificateWrapper;
+
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -330,6 +331,14 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         if (!pluggableClasses.isEmpty()) {
             DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClasses.get(0)).registerCustomPropertySets();
         }
+    }
+
+    private List<LicensedProtocol> getAllKnownProtocols(){
+        List<LicensedProtocol> protocols = new ArrayList<>();
+        for (LicensedProtocolService licensedProtocolService : this.licensedProtocolServices) {
+            protocols.addAll(licensedProtocolService.getAllKnownProtocols());
+        }
+        return protocols;
     }
 
     @Override
@@ -664,9 +673,9 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
         this.deviceProtocolServices.add(deviceProtocolService);
-        this.registrations.forEach(each -> each.notifyAdded(deviceProtocolService));
         if (installed) {
             registerDeviceProtocolPluggableClasses();
+            this.registrations.forEach(each -> each.notifyAdded(deviceProtocolService));
         }
     }
 
@@ -714,9 +723,9 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService) {
         this.inboundDeviceProtocolServices.add(inboundDeviceProtocolService);
-        this.registrations.forEach(each -> each.notifyAdded(inboundDeviceProtocolService));
         if (installed) {
             registerInboundDeviceProtocolPluggableClasses();
+            this.registrations.forEach(each -> each.notifyAdded(inboundDeviceProtocolService));
         }
     }
 
@@ -759,9 +768,9 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addConnectionTypeService(ConnectionTypeService connectionTypeService) {
         this.connectionTypeServices.add(connectionTypeService);
-        this.registrations.forEach(each -> each.notifyAdded(connectionTypeService));
         if (installed) {
             registerConnectionTypePluggableClasses();
+            this.registrations.forEach(each -> each.notifyAdded(connectionTypeService));
         }
     }
 
@@ -953,8 +962,6 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
 
         this.installed = true;
         this.registerAllPluggableClasses();
-
-
     }
 
     private void registerAllPluggableClasses() {
@@ -980,7 +987,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         if (!this.deviceProtocolServices.isEmpty()) {
             this.setPrincipal();
             DeviceProtocolPluggableClassRegistrar registrar = new DeviceProtocolPluggableClassRegistrar(this, this.transactionService, this.meteringService);
-            registrar.registerAll(this.getAllLicensedProtocols());
+            registrar.registerAll(this.getAllKnownProtocols());
         } else {
             LOGGER.fine("No device protocol services have registered yet, makes no sense to attempt to register all device protocol pluggable classes");
         }

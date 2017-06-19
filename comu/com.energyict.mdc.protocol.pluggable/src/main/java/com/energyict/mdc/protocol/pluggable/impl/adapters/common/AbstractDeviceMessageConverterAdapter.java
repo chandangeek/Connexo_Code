@@ -12,7 +12,6 @@ import com.energyict.mdc.protocol.api.tasks.support.UsesLegacyMessageConverter;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.DeviceProtocol;
-import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -258,8 +257,6 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
-        Services.tariffCalendarExtractor().threadContext().setDevice(offlineDevice);
-        Services.tariffCalendarExtractor().threadContext().setMessage(offlineDeviceMessage);
         if (messagesAreSupported()) {
             return getLegacyMessageConverter().format(propertySpec, messageAttribute);
         } else {

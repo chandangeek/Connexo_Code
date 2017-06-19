@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.NonExistingMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+
 import com.energyict.protocol.MessageProtocol;
 
 /**
@@ -28,22 +29,20 @@ public class SmartMeterProtocolMessageAdapter extends AbstractDeviceMessageConve
     public SmartMeterProtocolMessageAdapter(SmartMeterProtocol smartMeterProtocol, MessageAdapterMappingFactory messageAdapterMappingFactory, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         super(messageAdapterMappingFactory, protocolPluggableService, issueService, collectedDataFactory, deviceMessageSpecificationService);
 
-        Class clazz;
-        if (smartMeterProtocol instanceof UPLProtocolAdapter) {
-            clazz = ((UPLProtocolAdapter) smartMeterProtocol).getActualClass();
-        } else {
-            clazz = smartMeterProtocol.getClass();
-        }
+        com.energyict.mdc.upl.SmartMeterProtocol actualSmartMeterProtocol = (smartMeterProtocol instanceof UPLProtocolAdapter)
+                ? (com.energyict.mdc.upl.SmartMeterProtocol) ((UPLProtocolAdapter) smartMeterProtocol).getActual()
+                : smartMeterProtocol;
 
+        Class clazz = actualSmartMeterProtocol.getClass();
         if (MessageProtocol.class.isAssignableFrom(clazz)) {
-            if (smartMeterProtocol instanceof MessageProtocol) {
-                setMessageProtocol((MessageProtocol) smartMeterProtocol);
+            if (actualSmartMeterProtocol instanceof MessageProtocol) {
+                setMessageProtocol((MessageProtocol) actualSmartMeterProtocol);
             }
             Object messageConverter = createNewMessageConverterInstance(getDeviceMessageConverterMappingFor(clazz.getName()));
             if (LegacyMessageConverter.class.isAssignableFrom(messageConverter.getClass())) {
                 final LegacyMessageConverter legacyMessageConverter = (LegacyMessageConverter) messageConverter;
-                if (smartMeterProtocol instanceof MessageProtocol) {
-                    legacyMessageConverter.setMessagingProtocol((MessageProtocol) smartMeterProtocol);
+                if (actualSmartMeterProtocol instanceof MessageProtocol) {
+                    legacyMessageConverter.setMessagingProtocol((MessageProtocol) actualSmartMeterProtocol);
                 }
                 setLegacyMessageConverter(legacyMessageConverter);
             } else {

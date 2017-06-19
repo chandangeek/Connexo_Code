@@ -12,6 +12,8 @@ import com.energyict.mdc.upl.properties.LinePoint;
 import com.energyict.mdc.upl.properties.Lis200Address;
 import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.ProtocolChannelMap;
+import com.energyict.mdc.upl.properties.StringLookup;
+
 import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
@@ -84,7 +86,8 @@ public enum ValueType {
         }
     },
     OBIS_CODE("com.energyict.obis.ObisCode", ObisCode.class, Types.VARCHAR),
-    NUMBER_LOOKUP("com.energyict.mdc.upl.properties.NumberLookup", NumberLookup.class, Types.VARCHAR); //TODO: dirty trick to get things rolling, but this is off-course not very useful mapping...
+    NUMBER_LOOKUP("com.energyict.mdc.upl.properties.NumberLookup", NumberLookup.class, Types.VARCHAR), //TODO: dirty trick to get things rolling, but this is of course not very useful mapping...
+    STRING_LOOKUP("com.energyict.mdc.upl.properties.StringLookup", StringLookup.class, Types.VARCHAR); //TODO: dirty trick to get things rolling, but this is of course not very useful mapping...
 
     private final String uplClassName;
     private final Class connexoClass;
