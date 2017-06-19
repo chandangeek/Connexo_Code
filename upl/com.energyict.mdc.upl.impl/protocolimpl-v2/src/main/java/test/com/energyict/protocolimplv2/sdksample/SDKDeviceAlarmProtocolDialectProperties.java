@@ -10,7 +10,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.Collections;
@@ -28,7 +28,7 @@ public class SDKDeviceAlarmProtocolDialectProperties extends AbstractDeviceProto
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.SDK_SAMPLE_DEVICE_ALARM_DIALECT_NAME.getName();
+        return DeviceProtocolDialectTranslationKeys.SDK_SAMPLE_DEVICE_ALARM_DIALECT_NAME.getName();
     }
 
     @Override
