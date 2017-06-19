@@ -2,7 +2,7 @@ package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 
 import java.io.IOException;
 

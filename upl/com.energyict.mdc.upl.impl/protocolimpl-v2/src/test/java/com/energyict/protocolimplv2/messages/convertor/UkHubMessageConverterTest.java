@@ -71,7 +71,7 @@ public class UkHubMessageConverterTest extends AbstractV2MessageConverterTest {
 
         offlineDeviceMessage = createMessage(ZigBeeConfigurationDeviceMessage.JoinZigBeeSlaveDevice.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<Join_ZigBee_Slave ZigBee_IEEE_Address=\"ABC\" ZigBee_Link_Key=\"123\"> </Join_ZigBee_Slave>", messageEntry.getContent());
+        assertEquals("<Join_ZigBee_Slave ZigBee_IEEE_Address=\"ABC\"> </Join_ZigBee_Slave>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(ZigBeeConfigurationDeviceMessage.RemoveMirror.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -137,7 +137,7 @@ public class UkHubMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new UkHubMessageConverter(propertySpecService, this.nlsService, this.converter, this.deviceMessageFileExtractor);
+        return new UkHubMessageConverter(propertySpecService, this.nlsService, this.converter, this.deviceMessageFileExtractor, keyAccessorTypeExtractor);
     }
 
     @Override
@@ -154,8 +154,6 @@ public class UkHubMessageConverterTest extends AbstractV2MessageConverterTest {
                     return europeanDateTimeFormat.parse("15/10/2013 00:00:00");
                 case DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName:
                     return "ABC";
-                case DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName:
-                    return "123";
                 case DeviceMessageConstants.ZigBeeConfigurationMirrorAddressAttributeName:
                     return "1";
                 case DeviceMessageConstants.ZigBeeConfigurationForceRemovalAttributeName:

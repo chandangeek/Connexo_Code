@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.idis.am500.properties;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
@@ -40,6 +41,7 @@ public class IDISConfigurationSupport extends AM130ConfigurationSupport {
         result.remove(super.useGeneralBlockTransferPropertySpec());
         result.remove(super.generalBlockTransferWindowSizePropertySpec());
         result.remove(super.cipheringTypePropertySpec());
+        result.remove(super.masterKeyPropertySpec());
         return result;
     }
 

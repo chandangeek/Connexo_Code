@@ -1,13 +1,5 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.CosemPDUConnection;
@@ -30,6 +22,13 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -43,12 +42,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
@@ -330,12 +329,9 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        Stream<PropertySpec> propertySpecs = super.getUPLPropertySpecs().stream().filter(propertySpec -> !propertySpec.getName().equals(SECURITYLEVEL.getName()));
         PropertySpecService propertySpecService = this.getPropertySpecService();
         List<PropertySpec> myPropertySpecs = new ArrayList<>();
-        myPropertySpecs.add(this.stringSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL, true));
         myPropertySpecs.add(this.integerSpec(PROPNAME_CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION, false));
-        myPropertySpecs.add(this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS, false));
         myPropertySpecs.add(this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS, false));
         myPropertySpecs.add(this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS, false));
         myPropertySpecs.add(this.integerSpec(PROPNAME_ADDRESSING_MODE, PropertyTranslationKeys.DLMS_ADDRESSING_MODE, false));
@@ -355,7 +351,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         myPropertySpecs.add(this.integerSpec(MAX_REC_PDU_SIZE, PropertyTranslationKeys.DLMS_MAX_REC_PDU_SIZE, false));
         myPropertySpecs.add(this.integerSpec(ISKRA_WRAPPER, PropertyTranslationKeys.DLMS_ISKRA_WRAPPER, false));
         myPropertySpecs.add(this.stringSpec(INCREMENT_FRAMECOUNTER_FOR_RETRIES, PropertyTranslationKeys.DLMS_INCREMENT_FRAMECOUNTER_FOR_RETRIES, false));
-        propertySpecs.forEach(myPropertySpecs::add);
+        super.getUPLPropertySpecs().forEach(myPropertySpecs::add);
         return myPropertySpecs;
     }
 
@@ -373,7 +369,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         deviceId = properties.getTypedProperty(ADDRESS.getName(), "");
         serialNumber = properties.getTypedProperty(SERIALNUMBER.getName(), "");
         connectionMode = properties.getTypedProperty(PROPNAME_CONNECTION, 1);
-        clientMacAddress = properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, 32);
+        clientMacAddress = properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, BigDecimal.valueOf(32)).intValue();
         serverLowerMacAddress = properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, 1);
         serverUpperMacAddress = properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, 17);
         timeOut = Integer.parseInt(properties.getTypedProperty(PROPNAME_TIMEOUT, (this.connectionMode == 0) ? "5000" : "60000"));    // set the HDLC timeout to 5000 for the WebRTU KP
@@ -382,9 +378,9 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         addressingMode = properties.getTypedProperty(PROPNAME_ADDRESSING_MODE, 2);
         manufacturer = properties.getTypedProperty(PROPNAME_MANUFACTURER, "EIT");
         informationFieldSize = properties.getTypedProperty(PROPNAME_INFORMATION_FIELD_SIZE, -1);
-        iiapInvokeId = properties.getTypedProperty(PROPNAME_IIAP_INVOKE_ID,-0);
-        iiapPriority = properties.getTypedProperty(PROPNAME_IIAP_PRIORITY,-1);
-        iiapServiceClass = properties.getTypedProperty(PROPNAME_IIAP_SERVICE_CLASS,-1);
+        iiapInvokeId = properties.getTypedProperty(PROPNAME_IIAP_INVOKE_ID, 0);
+        iiapPriority = properties.getTypedProperty(PROPNAME_IIAP_PRIORITY, 1);
+        iiapServiceClass = properties.getTypedProperty(PROPNAME_IIAP_SERVICE_CLASS, 1);
         cipheringType = properties.getTypedProperty(PROPNAME_CIPHERING_TYPE, CipheringType.GLOBAL.getType());
 
         this.numberOfClocksetTries = properties.getTypedProperty(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES);

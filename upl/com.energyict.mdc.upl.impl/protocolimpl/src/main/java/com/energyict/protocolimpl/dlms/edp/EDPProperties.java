@@ -33,7 +33,7 @@ class EDPProperties {
     private final PropertySpecService propertySpecService;
 
     EDPProperties(PropertySpecService propertySpecService) {
-        this(com.energyict.protocolimpl.properties.TypedProperties.empty(), propertySpecService);
+        this(com.energyict.mdc.upl.TypedProperties.empty(), propertySpecService);
     }
 
     EDPProperties(TypedProperties properties, PropertySpecService propertySpecService) {
@@ -54,7 +54,6 @@ class EDPProperties {
 
     protected List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                this.integerSpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
                 this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
                 this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
                 this.stringSpec(DlmsProtocolProperties.CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION),

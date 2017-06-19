@@ -52,7 +52,6 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        getProtocolProperties().setProperty(DlmsProtocolProperties.SECURITY_LEVEL, getSecurityLevel());
     }
 
     @Override
@@ -60,15 +59,12 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
         return Arrays.asList(
                 this.spec(PK_RETRIES, PropertyTranslationKeys.PRENTA_RETRIES, this.propertySpecService::integerSpec),
                 this.spec(PK_TIMEOUT, PropertyTranslationKeys.PRENTA_TIMEOUT, this.propertySpecService::integerSpec),
-                this.spec(SECURITY_LEVEL, PropertyTranslationKeys.PRENTA_SECURITY_LEVEL, this.propertySpecService::integerSpec),
-                this.spec(CLIENT_MAC_ADDRESS, PropertyTranslationKeys.PRENTA_CLIENT_MAC_ADDRESS, this.propertySpecService::integerSpec),
                 this.spec(SERVER_MAC_ADDRESS, PropertyTranslationKeys.PRENTA_SERVER_MAC_ADDRESS, this.propertySpecService::stringSpec),
                 this.spec(ADDRESSING_MODE, PropertyTranslationKeys.PRENTA_ADDRESSING_MODE, this.propertySpecService::integerSpec),
                 this.spec(CONNECTION, PropertyTranslationKeys.PRENTA_CONNECTION, this.propertySpecService::integerSpec),
                 this.spec("RequestTimeZone", PropertyTranslationKeys.PRENTA_REQUEST_TIME_ZONE, this.propertySpecService::integerSpec),
                 this.spec("FirmwareVersion", PropertyTranslationKeys.PRENTA_FIRMWARE_VERION, this.propertySpecService::stringSpec),
                 this.spec("ExtendedLogging", PropertyTranslationKeys.PRENTA_EXTENDED_LOGGING, this.propertySpecService::integerSpec),
-                this.spec("Connection", PropertyTranslationKeys.PRENTA_CONNECTION, this.propertySpecService::integerSpec),
                 this.spec("DeviceType", PropertyTranslationKeys.PRENTA_DEVICETYPE, this.propertySpecService::stringSpec),
                 this.spec("TestLogging", PropertyTranslationKeys.PRENTA_TEST_LOGGING, this.propertySpecService::integerSpec),
                 this.spec("FolderExtName", PropertyTranslationKeys.PRENTA_FOLDER_EXTERNAL_NAME, this.propertySpecService::stringSpec),

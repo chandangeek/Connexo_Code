@@ -1,7 +1,8 @@
 package com.energyict.protocolimplv2.dialects;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+
+import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +28,7 @@ public class NoParamsDeviceProtocolDialect extends AbstractDeviceProtocolDialect
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.NO_PARAMETERS_PROTOCOL_DIALECT_NAME.getName();
+        return DeviceProtocolDialectTranslationKeys.NO_PARAMETERS_PROTOCOL_DIALECT_NAME.getName();
     }
 
     @Override

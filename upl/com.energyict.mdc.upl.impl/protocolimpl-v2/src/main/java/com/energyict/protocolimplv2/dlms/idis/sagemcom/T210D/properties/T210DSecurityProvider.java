@@ -1,19 +1,20 @@
 package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.properties;
 
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.CertificateWrapper;
+
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.encryption.asymetric.ECCCurve;
 import com.energyict.encryption.asymetric.util.KeyUtils;
-import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
-import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
@@ -57,9 +58,9 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
     @Override
     public byte[] getHLSSecret() {
         if (this.hlsSecret == null) {
-            String hex = properties.getTypedProperty(SecurityPropertySpecName.PASSWORD.toString());
+            String hex = properties.getTypedProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString());
             if (hex == null || hex.isEmpty()) {
-                throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.PASSWORD.toString());
+                throw DeviceConfigurationException.missingProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString());
             }
             this.hlsSecret = DLMSUtils.hexStringToByteArray(hex);
         }
@@ -98,7 +99,7 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
     @Override
     public X509Certificate getServerKeyAgreementCertificate() {
         if (serverKeyAgreementCertificate == null) {
-            serverKeyAgreementCertificate = parseX509Certificate(SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
+            serverKeyAgreementCertificate = parseX509Certificate(SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
         }
         return serverKeyAgreementCertificate;
     }
@@ -106,7 +107,7 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
     @Override
     public X509Certificate getServerSignatureCertificate() {
         if (serverSigningCertificate == null) {
-            serverSigningCertificate = parseX509Certificate(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString());
+            serverSigningCertificate = parseX509Certificate(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
         }
         return serverSigningCertificate;
     }

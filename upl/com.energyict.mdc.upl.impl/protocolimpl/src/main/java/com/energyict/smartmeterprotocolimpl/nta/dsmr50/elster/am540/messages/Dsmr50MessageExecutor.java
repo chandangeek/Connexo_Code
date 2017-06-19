@@ -1,5 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.TariffCalendar;
+
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -11,14 +20,6 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
-import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -29,6 +30,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.Dsmr50Proper
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -117,36 +119,44 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
     @Override
     protected void changeAuthenticationKey(MessageHandler messageHandler) throws IOException {
-        protocol.getLogger().info("Received [ChangeAuthenticationKeyMessage], wrapped key is '" + ProtocolTools.getHexStringFromBytes(messageHandler.getNewAuthenticationKey(), "") + "'");
+        byte[] newSymmetricKey = messageHandler.getNewAuthenticationKey();
+        byte[] masterKey = protocol.getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
+        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
+
+        protocol.getLogger().info("Received [ChangeAuthenticationKeyMessage]'");
         Array authenticationKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(messageHandler.getNewAuthenticationKey()));
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
         authenticationKeyArray.addDataType(keyData);
 
         protocol.getDlmsSession().getCosemObjectFactory().getSecuritySetup().transferGlobalKey(authenticationKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        protocol.getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(messageHandler.getPlainAuthenticationKey(), ""));
+        protocol.getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
     }
 
     @Override
     protected void changeGlobalKey(MessageHandler messageHandler) throws IOException {
-        String oldGlobalKey = ProtocolTools.getHexStringFromBytes(protocol.getDlmsSession().getProperties().getSecurityProvider().getGlobalKey(), "");
-        protocol.getLogger().info("Received [ChangeEncryptionKeyMessage], wrapped key is '" + ProtocolTools.getHexStringFromBytes(messageHandler.getNewEncryptionKey(), "") + "'");
+        byte [] oldGlobalKey = protocol.getDlmsSession().getProperties().getSecurityProvider().getGlobalKey();
+        byte[] newSymmetricKey = messageHandler.getNewEncryptionKey();
+        byte[] masterKey = protocol.getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
+        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
+
+        protocol.getLogger().info("Received [ChangeEncryptionKeyMessage]");
         Array encryptionKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(0));    // 0 means keyType: encryptionKey (global key)
-        keyData.addDataType(OctetString.fromByteArray(messageHandler.getNewEncryptionKey()));
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
         encryptionKeyArray.addDataType(keyData);
 
         protocol.getDlmsSession().getCosemObjectFactory().getSecuritySetup().transferGlobalKey(encryptionKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        protocol.getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(messageHandler.getPlainEncryptionKey(), ""));
+        protocol.getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
 
         //Reset frame counter, only if a different key has been written
-        if (!oldGlobalKey.equalsIgnoreCase(ProtocolTools.getHexStringFromBytes(ProtocolTools.getBytesFromHexString(messageHandler.getPlainEncryptionKey(), ""), ""))) {
+        if (!Arrays.equals(oldGlobalKey, newSymmetricKey)) {
             SecurityContext securityContext = protocol.getDlmsSession().getAso().getSecurityContext();
             securityContext.setFrameCounter(1);
             securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);

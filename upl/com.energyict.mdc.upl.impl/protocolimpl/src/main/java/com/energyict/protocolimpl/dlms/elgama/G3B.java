@@ -3,8 +3,10 @@ package com.energyict.protocolimpl.dlms.elgama;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -13,7 +15,6 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
@@ -34,6 +35,7 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
+import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -48,7 +50,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.MASTERKEY;
 
 /**
  * Copyrights EnergyICT
@@ -242,8 +244,6 @@ public class G3B extends AbstractDLMSProtocol {
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         propertySpecs.add(this.stringSpec("Connection", PropertyTranslationKeys.DLMS_CONNECTION, false));
-        propertySpecs.add(this.stringSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL, false));
-        propertySpecs.add(this.stringSpec("ClientMacAddress", PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS, false));
         propertySpecs.add(this.stringSpec("ServerUpperMacAddress", PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS, false));
         propertySpecs.add(this.stringSpec("ServerLowerMacAddress", PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS, false));
         propertySpecs.add(this.stringSpec("InformationFieldSize", PropertyTranslationKeys.DLMS_INFORMATION_FIELD_SIZE, false));
@@ -259,11 +259,18 @@ public class G3B extends AbstractDLMSProtocol {
         propertySpecs.add(this.stringSpec("IpPortNumber", PropertyTranslationKeys.DLMS_IP_PORT_NUMBER, false));
         propertySpecs.add(this.stringSpec("WakeUp", PropertyTranslationKeys.DLMS_WAKE_UP, false));
         propertySpecs.add(this.stringSpec("CipheringType", PropertyTranslationKeys.DLMS_CIPHERING_TYPE, false));
-        propertySpecs.add(this.stringSpec(LocalSecurityProvider.DATATRANSPORTKEY, PropertyTranslationKeys.DLMS_DATATRANSPORTKEY, false));
-        propertySpecs.add(this.stringSpec(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, PropertyTranslationKeys.DLMS_DATATRANSPORT_AUTHENTICATIONKEY, false));
-        propertySpecs.add(this.stringSpec(LocalSecurityProvider.MASTERKEY, PropertyTranslationKeys.DLMS_MASTERKEY, false));
+        propertySpecs.add(this.keyAccessorTypeReferencePropertySpec(MASTERKEY, PropertyTranslationKeys.DLMS_MASTERKEY));
         return propertySpecs;
     }
+
+    private PropertySpec keyAccessorTypeReferencePropertySpec(String name, TranslationKey translationKey) {
+        return getPropertySpecService()
+                .referenceSpec(KeyAccessorType.class.getName())
+                .named(name, translationKey)
+                .describedAs(new DescriptionTranslationKey(translationKey))
+                .finish();
+    }
+
 
     @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {

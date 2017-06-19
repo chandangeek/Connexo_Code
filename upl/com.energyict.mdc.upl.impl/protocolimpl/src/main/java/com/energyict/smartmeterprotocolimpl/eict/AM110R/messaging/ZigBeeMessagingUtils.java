@@ -36,7 +36,7 @@ public class ZigBeeMessagingUtils {
 
         // Check if the formatted hex string is exactly 16 characters long (8 bytes)
         if (formattedAddress.length() != IEEE_ADDRESS_LENGTH * 2) {
-            throw new IOException("Address should have " + IEEE_ADDRESS_LENGTH + " bytes (" + IEEE_ADDRESS_LENGTH * 2 + " hex characters) but was [" + formattedAddress.length() + "]: [" + formattedAddress + "]");
+            throw new IOException("Address should have " + IEEE_ADDRESS_LENGTH + " bytes (" + IEEE_ADDRESS_LENGTH * 2 + " hex characters) but was " + formattedAddress.length() + ": [" + formattedAddress + "]");
         }
 
         // Check if we can parse the hex string to a byte array
@@ -50,8 +50,8 @@ public class ZigBeeMessagingUtils {
     }
 
     public static String validateAndFormatLinkKey(String linkKey) throws IOException {
-        if (linkKey == null) {
-            throw new IOException("Link key is required but was 'null'.");
+        if (linkKey == null || linkKey.isEmpty()) {
+            throw new IOException("Link key is required but was not provided. Please specify as general attribute.");
         }
 
         String formattedLinkKey = linkKey.toUpperCase(); // Make the link key all upper case
@@ -59,7 +59,7 @@ public class ZigBeeMessagingUtils {
 
         // Check if the formatted hex string is exactly 32 characters long (16 bytes)
         if (formattedLinkKey.length() != LINK_KEY_LENGTH * 2) {
-            throw new IOException("Link key should have " + LINK_KEY_LENGTH + " bytes (" + LINK_KEY_LENGTH * 2 + " hex characters) but was [" + formattedLinkKey.length() + "]: [" + formattedLinkKey + "]");
+            throw new IOException("Link key should have " + LINK_KEY_LENGTH + " bytes (" + LINK_KEY_LENGTH * 2 + " hex characters) but was " + formattedLinkKey.length() + ": [" + formattedLinkKey + "]");
         }
 
         // Check if we can parse the hex string to a byte array

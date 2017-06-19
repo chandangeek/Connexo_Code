@@ -251,7 +251,6 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
         myPropertySpecs.add(this.integerSpec(LIMITMAXNROFDAYS_PROPERTY, PropertyTranslationKeys.DLMS_LIMIT_MAX_NR_OF_DAYS, false));
         myPropertySpecs.add(this.stringSpec(CALLING_AP_TITLE, PropertyTranslationKeys.DLMS_CALLING_AP_TITLE, false));
         myPropertySpecs.add(new ObisCodePropertySpec(LOAD_PROFILE_OBIS_CODE_PROPERTY, false, getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOAD_PROFILE_OBIS_CODE).format(), getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOAD_PROFILE_OBIS_CODE_DESCRIPTION).format()));
-        myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS, false));
         myPropertySpecs.add(this.stringSpec(DlmsProtocolProperties.SERVER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_MAC_ADDRESS, false));
         myPropertySpecs.add(this.stringSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS, false)); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
         myPropertySpecs.add(this.stringSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS, false)); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!

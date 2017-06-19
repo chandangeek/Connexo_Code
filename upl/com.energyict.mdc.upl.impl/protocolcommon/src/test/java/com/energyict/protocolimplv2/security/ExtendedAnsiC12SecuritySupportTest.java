@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
 
 import org.junit.Test;
@@ -29,17 +29,17 @@ public class ExtendedAnsiC12SecuritySupportTest extends AbstractSecuritySupportT
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).hasSize(6);
 
         // check for the password propertySpec
-        assertPropertySpecsEqual(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.PASSWORD.getKey()));
+        assertPropertySpecsEqual(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.PASSWORD.getKey()));
         // check for the ANSI C12 user propertySpec
-        assertPropertySpecsEqual(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ANSI_C12_USER.getKey()));
+        assertPropertySpecsEqual(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.ANSI_C12_USER.getKey()));
         // check for the ANSI C12 userId propertySpec
-        assertPropertySpecsEqual(DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ANSI_C12_USER_ID.getKey()));
+        assertPropertySpecsEqual(DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.ANSI_C12_USER_ID.getKey()));
         // check for the ANSI EncryptionKey
-        assertPropertySpecsEqual(DeviceSecurityProperty.ANSI_SECURITY_KEY.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ANSI_SECURITY_KEY.getKey()));
+        assertPropertySpecsEqual(DeviceSecurityProperty.ANSI_SECURITY_KEY.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.ANSI_SECURITY_KEY.getKey()));
         // check for the ANSI Called AP Title
-        assertPropertySpecsEqual(DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.getKey()));
+        assertPropertySpecsEqual(DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.ANSI_CALLED_AP_TITLE.getKey()));
         // check for the ANSI binary password property
-        assertPropertySpecsEqual(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.BINARY_PASSWORD.getKey()));
+        assertPropertySpecsEqual(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService), ansiC12SecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.BINARY_PASSWORD.getKey()));
     }
 
     @Test
@@ -107,17 +107,17 @@ public class ExtendedAnsiC12SecuritySupportTest extends AbstractSecuritySupportT
         ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = new ExtendedAnsiC12SecuritySupport(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String ansiC12UserIdValue = "MyAnsiC12UserId";
-        securityProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER_ID.toString(), ansiC12UserIdValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ANSI_C12_USER_ID.toString(), ansiC12UserIdValue);
         String ansiC12UserValue = "MyAnsiC12User";
-        securityProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER.toString(), ansiC12UserValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ANSI_C12_USER.toString(), ansiC12UserValue);
         String passwordValue = "MyPassword";
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), passwordValue);
         String binaryPassword = "0";
-        securityProperties.setProperty(SecurityPropertySpecName.BINARY_PASSWORD.toString(), binaryPassword);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.BINARY_PASSWORD.toString(), binaryPassword);
         String encryptionKey = "MyPrivateEncryptionKey";
-        securityProperties.setProperty(SecurityPropertySpecName.ANSI_SECURITY_KEY.toString(), encryptionKey);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ANSI_SECURITY_KEY.toString(), encryptionKey);
         String calledApTitle = "MyPersonalAPTitle";
-        securityProperties.setProperty(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString(), calledApTitle);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ANSI_CALLED_AP_TITLE.toString(), calledApTitle);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
                     @Override
@@ -126,7 +126,7 @@ public class ExtendedAnsiC12SecuritySupportTest extends AbstractSecuritySupportT
                     }
 
                     @Override
-                    public String getClient() {
+                    public Object getClient() {
                         return null;
                     }
 

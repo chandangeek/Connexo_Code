@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
@@ -20,7 +21,7 @@ public enum MailConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
 
     // Read Mail (POP3) Parameters
     SetPOPUsername(17001, "Set POP username", DeviceMessageConstants.SetPOPUsernameAttributeName, DeviceMessageConstants.SetPOPUsernameAttributeDefaultTranslation),
-    SetPOPPassword(17002, "Set POP password", DeviceMessageConstants.SetPOPPasswordAttributeName, DeviceMessageConstants.SetPOPPasswordAttributeDefaultTranslation),
+    SetPOPPassword(17002, "Set POP password", PropertyType.KEYACCESSORTYPE_REFERENCE, DeviceMessageConstants.SetPOPPasswordAttributeName, DeviceMessageConstants.SetPOPPasswordAttributeDefaultTranslation),
     SetPOPHost(17003, "Set POP host", DeviceMessageConstants.SetPOPHostAttributeName, DeviceMessageConstants.SetPOPHostAttributeDefaultTranslation),
     SetPOPReadMailEvery(17004, "Set POP read mail every", DeviceMessageConstants.SetPOPReadMailEveryAttributeName, DeviceMessageConstants.SetPOPReadMailEveryAttributeDefaultTranslation),
     SetPOP3Options(17005, "Set POP3 options", DeviceMessageConstants.SetPOP3OptionsAttributeName, DeviceMessageConstants.SetPOP3OptionsAttributeDefaultTranslation),
@@ -38,14 +39,49 @@ public enum MailConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
     SMTPSetOption(17017, "SMTP - Set an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),
     SMTPClrOption(17018, "SMTP - Clear an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation);
 
+    private enum PropertyType {
+        STRING {
+            @Override
+            protected PropertySpec get(PropertySpecService service, String propertyName, String defaultTranslation) {
+                TranslationKeyImpl translationKey = new TranslationKeyImpl(propertyName, defaultTranslation);
+                return service
+                        .stringSpec()
+                        .named(propertyName, translationKey)
+                        .describedAs(translationKey.description())
+                        .markRequired()
+                        .finish();
+            }
+        },
+        KEYACCESSORTYPE_REFERENCE {
+            @Override
+            protected PropertySpec get(PropertySpecService service, String propertyName, String defaultTranslation) {
+                TranslationKeyImpl translationKey = new TranslationKeyImpl(propertyName, defaultTranslation);
+                return service
+                        .referenceSpec(KeyAccessorType.class.getName())
+                        .named(propertyName, translationKey)
+                        .describedAs(translationKey.description())
+                        .markRequired()
+                        .finish();
+            }
+        };
+
+        protected abstract PropertySpec get(PropertySpecService service, String name, String defaultTranslation);
+    }
+
     private final long id;
     private final String defaultNameTranslation;
     private final String propertyName;
     private final String propertyDefaultTranslation;
+    private final PropertyType propertyType;
 
     MailConfigurationDeviceMessage(long id, String defaultNameTranslation, String propertyName, String propertyDefaultTranslation) {
+        this(id, defaultNameTranslation, PropertyType.STRING, propertyName, propertyDefaultTranslation);
+    }
+
+    MailConfigurationDeviceMessage(long id, String defaultNameTranslation, PropertyType propertyType, String propertyName, String propertyDefaultTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
+        this.propertyType = propertyType;
         this.propertyName = propertyName;
         this.propertyDefaultTranslation = propertyDefaultTranslation;
     }
@@ -70,17 +106,6 @@ public enum MailConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
     }
 
     private List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
-        return Collections.singletonList(this.stringSpec(propertySpecService, this.propertyName, this.propertyDefaultTranslation));
+        return Collections.singletonList(this.propertyType.get(propertySpecService, this.propertyName, this.propertyDefaultTranslation));
     }
-
-    private PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .stringSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
 }

@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
@@ -30,10 +31,12 @@ import java.util.Map;
 public class AM110RMessageConverter extends AbstractMessageConverter {
 
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public AM110RMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+    public AM110RMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter);
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     @Override
@@ -71,7 +74,7 @@ public class AM110RMessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(ZigBeeConfigurationDeviceMessage.RemoveHANNetwork), new SimpleTagMessageEntry(RtuMessageConstant.REMOVE_HAN_NETWORK))
                 .put(messageSpec(ZigBeeConfigurationDeviceMessage.BackUpZigBeeHANParameters), new SimpleTagMessageEntry(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS))
                 .put(messageSpec(ZigBeeConfigurationDeviceMessage.RestoreZigBeeHANParameters), new MultipleAttributeMessageEntry(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS, RtuMessageConstant.RESTORE_ZIGBEE_PARAMETERS_USERFILE_ID))
-                .put(messageSpec(ZigBeeConfigurationDeviceMessage.JoinZigBeeSlaveFromDeviceType), new MultipleAttributeMessageEntry(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_FROM_DEVICE_TYPE, RtuMessageConstant.JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS, RtuMessageConstant.JOIN_ZIGBEE_SLAVE_LINK_KEY, RtuMessageConstant.JOIN_ZIGBEE_SLAVE_DEVICE_TYPE))
+                .put(messageSpec(ZigBeeConfigurationDeviceMessage.JoinZigBeeSlaveFromDeviceType), new MultipleAttributeMessageEntry(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_FROM_DEVICE_TYPE, RtuMessageConstant.JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS, RtuMessageConstant.JOIN_ZIGBEE_SLAVE_DEVICE_TYPE))
                 .put(messageSpec(ZigBeeConfigurationDeviceMessage.RemoveZigBeeSlaveDevice), new MultipleAttributeMessageEntry(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE, RtuMessageConstant.REMOVE_ZIGBEE_SLAVE_IEEE_ADDRESS))
                 .put(messageSpec(ZigBeeConfigurationDeviceMessage.RemoveAllZigBeeSlaveDevices), new SimpleTagMessageEntry(RtuMessageConstant.REMOVE_ALL_ZIGBEE_SLAVES))
                 .put(messageSpec(ZigBeeConfigurationDeviceMessage.RemoveMirror), new MultipleAttributeMessageEntry(RtuMessageConstant.REMOVE_ZIGBEE_MIRROR, RtuMessageConstant.REMOVE_ZIGBEE_MIRROR_IEEE_ADDRESS, RtuMessageConstant.REMOVE_ZIGBEE_MIRROR_FORCE))
@@ -88,8 +91,6 @@ public class AM110RMessageConverter extends AbstractMessageConverter {
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
-            case DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName:
-                return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:

@@ -187,7 +187,7 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
 
     @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
-        TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties properties = com.energyict.mdc.upl.TypedProperties.empty();
         properties.setProperty("SecurityLevel", "0");
         if ((discoverInfo.getNodeId()!= null) && ("".compareTo(discoverInfo.getNodeId()) != 0)) {
             properties.setProperty(Property.NODEID.getName(), discoverInfo.getNodeId());

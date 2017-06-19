@@ -1,11 +1,12 @@
 package com.energyict.dlms;
 
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.attributes.DLMSAttributes;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
 import com.energyict.obis.ObisCode;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author jme
@@ -70,6 +71,9 @@ public class DLMSAttribute{
                         classID = DLMSClassId.findById(Integer.valueOf(strings[0]).intValue());
                     }
                     ObisCode obis = ObisCode.fromString(strings[1]);
+                    if (obis.isInvalid()) {
+                        throw new IllegalArgumentException("Invalid obis code " + strings[1]);
+                    }
                     int attribute = Integer.valueOf(strings[2]).intValue();
                     return new DLMSAttribute(obis, attribute, classID);
                 } catch (NumberFormatException e) {

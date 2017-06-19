@@ -59,7 +59,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
     SetEncryptionKeysUsingCryptoserver(24006, "Set encryption key using cryptoserver") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
-            return Collections.singletonList(this.hexStringSpec(service, DeviceMessageConstants.defaultKeyAttributeName, DeviceMessageConstants.defaultKeyAttributeDefaultTranslation));
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.defaultKeyAttributeName, DeviceMessageConstants.defaultKeyAttributeDefaultTranslation));
         }
     },
     UseCorrectedValues(24007, "Use corrected values") {

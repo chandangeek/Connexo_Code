@@ -1,14 +1,14 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
-import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -28,8 +28,8 @@ import java.util.Map;
  */
 public class CryptoDsmr23MBusMessageConverter extends Dsmr23MBusDeviceMessageConverter {
 
-    public CryptoDsmr23MBusMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
-        super(propertySpecService, nlsService, converter, loadProfileExtractor);
+    public CryptoDsmr23MBusMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        super(propertySpecService, nlsService, converter, loadProfileExtractor, keyAccessorTypeExtractor);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class CryptoDsmr23MBusMessageConverter extends Dsmr23MBusDeviceMessageCon
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.defaultKeyAttributeName:
-                return ((HexString) messageAttribute).getContent();
+                return getKeyAccessorTypeExtractor().passiveValueContent((KeyAccessorType) messageAttribute);
             default:
                 return super.format(propertySpec, messageAttribute);
         }

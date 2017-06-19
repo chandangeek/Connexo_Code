@@ -1,18 +1,19 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -112,17 +113,17 @@ public class GarnetProperties implements HasDynamicProperties {
 
     public byte[] getManufacturerKey() {
         if (this.manufacturerKey == null) {
-            String hex = getProperties().getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString());
+            String hex = getProperties().getTypedProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANUFACTURER.toString());
             if (hex != null) {
                 this.manufacturerKey = DLMSUtils.hexStringToByteArray(hex);
                 if (this.manufacturerKey.length != 16) {
                     throw ConnectionCommunicationException.cipheringException(
-                            new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER + " has an invalid length!")
+                            new GarnetException("Invalid security set used - the " + SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANUFACTURER + " has an invalid length!")
                     );
                 }
             } else {
                 throw ConnectionCommunicationException.cipheringException(
-                        new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER + " is missing!")
+                        new GarnetException("Invalid security set used - the " + SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANUFACTURER + " is missing!")
                 );
             }
         }
@@ -131,16 +132,16 @@ public class GarnetProperties implements HasDynamicProperties {
 
     public byte[] getCustomerKey() {
         if (this.customerKey == null) {
-            String hex = getProperties().getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.toString());
+            String hex = getProperties().getTypedProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_CUSTOMER.toString());
             if (hex != null) {
                 this.customerKey = DLMSUtils.hexStringToByteArray(hex);
                 if (this.customerKey.length != 16) {
                     throw ConnectionCommunicationException.cipheringException(
-                            new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER + " has an invalid length!")
+                            new GarnetException("Invalid security set used - the " + SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_CUSTOMER + " has an invalid length!")
                     );
                 }
             } else {
-                GarnetException exception = new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER + " is missing!");
+                GarnetException exception = new GarnetException("Invalid security set used - the " + SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_CUSTOMER + " is missing!");
                 throw ConnectionCommunicationException.cipheringException(exception);
             }
         }
@@ -166,7 +167,7 @@ public class GarnetProperties implements HasDynamicProperties {
      */
     public TypedProperties getProperties() {
         if (this.properties == null) {
-            this.properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+            this.properties = com.energyict.mdc.upl.TypedProperties.empty();
         }
         return this.properties;
     }
@@ -191,7 +192,7 @@ public class GarnetProperties implements HasDynamicProperties {
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
-        this.addProperties(com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties));
+        this.addProperties(com.energyict.mdc.upl.TypedProperties.copyOf(properties));
     }
 
 }

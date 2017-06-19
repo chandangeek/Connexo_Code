@@ -1,15 +1,16 @@
 package com.energyict.protocolimplv2.eict.webrtuz3.properties;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.nls.PropertyTranslationKeys;
-import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
@@ -22,6 +23,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.BULK_REQUEST;
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MASTER_KEY;
 import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
@@ -46,7 +48,8 @@ public class WebRTUZ3ConfigurationSupport implements HasDynamicProperties {
                 this.timeZonePropertySpec(),
                 this.serverUpperMacAddressPropertySpec(),
                 this.serverLowerMacAddressPropertySpec(),
-                this.validateInvokeIdPropertySpec());
+                this.validateInvokeIdPropertySpec(),
+                this.masterKeyPropertySpec());
     }
 
     private PropertySpec serverUpperMacAddressPropertySpec() {
@@ -75,6 +78,13 @@ public class WebRTUZ3ConfigurationSupport implements HasDynamicProperties {
 
     protected PropertySpec bulkRequestPropertySpec() {
         return this.booleanSpec(BULK_REQUEST, true, PropertyTranslationKeys.V2_EICT_BULK_REQUEST);
+    }
+
+    private PropertySpec masterKeyPropertySpec() {
+        return this.propertySpecService.referenceSpec(KeyAccessorType.class.getName())
+                .named(MASTER_KEY, PropertyTranslationKeys.V2_NTA_MASTERKEY)
+                .describedAs(PropertyTranslationKeys.V2_NTA_MASTERKEY_DESCRIPTION)
+                .finish();
     }
 
     private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {

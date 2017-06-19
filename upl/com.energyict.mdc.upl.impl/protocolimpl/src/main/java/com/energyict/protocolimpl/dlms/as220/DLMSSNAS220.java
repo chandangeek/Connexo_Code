@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -58,10 +59,8 @@ import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
 import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
@@ -429,14 +428,11 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
                 this.integerSpec(PR_ADDRESSING_MODE, PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
                 this.integerSpec(PR_CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION),
                 this.stringSpecOfMaxLength(ADDRESS.getName(), PropertyTranslationKeys.DLMS_ADDRESS, MAX_ADDRESS_LENGTH),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.DLMS_PASSWORD),
                 this.integerSpec(PR_TIMEOUT, PropertyTranslationKeys.DLMS_TIMEOUT),
                 this.integerSpec(PR_FORCED_DELAY, PropertyTranslationKeys.DLMS_FORCED_DELAY),
                 this.integerSpec(PR_RETRIES, PropertyTranslationKeys.DLMS_RETRIES),
                 this.integerSpec(PR_REQUEST_TIME_ZONE, PropertyTranslationKeys.DLMS_REQUEST_TIME_ZONE),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
-                this.stringSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL),
-                this.integerSpec(PR_CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
                 this.integerSpec(PR_SRV_UP_MACADDR, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
                 this.integerSpec(PR_SRV_LOW_MACADDR, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
                 this.integerSpec(PR_TRANSP_CONNECT_TIME, PropertyTranslationKeys.DLMS_TRANSP_CONNECT_TIME),
@@ -501,7 +497,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
                 throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getTypedProperty(PR_SECURITY_LEVEL, "0"));
             }
 
-            iClientMacAddress = properties.getTypedProperty(PR_CLIENT_MAC_ADDRESS, 32);
+            iClientMacAddress = properties.getTypedProperty(PR_CLIENT_MAC_ADDRESS, BigDecimal.valueOf(32)).intValue();
             iServerUpperMacAddress = properties.getTypedProperty(PR_SRV_UP_MACADDR, 1);
             iServerLowerMacAddress = properties.getTypedProperty(PR_SRV_LOW_MACADDR, 0);
             transparentConnectTime = properties.getTypedProperty(PR_TRANSP_CONNECT_TIME, 10);

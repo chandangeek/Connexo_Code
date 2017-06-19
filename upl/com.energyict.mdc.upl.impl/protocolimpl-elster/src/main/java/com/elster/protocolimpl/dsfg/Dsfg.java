@@ -139,7 +139,6 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.specBuilder(PASSWORD.getName(), false, PropertyTranslationKeys.DSFG_PASSWORD, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(TIMEOUT.getName(), false, PropertyTranslationKeys.DSFG_TIMEOUT, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(RETRIES.getName(), false, PropertyTranslationKeys.DSFG_RETRIES, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PROFILEINTERVAL.getName(), false, PropertyTranslationKeys.DSFG_PROFILE_INTERVAL, this.propertySpecService::integerSpec).finish(),

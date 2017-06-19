@@ -8,8 +8,11 @@ import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.propertyspec.MockPropertySpecService;
+
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -26,6 +29,7 @@ import static org.mockito.Mockito.when;
  * Date: 9/26/13
  * Time: 10:26 AM
  */
+@Ignore // Only useful to get the full list of all possible messages, but doesn't test anything
 @RunWith(MockitoJUnitRunner.class)
 public class PrintAllMessagesTest {
 

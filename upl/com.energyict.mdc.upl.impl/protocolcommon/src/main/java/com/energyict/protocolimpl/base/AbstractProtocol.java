@@ -244,12 +244,10 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     public List<PropertySpec> getUPLPropertySpecs() {
         return new ArrayList<>(Arrays.asList(
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.BASE_ADDRESS, false),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.BASE_PASSWORD, this.passwordIsRequired()),
                 this.stringSpec(PROP_TIMEOUT, PropertyTranslationKeys.BASE_TIMEOUT, false),
                 this.integerSpec(PROP_RETRIES, PropertyTranslationKeys.BASE_RETRIES, false),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.BASE_ROUNDTRIPCORRECTION, false),
                 // This class prefers security level to be of type int but subclasses prefer String and parse it into two properties :-(
-                this.stringSpec(PROP_SECURITY_LEVEL, PropertyTranslationKeys.BASE_SECURITY_LEVEL, false),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.BASE_NODEID, false),
                 this.integerSpec(PROP_ECHO_CANCELING, PropertyTranslationKeys.BASE_ECHO_CANCELLING, false),
                 this.integerSpec(PROP_PROTOCOL_COMPATIBLE, PropertyTranslationKeys.BASE_PROTOCOL_COMPATABLE, false),

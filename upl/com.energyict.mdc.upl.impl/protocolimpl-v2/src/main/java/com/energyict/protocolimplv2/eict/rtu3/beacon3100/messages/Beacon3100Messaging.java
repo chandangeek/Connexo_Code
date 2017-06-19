@@ -1,5 +1,35 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.DeviceGroupExtractor;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceGroup;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.CertificateWrapper;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -42,32 +72,6 @@ import com.energyict.encryption.asymetric.keyagreement.KeyAgreementImpl;
 import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
 import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.upl.DeviceGroupExtractor;
-import com.energyict.mdc.upl.DeviceMasterDataExtractor;
-import com.energyict.mdc.upl.NotInObjectListException;
-import com.energyict.mdc.upl.ObjectMapperService;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessage;
-import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
-import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.Device;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.DeviceGroup;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exception.DeviceConfigurationException;
@@ -111,8 +115,7 @@ import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessag
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.messages.validators.KeyMessageChangeValidator;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
-import org.apache.commons.codec.binary.Base64;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -171,6 +174,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.commo
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterSerialNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newMasterKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
 
@@ -240,6 +245,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private final DeviceGroupExtractor deviceGroupExtractor;
     private final DeviceExtractor deviceExtractor;
     private final CertificateWrapperExtractor certificateWrapperExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
@@ -270,20 +276,23 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 SecurityMessage.AGREE_NEW_ENCRYPTION_KEY.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.AGREE_NEW_AUTHENTICATION_KEY.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.CHANGE_SECURITY_SUITE.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.CHANGE_HLS_SECRET_PASSWORD.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.CHANGE_HLS_SECRET_PASSWORD_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
+
+            /*
+            //TODO add support for the export messages (with collected data and comserver DAO call to store the certificates on the right place)
+
                 SecurityMessage.EXPORT_END_DEVICE_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.EXPORT_SUB_CA_CERTIFICATES.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.EXPORT_ROOT_CA_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
+              */
                 SecurityMessage.IMPORT_CA_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.IMPORT_CLIENT_END_DEVICE_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.IMPORT_SERVER_END_DEVICE_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.DELETE_CERTIFICATE_BY_TYPE.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.GENERATE_KEY_PAIR.get(this.propertySpecService, this.nlsService, this.converter),
@@ -391,7 +400,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private MasterDataSync masterDataSync;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
 
-    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, CertificateWrapperExtractor certificateWrapperExtractor) {
+    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(protocol, collectedDataFactory, issueFactory);
         this.objectMapperService = objectMapperService;
         this.propertySpecService = propertySpecService;
@@ -401,85 +410,93 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         this.deviceGroupExtractor = deviceGroupExtractor;
         this.deviceExtractor = deviceExtractor;
         this.certificateWrapperExtractor = certificateWrapperExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     @Override
     @SuppressWarnings("rawtypes")
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.broadcastDevicesGroupAttributeName)) {
-            DeviceInfoSerializer serializer = new DeviceInfoSerializer(this.deviceMasterDataExtractor, this.deviceGroupExtractor, this.objectMapperService);
-            return serializer.serializeDeviceInfo(messageAttribute);
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.timeout)) {
-            return String.valueOf(((Duration) messageAttribute).toMillis()); //Return value in ms
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.modemWatchdogInterval)
-                || propertySpec.getName().equals(DeviceMessageConstants.modemWatchdogInitialDelay)
-                || propertySpec.getName().equals(DeviceMessageConstants.PPPDaemonResetThreshold)
-                || propertySpec.getName().equals(DeviceMessageConstants.modemResetThreshold)
-                || propertySpec.getName().equals(DeviceMessageConstants.systemRebootThreshold)
-                || propertySpec.getName().equals(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)) {
-            return String.valueOf(((Duration) messageAttribute).getSeconds()); //Return value in seconds
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)) {
-            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.encryptionLevelAttributeName)) {
-            return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.authenticationLevelAttributeName)) {
-            return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.deviceGroupAttributeName)) {
-            DeviceGroup group = (DeviceGroup) messageAttribute;
-            StringBuilder macAddresses = new StringBuilder();
+        switch (propertySpec.getName()) {
+            case DeviceMessageConstants.broadcastDevicesGroupAttributeName:
+                DeviceInfoSerializer serializer = new DeviceInfoSerializer(this.deviceMasterDataExtractor, this.deviceGroupExtractor, this.objectMapperService);
+                return serializer.serializeDeviceInfo(messageAttribute);
+            case DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName:
+            case DeviceMessageConstants.timeout:
+                return String.valueOf(((Duration) messageAttribute).toMillis()); //Return value in ms
+            case DeviceMessageConstants.modemWatchdogInterval:
+            case DeviceMessageConstants.modemWatchdogInitialDelay:
+            case DeviceMessageConstants.PPPDaemonResetThreshold:
+            case DeviceMessageConstants.modemResetThreshold:
+            case DeviceMessageConstants.systemRebootThreshold:
+            case DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName:
+                return String.valueOf(((Duration) messageAttribute).getSeconds()); //Return value in seconds
+            case DeviceMessageConstants.firmwareUpdateFileAttributeName:
+                return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
+            case DeviceMessageConstants.encryptionLevelAttributeName:
+                return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
+            case DeviceMessageConstants.authenticationLevelAttributeName:
+                return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
+            case DeviceMessageConstants.deviceGroupAttributeName:
+                DeviceGroup group = (DeviceGroup) messageAttribute;
+                StringBuilder macAddresses = new StringBuilder();
 
-            for (Device device : deviceGroupExtractor.members(group)) {
-                String callHomeId = deviceExtractor.protocolProperty(device, LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
-                if (!callHomeId.isEmpty()) {
-                    if (macAddresses.length() != 0) {
-                        macAddresses.append(SEPARATOR);
-                    }
-                    macAddresses.append(callHomeId);
+                for (Device device : deviceGroupExtractor.members(group)) {
+                    String callHomeId = deviceExtractor.protocolProperty(device, LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
+                    if (!callHomeId.isEmpty()) {
+                        if (macAddresses.length() != 0) {
+                            macAddresses.append(SEPARATOR);
+                        }
+                        macAddresses.append(callHomeId);
 
-                    //Also add the java protocol class of the device, for the TRIGGER_PRELIMINARY_PROTOCOL message only
-                    if (offlineDeviceMessage.getSpecification().equals(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL)) {
-                        macAddresses.append(SEPARATOR2).append(deviceExtractor.getDeviceProtocolPluggableClass(device));
+                        //Also add the java protocol class of the device, for the TRIGGER_PRELIMINARY_PROTOCOL message only
+                        if (offlineDeviceMessage.getSpecification().equals(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL)) {
+                            macAddresses.append(SEPARATOR2).append(deviceExtractor.getDeviceProtocolPluggableClass(device));
+                        }
                     }
                 }
-            }
-            return macAddresses.toString();
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.CACertificateAliasAttributeName)) {
-            //Load the certificate with that alias from the EIServer DLMS trust store and encode it.
-            String alias = (String) messageAttribute;
-            //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
+                return macAddresses.toString();
+            case DeviceMessageConstants.DelayAfterLastBlock:
+            case DeviceMessageConstants.DelayPerBlock:
+            case DeviceMessageConstants.DelayBetweenBlockSentFast:
+            case DeviceMessageConstants.DelayBetweenBlockSentSlow:
+                return String.valueOf(((Duration) messageAttribute).toMillis());
+            case DeviceMessageConstants.passwordAttributeName:
+            case DeviceMessageConstants.newPasswordAttributeName:
+            case DeviceMessageConstants.newAuthenticationKeyAttributeName:
+            case DeviceMessageConstants.newEncryptionKeyAttributeName:
+            case DeviceMessageConstants.newMasterKeyAttributeName:
+                return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
+            case DeviceMessageConstants.certificateWrapperAttributeName:
 
-/*            CertificateAlias certificateAlias = certificateAliasFinder.from(alias);
-            String certificateEncoded = certificateAlias.getCertificateEncoded();
-            if (certificateEncoded == null || certificateEncoded.isEmpty()) {
-                return "";  //Message executor will recognize this and set the message to failed
-            }
-            return certificateEncoded;*/
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.clientCertificateAliasAttributeName)) {
-            //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
-            //Load the certificate with that alias from the EIServer DLMS key store and encode it.
-/*            String alias = (String) messageAttribute;
-            CertificateWrapper certificateAlias = certificateAliasFinder.from(alias);
-            String certificateEncoded = certificateAlias.getCertificateEncoded();
-            if (certificateEncoded == null || certificateEncoded.isEmpty()) {
-                return "";  //Message executor will recognize this and set the message to failed
-            }
-            return certificateEncoded;*/
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateWrapperAttributeName)) {
-            //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
-/*            CertificateWrapper certificateWrapper = (CertificateWrapper) messageAttribute;
-            return certificateWrapperExtractor.getBase64EncodedCertificate(certificateWrapper);*/
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.DelayAfterLastBlock)
-                || propertySpec.getName().equals(DeviceMessageConstants.DelayPerBlock)
-                || propertySpec.getName().equals(DeviceMessageConstants.DelayBetweenBlockSentFast)
-                || propertySpec.getName().equals(DeviceMessageConstants.DelayBetweenBlockSentSlow)) {
-            return String.valueOf(((Duration) messageAttribute).toMillis());
-        } else {
-            return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string property specs
+                //Is it a certificate renewal or just an addition of a certificate (e.g. trusted CA certificate) to the Beacon?
+                // ==> If there's a passive (temp) value, it's a renewal for sure, use this value.
+                // ==> Else, use the active value.
+
+                Optional<Object> valueToUse;
+                Optional<Object> tempValue = keyAccessorTypeExtractor.passiveValue((KeyAccessorType) messageAttribute);
+                if (tempValue.isPresent()) {
+                    valueToUse = tempValue;
+                } else {
+                    valueToUse = keyAccessorTypeExtractor.actualValue((KeyAccessorType) messageAttribute);
+                }
+
+
+                if (valueToUse.isPresent()) {
+                    if (valueToUse.get() instanceof CertificateWrapper) {
+                        Optional<X509Certificate> certificate = certificateWrapperExtractor.getCertificate((CertificateWrapper) valueToUse.get());
+                        if (certificate.isPresent()) {
+                            try {
+                                return ProtocolTools.getHexStringFromBytes(certificate.get().getEncoded(), "");
+                            } catch (CertificateEncodingException e) {
+                                throw new IllegalArgumentException(e);
+                            }
+                        }
+                    }
+                }
+                return "";  //The message executor will recognize this and set the message to failed
+            default:
+                return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string property specs
         }
-
-
-        return null;    //TODO remove this line
     }
 
     @Override
@@ -501,15 +518,15 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 return Optional.of(multicastSerializer.serialize(device, offlineDevice, deviceMessage, getBeacon3100Properties()));
             } else if (deviceMessage.getMessageId() == FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.id()) {
                 return Optional.of(multicastSerializer.serialize(device, offlineDevice, deviceMessage, getBeacon3100Properties()));
-            } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS.id()
-                    || deviceMessage.getMessageId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT.id()) {
-                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.AUTHENTICATION_KEY);
-            } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS.id()
-                    || deviceMessage.getMessageId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT.id()) {
-                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.ENCRYPTION_KEY);
-            } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS.id()
-                    || deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT.id()) {
-                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.MASTER_KEY);
+            } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY.id()
+                    || deviceMessage.getMessageId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY_FOR_CLIENT.id()) {
+                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY);
+            } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY.id()
+                    || deviceMessage.getMessageId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY_FOR_CLIENT.id()) {
+                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY);
+            } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY.id()
+                    || deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY_FOR_CLIENT.id()) {
+                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecTranslationKeys.MASTER_KEY);
             }
         } catch (DeviceConfigurationException e) {
             return Optional.of("DeviceConfigurationException " + e.getMessage());
@@ -640,17 +657,17 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = agreeNewKey(collectedMessage, 2);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_SECURITY_SUITE)) {
                         changeSecuritySuite(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)) {
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
                         changeAuthKey(collectedMessage, pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY_FOR_CLIENT)) {
                         changeAuthKey(collectedMessage, pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)) {
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY)) {
                         changeEncryptionKey(collectedMessage, pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY_FOR_CLIENT)) {
                         changeEncryptionKey(collectedMessage, pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS)) {
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY)) {
                         changeMasterKey(collectedMessage, pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY_FOR_CLIENT)) {
                         changeMasterKey(collectedMessage, pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD)) {
                         changeHlsSecret(pendingMessage);
@@ -663,11 +680,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.EXPORT_ROOT_CA_CERTIFICATE)) {
                         collectedMessage = exportRootCACertificate(collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_CA_CERTIFICATE)) {
-                        importCACertificate(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_CLIENT_END_DEVICE_CERTIFICATE)) {
-                        importClientEndDeviceCertificate(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_SERVER_END_DEVICE_CERTIFICATE)) {
-                        importServerEndDeviceCertificate(pendingMessage);
+                        importCertificate(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER)) {
                         deleteCertificateBySerialNumber(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.DELETE_CERTIFICATE_BY_TYPE)) {
@@ -690,7 +703,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         configureDLMSGateway(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL)) {
 
-                        String[] macAddressesAndProtocols = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceGroupAttributeName).getValue().split(SEPARATOR);
+                        String[] macAddressesAndProtocols = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.deviceGroupAttributeName)
+                                .getValue()
+                                .split(SEPARATOR);
 
                         for (String macAddressAndProtocol : macAddressesAndProtocols) {
                             String[] split = macAddressAndProtocol.split(SEPARATOR2);
@@ -781,7 +796,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void removeLogicalDevice(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         String mac = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.clientMacAddress).getValue();
         getLogger().info("Removing client with MAC address: " + mac);
-        final ConcentratorSetup concentratorSetup = readOldObisCodes() ? this.getCosemObjectFactory().getConcentratorSetup() : this.getCosemObjectFactory().getConcentratorSetup(CONCENTRATOR_SETUP_NEW_LOGICAL_NAME);
+        final ConcentratorSetup concentratorSetup = readOldObisCodes() ? this.getCosemObjectFactory().getConcentratorSetup() : this.getCosemObjectFactory()
+                .getConcentratorSetup(CONCENTRATOR_SETUP_NEW_LOGICAL_NAME);
         byte[] macAddress = ProtocolTools.getBytesFromHexString(mac.replace(":", ""), 2);
         concentratorSetup.removeLogicalDevice(macAddress);
         getLogger().info(" - removed ok");
@@ -813,7 +829,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     /**
      * Delete a certain certificate from the DLMS device.
      * The certificate is identified by its serial number and issuer.
-     * <p/>
+     * <p>
      * Note that this does not remove that certificate from our own persisted key store,
      * this needs to be done manually, using the API.
      */
@@ -827,7 +843,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     /**
      * Delete a certain certificate from the DLMS device.
      * The certificate is identified by its entity, type and common name (system title)
-     * <p/>
+     * <p>
      * Note that this does not remove that certificate from our own persisted key store,
      * this needs to be done manually, using the API.
      */
@@ -854,53 +870,18 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     /**
-     * Imports an X.509 v3 certificate of a public key of a CA.
+     * Imports an X.509 v3 certificate (either of a server end-device, a client end-device or a CA) into the Beacon.
      * The Beacon recognizes the entity by the Common Name (CN) of the certificate.
      * In case of sub-CA or root-CA certificates, their CN must end in "CA".
      */
-    private void importCACertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.CACertificateAliasAttributeName).getValue();
+    private void importCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperAttributeName).getValue();
         if (encodedCertificateString == null || encodedCertificateString.isEmpty()) {
-            throw new ProtocolException("The certificate with the specified alias does not exist in the EIServer persisted trust store");
+            throw new ProtocolException("The certificate with the specified alias does not exist in the database");
         }
 
         byte[] encodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
         getCosemObjectFactory().getSecuritySetup().importCertificate(encodedCertificate);
-    }
-
-    /**
-     * Imports an X.509 v3 certificate of a public key of this client (ComServer)
-     * The Beacon recognizes the entity by the Common Name (CN) of the certificate.
-     * In case of client (ComServer) certificates, this is the system title of the ComServer.
-     * <p/>
-     * The Beacon recognizes the certificate type (signing/key agreement/TLS) by the certificate extension(s)
-     */
-    private void importClientEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String encodedCertificateString = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.clientCertificateAliasAttributeName).getValue();
-        if (encodedCertificateString == null || encodedCertificateString.isEmpty()) {
-            throw new ProtocolException("The certificate with the specified alias does not exist in the EIServer persisted key store");
-        }
-
-        byte[] encodedCertificate = ProtocolTools.getBytesFromHexString(encodedCertificateString, "");
-        getCosemObjectFactory().getSecuritySetup().importCertificate(encodedCertificate);
-    }
-
-    /**
-     * Imports an X.509 v3 certificate of a public key of a server end-device.
-     * The Beacon recognizes the entity by the Common Name (CN) of the certificate.
-     * In case of server (Beacon) certificates, this is the system title of the Beacon device.
-     * <p/>
-     * The Beacon recognizes the certificate type (signing/key agreement/TLS) by the certificate extension(s)
-     */
-    private void importServerEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String base64EncodedCertificate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperAttributeName).getValue();
-        if (base64EncodedCertificate == null || base64EncodedCertificate.isEmpty()) {
-            throw new ProtocolException("The CertificateWrapper with the given ID does not exist in the EIServer database");
-        }
-
-        byte[] derEncodedCertificate = Base64.decodeBase64(base64EncodedCertificate);
-
-        getCosemObjectFactory().getSecuritySetup().importCertificate(derEncodedCertificate);
     }
 
     /**
@@ -1009,12 +990,13 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     /**
      * Export a server end-device certificate of type signing/key agreement/TLS from the Beacon.
      * It will be stored as a CertificateWrapper in EIServer, and the relevant property on the device will be filled in
-     * <p/>
+     * <p>
      * Note that the different security suites each have their own certificate, based on a certain elliptical curve.
      * The Beacon returns the proper certificate for the security suite it is currently operating in.
      */
     private CollectedMessage exportEndDeviceCertificate(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        SecurityMessage.CertificateType certificateType = SecurityMessage.CertificateType.fromName(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateTypeAttributeName).getValue());
+        SecurityMessage.CertificateType certificateType = SecurityMessage.CertificateType.fromName(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateTypeAttributeName)
+                .getValue());
 
         if (getProtocol().getDlmsSessionProperties().getSecuritySuite() == 0
                 && (certificateType.equals(SecurityMessage.CertificateType.DigitalSignature)
@@ -1033,9 +1015,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         //Server certificate for signing/key agreement is modelled as a security property
         if (SecurityMessage.CertificateType.DigitalSignature.equals(certificateType) || SecurityMessage.CertificateType.KeyAgreement.equals(certificateType)) {
             if (SecurityMessage.CertificateType.DigitalSignature.equals(certificateType)) {
-                propertyName = SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString();
+                propertyName = SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString();
             } else {
-                propertyName = SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString();
+                propertyName = SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString();
             }
 
             //Note that updating the alias security property will also add the given certificate under that alias, to the DLMS key store.
@@ -1060,7 +1042,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     collectedCertificateWrapper);*/
         }
 
-        String msg = "Property '" + propertyName + "' on the Beacon device is updated with the ID referring to the new CertificateWrapper. This represents the server end-device certificate, with serial number '" + x509Certificate.getSerialNumber().toString() + "' and issuerDN '" + x509Certificate.getIssuerDN().getName() + "').";
+        String msg = "Property '" + propertyName + "' on the Beacon device is updated with the ID referring to the new CertificateWrapper. This represents the server end-device certificate, with serial number '" + x509Certificate
+                .getSerialNumber()
+                .toString() + "' and issuerDN '" + x509Certificate.getIssuerDN().getName() + "').";
         getLogger().info(msg);
         collectedMessage.setDeviceProtocolInformation(msg);
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
@@ -1125,7 +1109,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         AbstractDataType dataType = resultArray.getDataType(0);
         Structure structure = dataType.getStructure();
         if (structure == null) {
-            throw new ProtocolException("Expected the response of the key agreement to be an array of structures. However, the first element of the array was of type '" + dataType.getClass().getSimpleName() + "'.");
+            throw new ProtocolException("Expected the response of the key agreement to be an array of structures. However, the first element of the array was of type '" + dataType.getClass()
+                    .getSimpleName() + "'.");
         }
         if (structure.nrOfDataTypes() != 2) {
             throw new ProtocolException("Expected the response of the key agreement to be structures with 2 elements each. However, the received structure contains " + structure.nrOfDataTypes() + " elements.");
@@ -1147,7 +1132,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         ecdsaSignature = new ECDSASignatureImpl(eccCurve);
         X509Certificate serverSignatureCertificate = ((GeneralCipheringSecurityProvider) securityProvider).getServerSignatureCertificate();
         if (serverSignatureCertificate == null) {
-            throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString());
+            throw DeviceConfigurationException.missingProperty(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
         }
         boolean verify = ecdsaSignature.verify(serverSignData, serverSignature, serverSignatureCertificate.getPublicKey());
         if (!verify) {
@@ -1167,7 +1152,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         String securityPropertyName = "";
         if (keyId == 0) {
-            securityPropertyName = SecurityPropertySpecName.ENCRYPTION_KEY.toString();
+            securityPropertyName = SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString();
             getProtocol().getDlmsSessionProperties().getSecurityProvider().changeEncryptionKey(agreedKey);
             byte[] oldEncryptionKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey();
             if (!Arrays.equals(oldEncryptionKey, agreedKey)) { //reset FC values after the EK key change
@@ -1175,7 +1160,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
             }
         } else if (keyId == 2) {
-            securityPropertyName = SecurityPropertySpecName.AUTHENTICATION_KEY.toString();
+            securityPropertyName = SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString();
             getProtocol().getDlmsSessionProperties().getSecurityProvider().changeAuthenticationKey(agreedKey);
         }
 
@@ -1369,7 +1354,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     /**
      * Read out the progress of the multicast FW upgrade.
      * This contains information on all AM540 slave devices that are currently being upgraded.
-     * <p/>
+     * <p>
      * Note that this information will be stored on the proper AM540 slave devices in EIServer, as register 0.3.44.0.128.255
      */
     private CollectedMessage readMulticastProgress(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -1433,7 +1418,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             meterProgressDescription.append("Info: ");
             meterProgressDescription.append(dataType4.getOctetString().stringValue());
 
-            CollectedRegister deviceRegister = this.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(MULTICAST_METER_PROGRESS, new DialHomeIdDeviceIdentifier(macAddress)));
+            CollectedRegister deviceRegister = this.getCollectedDataFactory()
+                    .createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(MULTICAST_METER_PROGRESS, new DialHomeIdDeviceIdentifier(macAddress)));
             deviceRegister.setCollectedData(new Quantity(dataType2.intValue(), Unit.get(BaseUnit.UNITLESS)), meterProgressDescription.toString());
             deviceRegister.setCollectedTimeStamps(new Date(), null, new Date());
             collectedRegisters.add(deviceRegister);
@@ -1448,7 +1434,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     /**
      * Trigger the preliminary protocol for a particular meter.
      *
-     * @param macAddress   MAC address of the meter (hex).
+     * @param macAddress MAC address of the meter (hex).
      * @param protocolName The name of the protocol to run.
      * @throws IOException If an IO error occurs during the execution.
      */
@@ -1459,7 +1445,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         final byte[] mac = ParseUtils.hexStringToByteArray(macAddress);
 
-        final ConcentratorSetup concentratorSetup = readOldObisCodes() ? this.getCosemObjectFactory().getConcentratorSetup() : this.getCosemObjectFactory().getConcentratorSetup(CONCENTRATOR_SETUP_NEW_LOGICAL_NAME);
+        final ConcentratorSetup concentratorSetup = readOldObisCodes() ? this.getCosemObjectFactory().getConcentratorSetup() : this.getCosemObjectFactory()
+                .getConcentratorSetup(CONCENTRATOR_SETUP_NEW_LOGICAL_NAME);
         concentratorSetup.triggerPreliminaryProtocol(mac, protocolName);
 
         if (getLogger().isLoggable(Level.INFO)) {
@@ -1469,7 +1456,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private PLCConfigurationDeviceMessageExecutor getPLCConfigurationDeviceMessageExecutor() {
         if (plcConfigurationDeviceMessageExecutor == null) {
-            plcConfigurationDeviceMessageExecutor = new Beacon3100PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice(), readOldObisCodes(), this.getCollectedDataFactory(), this.getIssueFactory());
+            plcConfigurationDeviceMessageExecutor = new Beacon3100PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice(), readOldObisCodes(), this.getCollectedDataFactory(), this
+                    .getIssueFactory());
         }
         return plcConfigurationDeviceMessageExecutor;
     }
@@ -1662,7 +1650,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
         String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getValue();
-        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getValue(); // Will return empty string if the MessageAttribute could not be found
+        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName)
+                .getValue(); // Will return empty string if the MessageAttribute could not be found
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
 
@@ -1754,11 +1743,21 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         if (allInterfacesEnabled) {
             enabledInterfaces.add(NetworkInterfaceType.ALL);
         } else {
-            if (isEthernetLanEnabled) enabledInterfaces.add(NetworkInterfaceType.ETHERNET_LAN);
-            if (isEthernetWanEnabled) enabledInterfaces.add(NetworkInterfaceType.ETHERNET_WAN);
-            if (isWirelessWanEnabled) enabledInterfaces.add(NetworkInterfaceType.WIRELESS_WAN);
-            if (isPlc_NetworkEnabled) enabledInterfaces.add(NetworkInterfaceType.PLC_NETWORK);
-            if (isIp6_TunnelEnabled) enabledInterfaces.add(NetworkInterfaceType.IP6_TUNNEL);
+            if (isEthernetLanEnabled) {
+                enabledInterfaces.add(NetworkInterfaceType.ETHERNET_LAN);
+            }
+            if (isEthernetWanEnabled) {
+                enabledInterfaces.add(NetworkInterfaceType.ETHERNET_WAN);
+            }
+            if (isWirelessWanEnabled) {
+                enabledInterfaces.add(NetworkInterfaceType.WIRELESS_WAN);
+            }
+            if (isPlc_NetworkEnabled) {
+                enabledInterfaces.add(NetworkInterfaceType.PLC_NETWORK);
+            }
+            if (isIp6_TunnelEnabled) {
+                enabledInterfaces.add(NetworkInterfaceType.IP6_TUNNEL);
+            }
         }
 
         return enabledInterfaces;
@@ -1788,11 +1787,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     protected CollectedMessage changeEncryptionKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        String newKey = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName);
-        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), DeviceMessageConstants.newWrappedEncryptionKeyAttributeName);
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName), "");
+        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), newSymmetricKey, masterKey);
 
         //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newKey, ""));
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
 
         int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
         int clientToChangeKeyFor = getClientId(pendingMessage);
@@ -1843,32 +1843,33 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     protected CollectedMessage changeAuthKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        String newKey = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.newAuthenticationKeyAttributeName);
-        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName);
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
+        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), newSymmetricKey, masterKey);
 
         //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(newKey, ""));
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
         return collectedMessage;
     }
 
     protected CollectedMessage changeMasterKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        String newKey = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.newMasterKeyAttributeName);
-        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.MASTER_KEY.getId(), DeviceMessageConstants.newWrappedMasterKeyAttributeName);
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newMasterKeyAttributeName), "");
+        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.MASTER_KEY.getId(), newSymmetricKey, masterKey);
 
         //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeMasterKey(ProtocolTools.getBytesFromHexString(newKey, ""));
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeMasterKey(newSymmetricKey);
         return collectedMessage;
     }
 
-    private void changeKeyAndUseNewKey(OfflineDeviceMessage pendingMessage, int keyId, String wrappedKeyAttributeName) throws IOException {
-        String newWrappedKey = getDeviceMessageAttributeValue(pendingMessage, wrappedKeyAttributeName);
-        byte[] keyBytes = ProtocolTools.getBytesFromHexString(newWrappedKey, "");
+    private void changeKeyAndUseNewKey(OfflineDeviceMessage pendingMessage, int keyId, byte[] newSymmetricKey, byte[] masterKey) throws IOException {
+        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
         int clientId = getClientId(pendingMessage);
 
         Array keyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(keyId));
-        keyData.addDataType(OctetString.fromByteArray(keyBytes));
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
         keyArray.addDataType(keyData);
 
         getSecuritySetup(clientId).transferGlobalKey(keyArray);
@@ -2177,7 +2178,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         String relayOptionName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.RelayMeterNotifications).getValue();
         int relayMeterNotification = DLMSGatewayNotificationRelayType.fromOptionName(relayOptionName);
         boolean decypherMeterNotifications = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.DecipherMeterNotifications).getValue());
-        boolean dropUnencryptedNotifications = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.DropUnencryptedMeterNotifications).getValue());
+        boolean dropUnencryptedNotifications = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.DropUnencryptedMeterNotifications)
+                .getValue());
 
         getCosemObjectFactory().getDLMSGatewaySetup().setNotificationDecipher(decypherMeterNotifications);
         getCosemObjectFactory().getDLMSGatewaySetup().setNotificationRelaying(relayMeterNotification);
@@ -2229,7 +2231,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         } catch (NotInObjectListException e) {
             throw new ProtocolException(e, "Inactive firmware IC object (class_id = 20027, version = 0, logical_name = 0.128.96.132.0.255) not found in object list." + e.getMessage());
         } catch (IOException e) {
-            throw new ProtocolException(e, "Calling method copy_active_firmware_to_inactive_firmware from Inactive firmware IC object (class_id = 20027, version = 0, logical_name = 0.128.96.132.0.255) failed." + e.getMessage());
+            throw new ProtocolException(e, "Calling method copy_active_firmware_to_inactive_firmware from Inactive firmware IC object (class_id = 20027, version = 0, logical_name = 0.128.96.132.0.255) failed." + e
+                    .getMessage());
         }
 
         return null;
@@ -2272,7 +2275,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private CollectedMessage configurePushSetupNotificationCiphering(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        int notificationCiphering = AlarmConfigurationMessage.NotificationCipheringType.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.notificationCiphering).getValue()).getId();
+        int notificationCiphering = AlarmConfigurationMessage.NotificationCipheringType.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.notificationCiphering)
+                .getValue()).getId();
         ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
         EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
         eventPushNotificationConfig.writeNotificationCiphering(notificationCiphering);

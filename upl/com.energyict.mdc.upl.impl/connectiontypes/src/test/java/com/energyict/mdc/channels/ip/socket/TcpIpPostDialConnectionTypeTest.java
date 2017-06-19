@@ -47,7 +47,7 @@ public class TcpIpPostDialConnectionTypeTest {
     @Test(expected = InvalidPropertyException.class)
     public void invalidPostDialTriesTest() throws Exception {
         TcpIpPostDialConnectionType connectionType = new TcpIpPostDialConnectionType(propertySpecService);
-        TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties properties = com.energyict.mdc.upl.TypedProperties.empty();
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_COMMAND, POST_DIAL_COMMAND);
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_TRIES, new BigDecimal(-5));
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_DELAY, POST_DIAL_DELAY);
@@ -60,7 +60,7 @@ public class TcpIpPostDialConnectionTypeTest {
     @Test(expected = InvalidPropertyException.class)
     public void invalidPostDialDelayTest() throws Exception {
         TcpIpPostDialConnectionType connectionType = new TcpIpPostDialConnectionType(propertySpecService);
-        TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties properties = com.energyict.mdc.upl.TypedProperties.empty();
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_COMMAND, POST_DIAL_COMMAND);
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_TRIES, POST_DIAL_TRIES);
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_DELAY, new BigDecimal(-100));
@@ -73,7 +73,7 @@ public class TcpIpPostDialConnectionTypeTest {
     @Test
     public void sendPostDialCommandTest() throws Exception {
         TcpIpPostDialConnectionType connectionType = new TcpIpPostDialConnectionType(propertySpecService);
-        TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties properties = com.energyict.mdc.upl.TypedProperties.empty();
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_COMMAND, POST_DIAL_COMMAND);
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_TRIES, POST_DIAL_TRIES);
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_DELAY, POST_DIAL_DELAY);
@@ -98,7 +98,7 @@ public class TcpIpPostDialConnectionTypeTest {
     @Test
     public void sendPostDialCommandWhenNoPostDialCommandSpecifiedTest() throws Exception {
         TcpIpPostDialConnectionType connectionType = new TcpIpPostDialConnectionType(propertySpecService);
-        TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties properties = com.energyict.mdc.upl.TypedProperties.empty();
         connectionType.setUPLProperties(properties);
 
         // Business method

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -8,8 +9,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
-import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -97,9 +96,9 @@ public class AnsiC12SecuritySupport extends AbstractSecuritySupport implements L
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
 
         if (authenticationDeviceAccessLevelProperty == null) {
-            securityRelatedTypedProperties.setProperty(SecurityPropertySpecName.BINARY_PASSWORD.toString(), 0);
-            securityRelatedTypedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER.toString(), "");
-            securityRelatedTypedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER_ID.toString(), 0);
+            securityRelatedTypedProperties.setProperty(SecurityPropertySpecTranslationKeys.BINARY_PASSWORD.toString(), 0);
+            securityRelatedTypedProperties.setProperty(SecurityPropertySpecTranslationKeys.ANSI_C12_USER.toString(), "");
+            securityRelatedTypedProperties.setProperty(SecurityPropertySpecTranslationKeys.ANSI_C12_USER_ID.toString(), 0);
         } else {
             securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationDeviceAccessLevel, getAuthenticationAccessLevels()));
         }
@@ -112,7 +111,7 @@ public class AnsiC12SecuritySupport extends AbstractSecuritySupport implements L
             }
 
             @Override
-            public String getClient() {
+            public Object getClient() {
                 return null;
             }
 

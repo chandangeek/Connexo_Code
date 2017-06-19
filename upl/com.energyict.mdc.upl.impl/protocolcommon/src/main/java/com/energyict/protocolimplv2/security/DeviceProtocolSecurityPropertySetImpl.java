@@ -16,7 +16,7 @@ import java.util.List;
 public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProtocolSecurityPropertySet {
 
     private String name;
-    private String client;
+    private Object client;
     private int authenticationDeviceAccessLevel;
     private int encryptionDeviceAccessLevel;
     private int securitySuite;
@@ -25,7 +25,7 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
     private TypedProperties securityProperties;
 
     public DeviceProtocolSecurityPropertySetImpl(DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet, List<? extends DeviceMasterDataExtractor.SecurityProperty> securityProperties) {
-        this.securityProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        this.securityProperties = com.energyict.mdc.upl.TypedProperties.empty();
         for (DeviceMasterDataExtractor.SecurityProperty securityProperty : securityProperties) {
             this.securityProperties.setProperty(securityProperty.name(), securityProperty.value());
         }
@@ -41,7 +41,7 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
         }
     }
 
-    public DeviceProtocolSecurityPropertySetImpl(String client, int authenticationDeviceAccessLevel, int encryptionDeviceAccessLevel, int securitySuite, int requestSecurityLevel, int responseSecurityLevel, TypedProperties securityProperties) {
+    public DeviceProtocolSecurityPropertySetImpl(Object client, int authenticationDeviceAccessLevel, int encryptionDeviceAccessLevel, int securitySuite, int requestSecurityLevel, int responseSecurityLevel, TypedProperties securityProperties) {
         this.name = "unknown";
         this.client = client;
         this.authenticationDeviceAccessLevel = authenticationDeviceAccessLevel;
@@ -58,7 +58,7 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
     }
 
     @Override
-    public String getClient() {
+    public Object getClient() {
         return client;
     }
 

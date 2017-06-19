@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
-import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -27,8 +27,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.conta
  */
 public class CryptoDsmr23MBusMessageConverterWithBreaker extends CryptoDsmr23MBusMessageConverter {
 
-    public CryptoDsmr23MBusMessageConverterWithBreaker(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
-        super(propertySpecService, nlsService, converter, loadProfileExtractor);
+    public CryptoDsmr23MBusMessageConverterWithBreaker(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        super(propertySpecService, nlsService, converter, loadProfileExtractor, keyAccessorTypeExtractor);
     }
 
     @Override

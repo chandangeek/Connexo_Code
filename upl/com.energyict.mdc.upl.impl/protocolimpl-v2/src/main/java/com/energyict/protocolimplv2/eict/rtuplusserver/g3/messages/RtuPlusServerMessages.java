@@ -9,8 +9,10 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
@@ -24,6 +26,7 @@ import com.energyict.mdc.upl.properties.DeviceGroup;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.dlms.aso.SecurityContext;
@@ -88,6 +91,8 @@ import java.util.stream.Collectors;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 
 /**
  * Copyrights EnergyICT
@@ -110,8 +115,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     private final DeviceGroupExtractor deviceGroupExtractor;
     private final DeviceExtractor deviceExtractor;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public RtuPlusServerMessages(DlmsSession session, OfflineDevice offlineDevice, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor) {
+    public RtuPlusServerMessages(DlmsSession session, OfflineDevice offlineDevice, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         this.session = session;
         this.offlineDevice = offlineDevice;
         this.collectedDataFactory = collectedDataFactory;
@@ -122,6 +128,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         this.messageFileExtractor = messageFileExtractor;
         this.deviceGroupExtractor = deviceGroupExtractor;
         this.deviceExtractor = deviceExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     public List<DeviceMessageSpec> getSupportedMessages() {
@@ -160,8 +167,8 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
                 SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.ACTIVATE_DLMS_ENCRYPTION.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.CHANGE_HLS_SECRET_PASSWORD.get(this.propertySpecService, this.nlsService, this.converter),
 
                 GeneralDeviceMessage.WRITE_FULL_CONFIGURATION.get(this.propertySpecService, this.nlsService, this.converter),
@@ -268,9 +275,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                         changeDlmAuthLevel(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION)) {
                         activateDlmsEncryption(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)) {
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
                         changeAuthKey(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)) {
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY)) {
                         changeEncryptionKey(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD)) {
                         changeHlsSecret(pendingMessage);
@@ -443,22 +450,23 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected void changeEncryptionKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName).getValue();
-        String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName).getValue();
-        String oldHexKey = ProtocolTools.getHexStringFromBytes(session.getProperties().getSecurityProvider().getGlobalKey(), "");
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName), "");
+        byte[] masterKey = session.getProperties().getSecurityProvider().getMasterKey();
+        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
+        byte[] oldSymmetricKey = session.getProperties().getSecurityProvider().getGlobalKey();
 
         Array encryptionKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(0));    // 0 means keyType: encryptionKey (global key)
-        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey, "")));
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
         encryptionKeyArray.addDataType(keyData);
         getSecuritySetup().transferGlobalKey(encryptionKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        session.getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(plainHexKey));
+        session.getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
 
         //Reset frame counter, only if a different key has been written
-        if (!oldHexKey.equalsIgnoreCase(plainHexKey)) {
+        if (!Arrays.equals(oldSymmetricKey, newSymmetricKey)) {
             session.getAso().getSecurityContext().setFrameCounter(1);
             SecurityContext securityContext = session.getAso().getSecurityContext();
             securityContext.setFrameCounter(1);
@@ -471,18 +479,19 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected void changeAuthKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName).getValue();
-        String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newAuthenticationKeyAttributeName).getValue();
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
+        byte[] masterKey = session.getProperties().getSecurityProvider().getMasterKey();
+        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
 
         Array authenticationKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey, "")));
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
         authenticationKeyArray.addDataType(keyData);
         getSecuritySetup().transferGlobalKey(authenticationKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        session.getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(plainHexKey));
+        session.getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
     }
 
     private void activateDlmsEncryption(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -659,6 +668,25 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                 pendingMessage.getSpecification().getName());
     }
 
+    /**
+     * Searches for the {@link OfflineDeviceMessageAttribute}
+     * in the given {@link OfflineDeviceMessage} which corresponds
+     * with the provided name. If no match is found, then an IOException is thrown
+     * attribute is returned
+     *
+     * @param offlineDeviceMessage the offlineDeviceMessage to search in
+     * @param attributeName        the name of the OfflineDeviceMessageAttribute to return
+     * @return the requested OfflineDeviceMessageAttribute
+     */
+    protected String getDeviceMessageAttributeValue(OfflineDeviceMessage offlineDeviceMessage, String attributeName) throws ProtocolException {
+        for (OfflineDeviceMessageAttribute offlineDeviceMessageAttribute : offlineDeviceMessage.getDeviceMessageAttributes()) {
+            if (offlineDeviceMessageAttribute.getName().equals(attributeName)) {
+                return offlineDeviceMessageAttribute.getValue();
+            }
+        }
+        throw new ProtocolException("DeviceMessage didn't contain a value found for MessageAttribute " + attributeName);
+    }
+
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
         return this.collectedDataFactory.createEmptyCollectedMessageList();  //Nothing to do here
@@ -685,8 +713,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                     .collect(Collectors.joining(";"));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)
+                || propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName)) {
-            return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+            return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string propertyspecs
         }

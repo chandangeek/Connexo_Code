@@ -260,12 +260,10 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.PACT_ADDRESS),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.PACT_PASSWORD),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.PACT_SERIALNUMBER),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.PACT_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.PACT_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.PACT_ROUNDTRIPCORRECTION),
-                this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.PACT_SECURITYLEVEL),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.PACT_NODEID),
                 this.integerSpec("EchoCancelling", PropertyTranslationKeys.PACT_ECHOCANCELLING),
                 this.stringSpec("ChannelMap", PropertyTranslationKeys.PACT_CHANNEL_MAP),

@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr50;
 
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
@@ -10,8 +9,12 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
+import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
@@ -25,6 +28,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.BULK_REQUEST;
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MASTER_KEY;
 import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.NTA_SIMULATION_TOOL;
 import static com.energyict.dlms.common.DlmsProtocolProperties.REQUEST_TIMEZONE;
@@ -53,7 +57,7 @@ public class Dsmr50ConfigurationSupport implements HasDynamicProperties {
     public static final String REQUEST_FRAMECOUNTER = "RequestFrameCounter";
 
     private final PropertySpecService propertySpecService;
-    private com.energyict.protocolimpl.properties.TypedProperties properties;
+    private com.energyict.mdc.upl.TypedProperties properties;
 
     public Dsmr50ConfigurationSupport(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -84,7 +88,8 @@ public class Dsmr50ConfigurationSupport implements HasDynamicProperties {
                 this.useEquipmentIdentifierAsSerialNumberPropertySpec(),
                 this.ignoreDstStatusCode(),
                 this.pollingDelayPropertySpec(),
-                this.requestFrameCounter()
+                this.requestFrameCounter(),
+                this.masterKeyPropertySpec()
         );
     }
 
@@ -92,9 +97,13 @@ public class Dsmr50ConfigurationSupport implements HasDynamicProperties {
         return this.spec(REQUEST_FRAMECOUNTER, PropertyTranslationKeys.V2_REQUEST_FRAMECOUNTER, this.propertySpecService::booleanSpec);
     }
 
+    protected PropertySpec masterKeyPropertySpec() {
+        return this.keyAccessorTypeReferencePropertySpec(MASTER_KEY, PropertyTranslationKeys.V2_NTA_MASTERKEY);
+    }
+
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
-        this.properties = com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties);
+        this.properties = com.energyict.mdc.upl.TypedProperties.copyOf(properties);
     }
 
     private PropertySpec pollingDelayPropertySpec() {
@@ -212,6 +221,14 @@ public class Dsmr50ConfigurationSupport implements HasDynamicProperties {
         return this
                 .specBuilder(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, PropertyTranslationKeys.V2_NTA_USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, this.propertySpecService::booleanSpec)
                 .setDefaultValue(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE)
+                .finish();
+    }
+
+    private PropertySpec keyAccessorTypeReferencePropertySpec(String name, TranslationKey translationKey) {
+        return this.propertySpecService
+                .referenceSpec(KeyAccessorType.class.getName())
+                .named(name, translationKey)
+                .describedAs(new DescriptionTranslationKey(translationKey))
                 .finish();
     }
 

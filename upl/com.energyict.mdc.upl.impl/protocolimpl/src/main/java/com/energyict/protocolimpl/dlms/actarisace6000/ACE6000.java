@@ -90,6 +90,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -1402,13 +1403,10 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpecOfMaxLength(ADDRESS.getName(), PropertyTranslationKeys.DLMS_ADDRESS, 16),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.DLMS_PASSWORD),
                 this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.DLMS_TIMEOUT),
                 this.integerSpec(PK_RETRIES, PropertyTranslationKeys.DLMS_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
-                this.integerSpec(PK_SECURITYLEVEL, PropertyTranslationKeys.DLMS_SECURITYLEVEL),
                 this.integerSpec("RequestTimeZone", PropertyTranslationKeys.DLMS_REQUEST_TIME_ZONE),
-                this.integerSpec("ClientMacAddress", PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
                 this.integerSpec("ServerUpperMacAddress", PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
                 this.integerSpec("ServerLowerMacAddress", PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
                 this.stringSpec("FirmwareVersion", PropertyTranslationKeys.DLMS_FIRMWARE_VERSION),
@@ -1447,7 +1445,7 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
             iRequestTimeZone = properties.getTypedProperty("RequestTimeZone", 0);
             iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
 
-            iClientMacAddress = properties.getTypedProperty("ClientMacAddress", 1);
+            iClientMacAddress = properties.getTypedProperty("ClientMacAddress", BigDecimal.ONE).intValue();
             iServerUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 17);
             iServerLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 17);
             firmwareVersion = properties.getTypedProperty("FirmwareVersion", "ANY");

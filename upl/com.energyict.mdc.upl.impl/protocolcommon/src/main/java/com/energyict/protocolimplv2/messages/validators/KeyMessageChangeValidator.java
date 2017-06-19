@@ -1,17 +1,18 @@
 package com.energyict.protocolimplv2.messages.validators;
 
 import com.energyict.mdc.upl.messages.DeviceMessage;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 /**
  * Created by cisac on 11/25/2016.
  */
 public class KeyMessageChangeValidator {
-    public void validateNewKeyValue(long id, DeviceMessage deviceMessage, SecurityPropertySpecName authenticationKey) {
+    public void validateNewKeyValue(long id, DeviceMessage deviceMessage, SecurityPropertySpecTranslationKeys authenticationKey) {
         //TODO make compatible with UPL
     }
 
-    public void validateNewKeyValueForFreeTextClient(long id, DeviceMessage deviceMessage, SecurityPropertySpecName authenticationKey) {
+    public void validateNewKeyValueForFreeTextClient(long id, DeviceMessage deviceMessage, SecurityPropertySpecTranslationKeys authenticationKey) {
 
     }
 /*

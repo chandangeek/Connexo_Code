@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -8,8 +9,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
-import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public class DlmsSecuritySupport extends AbstractSecuritySupport implements Lega
     private static final String HEX_PASSWORD_LEGACY_PROPERTY_NAME = "HexPassword";
     private static final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
     private static final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
-    private static final String DEFAULT_CLIENT = "1";
+    private static final BigDecimal DEFAULT_CLIENT = BigDecimal.ONE;
 
     public DlmsSecuritySupport(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -103,15 +102,15 @@ public class DlmsSecuritySupport extends AbstractSecuritySupport implements Lega
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-            typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), deviceProtocolSecurityPropertySet.getClient()); // Add the ClientMacAddress
+            typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), deviceProtocolSecurityPropertySet.getClient()); // Add the ClientMacAddress
             typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME,
                     deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel() +
                             ":" +
                             deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel());
             typedProperties.setProperty(getDataTransportEncryptionKeyLegacyPropertyName(),
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), ""));
             typedProperties.setProperty(getDataTransportAuthenticationKeyLegacyPropertyname(),
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), ""));
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), ""));
         }
         return typedProperties;
     }
@@ -139,25 +138,25 @@ public class DlmsSecuritySupport extends AbstractSecuritySupport implements Lega
         }
         final int authenticationLevel = getAuthenticationLevel(securityLevelProperty);
         final int encryptionLevel = getEncryptionLevel(securityLevelProperty);
-        final String client = loadCorrectClientMacAddressPropertyValue(oldTypedProperties);
+        final BigDecimal client = loadCorrectClientMacAddressPropertyValue(oldTypedProperties);
 
         final TypedProperties result = TypedProperties.empty();
         result.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(oldTypedProperties, authenticationLevel, getAuthenticationAccessLevels()));
         result.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(oldTypedProperties, encryptionLevel, getEncryptionAccessLevels()));
 
         //Add properties that have a new key name or format (compared to EIServer 8.x)
-        boolean passwordRequired = isRequiredOnThisLevel(SecurityPropertySpecName.PASSWORD.toString(), authenticationLevel, encryptionLevel);
+        boolean passwordRequired = isRequiredOnThisLevel(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), authenticationLevel, encryptionLevel);
         if (oldTypedProperties.hasValueFor(HLS_SECRET_LEGACY_PROPERTY_NAME) && passwordRequired) {
-            result.setProperty(SecurityPropertySpecName.PASSWORD.toString(), oldTypedProperties.getStringProperty(HLS_SECRET_LEGACY_PROPERTY_NAME));
+            result.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), oldTypedProperties.getStringProperty(HLS_SECRET_LEGACY_PROPERTY_NAME));
         }
         if (oldTypedProperties.hasValueFor(HEX_PASSWORD_LEGACY_PROPERTY_NAME) && passwordRequired) {
-            result.setProperty(SecurityPropertySpecName.PASSWORD.toString(), oldTypedProperties.getStringProperty(HEX_PASSWORD_LEGACY_PROPERTY_NAME));
+            result.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), oldTypedProperties.getStringProperty(HEX_PASSWORD_LEGACY_PROPERTY_NAME));
         }
-        if (oldTypedProperties.hasValueFor(getDataTransportEncryptionKeyLegacyPropertyName()) && isRequiredOnThisLevel(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), authenticationLevel, encryptionLevel)) {
-            result.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), oldTypedProperties.getStringProperty(getDataTransportEncryptionKeyLegacyPropertyName()));
+        if (oldTypedProperties.hasValueFor(getDataTransportEncryptionKeyLegacyPropertyName()) && isRequiredOnThisLevel(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), authenticationLevel, encryptionLevel)) {
+            result.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), oldTypedProperties.getStringProperty(getDataTransportEncryptionKeyLegacyPropertyName()));
         }
-        if (oldTypedProperties.hasValueFor(getDataTransportAuthenticationKeyLegacyPropertyname()) && isRequiredOnThisLevel(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), authenticationLevel, encryptionLevel)) {
-            result.setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), oldTypedProperties.getStringProperty(getDataTransportAuthenticationKeyLegacyPropertyname()));
+        if (oldTypedProperties.hasValueFor(getDataTransportAuthenticationKeyLegacyPropertyname()) && isRequiredOnThisLevel(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), authenticationLevel, encryptionLevel)) {
+            result.setProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), oldTypedProperties.getStringProperty(getDataTransportAuthenticationKeyLegacyPropertyname()));
         }
 
         return new DeviceProtocolSecurityPropertySet() {
@@ -167,7 +166,7 @@ public class DlmsSecuritySupport extends AbstractSecuritySupport implements Lega
             }
 
             @Override
-            public String getClient() {
+            public Object getClient() {
                 return client;
             }
 
@@ -216,23 +215,24 @@ public class DlmsSecuritySupport extends AbstractSecuritySupport implements Lega
         return false;
     }
 
-    private String loadCorrectClientMacAddressPropertyValue(TypedProperties typedProperties) {
-        final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString());
+    private BigDecimal loadCorrectClientMacAddressPropertyValue(TypedProperties typedProperties) {
+        final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString());
         if (clientMacAddress != null) {
             if (String.class.isAssignableFrom(clientMacAddress.getClass())) {
-                typedProperties.removeProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString());
+                typedProperties.removeProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString());
                 try {
-                    typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), new BigDecimal((String) clientMacAddress));
-                    return (String) clientMacAddress;
+                    BigDecimal clientMacAsBigDecimal = new BigDecimal((String) clientMacAddress);
+                    typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), clientMacAsBigDecimal);
+                    return clientMacAsBigDecimal;
                 } catch (NumberFormatException e) {
-                    typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), new BigDecimal(DEFAULT_CLIENT));
+                    typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), DEFAULT_CLIENT);
                     return DEFAULT_CLIENT;
                 }
             } else if (BigDecimal.class.isAssignableFrom(clientMacAddress.getClass())) {
-                return String.valueOf(((BigDecimal) clientMacAddress).intValue());
+                return ((BigDecimal) clientMacAddress);
             }
         }
-        typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), new BigDecimal(DEFAULT_CLIENT));
+        typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), DEFAULT_CLIENT);
         return DEFAULT_CLIENT;
     }
 

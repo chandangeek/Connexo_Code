@@ -3,13 +3,14 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+
 import com.energyict.protocol.exception.DeviceConfigurationException;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,17 +77,17 @@ public class MulticastSerializer {
             String macAddress = this.serializer.parseCallHomeId(slaveDevice);
 
             //Find the keys in a security set that has clientMacAddress 1 (management client)
-          byte[] ak = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), 1);
-            byte[] ek = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.ENCRYPTION_KEY.toString(), 1);
-            byte[] password = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.PASSWORD.toString(), 1);
+          byte[] ak = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), 1);
+            byte[] ek = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), 1);
+            byte[] password = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecTranslationKeys.PASSWORD.toString(), 1);
             final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(serializer.wrap(ak, dlmsMeterKEK), "");
             final String wrappedEK = ek == null ? "" : ProtocolTools.getHexStringFromBytes(serializer.wrap(ek, dlmsMeterKEK), "");
             final String wrappedPassword = password == null ? "" : ProtocolTools.getHexStringFromBytes(serializer.wrap(password, dlmsMeterKEK), "");
 
             //Find the keys in a security set that has clientMacAddress 102 (broadcast client)
-                byte[] broadCastAK = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), 102);
-            byte[] broadCastEK = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.ENCRYPTION_KEY.toString(), 102);
-            byte[] broadCastPassword = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecName.PASSWORD.toString(), 102);
+                byte[] broadCastAK = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), 102);
+            byte[] broadCastEK = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), 102);
+            byte[] broadCastPassword = this.serializer.getSecurityKey(slaveDevice, SecurityPropertySpecTranslationKeys.PASSWORD.toString(), 102);
             final String wrappedMulticastAK = broadCastAK == null ? "" : ProtocolTools.getHexStringFromBytes(serializer.wrap(broadCastAK, dlmsMeterKEK), "");
             final String wrappedMulticastEK = broadCastEK == null ? "" : ProtocolTools.getHexStringFromBytes(serializer.wrap(broadCastEK, dlmsMeterKEK), "");
             final String wrappedMulticastPassword = broadCastPassword == null ? "" : ProtocolTools.getHexStringFromBytes(serializer.wrap(broadCastPassword, dlmsMeterKEK), "");

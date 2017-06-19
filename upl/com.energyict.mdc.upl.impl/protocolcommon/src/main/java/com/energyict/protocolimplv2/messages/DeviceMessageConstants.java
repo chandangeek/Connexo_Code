@@ -4,7 +4,7 @@ package com.energyict.protocolimplv2.messages;
  * Lists all translation keys that are used for the message attribute names.
  * Every key should be unique.
  * Also, do not name them CategoryName.MessageSpecName, this is already used as translation key for the message name.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 19/03/13
  * Time: 8:45
@@ -32,10 +32,6 @@ public final class DeviceMessageConstants {
     public static final String broadcastInitialTimeBetweenBlocksAttributeDefaultTranslation = "Initial time between blocks";
     public static final String broadcastNumberOfBlocksInCycleAttributeName = "FirmwareDeviceMessage.broadcast.numberofblocksincycle";
     public static final String broadcastNumberOfBlocksInCycleAttributeDefaultTranslation = "Number of block transfers per cycle";
-    public static final String broadcastEncryptionKeyAttributeName = "FirmwareDeviceMessage.broadcast.encryptionkey";
-    public static final String broadcastEncryptionKeyAttributeDefaultTranslation = "Broadcast Encryption Key";
-    public static final String broadcastAuthenticationKeyAttributeName = "FirmwareDeviceMessage.broadcast.authenticationkey";
-    public static final String broadcastAuthenticationKeyAttributeDefaultTranslation = "Authentication Key";
 
     public static final String firmwareUpdateActivationDateAttributeName = "FirmwareDeviceMessage.upgrade.activationdate";
     public static final String firmwareUpdateActivationDateAttributeDefaultTranslation = "Activation date";
@@ -147,6 +143,8 @@ public final class DeviceMessageConstants {
     public static final String activityCalendarNameAttributeDefaultTranslation = "Name";
     public static final String activityCalendarAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
     public static final String activityCalendarCodeTableAttributeDefaultTranslation = "Activity calendar";
+    public static final String fullActivityCalendarAttributeName = "ActivityCalendarDeviceMessage.full.activitycalendar.codetable";
+    public static final String fullActivityCalendarCodeTableAttributeDefaultTranslation = "Activity calendar";
     public static final String contractsXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.contractsxmluserfile";
     public static final String contractsXmlUserFileAttributeDefaultTranslation = "File";
     public static final String specialDaysAttributeName = "ActivityCalendarDeviceMessage.specialdays.codetable";
@@ -169,16 +167,10 @@ public final class DeviceMessageConstants {
     public static final String authenticationLevelAttributeDefaultTranslation = "Authentication level";
     public static final String newEncryptionKeyAttributeName = "SecurityMessage.new.encryptionkey";
     public static final String newEncryptionKeyAttributeDefaultTranslation = "New encryption key";
-    public static final String newWrappedEncryptionKeyAttributeName = "SecurityMessage.new.wrapped.encryptionkey";
-    public static final String newWrappedEncryptionKeyAttributeDefaultTranslation = "New wrapped encryption key";
     public static final String newAuthenticationKeyAttributeName = "SecurityMessage.new.authenticationkey";
     public static final String newAuthenticationKeyAttributeDefaultTranslation = "New authentication key";
-    public static final String newWrappedAuthenticationKeyAttributeName = "SecurityMessage.new.wrapped.authenticationkey";
     public static final String newMasterKeyAttributeName = "SecurityMessage.new.masterkey";
     public static final String newMasterKeyAttributeDefaultTranslation = "New master key";
-    public static final String newWrappedMasterKeyAttributeName = "SecurityMessage.new.wrapped.masterkey";
-    public static final String newWrappedMasterKeyAttributeDefaultTranslation = "New wrapped master key";
-    public static final String newWrappedAuthenticationKeyAttributeDefaultTranslation = "New wrapped authentication key";
     public static final String clientMacAddress = "ClientMacAddress";
     public static final String client = "SecurityMessage.client";
     public static final String clientDefaultTranslation = "Client";
@@ -244,16 +236,11 @@ public final class DeviceMessageConstants {
     public static final String securitySuiteAttributeName = "SecurityMessage.securitySuite";
     public static final String securitySuiteAttributeDefaultTranslation = "Security suite";
     public static final String certificateEntityAttributeName = "SecurityMessage.certificateEntity";
-    public static final String CACertificateAliasAttributeName = "SecurityMessage.CACertificateAlias";
-    public static final String clientCertificateAliasAttributeName = "SecurityMessage.clientCertificateAlias";
-    public static final String clientCertificateAliasAttributeDefaultTranslation = "Client certificate alias";
-    public static final String certificateWrapperIdAttributeName = "SecurityMessage.certificateWrapperId";
-    public static final String certificateWrapperIdAttributeDefaultTranslation = "Certificate wrapper ID";
     public static final String certificateEntityAttributeDefaultTranslation = "Certificate entity";
-    public static final String certificateAliasAttributeName = "SecurityMessage.certificateAlias";
-    public static final String certificateAliasAttributeDefaultTranslation = "Certificate alias";
+
     public static final String certificateWrapperAttributeName = "SecurityMessage.certificateWrapper";
-    public static final String certificateWrapperAttributeDefaultTranslation = "Certificate wrapper";
+    public static final String certificateWrapperAttributeDefaultTranslation = "Certificate";
+
     public static final String certificateTypeAttributeName = "SecurityMessage.certificateType";
     public static final String certificateTypeAttributeDefaultTranslation = "Certificate type";
     public static final String certificateIssuerAttributeName = "SecurityMessage.certificateIssuer";
@@ -1031,10 +1018,8 @@ public final class DeviceMessageConstants {
     public static final String FTIONMailConfigDefaultTranslation = "FTION mail configuration";
     public static final String FTIONModemReset = "DeviceActionMessage.ftionmodemreset";
     public static final String FTIONModemResetDefaultTranslation = "FTION modem reset";
-    public static final String AdminOld = "DeviceActionMessage.adminold";
-    public static final String AdminOldDefaultTranslation = "Admin old";
-    public static final String AdminNew = "DeviceActionMessage.adminnew";
-    public static final String AdminNewDefaultTranslation = "Admin new";
+    public static final String AdminPassword = "Admin.password";
+    public static final String AdminPasswordDefaultTranslation = "Admin password";
 
     public static final String IEC1107ClassIdAttributeName = "GeneralDeviceMessage.iec1107classid";
     public static final String IEC1107ClassIdAttributeDefaultTranslation = "IEC1107 class ID";
@@ -1129,8 +1114,6 @@ public final class DeviceMessageConstants {
     public static final String ZigBeeConfigurationSASPanIdAttributeDefaultTranslation = "PAN ID";
     public static final String ZigBeeConfigurationForceRemovalAttributeName = "ZigBeeConfigurationDeviceMessage.forceremoval";
     public static final String ZigBeeConfigurationForceRemovalAttributeDefaultTranslation = "Force removal";
-    public static final String ZigBeeConfigurationZigBeeLinkKeyAttributeName = "ZigBeeConfigurationDeviceMessage.zigbeelinkkey";
-    public static final String ZigBeeConfigurationZigBeeLinkKeyAttributeDefaultTranslation = "ZigBee link key";
     public static final String ZigBeeConfigurationActivationDateAttributeName = "ZigBeeConfigurationDeviceMessage.activationdate";
     public static final String ZigBeeConfigurationActivationDateAttributeDefaultTranslation = "Activation date";
     public static final String ZigBeeConfigurationZigBeeAddressAttributeName = "ZigBeeConfigurationDeviceMessage.zigbeeieeeaddress";

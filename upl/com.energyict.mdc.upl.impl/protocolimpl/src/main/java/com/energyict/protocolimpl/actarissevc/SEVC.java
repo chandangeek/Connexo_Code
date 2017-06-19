@@ -299,7 +299,6 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.SEVC_ADDRESS),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.SEVC_PASSWORD),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.SEVC_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.SEVC_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.SEVC_ROUNDTRIPCORRECTION),
@@ -390,7 +389,7 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
     @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
-        TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties properties = com.energyict.mdc.upl.TypedProperties.empty();
         properties.setProperty(PASSWORD.getName(), "PASS");
         setUPLProperties(properties);
         init(commChannel.getInputStream(), commChannel.getOutputStream(), null, null);

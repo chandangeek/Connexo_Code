@@ -7,6 +7,8 @@ import com.energyict.mdc.upl.properties.DeviceGroup;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -193,9 +195,8 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
     SetChangeAdminPassword(8024, "Change admin password") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.AdminOld, DeviceMessageConstants.AdminOldDefaultTranslation),
-                    this.stringSpec(service, DeviceMessageConstants.AdminNew, DeviceMessageConstants.AdminNewDefaultTranslation)
+            return Collections.singletonList(
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.AdminPassword, DeviceMessageConstants.AdminPasswordDefaultTranslation)
             );
         }
     },
@@ -499,6 +500,16 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
                 .referenceSpec(DeviceGroup.class.getName())
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired()
+                .finish();
+    }
+
+    protected PropertySpec keyAccessorTypeReferenceSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .referenceSpec(KeyAccessorType.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()

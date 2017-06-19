@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
@@ -28,14 +30,17 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.trans
  */
 public class GasDeviceDLMSMessageConverter extends AbstractMessageConverter {
 
-    public GasDeviceDLMSMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
+
+    public GasDeviceDLMSMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter);
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {
-            return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+            return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
         }
 
         return messageAttribute.toString();//Works for hex, string and bigdecimal

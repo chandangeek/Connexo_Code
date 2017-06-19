@@ -63,7 +63,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests {
     }
 
     private TypedProperties getProperProperties() {
-        com.energyict.protocolimpl.properties.TypedProperties result = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        com.energyict.mdc.upl.TypedProperties result = com.energyict.mdc.upl.TypedProperties.empty();
 
         result.setProperty(TypedAtModemProperties.DELAY_BEFORE_SEND, Duration.ofMillis(10));
         result.setProperty(TypedAtModemProperties.COMMAND_TIMEOUT, Duration.ofMillis(COMMAND_TIMEOUT_VALUE));
@@ -174,7 +174,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests {
         TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(OK_LIST);
 
-        TypedProperties typedProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties typedProperties = com.energyict.mdc.upl.TypedProperties.empty();
         typedProperties.setProperty(TypedCaseModemProperties.MODEM_ADDRESS_SELECTOR, "AddressSelect_01");
 
         SioCaseModemConnectionType caseModemConnectionType = createConnectionType(comChannel, typedProperties);
@@ -185,7 +185,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests {
     }
 
     private SioCaseModemConnectionType createConnectionType(TestableSerialComChannel comChannel) throws ConnectionException, PropertyValidationException {
-        return createConnectionType(comChannel, com.energyict.protocolimpl.properties.TypedProperties.empty());
+        return createConnectionType(comChannel, com.energyict.mdc.upl.TypedProperties.empty());
     }
 
     private SioCaseModemConnectionType createConnectionType(TestableSerialComChannel comChannel, TypedProperties overrides) throws ConnectionException, PropertyValidationException {

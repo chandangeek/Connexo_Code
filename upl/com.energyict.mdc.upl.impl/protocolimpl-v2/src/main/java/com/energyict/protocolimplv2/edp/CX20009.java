@@ -291,7 +291,7 @@ public class CX20009 extends AbstractDlmsProtocol implements MigrateFromV1Protoc
 
     @Override
     public TypedProperties formatLegacyProperties(TypedProperties legacyProperties) {
-        TypedProperties result = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties result = com.energyict.mdc.upl.TypedProperties.empty();
         // Transform 'ReadCache' from int to bool
         Object readCache = legacyProperties.getProperty(DlmsProtocolProperties.READCACHE_PROPERTY);
         if (readCache != null) {

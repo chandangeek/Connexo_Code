@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -8,8 +9,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
-import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,7 +25,6 @@ import java.util.Optional;
 public class IEC1107SecuritySupport extends AbstractSecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     public static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
-    private static final String DEFAULT_SECURITY_LEVEL_VALUE = "1";
     private static final String translationKeyConstant = "IEC1107SecuritySupport.authenticationlevel.";
 
     public IEC1107SecuritySupport(PropertySpecService propertySpecService) {
@@ -71,7 +69,7 @@ public class IEC1107SecuritySupport extends AbstractSecuritySupport implements L
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()));
+            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel());
         }
         return typedProperties;
     }
@@ -82,7 +80,7 @@ public class IEC1107SecuritySupport extends AbstractSecuritySupport implements L
     }
 
     private DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
-        String securityLevelProperty = typedProperties.getTypedProperty(SECURITY_LEVEL_PROPERTY_NAME, DEFAULT_SECURITY_LEVEL_VALUE);
+        String securityLevelProperty = typedProperties.getTypedProperty(SECURITY_LEVEL_PROPERTY_NAME, getLegacySecurityLevelDefault());
         final int authenticationLevel = Integer.valueOf(securityLevelProperty);
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationLevel, getAuthenticationAccessLevels()));
@@ -93,7 +91,7 @@ public class IEC1107SecuritySupport extends AbstractSecuritySupport implements L
             }
 
             @Override
-            public String getClient() {
+            public Object getClient() {
                 return null;
             }
 

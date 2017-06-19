@@ -3,7 +3,6 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
@@ -29,8 +28,7 @@ class ZMDProperties extends DlmsProtocolProperties {
     private static final int DEFAULT_CLIENT_MAC_ADDRESS = 32;
 
     private SecurityProvider securityProvider;
-    private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
-    TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+    TypedProperties properties = com.energyict.mdc.upl.TypedProperties.empty();
 
     private final PropertySpecService propertySpecService;
 
@@ -41,9 +39,7 @@ class ZMDProperties extends DlmsProtocolProperties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.specBuilder(SECURITY_LEVEL, false, PropertyTranslationKeys.EICT_SECURITY_LEVEL, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(ADDRESSING_MODE, false, PropertyTranslationKeys.EICT_ADDRESSING_MODE, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(CLIENT_MAC_ADDRESS, false, PropertyTranslationKeys.EICT_CLIENT_MAC_ADDRESS, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(SERVER_MAC_ADDRESS, false, PropertyTranslationKeys.EICT_SERVER_MAC_ADDRESS, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(CONNECTION, false, PropertyTranslationKeys.EICT_CONNECTION, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_DELAY_AFTER_ERROR, false, PropertyTranslationKeys.EICT_DELAY_AFTER_ERROR, this.propertySpecService::integerSpec).finish(),
@@ -121,16 +117,7 @@ class ZMDProperties extends DlmsProtocolProperties {
         return ConnectionMode.HDLC;
     }
 
-    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        getProperties().setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-        this.deviceProtocolSecurityPropertySet = deviceProtocolSecurityPropertySet;
-    }
-
     public TypedProperties getProperties() {
         return properties;
-    }
-
-    public DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet() {
-        return deviceProtocolSecurityPropertySet;
     }
 }

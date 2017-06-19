@@ -8,9 +8,10 @@ import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.exception.CommunicationException;
-import com.energyict.protocolimpl.properties.TypedProperties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 /**
  * @author Rudi Vankeirsbilck (rudi)
@@ -23,7 +24,7 @@ public class EIWebCryptographer {
      * protocol that is however coded in the protocol module and can
      * therefore not be referenced here.
      */
-    private static final String EIWEB_PROTOCOL_PASSWORD_PROPERTY_NAME = SecurityPropertySpecName.PASSWORD.toString();
+    private static final String EIWEB_PROTOCOL_PASSWORD_PROPERTY_NAME = SecurityPropertySpecTranslationKeys.PASSWORD.toString();
 
     private final InboundDiscoveryContext inboundDiscoveryContext;
     private int usageCount = 0;

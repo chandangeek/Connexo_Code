@@ -28,7 +28,7 @@ import java.util.Set;
 @XmlRootElement
 public class EIWebConnectionType implements ConnectionType {
 
-    private TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+    private TypedProperties properties = com.energyict.mdc.upl.TypedProperties.empty();
 
     public static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
     public static final String MAC_ADDRESS_PROPERTY_NAME = "macAddress";

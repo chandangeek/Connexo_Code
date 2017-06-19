@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimpl.dlms.prime.PrimeMeter;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -67,7 +68,8 @@ public class PrimeMeterMessageConverterTest extends AbstractV2MessageConverterTe
 
         offlineDeviceMessage = createMessage(LoadBalanceDeviceMessage.WriteControlThresholds);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<WriteControlThresholds Threshold 1 (unit W)=\"1\" Threshold 2 (unit W)=\"1\" Threshold 3 (unit W)=\"1\" Threshold 4 (unit W)=\"1\" Threshold 5 (unit W)=\"1\" Threshold 6 (unit W)=\"1\" ActivationDate=\"10000000000000\"> \n\n</WriteControlThresholds>", messageEntry.getContent());
+        assertEquals("<WriteControlThresholds Threshold 1 (unit W)=\"1\" Threshold 2 (unit W)=\"1\" Threshold 3 (unit W)=\"1\" Threshold 4 (unit W)=\"1\" Threshold 5 (unit W)=\"1\" Threshold 6 (unit W)=\"1\" ActivationDate=\"10000000000000\"> \n\n</WriteControlThresholds>", messageEntry
+                .getContent());
 
         offlineDeviceMessage = createMessage(PLCConfigurationDeviceMessage.SetMulticastAddresses);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -84,7 +86,7 @@ public class PrimeMeterMessageConverterTest extends AbstractV2MessageConverterTe
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new PrimeMeterMessageConverter(propertySpecService, nlsService, converter, deviceMessageFileExtractor);
+        return new PrimeMeterMessageConverter(propertySpecService, nlsService, converter, deviceMessageFileExtractor, keyAccessorTypeExtractor);
     }
 
     /**
@@ -102,7 +104,9 @@ public class PrimeMeterMessageConverterTest extends AbstractV2MessageConverterTe
         } else if (propertySpec.getName().equals(newManagementClientPasswordAttributeName)
                 || propertySpec.getName().equals(newFirmwareClientPasswordAttributeName)
                 || propertySpec.getName().equals(newReadingClientPasswordAttributeName)) {
-            return "abcdefgh";
+            KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+            when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("abcdefgh");
+            return keyAccessorType;
         } else if (propertySpec.getName().equals(MulticastAddress1AttributeName)
                 || propertySpec.getName().equals(MulticastAddress2AttributeName)
                 || propertySpec.getName().equals(MulticastAddress3AttributeName)) {

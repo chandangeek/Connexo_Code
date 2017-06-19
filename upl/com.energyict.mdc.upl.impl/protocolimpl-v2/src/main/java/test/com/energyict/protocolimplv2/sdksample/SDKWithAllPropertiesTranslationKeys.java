@@ -28,16 +28,16 @@ public enum SDKWithAllPropertiesTranslationKeys implements TranslationKey {
     SDKPOSITIVEDECIMALPROPERTY(Keys.SDKPOSITIVEDECIMALPROPERTY, "A positive bigdecimal property "),
     SDKBOOLEANPROPERTY(Keys.SDKBOOLEANPROPERTY, "A boolean property"),
     SDKDATEPROPERTY(Keys.SDKDATEPROPERTY, "A date property"),
-    SDKTIMEOFDAYPROPERTY(Keys.SDKTIMEOFDAYPROPERTY, "A temporalAmount property "),
+    SDKTIMEOFDAYPROPERTY(Keys.SDKTIMEOFDAYPROPERTY, "A time property "),
+    SDKTIMEOFDAYPROPERTYWITHZONE(Keys.SDKTIMEOFDAYPROPERTYWITHZONE, "A time property with time zone"),
     SDKTIMEZONEPROPERTY(Keys.SDKTIMEZONEPROPERTY, "A timezone property "),
     SDKDATETIMEPROPERTY(Keys.SDKDATETIMEPROPERTY, "A date and time property"),
     SDKDURATIONPROPERTY(Keys.SDKDURATIONPROPERTY, "A duration property "),
-    SDKTEMPORALAMOUNTPROPERTY(Keys.SDKTEMPORALAMOUNTPROPERTY, "A duration property "),
+    SDKTEMPORALAMOUNTPROPERTY(Keys.SDKTEMPORALAMOUNTPROPERTY, "A temporal amount property "),
     SDKBIGDECIMALWITHVALUES(Keys.SDKBIGDECIMALWITHVALUES, "A bigdecimal property with predefined values "),
     SDKOBISCODEPROPERTY(Keys.SDKOBISCODEPROPERTY, "An obiscode property"),
     SDKEAN13PROPERTY(Keys.SDKEAN13PROPERTY, "An EAN13 property"),
     SDKEAN18PROPERTY(Keys.SDKEAN18PROPERTY, "An EAN18 property"),
-    SDKENCRYPTEDSTRINGPROPERTY(Keys.SDKENCRYPTEDSTRINGPROPERTY, "An encrypted string property"),
     SDKDEVICEMSSAGEFILEPROPERTY(Keys.SDKDEVICEMSSAGEFILEPROPERTY, "A device message file property"),
     SDKDEVICEGROUPPROPERTY(Keys.SDKDEVICEGROUPPROPERTY, "A device group property"),
     SDKLOADPROFILEROPERTY(Keys.SDKLOADPROFILEROPERTY, "A load profile property"),
@@ -46,7 +46,6 @@ public enum SDKWithAllPropertiesTranslationKeys implements TranslationKey {
     SDKNUMBER_LOOKUPROPERTY(Keys.SDKNUMBER_LOOKUPROPERTY, "A number lookup property"),
     SDKSTRING_LOOKUPROPERTY(Keys.SDKSTRING_LOOKUPROPERTY, "A string lookup property"),
     SDKPRIVATE_KEY_ALIASROPERTY(Keys.SDKPRIVATE_KEY_ALIASROPERTY, "A KeyAccessorType property"),
-    SDKENCRYPTEDHEXSTRINGPROPERTY(Keys.SDKENCRYPTEDHEXSTRINGPROPERTY, "An encrypted hex string property"),
     DEFAULT_OPTIONAL_PROPERTY("SDK.defaultOptionalProperty", "Default optional property"),
     DELAY_AFTER_REQUEST("SDK.delay.after.request", "Delay after request"),
     ACTIVE_CALENDAR_NAME("SDK.activeCalendarName", "Active calendar"),
@@ -101,6 +100,7 @@ public enum SDKWithAllPropertiesTranslationKeys implements TranslationKey {
         public static final String SDKBOOLEANPROPERTY = "SDKBooleanProperty";
         public static final String SDKDATEPROPERTY = "SDKDateProperty";
         public static final String SDKTIMEOFDAYPROPERTY = "SDKTimeOfDayProperty";
+        public static final String SDKTIMEOFDAYPROPERTYWITHZONE = "SDKTimeOfDayPropertyWithZone";
         public static final String SDKTIMEZONEPROPERTY = "SDKTIMEZONEPROPERTY";
         public static final String SDKDATETIMEPROPERTY = "SDKDateTimeProperty";
         public static final String SDKDURATIONPROPERTY = "SDKTimeDurationProperty";
@@ -109,9 +109,7 @@ public enum SDKWithAllPropertiesTranslationKeys implements TranslationKey {
         public static final String SDKOBISCODEPROPERTY = "SDKObisCodeProperty";
         public static final String SDKEAN13PROPERTY = "SDKEan13Property";
         public static final String SDKEAN18PROPERTY = "SDKEan18Property";
-        public static final String SDKENCRYPTEDSTRINGPROPERTY = "SDKEncryptedStringProperty";
         public static final String SDKDEVICEMSSAGEFILEPROPERTY = "SDKDEVICEMSSAGEFILEPROPERTY";
-        public static final String SDKENCRYPTEDHEXSTRINGPROPERTY = "SDKEncryptedHexStringProperty";
         public static final String SDKDEVICEGROUPPROPERTY = "SDKDEVICEGROUPPROPERTY";
         public static final String SDKLOADPROFILEROPERTY = "SDKLOADPROFILEROPERTY";
         public static final String SDKTARIFFCALENDARROPERTY = "SDKTARIFFCALENDARROPERTY";

@@ -308,17 +308,17 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
 
     @Override
     public String writeMessage(final Message msg) {
-        return null;  //TODO implement proper functionality.
+        return "";  //TODO implement proper functionality.
     }
 
     @Override
     public String writeTag(final MessageTag tag) {
-        return null;  //TODO implement proper functionality.
+        return "";  //TODO implement proper functionality.
     }
 
     @Override
     public String writeValue(final MessageValue value) {
-        return null;  //TODO implement proper functionality.
+        return "";  //TODO implement proper functionality.
     }
 
     @Override

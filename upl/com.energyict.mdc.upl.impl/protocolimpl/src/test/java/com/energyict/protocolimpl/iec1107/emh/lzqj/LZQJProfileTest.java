@@ -7,7 +7,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
 
 import java.io.File;

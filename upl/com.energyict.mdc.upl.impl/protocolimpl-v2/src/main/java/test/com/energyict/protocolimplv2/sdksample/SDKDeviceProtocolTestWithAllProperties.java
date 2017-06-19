@@ -55,7 +55,7 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
                         .describedAs(SDKWithAllPropertiesTranslationKeys.SDKSTRINGPROPERTYWITHVALUESANDDEFAULT)
                         .markExhaustive()
                         .setDefaultValue("value 3")
-                        .addValues("value 1", "value 2", "value 4", "value 5")
+                        .addValues("value 1", "value 2","value 3", "value 4", "value 5")
                         .finish());
         optionalProperties.add(
                 this.propertySpecService
@@ -119,6 +119,7 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
                         .describedAs(SDKWithAllPropertiesTranslationKeys.SDKBIGDECIMALWITHVALUES)
                         .setDefaultValue(BigDecimal.ZERO)
                         .addValues(
+                                BigDecimal.ZERO,
                                 BigDecimal.ONE,
                                 new BigDecimal("2"),
                                 new BigDecimal("3"))
@@ -157,8 +158,8 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
         optionalProperties.add(
                 this.propertySpecService
                         .timeZoneSpec()
-                        .named(SDKWithAllPropertiesTranslationKeys.SDKTIMEOFDAYPROPERTY)
-                        .describedAs(SDKWithAllPropertiesTranslationKeys.SDKTIMEOFDAYPROPERTY)
+                        .named(SDKWithAllPropertiesTranslationKeys.SDKTIMEOFDAYPROPERTYWITHZONE)
+                        .describedAs(SDKWithAllPropertiesTranslationKeys.SDKTIMEOFDAYPROPERTYWITHZONE)
                         .finish());
         optionalProperties.add(
                 this.propertySpecService
@@ -175,8 +176,8 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
         optionalProperties.add(
                 this.propertySpecService
                         .temporalAmountSpec()
-                        .named(SDKWithAllPropertiesTranslationKeys.SDKDURATIONPROPERTY)
-                        .describedAs(SDKWithAllPropertiesTranslationKeys.SDKDURATIONPROPERTY)
+                        .named(SDKWithAllPropertiesTranslationKeys.SDKTEMPORALAMOUNTPROPERTY)
+                        .describedAs(SDKWithAllPropertiesTranslationKeys.SDKTEMPORALAMOUNTPROPERTY)
                         .finish());
 
         optionalProperties.add(
@@ -191,12 +192,7 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
                                 ObisCode.fromString("1.0.2.8.0.255"),
                                 ObisCode.fromString("1.0.2.8.1.255"),
                                 ObisCode.fromString("1.0.2.8.2.255"))
-                        .finish());
-        optionalProperties.add(
-                this.propertySpecService
-                        .encryptedStringSpec()
-                        .named(SDKWithAllPropertiesTranslationKeys.SDKENCRYPTEDSTRINGPROPERTY)
-                        .describedAs(SDKWithAllPropertiesTranslationKeys.SDKENCRYPTEDSTRINGPROPERTY)
+                        .markExhaustive()
                         .finish());
         optionalProperties.add(
                 this.propertySpecService

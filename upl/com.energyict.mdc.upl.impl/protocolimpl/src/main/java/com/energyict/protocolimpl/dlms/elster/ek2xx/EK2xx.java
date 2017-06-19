@@ -51,6 +51,7 @@ import com.energyict.protocolimpl.utils.ProtocolUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -153,15 +154,12 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
                 this.integerSpec("ExtendedLogging", PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
                 this.integerSpec("AddressingMode", PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
                 this.integerSpec("Connection", PropertyTranslationKeys.DLMS_CONNECTION),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.DLMS_PASSWORD),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.DLMS_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.DLMS_RETRIES),
                 this.integerSpec("DelayAfterfail", PropertyTranslationKeys.DLMS_DELAY_AFTERFAIL),
                 this.integerSpec("RequestTimeZone", PropertyTranslationKeys.DLMS_REQUEST_TIME_ZONE),
                 this.integerSpec("RequestClockObject", PropertyTranslationKeys.DLMS_REQUEST_CLOCK_OBJECT),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
-                this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL),
-                this.integerSpec("ClientMacAddress", PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
                 this.integerSpec("ServerUpperMacAddress", PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
                 this.integerSpec("ServerLowerMacAddress", PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS));
     }
@@ -200,7 +198,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
             this.iRequestClockObject = properties.getTypedProperty("RequestClockObject", 0);
             this.iRoundtripCorrection = properties.getTypedProperty("RoundtripCorrection", 0);
             this.iSecurityLevelProperty = properties.getTypedProperty(SECURITYLEVEL.getName(), 0);
-            this.iClientMacAddress = properties.getTypedProperty("ClientMacAddress", 16);
+            this.iClientMacAddress = properties.getTypedProperty("ClientMacAddress", BigDecimal.valueOf(16)).intValue();
             this.iServerUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 1);
             this.iServerLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 0);
             if (DEBUG >= 1) {

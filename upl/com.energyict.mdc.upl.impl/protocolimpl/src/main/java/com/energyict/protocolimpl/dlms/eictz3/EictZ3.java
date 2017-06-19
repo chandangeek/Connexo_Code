@@ -568,7 +568,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return the current securityProvider (currently only LocalSecurityProvider is available)
      */
     public SecurityProvider getSecurityProvider() {
-        com.energyict.protocolimpl.properties.TypedProperties props = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        com.energyict.mdc.upl.TypedProperties props = com.energyict.mdc.upl.TypedProperties.empty();
         props.setProperty(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, this.authenticationLevel.getAuthenticationValue());
         props.setProperty(LocalSecurityProvider.DATATRANSPORTKEY, this.encryptionLevel.getEncryptionValue());
         props.setProperty(PASSWORD.getName(), password);
@@ -1377,9 +1377,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
                 this.integerSpec(PROPNAME_TIMEOUT, PropertyTranslationKeys.DLMS_TIMEOUT),
                 this.integerSpec(PROPNAME_RETRIES, PropertyTranslationKeys.DLMS_RETRIES),
                 this.integerSpec(PROPNAME_ROUNDTRIP_CORRECTION, PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
-                this.stringSpec(PROPNAME_SECURITY_LEVEL, PropertyTranslationKeys.DLMS_SECURITYLEVEL),
                 this.integerSpec(PROPNAME_REQUEST_TIME_ZONE, PropertyTranslationKeys.DLMS_REQUEST_TIME_ZONE),
-                this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
                 this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
                 this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.DLMS_NODEID),
@@ -1415,7 +1413,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
 
         this.requestTimeZone = properties.getTypedProperty(PROPNAME_REQUEST_TIME_ZONE, 0) != 0;
         this.roundtripCorrection = properties.getTypedProperty(PROPNAME_ROUNDTRIP_CORRECTION, 0);
-        this.clientMacAddress = properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, 1);
+        this.clientMacAddress = properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, BigDecimal.ONE).intValue();
         this.serverUpperMacAddress = properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, 17);
         this.serverLowerMacAddress = properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, 17);
         this.nodeAddress = properties.getTypedProperty(NODEID.getName(), "");

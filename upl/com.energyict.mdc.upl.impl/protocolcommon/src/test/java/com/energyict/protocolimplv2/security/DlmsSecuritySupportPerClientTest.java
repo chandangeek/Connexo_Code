@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
 
 import java.math.BigDecimal;
@@ -35,7 +35,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.PASSWORD_PUBLIC.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.PASSWORD_PUBLIC.toString())) {
                         match |= true;
                     }
                 }
@@ -48,7 +48,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.PASSWORD_DATA.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.PASSWORD_DATA.toString())) {
                         match |= true;
                     }
                 }
@@ -61,7 +61,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.PASSWORD_EXT_DATA.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.PASSWORD_EXT_DATA.toString())) {
                         match |= true;
                     }
                 }
@@ -74,7 +74,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.PASSWORD_MANAGEMENT.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.PASSWORD_MANAGEMENT.toString())) {
                         match |= true;
                     }
                 }
@@ -87,7 +87,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.PASSWORD_FIRMWARE.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.PASSWORD_FIRMWARE.toString())) {
                         match |= true;
                     }
                 }
@@ -100,7 +100,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.PASSWORD_MANUFACTURER.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.PASSWORD_MANUFACTURER.toString())) {
                         match |= true;
                     }
                 }
@@ -113,21 +113,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.ENCRYPTION_KEY_PUBLIC.toString())) {
-                        match |= true;
-                    }
-                }
-                return match;
-            }
-        });
-
-
-        assertThat(dlmsSecuritySupportPerClient.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                boolean match = false;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.ENCRYPTION_KEY_DATA.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_PUBLIC.toString())) {
                         match |= true;
                     }
                 }
@@ -141,7 +127,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.ENCRYPTION_KEY_EXT_DATA.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_DATA.toString())) {
                         match |= true;
                     }
                 }
@@ -155,7 +141,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.ENCRYPTION_KEY_MANAGEMENT.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_EXT_DATA.toString())) {
                         match |= true;
                     }
                 }
@@ -169,7 +155,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.ENCRYPTION_KEY_FIRMWARE.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANAGEMENT.toString())) {
                         match |= true;
                     }
                 }
@@ -183,20 +169,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString())) {
-                        match |= true;
-                    }
-                }
-                return match;
-            }
-        });
-
-        assertThat(dlmsSecuritySupportPerClient.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                boolean match = false;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.AUTHENTICATION_KEY_PUBLIC.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_FIRMWARE.toString())) {
                         match |= true;
                     }
                 }
@@ -210,7 +183,20 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.AUTHENTICATION_KEY_DATA.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANUFACTURER.toString())) {
+                        match |= true;
+                    }
+                }
+                return match;
+            }
+        });
+
+        assertThat(dlmsSecuritySupportPerClient.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
+            @Override
+            public boolean matches(List<PropertySpec> propertySpecs) {
+                boolean match = false;
+                for (PropertySpec propertySpec : propertySpecs) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_PUBLIC.toString())) {
                         match |= true;
                     }
                 }
@@ -224,7 +210,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.AUTHENTICATION_KEY_EXT_DATA.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_DATA.toString())) {
                         match |= true;
                     }
                 }
@@ -238,7 +224,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.AUTHENTICATION_KEY_MANAGEMENT.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_EXT_DATA.toString())) {
                         match |= true;
                     }
                 }
@@ -252,7 +238,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.AUTHENTICATION_KEY_FIRMWARE.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_MANAGEMENT.toString())) {
                         match |= true;
                     }
                 }
@@ -266,7 +252,21 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(SecurityPropertySpecName.AUTHENTICATION_KEY_MANUFACTURER.toString())) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_FIRMWARE.toString())) {
+                        match |= true;
+                    }
+                }
+                return match;
+            }
+        });
+
+
+        assertThat(dlmsSecuritySupportPerClient.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
+            @Override
+            public boolean matches(List<PropertySpec> propertySpecs) {
+                boolean match = false;
+                for (PropertySpec propertySpec : propertySpecs) {
+                    if (propertySpec.getName().equals(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_MANUFACTURER.toString())) {
                         match |= true;
                     }
                 }
@@ -1048,9 +1048,9 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
         securityProperties.setProperty("SecurityLevel", "1:3");
         securityProperties.setProperty(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService).getName(), "unused");
         securityProperties.setProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService).getName(), "32");
-        securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY_DATA.toString(), "some encryption key");
-        securityProperties.setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY_DATA.toString(), "some authentication key");
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD_DATA.toString(), "some password");
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_DATA.toString(), "some encryption key");
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_DATA.toString(), "some authentication key");
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD_DATA.toString(), "some password");
         securityProperties.setProperty(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService).getName(), "unused");
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = dlmsSecuritySupportPerClient.convertFromTypedProperties(securityProperties);
@@ -1058,9 +1058,9 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
         assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(DlmsSecuritySupportPerClient.EncryptionAccessLevelIds.DATA_CLIENT_MESSAGE_ENCRYPTION_AUTHENTICATION.getAccessLevel());
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().size()).isEqualTo(3);
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService).getName())).isNull();
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD_DATA.toString())).isEqualTo("some password");
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_DATA.toString())).isEqualTo("some encryption key");
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY_DATA.toString())).isEqualTo("some authentication key");
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.PASSWORD_DATA.toString())).isEqualTo("some password");
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_DATA.toString())).isEqualTo("some encryption key");
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_DATA.toString())).isEqualTo("some authentication key");
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService).getName())).isNull();
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService).getName())).isNull();
     }
@@ -1070,7 +1070,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
         DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD_DATA.toString(), passwordValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD_DATA.toString(), passwordValue);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
                     @Override
@@ -1079,8 +1079,8 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
                     }
 
                     @Override
-                    public String getClient() {
-                        return "1";
+                    public Object getClient() {
+                        return BigDecimal.ONE;
                     }
 
                     @Override
@@ -1102,7 +1102,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
         // business method
         TypedProperties legacyProperties = TypedProperties.copyOf(dlmsSecuritySupportPerClient.convertToTypedProperties(deviceProtocolSecurityPropertySet));
 
-        assertThat(legacyProperties.getProperty(SecurityPropertySpecName.PASSWORD.toString())).isEqualTo(passwordValue);
+        assertThat(legacyProperties.getProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString())).isEqualTo(passwordValue);
     }
 
 
@@ -1152,11 +1152,11 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
         DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String encryptionKeyValue = "MyEncryptionKey";
-        securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY_MANAGEMENT.toString(), encryptionKeyValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANAGEMENT.toString(), encryptionKeyValue);
         String authenticationKeyValue = "MyAuthenticationKey";
-        securityProperties.setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY_MANAGEMENT.toString(), authenticationKeyValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_MANAGEMENT.toString(), authenticationKeyValue);
         String passwordValue = "MyPassword";
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD_MANAGEMENT.toString(), passwordValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD_MANAGEMENT.toString(), passwordValue);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
                     @Override
@@ -1165,8 +1165,8 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
                     }
 
                     @Override
-                    public String getClient() {
-                        return "1";
+                    public Object getClient() {
+                        return BigDecimal.ONE;
                     }
 
                     @Override

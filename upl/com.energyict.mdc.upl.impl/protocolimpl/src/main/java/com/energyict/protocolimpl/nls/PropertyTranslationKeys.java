@@ -736,6 +736,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     EICT_ZIGBEE_MAC_DESCRIPTION("upl.property.eict.zigbeeMac.description", "Zigbee MAC"),
     EICT_ZIGBEE_PCLK("upl.property.eict.zigbeePCLK", "Zigbee PCLK"),
     EICT_ZIGBEE_PCLK_DESCRIPTION("upl.property.eict.zigbeePCLK.description", "Zigbee PCLK"),
+    EICT_ZIGBEE_LINK_KEY("upl.property.eict.zigbeeLinkKey", "Zigbee link key"),
     MARKV_VERIFY_TIME_DELAY("upl.property.markv.verifyTimeDelay", "Verify time delay"),
     MARKV_VERIFY_TIME_DELAY_DESCRIPTION("upl.property.markv.verifyTimeDelay.description", "Verify time delay"),
     WAVELOG_CORRECTTIME("upl.property.waveLog.correctTime", "Correct time"),

@@ -5,7 +5,7 @@ import com.energyict.mdc.upl.InboundDeviceProtocol;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exception.ProtocolRuntimeException;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import org.junit.Test;

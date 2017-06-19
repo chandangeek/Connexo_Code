@@ -1,36 +1,39 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100;
 
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.protocol.exception.CommunicationException;
-import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.util.Arrays;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
@@ -182,7 +185,7 @@ public final class Beacon3100Test {
         final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
         when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(DeviceExtractor.class));
+        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(KeyAccessorTypeExtractor.class), mock(DeviceExtractor.class));
         protocol.setSecurityPropertySet(securityProps);
 
         protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
@@ -237,7 +240,7 @@ public final class Beacon3100Test {
         final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
         when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(DeviceExtractor.class));
+        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(KeyAccessorTypeExtractor.class), mock(DeviceExtractor.class));
         protocol.setSecurityPropertySet(securityProps);
 
         protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
@@ -303,13 +306,13 @@ public final class Beacon3100Test {
         final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
         when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(DeviceExtractor.class));
+        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(KeyAccessorTypeExtractor.class), mock(DeviceExtractor.class));
         protocol.setSecurityPropertySet(securityProps);
 
         protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
         protocol.getDlmsSessionProperties().getProperties().setProperty(DlmsSessionProperties.PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED, Boolean.FALSE);
         protocol.getDlmsSessionProperties().getProperties().setProperty(Beacon3100ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, Boolean.TRUE);
-        protocol.getDlmsSessionProperties().getProperties().setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), AK);
+        protocol.getDlmsSessionProperties().getProperties().setProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), AK);
 
         assertThat(protocol.getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter()).isEqualTo(1);
 
@@ -387,13 +390,13 @@ public final class Beacon3100Test {
         final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
         when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(DeviceExtractor.class));
+        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(KeyAccessorTypeExtractor.class), mock(DeviceExtractor.class));
         protocol.setSecurityPropertySet(securityProps);
 
         protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
         protocol.getDlmsSessionProperties().getProperties().setProperty(DlmsSessionProperties.PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED, Boolean.FALSE);
         protocol.getDlmsSessionProperties().getProperties().setProperty(Beacon3100ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, Boolean.TRUE);
-        protocol.getDlmsSessionProperties().getProperties().setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), AK);
+        protocol.getDlmsSessionProperties().getProperties().setProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), AK);
 
         assertThat(protocol.getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter()).isEqualTo(1);
 
@@ -500,13 +503,13 @@ public final class Beacon3100Test {
         final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
         when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(DeviceExtractor.class));
+        final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor, this.deviceGroupExtractor, mock(CertificateWrapperExtractor.class), mock(KeyAccessorTypeExtractor.class), mock(DeviceExtractor.class));
         protocol.setSecurityPropertySet(securityProps);
 
         protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
         protocol.getDlmsSessionProperties().getProperties().setProperty(DlmsSessionProperties.PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED, Boolean.TRUE);
         protocol.getDlmsSessionProperties().getProperties().setProperty(Beacon3100ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, Boolean.TRUE);
-        protocol.getDlmsSessionProperties().getProperties().setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), AK);
+        protocol.getDlmsSessionProperties().getProperties().setProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), AK);
 
         assertThat(protocol.getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter()).isEqualTo(1);
 

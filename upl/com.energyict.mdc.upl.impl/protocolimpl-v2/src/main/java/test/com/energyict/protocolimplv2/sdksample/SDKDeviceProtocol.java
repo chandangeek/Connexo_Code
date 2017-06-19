@@ -60,7 +60,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimpl.properties.Temporals;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
@@ -389,8 +389,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
                 FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.UPGRADE_FIRMWARE_ACTIVATE.get(this.propertySpecService, this.nlsService, this.converter),
-                FirmwareDeviceMessage.UPGRADE_FIRMWARE_URL_AND_ACTIVATE.get(this.propertySpecService, this.nlsService, this.converter),
-                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_ACTIVATE_IMMEDIATE.get(this.propertySpecService, this.nlsService, this.converter));
+                FirmwareDeviceMessage.UPGRADE_FIRMWARE_URL_AND_ACTIVATE.get(this.propertySpecService, this.nlsService, this.converter));
     }
 
     @Override

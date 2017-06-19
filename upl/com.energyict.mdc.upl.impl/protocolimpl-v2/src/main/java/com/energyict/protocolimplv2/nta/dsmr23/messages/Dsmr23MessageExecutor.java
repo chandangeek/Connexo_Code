@@ -45,6 +45,7 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -65,12 +66,16 @@ import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.AbstractMessageConverter;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
+import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import org.xml.sax.SAXException;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.RandomAccessFile;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -98,6 +103,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.encry
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fullActivityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
@@ -106,6 +112,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEn
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPasswordAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.p1InformationAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
@@ -158,11 +165,21 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE)) {
                     upgradeFirmwareWithActivationDate(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND)) {
-                    activityCalendar(pendingMessage);
+                    String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
+                    String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarAttributeName).getValue();
+                    activityCalendar(calendarName, activityCalendarContents);
                 } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME)) {
-                    activityCalendarWithActivationDate(pendingMessage);
+                    String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
+                    String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue();
+                    String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarAttributeName).getValue();
+                    activityCalendarWithActivationDate(calendarName, epoch, activityCalendarContents);
+                } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_SEND)) {
+                    fullActivityCalendar(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME)) {
+                    fullActivityCalendarWithActivationDate(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND)) {
-                    writeSpecialDays(pendingMessage);
+                    String specialDayArrayBEREncodedBytes = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, specialDaysAttributeName).getValue();
+                    writeSpecialDays(specialDayArrayBEREncodedBytes);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION)) {
                     activateDlmsEncryption(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
@@ -467,11 +484,14 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void changeEncryptionKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName), "");
+        byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
+        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
+
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
-        byte[] key = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName), "");
-        keyData.addDataType(OctetString.fromByteArray(key));
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
         globalKeyArray.addDataType(keyData);
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
@@ -479,11 +499,14 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void changeAuthenticationKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
+        byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
+        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
+
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
-        byte[] key = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
-        keyData.addDataType(OctetString.fromByteArray(key));
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
         globalKeyArray.addDataType(keyData);
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
@@ -496,22 +519,24 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType does not have a valid passive value.");
         }
 
-        String[] split = keyAccessorTypeNameAndTempValue.split(">-->", 2);
-        if (split.length != 2) {
-            throw new ProtocolException("Failed to retrieve proper value for attribute keyAccessorType.");
+        String[] values;
+        ByteArrayInputStream in = new ByteArrayInputStream(DatatypeConverter.parseHexBinary(keyAccessorTypeNameAndTempValue));
+        try {
+            values = (String[]) new ObjectInputStream(in).readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw DataParseException.generalParseException(e);
         }
-        String keyAccessorName = split[0];
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(split[1], "");
+        String keyAccessorName = values[0];
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(values[1], "");
         byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
 
-        this.keyAccessorTypeExtractor.threadContext().setDevice(getProtocol().getOfflineDevice());
         Optional<String> securityAttribute = this.keyAccessorTypeExtractor.correspondingSecurityAttribute(
                 keyAccessorName,
                 getProtocol().getDlmsSessionProperties().getSecurityPropertySet().getName()
         );
-        if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecName.AUTHENTICATION_KEY.getKey())) {
+        if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.getKey())) {
             renewKey(newSymmetricKey, masterKey, 2);
-        } else if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecName.ENCRYPTION_KEY.getKey())) {
+        } else if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.getKey())) {
             renewKey(newSymmetricKey, masterKey, 0);
         } else {
             throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType is not used as authentication or encryption key in the security setting. Therefore it is not clear which key should be renewed.");
@@ -665,9 +690,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    protected void activityCalendar(OfflineDeviceMessage pendingMessage) throws IOException {
-        String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
-        String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarAttributeName).getValue();
+    protected void activityCalendar(String calendarName, String activityCalendarContents) throws IOException {
         if (calendarName.length() > 8) {
             calendarName = calendarName.substring(0, 8);
         }
@@ -679,8 +702,24 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         activityCalendarController.writeCalendarActivationTime(null);   //Activate now
     }
 
-    private void writeSpecialDays(OfflineDeviceMessage pendingMessage) throws IOException {
-        String specialDayArrayBEREncodedBytes = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarAttributeName).getValue();
+    protected void fullActivityCalendar(OfflineDeviceMessage pendingMessage) throws IOException {
+        String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
+        String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fullActivityCalendarAttributeName).getValue();
+
+        activityCalendar(calendarName, activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[0]);
+        writeSpecialDays(activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[1]);
+    }
+
+    protected void fullActivityCalendarWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
+        String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
+        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue();
+        String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fullActivityCalendarAttributeName).getValue();
+
+        activityCalendarWithActivationDate(calendarName, epoch, activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[0]);
+        writeSpecialDays(activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[1]);
+    }
+
+    private void writeSpecialDays(String specialDayArrayBEREncodedBytes) throws IOException {
         Array sdArray = AXDRDecoder.decode(ProtocolTools.getBytesFromHexString(specialDayArrayBEREncodedBytes, ""), Array.class);
         SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
 
@@ -689,10 +728,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    protected void activityCalendarWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
-        String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
-        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue();
-        String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarAttributeName).getValue();
+    protected void activityCalendarWithActivationDate(String calendarName, String epoch, String activityCalendarContents) throws IOException {
         if (calendarName.length() > 8) {
             calendarName = calendarName.substring(0, 8);
         }

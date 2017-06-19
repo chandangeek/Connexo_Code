@@ -260,7 +260,7 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
-        TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties properties = com.energyict.mdc.upl.TypedProperties.empty();
 
         setUPLProperties(properties);
         init(commChannel.getInputStream(),commChannel.getOutputStream(),null,null);

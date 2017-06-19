@@ -219,10 +219,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.DLMS_PASSWORD),
-                this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL),
                 this.integerSpec("ConnectionMode", PropertyTranslationKeys.DLMS_CONNECTION_MODE),
-                this.integerSpec("ClientMacAddress", PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
                 this.integerSpec("ServerLowerMacAddress", PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
                 this.integerSpec("ServerUpperMacAddress", PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.DLMS_TIMEOUT),
@@ -249,7 +246,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         this.password = properties.getTypedProperty(PASSWORD.getName(), "");
         this.securityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), 0);
         this.connectionMode = properties.getTypedProperty("ConnectionMode", 1);
-        this.clientMacAddress = properties.getTypedProperty("ClientMacAddress", 16);
+        this.clientMacAddress = properties.getTypedProperty("ClientMacAddress", BigDecimal.valueOf(16)).intValue();
         this.serverLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 1);
         this.serverUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 17);
         // if HDLC set default timeout to 10s, if TCPIP set default timeout to 60s

@@ -33,7 +33,7 @@ public class Beacon3100ProtocolConfiguration {
         final String className = structure.getDataType(0, OctetString.class).stringValue();
         final Array propertiesArray = structure.getDataType(1, Array.class);
 
-        final TypedProperties protocolProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        final TypedProperties protocolProperties = com.energyict.mdc.upl.TypedProperties.empty();
 
         for (final AbstractDataType propEntry : propertiesArray) {
             final Beacon3100ProtocolTypedProperty property = Beacon3100ProtocolTypedProperty.fromStructure(propEntry.getStructure());

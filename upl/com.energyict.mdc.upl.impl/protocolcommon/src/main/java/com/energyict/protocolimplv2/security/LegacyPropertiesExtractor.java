@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 
 import java.util.List;
 

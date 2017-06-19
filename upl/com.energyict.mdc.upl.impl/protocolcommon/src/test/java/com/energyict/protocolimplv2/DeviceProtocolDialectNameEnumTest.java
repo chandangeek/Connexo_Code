@@ -1,17 +1,17 @@
 package com.energyict.protocolimplv2;
 
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * Tests the {@link DeviceProtocolDialectNameEnum} component
+ * Tests the {@link DeviceProtocolDialectTranslationKeys} component
  * <p>
  * Copyrights EnergyICT
  * Date: 5/02/13
@@ -20,7 +20,7 @@ import static org.junit.Assert.fail;
 public class DeviceProtocolDialectNameEnumTest {
 
     /**
-     * This test will purely test if all {@link DeviceProtocolDialectNameEnum} values have
+     * This test will purely test if all {@link DeviceProtocolDialectTranslationKeys} values have
      * a unique name field
      */
     @Test
@@ -28,7 +28,7 @@ public class DeviceProtocolDialectNameEnumTest {
         int counter = 0;
         List<String> duplicates = new ArrayList<>();
         Set<String> set = new HashSet<>();
-        for (DeviceProtocolDialectNameEnum deviceProtocolDialectNameEnum : DeviceProtocolDialectNameEnum.values()) {
+        for (DeviceProtocolDialectTranslationKeys deviceProtocolDialectNameEnum : DeviceProtocolDialectTranslationKeys.values()) {
             set.add(deviceProtocolDialectNameEnum.getName());
             counter++;
             if ((set.size() + duplicates.size()) != counter) {
@@ -60,14 +60,14 @@ public class DeviceProtocolDialectNameEnumTest {
      */
     @Test
     public void lengthTest() {
-        for (DeviceProtocolDialectNameEnum deviceProtocolDialectNameEnum : DeviceProtocolDialectNameEnum.values()) {
-            assertTrue(deviceProtocolDialectNameEnum.getName().length() < DeviceProtocolDialectNameEnum.MAX_NAME_LENGTH);
+        for (DeviceProtocolDialectTranslationKeys deviceProtocolDialectNameEnum : DeviceProtocolDialectTranslationKeys.values()) {
+            assertTrue(deviceProtocolDialectNameEnum.getName().length() < DeviceProtocolDialectTranslationKeys.MAX_NAME_LENGTH);
         }
     }
 
     @Test
     public void validCharactersTest() {
-        for (DeviceProtocolDialectNameEnum deviceProtocolDialectNameEnum : DeviceProtocolDialectNameEnum.values()) {
+        for (DeviceProtocolDialectTranslationKeys deviceProtocolDialectNameEnum : DeviceProtocolDialectTranslationKeys.values()) {
             for (int i = 0; i < deviceProtocolDialectNameEnum.getName().length(); i++) {
                 if (getValidCharacters().indexOf(deviceProtocolDialectNameEnum.getName().charAt(i)) == -1) {
                     fail(deviceProtocolDialectNameEnum.getName() + " contains invalid characters. " +

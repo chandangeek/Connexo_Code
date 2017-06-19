@@ -76,12 +76,9 @@ public enum PropertyTranslationKeys implements TranslationKey {
     LIS200_ARCHIVE_INTERVAL_ADDRESS("upl.property.elster.lis200.archiveIntervalAddress", "Archive interval address"),
     LIS200_ARCHIVE_INTERVAL_ADDRESS_DESCRIPTION("upl.property.elster.lis200.archiveIntervalAddress.description", "Archive interval address"),
     LIS200_DELAY_AFTER_CHECK("upl.property.elster.lis200.delayAfterCheck", "Delay after check"),
-    LIS200_DELAY_AFTER_CHECK_DESCRIPTION("upl.property.elster.lis200.delayAfterCheck.description", "Delay after check")
-
+    LIS200_DELAY_AFTER_CHECK_DESCRIPTION("upl.property.elster.lis200.delayAfterCheck.description", "Delay after check"),
+    MASTER_KEY("upl.proeprty.elster.masterkey", "Master key")
     ;
-
-
-
 
     private final String key;
     private final String defaultFormat;

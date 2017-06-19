@@ -21,6 +21,7 @@ import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
+import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -42,6 +43,10 @@ import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageVal
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,14 +64,13 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.encry
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fullActivityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPasswordAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWrappedEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
@@ -178,6 +182,8 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         supportedMessages.add(this.get(DisplayDeviceMessage.CONSUMER_MESSAGE_TEXT_TO_PORT_P1));
         supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND));
         supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME));
+        supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_SEND));
+        supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME));
         supportedMessages.add(this.get(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND));
         supportedMessages.add(this.get(ClockDeviceMessage.SET_TIME));
         supportedMessages.add(this.get(AdvancedTestMessage.XML_CONFIG));
@@ -245,7 +251,14 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case activityCalendarAttributeName: {
                 this.calendarExtractor.threadContext().setDevice(offlineDevice);
                 this.calendarExtractor.threadContext().setMessage(offlineDeviceMessage);
-                return convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);
+                return convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor, 0, "0");
+            }
+            case fullActivityCalendarAttributeName: {
+                this.calendarExtractor.threadContext().setDevice(offlineDevice);
+                this.calendarExtractor.threadContext().setMessage(offlineDeviceMessage);
+                String activityCalendar = convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor, 0, "0");
+                String specialDays = parseSpecialDays((TariffCalendar) messageAttribute, this.calendarExtractor);
+                return activityCalendar + SEPARATOR + specialDays;
             }
             case authenticationLevelAttributeName:
                 return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
@@ -256,12 +269,10 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case overThresholdDurationAttributeName:
                 return String.valueOf(((Duration) messageAttribute).getSeconds());
             case newEncryptionKeyAttributeName:
-            case newWrappedEncryptionKeyAttributeName:
             case newPasswordAttributeName:
             case newAuthenticationKeyAttributeName:
             case passwordAttributeName:
-            case newWrappedAuthenticationKeyAttributeName:
-                return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+                return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
             case meterTimeAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());
             case specialDaysAttributeName:
@@ -277,7 +288,6 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case firmwareUpdateActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());  //Epoch (millis)
             case keyAccessorTypeAttributeName:
-                this.keyAccessorTypeExtractor.threadContext().setDevice(offlineDevice);
                 return convertKeyAccessorType((KeyAccessorType) messageAttribute, this.keyAccessorTypeExtractor);
 
             default:
@@ -286,10 +296,14 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     }
 
     private String convertKeyAccessorType(KeyAccessorType messageAttribute, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
-        Optional<Object> optional = keyAccessorTypeExtractor.tempValue(messageAttribute);
-        return optional.isPresent()
-                ? keyAccessorTypeExtractor.name(messageAttribute) + ">-->" + optional.get().toString()   // Note that the 'toString() should work fine for symmetric keys/passphrases
-                : null;                                                                                 // (as tempValue should already been resolved to String)
+        String[] values = new String[]{keyAccessorTypeExtractor.name(messageAttribute), this.keyAccessorTypeExtractor.passiveValueContent(messageAttribute)};
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            new ObjectOutputStream(out).writeObject(values);
+            return DatatypeConverter.printHexBinary(out.toByteArray());
+        } catch (IOException e) {
+            throw DataParseException.generalParseException(e);
+        }
     }
 
     @Override

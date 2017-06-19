@@ -11,7 +11,7 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
@@ -55,7 +55,7 @@ public class WebRTUZ3RegisterFactoryTest {
     @Test
     public void constructComposedObjectFromRegisterListTest() {
         try {
-            TypedProperties props = new TypedProperties();
+            TypedProperties props = TypedProperties.empty();
             props.setProperty(SmartMeterProtocol.Property.SERIALNUMBER.getName(), "Master");
             WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, calendarExtractor, messageFileFinder, deviceMessageFileExtractor, propertySpecService, numberLookupFinder, numberLookupExtractor);
             meterProtocol.setUPLProperties(props);

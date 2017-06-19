@@ -93,7 +93,7 @@ public class AM110RMessageConverterTest extends AbstractV2MessageConverterTest {
 
         offlineDeviceMessage = createMessage(ZigBeeConfigurationDeviceMessage.JoinZigBeeSlaveFromDeviceType);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<Join_ZigBee_Slave_Device ZigBee_IEEE_Address=\"ABC\" ZigBee_Link_Key=\"123\" ZigBee_Device_Type=\"3\"> </Join_ZigBee_Slave_Device>", messageEntry.getContent());
+        assertEquals("<Join_ZigBee_Slave_Device ZigBee_IEEE_Address=\"ABC\" ZigBee_Device_Type=\"3\"> </Join_ZigBee_Slave_Device>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(ZigBeeConfigurationDeviceMessage.RemoveZigBeeSlaveDevice);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -136,7 +136,7 @@ public class AM110RMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new AM110RMessageConverter(propertySpecService, nlsService, converter, deviceMessageFileExtractor);
+        return new AM110RMessageConverter(propertySpecService, nlsService, converter, deviceMessageFileExtractor, keyAccessorTypeExtractor);
     }
 
     @Override
@@ -166,8 +166,6 @@ public class AM110RMessageConverterTest extends AbstractV2MessageConverterTest {
                     return europeanDateTimeFormat.parse("15/10/2013 00:00:00");
                 case DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName:
                     return "ABC";
-                case DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName:
-                    return "123";
                 case DeviceMessageConstants.ZigBeeConfigurationDeviceType:
                     return "3";
                 case DeviceMessageConstants.ZigBeeConfigurationMirrorAddressAttributeName:

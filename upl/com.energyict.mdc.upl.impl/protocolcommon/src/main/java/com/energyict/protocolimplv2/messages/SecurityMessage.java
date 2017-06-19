@@ -25,7 +25,10 @@ import java.util.stream.Stream;
 
 /**
  * Provides a summary of all <i>Security</i> related messages.
- * <p/>
+ * Remark: If the message has a property spec of type reference<KeyAccessorType>, unless otherwise stated the new key value is taken from the <b>passive</b>
+ * value of the KeyAccessor of the Device.
+ * <p>
+ * <p>
  * Copyrights EnergyICT
  * Date: 13/03/13
  * Time: 15:18
@@ -56,15 +59,6 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
                             DlmsAuthenticationLevelMessageValues.getNames()));
         }
     },
-    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS(7034, "Change encryption key with values") {
-        @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Arrays.asList(
-                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation),
-                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName, DeviceMessageConstants.newWrappedEncryptionKeyAttributeDefaultTranslation)
-            );
-        }
-    },
     CHANGE_CLIENT_PASSWORDS(7004, "Change client passwords") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
@@ -85,15 +79,6 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation));
-        }
-    },
-    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS(7033, "Change authentication key with values") {
-        @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Arrays.asList(
-                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
-                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeDefaultTranslation)
-            );
         }
     },
     CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(7008, "Change authentication key with value") {
@@ -339,7 +324,6 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.bigDecimalSpecBuilder(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation).finish(),
-                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.masterKey, DeviceMessageConstants.masterKeyDefaultTranslation),
                     this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
                     this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation)
             );
@@ -461,27 +445,11 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
                     this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.passwordAttributeName, DeviceMessageConstants.passwordAttributeDefaultTranslation));
         }
     },
-    IMPORT_CA_CERTIFICATE(7050, "Import CA certificate") {
+    IMPORT_CA_CERTIFICATE(7050, "Import certificate (into device)") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
-            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.certificateAliasAttributeName, DeviceMessageConstants.certificateAliasAttributeDefaultTranslation));
-        }
-    },
-    IMPORT_CLIENT_END_DEVICE_CERTIFICATE(7051, "Import client end device certificate") {
-        @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            //Referring to an entry in the persisted key store
-            //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
-            return Collections.singletonList(stringSpec(service, DeviceMessageConstants.clientCertificateAliasAttributeName, DeviceMessageConstants.clientCertificateAliasAttributeDefaultTranslation));
-        }
-    },
-    IMPORT_SERVER_END_DEVICE_CERTIFICATE(7052, "Import server end device certificate") {
-        @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            //Referring to a certificateWrapper
-            //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
-            return Collections.singletonList(stringSpec(service, DeviceMessageConstants.certificateWrapperIdAttributeName, DeviceMessageConstants.clientCertificateAliasAttributeDefaultTranslation));
+            //Referring to a CertificateWrapper in the database. Can be a CA certificate, a device certificate or a HES (MDC) certificate.
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.certificateWrapperAttributeName, DeviceMessageConstants.certificateWrapperAttributeDefaultTranslation));
         }
     },
     CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY(7053, "Change authentication key using service key and new plain key") {
@@ -506,23 +474,21 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT(7055, "Change authentication key with new keys, for client") {
+    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY_FOR_CLIENT(7055, "Change authentication key with new keys, for client") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     bigDecimalSpec(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation, BigDecimal.ONE),
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation)
             );
         }
     },
-    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT(7056, "Change encryption key with new keys, for client") {
+    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY_FOR_CLIENT(7056, "Change encryption key with new keys, for client") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     bigDecimalSpec(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation, BigDecimal.ONE),
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation),
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName, DeviceMessageConstants.newWrappedEncryptionKeyAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation)
             );
         }
     },
@@ -535,58 +501,53 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CHANGE_MASTER_KEY_WITH_NEW_KEYS(7058, "Change master key with new keys") {
+    CHANGE_MASTER_KEY_WITH_NEW_KEY(7058, "Change master key with new keys") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Arrays.asList(
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newMasterKeyAttributeName, DeviceMessageConstants.newMasterKeyAttributeDefaultTranslation),
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedMasterKeyAttributeName, DeviceMessageConstants.newWrappedMasterKeyAttributeDefaultTranslation)
+            return Collections.singletonList(
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newMasterKeyAttributeName, DeviceMessageConstants.newMasterKeyAttributeDefaultTranslation)
             );
         }
     },
-    CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT(7059, "Change master key with new keys, for client") {
+    CHANGE_MASTER_KEY_WITH_NEW_KEY_FOR_CLIENT(7059, "Change master key with new keys, for client") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     bigDecimalSpec(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation, BigDecimal.ONE),
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newMasterKeyAttributeName, DeviceMessageConstants.newMasterKeyAttributeDefaultTranslation),
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedMasterKeyAttributeName, DeviceMessageConstants.newWrappedMasterKeyAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newMasterKeyAttributeName, DeviceMessageConstants.newMasterKeyAttributeDefaultTranslation)
             );
         }
     },
-    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT(7060, "Change authentication key with new keys for predefined client") {
+    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY_FOR_PREDEFINED_CLIENT(7060, "Change authentication key with new keys for predefined client") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     stringSpecBuilder(service, DeviceMessageConstants.client, DeviceMessageConstants.clientDefaultTranslation)
                             .addValues(getClients())
                             .finish(),
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation)
             );
         }
     },
-    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT(7061, "Change encryption key with new keys for predefined client") {
+    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY_FOR_PREDEFINED_CLIENT(7061, "Change encryption key with new keys for predefined client") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     stringSpecBuilder(service, DeviceMessageConstants.client, DeviceMessageConstants.clientDefaultTranslation)
                             .addValues(getClients())
                             .finish(),
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation),
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName, DeviceMessageConstants.newWrappedEncryptionKeyAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation)
             );
         }
     },
-    CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT(7062, "Change master key with new keys for predefined client") {
+    CHANGE_MASTER_KEY_WITH_NEW_KEY_FOR_PREDEFINED_CLIENT(7062, "Change master key with new keys for predefined client") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     stringSpecBuilder(service, DeviceMessageConstants.client, DeviceMessageConstants.clientDefaultTranslation)
                             .addValues(getClients())
                             .finish(),
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newMasterKeyAttributeName, DeviceMessageConstants.newMasterKeyAttributeDefaultTranslation),
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedMasterKeyAttributeName, DeviceMessageConstants.newWrappedMasterKeyAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newMasterKeyAttributeName, DeviceMessageConstants.newMasterKeyAttributeDefaultTranslation)
             );
         }
     },

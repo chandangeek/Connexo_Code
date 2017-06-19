@@ -52,9 +52,6 @@ public interface SecurityConfigurationMessages {
         @RtuMessageAttribute(tag = "NewEncryptionKey", required = true)
         String getNewEncryptionKey();
 
-        @RtuMessageAttribute(tag = "NewWrappedEncryptionKey", required = true)
-        String getNewWrappedEncryptionKey();
-
     }
 
     @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change authentication key", tag = RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY)
@@ -62,9 +59,6 @@ public interface SecurityConfigurationMessages {
 
         @RtuMessageAttribute(tag = "NewAuthenticationKey", required = true)
         String getNewAuthenticationKey();
-
-        @RtuMessageAttribute(tag = "NewWrappedAuthenticationKey", required = true)
-        String getNewWrappedAuthenticationKey();
 
     }
 }

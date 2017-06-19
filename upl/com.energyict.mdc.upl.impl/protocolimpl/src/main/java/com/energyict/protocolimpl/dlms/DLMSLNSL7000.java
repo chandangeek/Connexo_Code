@@ -87,6 +87,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -1282,12 +1283,9 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpecOfMaxLength(ADDRESS.getName(), PropertyTranslationKeys.DLMS_ADDRESS,16),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.DLMS_PASSWORD),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.DLMS_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.DLMS_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
-                this.stringSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL),
-                this.integerSpec("ClientMacAddress", PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
                 this.integerSpec("ServerUpperMacAddress", PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
                 this.integerSpec("ServerLowerMacAddress", PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
                 this.stringSpec("FirmwareVersion", PropertyTranslationKeys.DLMS_FIRMWARE_VERSION),
@@ -1332,7 +1330,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
             iRequestTimeZone = 0;
             iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
 
-            iClientMacAddress = properties.getTypedProperty("ClientMacAddress", 1);
+            iClientMacAddress = properties.getTypedProperty("ClientMacAddress", BigDecimal.ONE).intValue();
             iServerUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 17);
             iServerLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 17);
             firmwareVersion = properties.getTypedProperty("FirmwareVersion", "ANY");

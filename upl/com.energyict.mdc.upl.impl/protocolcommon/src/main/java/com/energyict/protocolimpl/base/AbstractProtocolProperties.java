@@ -7,6 +7,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
@@ -42,11 +43,11 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
     private static final int DEFAULT_PROFILE_INTERVAL = 900;
 
     public AbstractProtocolProperties(TypedProperties properties) {
-        this.protocolProperties = com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties);
+        this.protocolProperties = com.energyict.mdc.upl.TypedProperties.copyOf(properties);
     }
 
     public AbstractProtocolProperties() {
-        this(com.energyict.protocolimpl.properties.TypedProperties.empty());
+        this(com.energyict.mdc.upl.TypedProperties.empty());
     }
 
     @ProtocolProperty
@@ -95,11 +96,25 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
     }
 
     protected int getIntProperty(String propertyName, int defaultValue) {
-        return this.getProtocolProperties().getTypedProperty(propertyName, defaultValue);
+        Object propertyValue = getProtocolProperties().getTypedProperty(propertyName);
+        if (BigDecimal.class.isInstance(propertyValue)) {
+            return ((BigDecimal) propertyValue).intValue();
+        } else if (Integer.class.isInstance(propertyValue)) {
+            return (int) propertyValue;
+        } else {
+            return defaultValue;
+        }
     }
 
     protected long getLongProperty(String propertyName, long defaultValue) {
-        return this.getProtocolProperties().getTypedProperty(propertyName, defaultValue);
+        Object propertyValue = getProtocolProperties().getTypedProperty(propertyName);
+        if (propertyValue instanceof BigDecimal) {
+            return ((BigDecimal) propertyValue).intValue();
+        } else if (Long.class.isInstance(propertyValue)) {
+            return (long) propertyValue;
+        } else {
+            return defaultValue;
+        }
     }
 
     protected boolean getBooleanProperty(String propertyName, boolean defaultValue) {

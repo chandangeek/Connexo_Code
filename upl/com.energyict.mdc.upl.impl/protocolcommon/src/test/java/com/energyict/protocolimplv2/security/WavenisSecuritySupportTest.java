@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
 
 import java.util.List;
@@ -38,13 +38,13 @@ public class WavenisSecuritySupportTest extends AbstractSecuritySupportTest {
         assertThat(wavenisSecuritySupport.getSecurityProperties()).hasSize(2);
 
         // check for the password propertySpec
-        Optional<PropertySpec> passwordPropertySpec = wavenisSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.PASSWORD.getKey());
+        Optional<PropertySpec> passwordPropertySpec = wavenisSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.PASSWORD.getKey());
         assertPropertySpecsEqual(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService), passwordPropertySpec);
 
         // check for the encryptionKey propertySpec
-        Optional<PropertySpec> encryptionKeyPropertySpec = wavenisSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY.getKey());
+        Optional<PropertySpec> encryptionKeyPropertySpec = wavenisSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.getKey());
         assertTrue(encryptionKeyPropertySpec.isPresent());
-        assertEquals(encryptionKeyPropertySpec.get().getName(), SecurityPropertySpecName.ENCRYPTION_KEY.getKey());
+        assertEquals(encryptionKeyPropertySpec.get().getName(), SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.getKey());
     }
 
     @Test
@@ -100,8 +100,8 @@ public class WavenisSecuritySupportTest extends AbstractSecuritySupportTest {
 
         String passwordValue = "MyPassword";
         String encryptionKey = "MyEncryptionKey";
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
-        securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), encryptionKey);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), passwordValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), encryptionKey);
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
@@ -111,7 +111,7 @@ public class WavenisSecuritySupportTest extends AbstractSecuritySupportTest {
                     }
 
                     @Override
-                    public String getClient() {
+                    public Object getClient() {
                         return null;
                     }
 

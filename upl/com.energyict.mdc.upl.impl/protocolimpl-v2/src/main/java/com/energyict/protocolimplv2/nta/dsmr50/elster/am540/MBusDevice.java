@@ -33,7 +33,7 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
 
     public MBusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         this.masterProtocol = new AM540(collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, loadProfileExtractor, messageFileExtractor, calendarExtractor, numberLookupExtractor, keyAccessorTypeExtractor);
-        this.idisMBusMessaging = new IDISMBusMessaging(masterProtocol, propertySpecService, nlsService, converter);
+        this.idisMBusMessaging = new IDISMBusMessaging(masterProtocol, propertySpecService, nlsService, converter, keyAccessorTypeExtractor);
     }
 
     @Override

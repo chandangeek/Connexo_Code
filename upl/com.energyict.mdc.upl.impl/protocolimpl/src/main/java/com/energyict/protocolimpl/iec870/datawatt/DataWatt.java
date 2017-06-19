@@ -218,7 +218,6 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC870_ADDRESS),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC870_PASSWORD),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.IEC870_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC870_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC870_ROUNDTRIPCORRECTION),
@@ -226,7 +225,6 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
                 this.stringSpec("ChannelMap", PropertyTranslationKeys.IEC870_CHANNEL_MAP),
                 this.integerSpec("MeterType", PropertyTranslationKeys.IEC870_METER_TYPE),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC870_SERIALNUMBER),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC870_PASSWORD),
                 this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.IEC870_CORRECTTIME));
     }
 

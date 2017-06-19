@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.elster.protocolimpl.dlms.EK280;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -22,6 +23,8 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author sva
@@ -57,14 +60,15 @@ public class EK280MessageConverterTest extends AbstractV2MessageConverterTest {
     public void testMessageConversion_ChangeSecurityKeys() {
         OfflineDeviceMessage offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_SECURITY_KEYS.get(propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<ChangeKeys ClientId=\"1\" WrapperKey=\"MASTER_Key\" NewAuthenticationKey=\"AUTH_Key\" NewEncryptionKey=\"ENCR_Key\"> </ChangeKeys>", messageEntry.getContent());
+        assertEquals("<ChangeKeys ClientId=\"1\" NewAuthenticationKey=\"AUTH_Key\" NewEncryptionKey=\"ENCR_Key\"> </ChangeKeys>", messageEntry.getContent());
     }
 
     @Test
     public void testMessageConversion_ConfigureAllGasParameters() {
         OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.ConfigureAllGasParameters.get(propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<WriteGasParameters GasDensity=\"500\" RelativeDensity=\"0.6\" N2_Percentage=\"20\" CO2_Percentage=\"30\" CO_Percentage=\"40\" H2_Percentage=\"50\" Methane_Percentage=\"60\" CalorificValue=\"10000\"> </WriteGasParameters>", messageEntry.getContent());
+        assertEquals("<WriteGasParameters GasDensity=\"500\" RelativeDensity=\"0.6\" N2_Percentage=\"20\" CO2_Percentage=\"30\" CO_Percentage=\"40\" H2_Percentage=\"50\" Methane_Percentage=\"60\" CalorificValue=\"10000\"> </WriteGasParameters>", messageEntry
+                .getContent());
     }
 
     @Test
@@ -125,7 +129,7 @@ public class EK280MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new EK280MessageConverter(propertySpecService, this.nlsService, this.converter, calendarFinder, this.calendarExtractor, this.deviceMessageFileExtractor, deviceMessageFileFinder);
+        return new EK280MessageConverter(propertySpecService, this.nlsService, this.converter, calendarFinder, this.calendarExtractor, this.deviceMessageFileExtractor, deviceMessageFileFinder, keyAccessorTypeExtractor);
     }
 
     @Override
@@ -136,15 +140,19 @@ public class EK280MessageConverterTest extends AbstractV2MessageConverterTest {
             case DeviceMessageConstants.usernameAttributeName:
                 return "MyTestUserName";
             case DeviceMessageConstants.passwordAttributeName:
-                return "MyTestPassword";
+                KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+                when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("MyTestPassword");
+                return keyAccessorType;
             case DeviceMessageConstants.clientMacAddress:
                 return BigDecimal.ONE;
-            case DeviceMessageConstants.masterKey:
-                return "MASTER_Key";
             case DeviceMessageConstants.newAuthenticationKeyAttributeName:
-                return "AUTH_Key";
+                keyAccessorType = mock(KeyAccessorType.class);
+                when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("AUTH_Key");
+                return keyAccessorType;
             case DeviceMessageConstants.newEncryptionKeyAttributeName:
-                return "ENCR_Key";
+                keyAccessorType = mock(KeyAccessorType.class);
+                when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("ENCR_Key");
+                return keyAccessorType;
             case DeviceMessageConstants.newPDRAttributeName:
                 return "PDR";
             case DeviceMessageConstants.gasDensityAttributeName:

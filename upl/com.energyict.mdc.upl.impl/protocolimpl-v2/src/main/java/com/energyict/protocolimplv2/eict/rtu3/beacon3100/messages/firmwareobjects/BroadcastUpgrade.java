@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjec
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
@@ -25,7 +26,6 @@ import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
-import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
@@ -35,7 +35,7 @@ import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -82,8 +82,11 @@ public class BroadcastUpgrade {
         final int broadcastGroupId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastGroupIdAttributeName).getValue());
 
         final BigDecimal broadcastClientMacAddress = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastClientMacAddressAttributeName).getValue());
-        final String broadcastEncryptionHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastEncryptionKeyAttributeName).getValue();
-        final String broadcastAuthenticationHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastAuthenticationKeyAttributeName).getValue();
+        final String broadcastEncryptionHexKey = getBeacon3100Properties().getBroadcastEncryptionKey();
+        final String broadcastAuthenticationHexKey = getBeacon3100Properties().getBroadcastAuthenticationKey();
+        if (broadcastEncryptionHexKey == null || broadcastAuthenticationHexKey == null || broadcastEncryptionHexKey.isEmpty() || broadcastAuthenticationHexKey.isEmpty()) {
+            throw new ProtocolException("Could not perform the upgrade because the broadcast authentication and/or encryption key are missing. Please specify these as general attribute.");
+        }
         final int encryptionLevel = DlmsEncryptionLevelMessageValues.getValueFor(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.encryptionLevelAttributeName).getValue());
 
         DeviceInfo[] deviceInfos;
@@ -168,11 +171,11 @@ public class BroadcastUpgrade {
         blockTransferProperties.getProperties().setProperty(Beacon3100ConfigurationSupport.READCACHE_PROPERTY, false);
 
         //Note that all meters will have the same AK and broadcast EK. (this is defined in the IDIS P2 spec)
-        TypedProperties securityProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
-        securityProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), broadcastClientMacAddress);
-        securityProperties.setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), broadcastAuthenticationHexKey);
-        securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), broadcastEncryptionHexKey);
-        final DeviceProtocolSecurityPropertySetImpl securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(Integer.toString(broadcastClientMacAddress.intValue()),  0, encryptionLevel, 0, 0, 0, securityProperties);//Auth level 0 does not matter, since there's no association created (pre-established)
+        TypedProperties securityProperties = com.energyict.mdc.upl.TypedProperties.empty();
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), broadcastClientMacAddress);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), broadcastAuthenticationHexKey);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), broadcastEncryptionHexKey);
+        final DeviceProtocolSecurityPropertySetImpl securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(BigDecimal.valueOf(broadcastClientMacAddress.intValue()),  0, encryptionLevel, 0, 0, 0, securityProperties);//Auth level 0 does not matter, since there's no association created (pre-established)
         blockTransferProperties.setSecurityPropertySet(securityPropertySet);
         blockTransferProperties.addProperties(securityPropertySet.getSecurityProperties());
         blockTransferProperties.getSecurityProvider().setInitialFrameCounter(highestFrameCounter + 1);
@@ -302,6 +305,10 @@ public class BroadcastUpgrade {
         } catch (Throwable e) {
             //Move on, not interested in release failures
         }
+    }
+
+    private Beacon3100Properties getBeacon3100Properties() {
+        return (Beacon3100Properties) beacon3100Messaging.getProtocol().getDlmsSessionProperties();
     }
 
 }

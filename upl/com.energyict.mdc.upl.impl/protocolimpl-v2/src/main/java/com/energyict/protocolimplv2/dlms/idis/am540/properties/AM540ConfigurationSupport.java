@@ -1,11 +1,12 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -140,7 +141,8 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.cipheringTypePropertySpec(),
                 this.ipV4Address(),
                 this.ipV6Address(),
-                this.shortAddressPan()
+                this.shortAddressPan(),
+                this.masterKeyPropertySpec()
         );
     }
 

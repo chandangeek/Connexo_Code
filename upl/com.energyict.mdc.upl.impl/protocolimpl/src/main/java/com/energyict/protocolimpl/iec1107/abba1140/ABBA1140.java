@@ -219,14 +219,12 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC1107_ADDRESS),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC1107_PASSWORD),
                 this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.IEC1107_TIMEOUT),
                 this.integerSpec(PK_RETRIES, PropertyTranslationKeys.IEC1107_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION),
                 this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.IEC1107_CORRECTTIME),
                 this.integerSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
                 this.integerSpec(PK_DELAY_BEFORE_CONNECT, PropertyTranslationKeys.IEC1107_DELAY_BEFORE_CONNECT),
-                this.integerSpec(PK_SECURITY_LEVEL, PropertyTranslationKeys.IEC1107_SECURITYLEVEL),
                 this.integerSpec(PK_ECHO_CANCELING, PropertyTranslationKeys.IEC1107_ECHOCANCELLING),
                 this.integerSpec(PK_IEC1107_COMPATIBLE, PropertyTranslationKeys.IEC1107_COMPATIBLE),
                 this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
@@ -551,7 +549,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
         String nodeId = discoverInfo.getNodeId();
         int baudrate = discoverInfo.getBaudrate();
-        TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties properties = com.energyict.mdc.upl.TypedProperties.empty();
         properties.setProperty("SecurityLevel", "0");
         properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
         properties.setProperty("IEC1107Compatible", "1");

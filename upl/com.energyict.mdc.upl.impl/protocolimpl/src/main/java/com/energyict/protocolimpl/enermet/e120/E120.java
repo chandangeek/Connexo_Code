@@ -80,7 +80,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     private static final String PK_TIMEOUT = PROP_TIMEOUT;
     private static final String PK_RETRIES = PROP_RETRIES;
     private static final String PK_EXTENDED_LOGGING = PROP_EXTENDED_LOGGING;
-    private static final String PK_USER_ID = "userId";
+    private static final String PK_USER_ID = "UserId";
     private static final String PK_PASSWORD = PASSWORD.getName();
     private static final String PK_CHANNEL_MAP = "ChannelMap";
 
@@ -159,7 +159,6 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec(PK_USER_ID, PropertyTranslationKeys.USE120_USER_ID , true));
         propertySpecs.add(ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, true, getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.E120_CHANNEL_MAP).format(), getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.E120_CHANNEL_MAP_DESCRIPTION).format()));
         return propertySpecs;
     }

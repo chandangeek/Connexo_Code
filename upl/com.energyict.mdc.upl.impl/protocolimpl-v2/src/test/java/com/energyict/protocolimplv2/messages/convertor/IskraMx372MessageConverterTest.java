@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -22,6 +23,8 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test that creates OfflineDeviceMessages (the attributes are all filled with dummy values) and converts them to the legacy XML message,
@@ -69,7 +72,8 @@ public class IskraMx372MessageConverterTest extends AbstractV2MessageConverterTe
 
         offlineDeviceMessage = createMessage(LoadBalanceDeviceMessage.ENABLE_LOAD_LIMITING_FOR_GROUP.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<ApplyLoadLimiting><Threshold GroupId *>1</Threshold GroupId *><StartDate (dd/mm/yyyy HH:MM:SS)>01/10/2013 00:00:00</StartDate (dd/mm/yyyy HH:MM:SS)><EndDate (dd/mm/yyyy HH:MM:SS)>01/11/2013 00:00:00</EndDate (dd/mm/yyyy HH:MM:SS)></ApplyLoadLimiting>", messageEntry.getContent());
+        assertEquals("<ApplyLoadLimiting><Threshold GroupId *>1</Threshold GroupId *><StartDate (dd/mm/yyyy HH:MM:SS)>01/10/2013 00:00:00</StartDate (dd/mm/yyyy HH:MM:SS)><EndDate (dd/mm/yyyy HH:MM:SS)>01/11/2013 00:00:00</EndDate (dd/mm/yyyy HH:MM:SS)></ApplyLoadLimiting>", messageEntry
+                .getContent());
 
         offlineDeviceMessage = createMessage(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION_FOR_GROUP.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -77,7 +81,8 @@ public class IskraMx372MessageConverterTest extends AbstractV2MessageConverterTe
 
         offlineDeviceMessage = createMessage(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_FOR_GROUP.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<ConfigureLoadLimitingParameters><Parameter GroupId *>1</Parameter GroupId *><Threshold PowerLimit (W)>1</Threshold PowerLimit (W)><Contractual PowerLimit (W)>1</Contractual PowerLimit (W)></ConfigureLoadLimitingParameters>", messageEntry.getContent());
+        assertEquals("<ConfigureLoadLimitingParameters><Parameter GroupId *>1</Parameter GroupId *><Threshold PowerLimit (W)>1</Threshold PowerLimit (W)><Contractual PowerLimit (W)>1</Contractual PowerLimit (W)></ConfigureLoadLimitingParameters>", messageEntry
+                .getContent());
 
         offlineDeviceMessage = createMessage(MBusSetupDeviceMessage.Commission.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -115,7 +120,7 @@ public class IskraMx372MessageConverterTest extends AbstractV2MessageConverterTe
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new IskraMx372MessageConverter(propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor);
+        return new IskraMx372MessageConverter(propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, keyAccessorTypeExtractor);
     }
 
     @Override
@@ -125,7 +130,9 @@ public class IskraMx372MessageConverterTest extends AbstractV2MessageConverterTe
                 case DeviceMessageConstants.usernameAttributeName:
                     return "user";
                 case DeviceMessageConstants.passwordAttributeName:
-                    return "pass";
+                    KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+                    when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("pass");
+                    return keyAccessorType;
                 case DeviceMessageConstants.apnAttributeName:
                     return "apn";
                 case DeviceMessageConstants.contactorModeAttributeName:
@@ -143,7 +150,9 @@ public class IskraMx372MessageConverterTest extends AbstractV2MessageConverterTe
                 case DeviceMessageConstants.whiteListPhoneNumbersAttributeName:
                     return "number1; number2";
                 case DeviceMessageConstants.newHexPasswordAttributeName:
-                    return "FF00AA";
+                    keyAccessorType = mock(KeyAccessorType.class);
+                    when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("FF00AA");
+                    return keyAccessorType;
                 default:
                     return "";
             }

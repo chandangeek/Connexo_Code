@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -8,9 +9,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 
-import com.energyict.protocolimpl.properties.TypedProperties;
-
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -27,8 +25,9 @@ import java.util.Optional;
  */
 public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    private static final int STANDARD_AUTH_DEVICE_ACCESS_LEVEL = 10;
-    private static final int STANDARD_ENCRYPTION_DEVICE_ACCESS_LEVEL = 20;
+    protected static final int STANDARD_AUTH_DEVICE_ACCESS_LEVEL = 10;
+    protected static final int STANDARD_ENCRYPTION_DEVICE_ACCESS_LEVEL = 20;
+    protected static final String LEGACY_DEVICE_ACCESS_IDENTIFIER_PROPERTY = "UserId";
 
     public PasswordWithUserIdentificationSecuritySupport(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -59,6 +58,14 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+            String deviceAccessIdentifierPropertyName = DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName();
+            typedProperties.setProperty(deviceAccessIdentifierPropertyName, deviceProtocolSecurityPropertySet.getClient()); // Add the client
+            if (typedProperties.hasValueFor(deviceAccessIdentifierPropertyName)) {
+                typedProperties.setProperty(
+                        LEGACY_DEVICE_ACCESS_IDENTIFIER_PROPERTY,
+                        typedProperties.getProperty(deviceAccessIdentifierPropertyName)
+                );
+            }
         }
         return typedProperties;
     }
@@ -70,7 +77,7 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
 
     private DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
-        overrideDeviceAccessIdentifierPropertyIfAbsent(typedProperties);
+        Object deviceAccessIdentifier = overrideDeviceAccessIdentifierPropertyIfAbsent(typedProperties);
 
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, STANDARD_AUTH_DEVICE_ACCESS_LEVEL, getAuthenticationAccessLevels()));
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, STANDARD_ENCRYPTION_DEVICE_ACCESS_LEVEL, getEncryptionAccessLevels()));
@@ -81,8 +88,8 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
             }
 
             @Override
-            public String getClient() {
-                return null;
+            public Object getClient() {
+                return String.valueOf(deviceAccessIdentifier);
             }
 
             @Override
@@ -102,14 +109,17 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
         };
     }
 
-    private void overrideDeviceAccessIdentifierPropertyIfAbsent(TypedProperties typedProperties) {
+    private Object overrideDeviceAccessIdentifierPropertyIfAbsent(TypedProperties typedProperties) {
         Object deviceAccessIdentifier = typedProperties.getProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName());
-        if (deviceAccessIdentifier == null) {
+        if (deviceAccessIdentifier == null && typedProperties.hasValueFor(LEGACY_DEVICE_ACCESS_IDENTIFIER_PROPERTY)) {
+            deviceAccessIdentifier = typedProperties.getProperty(LEGACY_DEVICE_ACCESS_IDENTIFIER_PROPERTY);
+        } else if (deviceAccessIdentifier == null && typedProperties.hasValueFor(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName())) {
             deviceAccessIdentifier = typedProperties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName());
         }
         if (deviceAccessIdentifier != null) {
             typedProperties.setProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName(), deviceAccessIdentifier);
         }
+        return deviceAccessIdentifier;
     }
 
     /**
@@ -134,9 +144,7 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(
-                    DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService),
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
 
@@ -163,9 +171,7 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(
-                    DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService),
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
 

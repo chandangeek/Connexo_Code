@@ -1,13 +1,5 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.cosem.G3NetworkManagement;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
@@ -24,6 +16,15 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.ConnectionSetupException;
@@ -173,9 +174,9 @@ public class G3GatewayPSKProvider {
     protected DeviceProtocol initializeGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet, InboundDiscoveryContext context) throws PropertyValidationException {
         DeviceProtocol gatewayProtocol = newGatewayProtocol(context);
         final TypedProperties deviceProtocolProperties = context.getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
-        TypedProperties protocolProperties = deviceProtocolProperties == null ? com.energyict.protocolimpl.properties.TypedProperties.empty() : deviceProtocolProperties;
+        TypedProperties protocolProperties = deviceProtocolProperties == null ? com.energyict.mdc.upl.TypedProperties.empty() : deviceProtocolProperties;
         protocolProperties.setProperty(DlmsProtocolProperties.READCACHE_PROPERTY, false);
-        TypedProperties dialectProperties = context.getDeviceDialectProperties(getDeviceIdentifier()).orElseGet(com.energyict.protocolimpl.properties.TypedProperties::empty);
+        TypedProperties dialectProperties = context.getDeviceDialectProperties(getDeviceIdentifier()).orElseGet(com.energyict.mdc.upl.TypedProperties::empty);
 
         OfflineDevice offlineDevice = context.getInboundDAO().getOfflineDevice(getDeviceIdentifier(), new DeviceOfflineFlags());   //Empty flags means don't load any master data
         DeviceProtocolCache deviceCache = offlineDevice.getDeviceProtocolCache();
@@ -191,7 +192,7 @@ public class G3GatewayPSKProvider {
     }
 
     protected DeviceProtocol newGatewayProtocol(InboundDiscoveryContext context) {
-        return new RtuPlusServer(context.getCollectedDataFactory(), context.getIssueFactory(), context.getPropertySpecService(), context.getNlsService(), context.getConverter(), context.getMessageFileExtractor(), context.getDeviceGroupExtractor(), context.getDeviceExtractor());
+        return new RtuPlusServer(context.getCollectedDataFactory(), context.getIssueFactory(), context.getPropertySpecService(), context.getNlsService(), context.getConverter(), context.getMessageFileExtractor(), context.getDeviceGroupExtractor(), context.getDeviceExtractor(), context.getKeyAccessorTypeExtractor());
     }
 
     private void createTcpComChannel(InboundDiscoveryContext context) throws PropertyValidationException {

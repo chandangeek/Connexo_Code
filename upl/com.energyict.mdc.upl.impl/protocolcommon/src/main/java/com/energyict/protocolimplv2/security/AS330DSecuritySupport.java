@@ -14,13 +14,15 @@ import java.util.Optional;
  */
 public class AS330DSecuritySupport extends DsmrSecuritySupport {
 
+    private static final BigDecimal DEFAULT_CLIENT_MAC_ADDRESS = BigDecimal.valueOf(2);
+
     public AS330DSecuritySupport(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 
     @Override
     public Optional<PropertySpec> getClientSecurityPropertySpec() {
-        return Optional.of(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, BigDecimal.valueOf(2)));
+        return Optional.of(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, DEFAULT_CLIENT_MAC_ADDRESS));
     }
 
 }

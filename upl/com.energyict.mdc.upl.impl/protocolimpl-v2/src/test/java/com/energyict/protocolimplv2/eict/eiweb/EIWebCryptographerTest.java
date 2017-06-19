@@ -8,8 +8,8 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.identifier.NotFoundException;
-import com.energyict.protocolimpl.properties.TypedProperties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.util.Optional;
 
@@ -117,8 +117,8 @@ public class EIWebCryptographerTest {
 
     private Optional<DeviceProtocolSecurityPropertySet> createDeviceProtocolSecurityPropertySet(String password) {
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);
-        com.energyict.mdc.upl.properties.TypedProperties securityProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), password);
+        com.energyict.mdc.upl.properties.TypedProperties securityProperties = com.energyict.mdc.upl.TypedProperties.empty();
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), password);
         when(deviceProtocolSecurityPropertySet.getSecurityProperties()).thenReturn(securityProperties);
         return Optional.of(deviceProtocolSecurityPropertySet);
     }
