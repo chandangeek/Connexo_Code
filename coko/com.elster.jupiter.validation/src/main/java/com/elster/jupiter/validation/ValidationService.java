@@ -85,6 +85,16 @@ public interface ValidationService {
 
     boolean isValidationActive(ChannelsContainer channelsContainer);
 
+    /**
+     * Method to update validation statuses of channels in provided channels container.
+     * NOTE: use only if necessary. validation status update already included into some
+     * operations related to getting these status, so avoid double updating
+     * since it is time/resource consuming.
+     *
+     * @param channelsContainer Container with channels to update validation status
+     */
+    void forceUpdateValidationStatus(ChannelsContainer channelsContainer);
+
     List<Meter> validationEnabledMetersIn(List<String> meterMrids);
 
     boolean validationOnStorageEnabled(Meter meter);

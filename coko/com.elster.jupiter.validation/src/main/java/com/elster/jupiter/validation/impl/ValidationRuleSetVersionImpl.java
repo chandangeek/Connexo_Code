@@ -242,7 +242,7 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
                         false,
                         new String[]{},
                         start + 1,
-                        start + limit));
+                        start + limit + 1));
     }
 
     private QueryExecutor<IValidationRule> getRuleQuery() {

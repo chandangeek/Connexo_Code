@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -61,16 +62,16 @@ class ChannelValidator {
         }
     }
 
-    Instant validateRule(IValidationRule rule) {
+    Instant validateRule(IValidationRule rule, Logger logger) {
         this.rule = rule;
         return channel.getReadingTypes().stream()
                 .filter(r -> rule.getReadingTypes().contains(r))
-                .map(this::validateReadings)
+                .map(readingType -> validateReadings(readingType, logger))
                 .max(Comparator.naturalOrder())
                 .orElse(range.upperEndpoint());
     }
 
-    private Instant validateReadings(ReadingType readingType) {
+    private Instant validateReadings(ReadingType readingType, Logger logger) {
         Accumulator<Instant, ValidatedResult> lastChecked = new Accumulator<>(range.lowerEndpoint(), (d, v) -> determineLastChecked(v, d));
 
         Consumer<ValidatedResult> validatedResultHandler = validationTarget -> {
@@ -79,7 +80,7 @@ class ChannelValidator {
         };
 
         Validator validator = rule.createNewValidator(channel.getChannelsContainer(), readingType);
-        validator.init(channel, readingType, range);
+        validator.init(channel, readingType, range, logger);
 
         validatedResults(validator, readingType)
                 .forEach(validatedResultHandler);

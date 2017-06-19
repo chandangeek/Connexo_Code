@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 public interface ValidationContext {
     Set<QualityCodeSystem> getQualityCodeSystems();
@@ -28,4 +29,6 @@ public interface ValidationContext {
     Optional<ReadingType> getReadingType();
 
     Optional<MetrologyContract> getMetrologyContract();
+
+    Optional<Logger> getLogger();
 }

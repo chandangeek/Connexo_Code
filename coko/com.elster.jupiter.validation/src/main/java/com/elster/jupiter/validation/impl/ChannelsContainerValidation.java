@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Manages validation for the channels container by concrete rule set.
@@ -50,13 +51,13 @@ public interface ChannelsContainerValidation extends HasId {
 
     void makeObsolete();
 
-    void validate(Collection<Channel> channels);
+    void validate(Collection<Channel> channels, Logger logger);
 
-    void validate(Collection<Channel> channels, Instant until);
+    void validate(Collection<Channel> channels, Instant until, Logger logger);
 
-    void validate(RangeSet<Instant> ranges);
+    void validate(RangeSet<Instant> ranges, Logger logger);
 
-    void validate(Collection<Channel> channels, RangeSet<Instant> ranges);
+    void validate(Collection<Channel> channels, RangeSet<Instant> ranges, Logger logger);
 
     void updateLastChecked(Instant lastChecked);
 

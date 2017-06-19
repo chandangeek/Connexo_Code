@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -132,42 +133,42 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
         return Collections.unmodifiableSet(new HashSet<>(channelValidations));
     }
 
-    public void validate(Collection<Channel> channels) {
+    public void validate(Collection<Channel> channels, Logger logger) {
         if (isActive()) {
-            channels.forEach(channel -> validateChannel(channel, getDefaultRangeSet(channel.getLastDateTime())));
+            channels.forEach(channel -> validateChannel(channel, getDefaultRangeSet(channel.getLastDateTime()), logger));
             lastRun = Instant.now(clock);
             save();
         }
     }
 
     @Override
-    public void validate(Collection<Channel> channels, Instant until) {
+    public void validate(Collection<Channel> channels, Instant until, Logger logger) {
         if (isActive()) {
-            channels.forEach(channel -> validateChannel(channel, getDefaultRangeSet(until)));
+            channels.forEach(channel -> validateChannel(channel, getDefaultRangeSet(until), logger));
             lastRun = Instant.now(clock);
             save();
         }
     }
 
     @Override
-    public void validate(RangeSet<Instant> ranges) {
-        this.validate(getChannelsContainer().getChannels(), ranges);
+    public void validate(RangeSet<Instant> ranges, Logger logger) {
+        this.validate(getChannelsContainer().getChannels(), ranges, logger);
     }
 
     @Override
-    public void validate(Collection<Channel> channels, RangeSet<Instant> ranges) {
+    public void validate(Collection<Channel> channels, RangeSet<Instant> ranges, Logger logger) {
         if (isActive()) {
-            channels.stream().filter(channel -> channel.getLastDateTime() != null).forEach(channel -> validateChannel(channel, ranges));
+            channels.stream().filter(channel -> channel.getLastDateTime() != null).forEach(channel -> validateChannel(channel, ranges, logger));
             lastRun = Instant.now(clock);
             save();
         }
     }
 
-    private void validateChannel(Channel channel, RangeSet<Instant> ranges) {
+    private void validateChannel(Channel channel, RangeSet<Instant> ranges, Logger logger) {
         List<IValidationRule> activeRules = getActiveRules();
         if (hasApplicableRules(channel, activeRules)) {
             ChannelValidationImpl channelValidation = findOrAddValidationFor(channel);
-            channelValidation.validate(ranges.subRangeSet(Range.atMost(channel.getLastDateTime())));
+            channelValidation.validate(ranges.subRangeSet(Range.atMost(channel.getLastDateTime())), logger);
             channelValidation.setActiveRules(true);
         } else {
             ChannelValidationImpl channelValidation = findValidationFor(channel);

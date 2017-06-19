@@ -22,12 +22,9 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.CalculatedReadingRecord;
 import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
-import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
-import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -48,7 +45,6 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 
-import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -57,7 +53,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -77,7 +72,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -85,10 +79,8 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
     private static final String INPUT_RT_MRID = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
     private static final String OUTPUT_RT_MRID = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     private static ValidationInMemoryBootstrapModule inMemoryBootstrapModule = new ValidationInMemoryBootstrapModule(INPUT_RT_MRID, OUTPUT_RT_MRID);
-    private static MeterRole meterRole;
     private static MetrologyPurpose metrologyPurpose;
     private static ServiceCategory serviceCategory;
-    private static ReadingType inputReadingType;
     private static ReadingType outputReadingType;
 
     private Instant firstReadingTimestamp = ZonedDateTime.of(2015, 12, 1, 0, 0, 0, 0, inMemoryBootstrapModule.get(Clock.class).getZone()).toInstant();
@@ -97,10 +89,7 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
     public static void setUp() {
         inMemoryBootstrapModule.activate();
         serviceCategory = inMemoryBootstrapModule.get(MeteringService.class).getServiceCategory(ServiceKind.ELECTRICITY).get();
-        meterRole = inMemoryBootstrapModule.get(MetrologyConfigurationService.class).findDefaultMeterRole(DefaultMeterRole.MAIN);
         metrologyPurpose = inMemoryBootstrapModule.get(MetrologyConfigurationService.class).findMetrologyPurpose(DefaultMetrologyPurpose.BILLING).get();
-        serviceCategory.addMeterRole(meterRole);
-        inputReadingType = inMemoryBootstrapModule.get(MeteringService.class).getReadingType(INPUT_RT_MRID).get();
         outputReadingType = inMemoryBootstrapModule.get(MeteringService.class).getReadingType(OUTPUT_RT_MRID).get();
     }
 
@@ -208,11 +197,9 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
         setupDefaultUsagePointLifeCycle();
         MetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.get(MetrologyConfigurationService.class);
         UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration("MC", serviceCategory).create();
-        metrologyConfiguration.addMeterRole(meterRole);
-        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement("RTR", meterRole).withReadingType(inputReadingType);
         MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
         ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable("RTD", outputReadingType, Formula.Mode.AUTO);
-        ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.divide(builder.requirement(readingTypeRequirement), builder.constant(1000L)));
+        ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.constant(1000000L));
         UsagePoint usagePoint = serviceCategory.newUsagePoint("UP", firstReadingTimestamp.minus(1, ChronoUnit.DAYS)).create();
         usagePoint.apply(metrologyConfiguration, firstReadingTimestamp.minus(1, ChronoUnit.DAYS));
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
@@ -245,11 +232,5 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
     private static void setupDefaultUsagePointLifeCycle() {
         UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService = inMemoryBootstrapModule.get(UsagePointLifeCycleConfigurationService.class);
         usagePointLifeCycleConfigurationService.newUsagePointLifeCycle("Default life cycle").markAsDefault();
-    }
-
-    private RangeSet<Instant> of(Range<Instant> ... ranges) {
-        ImmutableRangeSet.Builder<Instant> builder = ImmutableRangeSet.builder();
-        Arrays.stream(ranges).forEach(range -> builder.add(range));
-        return builder.build();
     }
 }

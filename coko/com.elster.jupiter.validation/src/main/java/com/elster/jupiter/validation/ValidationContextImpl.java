@@ -16,12 +16,14 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 public class ValidationContextImpl implements ValidationContext {
     private ChannelsContainer channelsContainer;
     private Set<QualityCodeSystem> qualityCodeSystems;
     private ReadingType readingType;
     private MetrologyContract metrologyContract;
+    private Logger logger;
 
     public ValidationContextImpl(ChannelsContainer channelsContainer) {
         this(Collections.emptySet(), channelsContainer);
@@ -35,9 +37,19 @@ public class ValidationContextImpl implements ValidationContext {
         }
     }
 
+    public ValidationContextImpl(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer, Logger logger) {
+        this(qualityCodeSystems, channelsContainer);
+        this.setLogger(logger);
+    }
+
     public ValidationContextImpl(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType) {
         this(qualityCodeSystems, channelsContainer);
         this.setReadingType(readingType);
+    }
+
+    public ValidationContextImpl(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType, Logger logger) {
+        this(qualityCodeSystems, channelsContainer, readingType);
+        this.setLogger(logger);
     }
 
     public ValidationContextImpl(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer, MetrologyContract metrologyContract) {
@@ -47,6 +59,11 @@ public class ValidationContextImpl implements ValidationContext {
 
     private ValidationContext setChannelsContainer(ChannelsContainer channelsContainer) {
         this.channelsContainer = channelsContainer;
+        return this;
+    }
+
+    private ValidationContext setLogger(Logger logger) {
+        this.logger = logger;
         return this;
     }
 
@@ -98,5 +115,10 @@ public class ValidationContextImpl implements ValidationContext {
     @Override
     public Optional<MetrologyContract> getMetrologyContract() {
         return Optional.ofNullable(this.metrologyContract);
+    }
+
+    @Override
+    public Optional<Logger> getLogger() {
+        return Optional.ofNullable(this.logger);
     }
 }

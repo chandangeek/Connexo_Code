@@ -261,6 +261,8 @@ public class ValidationServiceImplTest {
         doReturn(Optional.of(cimChannel2)).when(channel2).getCimChannel(any());
         doReturn(channel1).when(cimChannel1).getChannel();
         doReturn(channel2).when(cimChannel2).getChannel();
+        when(channel1.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channel2.getChannelsContainer()).thenReturn(channelsContainer);
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainer.getStart()).thenReturn(Instant.EPOCH);
         when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.atLeast(Instant.EPOCH)));
@@ -918,6 +920,7 @@ public class ValidationServiceImplTest {
         when(mainChannel.getChannel()).thenReturn(channel);
         when(bulkChannel.getChannel()).thenReturn(channel);
         when(mainChannel.findReadingQualities()).thenReturn(fetcher);
+        when(channel.getChannelsContainer()).thenReturn(channelsContainer);
         ReadingQualityWithTypeFetcher bulkFetcher = mock(ReadingQualityWithTypeFetcher.class, Answers.RETURNS_DEEP_STUBS.get());
         when(bulkChannel.findReadingQualities()).thenReturn(bulkFetcher);
         Instant start = ZonedDateTime.of(2015, 9, 1, 0, 0, 0, 0, ZoneOffset.UTC).toInstant();

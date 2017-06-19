@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 public class EffectiveChannelsContainerValidation implements ChannelsContainerValidation {
 
@@ -109,23 +110,23 @@ public class EffectiveChannelsContainerValidation implements ChannelsContainerVa
     }
 
     @Override
-    public void validate(Collection<Channel> channels) {
-        channelsContainerValidation.validate(channels, ranges);
+    public void validate(Collection<Channel> channels, Logger logger) {
+        channelsContainerValidation.validate(channels, ranges, logger);
     }
 
     @Override
-    public void validate(Collection<Channel> channels, Instant until) {
-        channelsContainerValidation.validate(channels, ranges.subRangeSet(Range.atMost(until)));
+    public void validate(Collection<Channel> channels, Instant until, Logger logger) {
+        channelsContainerValidation.validate(channels, ranges.subRangeSet(Range.atMost(until)), logger);
     }
 
     @Override
-    public void validate(RangeSet<Instant> ranges) {
-        channelsContainerValidation.validate(ranges);
+    public void validate(RangeSet<Instant> ranges, Logger logger) {
+        channelsContainerValidation.validate(ranges, logger);
     }
 
     @Override
-    public void validate(Collection<Channel> channels, RangeSet<Instant> ranges) {
-        channelsContainerValidation.validate(channels, ranges);
+    public void validate(Collection<Channel> channels, RangeSet<Instant> ranges, Logger logger) {
+        channelsContainerValidation.validate(channels, ranges, logger);
     }
 
     @Override
