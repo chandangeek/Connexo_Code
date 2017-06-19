@@ -53,13 +53,13 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
                     items: [
                         {
                             itemId: 'rbtn-is-bulk-no',
-                            boxLabel: Uni.I18n.translate('general.valueWh', 'MDC', 'Value (Wh)'),
+                            boxLabel: Uni.I18n.translate('general.valueWithUnit', 'MDC', 'Value ({0})', me.currentChannel.get('readingType').names.unitOfMeasure),
                             inputValue: false,
                             checked: true
                         },
                         {
                             itemId: 'rbtn-is-bulk-yes',
-                            boxLabel: Uni.I18n.translate('general.bulkValueWh', 'MDC', 'Bulk value (Wh)'),
+                            boxLabel: Uni.I18n.translate('general.bulkValueWithUnit', 'MDC', 'Bulk value ({0})', me.currentChannel.get('calculatedReadingType') ? me.currentChannel.get('calculatedReadingType').names.unitOfMeasure : ''),
                             inputValue: true
                         }
                     ]

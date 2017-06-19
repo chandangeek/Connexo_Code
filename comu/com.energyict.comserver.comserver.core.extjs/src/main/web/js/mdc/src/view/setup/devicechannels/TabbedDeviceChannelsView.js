@@ -391,15 +391,15 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             if (mainValidationInfo.valueModificationFlag == 'EDITED') {
                 point.edited = true;
             }
-            if (mainValidationInfo.estimatedByRule) {
+            if (properties.delta.suspect) {
+                point.color = suspectColor;
+                point.tooltipColor = tooltipSuspectColor
+            } else if (mainValidationInfo.estimatedByRule) {
                 point.color = estimatedColor;
                 point.tooltipColor = tooltipEstimatedColor;
             } else if (properties.delta.notValidated) {
                 point.color = notValidatedColor;
                 point.tooltipColor = tooltipNotValidatedColor
-            } else if (properties.delta.suspect) {
-                point.color = suspectColor;
-                point.tooltipColor = tooltipSuspectColor
             } else if (properties.delta.informative) {
                 point.color = informativeColor;
                 point.tooltipColor = tooltipInformativeColor;
