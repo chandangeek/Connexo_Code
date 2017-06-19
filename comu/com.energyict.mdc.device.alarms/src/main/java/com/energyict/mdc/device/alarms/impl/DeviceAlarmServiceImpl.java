@@ -345,7 +345,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         }
         //cleared alarm cleared status
         if (!filter.getCleared().isEmpty()) {
-            condition = condition.and(where("clearedStatus").in(filter.getCleared()));
+            condition = condition.and(where("clearStatus.statusValue").in(filter.getCleared()));
         }
         //filter by workGroup
         if (!filter.getWorkGroupAssignees().isEmpty()) {

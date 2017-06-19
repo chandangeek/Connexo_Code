@@ -285,7 +285,7 @@ public abstract class BaseTest {
         return injector.getInstance(DeviceAlarmService.class);
     }
 
-    protected TimeService getTimeService(){
+    protected TimeService getTimeService() {
         return injector.getInstance(TimeService.class);
     }
 
@@ -327,7 +327,7 @@ public abstract class BaseTest {
         builder.setName(name);
         builder.setComment("Comment for rule");
         builder.setIssueType(getIssueService().findIssueType(DeviceAlarmService.DEVICE_ALARM).get());
-        builder.setReason(issueService.createReason("alarmReason", getIssueService().findIssueType(DeviceAlarmService.DEVICE_ALARM).get(), new TranslationKey() {
+        builder.setReason(issueService.createReason("alarmReason",getIssueService().findIssueType(DeviceAlarmService.DEVICE_ALARM).get(), new TranslationKey() {
                     @Override
                     public String getKey() {
                         return "alarmReason";

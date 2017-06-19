@@ -82,7 +82,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         run(() -> {
             IssueType issueType = setSupportedIssueType();
             setDefaultDeviceAlarmActions(issueType);
-        }, "issue reasons and action types", logger);
+        }, "issue action types", logger);
         run(this::createRelativePeriodCategory, "create alarm relative period category", logger);
         run(this::createRelativePeriods, "Assign default relative periods to DAL category", logger);
         run(this::publishEvents, "publishing events", logger);

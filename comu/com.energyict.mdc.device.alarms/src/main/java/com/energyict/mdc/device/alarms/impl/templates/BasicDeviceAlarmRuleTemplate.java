@@ -59,6 +59,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -67,7 +69,7 @@ import java.util.stream.Collectors;
         service = CreationRuleTemplate.class,
         immediate = true)
 public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
-    protected static final Logger LOG = Logger.getLogger(BasicDeviceAlarmRuleTemplate.class.getName());
+    private static final Logger LOG = Logger.getLogger(BasicDeviceAlarmRuleTemplate.class.getName());
     static final String NAME = "BasicDeviceAlarmRuleTemplate";
     public static final String RAISE_EVENT_PROPS = NAME + ".raiseEventProps";
     public static final String TRIGGERING_EVENTS = NAME + ".triggeringEvents";
@@ -201,7 +203,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
     @Override
     public Optional<? extends Issue> resolveIssue(IssueEvent event) {
-        //TODO - resolve all occurrences
         Optional<? extends Issue> issue = event.findExistingIssue();
         if (issue.isPresent() && !issue.get().getStatus().isHistorical()) {
             OpenIssue openIssue = (OpenIssue) issue.get();
@@ -272,6 +273,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     @SuppressWarnings("unchecked")
     private OpenIssue getAlarmForUpdate(OpenIssue openIssue, IssueEvent event) {
         if (openIssue instanceof OpenDeviceAlarm && event instanceof DeviceAlarmEvent) {
+            DeviceAlarmEvent alarmEvent = (DeviceAlarmEvent) event;
             OpenDeviceAlarm alarm = OpenDeviceAlarm.class.cast(openIssue);
             List<String> clearingEvents = new ArrayList<>();
             alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(CLEARING_EVENTS))
@@ -279,26 +281,25 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                     ((ArrayList<EventTypeInfo>) (element.getValue())).forEach(value -> clearingEvents.add(value.getName())));
             Optional<RaiseEventPropsInfo> newEventProps = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(RAISE_EVENT_PROPS))
                     .findFirst().map(found -> (RaiseEventPropsInfo) found.getValue());
-
             if (!clearingEvents.isEmpty() &&
-                    ((DeviceAlarmEvent) event).isClearing(clearingEvents)) {
-                if (!alarm.isStatusCleared()) {
-                    alarm.toggleClearedStatus();
+                    alarmEvent.isClearing(clearingEvents)) {
+                if (!alarm.getClearStatus().isCleared()) {
+                    alarm.getClearStatus().toggle(alarmEvent.getTimestamp());
                 }
                 if (newEventProps.isPresent() &&
                         newEventProps.get().hasDecreaseUrgency()) {
                     alarm.setPriority(Priority.get(alarm.getPriority().lowerUrgency(), alarm.getPriority().getImpact()));
                 }
             } else {
-                if (alarm.isStatusCleared()) {
-                    alarm.toggleClearedStatus();
+                if (alarm.getClearStatus().isCleared()) {
+                    alarm.getClearStatus().init();
                 }
                 if (newEventProps.isPresent() &&
                         newEventProps.get().hasIncreaseUrgency()) {
                     alarm.setPriority(Priority.get(alarm.getPriority().increaseUrgency(), alarm.getPriority().getImpact()));
                 }
             }
-            alarm.addRelatedAlarmEvent(alarm.getDevice().getId(), ((EndDeviceEventCreatedEvent) event).getEventTypeMrid(), ((EndDeviceEventCreatedEvent) event).getTimestamp());
+            alarm.addRelatedAlarmEvent(alarm.getDevice().getId(), alarmEvent.getEventTypeMrid(), ((EndDeviceEventCreatedEvent) event).getTimestamp());
             return alarm;
         }
         return openIssue;
@@ -461,7 +462,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
         DeviceLifeCycleInDeviceTypeInfo(DeviceType deviceType, List<State> states, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
             this.deviceType = deviceType;
-            this.states = states;
+            this.states = new CopyOnWriteArrayList<>(states);
             this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         }
 
@@ -480,7 +481,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 jsonObj.put("lifeCycleStateName", states.stream().map(state -> getStateName(state) + " (" + deviceType.getDeviceLifeCycle().getName() + ")").collect(Collectors.toList()));
                 return jsonObj.toString();
             } catch (JSONException e) {
-                e.printStackTrace();
+                LOG.log(Level.SEVERE, e.getMessage(), e);
             }
             return "";
         }
@@ -699,7 +700,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 jsonId.put("relativePeriod", relativePeriod.getName());
                 return jsonId.toString();
             } catch (JSONException e) {
-                e.printStackTrace();
+                LOG.log(Level.SEVERE, e.getMessage(), e);
             }
             return "";
         }

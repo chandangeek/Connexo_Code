@@ -13,7 +13,5 @@ public interface DeviceAlarm extends Issue {
 
     List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvents();
 
-    Boolean isStatusCleared();
-
-    void toggleClearedStatus();
+    DeviceAlarmClearStatus getClearStatus();
 }
