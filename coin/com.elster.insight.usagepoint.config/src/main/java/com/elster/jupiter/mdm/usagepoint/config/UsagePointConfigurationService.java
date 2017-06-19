@@ -83,6 +83,7 @@ public interface UsagePointConfigurationService {
      * @return list of reading matched reading type deliverables of metrology contract and validation rule set
      */
     List<ReadingTypeDeliverable> getMatchingDeliverablesOnValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet);
+
     /**
      *
      * @param metrologyContract
@@ -90,6 +91,7 @@ public interface UsagePointConfigurationService {
      * @return list of reading matched reading type deliverables of metrology contract and estimation rule set
      */
     List<ReadingTypeDeliverable> getMatchingDeliverablesOnEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet);
+
     /**
      * Gets the {@link EstimationRuleSet}s that are being used by the specified {@link MetrologyContract}.
      *
