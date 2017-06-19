@@ -19,7 +19,6 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.logging.LoggingContext;
@@ -126,7 +125,7 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
 
     @Override
     public List<PropertySpec> getPropertySpecs(ValidationPropertyDefinitionLevel level) {
-        return ValidationPropertyDefinitionLevel.VALIDATION_RULE == level ? getConfigurationPropertySpecs() : getOverridenPropertySpecs();
+        return ValidationPropertyDefinitionLevel.VALIDATION_RULE == level ? getConfigurationPropertySpecs() : getOverriddenPropertySpecs();
     }
 
     private List<PropertySpec> getConfigurationPropertySpecs() {
@@ -138,7 +137,7 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
         );
     }
 
-    private List<PropertySpec> getOverridenPropertySpecs() {
+    private List<PropertySpec> getOverriddenPropertySpecs() {
         return Arrays.asList(
                 buildReferenceUsagePointPropertySpec(),
                 buildCheckPurposePropertySpec(),
@@ -180,7 +179,7 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
 
         try {
             initUsagePointName(channel);
-            initOverridenProperties();
+            initOverriddenProperties();
             ReadingType referenceReadingType = referenceReadingTypeProperty.getReadingType();
             validateReferenceReadingType(readingType, referenceReadingType);
             initValidatingPurpose();
@@ -190,14 +189,14 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
         }
     }
 
-    private void initOverridenProperties() throws InitCancelException {
+    private void initOverriddenProperties() throws InitCancelException {
         checkChannelPurpose = getCheckPurposeProperty(false);
         referenceUsagePoint = getCheckUsagePointProperty();
         referenceReadingTypeProperty = getReferenceReadingTypeProperty();
         if (checkChannelPurpose == null || referenceUsagePoint == null || referenceReadingTypeProperty == null) {
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_CONFIGURATION_NOT_COMPLETE)
-                            .format(rangeToString(failedValidatonInterval), getDisplayName(), validatingUsagePointName, validatingPurpose
+                            .format(rangeToString(failedValidationInterval), getDisplayName(), validatingUsagePointName, validatingPurpose
                                     .getName(), readingType.getFullAliasName()));
             throw new InitCancelException(ValidationResult.NOT_VALIDATED);
         }
@@ -217,7 +216,7 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
         if (!areReadingTypesComparable(validatingReadingType, referenceReadingType)) {
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_REFERENCE_READING_TYPE_NOT_COMPARABLE)
-                            .format(rangeToString(failedValidatonInterval), getDisplayName(), validatingUsagePointName, validatingPurpose
+                            .format(rangeToString(failedValidationInterval), getDisplayName(), validatingUsagePointName, validatingPurpose
                                     .getName(), readingType.getFullAliasName()));
             throw new InitCancelException(ValidationResult.NOT_VALIDATED);
         }
@@ -274,20 +273,20 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
             case NO_REFERENCE_PURPOSE_FOUND_ON_REFERENCE_USAGE_POINT:
                 LoggingContext.get()
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_NO_PURPOSE)
-                                .format(rangeToString(failedValidatonInterval), getDisplayName(), validatingUsagePointName, validatingPurpose
+                                .format(rangeToString(failedValidationInterval), getDisplayName(), validatingUsagePointName, validatingPurpose
                                         .getName(), readingType.getFullAliasName(), referenceUsagePoint.getUsagePoint()
                                         .getName()));
                 break;
             case REFERENCE_PURPOSE_HAS_NOT_BEEN_EVER_ACTIVATED:
                 LoggingContext.get()
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_PURPOSE_NEVER_ACTIVATED)
-                                .format(rangeToString(failedValidatonInterval), getDisplayName(), props.readingType.getFullAliasName(), validatingUsagePointName));
+                                .format(rangeToString(failedValidationInterval), getDisplayName(), props.readingType.getFullAliasName(), validatingUsagePointName));
 
                 break;
             case REFERENCE_OUTPUT_DOES_NOT_EXIST:
                 LoggingContext.get()
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_NO_CHECK_OUTPUT)
-                                .format(rangeToString(failedValidatonInterval),
+                                .format(rangeToString(failedValidationInterval),
                                         getDisplayName(),
                                         props.readingType.getFullAliasName(),
                                         validatingUsagePointName));
@@ -295,7 +294,7 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
             case REFERENCE_OUPUT_MISSING_OR_NOT_VALID:
                 LoggingContext.get()
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID)
-                                .format(rangeToString(failedValidatonInterval), getDisplayName(), validatingUsagePointName, validatingPurpose
+                                .format(rangeToString(failedValidationInterval), getDisplayName(), validatingUsagePointName, validatingPurpose
                                         .getName(), props.readingType.getFullAliasName()));
                 break;
         }

@@ -79,7 +79,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
 
     ReadingType readingType;
     // interval to log failed validation
-    Range<Instant> failedValidatonInterval;
+    Range<Instant> failedValidationInterval;
 
     UsagePoint validatingUsagePoint;
     String validatingUsagePointName;
@@ -107,7 +107,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
     @Override
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
         this.readingType = readingType;
-        this.failedValidatonInterval = interval;
+        this.failedValidationInterval = interval;
         this.validatingChannel = channel;
 
         initValidatingPurpose();
@@ -116,12 +116,10 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
         minThreshold = getMinThresholdProperty();
         passIfNoRefData = getPassIfNoRefDataProperty();
         useValidatedData = getUseValidatedDataProperty();
-
     }
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
-
         // verify predefined behaviour
         if (preparedValidationResult != null) {
             return preparedValidationResult;
@@ -133,7 +131,6 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
     }
 
     private ValidationResult validate(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading) {
-
         Instant timeStamp = mainReading.getTimeStamp();
 
         // [RULE CHECK] If no data is available on the check channel:
@@ -183,7 +180,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
         if (TwoValuesDifference.Type.ABSOLUTE == maxAbsoluteDifference.getType()) {
             differenceValue = maxAbsoluteDifference.getValue();
         } else if (TwoValuesDifference.Type.RELATIVE == maxAbsoluteDifference.getType()) {
-            differenceValue = comparingValues.mainValue.multiply(maxAbsoluteDifference.getValue())
+            differenceValue = comparingValues.checkValue.multiply(maxAbsoluteDifference.getValue())
                     .multiply(new BigDecimal(0.01));
         } else {
             return ValidationResult.NOT_VALIDATED;
@@ -199,9 +196,8 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
     private void prepareValidationResult(ValidationResult validationResult, Instant timeStamp) {
         preparedValidationResult = validationResult;
 
-        failedValidatonInterval = Range.range(timeStamp, failedValidatonInterval.lowerBoundType(), failedValidatonInterval
-                .upperEndpoint(), failedValidatonInterval.upperBoundType());
-
+        failedValidationInterval = Range.range(timeStamp, failedValidationInterval.lowerBoundType(), failedValidationInterval
+                .upperEndpoint(), failedValidationInterval.upperBoundType());
     }
 
     void initValidatingPurpose() {
@@ -214,16 +210,14 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
         }
     }
 
-    void initCheckData(UsagePoint referenceUsagePoint, ReadingType referenceReadingType) throws
-            InitCancelException {
-
+    void initCheckData(UsagePoint referenceUsagePoint, ReadingType referenceReadingType) throws InitCancelException {
         List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMCList = referenceUsagePoint
-                .getEffectiveMetrologyConfigurations(failedValidatonInterval);
+                .getEffectiveMetrologyConfigurations(failedValidationInterval);
 
         if (effectiveMCList.size() != 1) {
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.VALIDATOR_MISC_NOT_ONE_EMC)
-                            .format(rangeToString(failedValidatonInterval), getDisplayName(), referenceReadingType.getFullAliasName(), effectiveMCList
+                            .format(rangeToString(failedValidationInterval), getDisplayName(), referenceReadingType.getFullAliasName(), effectiveMCList
                                     .size()));
             throw new InitCancelException(ValidationResult.NOT_VALIDATED);
         }
@@ -254,13 +248,13 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
                 checkOutputExistOnPurpose = true;
                 // 3. prepare map of interval readings from check channel
                 List<IntervalReadingRecord> checkChannelIntervalReadings = checkChannel.get()
-                        .getIntervalReadings(failedValidatonInterval);
+                        .getIntervalReadings(failedValidationInterval);
                 checkReadingRecords = checkChannelIntervalReadings.stream()
                         .collect(Collectors.toMap(IntervalReadingRecord::getTimeStamp, Function.identity()));
 
                 // 4. get validation statuses for check channel
                 if (checkReadingRecords.isEmpty()) {
-                    checkReadingRecordValidations = Collections.EMPTY_MAP;
+                    checkReadingRecordValidations = Collections.emptyMap();
                 } else {
 
 
@@ -299,7 +293,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
         if (!usagePoint.isPresent()) {
             LoggingContext.get()
                     .severe(getLogger(), getThesaurus().getFormat(MessageSeeds.VALIDATOR_INIT_MISC_NO_UP)
-                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType.getFullAliasName()));
+                            .format(rangeToString(failedValidationInterval), getDisplayName(), readingType.getFullAliasName()));
             throw new InitCancelException(ValidationResult.NOT_VALIDATED);
         }
 
@@ -537,7 +531,6 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
             this.readingType = readingType;
             return this;
         }
-
     }
 
     abstract void logFailure(InitCancelProps props);

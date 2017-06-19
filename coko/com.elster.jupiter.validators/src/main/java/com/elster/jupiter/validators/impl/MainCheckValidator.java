@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * The 'Main/Check comparison' validator allows to compare output values from one channel to another "check" channel on the same usage point.<br>
  * The validator compares delta values on the validated output channel on a usage point to another output channel with the same reading type
@@ -31,7 +30,6 @@ import java.util.Map;
 public class MainCheckValidator extends MainCheckAbstractValidator {
 
     // validator parameters
-
 
     public MainCheckValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService) {
         super(thesaurus, propertySpecService, metrologyConfigurationService, validationService);
@@ -59,10 +57,10 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
 
     @Override
     public List<PropertySpec> getPropertySpecs(ValidationPropertyDefinitionLevel level) {
-        return ValidationPropertyDefinitionLevel.VALIDATION_RULE == level ? getPropertySpecs() : getOverridenPropertySpecs();
+        return ValidationPropertyDefinitionLevel.VALIDATION_RULE == level ? getPropertySpecs() : getOverriddenPropertySpecs();
     }
 
-    private List<PropertySpec> getOverridenPropertySpecs() {
+    private List<PropertySpec> getOverriddenPropertySpecs() {
         return Arrays.asList(
                 buildMaxAbsoluteDiffPropertySpec(),
                 buildMinThresholdPropertySpec()
@@ -103,18 +101,18 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
             case NO_REFERENCE_PURPOSE_FOUND_ON_REFERENCE_USAGE_POINT:
                 LoggingContext.get()
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NO_PURPOSE)
-                                .format(rangeToString(failedValidatonInterval), getDisplayName(), props.readingType.getFullAliasName(), validatingUsagePointName));
+                                .format(rangeToString(failedValidationInterval), getDisplayName(), props.readingType.getFullAliasName(), validatingUsagePointName));
                 break;
             case REFERENCE_PURPOSE_HAS_NOT_BEEN_EVER_ACTIVATED:
                 LoggingContext.get()
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_PURPOSE_NEVER_ACTIVATED)
-                                .format(rangeToString(failedValidatonInterval), getDisplayName(), props.readingType.getFullAliasName(), validatingUsagePointName));
+                                .format(rangeToString(failedValidationInterval), getDisplayName(), props.readingType.getFullAliasName(), validatingUsagePointName));
 
                 break;
             case REFERENCE_OUTPUT_DOES_NOT_EXIST:
                 LoggingContext.get()
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_NO_CHECK_OUTPUT)
-                                .format(rangeToString(failedValidatonInterval),
+                                .format(rangeToString(failedValidationInterval),
                                         getDisplayName(),
                                         props.readingType.getFullAliasName(),
                                         validatingUsagePointName));
@@ -122,7 +120,7 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
             case REFERENCE_OUPUT_MISSING_OR_NOT_VALID:
                 LoggingContext.get()
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAIN_CHECK_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID)
-                                .format(rangeToString(failedValidatonInterval), getDisplayName(), validatingUsagePointName, props.readingType
+                                .format(rangeToString(failedValidationInterval), getDisplayName(), validatingUsagePointName, props.readingType
                                         .getFullAliasName()));
                 break;
         }
