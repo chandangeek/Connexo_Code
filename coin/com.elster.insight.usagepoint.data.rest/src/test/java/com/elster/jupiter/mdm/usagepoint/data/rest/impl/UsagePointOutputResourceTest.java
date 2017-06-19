@@ -490,6 +490,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         ValidationEvaluator validationEvaluator = mock(ValidationEvaluator.class);
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
         doReturn(Collections.emptyList()).when(validationEvaluator).getValidationStatus(any(), any(Channel.class), any());
+        when(usagePointDataCompletionService.getLastChecked(any(UsagePoint.class), any(MetrologyPurpose.class))).thenReturn(Optional.empty());
         // Business method
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/101/deactivate").request().put(Entity.json(purposeInfo));
 

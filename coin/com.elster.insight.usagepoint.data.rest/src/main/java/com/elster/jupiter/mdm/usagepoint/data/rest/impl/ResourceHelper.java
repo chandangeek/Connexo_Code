@@ -56,6 +56,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
@@ -451,5 +452,11 @@ public class ResourceHelper {
         DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService()
                 .getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
         return dateTimeFormatter.format(LocalDateTime.ofInstant(date, ZoneId.systemDefault()));
+    }
+
+    public String formatDate(ZonedDateTime date) {
+        DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService()
+                .getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
+        return dateTimeFormatter.format(date);
     }
 }
