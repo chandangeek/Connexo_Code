@@ -11,6 +11,7 @@ import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.calendar.CalendarService;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by aeryomin on 05.04.2017.
@@ -43,19 +44,26 @@ public class CalendarWithEventSettingsFactory extends AbstractValueFactory<Calen
             return NoneCalendarWithEventSettings.INSTANCE;
         } else {
             String[] calendarAndEvent = stringValue.split(VALUE_UNIT_SEPARATOR);
-            if (calendarAndEvent.length < 2){
-                discardDay = Boolean.parseBoolean(calendarAndEvent[0]);
-                return new DiscardDaySettings(discardDay, calendar, event);
-            } else if (calendarAndEvent.length < 3){
-                discardDay = Boolean.parseBoolean(calendarAndEvent[0]);
-                calendar = calendarService.findCalendar(Long.parseLong(calendarAndEvent[1])).orElse(null);
-                return new DiscardDaySettings(discardDay, calendar, event);
-            } else {
-                discardDay = Boolean.parseBoolean(calendarAndEvent[0]);
-                calendar = calendarService.findCalendar(Long.parseLong(calendarAndEvent[1])).orElse(null);
-                event = calendar.getEvents()
-                        .stream()
-                        .filter(ev -> ev.getId() == Long.parseLong(calendarAndEvent[2])).findAny().orElse(null);
+            discardDay = Boolean.parseBoolean(calendarAndEvent[0]);
+            switch (calendarAndEvent.length){
+                case 2:
+                    calendar = Optional.ofNullable(calendarAndEvent[1])
+                            .filter(value -> !value.equalsIgnoreCase("null"))
+                            .flatMap(e -> calendarService.findCalendar(Long.parseLong(e)))
+                            .orElse(null);
+                    break;
+                case 3:
+                    calendar = Optional.ofNullable(calendarAndEvent[1])
+                            .filter(value -> !value.equalsIgnoreCase("null"))
+                            .flatMap(e -> calendarService.findCalendar(Long.parseLong(e)))
+                            .orElse(null);
+                    Calendar finalCalendar = calendar;
+                    event = Optional.ofNullable(calendarAndEvent[2])
+                            .filter(value -> !value.equalsIgnoreCase("null"))
+                            .flatMap(e -> finalCalendar.getEvents()
+                                    .stream()
+                                    .filter(ev -> ev.getId() == Long.parseLong(e)).findAny()).orElse(null);
+                    break;
             }
             return new DiscardDaySettings(discardDay, calendar, event);
         }
@@ -63,14 +71,14 @@ public class CalendarWithEventSettingsFactory extends AbstractValueFactory<Calen
 
     @Override
     public String toStringValue(CalendarWithEventSettings object) {
-        if (object instanceof NoneCalendarWithEventSettings){
+        if (object instanceof NoneCalendarWithEventSettings) {
             return NoneCalendarWithEventSettings.NONE_CALENDAR_SETTINGS;
         }
         DiscardDaySettings settings = (DiscardDaySettings) object;
         String fields = "";
-            fields = settings.isDiscardDay().toString() + ":";
-            fields += settings.getCalendar() != null ? settings.getCalendar().getId() + ":" : "";
-            fields += settings.getEvent() != null ? settings.getEvent().getId() : "";
+        fields = settings.isDiscardDay().toString() + VALUE_UNIT_SEPARATOR;
+        fields += settings.getCalendar() != null ? settings.getCalendar().getId() + VALUE_UNIT_SEPARATOR : "";
+        fields += settings.getEvent() != null ? settings.getEvent().getId() : "";
         return fields;
     }
 

@@ -284,7 +284,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
         updateReadingTypes(rule, mRIDs);
         rule.setProperties(properties);
         rule.setMarkProjected(markProjected);
-        readingQualityComment.ifPresent(rule::setComment);
+        rule.setComment(readingQualityComment.orElse(null));
         rule.save();
         dataModel.touch(this);
 
