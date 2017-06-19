@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -86,6 +87,8 @@ public interface InboundDiscoveryContext {
     DeviceMessageFileExtractor getMessageFileExtractor();
 
     CertificateWrapperExtractor getCertificateWrapperExtractor();
+
+    KeyAccessorTypeExtractor getKeyAccessorTypeExtractor();
 
     /**
      * Gets the {@link TypedProperties} of the {@link ConnectionType}

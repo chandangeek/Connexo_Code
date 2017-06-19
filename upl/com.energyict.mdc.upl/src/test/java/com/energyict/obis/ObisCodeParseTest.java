@@ -13,39 +13,45 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ObisCodeParseTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void emptyStringFails() {
-        ObisCode.fromString("");
+        ObisCode obisCode = ObisCode.fromString("");
+        assertThat(obisCode.isInvalid()).isEqualTo(true);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void notEnoughDigitsFails() {
-        ObisCode.fromString("0.6.128.0.255");
+        ObisCode obisCode = ObisCode.fromString("0.6.128.0.255");
+        assertThat(obisCode.isInvalid()).isEqualTo(true);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void alphaNumericalsFails() {
-        ObisCode.fromString("0.6.Rudi.02.05.69");
+        ObisCode obisCode = ObisCode.fromString("0.6.Rudi.02.05.69");
+        assertThat(obisCode.isInvalid()).isEqualTo(true);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void tooManyDigitsFails() {
-        ObisCode.fromString("0.6.128.0.255.02.05.69");
+        ObisCode obisCode = ObisCode.fromString("0.6.128.0.255.02.05.69");
+        assertThat(obisCode.isInvalid()).isEqualTo(true);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void largeDigitsFails() {
         ObisCode.fromString("0.6.512.0.255.1");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testVZFails() {
-        ObisCode.fromString("11.7.97.13.103.VZ2");
+        ObisCode obisCode = ObisCode.fromString("11.7.97.13.103.VZ2");
+        assertThat(obisCode.isInvalid()).isEqualTo(true);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNoVZFails() {
-        ObisCode.fromString("11.7.97.13.103.-1");
+        ObisCode obisCode = ObisCode.fromString("11.7.97.13.103.-1");
+        assertThat(obisCode.isInvalid()).isEqualTo(true);
     }
 
     @Test

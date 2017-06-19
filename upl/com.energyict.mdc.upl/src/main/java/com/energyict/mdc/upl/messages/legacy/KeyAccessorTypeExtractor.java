@@ -25,7 +25,11 @@ public interface KeyAccessorTypeExtractor {
 
     Optional<Object> actualValue(KeyAccessorType keyAccessorType);
 
-    Optional<Object> tempValue(KeyAccessorType keyAccessorType);
+    String actualValueContent(KeyAccessorType keyAccessorType);
+
+    Optional<Object> passiveValue(KeyAccessorType keyAccessorType);
+
+    String passiveValueContent(KeyAccessorType keyAccessorType);
 
     Optional<String> correspondingSecurityAttribute(String keyAccessorType, String securityPropertySetName);
 

@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class AbstractComChannel implements ComChannel {
 
-    private TypedProperties connectionTaskProperties;
+    private TypedProperties connectionTaskProperties = com.energyict.mdc.upl.TypedProperties.empty();
     private AtomicBoolean disconnecting = new AtomicBoolean(false);
 
     @Override

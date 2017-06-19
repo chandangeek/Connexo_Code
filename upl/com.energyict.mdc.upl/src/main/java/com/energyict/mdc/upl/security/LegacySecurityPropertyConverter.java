@@ -14,7 +14,9 @@ public interface LegacySecurityPropertyConverter {
 
     /**
      * Convert/adapt the given {@link DeviceProtocolSecurityPropertySet} to a proper {@link TypedProperties}
-     * which is understandable by a legacy protocol. The propertySet can be null however.
+     * which is understandable by a legacy protocol. The propertySet can be null however.<br/>
+     * <b>Remark:</b> don't forget to also map the {@link DeviceProtocolSecurityPropertySet#getClient() client}
+     * to a legacy property.
      *
      * @param deviceProtocolSecurityPropertySet
      *         the securityPropertySet which is used for this communication <b>OR NULL</b>
@@ -24,7 +26,9 @@ public interface LegacySecurityPropertyConverter {
 
     /**
      * Convert the old style TypedProperties to the new SecurityPropertySet. This method will be used during migration and
-     * should be required during normal operations.
+     * should be required during normal operations.<br/>
+     * <b>Remark:</b> don't forget to also map the legacy property for the {@link DeviceProtocolSecurityPropertySet#getClient() client}     *
+     *
      * @param typedProperties The value to convert
      * @return The DeviceProtocolSecurityPropertySet corresponding to the TypedProperties. Only the authenticationDeviceAccessLevel
      * and encryptionDeviceAccessLevel will be available, SecurityProperties will always be null.

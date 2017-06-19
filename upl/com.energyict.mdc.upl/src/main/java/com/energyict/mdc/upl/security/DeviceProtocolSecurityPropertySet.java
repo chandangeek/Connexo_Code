@@ -26,9 +26,9 @@ public interface DeviceProtocolSecurityPropertySet {
      * Gets the configured 'client' or null in case the {@link com.energyict.mdc.upl.DeviceProtocol}
      * doesn't support client.
      *
-     * @return the client String or null
+     * @return the client or null
      */
-    String getClient();
+    Object getClient();
 
     /**
      * Gets the configured {@link AuthenticationDeviceAccessLevel}
