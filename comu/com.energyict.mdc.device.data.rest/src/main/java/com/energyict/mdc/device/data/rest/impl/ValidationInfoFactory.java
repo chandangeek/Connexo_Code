@@ -338,6 +338,7 @@ public class ValidationInfoFactory {
                 .filter(ReadingQualityType::hasEstimatedCategory)
                 .findAny();
         veeReadingInfo.estimatedByRule = estimationReadingQualityType.isPresent();
+        veeReadingInfo.ruleId = estimationReadingQualityType.isPresent() ? (long) estimationReadingQualityType.get().getIndexCode() : 0;
         // Editing
         if(veeReadingInfo.estimatedByRule) {
             veeReadingInfo.editedInApp = estimationRuleInfoFactory.getEstimationApplicationInfo(estimationReadingQualityType.get());

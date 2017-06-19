@@ -48,6 +48,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -272,7 +273,12 @@ public class DeviceValidationResource {
                 new DeviceValidationStatusInfo(
                         deviceValidation.isValidationActive(),
                         deviceValidation.isValidationOnStorage(),
-                        deviceValidation.getLastChecked().orElse(null),
+                        deviceValidation.getLastChecked()
+                                .orElse(device.getMeterActivationsMostRecentFirst()
+                                        .stream()
+                                        .map(MeterActivation::getStart)
+                                        .min(Comparator.naturalOrder())
+                                        .orElse(null)),
                         deviceValidation.getLastValidationRun()
                                 .filter(lastRun -> device.getMeterActivationsMostRecentFirst().stream()
                                         .findFirst()
