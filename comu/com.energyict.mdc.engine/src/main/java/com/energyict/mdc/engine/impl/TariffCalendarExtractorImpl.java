@@ -306,9 +306,9 @@ public class TariffCalendarExtractorImpl implements TariffCalendarExtractor {
             } else {
                 /* Recurrent means it returns every year on the same Date
                  * so the rule cannot match on the actual year.
-                 * Returning 0 to indicate that this field should not be used for matching.
+                 * Returning -1 to indicate that this field should not be used for matching.
                  */
-                return 0;
+                return -1;
             }
         }
 
@@ -342,9 +342,9 @@ public class TariffCalendarExtractorImpl implements TariffCalendarExtractor {
             } else {
                 /* Recurrent means it returns every year on the same Date but the actual
                  * day of week changes every year so a rule cannot match on day of week.
-                 * Returning 0 to indicate that this field should not be used for matching.
+                 * Returning -1 to indicate that this field should not be used for matching.
                  */
-                return 0;
+                return -1;
             }
         }
     }

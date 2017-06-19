@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.TypedProperties;
 
 /**
  * Maps the securityPropertySet to a usable property set for a DeviceProtocol.
@@ -13,7 +13,7 @@ import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropert
 public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProtocolSecurityPropertySet {
 
     private final String name;
-    private final String client;
+    private final Object client;
     private final int securitySuite;
     private final int requestSecurityLevel;
     private final int responseSecurityLevel;
@@ -21,7 +21,7 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
     private final int encryptionDeviceAccessLevel;
     private final TypedProperties securityProperties;
 
-    public DeviceProtocolSecurityPropertySetImpl(String name, String client, int authenticationDeviceAccessLevel, int encryptionDeviceAccessLevel, int securitySuite, int requestSecurityLevel, int responseSecurityLevel, TypedProperties securityProperties) {
+    public DeviceProtocolSecurityPropertySetImpl(String name, Object client, int authenticationDeviceAccessLevel, int encryptionDeviceAccessLevel, int securitySuite, int requestSecurityLevel, int responseSecurityLevel, TypedProperties securityProperties) {
         this.name = name;
         this.client = client;
         this.authenticationDeviceAccessLevel = authenticationDeviceAccessLevel;
@@ -37,7 +37,7 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
         return name;
     }
 
-    public String getClient() {
+    public Object getClient() {
         return client;
     }
 

@@ -22,6 +22,7 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -69,6 +70,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     private DeviceExtractor deviceExtractor;
     private DeviceMessageFileExtractor messageFileExtractor;
     private CertificateWrapperExtractor certificateWrapperExtractor;
+    private KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
     public InboundDiscoveryContextImpl(InboundComPort comPort, ComPortRelatedComChannel comChannel, ConnectionTaskService connectionTaskService) {
         super();
@@ -249,6 +251,15 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
 
     public void setCertificateWrapperExtractor(CertificateWrapperExtractor certificateWrapperExtractor) {
         this.certificateWrapperExtractor = certificateWrapperExtractor;
+    }
+
+    @Override
+    public KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {
+        return keyAccessorTypeExtractor;
+    }
+
+    public void setKeyAccessorTypeExtractor(KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     @Override

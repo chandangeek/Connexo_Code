@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public final class ComTaskExecutionOrganizer {
 
@@ -89,6 +90,7 @@ public final class ComTaskExecutionOrganizer {
     }
 
     private DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(SecurityPropertySet securityPropertySet, Device masterDevice) {
+        Device device  = findMatchingDevice(securityPropertySet, masterDevice);
         return new DeviceProtocolSecurityPropertySetImpl(
                 securityPropertySet.getName(),
                 securityPropertySet.getClient(),
@@ -97,7 +99,30 @@ public final class ComTaskExecutionOrganizer {
                 securityPropertySet.getSecuritySuite() != null ? securityPropertySet.getSecuritySuite().getId() : -1,
                 securityPropertySet.getRequestSecurityLevel() != null ? securityPropertySet.getRequestSecurityLevel().getId() : -1,
                 securityPropertySet.getResponseSecurityLevel() != null ? securityPropertySet.getResponseSecurityLevel().getId() : -1,
-                masterDevice.getSecurityProperties(securityPropertySet));   /* The actual retrieving of the properties must be done on the given masterDevice */
+                device.getSecurityProperties(securityPropertySet));
+    }
+
+    private Device findMatchingDevice(SecurityPropertySet securityPropertySet, Device masterDevice) {
+        if (securityPropertySetBelongsToDevice(securityPropertySet, masterDevice)) {
+            return masterDevice;
+        }
+
+        List<Device> logicalSlaveDevices = topologyService.findPhysicalConnectedDevices(masterDevice)
+                .stream()
+                .filter(downstreamDevice -> downstreamDevice.getDeviceType().isLogicalSlave())
+                .collect(Collectors.toList());
+        return logicalSlaveDevices.stream()
+                .filter(device -> securityPropertySetBelongsToDevice(securityPropertySet, device))
+                .findAny()
+                .orElseThrow(() -> new DeviceConfigurationException(
+                        MessageSeeds.FAILED_TO_FETCH_DEVICE_OWNING_SECURITY_PROPERTY_SET,
+                        securityPropertySet.getName()));
+    }
+
+    private boolean securityPropertySetBelongsToDevice(SecurityPropertySet securityPropertySet, Device device) {
+        return device.getDeviceConfiguration().getSecurityPropertySets()
+                .stream()
+                .anyMatch(set -> set.getId() == securityPropertySet.getId());
     }
 
     private Device getMasterDeviceIfAvailable(Device device) {

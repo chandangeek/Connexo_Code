@@ -178,7 +178,7 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
     boolean areWeAllowedToPerformTheCommand(ComCommand comCommand) {
         switch (getCompletionCode()) {
             case ConfigurationError: {
-                return isItALogOffCommand(comCommand) || !hasBasicCheckFailedForThisGroupedDeviceCommand();
+                return isItALogOffCommand(comCommand) || !hasBasicCheckFailedForThisGroupedDeviceCommand() || isItTerminateOrUpdateCache(comCommand);
             }
             case TimeError:
                 return isItALogOffCommand(comCommand) || isItTerminateOrUpdateCache(comCommand);

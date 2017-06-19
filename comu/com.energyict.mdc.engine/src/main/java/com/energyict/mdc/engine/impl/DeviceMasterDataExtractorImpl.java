@@ -7,6 +7,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.pluggable.PluggableClass;
@@ -14,7 +15,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
@@ -204,7 +204,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private TypedProperties properties(Device device) {
-        return com.energyict.mdc.common.TypedProperties.empty();
+        return com.energyict.mdc.upl.TypedProperties.empty();
     }
 
     @Override
@@ -213,7 +213,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private TypedProperties protocolProperties(Device device) {
-        return TypedPropertiesValueAdapter.adaptToUPLValues(device.getDeviceProtocolProperties());
+        return TypedPropertiesValueAdapter.adaptToUPLValues(device, device.getDeviceProtocolProperties());
     }
 
     @Override
@@ -225,7 +225,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
         return device
                 .getProtocolDialectProperties(dialectName)
                 .map(ProtocolDialectProperties::getTypedProperties)
-                .map(TypedPropertiesValueAdapter::adaptToUPLValues);
+                .map(properties -> TypedPropertiesValueAdapter.adaptToUPLValues(device, properties));
     }
 
     @Override
@@ -277,7 +277,8 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
 
         @Override
         public TypedProperties properties() {
-            return TypedPropertiesValueAdapter.adaptToUPLValues(this.actual.getDeviceProtocolProperties().getTypedProperties());
+            //TODO: Can this be replaced by com.energyict.mdc.device.data.TypedPropertiesValueAdapter.adaptToUPLValues(Device, TypedProperties) to ensure KeyAccessorTypes are correctly resolved?
+            return com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter.adaptToUPLValues(this.actual.getDeviceProtocolProperties().getTypedProperties());
         }
 
         @Override
@@ -288,7 +289,9 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
                     .filter(each -> each.getDeviceProtocolDialectName().equals(dialectName))
                     .findAny()
                     .map(ProtocolDialectConfigurationProperties::getTypedProperties)
-                    .map(TypedPropertiesValueAdapter::adaptToUPLValues);
+                    .map(com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter::adaptToUPLValues);
+                                    //TODO: Can this be replaced by com.energyict.mdc.device.data.TypedPropertiesValueAdapter.adaptToUPLValues(Device, TypedProperties)
+                                    // in order to ensure KeyAccessorTypes are correctly resolved?
         }
 
         @Override
@@ -320,7 +323,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
 
         @Override
         public List<com.energyict.mdc.upl.meterdata.Device> devices() {
-            return null;
+            return null;    //TODO: Don't we need an implementation?
         }
 
         @Override
@@ -926,7 +929,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
         }
 
         @Override
-        public String client() {
+        public Object client() {
             return this.actual.getClient();
         }
 

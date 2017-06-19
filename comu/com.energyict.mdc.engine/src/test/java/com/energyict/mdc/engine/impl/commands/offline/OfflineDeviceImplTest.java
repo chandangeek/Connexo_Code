@@ -20,7 +20,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -56,8 +55,12 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConverterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLNlsServiceImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLPropertySpecServiceImpl;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -86,6 +89,7 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -246,6 +250,8 @@ public class OfflineDeviceImplTest {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         when(this.firmwareService.findFirmwareManagementOptions(any(DeviceType.class))).thenReturn(Optional.empty());
         when(this.deviceConfigurationService.findTimeOfUseOptions(any(DeviceType.class))).thenReturn(Optional.empty());
+        Services.tariffCalendarExtractor(mock(TariffCalendarExtractor.class, RETURNS_DEEP_STUBS));
+        Services.keyAccessorTypeExtractor(mock(KeyAccessorTypeExtractor.class, RETURNS_DEEP_STUBS));
     }
 
     private int getTotalSizeOfProperties() {
@@ -499,10 +505,10 @@ public class OfflineDeviceImplTest {
         when(calendar.getName()).thenReturn(CALENDAR_NAME);
         Device device = createMockedDevice();
         when(device.getDeviceType().getAllowedCalendars()).thenReturn(Collections.emptyList());
-        DeviceMessageSpec sendCalendarSpec = this.getDeviceMessageSpec(DeviceMessageId.ACTIVITY_CALENDER_SEND.dbValue());
+        DeviceMessageSpec sendCalendarSpec = this.getDeviceMessageSpec(DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_SEND.dbValue());
         List<PropertySpec> propertySpecs = sendCalendarSpec.getPropertySpecs();
         DeviceMessage sendCalendar = mock(DeviceMessage.class);
-        when(sendCalendar.getDeviceMessageId()).thenReturn(DeviceMessageId.ACTIVITY_CALENDER_SEND);
+        when(sendCalendar.getDeviceMessageId()).thenReturn(DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_SEND);
         when(sendCalendar.getSpecification()).thenReturn(sendCalendarSpec);
 
         DeviceMessageAttribute calendarNameAttribute = mock(DeviceMessageAttribute.class);

@@ -21,6 +21,7 @@ import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.time.Clock;
@@ -60,8 +61,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
     @Override
     protected ComPortRelatedComChannel findOrCreateComChannel(ConnectionTaskPropertyProvider propertyProvider) throws ConnectionException {
         return new ComPortRelatedComChannelImpl(
-                getConnectionTask().connect(getComPort(),
-                        propertyProvider.getProperties()),
+                getConnectionTask().connect(getComPort(), propertyProvider.getProperties()),
                 getComPort(),
                 getServiceProvider().clock(),
                 getServiceProvider().deviceMessageService(),

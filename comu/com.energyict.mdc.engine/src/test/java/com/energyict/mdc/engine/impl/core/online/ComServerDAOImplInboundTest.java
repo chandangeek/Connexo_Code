@@ -198,7 +198,7 @@ public class ComServerDAOImplInboundTest {
         when(encryptionDeviceAccessLevel.getId()).thenReturn(2);
         ConfigurationSecurityProperty expectedSecurityProperty = mock(ConfigurationSecurityProperty.class);
         when(expectedSecurityProperty.getName()).thenReturn("Password");
-        com.energyict.mdc.common.TypedProperties expectedSecurityProperties = com.energyict.mdc.common.TypedProperties.empty();
+        com.energyict.mdc.upl.TypedProperties expectedSecurityProperties = com.energyict.mdc.upl.TypedProperties.empty();
         expectedSecurityProperties.setProperty("Password", "MyPassword");
 
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
@@ -285,7 +285,7 @@ public class ComServerDAOImplInboundTest {
     @Test
     public void testGetDeviceConnectionTypeProperties() {
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        when(connectionTask.getTypedProperties()).thenReturn(com.energyict.mdc.common.TypedProperties.empty());
+        when(connectionTask.getTypedProperties()).thenReturn(com.energyict.mdc.upl.TypedProperties.empty());
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         Device device = mock(Device.class);

@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 
@@ -62,8 +63,12 @@ public class OfflineDeviceMessageAttributeImpl implements OfflineDeviceMessageAt
             value = tempFile.getAbsolutePath();
         }
 
-        value = TypedPropertiesValueAdapter.adaptToUPLValue(value);
+        // Fill in the thread context on all of the extractors
+        Services.tariffCalendarExtractor().threadContext().setDevice(offlineDevice);
+        Services.tariffCalendarExtractor().threadContext().setMessage(offlineDeviceMessage);
+        Services.keyAccessorTypeExtractor().threadContext().setDevice(offlineDevice);
 
+        value = TypedPropertiesValueAdapter.adaptToUPLValue(value);
         this.value = deviceProtocol.format(
                 offlineDevice,
                 offlineDeviceMessage,

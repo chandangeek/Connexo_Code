@@ -116,14 +116,14 @@ public class ObjectMapperServiceImpl implements ObjectMapperService {
          * @param typedPropertiesHashMap the JSON marsahlled version of the TypedProperties object
          * @return a proper TypedProperties object (including its inherited TypedProperties)
          */
-        private com.energyict.mdc.common.TypedProperties createTypedPropertiesFor(Map typedPropertiesHashMap) throws JsonMappingException {
+        private com.energyict.mdc.upl.TypedProperties createTypedPropertiesFor(Map typedPropertiesHashMap) throws JsonMappingException {
             if (typedPropertiesHashMap != null) {
-                com.energyict.mdc.common.TypedProperties typedProperties;
+                com.energyict.mdc.upl.TypedProperties typedProperties;
                 if (typedPropertiesHashMap.containsKey("inheritedProperties")) {
                     Map inheritedProperties = (LinkedHashMap) typedPropertiesHashMap.get("inheritedProperties");
-                    typedProperties = com.energyict.mdc.common.TypedProperties.inheritingFrom(this.createTypedPropertiesFor(inheritedProperties)); // Recursively parse the inherited TypedProperties
+                    typedProperties = com.energyict.mdc.upl.TypedProperties.inheritingFrom(this.createTypedPropertiesFor(inheritedProperties)); // Recursively parse the inherited TypedProperties
                 } else {
-                    typedProperties = com.energyict.mdc.common.TypedProperties.empty();
+                    typedProperties = com.energyict.mdc.upl.TypedProperties.empty();
                 }
 
                 if (typedPropertiesHashMap.containsKey("hashTable") || typedPropertiesHashMap.containsKey("hashMap")) {
@@ -146,7 +146,7 @@ public class ObjectMapperServiceImpl implements ObjectMapperService {
                 }
                 return typedProperties;
             } else {
-                return com.energyict.mdc.common.TypedProperties.empty();
+                return com.energyict.mdc.upl.TypedProperties.empty();
             }
         }
     }
