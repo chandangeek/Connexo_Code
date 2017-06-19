@@ -102,7 +102,7 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         MeterReadingData meterReadingData = ((MeterReadingData) exportData);
         MeterReading data = meterReadingData.getMeterReading();
         MeterReadingValidationData validationData = meterReadingData.getValidationData();
-        List<Reading> readings = data.getReadings();
+        List<Reading> readings = data.getReadings().stream().sorted(Comparator.comparing(BaseReading::getTimeStamp)).collect(Collectors.toList());
         List<IntervalBlock> intervalBlocks = data.getIntervalBlocks();
         ReadingType readingType = meterReadingData.getItem().getReadingType();
 
