@@ -231,7 +231,18 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
             }
         }
 
-        me.setDataQualities(registerRecord.get('readingQualities'));
+        var dataQualities = registerRecord.get('readingQualities');
+        var dataDeviceQualities = registerRecord.get('deviceReadingQualities');
+        dataQualities = (dataDeviceQualities && dataDeviceQualities.length > 0) ? dataQualities.concat(dataDeviceQualities) : dataQualities;
+
+        var uniqueDataQualities = [];
+        for (i = 0; i < dataQualities.length; i++) {
+            var found = Ext.Array.findBy(uniqueDataQualities, function (readingQuality) {
+                return readingQuality.cimCode == dataQualities[i].cimCode;
+            });
+            (found == null) && uniqueDataQualities.push(dataQualities[i]);
+        }
+        me.setDataQualities(uniqueDataQualities);
 
         Ext.resumeLayouts(true);
         me.setLoading(false);
