@@ -47,6 +47,11 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
     }
 
     @Override
+    public List<LicensedProtocol> getAllKnownProtocols() {
+        return ALL_PROTOCOLS;
+    }
+
+    @Override
     public List<LicensedProtocol> getAllLicensedProtocols(License license) {
         List<LicensedProtocol> allLicensedProtocols = new ArrayList<>();
         MdcProtocolLicense mdcProtocolLicense = new MdcProtocolLicense(license);

@@ -48,6 +48,7 @@ import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocols.mdc.services.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
@@ -66,7 +67,6 @@ import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -83,7 +83,6 @@ import static org.mockito.Mockito.when;
  * Tests the creation of all known connection types contained in this bundle.
  */
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class AllConnectionTypesTest {
 
     @Mock
@@ -302,6 +301,7 @@ public class AllConnectionTypesTest {
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(CertificateWrapperExtractor.class).toInstance(mock(CertificateWrapperExtractor.class));
         }
     }
 }

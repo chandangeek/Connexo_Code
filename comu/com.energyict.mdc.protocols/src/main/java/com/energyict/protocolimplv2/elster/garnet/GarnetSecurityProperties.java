@@ -8,7 +8,8 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import javax.validation.constraints.Size;
 
@@ -27,14 +28,14 @@ public class GarnetSecurityProperties extends CommonBaseDeviceSecurityProperties
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        this.customerEncryptionKey = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.toString());
-        this.manufacturerEncryptionKey = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString());
+        this.customerEncryptionKey = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_CUSTOMER.toString());
+        this.manufacturerEncryptionKey = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANUFACTURER.toString());
     }
 
     @Override
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
-        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.toString(), this.customerEncryptionKey);
-        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString(), this.manufacturerEncryptionKey);
+        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_CUSTOMER.toString(), this.customerEncryptionKey);
+        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANUFACTURER.toString(), this.manufacturerEncryptionKey);
     }
 
     @Override

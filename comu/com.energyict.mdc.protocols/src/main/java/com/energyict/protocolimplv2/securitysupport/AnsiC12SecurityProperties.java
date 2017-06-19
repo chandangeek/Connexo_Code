@@ -6,7 +6,8 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
@@ -159,24 +160,24 @@ public class AnsiC12SecurityProperties extends CommonBaseDeviceSecurityPropertie
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        this.password = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.PASSWORD.toString());
-        this.user = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.ANSI_C12_USER.toString());
-        this.userId = (BigDecimal) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.ANSI_C12_USER_ID.toString());
-        this.calledApTitle = ((String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString()));
-        this.binaryPassword = ((Integer) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.BINARY_PASSWORD.toString())) != 0;
-        this.encryptionKey = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.ENCRYPTION_KEY.toString());
+        this.password = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecTranslationKeys.PASSWORD.toString());
+        this.user = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecTranslationKeys.ANSI_C12_USER.toString());
+        this.userId = (BigDecimal) getTypedPropertyValue(propertyValues, SecurityPropertySpecTranslationKeys.ANSI_C12_USER_ID.toString());
+        this.calledApTitle = ((String) getTypedPropertyValue(propertyValues, SecurityPropertySpecTranslationKeys.ANSI_CALLED_AP_TITLE.toString()));
+        this.binaryPassword = ((Integer) getTypedPropertyValue(propertyValues, SecurityPropertySpecTranslationKeys.BINARY_PASSWORD.toString())) != 0;
+        this.encryptionKey = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString());
     }
 
     @Override
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
         if (!is(this.password).empty()) {
-            setTypedPropertyValueTo(propertySetValues, SecurityPropertySpecName.PASSWORD.toString(), this.password);
+            setTypedPropertyValueTo(propertySetValues, SecurityPropertySpecTranslationKeys.PASSWORD.toString(), this.password);
         }
-        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.ANSI_C12_USER.toString(), this.user);
-        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.ANSI_C12_USER_ID.toString(), this.userId);
-        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString(), this.calledApTitle);
-        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.BINARY_PASSWORD.toString(), this.binaryPassword);
-        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.ENCRYPTION_KEY.toString(), this.encryptionKey);
+        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecTranslationKeys.ANSI_C12_USER.toString(), this.user);
+        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecTranslationKeys.ANSI_C12_USER_ID.toString(), this.userId);
+        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecTranslationKeys.ANSI_CALLED_AP_TITLE.toString(), this.calledApTitle);
+        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecTranslationKeys.BINARY_PASSWORD.toString(), this.binaryPassword);
+        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), this.encryptionKey);
     }
 
     @Override

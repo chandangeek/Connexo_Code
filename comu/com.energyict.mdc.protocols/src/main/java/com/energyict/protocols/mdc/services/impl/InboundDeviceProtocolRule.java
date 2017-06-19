@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.inbound.general.DoubleIframeDiscover;
 import com.energyict.mdc.protocol.inbound.general.IframeDiscover;
 import com.energyict.mdc.protocol.inbound.general.RequestDiscover;
 import com.energyict.mdc.protocol.inbound.idis.DataPushNotification;
+import com.energyict.mdc.protocol.inbound.nfc.NFCDataPushNotification;
 import com.energyict.mdc.protocol.inbound.idis.T210DPushEventNotification;
 import com.energyict.mdc.upl.InboundDeviceProtocol;
 import com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol;
@@ -30,7 +31,8 @@ public enum InboundDeviceProtocolRule implements PluggableClassDefinition<Inboun
     ProximusSMSInboundDeviceProtocol(ProximusSMSInboundDeviceProtocol.class),
     EIWebBulk(EIWebBulk.class),
     DlmsSerialNumberDiscover(DlmsSerialNumberDiscover.class),
-    CtrInboundDeviceProtocol(CtrInboundDeviceProtocol.class);
+    CtrInboundDeviceProtocol(CtrInboundDeviceProtocol.class),
+    NFCDataPushNotification(NFCDataPushNotification.class);
 
     private final Class<? extends InboundDeviceProtocol> inboundDeviceProtocolClass;
 

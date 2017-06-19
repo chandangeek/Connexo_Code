@@ -34,7 +34,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
 
-import com.energyict.protocolimplv2.securitysupport.CustomPropertySetTranslationKeys;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -188,7 +187,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     public List<TranslationKey> getKeys() {
         List<TranslationKey> allKeys = new ArrayList<>(getProtocolPropertyKeys());
         allKeys.addAll(Arrays.asList(com.energyict.protocols.mdc.services.impl.TranslationKeys.values()));
-        allKeys.addAll(Arrays.asList(CustomPropertySetTranslationKeys.values()));
         return allKeys;
     }
 
@@ -199,7 +197,9 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
                 Stream.of(com.elster.protocolimpl.nls.PropertyTranslationKeys.values()),
                 Stream.of(com.elster.us.nls.PropertyTranslationKeys.values()),
                 Stream.of(com.energyict.protocolimpl.nls.PropertyTranslationKeys.values()),
-                Stream.of(com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys.values()))
+                Stream.of(com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys.values()),
+                Stream.of(com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys.values()),
+                Stream.of(com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys.values()))
                 .flatMap(Function.identity())
                 .map(com.energyict.mdc.upl.nls.TranslationKey.class::cast)
                 .map(ConnexoTranslationKeyAdapter::new)
