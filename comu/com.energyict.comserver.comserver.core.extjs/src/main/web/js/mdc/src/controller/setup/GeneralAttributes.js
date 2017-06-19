@@ -55,18 +55,16 @@ Ext.define('Mdc.controller.setup.GeneralAttributes', {
             editView = me.getGeneralAttributesEdit(),
             formErrorsPanel = editView.down('#form-errors');
 
-        editView.setLoading();
 
         form.updateRecord();
 
         if (!form.isValid()) {
             formErrorsPanel.show();
-            editView.setLoading(false);
         } else {
             if (!formErrorsPanel.isHidden()) {
                 formErrorsPanel.hide();
             }
-
+            editView.setLoading();
             form.getRecord().save({
                 backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/deviceconfigurations/view/generalattributes').buildUrl(),
                 callback: function (model, operation, success) {
@@ -79,8 +77,9 @@ Ext.define('Mdc.controller.setup.GeneralAttributes', {
                         var json = Ext.decode(operation.response.responseText);
                         if (operation.response.status === 400) {
                             if (json && json.errors) {
-                                form.getForm().markInvalid(json.errors);
+                                form.markInvalid(json.errors);
                             }
+                            editView.setLoading(false);
                             formErrorsPanel.show();
                         }
                     }

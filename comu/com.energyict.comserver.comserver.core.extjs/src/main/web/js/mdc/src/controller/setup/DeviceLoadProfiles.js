@@ -45,6 +45,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             selector: 'deviceLoadProfilesOverview'
         }
     ],
+    deviceId: null,
 
     init: function () {
         this.control({
@@ -265,7 +266,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             datePicker = editWindow.down('#mdc-deviceloadprofile-edit-window-date-picker'),
             loadProfileRecordInEditWindow = editWindow.loadProfileRecord,
             loadProfileModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
-            deviceId = this.getController('Uni.controller.history.Router').arguments.deviceId,
             loadProfileId = loadProfileRecordInEditWindow.get('id'),
             onLoadProfileLoaded = function (loadProfileRecord) {
                 loadProfileRecordInEditWindow.set('lastReading', datePicker.getValue());
@@ -294,7 +294,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 }
             };
 
-        loadProfileModel.getProxy().setExtraParam('deviceId', deviceId);
+        loadProfileModel.getProxy().setExtraParam('deviceId', me.deviceId);
         loadProfileModel.load(loadProfileId, {
             success: onLoadProfileLoaded
         });

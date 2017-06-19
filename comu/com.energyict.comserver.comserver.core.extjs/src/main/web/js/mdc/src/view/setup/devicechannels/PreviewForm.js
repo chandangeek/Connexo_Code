@@ -66,6 +66,18 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                             hidden: true
                                         },
                                         {
+                                            fieldLabel: Mdc.util.LinkPurpose.forDevice(me.device).channelGridSlaveColumn,
+                                            name: 'dataloggerSlaveName',
+                                            hidden: !((!Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')) || (!Ext.isEmpty(me.device.get('isMultiElementDevice')) && me.device.get('isMultiElementDevice'))),
+                                            renderer: function(value) {
+                                                if (Ext.isEmpty(value)) {
+                                                    return '-';
+                                                }
+                                                var href = me.router.getRoute('devices/device/channels').buildUrl({deviceId: encodeURIComponent(value)});
+                                                return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
+                                            }
+                                        },
+                                        {
                                             xtype: 'obis-displayfield',
                                             name: 'overruledObisCode'
                                         },
@@ -82,18 +94,6 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                         {
                                             fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                                             name: 'lastValueTimestamp_formatted'
-                                        },
-                                        {
-                                            fieldLabel: Mdc.util.LinkPurpose.forDevice(me.device).channelGridSlaveColumn,
-                                            name: 'dataloggerSlaveName',
-                                            hidden: !((!Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')) || (!Ext.isEmpty(me.device.get('isMultiElementDevice')) && me.device.get('isMultiElementDevice'))),
-                                            renderer: function(value) {
-                                                if (Ext.isEmpty(value)) {
-                                                    return '-';
-                                                }
-                                                var href = me.router.getRoute('devices/device/channels').buildUrl({deviceId: encodeURIComponent(value)});
-                                                return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
-                                            }
                                         },
                                         {
                                             fieldLabel: Uni.I18n.translate('channelConfig.overflowValue', 'MDC', 'Overflow value'),
