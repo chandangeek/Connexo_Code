@@ -22,7 +22,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
     initComponent: function () {
         var me = this,
             meterRolesAvailable = me.usagePoint.get('metrologyConfiguration_meterRoles'),
-            meterRoles = me.usagePoint.get('metrologyConfiguration_meterRoles'),
+            meterRoles = me.usagePoint.get('meterRoles'),
             meterRolesStore = Ext.create('Imt.usagepointmanagement.store.metrologyconfiguration.MeterRoles', {
                 data: meterRoles || [],
                 totalCount: !Ext.isEmpty(meterRoles) ? meterRoles.length : 0

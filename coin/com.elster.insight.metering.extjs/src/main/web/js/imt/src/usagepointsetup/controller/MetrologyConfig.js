@@ -49,12 +49,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
             returnLink = router.queryParams.fromLandingPage ? router.getRoute('usagepoints/view').buildUrl() : router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl(),
             callback = {
                 success: function (usagePoint) {
-                    var meterRoles = usagePoint.get('metrologyConfiguration_meterRoles');
-                    if (!meterRoles && usagePoint.get('effectiveMetrologyConfiguration')) {
-                        meterRoles = usagePoint.get('effectiveMetrologyConfiguration').meterRoles;
-                    } else if (!meterRoles && usagePoint.get('meterRoles')) {
-                        meterRoles = usagePoint.get('meterRoles');
-                    }
+                    var meterRoles = usagePoint.get('meterRoles');
 
                     widget = Ext.widget('usagePointActivateMeters', {
                         itemId: 'usage-point-activate-meters',
