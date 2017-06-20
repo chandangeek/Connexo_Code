@@ -53,7 +53,7 @@ public class OutboundTCPConnectionMethodsDevConfPostBuilder implements Consumer<
 
     @Override
     public void accept(DeviceConfiguration configuration) {
-        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIpConnectionType").get();
+        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByNameTranslationKey("OutboundTcpIpConnectionType").get();
         final PartialScheduledConnectionTaskBuilder builder = configuration
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(retryDelayInMinutes, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE, getProtocolDialectConfigurationProperties(configuration))
                 .comPortPool(Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get())

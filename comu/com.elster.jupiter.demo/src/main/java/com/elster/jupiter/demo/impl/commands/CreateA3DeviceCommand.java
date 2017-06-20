@@ -154,7 +154,7 @@ public class CreateA3DeviceCommand {
         channels.put(RegisterTypeTpl.DELRA_REACTIVE_ENERGY_PLUS.getMrid(), "0.3.128.0.0.255");
         channels.put(RegisterTypeTpl.DELRA_REACTIVE_ENERGY_MINUS.getMrid(), "0.4.128.0.0.255");
         addChannelsOnLoadProfileToDeviceConfiguration(configuration, channels);
-        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIpConnectionType").get();
+        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByNameTranslationKey("OutboundTcpIpConnectionType").get();
         configuration
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(5, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE, configuration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get())

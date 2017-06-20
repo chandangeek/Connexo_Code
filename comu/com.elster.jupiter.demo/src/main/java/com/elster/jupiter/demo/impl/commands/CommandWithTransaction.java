@@ -14,6 +14,7 @@ import com.elster.jupiter.users.UserService;
 import javax.inject.Inject;
 import java.security.Principal;
 import java.util.List;
+import java.util.Locale;
 
 public abstract class CommandWithTransaction {
 
@@ -112,6 +113,8 @@ public abstract class CommandWithTransaction {
             threadPrincipalService.set(() -> "console");
             try (TransactionContext context = transactionService.getContext()) {
                 User user = userService.createUser("root", "root");
+                user.setLocale(Locale.ENGLISH);
+                user.update();
                 userService.getGroups()
                         .stream()
                         .filter(

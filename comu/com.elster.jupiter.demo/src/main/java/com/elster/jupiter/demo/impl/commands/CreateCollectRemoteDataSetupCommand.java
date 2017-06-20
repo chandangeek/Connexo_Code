@@ -310,12 +310,12 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
 
     private void createDeviceStructureForDeviceType(DeviceTypeTpl deviceTypeTpl) {
         DeviceType deviceType = Builders.from(deviceTypeTpl).withPostBuilder(this.attachDeviceTypeCPSPostBuilderProvider.get()).get();
-        createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.PROSUMERS);
-        createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.CONSUMERS);
+        createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.PROSUMERS, deviceTypeTpl);
+        createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.CONSUMERS, deviceTypeTpl);
     }
 
-    private void createDeviceConfigurationWithDevices(DeviceType deviceType, DeviceConfigurationTpl deviceConfigurationTpl) {
-        DeviceConfiguration configuration = Builders.from(deviceConfigurationTpl).withDeviceType(deviceType)
+    private void createDeviceConfigurationWithDevices(DeviceType deviceType, DeviceConfigurationTpl deviceConfigurationTpl, DeviceTypeTpl deviceTypeTpl) {
+        DeviceConfiguration configuration = Builders.from(deviceConfigurationTpl).withDeviceType(deviceType).withValidateOnStore(deviceTypeTpl.isValidateOnStore())
                 .withPostBuilder(this.connectionMethodsProvider.get().withHost(host).withDefaultOutboundTcpProperties())
                 .withPostBuilder(new ChannelsOnDevConfPostBuilder())
                 .get();

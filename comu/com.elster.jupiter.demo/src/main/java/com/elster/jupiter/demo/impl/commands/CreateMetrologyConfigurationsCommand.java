@@ -216,7 +216,7 @@ public class CreateMetrologyConfigurationsCommand {
         ReadingType readingTypeAverageVoltagePhaseC = this.findOrCreateReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.32.0.29.0", "Average voltage");
 
         MetrologyContract billingContract = configuration.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING));
-        MetrologyContract informationContract = configuration.addMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION));
+        MetrologyContract marketContract = configuration.addMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.MARKET));
         MetrologyContract voltageMonitoringContract = configuration.addMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.VOLTAGE_MONITORING));
 
         ReadingTypeRequirement requirementAplus =
@@ -251,8 +251,8 @@ public class CreateMetrologyConfigurationsCommand {
         buildFormulaSingleRequirement(billingContract, readingTypeMonthlyAminusWh, requirementAminus, "Monthly A- kWh");
         buildFormulaSingleRequirement(billingContract, readingTypeDailyAplusWh, requirementAplus, "Daily A+ kWh");
         buildFormulaSingleRequirement(billingContract, readingTypeDailyAminusWh, requirementAminus, "Daily A- kWh");
-        buildFormulaSingleRequirement(informationContract, readingType15minAplusWh, requirementAplus, "15-min A+ kWh");
-        buildFormulaSingleRequirement(informationContract, readingType15minAminusWh, requirementAminus, "15-min A- kWh");
+        buildFormulaSingleRequirement(marketContract, readingType15minAplusWh, requirementAplus, "15-min A+ kWh");
+        buildFormulaSingleRequirement(marketContract, readingType15minAminusWh, requirementAminus, "15-min A- kWh");
         buildFormulaSingleRequirement(voltageMonitoringContract, readingTypeAverageVoltagePhaseA, requirementAverageVoltagePhaseA, "Hourly average voltage V phase 1 vs N");
         buildFormulaSingleRequirement(voltageMonitoringContract, readingTypeAverageVoltagePhaseB, requirementAverageVoltagePhaseB, "Hourly average voltage V phase 2 vs N");
         buildFormulaSingleRequirement(voltageMonitoringContract, readingTypeAverageVoltagePhaseC, requirementAverageVoltagePhaseC, "Hourly average voltage V phase 3 vs N");
@@ -387,11 +387,11 @@ public class CreateMetrologyConfigurationsCommand {
 
 
         MetrologyPurpose purposeBilling = findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING);
-        MetrologyPurpose purposeInformation = findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION);
+        MetrologyPurpose purposeMarket = findPurposeOrThrowException(DefaultMetrologyPurpose.MARKET);
         MetrologyPurpose purposeVoltageMonitoring = findPurposeOrThrowException(DefaultMetrologyPurpose.VOLTAGE_MONITORING);
 
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
-        MetrologyContract contractInformation = config.addMetrologyContract(purposeInformation);
+        MetrologyContract contractInformation = config.addMetrologyContract(purposeMarket);
         MetrologyContract contractVoltageMonitoring = config.addMetrologyContract(purposeVoltageMonitoring);
 
         ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation()
@@ -817,6 +817,11 @@ public class CreateMetrologyConfigurationsCommand {
                         .newUsagePointMetrologyConfiguration(RESIDENTIAL_NON_SMART_INSTALLATION.getName(), serviceCategory)
                         .withDescription(RESIDENTIAL_NON_SMART_INSTALLATION.getDescription())
                         .withGapsAllowed(RESIDENTIAL_NON_SMART_INSTALLATION.areGapsAllowed())
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        SERVICEKIND,
+                                        SearchablePropertyOperator.EQUAL,
+                                        ServiceKind.ELECTRICITY.name()))
                         .create();
 
         MeterRole meterRole = findMeterRoleOrThrowException(DefaultMeterRole.DEFAULT);
@@ -852,6 +857,11 @@ public class CreateMetrologyConfigurationsCommand {
                         .newUsagePointMetrologyConfiguration(RESIDENTIAL_GAS_NON_SMART_INSTALLATION.getName(), serviceCategory)
                         .withDescription(RESIDENTIAL_GAS_NON_SMART_INSTALLATION.getDescription())
                         .withGapsAllowed(RESIDENTIAL_GAS_NON_SMART_INSTALLATION.areGapsAllowed())
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        SERVICEKIND,
+                                        SearchablePropertyOperator.EQUAL,
+                                        ServiceKind.GAS.name()))
                         .create();
 
         MeterRole meterRole = findMeterRoleOrThrowException(DefaultMeterRole.DEFAULT);
@@ -1045,6 +1055,11 @@ public class CreateMetrologyConfigurationsCommand {
                         .newUsagePointMetrologyConfiguration(RESIDENTIAL_GAS.getName(), serviceCategory)
                         .withDescription(RESIDENTIAL_GAS.getDescription())
                         .withGapsAllowed(RESIDENTIAL_GAS.areGapsAllowed())
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        SERVICEKIND,
+                                        SearchablePropertyOperator.EQUAL,
+                                        ServiceKind.GAS.name()))
                         .create();
 
         MeterRole meterRole = findMeterRoleOrThrowException(DefaultMeterRole.DEFAULT);
@@ -1219,6 +1234,11 @@ public class CreateMetrologyConfigurationsCommand {
                         .newUsagePointMetrologyConfiguration(CI_WATER_CONFIGURATION.getName(), serviceCategory)
                         .withDescription(CI_WATER_CONFIGURATION.getDescription())
                         .withGapsAllowed(CI_WATER_CONFIGURATION.areGapsAllowed())
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        SERVICEKIND,
+                                        SearchablePropertyOperator.EQUAL,
+                                        ServiceKind.WATER.name()))
                         .create();
 
         MeterRole meterRolePeakConsumption = findMeterRoleOrThrowException(DefaultMeterRole.PEAK_CONSUMPTION);

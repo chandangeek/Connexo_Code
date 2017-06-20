@@ -37,6 +37,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
     private List<ComTask> comTasks;
     private List<SecurityPropertySetBuilder> securityPropertySetBuilders;
     private BigDecimal overflowValue = new BigDecimal(9999999999L);
+    private boolean validateOnStore = true;
 
     @Inject
     public DeviceConfigurationBuilder() {
@@ -45,6 +46,11 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
 
     public DeviceConfigurationBuilder withDeviceType(DeviceType deviceType) {
         this.deviceType = deviceType;
+        return this;
+    }
+
+    public DeviceConfigurationBuilder withValidateOnStore(boolean validateOnStore) {
+        this.validateOnStore = validateOnStore;
         return this;
     }
 
@@ -115,7 +121,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         configBuilder.isDirectlyAddressable(directlyAddressable);
         configBuilder.dataloggerEnabled(dataLoggerEnabled);
         configBuilder.multiElementEnabled(multiElementEnabled);
-        configBuilder.validateOnStore(true);
+        configBuilder.validateOnStore(validateOnStore);
         addRegisters(configBuilder);
         addLoadProfiles(configBuilder);
         addLogBooks(configBuilder);
