@@ -75,6 +75,8 @@ public interface DeviceMessageSpecificationService {
 
     Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOptionFor(DeviceMessageId deviceMessageId);
 
+    boolean needsImageIdentifierAtUploadOfFirmware(DeviceMessageId deviceMessageId);
+
     Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOptionsFor(DeviceMessageId deviceMessageId);
 
     DeviceMessageCategory getFirmwareCategory();
