@@ -145,6 +145,14 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     }
 
     @Override
+    public boolean needsImageIdentifierAtUploadOfFirmware(DeviceMessageId deviceMessageId) {
+        return Stream.of(com.energyict.protocolimplv2.messages.FirmwareDeviceMessage.values())
+                .filter(fdm -> fdm.id() == deviceMessageId.dbValue())
+                .filter(fdm -> fdm.getFirmwareIdentifierPropertySpec(uplPropertySpecService).isPresent())
+                .findFirst().isPresent();
+    }
+
+    @Override
     public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOptionsFor(DeviceMessageId deviceMessageId) {
         for (ActivityCalendarDeviceMessage deviceMessageProvider : ActivityCalendarDeviceMessage.values()) {
             com.energyict.mdc.upl.messages.DeviceMessageSpec spec = deviceMessageProvider.get(uplPropertySpecService, uplNlsService, converter);
