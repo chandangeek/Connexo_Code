@@ -34,10 +34,10 @@ public interface FirmwareVersion extends BaseFirmwareVersion {
 
     /**
      * Initializes the firmware file without updating database<br/>
-     * This should only be used when constructing a new {@Link FirmwareVersion},
+     * This should only be used when constructing a new {@link FirmwareVersion},
      * elese please use {@link #setFirmwareFile(byte[])}
      *
-     * @param firmwareFile
+     * @param firmwareFile byte array containing the firmware
      */
     void initFirmwareFile(byte[] firmwareFile);
 
@@ -52,4 +52,8 @@ public interface FirmwareVersion extends BaseFirmwareVersion {
     long getVersion();
 
     Instant getModTime();
+
+    String getImageIdentifier();
+
+    void setImageIdentifier(String imageIdentifier);
 }

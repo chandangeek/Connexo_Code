@@ -34,6 +34,7 @@ public interface FirmwareService {
     Optional<FirmwareVersion> findAndLockFirmwareVersionByIdAndVersion(long id, long version);
     Optional<FirmwareVersion> getFirmwareVersionByVersionAndType(String version, FirmwareType firmwareType, DeviceType deviceType);
     FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type);
+    FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type, String imageIdentifier);
     boolean isFirmwareVersionInUse(long firmwareVersionId);
 
 
@@ -42,6 +43,7 @@ public interface FirmwareService {
      * Provides a set of ProtocolSupportedFirmwareOptions for the given DeviceType
      */
     Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType);
+    boolean imageIdentifierExpectedAtFirmwareUpload(DeviceType deviceType);
     Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareManagementOptionsFor(DeviceType deviceType);
     FirmwareManagementOptions newFirmwareManagementOptions(DeviceType deviceType);
     Optional<FirmwareManagementOptions> findFirmwareManagementOptions(DeviceType deviceType);
@@ -77,7 +79,7 @@ public interface FirmwareService {
     /**
      * Returns the {@link FirmwareCampaign} that is linked with the given comtaskExecution
      * @param comTaskExecution as a result of the firmware campaing
-     * @return
+     * @return the {@link FirmwareCampaign} that is linked with the given comtaskExecution
      */
     Optional<FirmwareCampaign> getFirmwareCampaign(ComTaskExecution comTaskExecution);
 

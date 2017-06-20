@@ -36,6 +36,7 @@ public enum TableSpecs {
             Column firmwareType = table.column("TYPE").number().map(FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).add();
             table.column("STATUS").number().map(FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).add();
             table.column("FIRMWAREFILE").blob().map(FirmwareVersionImpl.Fields.FIRMWAREFILE.fieldName()).add();
+            table.column("IMAGEIDENTIFIER").varChar(80).map(FirmwareVersionImpl.Fields.IMAGEIDENTIFIER.fieldName()).add().since(version(10, 4));
             table.addAuditColumns();
             table.primaryKey("FWC_PK_FIRMWARE").on(idColumn).add();
             table

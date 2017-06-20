@@ -177,6 +177,17 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
+    public boolean imageIdentifierExpectedAtFirmwareUpload(DeviceType deviceType) {
+        return deviceType.getDeviceProtocolPluggableClass()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                        .map(DeviceMessageSpec::getId)
+                        .map(DeviceMessageId::from)
+                        .filter(this.deviceMessageSpecificationService::needsImageIdentifierAtUploadOfFirmware)
+                        .findFirst())
+                .isPresent();
+    }
+
+    @Override
     public FirmwareVersionFilter filterForFirmwareVersion(DeviceType deviceType) {
         return new FirmwareVersionFilterImpl(deviceType);
     }
@@ -236,6 +247,10 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Override
     public FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type) {
         return new FirmwareVersionImpl.FirmwareVersionImplBuilder(dataModel.getInstance(FirmwareVersionImpl.class), deviceType, firmwareVersion, status, type);
+    }
+
+    public FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type, String imageIdentifier) {
+        return new FirmwareVersionImpl.FirmwareVersionImplBuilder(dataModel.getInstance(FirmwareVersionImpl.class), deviceType, firmwareVersion, status, type, imageIdentifier);
     }
 
     @Override

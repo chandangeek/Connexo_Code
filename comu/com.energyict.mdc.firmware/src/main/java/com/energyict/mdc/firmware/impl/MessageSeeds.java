@@ -24,6 +24,7 @@ public enum MessageSeeds implements MessageSeed {
     FIRMWARE_CAMPAIGN_STATUS_INVALID(11, RetryDeviceInFirmwareCampaignExceptions.CAMPAIGN_IS_NOT_ONGOING, "Cannot change status as campaign is not ongoing", Level.SEVERE),
     DEVICE_IN_FIRMWARE_CAMPAIGN_STATE_INVALID(12, RetryDeviceInFirmwareCampaignExceptions.DEVICE_IN_FIRMWARE_CAMPAIGN_STATE_CHANGE_TO_PENDING_NOT_ALLOWED, "Cannot change status to {0} from current status {1}.", Level.SEVERE),
     FIRMWARE_FILE_IO(13, Keys.FIRMWARE_FILE_IO, "Exception while doing IO on firmware file: {0}", Level.SEVERE),
+    FIELD_TOO_LONG(14, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters", Level.SEVERE),
     ;
     private final int number;
     private final String key;
@@ -78,5 +79,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String STATE_TRANSFER_NOT_ALLOWED = "StateTransferNotAllowed";
         public static final String DEVICE_TYPE_SHOULD_SUPPORT_FIRMWARE_UPGRADE = "DeviceTypeShouldSupportFirmwareUpgrade";
         public static final String FIRMWARE_FILE_IO = "FileIO";
+        public static final String FIELD_TOO_LONG = "invalidFieldLength";
     }
 }
