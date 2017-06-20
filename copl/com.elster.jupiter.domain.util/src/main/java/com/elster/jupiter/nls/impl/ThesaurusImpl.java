@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 class ThesaurusImpl implements IThesaurus {
 
-    private static final Pattern VALIDATION_KEY = Pattern.compile("^\\{(.*)\\}$");
+    private static final Pattern VALIDATION_KEY = Pattern.compile("^\\{(.*)\\}$");       // Match the expression between curly braces
 
     private final ThreadPrincipalService threadPrincipalService;
     private Map<String, NlsKeyImpl> translations;
