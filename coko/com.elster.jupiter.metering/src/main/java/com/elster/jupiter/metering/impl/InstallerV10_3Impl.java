@@ -78,7 +78,7 @@ public class InstallerV10_3Impl implements FullInstaller {
         );
         doTry(
                 "Create Check Metrology Purpose",
-                this::createCheckMetrologyPurpose,
+                this::createNewPurposes,
                 logger
         );
         doTry(
@@ -86,6 +86,7 @@ public class InstallerV10_3Impl implements FullInstaller {
                 this::installDefaultStageSets,
                 logger
         );
+
     }
 
     private void createRecordSpec() {
@@ -116,8 +117,9 @@ public class InstallerV10_3Impl implements FullInstaller {
         stageSetBuilder.add();
     }
 
-    private void createCheckMetrologyPurpose() {
+    private void createNewPurposes() {
         metrologyConfigurationService.createMetrologyPurpose(DefaultMetrologyPurpose.CHECK);
+        metrologyConfigurationService.createMetrologyPurpose(DefaultMetrologyPurpose.MARKET);
     }
 
     public void createQueues() {
