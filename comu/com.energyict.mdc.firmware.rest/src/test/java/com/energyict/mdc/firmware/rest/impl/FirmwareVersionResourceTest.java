@@ -24,7 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.net.URLEncoder;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,10 +62,12 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         when(firmwareVersion.getFirmwareVersion()).thenReturn("firmwareVersion");
         when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.FINAL);
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
-        Finder<FirmwareVersion> firmwareVersionFinder = mockFinder(Arrays.asList(firmwareVersion));
+        when(firmwareVersion.getImageIdentifier()).thenReturn("10.4.0");
+        Finder<FirmwareVersion> firmwareVersionFinder = mockFinder(Collections.singletonList(firmwareVersion));
         when(firmwareService.findAllFirmwareVersions(any(FirmwareVersionFilter.class))).thenReturn(firmwareVersionFinder);
         when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);
         when(firmwareService.findAndLockFirmwareVersionByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(firmwareVersion));
+        when(firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)).thenReturn(true);
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -74,6 +76,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
             }
         }).when(firmwareVersionBuilder).validate();
         when(firmwareService.newFirmwareVersion(any(DeviceType.class), anyString(), any(), any())).thenReturn(firmwareVersionBuilder);
+        when(firmwareService.newFirmwareVersion(any(DeviceType.class), anyString(), any(), any(), any())).thenReturn(firmwareVersionBuilder);
         when(firmwareService.filterForFirmwareVersion(any(DeviceType.class))).thenAnswer(new Answer<FirmwareVersionFilter>() {
             @Override
             public FirmwareVersionFilter answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -141,6 +144,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         formDataMultiPart.field("firmwareVersion", "METER1")
             .field("firmwareType", FirmwareType.METER.getType())
             .field("firmwareStatus", FirmwareStatus.TEST.getStatus())
+            .field("imageIdentifier", "10.4.0")
             .bodyPart(new FileDataBodyPart("firmwareFile", File.createTempFile("prefix", "suffix"))).close();
 
         Response response = target("devicetypes/1/firmwares").request().post(Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
@@ -173,10 +177,12 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
         formDataMultiPart.field("firmwareVersion", "METER1")
             .field("firmwareStatus", FirmwareStatus.FINAL.getStatus())
+            .field("imageIdentifier", "10.4.0")
             .bodyPart(new FileDataBodyPart("firmwareFile", File.createTempFile("prefix", "suffix"))).close();
 
         Response response = target("devicetypes/1/firmwares/1").request().post(Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
 
+        verify(firmwareVersion).setImageIdentifier("10.4.0");
         verify(firmwareVersion).update();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }

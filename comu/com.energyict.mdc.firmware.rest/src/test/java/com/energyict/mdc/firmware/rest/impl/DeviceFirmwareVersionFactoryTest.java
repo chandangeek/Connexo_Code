@@ -108,7 +108,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(deviceService.findDeviceByName("upgrade")).thenReturn(Optional.of(device));
         ComTaskEnablement firmwareCheckEnablement = mock(ComTaskEnablement.class);
         when(firmwareCheckEnablement.getComTask()).thenReturn(firmwareCheckComTask);
-        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(firmwareCheckEnablement));
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(firmwareCheckEnablement));
         when(device.getId()).thenReturn(1L);
         when(device.getmRID()).thenReturn("upgrade");
         when(device.getMessages()).thenReturn(messages);
@@ -121,6 +121,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(communicationVersion.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
         when(communicationVersion.getFirmwareVersion()).thenReturn("COM-001-ACT");
         when(communicationVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.FINAL);
+        when(communicationVersion.getImageIdentifier()).thenReturn("10.4.0");
         when(activatedCommunicationVersion.getDevice()).thenReturn(device);
         when(activatedCommunicationVersion.getFirmwareVersion()).thenReturn(communicationVersion);
         when(activatedCommunicationVersion.getLastChecked()).thenReturn(TIME);
@@ -153,6 +154,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class))).thenAnswer(
                 invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService).initFor((Device) invocationOnMock.getArguments()[0])
         );
+        when(firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)).thenReturn(true);
     }
 
     private DeviceMessage mockFirmwareMessage() {
@@ -165,7 +167,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(messageSpec.getCategory()).thenReturn(firmwareCategory);
         if (withPropertySpecs) {
             PropertySpec propertySpec = mockFirmwareVersionPropertySpec();
-            when(messageSpec.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+            when(messageSpec.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         }
         when(custom.getSpecification()).thenReturn(messageSpec);
         return custom;

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareStatus;
@@ -31,6 +32,8 @@ import static org.mockito.Mockito.when;
 public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
     private static final String METER_VERSION = "FWC.12-SNAPSHOT";
 
+    @Mock
+    private DeviceType deviceType;
     @Mock
     private Device device;
     @Mock
