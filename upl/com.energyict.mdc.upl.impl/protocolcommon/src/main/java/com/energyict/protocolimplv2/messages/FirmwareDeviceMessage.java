@@ -294,13 +294,18 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
-                    this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation)
+                    this.getFirmwareIdentifierPropertySpec(service).get()
             );
         }
 
         @Override
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        }
+
+        @Override
+        public Optional<PropertySpec> getFirmwareIdentifierPropertySpec(PropertySpecService service) {
+            return Optional.of(this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation));
         }
     },
     BroadcastFirmwareUpgrade(5018, "Broadcast firmware upgrade") {
@@ -314,7 +319,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.bigDecimalSpec(service, broadcastNumberOfBlocksInCycleAttributeName, broadcastNumberOfBlocksInCycleAttributeDefaultTranslation, BigDecimal.valueOf(100)),
                     this.durationSpec(service, broadcastInitialTimeBetweenBlocksAttributeName, broadcastInitialTimeBetweenBlocksAttributeDefaultTranslation, Duration.ofSeconds(1)),
                     this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
-                    this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation),
+                    this.getFirmwareIdentifierPropertySpec(service).get(),
                     this.stringSpec(
                             service,
                             DeviceMessageConstants.encryptionLevelAttributeName, DeviceMessageConstants.encryptionLevelAttributeDefaultTranslation,
@@ -326,6 +331,12 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
         }
+
+        @Override
+        public Optional<PropertySpec> getFirmwareIdentifierPropertySpec(PropertySpecService service) {
+            return Optional.of(this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation));
+        }
+
     },
     VerifyAndActivateFirmware(5019, "Verify and activate firmware") {
         @Override
@@ -344,8 +355,8 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Arrays.asList(
                     this.stringSpec(service, deviceIdsAttributeName, deviceIdsAttributeDefaultTranslation),
                     this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
-                    this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation),
-                    this.bigDecimalSpecWithDefaultValue(service, UnicastClientWPort, UnicastClientWPortDefaultTranslation, BigDecimal.ONE),
+                    this.getFirmwareIdentifierPropertySpec(service).get(),
+                     this.bigDecimalSpecWithDefaultValue(service, UnicastClientWPort, UnicastClientWPortDefaultTranslation, BigDecimal.ONE),
                     this.bigDecimalSpecWithDefaultValue(service, BroadcastClientWPort, BroadcastClientWPortDefaultTranslation, BigDecimal.valueOf(64)),
                     this.bigDecimalSpecWithDefaultValue(service, MulticastClientWPort, MulticastClientWPortDefaultTranslation, BigDecimal.valueOf(102)),
                     this.bigDecimalSpecWithDefaultValue(service, LogicalDeviceLSap, LogicalDeviceLSapDefaultTranslation, BigDecimal.ONE),
@@ -367,6 +378,11 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
+        }
+
+        @Override
+        public Optional<PropertySpec> getFirmwareIdentifierPropertySpec(PropertySpecService service) {
+            return Optional.of(this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation));
         }
     },
     ReadMulticastProgress(5021, "Read DC multicast progress") {
@@ -509,7 +525,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
     VerifyAndActivateFirmwareAtGivenDate(5031, "Verify and activate firmware at given date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Arrays.asList(
+            return Collections.singletonList(
                     this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation)
             );
         }
@@ -522,7 +538,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
     FIRMWARE_IMAGE_ACTIVATION_WITH_DATA_PROTECTION_AND_ACTIVATION_DATE(5032, "Firmware image activation with data protection and activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Arrays.asList(
+            return Collections.singletonList(
                     this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation)
             );
         }
@@ -679,5 +695,21 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
     }
 
     public abstract Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption();
+
+    /**
+     * Additional PropertySpec to send the firmware identifier with the firmware file
+     * @return an additional property spec for the firmware identifier when protocols expect it, default Optional.empty
+     */
+    public Optional<PropertySpec> getFirmwareIdentifierPropertySpec(PropertySpecService service){
+        return Optional.empty();
+    }
+
+    /**
+     * Additional PropertySpec to resume the reading of the firmware file
+     * @return an additional property spec for the firmware identifier when protocols expect it, default Optional.empty
+     */
+    public Optional<PropertySpec> getResumeFirmwareUploadPropertySpec(PropertySpecService service){
+        return Optional.empty();
+    }
 
 }
