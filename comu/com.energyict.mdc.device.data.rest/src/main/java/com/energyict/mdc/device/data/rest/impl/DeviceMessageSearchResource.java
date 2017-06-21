@@ -50,7 +50,7 @@ public class DeviceMessageSearchResource {
         DeviceMessageQueryFilterImpl deviceMessageQueryFilter = new DeviceMessageQueryFilterImpl();
         List<Integer> deviceGroupIds = jsonQueryFilter.getIntegerList("deviceGroups");
         if (!deviceGroupIds.isEmpty()) {
-            deviceMessageQueryFilter.setDeviceGroups(deviceGroupIds.stream().map(id->meteringGroupService.findEndDeviceGroup(id).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_GROUP))).collect(Collectors.toList()));
+            deviceMessageQueryFilter.setDeviceGroups(deviceGroupIds.stream().map(id->meteringGroupService.findEndDeviceGroup(id).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_GROUP, id))).collect(Collectors.toList()));
         }
         List<DeviceMessageInfo> deviceMessageInfos = deviceMessageService.findDeviceMessagesByFilter(deviceMessageQueryFilter)
                 .from(queryParameters)
