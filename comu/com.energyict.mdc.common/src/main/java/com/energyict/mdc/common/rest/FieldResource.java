@@ -121,11 +121,7 @@ public abstract class FieldResource {
     }
 
     final public List<Map<String, Object>> sortList(List<Map<String, Object>> list) {
-        Collections.sort(list, new Comparator<Map<String, Object>>() {
-            public int compare(Map<String, Object> m1, Map<String, Object> m2) {
-                return m1.values().toString().compareTo(m2.values().toString());
-            }
-        });
+        Collections.sort(list, Comparator.comparing(m -> m.values().toString()));
         return list;
     }
 
