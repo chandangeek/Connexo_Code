@@ -16,11 +16,13 @@ import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.device.data.rest.LogLevelAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -33,9 +35,11 @@ import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/field")
 public class DeviceFieldResource extends FieldResource {
+    private static final MessageStatusAdapter MESSAGE_STATUS_ADAPTER = new MessageStatusAdapter();
 
     private final DeviceService deviceService;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
@@ -138,5 +142,14 @@ public class DeviceFieldResource extends FieldResource {
                 .getAllValues();
 
         return asJsonArrayObjectWithTranslation("contracts", "contract", contracts);
+    }
+
+    @GET
+    @Transactional
+    @Path("/devicemessagestatuses")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public Object getDeviceMessageStatuses() {
+        return asJsonArrayObjectWithTranslation("deviceMessageStatuses", "deviceMessageStatus", Stream.of(DeviceMessageStatusTranslationKeys.values()).map(DeviceMessageStatusTranslationKeys::getKey).collect(Collectors.toList())) ;
     }
 }
