@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -58,4 +59,10 @@ public interface DeviceMessageService {
      * @return
      */
     boolean canUserAdministrateDeviceMessage(DeviceConfiguration deviceConfiguration, DeviceMessageId deviceMessageId);
+
+    /**
+     * Perform a search for device messages by respecting filter parameters
+     * @return Found DeviceMessages
+     */
+    Finder<DeviceMessage> findDeviceMessagesByFilter(DeviceMessageQueryFilter deviceMessageQueryFilter);
 }

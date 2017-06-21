@@ -4,14 +4,20 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -23,11 +29,14 @@ import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import javax.inject.Inject;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -37,12 +46,16 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
 
     private final DeviceDataModelService deviceDataModelService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final MeteringGroupsService meteringGroupsService;
+    private final Clock clock;
 
     @Inject
-    DeviceMessageServiceImpl(DeviceDataModelService deviceDataModelService, ThreadPrincipalService threadPrincipalService) {
+    DeviceMessageServiceImpl(DeviceDataModelService deviceDataModelService, ThreadPrincipalService threadPrincipalService, MeteringGroupsService meteringGroupsService, Clock clock) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.threadPrincipalService = threadPrincipalService;
+        this.meteringGroupsService = meteringGroupsService;
+        this.clock = clock;
     }
 
     @Override
@@ -131,6 +144,15 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
             }
         }
         return true;
+    }
+
+    @Override
+    public Finder<DeviceMessage> findDeviceMessagesByFilter(DeviceMessageQueryFilter deviceMessageQueryFilter) {
+        Condition deviceGroupCondition = deviceMessageQueryFilter.getDeviceGroups().stream()
+                .map(endDeviceGroup -> ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), DeviceMessageImpl.Fields.DEVICE.fieldName()))
+                .map(Condition.class::cast)
+                .reduce(Condition.FALSE, Condition::or);
+        return DefaultFinder.of(DeviceMessage.class, deviceGroupCondition, this.deviceDataModelService.dataModel());
     }
 
     @Override
