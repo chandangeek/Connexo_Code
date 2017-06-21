@@ -24,6 +24,17 @@ import java.util.stream.Collectors;
  * {@link Template} holding a set of predefined attributes for creating Communication Tasks
  */
 public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
+    BASIC_CHECK("Basic check",
+            null,
+            null,
+            null,
+            null,
+            null) {
+        @Override
+        protected boolean isBasicCheckTask() {
+            return true;
+        }
+    },
     READ_ALL("Read all",
             Arrays.asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY, LoadProfileTypeTpl.DAILY_ELECTRICITY, LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
             Arrays.asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG),
@@ -36,8 +47,32 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
             Collections.singletonList(RegisterGroupTpl.DEVICE_DATA),
             null,
             null),
+    READ_REGISTER_DATA_GAS("Read register data gas",
+            null,
+            null,
+            Collections.singletonList(RegisterGroupTpl.DEVICE_GAS),
+            null,
+            null),
+    READ_REGISTER_DATA_WATER("Read register data water",
+            null,
+            null,
+            Collections.singletonList(RegisterGroupTpl.DEVICE_WATER),
+            null,
+            null),
     READ_LOAD_PROFILE_DATA("Read load profile data",
             Arrays.asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY, LoadProfileTypeTpl.DAILY_ELECTRICITY, LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
+            null,
+            null,
+            null,
+            null),
+    READ_LOAD_PROFILE_DATA_GAS("Read load profile data gas",
+            Arrays.asList(LoadProfileTypeTpl.HOURLY_GAS,LoadProfileTypeTpl.DAILY_GAS,LoadProfileTypeTpl.MONTHLY_GAS),
+            null,
+            null,
+            null,
+            null),
+    READ_LOAD_PROFILE_DATA_WATER("Read load profile data water",
+            Arrays.asList(LoadProfileTypeTpl.HOURLY_WATER,LoadProfileTypeTpl.DAILY_WATER,LoadProfileTypeTpl.MONTHLY_WATER) ,
             null,
             null,
             null,
@@ -60,6 +95,17 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
             null,
             Collections.singletonList(TopologyAction.UPDATE),
             null),
+    VERIFY_STATUS_INFO("Verify status information",
+            null,
+            null,
+            null,
+            null,
+            null) {
+        @Override
+        protected boolean isVerifyStatusInformationTask() {
+            return true;
+        }
+    },
     //System communication task, it should be available out of the box
     // We don't need to create it, just link to device configurations
     FIRMWARE_MANAGEMENT("Firmware management",
@@ -130,6 +176,7 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
         builder.withTopologyActions(topologyActions);
         builder.withClocks(clocks);
         builder.forStatusInformationTask(isVerifyStatusInformationTask());
+        builder.forBasicCheckTask(isBasicCheckTask());
         return builder;
     }
 
@@ -141,11 +188,13 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
         return false;
     }
 
+    protected boolean isBasicCheckTask() {return false;}
+
     protected Function<DeviceMessageSpecificationService, List<DeviceMessageCategory>> getCommandCategoryProvider() {
         return null;
     }
 
     static ComTaskTpl[] excludeTopologyTpls() {
-        return EnumSet.of(READ_REGISTER_DATA, READ_LOAD_PROFILE_DATA, READ_LOG_BOOK_DATA, FIRMWARE_MANAGEMENT, COMMANDS).toArray(new ComTaskTpl[5]);
+        return EnumSet.of(BASIC_CHECK, READ_REGISTER_DATA, READ_LOAD_PROFILE_DATA, READ_LOG_BOOK_DATA, VERIFY_STATUS_INFO, FIRMWARE_MANAGEMENT, COMMANDS).toArray(new ComTaskTpl[5]);
     }
 }

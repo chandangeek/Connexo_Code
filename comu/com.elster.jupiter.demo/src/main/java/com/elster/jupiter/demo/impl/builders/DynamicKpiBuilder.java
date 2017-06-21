@@ -13,12 +13,14 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 
 public class DynamicKpiBuilder implements Builder<DataCollectionKpi> {
     private final DataCollectionKpiService dataCollectionKpiService;
 
     private EndDeviceGroup group;
+    private TemporalAmount frequency;
 
     @Inject
     public DynamicKpiBuilder(DataCollectionKpiService dataCollectionKpiService) {
@@ -39,11 +41,16 @@ public class DynamicKpiBuilder implements Builder<DataCollectionKpi> {
     public DataCollectionKpi create() {
         Log.write(this);
         DataCollectionKpiService.DataCollectionKpiBuilder kpiBuilder = dataCollectionKpiService.newDataCollectionKpi(group);
-        kpiBuilder.frequency(Duration.ofMinutes(5));
+        kpiBuilder.frequency(frequency);
         kpiBuilder.calculateComTaskExecutionKpi().expectingAsMinimum(new BigDecimal(95));
         kpiBuilder.calculateConnectionSetupKpi().expectingAsMinimum(new BigDecimal(95));
         kpiBuilder.displayPeriod(TimeDuration.hours(1));
         DataCollectionKpi kpi = kpiBuilder.save();
         return kpi;
+    }
+
+    public DynamicKpiBuilder withFrequency(TemporalAmount frequency) {
+        this.frequency = frequency;
+        return this;
     }
 }

@@ -8,8 +8,35 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.dataquality.DataQualityKpiService;
-import com.elster.jupiter.demo.impl.commands.*;
-import com.elster.jupiter.demo.impl.commands.devices.*;
+import com.elster.jupiter.demo.impl.commands.AddLocationInfoToDevicesCommand;
+import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
+import com.elster.jupiter.demo.impl.commands.CreateAlarmCreationRuleCommand;
+import com.elster.jupiter.demo.impl.commands.CreateApplicationServerCommand;
+import com.elster.jupiter.demo.impl.commands.CreateAssignmentRulesCommand;
+import com.elster.jupiter.demo.impl.commands.CreateCollectRemoteDataSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDataLoggerSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDefaultDeviceLifeCycleCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDeliverDataSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDemoDataCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDemoUserCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDeviceTypeCommand;
+import com.elster.jupiter.demo.impl.commands.CreateEstimationSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateG3DemoBoardCommand;
+import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
+import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
+import com.elster.jupiter.demo.impl.commands.CreateMultiElementDeviceSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
+import com.elster.jupiter.demo.impl.commands.CreatePowerUserCommand;
+import com.elster.jupiter.demo.impl.commands.CreateRegisterDeviceCommand;
+import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
+import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
+import com.elster.jupiter.demo.impl.commands.FileImportCommand;
+import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateSPEDeviceCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.tou.CreateBelgianMarketTimeOfUseDataCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddIntervalChannelReadingsCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddNoneIntervalChannelReadingsCommand;
@@ -24,6 +51,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -36,15 +64,19 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -105,8 +137,7 @@ import java.time.Clock;
         "osgi.command.function=importCalendar",
         "osgi.command.function=setDeviceLocations",
         "osgi.command.function=createSPEDevice",
-        "osgi.command.function=createAlarmCreationRule",
-        "osgi.command.function=upgradeDemoData",
+        "osgi.command.function=createDefaultAlarmRule",
         "osgi.command.function=createPowerUser",
         "osgi.command.function=createRegisterDevice"
 }, immediate = true)
@@ -155,12 +186,18 @@ public class DemoServiceImpl {
     private volatile CalendarService calendarService;
     private volatile com.elster.jupiter.tasks.TaskService platformTaskService;
     private volatile DataQualityKpiService dataQualityKpiService;
+    private volatile CommandRuleService commandRuleService;
+    private volatile UsagePointLifeCycleService usagePointLifeCycleService;
+    private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private volatile PkiService pkiService;
+    private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile PassphraseFactory passphraseFactory;
 
-    private Injector injector;
-    private boolean reThrowEx = false;
+    private volatile TopologyService topologyService;
 
+    private Injector injector;
+
+    private boolean reThrowEx = false;
     public DemoServiceImpl() {
     }
 
@@ -207,9 +244,14 @@ public class DemoServiceImpl {
             DeviceMessageSpecificationService deviceMessageSpecificationService,
             CalendarService calendarService,
             com.elster.jupiter.tasks.TaskService platformTaskService,
+            CommandRuleService commandRuleService,
             DataQualityKpiService dataQualityKpiService,
+            TopologyService topologyService,
+            UsagePointLifeCycleService usagePointLifeCycleService,
+            UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
             PkiService pkiService,
-            PassphraseFactory passphraseFactory) {
+            PassphraseFactory passphraseFactory,
+            UsagePointConfigurationService usagePointConfigurationService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -253,9 +295,14 @@ public class DemoServiceImpl {
         setCalendarService(calendarService);
         setPlatformTaskService(platformTaskService);
         setDataCollectionKpiService(dataCollectionKpiService);
+        setTopologyService(topologyService);
+        setCommandRuleService(commandRuleService);
         setDataQualityKpiService(dataQualityKpiService);
+        setUsagePointLifeCycleService(usagePointLifeCycleService);
+        setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
         setPkiService(pkiService);
         setPassphraseFactory(passphraseFactory);
+        setUsagePointConfigurationService(usagePointConfigurationService);
         activate();
         reThrowEx = true;
     }
@@ -310,8 +357,13 @@ public class DemoServiceImpl {
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(com.elster.jupiter.tasks.TaskService.class).toInstance(platformTaskService);
+                bind(TopologyService.class).toInstance(topologyService);
+                bind(CommandRuleService.class).toInstance(commandRuleService);
                 bind(DataQualityKpiService.class).toInstance(dataQualityKpiService);
+                bind(UsagePointLifeCycleService.class).toInstance(usagePointLifeCycleService);
+                bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
                 bind(PkiService.class).toInstance(pkiService);
+                bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
             }
         });
         Builders.initWith(this.injector);
@@ -494,6 +546,11 @@ public class DemoServiceImpl {
     }
 
     @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
+    }
+
+    @Reference
     @SuppressWarnings("unused")
     public final void setClock(Clock clock) {
         this.clock = clock;
@@ -572,6 +629,21 @@ public class DemoServiceImpl {
     }
 
     @Reference
+    public void setCommandRuleService(CommandRuleService commandRuleService) {
+        this.commandRuleService = commandRuleService;
+    }
+
+    @Reference
+    public void setUsagePointLifeCycleService(UsagePointLifeCycleService usagePointLifeCycleService) {
+        this.usagePointLifeCycleService = usagePointLifeCycleService;
+    }
+
+    @Reference
+    public void setUsagePointLifeCycleConfigurationService(UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
+    }
+
+    @Reference
     @SuppressWarnings("unused")
     public void setPkiService(PkiService pkiService) {
         this.pkiService = pkiService;
@@ -581,6 +653,11 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public void setPassphraseFactory(PassphraseFactory passphraseFactory) {
         this.passphraseFactory = passphraseFactory;
+    }
+
+    @Reference
+    public void setUsagePointConfigurationService(UsagePointConfigurationService usagePointConfigurationService) {
+        this.usagePointConfigurationService = usagePointConfigurationService;
     }
 
     private void executeTransaction(Runnable toRunInsideTransaction) {
@@ -639,6 +716,7 @@ public class DemoServiceImpl {
         });
     }
 
+
     @SuppressWarnings("unused")
     public void createMultiElementDevice(String name, String serial) {
         executeTransaction(() -> {
@@ -652,7 +730,6 @@ public class DemoServiceImpl {
             command.run();
         });
     }
-
 
     @SuppressWarnings("unused")
     public void createG3DemoBoardDevices() {
@@ -764,17 +841,17 @@ public class DemoServiceImpl {
 
     @SuppressWarnings("unused")
     public void createDemoData() {
-        System.err.println("Usage: createDemoData <comServerName> <host> <startDate, e.g. 2015-01-01> [<numberOfDevicesPerType>]");
+        System.err.println("Usage: createDemoData <comServerName> <host> [<numberOfDevicesPerType>]");
     }
 
     @SuppressWarnings("unused")
-    public void createDemoData(String comServerName, String host, String startDate) {
-        this.createDemoData(comServerName, host, null, null);
+    public void createDemoData(String comServerName, String host) {
+        this.createDemoData(comServerName, host, null);
     }
 
     @SuppressWarnings("unused")
-    public void createDemoData(String comServerName, String host, String startDate, String numberOfDevicesPerType) {
-        this.createDemoData(comServerName, host, null, numberOfDevicesPerType, false);
+    public void createDemoData(String comServerName, String host, String numberOfDevicesPerType) {
+        this.createDemoData(comServerName, host, numberOfDevicesPerType, false);
     }
 
     /**
@@ -784,7 +861,7 @@ public class DemoServiceImpl {
      * @param skipFirmwareManagementData in case you don't want the firmware management data is created
      */
     @SuppressWarnings("unused")
-    public void createDemoData(String comServerName, String host, String ignored, String numberOfDevicesPerType, boolean skipFirmwareManagementData) {
+    public void createDemoData(String comServerName, String host, String numberOfDevicesPerType, boolean skipFirmwareManagementData) {
         CreateDemoDataCommand command = injector.getInstance(CreateDemoDataCommand.class);
         command.setComServerName(comServerName);
         command.setHost(host);
@@ -795,11 +872,11 @@ public class DemoServiceImpl {
         command.run();
     }
 
+
     @SuppressWarnings("unused")
     public void createCollectRemoteDataSetup(String comServerName, String host) {
         this.createCollectRemoteDataSetup(comServerName, host, null);
     }
-
 
     @SuppressWarnings("unused")
     public void createCollectRemoteDataSetup(String comServerName, String host, String numberOfDevicesPerType) {
@@ -977,13 +1054,13 @@ public class DemoServiceImpl {
         System.err.println("Usage: createRegisterDevice <name>");
     }
 
+
     @SuppressWarnings("unused")
     public void createRegisterDevice(String name) {
         CreateRegisterDeviceCommand command = injector.getInstance(CreateRegisterDeviceCommand.class);
         command.setDeviceName(name);
         command.run();
     }
-
 
     @SuppressWarnings("unused")
     public void setDeviceLocations() {
@@ -1019,15 +1096,12 @@ public class DemoServiceImpl {
         });
     }
 
+
     @SuppressWarnings("unused")
-    public void createAlarmCreationRule() {
+    public void createDefaultAlarmRule() {
         executeTransaction(() -> {
             CreateAlarmCreationRuleCommand command = injector.getInstance(CreateAlarmCreationRuleCommand.class);
             command.run();
         });
-    }
-
-    public void upgradeDemoData() {
-        executeTransaction(() -> this.injector.getInstance(DemoDataUpgrade10_1_Command.class).run());
     }
 }

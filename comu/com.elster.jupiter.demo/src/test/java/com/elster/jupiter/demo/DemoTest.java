@@ -27,6 +27,7 @@ import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.dualcontrol.impl.DualControlModule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.estimation.impl.EstimationServiceImpl;
@@ -107,6 +108,7 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmModule;
 import com.energyict.mdc.device.alarms.impl.templates.AbstractDeviceAlarmTemplate;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
+import com.energyict.mdc.device.command.impl.CommandRuleModule;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -252,8 +254,10 @@ public class DemoTest {
             bind(MessageInterpolator.class).toInstance(thesaurus);
 
             LicenseService licenseService = mock(LicenseService.class);
-            License license = mockLicense();
+            License license = mockLicense("MDC");
+            License insightLicense = mockLicense("INS");
             when(licenseService.getLicenseForApplication("MDC")).thenReturn(Optional.of(license));
+            when(licenseService.getLicenseForApplication("INS")).thenReturn(Optional.of(insightLicense));
             bind(LicenseService.class).toInstance(licenseService);
             bind(SerialComponentService.class).to(SerialIOAtModemComponentServiceImpl.class).in(Scopes.SINGLETON);
             bind(LogService.class).toInstance(mock(LogService.class));
@@ -267,11 +271,11 @@ public class DemoTest {
             bind(PassphraseFactory.class).toInstance(mock(DataVaultPassphraseFactory.class));
         }
 
-        private License mockLicense() {
+        private License mockLicense(String applicationname) {
             License license = mock(License.class);
             Properties properties = new Properties();
             properties.setProperty("protocols", "all");
-            when(license.getApplicationKey()).thenReturn("MDC");
+            when(license.getApplicationKey()).thenReturn(applicationname);
             when(license.getDescription()).thenReturn("MDC application license example");
             when(license.getStatus()).thenReturn(License.Status.ACTIVE);
             when(license.getType()).thenReturn(License.Type.EVALUATION);
@@ -352,7 +356,9 @@ public class DemoTest {
                         "0.0.0.1.0.0.142.0.0.29.1.0.0.0.0.0.111.0",
                         "0.0.0.1.0.0.142.0.0.30.1.0.0.0.0.0.111.0",
                         "0.0.0.1.0.0.142.0.0.31.1.0.0.0.0.0.111.0",
-                        "0.0.0.1.0.0.142.0.0.32.1.0.0.0.0.0.111.0"
+                        "0.0.0.1.0.0.142.0.0.32.1.0.0.0.0.0.111.0",
+                        "0.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.42.0",
+                        "0.0.0.1.1.9.58.0.0.0.0.0.0.0.0.0.42.0"
                 ),
                 new ServiceCallModule(),
                 new CustomPropertySetsModule(),
@@ -406,6 +412,8 @@ public class DemoTest {
                 new CalendarModule(),
                 new PropertyValueInfoServiceModule(),
                 new DeviceAlarmModule(),
+                new CommandRuleModule(),
+                new DualControlModule(),
                 new DataQualityKpiModule()
         );
         doPreparations();
@@ -426,7 +434,7 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
         // Business method
-        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
+        demoService.createDemoData("DemoServ", "host", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
     }
 
     @Test
@@ -434,9 +442,9 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
         // Business method
-        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
+        demoService.createDemoData("DemoServ", "host", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Optional<Device> spe010000010156 = deviceService.findDeviceByName("SPE010000010001");
+        Optional<Device> spe010000010156 = deviceService.findDeviceByName("SPE01000001");
         assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("NTASimulationTool")).isEqualTo(true);
     }
 
@@ -445,10 +453,10 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
         // Business method
-        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
+        demoService.createDemoData("DemoServ", "host", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Optional<Device> spe010000010156 = deviceService.findDeviceByName("SPE010000010001");
+        Optional<Device> spe010000010156 = deviceService.findDeviceByName("SPE01000001");
         assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("TimeZone")).isEqualTo(TimeZone.getTimeZone("Europe/Brussels"));
     }
 
@@ -694,8 +702,8 @@ public class DemoTest {
     @Test
     public void testExecuteCreateDemoDataTwice() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
-        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true);
+        demoService.createDemoData("DemoServ", "host", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
+        demoService.createDemoData("DemoServ", "host", "2", true);
         // Calling the command 'createDemoData' twice shouldn't produce errors
     }
 
@@ -705,7 +713,7 @@ public class DemoTest {
         DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
-        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
+        demoService.createDemoData("DemoServ", "host", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         demoService.createDefaultDeviceLifeCycle("2015-01-01");
 
         Optional<DeviceLifeCycle> defaultDeviceLifeCycle = deviceLifeCycleConfigurationService.findDefaultDeviceLifeCycle();
@@ -720,7 +728,7 @@ public class DemoTest {
         IssueCreationService issueCreationService = issueService.getIssueCreationService();
 
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
+        demoService.createDemoData("DemoServ", "host", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
 
         assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(5);
     }
@@ -731,7 +739,7 @@ public class DemoTest {
 
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
-        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
+        demoService.createDemoData("DemoServ", "host", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         demoService.createImporters();
 
         assertThat(fileImportService.getImportSchedules()).hasSize(10);
@@ -743,7 +751,7 @@ public class DemoTest {
 
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
-        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
+        demoService.createDemoData("DemoServ", "host", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         demoService.createDemoUser("MyDemoUser");
 
         Optional<Group> group = userService.getGroup("Demo Users");
@@ -759,7 +767,7 @@ public class DemoTest {
     @Test
     public void testCreateSPEDevice() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        demoService.createDemoData("DemoServ", "host", "2015-01-01", "1", true);
+        demoService.createDemoData("DemoServ", "host", "1", true);
         demoService.createSPEDevice("123");
     }
 
@@ -814,6 +822,7 @@ public class DemoTest {
         protocolPluggableService.newDeviceProtocolPluggableClass("ALPHA_A3", AlphaA3.class.getName()).save();
         protocolPluggableService.newDeviceProtocolPluggableClass("RTU_PLUS_G3", com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer.class.getName()).save();
         protocolPluggableService.newDeviceProtocolPluggableClass("AM540", com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540.class.getName()).save();
+        protocolPluggableService.newDeviceProtocolPluggableClass("Mbus", com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice.class.getName());
     }
 
     private void fixMissedDynamicReference() {

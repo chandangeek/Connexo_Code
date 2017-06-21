@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public enum ComScheduleTpl implements Template<ComSchedule, ComScheduleBuilder> {
-    DAILY_READ_ALL("Daily read all", Arrays.asList(ComTaskTpl.READ_REGISTER_DATA, ComTaskTpl.READ_LOAD_PROFILE_DATA, ComTaskTpl.READ_LOG_BOOK_DATA), TimeDuration.days(1)),
+    DAILY_READ_ALL("Daily read all", Arrays.asList(ComTaskTpl.BASIC_CHECK, ComTaskTpl.READ_REGISTER_DATA, ComTaskTpl.READ_LOAD_PROFILE_DATA, ComTaskTpl.READ_LOG_BOOK_DATA, ComTaskTpl.VERIFY_STATUS_INFO), TimeDuration.days(1)),
+    DAILY_READ_ALL_GAS("Daily read all gas", Arrays.asList(ComTaskTpl.BASIC_CHECK, ComTaskTpl.READ_REGISTER_DATA_GAS, ComTaskTpl.READ_LOAD_PROFILE_DATA_GAS, ComTaskTpl.VERIFY_STATUS_INFO), TimeDuration.days(1)),
+    DAILY_READ_ALL_WATER("Daily read all water", Arrays.asList(ComTaskTpl.BASIC_CHECK, ComTaskTpl.READ_REGISTER_DATA_WATER, ComTaskTpl.READ_LOAD_PROFILE_DATA_WATER, ComTaskTpl.VERIFY_STATUS_INFO), TimeDuration.days(1)),
     ;
 
     private String name;

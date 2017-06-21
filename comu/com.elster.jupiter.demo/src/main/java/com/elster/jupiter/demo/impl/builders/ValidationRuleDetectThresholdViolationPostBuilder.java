@@ -5,26 +5,38 @@
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationRuleBuilder;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class ValidationRuleDetectThresholdViolationPostBuilder implements Consumer<ValidationRuleSetVersion> {
     private final int thresholdMax;
+    private final int thresholdMin;
+    private List<String> readingTypes = new ArrayList<>();
 
-    public ValidationRuleDetectThresholdViolationPostBuilder(int thresholdMax) {
+    public ValidationRuleDetectThresholdViolationPostBuilder(int thresholdMax, int thresholdMin) {
         this.thresholdMax = thresholdMax;
+        this.thresholdMin = thresholdMin;
     }
 
     @Override
     public void accept(ValidationRuleSetVersion validationRuleSetVersion) {
-        validationRuleSetVersion.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.ThresholdValidator", "Detect threshold violation")
-                .withReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
-                .withReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
-                .havingProperty("minimum").withValue(BigDecimal.ZERO)
+        ValidationRuleBuilder validationRuleBuilder = validationRuleSetVersion.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.ThresholdValidator", "Detect threshold violation");
+        readingTypes.stream()
+                .forEach(validationRuleBuilder::withReadingType);
+        validationRuleBuilder
+                .havingProperty("minimum").withValue(new BigDecimal(this.thresholdMin))
                 .havingProperty("maximum").withValue(new BigDecimal(this.thresholdMax))
                 .active(true)
                 .create();
+    }
+
+    public ValidationRuleDetectThresholdViolationPostBuilder withReadingType(String readingType) {
+        readingTypes.add(readingType);
+        return this;
     }
 }

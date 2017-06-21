@@ -15,6 +15,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     private final DeviceService deviceService;
@@ -25,6 +26,10 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     private List<ComSchedule> comSchedules;
     private int yearOfCertification;
     private Instant shippingDate;
+    private String modelNumber;
+    private String modelVersion;
+    private String manufacturer;
+    private Random random = new Random();
 
     @Inject
     public DeviceBuilder(DeviceService deviceService, Clock clock) {
@@ -41,6 +46,9 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
 
     public DeviceBuilder withDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
         this.deviceConfiguration = deviceConfiguration;
+        this.manufacturer = deviceConfiguration.getDeviceType().getName().split(" ")[0];
+        this.modelNumber = deviceConfiguration.getDeviceType().getName().split(" ")[1];
+        this.modelVersion = Integer.toString(random.nextInt(10));
         return this;
     }
 
@@ -73,6 +81,9 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
         Device device = deviceService.newDevice(deviceConfiguration, getName(), this.shippingDate);
         device.setSerialNumber(serialNumber);
         device.setYearOfCertification(this.yearOfCertification);
+        device.setModelNumber(this.modelNumber);
+        device.setModelVersion(this.modelVersion);
+        device.setManufacturer(this.manufacturer);
         if (comSchedules != null) {
             for (ComSchedule comSchedule : comSchedules) {
                 device.newScheduledComTaskExecution(comSchedule).add();

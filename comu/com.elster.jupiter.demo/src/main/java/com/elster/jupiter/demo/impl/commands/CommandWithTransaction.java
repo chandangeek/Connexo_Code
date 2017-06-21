@@ -14,6 +14,7 @@ import com.elster.jupiter.users.UserService;
 import javax.inject.Inject;
 import java.security.Principal;
 import java.util.List;
+import java.util.Locale;
 
 public abstract class CommandWithTransaction {
 
@@ -112,6 +113,8 @@ public abstract class CommandWithTransaction {
             threadPrincipalService.set(() -> "console");
             try (TransactionContext context = transactionService.getContext()) {
                 User user = userService.createUser("root", "root");
+                user.setLocale(Locale.ENGLISH);
+                user.update();
                 userService.getGroups()
                         .stream()
                         .filter(
@@ -120,7 +123,7 @@ public abstract class CommandWithTransaction {
                                         .flatMap(List::stream)
                                         .noneMatch(privilege -> privilege.getCategory()
                                                 .getName()
-                                                .equals(DualControlService.DUAL_CONTROL_GRANT_CATEGORY))
+                                                .equals(DualControlService.DUAL_CONTROL_APPROVE_CATEGORY))
 
                         )
                         .forEach(user::join);

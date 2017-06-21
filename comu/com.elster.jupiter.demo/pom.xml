@@ -240,6 +240,10 @@
             <artifactId>export</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>export.processors</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.favorites</artifactId>
         </dependency>
@@ -326,11 +330,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>export.processors</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap</artifactId>
             <scope>test</scope>
         </dependency>
@@ -396,6 +395,18 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.pluggable.rest</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle.config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.usagepoint.config</artifactId>
         </dependency>
     </dependencies>
 </project>
