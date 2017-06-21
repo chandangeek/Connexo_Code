@@ -106,7 +106,7 @@ public abstract class FieldResource {
      * @param <T> The type of values being listed
      * @return ExtJS JSON format for listed values
      */
-    protected <T> Map<String, Object> asJsonArrayObjectWithTranslation(String fieldName, String valueName, Collection<T> values) {
+    final protected <T> Map<String, Object> asJsonArrayObjectWithTranslation(String fieldName, String valueName, Collection<T> values) {
         Map<String, Object> map = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
         map.put(fieldName, list);
@@ -120,7 +120,7 @@ public abstract class FieldResource {
         return map;
     }
 
-    public List<Map<String, Object>> sortList(List<Map<String, Object>> list) {
+    final public List<Map<String, Object>> sortList(List<Map<String, Object>> list) {
         Collections.sort(list, new Comparator<Map<String, Object>>() {
             public int compare(Map<String, Object> m1, Map<String, Object> m2) {
                 return m1.values().toString().compareTo(m2.values().toString());
@@ -169,7 +169,7 @@ public abstract class FieldResource {
      * @param <T> The type of values being listed
      * @return ExtJS JSON format for listed values
      */
-    protected <T> Map<String, Object> asJsonArrayObject(String fieldName, String valueName, Collection<T> values) {
+    final protected <T> Map<String, Object> asJsonArrayObject(String fieldName, String valueName, Collection<T> values) {
         Map<String, Object> map = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
         map.put(fieldName, list);
@@ -224,7 +224,7 @@ public abstract class FieldResource {
      * @param <T> The type of values being listed
      * @return ExtJS JSON format for listed values
      */
-    protected <T> Map<String, Object> asJsonArrayObjectWithTranslation(String fieldName, String valueName, List<T> values, List<String> translationKeys) {
+    final protected <T> Map<String, Object> asJsonArrayObjectWithTranslation(String fieldName, String valueName, List<T> values, List<String> translationKeys) {
         if (values.size()!=translationKeys.size()) {
             throw new IllegalStateException(String.format("Not enough translation keys for field resource '%s'", fieldName));
         }
