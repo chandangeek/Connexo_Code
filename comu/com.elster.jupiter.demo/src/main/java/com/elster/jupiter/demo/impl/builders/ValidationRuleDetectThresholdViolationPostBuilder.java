@@ -15,10 +15,12 @@ import java.util.function.Consumer;
 
 public class ValidationRuleDetectThresholdViolationPostBuilder implements Consumer<ValidationRuleSetVersion> {
     private final int thresholdMax;
+    private final int thresholdMin;
     private List<String> readingTypes = new ArrayList<>();
 
-    public ValidationRuleDetectThresholdViolationPostBuilder(int thresholdMax) {
+    public ValidationRuleDetectThresholdViolationPostBuilder(int thresholdMax, int thresholdMin) {
         this.thresholdMax = thresholdMax;
+        this.thresholdMin = thresholdMin;
     }
 
     @Override
@@ -27,7 +29,7 @@ public class ValidationRuleDetectThresholdViolationPostBuilder implements Consum
         readingTypes.stream()
                 .forEach(validationRuleBuilder::withReadingType);
         validationRuleBuilder
-                .havingProperty("minimum").withValue(BigDecimal.ZERO)
+                .havingProperty("minimum").withValue(new BigDecimal(this.thresholdMin))
                 .havingProperty("maximum").withValue(new BigDecimal(this.thresholdMax))
                 .active(true)
                 .create();

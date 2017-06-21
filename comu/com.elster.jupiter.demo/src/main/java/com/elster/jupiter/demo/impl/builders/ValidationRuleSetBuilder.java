@@ -21,11 +21,17 @@ public class ValidationRuleSetBuilder extends NamedBuilder<ValidationRuleSet, Va
 
     private String description;
     private List<Consumer<ValidationRuleSetVersion>> postBuilders = new ArrayList<>();
+    private QualityCodeSystem qualityCodeSystem = QualityCodeSystem.MDC;
 
     @Inject
     public ValidationRuleSetBuilder(ValidationService validationService) {
         super(ValidationRuleSetBuilder.class);
         this.validationService = validationService;
+    }
+
+    public ValidationRuleSetBuilder withQualityCodeSystem(QualityCodeSystem qualityCodeSystem) {
+        this.qualityCodeSystem = qualityCodeSystem;
+        return this;
     }
 
     public ValidationRuleSetBuilder withDescription(String description) {
@@ -45,7 +51,7 @@ public class ValidationRuleSetBuilder extends NamedBuilder<ValidationRuleSet, Va
 
     @Override
     public ValidationRuleSet create() {
-        ValidationRuleSet ruleSet = validationService.createValidationRuleSet(getName(), QualityCodeSystem.MDC, this.description);
+        ValidationRuleSet ruleSet = validationService.createValidationRuleSet(getName(), qualityCodeSystem, this.description);
         ValidationRuleSetVersion ruleSetVersion = ruleSet.addRuleSetVersion("1", Instant.EPOCH);
         ruleSet.save();
         applyPostBuilders(ruleSet);

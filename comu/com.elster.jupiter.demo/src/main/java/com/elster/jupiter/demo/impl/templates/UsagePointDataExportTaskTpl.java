@@ -31,7 +31,7 @@ public enum UsagePointDataExportTaskTpl implements Template<ExportTask, DataExpo
         return builder
                 .withName(DEFAULT_PREFIX + usagePointGroup.getName())
                 .withUsagePointGroup(Builders.from(usagePointGroup).get())
-                .withMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
+                .withMetrologyPurpose(DefaultMetrologyPurpose.MARKET)
                 .withScheduleExpression(PeriodicalScheduleExpression.every(1).days().at(11, 30, 0).build())
                 .withNextExecution();
     }

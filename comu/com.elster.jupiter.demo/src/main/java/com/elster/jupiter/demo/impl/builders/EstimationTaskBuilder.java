@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import com.google.inject.Inject;
@@ -31,6 +32,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public class EstimationTaskBuilder extends NamedBuilder<EstimationTask, EstimationTaskBuilder> {
     private final EstimationService estimationService;
+    private final TimeService timeService;
     private final TaskService taskService;
     private final Clock clock;
 
@@ -42,9 +44,10 @@ public class EstimationTaskBuilder extends NamedBuilder<EstimationTask, Estimati
     private ScheduleExpression scheduleExpression = PeriodicalScheduleExpression.every(1).days().at(7, 0, 0).build();
 
     @Inject
-    public EstimationTaskBuilder(EstimationService estimationService, TaskService taskService, Clock clock) {
+    public EstimationTaskBuilder(EstimationService estimationService, TimeService timeService, TaskService taskService, Clock clock) {
         super(EstimationTaskBuilder.class);
         this.estimationService = estimationService;
+        this.timeService = timeService;
         this.taskService = taskService;
         this.clock = clock;
     }
@@ -113,6 +116,7 @@ public class EstimationTaskBuilder extends NamedBuilder<EstimationTask, Estimati
         taskBuilder.setScheduleExpression(scheduleExpression);
         taskBuilder.setNextExecution(nextExecution);
         taskBuilder.setRevalidate(false);
+        taskBuilder.setPeriod(timeService.findRelativePeriodByName("Last 7 days").get());
 
         EstimationTask task = taskBuilder.create();
         applyPostBuilders(task);

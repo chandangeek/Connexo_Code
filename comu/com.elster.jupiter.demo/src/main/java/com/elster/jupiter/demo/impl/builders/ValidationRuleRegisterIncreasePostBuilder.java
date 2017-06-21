@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class ValidationRuleRegisterIncreasePostBuilder implements Consumer<ValidationRuleSetVersion> {
-    List<String> readingTypes = new ArrayList<>();
+    private List<String> readingTypes = new ArrayList<>();
 
     @Override
     public void accept(ValidationRuleSetVersion validationRuleSetVersion) {
         ValidationRuleBuilder validationRuleBuilder = validationRuleSetVersion.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.RegisterIncreaseValidator", "Register increase");
-        readingTypes.stream().forEach(validationRuleBuilder::withReadingType);
+        readingTypes.forEach(validationRuleBuilder::withReadingType);
         validationRuleBuilder
                 .havingProperty("failEqualData").withValue(false)
                 .active(true)

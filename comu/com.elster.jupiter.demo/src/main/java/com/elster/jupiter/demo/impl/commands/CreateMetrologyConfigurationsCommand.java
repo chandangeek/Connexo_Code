@@ -73,8 +73,8 @@ public class CreateMetrologyConfigurationsCommand {
     private static final String BATTERY_STATUS = "0.0.0.12.0.41.11.0.0.0.0.0.0.0.0.-2.0.0";
     private static final String BILLING_GAS_FLOW = "8.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.125.0";
 
-    public static final String MIN15_A_PLUS_KWH = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
-    public static final String MIN15_A_MINUS_KWH = "0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    public static final String MIN15_A_PLUS_WH = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
+    public static final String MIN15_A_MINUS_KWH = "0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0";
     public static final String HOURLY_A_MINUS_KWH = "0.0.7.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
     public static final String MONTHLY_A_PLUS_KWH = "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     public static final String MONTHLY_A_MINUS_KWH = "13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
@@ -209,14 +209,14 @@ public class CreateMetrologyConfigurationsCommand {
         ReadingType readingTypeMonthlyAminusWh = this.findOrCreateReadingType(MONTHLY_A_MINUS_KWH, "A-");
         ReadingType readingTypeDailyAplusWh = this.findOrCreateReadingType(DAILY_A_PLUS_KWH, "A+");
         ReadingType readingTypeDailyAminusWh = this.findOrCreateReadingType(DAILY_A_MINUS_KWH, "A-");
-        ReadingType readingType15minAplusWh = this.findOrCreateReadingType(MIN15_A_PLUS_KWH, "A+");
+        ReadingType readingType15minAplusWh = this.findOrCreateReadingType(MIN15_A_PLUS_WH, "A+");
         ReadingType readingType15minAminusWh = this.findOrCreateReadingType(MIN15_A_MINUS_KWH, "A-");
         ReadingType readingTypeAverageVoltagePhaseA = this.findOrCreateReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.128.0.29.0", "Average voltage");
         ReadingType readingTypeAverageVoltagePhaseB = this.findOrCreateReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.64.0.29.0", "Average voltage");
         ReadingType readingTypeAverageVoltagePhaseC = this.findOrCreateReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.32.0.29.0", "Average voltage");
 
         MetrologyContract billingContract = configuration.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING));
-        MetrologyContract marketContract = configuration.addMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.MARKET));
+        MetrologyContract marketContract = configuration.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.MARKET));
         MetrologyContract voltageMonitoringContract = configuration.addMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.VOLTAGE_MONITORING));
 
         ReadingTypeRequirement requirementAplus =
@@ -251,11 +251,13 @@ public class CreateMetrologyConfigurationsCommand {
         buildFormulaSingleRequirement(billingContract, readingTypeMonthlyAminusWh, requirementAminus, "Monthly A- kWh");
         buildFormulaSingleRequirement(billingContract, readingTypeDailyAplusWh, requirementAplus, "Daily A+ kWh");
         buildFormulaSingleRequirement(billingContract, readingTypeDailyAminusWh, requirementAminus, "Daily A- kWh");
-        buildFormulaSingleRequirement(marketContract, readingType15minAplusWh, requirementAplus, "15-min A+ kWh");
-        buildFormulaSingleRequirement(marketContract, readingType15minAminusWh, requirementAminus, "15-min A- kWh");
+        buildFormulaSingleRequirement(marketContract, readingType15minAplusWh, requirementAplus, "15-min A+ Wh");
+        buildFormulaSingleRequirement(marketContract, readingType15minAminusWh, requirementAminus, "15-min A- Wh");
         buildFormulaSingleRequirement(voltageMonitoringContract, readingTypeAverageVoltagePhaseA, requirementAverageVoltagePhaseA, "Hourly average voltage V phase 1 vs N");
         buildFormulaSingleRequirement(voltageMonitoringContract, readingTypeAverageVoltagePhaseB, requirementAverageVoltagePhaseB, "Hourly average voltage V phase 2 vs N");
         buildFormulaSingleRequirement(voltageMonitoringContract, readingTypeAverageVoltagePhaseC, requirementAverageVoltagePhaseC, "Hourly average voltage V phase 3 vs N");
+
+        configuration.activate();
     }
 
     private void residentialProsumerWith1MeterMultisense() {
@@ -326,7 +328,7 @@ public class CreateMetrologyConfigurationsCommand {
             builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
         });
 
-
+        config.activate();
     }
 
     private void residentialConsumerWith1Meter() {
@@ -368,10 +370,10 @@ public class CreateMetrologyConfigurationsCommand {
                 .stream()
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType(DAILY_A_PLUS_KWH, "A+"));
-        ReadingType readingType15minAplusWh = meteringService.findReadingTypes(Collections.singletonList(MIN15_A_PLUS_KWH))
+        ReadingType readingType15minAplusWh = meteringService.findReadingTypes(Collections.singletonList(MIN15_A_PLUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType(MIN15_A_PLUS_KWH, "A+"));
+                .orElseGet(() -> meteringService.createReadingType(MIN15_A_PLUS_WH, "A+"));
         ReadingType readingTypeAverageVoltagePhaseA = meteringService.findReadingTypes(Collections.singletonList("0.2.7.6.0.1.158.0.0.0.0.0.0.0.128.0.29.0"))
                 .stream()
                 .findFirst()
@@ -391,7 +393,7 @@ public class CreateMetrologyConfigurationsCommand {
         MetrologyPurpose purposeVoltageMonitoring = findPurposeOrThrowException(DefaultMetrologyPurpose.VOLTAGE_MONITORING);
 
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
-        MetrologyContract contractInformation = config.addMetrologyContract(purposeMarket);
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeMarket);
         MetrologyContract contractVoltageMonitoring = config.addMetrologyContract(purposeVoltageMonitoring);
 
         ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation()
@@ -415,10 +417,12 @@ public class CreateMetrologyConfigurationsCommand {
 
         buildFormulaSingleRequirement(contractBilling, readingTypeMonthlyAplusWh, requirementAplus, "Monthly A+ kWh");
         buildFormulaSingleRequirement(contractBilling, readingTypeDailyAplusWh, requirementAplus, "Daily A+ kWh");
-        buildFormulaSingleRequirement(contractInformation, readingType15minAplusWh, requirementAplus, "15-min A+ kWh");
+        buildFormulaSingleRequirement(contractInformation, readingType15minAplusWh, requirementAplus, "15-min A+ Wh");
         buildFormulaSingleRequirement(contractVoltageMonitoring, readingTypeAverageVoltagePhaseA, requirementAverageVoltagePhaseA, "Hourly average voltage V phase 1 vs N");
         buildFormulaSingleRequirement(contractVoltageMonitoring, readingTypeAverageVoltagePhaseB, requirementAverageVoltagePhaseB, "Hourly average voltage V phase 2 vs N");
         buildFormulaSingleRequirement(contractVoltageMonitoring, readingTypeAverageVoltagePhaseC, requirementAverageVoltagePhaseC, "Hourly average voltage V phase 3 vs N");
+
+        config.activate();
     }
 
     private void residentialConsumerWith1MeterMultisense() {
@@ -478,6 +482,7 @@ public class CreateMetrologyConfigurationsCommand {
             builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
         });
 
+        config.activate();
     }
 
     private void residentialProsumerWith2Meters() {
@@ -644,7 +649,7 @@ public class CreateMetrologyConfigurationsCommand {
 
         ReadingType readingTypeDailyAplusWh = this.findOrCreateReadingType(DAILY_A_PLUS_KWH, "A+");
         ReadingType readingTypeMonthlyAplusWh = this.findOrCreateReadingType(MONTHLY_A_PLUS_KWH, "A+");
-        ReadingType readingType15minAplusWh = this.findOrCreateReadingType(MIN15_A_PLUS_KWH, "A+");
+        ReadingType readingType15minAplusWh = this.findOrCreateReadingType(MIN15_A_PLUS_WH, "A+");
         ReadingType readingTypeAplusWh = this.findOrCreateReadingType(BULK_A_PLUS_KWH, "A+");
 
         MetrologyContract billingContract = config.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING));
@@ -662,7 +667,7 @@ public class CreateMetrologyConfigurationsCommand {
 
         buildFormulaSingleRequirement(billingContract, readingTypeDailyAplusWh, requirementAplus, "Daily A+ kWh");
         buildFormulaSingleRequirement(billingContract, readingTypeMonthlyAplusWh, requirementAplus, "Monthly A+ kWh");
-        buildFormulaSingleRequirement(informationContract, readingType15minAplusWh, requirementAplus, "15-min A+ kWh");
+        buildFormulaSingleRequirement(informationContract, readingType15minAplusWh, requirementAplus, "15-min A+ Wh");
         buildFormulaSingleRequirement(informationContract, readingTypeAplusWh, requirementAplusRegister, "A+ kWh");
     }
 
@@ -735,15 +740,15 @@ public class CreateMetrologyConfigurationsCommand {
         this.buildFormulaSingleRequirement(billingContract, aPlusDaily_kWh_TOU_10, requirementAplusToU10, "Daily A+ kWh ToU10");
         this.buildFormulaSingleRequirement(billingContract, aPlusDaily_kWh_TOU_11, requirementAplusToU11, "Daily A+ kWh ToU11");
 
-        ReadingType aPlus15Min_kWh_TOU_10 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
-        ReadingType aPlus15Min_kWh_TOU_11 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
+        ReadingType aPlus15Min_kWh_TOU_10 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.0.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
+        ReadingType aPlus15Min_kWh_TOU_11 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.0.72.0", "A+ (peak)");         // Peak in Belgian electricity market
         ReadingType aPlusYearly_kWh_TOU_10 = this.findOrCreateReadingType(MacroPeriod.YEARLY.getId() + ".0.0.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
         ReadingType aPlusYearly_kWh_TOU_11 = this.findOrCreateReadingType(MacroPeriod.YEARLY.getId() + ".0.0.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
         ReadingType aPlusYearly_kWh = this.findOrCreateReadingType(MacroPeriod.YEARLY.getId() + ".0.0.4.9.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+");
 
         MetrologyContract informationContract = configuration.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION));
-        this.buildFormulaSingleRequirement(informationContract, aPlus15Min_kWh_TOU_10, requirementAplusToU10, "15-min A+ kWh ToU10");
-        this.buildFormulaSingleRequirement(informationContract, aPlus15Min_kWh_TOU_11, requirementAplusToU11, "15-min A+ kWh ToU11");
+        this.buildFormulaSingleRequirement(informationContract, aPlus15Min_kWh_TOU_10, requirementAplusToU10, "15-min A+ Wh ToU10");
+        this.buildFormulaSingleRequirement(informationContract, aPlus15Min_kWh_TOU_11, requirementAplusToU11, "15-min A+ Wh ToU11");
         ReadingTypeDeliverable yearly_TOU_10 = this.buildFormulaSingleRequirement(informationContract, aPlusYearly_kWh_TOU_10, requirementAplusToU10, "Yearly A+ kWh ToU10");
         ReadingTypeDeliverable yearly_TOU_11 = this.buildFormulaSingleRequirement(informationContract, aPlusYearly_kWh_TOU_11, requirementAplusToU11, "Yearly A+ kWh ToU11");
         this.buildFormulaDeliverableSum(informationContract, aPlusYearly_kWh, yearly_TOU_10, yearly_TOU_11, "Yearly A+ kWh");
@@ -798,12 +803,12 @@ public class CreateMetrologyConfigurationsCommand {
         this.buildFormulaSingleRequirement(billingContract, aPlusDaily_kWh_TOU_10, requirementAplus, "Daily A+ kWh ToU10");
         this.buildFormulaSingleRequirement(billingContract, aPlusDaily_kWh_TOU_11, requirementAplus, "Daily A+ kWh ToU11");
 
-        ReadingType aPlus15Min_kWh_TOU_10 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.3.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
-        ReadingType aPlus15Min_kWh_TOU_11 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.3.72.0", "A+ (peak)");         // Peak in Belgian electricity market
+        ReadingType aPlus15Min_kWh_TOU_10 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + OFFPEAK_CODE + ".0.0.0.0.72.0", "A+ (offpeak)");   // Offpeak in Belgian electricity market
+        ReadingType aPlus15Min_kWh_TOU_11 = this.findOrCreateReadingType("0.0.2.4.1.1.12.0.0.0.0." + PEAK_CODE + ".0.0.0.0.72.0", "A+ (peak)");         // Peak in Belgian electricity market
 
         MetrologyContract informationContract = configuration.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION));
-        this.buildFormulaSingleRequirement(informationContract, aPlus15Min_kWh_TOU_10, requirementAplus, "15-min A+ kWh ToU10");
-        this.buildFormulaSingleRequirement(informationContract, aPlus15Min_kWh_TOU_11, requirementAplus, "15-min A+ kWh ToU11");
+        this.buildFormulaSingleRequirement(informationContract, aPlus15Min_kWh_TOU_10, requirementAplus, "15-min A+ Wh ToU10");
+        this.buildFormulaSingleRequirement(informationContract, aPlus15Min_kWh_TOU_11, requirementAplus, "15-min A+ Wh ToU11");
     }
 
     private void residentialNonSmartInstallation() {
@@ -1070,7 +1075,7 @@ public class CreateMetrologyConfigurationsCommand {
         ReadingType readingTypeHourlyVolume = this.findOrCreateReadingType("0.0.7.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0", "Hourly volume m³");
 
         MetrologyContract billingContract = config.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING));
-        MetrologyContract informationContract = config.addMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION));
+        MetrologyContract marketContract = config.addMandatoryMetrologyContract(findPurposeOrThrowException(DefaultMetrologyPurpose.MARKET));
 
         ReadingTypeRequirement requirementGasVolume =
                 config
@@ -1080,7 +1085,9 @@ public class CreateMetrologyConfigurationsCommand {
 
         buildFormulaSingleRequirement(billingContract, readingTypeDailyVolume, requirementGasVolume, "Daily volume m³");
         buildFormulaSingleRequirement(billingContract, readingTypeMonthlyVolume, requirementGasVolume, "Monthly volume m³");
-        buildFormulaSingleRequirement(informationContract, readingTypeHourlyVolume, requirementGasVolume, "Hourly volume m³");
+        buildFormulaSingleRequirement(marketContract, readingTypeHourlyVolume, requirementGasVolume, "Hourly volume m³");
+
+        config.activate();
     }
 
     private void residentialGasMultisense() {
@@ -1130,6 +1137,8 @@ public class CreateMetrologyConfigurationsCommand {
             ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
             builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
         });
+
+        config.activate();
     }
 
     private void residentialWater() {
@@ -1167,8 +1176,8 @@ public class CreateMetrologyConfigurationsCommand {
 
         MetrologyPurpose purposeBilling = findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING);
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
-        MetrologyPurpose purposeInformation = findPurposeOrThrowException(DefaultMetrologyPurpose.INFORMATION);
-        MetrologyContract contractInformation = config.addMetrologyContract(purposeInformation);
+        MetrologyPurpose purposeMarket = findPurposeOrThrowException(DefaultMetrologyPurpose.MARKET);
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeMarket);
 
         ReadingTypeRequirement requirementWaterVolume = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.WATER_VOLUME
                 .getNameTranslation().getDefaultFormat(), meterRole)
@@ -1178,6 +1187,8 @@ public class CreateMetrologyConfigurationsCommand {
         buildFormulaSingleRequirement(contractBilling, readingTypeDailyVolume, requirementWaterVolume, "Daily volume m³");
         buildFormulaSingleRequirement(contractBilling, readingTypeMonthlyVolume, requirementWaterVolume, "Monthly volume m³");
         buildFormulaSingleRequirement(contractInformation, readingTypeHourlyVolume, requirementWaterVolume, "Hourly volume m³");
+
+        config.activate();
     }
 
     private void residentialWaterMultisense() {
@@ -1222,6 +1233,8 @@ public class CreateMetrologyConfigurationsCommand {
             ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
             builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
         });
+
+        config.activate();
     }
 
     private void waterConfigurationCI() {

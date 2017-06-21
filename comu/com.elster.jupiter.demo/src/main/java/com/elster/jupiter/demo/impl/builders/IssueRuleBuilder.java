@@ -198,7 +198,20 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     template.getPropertySpec(BasicDataCollectionRuleTemplate.AUTORESOLUTION).get().getValueFactory().fromStringValue("1"));
 
         } else if (template.getName().equals(BASIC_DATA_VALIDATION_RULE_TEMPLATE)) {
-            List<HasIdAndName> deviceConfigurations = getAllDefaultConfigurations();
+            List<HasIdAndName> deviceConfigurations = new ArrayList<>();
+            deviceConfigurationService.findDeviceTypeByName("Elster A1800").get().getConfigurations()
+                    .forEach(deviceConfiguration -> deviceConfigurations.add(new HasIdAndName() {
+                        @Override
+                        public Object getId() {
+                            return deviceConfiguration.getId();
+                        }
+
+                        @Override
+                        public String getName() {
+                            return deviceConfiguration.getName();
+                        }
+                    }));
+
             if (!deviceConfigurations.isEmpty()) {
                 properties.put(BASIC_DATA_VALIDATION_RULE_TEMPLATE + ".deviceConfigurations", deviceConfigurations);
             }
@@ -213,29 +226,6 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     BasicDeviceAlarmRuleTemplate.THRESHOLD, getRelativePeriodWithCount());
         }
         return properties;
-    }
-
-    private List<HasIdAndName> getAllDefaultConfigurations() {
-        List<HasIdAndName> listValue = new ArrayList<>();
-        for (DeviceType type : this.deviceConfigurationService.findAllDeviceTypes().find()) {
-            for (DeviceConfiguration configuration : type.getConfigurations()) {
-                if (configuration.getName().equals(DeviceConfigurationTpl.PROSUMERS.getName()) ||
-                        configuration.getName().equals(DeviceConfigurationTpl.CONSUMERS.getName())) {
-                    listValue.add(new HasIdAndName() {
-                        @Override
-                        public Object getId() {
-                            return configuration.getId();
-                        }
-
-                        @Override
-                        public String getName() {
-                            return configuration.getName();
-                        }
-                    });
-                }
-            }
-        }
-        return listValue;
     }
 
     private List<HasIdAndName> getTamperingCode(String eventType) {

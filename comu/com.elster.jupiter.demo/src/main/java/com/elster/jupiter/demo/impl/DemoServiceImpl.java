@@ -51,6 +51,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -189,6 +190,7 @@ public class DemoServiceImpl {
     private volatile UsagePointLifeCycleService usagePointLifeCycleService;
     private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private volatile PkiService pkiService;
+    private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile PassphraseFactory passphraseFactory;
 
     private volatile TopologyService topologyService;
@@ -248,7 +250,8 @@ public class DemoServiceImpl {
             UsagePointLifeCycleService usagePointLifeCycleService,
             UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
             PkiService pkiService,
-            PassphraseFactory passphraseFactory) {
+            PassphraseFactory passphraseFactory,
+            UsagePointConfigurationService usagePointConfigurationService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -299,6 +302,7 @@ public class DemoServiceImpl {
         setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
         setPkiService(pkiService);
         setPassphraseFactory(passphraseFactory);
+        setUsagePointConfigurationService(usagePointConfigurationService);
         activate();
         reThrowEx = true;
     }
@@ -359,6 +363,7 @@ public class DemoServiceImpl {
                 bind(UsagePointLifeCycleService.class).toInstance(usagePointLifeCycleService);
                 bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
                 bind(PkiService.class).toInstance(pkiService);
+                bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
             }
         });
         Builders.initWith(this.injector);
@@ -650,6 +655,11 @@ public class DemoServiceImpl {
         this.passphraseFactory = passphraseFactory;
     }
 
+    @Reference
+    public void setUsagePointConfigurationService(UsagePointConfigurationService usagePointConfigurationService) {
+        this.usagePointConfigurationService = usagePointConfigurationService;
+    }
+
     private void executeTransaction(Runnable toRunInsideTransaction) {
         setPrincipal();
         try {
@@ -706,6 +716,7 @@ public class DemoServiceImpl {
         });
     }
 
+
     @SuppressWarnings("unused")
     public void createMultiElementDevice(String name, String serial) {
         executeTransaction(() -> {
@@ -719,7 +730,6 @@ public class DemoServiceImpl {
             command.run();
         });
     }
-
 
     @SuppressWarnings("unused")
     public void createG3DemoBoardDevices() {
@@ -831,17 +841,17 @@ public class DemoServiceImpl {
 
     @SuppressWarnings("unused")
     public void createDemoData() {
-        System.err.println("Usage: createDemoData <comServerName> <host> <ignored_parameter> [<numberOfDevicesPerType>]");
+        System.err.println("Usage: createDemoData <comServerName> <host> [<numberOfDevicesPerType>]");
     }
 
     @SuppressWarnings("unused")
-    public void createDemoData(String comServerName, String host, String ignored) {
-        this.createDemoData(comServerName, host, null, null);
+    public void createDemoData(String comServerName, String host) {
+        this.createDemoData(comServerName, host, null);
     }
 
     @SuppressWarnings("unused")
-    public void createDemoData(String comServerName, String host, String ignored, String numberOfDevicesPerType) {
-        this.createDemoData(comServerName, host, null, numberOfDevicesPerType, false);
+    public void createDemoData(String comServerName, String host, String numberOfDevicesPerType) {
+        this.createDemoData(comServerName, host, numberOfDevicesPerType, false);
     }
 
     /**
@@ -851,7 +861,7 @@ public class DemoServiceImpl {
      * @param skipFirmwareManagementData in case you don't want the firmware management data is created
      */
     @SuppressWarnings("unused")
-    public void createDemoData(String comServerName, String host, String ignored, String numberOfDevicesPerType, boolean skipFirmwareManagementData) {
+    public void createDemoData(String comServerName, String host, String numberOfDevicesPerType, boolean skipFirmwareManagementData) {
         CreateDemoDataCommand command = injector.getInstance(CreateDemoDataCommand.class);
         command.setComServerName(comServerName);
         command.setHost(host);
@@ -862,11 +872,11 @@ public class DemoServiceImpl {
         command.run();
     }
 
+
     @SuppressWarnings("unused")
     public void createCollectRemoteDataSetup(String comServerName, String host) {
         this.createCollectRemoteDataSetup(comServerName, host, null);
     }
-
 
     @SuppressWarnings("unused")
     public void createCollectRemoteDataSetup(String comServerName, String host, String numberOfDevicesPerType) {
@@ -1044,13 +1054,13 @@ public class DemoServiceImpl {
         System.err.println("Usage: createRegisterDevice <name>");
     }
 
+
     @SuppressWarnings("unused")
     public void createRegisterDevice(String name) {
         CreateRegisterDeviceCommand command = injector.getInstance(CreateRegisterDeviceCommand.class);
         command.setDeviceName(name);
         command.run();
     }
-
 
     @SuppressWarnings("unused")
     public void setDeviceLocations() {
@@ -1086,6 +1096,7 @@ public class DemoServiceImpl {
         });
     }
 
+
     @SuppressWarnings("unused")
     public void createDefaultAlarmRule() {
         executeTransaction(() -> {
@@ -1093,6 +1104,4 @@ public class DemoServiceImpl {
             command.run();
         });
     }
-
-
 }
