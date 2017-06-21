@@ -13,6 +13,7 @@ import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
@@ -119,7 +120,7 @@ public class MeterTopology extends AbstractMeterTopology {
      */
     protected List<DeviceMapping> constructMbusMap() {
         String mbusSerial;
-        if(mbusMap.isEmpty()){
+        if (mbusMap.isEmpty()) {
             mbusMap = new ArrayList<>();
             for (int i = 1; i <= MaxMbusDevices; i++) {
                 ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
@@ -148,10 +149,10 @@ public class MeterTopology extends AbstractMeterTopology {
     /**
      * Construct the shortId from the four given fields
      *
-     * @param manufacturer   - the manufacturer ID of the meter
+     * @param manufacturer - the manufacturer ID of the meter
      * @param identification - the identification number(serialnumber) of the meter
-     * @param version        - the version of the device type
-     * @param deviceType     - the device type
+     * @param version - the version of the device type
+     * @param deviceType - the device type
      * @return a string which is a concatenation of the manipulated given fields
      */
     protected String constructShortId(Unsigned16 manufacturer, Unsigned32 identification, Unsigned8 version, Unsigned8 deviceType) {
@@ -174,6 +175,9 @@ public class MeterTopology extends AbstractMeterTopology {
 
     @Override
     public int getPhysicalAddress(final String serialNumber) {
+        if (serialNumber == null || serialNumber.isEmpty()) {
+            throw DeviceConfigurationException.missingProperty("SerialNumber");
+        }
 
         if (serialNumber.equals(protocol.getDlmsSession().getProperties().getSerialNumber())) {
             return 0;   // the 'Master' has physicalAddress 0
@@ -184,7 +188,7 @@ public class MeterTopology extends AbstractMeterTopology {
                 return dm.getPhysicalAddress();
             }
         }
-        return -1;
+        throw DeviceConfigurationException.unsupportedPropertyValue("SerialNumber", serialNumber);
     }
 
     @Override
@@ -224,7 +228,7 @@ public class MeterTopology extends AbstractMeterTopology {
 
     /**
      * Returns the actual device topology (which should be the master device and a number of attached slave devices).
-     * <p/>
+     * <p>
      * <b>Warning:</b> this method should only be called after the actual device topology is read out, or in other words
      * after method #searchForSlaveDevices() has been called!
      *
@@ -249,7 +253,7 @@ public class MeterTopology extends AbstractMeterTopology {
      *
      * @return the next available physicalAddress or -1 if none is available.
      */
-    public int searchNextFreePhysicalAddress(){
+    public int searchNextFreePhysicalAddress() {
         List<Integer> availablePhysicalAddresses = new ArrayList<>(Arrays.asList(1, 2, 3, 4));
         for (DeviceMapping dm : this.mbusMap) {
             availablePhysicalAddresses.remove((Integer) dm.getPhysicalAddress());    // Remove the specified object from the list

@@ -10,6 +10,7 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
@@ -136,10 +137,10 @@ public class MeterTopology implements MasterMeter {
     /**
      * Construct the shortId from the four given fields
      *
-     * @param manufacturer   - the manufacturer ID of the meter
+     * @param manufacturer - the manufacturer ID of the meter
      * @param identification - the identification number(serialnumber) of the meter
-     * @param version        - the version of the device type
-     * @param deviceType     - the device type
+     * @param version - the version of the device type
+     * @param deviceType - the device type
      * @return a string which is a concatenation of the manipulated given fields
      */
     protected String constructShortId(Unsigned16 manufacturer, Unsigned32 identification, Unsigned8 version, Unsigned8 deviceType) {
@@ -167,6 +168,9 @@ public class MeterTopology implements MasterMeter {
      * @return the physicalAddress or -1 if the serialNumber was not found.
      */
     public int getPhysicalAddress(final String serialNumber) {
+        if (serialNumber == null || serialNumber.isEmpty()) {
+            throw DeviceConfigurationException.missingProperty("SerialNumber");
+        }
 
         if (serialNumber.equals(this.protocol.getSerialNumber())) {
             return this.protocol.getPhysicalAddress();
@@ -177,7 +181,7 @@ public class MeterTopology implements MasterMeter {
                 return dm.getPhysicalAddress();
             }
         }
-        return -1;
+        throw DeviceConfigurationException.unsupportedPropertyValue("SerialNumber", serialNumber);
     }
 
     /**
