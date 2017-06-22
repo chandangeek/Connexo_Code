@@ -5,6 +5,8 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,6 +19,7 @@ import org.mockito.ArgumentCaptor;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -56,4 +59,38 @@ public class DeviceMessageSearchResourceTest extends DeviceDataRestApplicationJe
         assertThat(queryFilterArgumentCaptor.getValue().getDeviceGroups()).contains(endDeviceGroup11, endDeviceGroup22);
 
     }
+
+    @Test
+    public void searchDeviceMessagesFilterMessageCategories() throws Exception {
+        DeviceMessageCategory deviceCategory101 = mock(DeviceMessageCategory.class);
+        DeviceMessageCategory deviceCategory102 = mock(DeviceMessageCategory.class);
+        when(deviceMessageSpecificationService.findCategoryById(anyInt())).thenReturn(Optional.empty());
+        when(deviceMessageSpecificationService.findCategoryById(101)).thenReturn(Optional.of(deviceCategory101));
+        when(deviceMessageSpecificationService.findCategoryById(102)).thenReturn(Optional.of(deviceCategory102));
+
+        String response = target("/devicemessages").queryParam("filter", ExtjsFilter.filter("messageCategories", Arrays.asList(101, 102))).request().get(String.class);
+        ArgumentCaptor<DeviceMessageQueryFilter> queryFilterArgumentCaptor = ArgumentCaptor.forClass(DeviceMessageQueryFilter.class);
+        verify(deviceMessageService).findDeviceMessagesByFilter(queryFilterArgumentCaptor.capture());
+        assertThat(queryFilterArgumentCaptor.getValue().getMessageCategories()).containsOnly(deviceCategory101, deviceCategory102);
+    }
+
+    @Test
+    public void searchDeviceMessagesFilterMessageCategoriesAndDeviceCommands() throws Exception {
+        DeviceMessageCategory deviceCategory101 = mock(DeviceMessageCategory.class);
+        DeviceMessageCategory deviceCategory102 = mock(DeviceMessageCategory.class);
+        when(deviceMessageSpecificationService.findCategoryById(anyInt())).thenReturn(Optional.empty());
+        when(deviceMessageSpecificationService.findCategoryById(101)).thenReturn(Optional.of(deviceCategory101));
+        when(deviceMessageSpecificationService.findCategoryById(102)).thenReturn(Optional.of(deviceCategory102));
+
+        String extjsFilter = ExtjsFilter.filter()
+                .property("messageCategories", Arrays.asList(101, 102))
+                .property("deviceMessageIds", Collections.singletonList(15001))
+                .create();
+        String response = target("/devicemessages").queryParam("filter", extjsFilter).request().get(String.class);
+        ArgumentCaptor<DeviceMessageQueryFilter> queryFilterArgumentCaptor = ArgumentCaptor.forClass(DeviceMessageQueryFilter.class);
+        verify(deviceMessageService).findDeviceMessagesByFilter(queryFilterArgumentCaptor.capture());
+        assertThat(queryFilterArgumentCaptor.getValue().getMessageCategories()).containsOnly(deviceCategory101, deviceCategory102);
+        assertThat(queryFilterArgumentCaptor.getValue().getDeviceMessages()).containsOnly(DeviceMessageId.CLOCK_SET_TIME);
+    }
+
 }
