@@ -119,13 +119,18 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
-                    this.booleanSpec(service, resumeFirmwareUpdateAttributeName, resumeFirmwareUpdateAttributeDefaultTranslation, Boolean.TRUE)
+                    getResumeFirmwareUploadPropertySpec(service).get()
             );
         }
 
         @Override
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        }
+
+        @Override
+        public Optional<PropertySpec> getResumeFirmwareUploadPropertySpec(PropertySpecService service) {
+            return Optional.of(this.booleanSpec(service, resumeFirmwareUpdateAttributeName, resumeFirmwareUpdateAttributeDefaultTranslation, Boolean.TRUE));
         }
     },
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE(5003, "Upload firmware with resume option and type and activate immediately") {
@@ -133,7 +138,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
-                    this.booleanSpec(service, resumeFirmwareUpdateAttributeName, resumeFirmwareUpdateAttributeDefaultTranslation, Boolean.TRUE),
+                    getResumeFirmwareUploadPropertySpec(service).get(),
                     this.booleanSpec(service, plcTypeFirmwareUpdateAttributeName, plcTypeFirmwareUpdateAttributeDefaultTranslation)
             );
         }
@@ -141,6 +146,11 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        }
+
+        @Override
+        public Optional<PropertySpec> getResumeFirmwareUploadPropertySpec(PropertySpecService service) {
+            return Optional.of(this.booleanSpec(service, resumeFirmwareUpdateAttributeName, resumeFirmwareUpdateAttributeDefaultTranslation, Boolean.TRUE));
         }
     },
     UPGRADE_FIRMWARE_ACTIVATE(5004, "Activate last uploaded firmware") {
@@ -513,13 +523,18 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
                     this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation),
                     this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation),
-                    this.booleanSpec(service, resumeFirmwareUpdateAttributeName, resumeFirmwareUpdateAttributeDefaultTranslation, false)
+                    getResumeFirmwareUploadPropertySpec(service) .get()
             );
         }
 
         @Override
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
+        }
+
+        @Override
+        public Optional<PropertySpec> getResumeFirmwareUploadPropertySpec(PropertySpecService service) {
+            return Optional.of(this.booleanSpec(service, resumeFirmwareUpdateAttributeName, resumeFirmwareUpdateAttributeDefaultTranslation, Boolean.TRUE));
         }
     },
     VerifyAndActivateFirmwareAtGivenDate(5031, "Verify and activate firmware at given date") {
