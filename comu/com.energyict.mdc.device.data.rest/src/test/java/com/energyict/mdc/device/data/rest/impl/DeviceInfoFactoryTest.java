@@ -55,6 +55,7 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
@@ -169,7 +170,8 @@ public class DeviceInfoFactoryTest {
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
-
+    @Mock
+    private FirmwareService firmwareService;
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
@@ -444,6 +446,7 @@ public class DeviceInfoFactoryTest {
         when(dataLogger.getLifecycleDates()).thenReturn(lifecycleDates);
         when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.findLastDataloggerReference(any(Device.class))).thenReturn(Optional.empty());
+        when(firmwareService.imageIdentifierExpectedAtFirmwareUpload(any(DeviceType.class))).thenReturn(false);
     }
 
     private void setupTranslations() {
@@ -502,7 +505,7 @@ public class DeviceInfoFactoryTest {
     public void fromDataLoggerTest() {
         DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory = new DataLoggerSlaveDeviceInfoFactory(Clock.systemUTC(), topologyService, multiElementDeviceService, deviceDataInfoFactory, batchService, channelInfoFactory);
 
-        DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService, multiElementDeviceService, issueService, dataLoggerSlaveDeviceInfoFactory, deviceService, deviceLifeCycleConfigurationService, clock);
+        DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService, multiElementDeviceService, issueService, dataLoggerSlaveDeviceInfoFactory, deviceService, deviceLifeCycleConfigurationService, firmwareService, clock);
         DeviceInfo info = deviceInfoFactory.deviceInfo(dataLogger);
 
         assertThat(info.id).isEqualTo(DATALOGGER_ID);
@@ -553,5 +556,6 @@ public class DeviceInfoFactoryTest {
         assertThat(info.dataLoggerSlaveDevices.get(2).dataLoggerSlaveChannelInfos).hasSize(1);
         assertThat(info.dataLoggerSlaveDevices.get(2).dataLoggerSlaveChannelInfos.get(0).slaveChannel.name).isEqualTo(SLAVE_CHANNEL_NAME_2);
         assertThat(info.dataLoggerSlaveDevices.get(2).dataLoggerSlaveChannelInfos.get(0).dataLoggerChannel.name).isEqualTo("dataLoggerChn3");
+        assertThat(info.protocolNeedsImageIdentifierForFirmwareUpgrade).isFalse();
     }
 }
