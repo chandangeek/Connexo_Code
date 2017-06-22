@@ -5,19 +5,10 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.tasks.BasicCheckTask;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import java.util.Optional;
 
 @Component(name = "com.energyict.servicecall.ami.test.communication.handler",
         service = ServiceCallHandler.class,
@@ -26,7 +17,7 @@ import java.util.Optional;
 public class CommunicationTestServiceCallHandler extends AbstractOperationServiceCallHandler {
 
     public static final String VERSION = "v1.0";
-    public static final String SERVICE_CALL_HANDLER_NAME = "TestCommunicationServiceCallHandler";
+    public static final String SERVICE_CALL_HANDLER_NAME = "TestDeviceCommunicationServiceCallHandler";
 
     private volatile CompletionOptionsCallBack completionOptionsCallBack;
 
