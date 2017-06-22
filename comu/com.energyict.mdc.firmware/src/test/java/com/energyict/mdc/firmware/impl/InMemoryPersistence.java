@@ -99,6 +99,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -286,6 +287,12 @@ public class InMemoryPersistence {
                 };
                 return Optional.of(deviceMessageSpec);
 
+            });
+
+            when(deviceMessageSpecificationService.needsImageIdentifierAtUploadOfFirmware(any(DeviceMessageId.class))).thenAnswer(invocation -> {
+                Object[] args = invocation.getArguments();
+                DeviceMessageId deviceMessageId = (DeviceMessageId) args[0];
+                return deviceMessageId.dbValue() == 5016 || deviceMessageId.dbValue() == 5017;
             });
 
             bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);

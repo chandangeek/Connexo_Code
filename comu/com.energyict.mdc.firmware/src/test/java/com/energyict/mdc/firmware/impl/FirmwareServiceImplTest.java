@@ -132,6 +132,35 @@ public class FirmwareServiceImplTest extends PersistenceTest {
                 ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE,
                 ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE))).isTrue();
     }
+    @Test
+    public void protocolWithNoSupportedDeviceMessagesDoesNotNeedImageIdentifierToUploadFirmwareTest(){
+        DeviceType deviceType = getMockedDeviceTypeWithMessageIds();
+        assertThat(deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol().getSupportedMessages()).isEmpty();
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
+        assertThat(firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)).isFalse();
+    }
+
+    public void protocolDoesNotNeedImageIdentifierToUploadFirmwareTest(){
+        DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE,
+                DeviceMessageId.CONTACTOR_OPEN,
+                DeviceMessageId.ALARM_CONFIGURATION_WRITE_FILTER_FOR_ALARM_REGISTER_1_OR_2,
+                DeviceMessageId.PLC_CONFIGURATION_SET_MAX_JOIN_WAIT_TIME,
+                DeviceMessageId.NETWORK_CONNECTIVITY_SET_SUBNET_MASK,
+                DeviceMessageId.FIRMWARE_UPGRADE_FTION_UPGRADE_RF_MESH_FIRMWARE,
+                DeviceMessageId.ZIGBEE_CONFIGURATION_READ_STATUS,
+                DeviceMessageId.SECURITY_CHANGE_HLS_SECRET_USING_SERVICE_KEY,
+                DeviceMessageId.LOGGING_CONFIGURATION_DEVICE_MESSAGE_PUSH_CONFIGURATION);
+        assertThat(deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol().getSupportedMessages()).isEmpty();
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
+        assertThat(firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)).isFalse();
+    }
+
+    @Test
+    public void protocolNeedsImageIdentifierToUploadFirmwareTest(){
+        DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER);
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
+        assertThat(firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)).isTrue();
+    }
 
     private DeviceType getMockedDeviceTypeWithMessageIds(DeviceMessageId... deviceMessageIds) {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
@@ -149,6 +178,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
         for (DeviceMessageId deviceMessageId : deviceMessageIds) {
             com.energyict.mdc.upl.messages.DeviceMessageSpec spec = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
             when(spec.getId()).thenReturn(deviceMessageId.dbValue());
+
             result.add(spec);
         }
         return result;

@@ -53,6 +53,7 @@ import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 import com.energyict.mdc.firmware.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.firmware.security.Privileges;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -178,13 +179,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Override
     public boolean imageIdentifierExpectedAtFirmwareUpload(DeviceType deviceType) {
-        return deviceType.getDeviceProtocolPluggableClass()
-                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
-                        .map(DeviceMessageSpec::getId)
-                        .map(DeviceMessageId::from)
-                        .filter(this.deviceMessageSpecificationService::needsImageIdentifierAtUploadOfFirmware)
-                        .findFirst())
-                .isPresent();
+        if (deviceType.getDeviceProtocolPluggableClass().isPresent()){
+            DeviceProtocol deviceProtocol = deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol();
+            return deviceProtocol.getSupportedMessages().stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::from).anyMatch(dmid -> this.deviceMessageSpecificationService.needsImageIdentifierAtUploadOfFirmware(dmid));
+        }
+        return false;
     }
 
     @Override
