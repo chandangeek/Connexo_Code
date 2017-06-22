@@ -447,6 +447,7 @@ public class DeviceInfoFactoryTest {
         when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.findLastDataloggerReference(any(Device.class))).thenReturn(Optional.empty());
         when(firmwareService.imageIdentifierExpectedAtFirmwareUpload(any(DeviceType.class))).thenReturn(false);
+        when(firmwareService.isResumeFirmwareUploadEnabled(any(DeviceType.class))).thenReturn(false);
     }
 
     private void setupTranslations() {
