@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -194,6 +195,50 @@ public class DeviceMessageSearchServiceImplIT extends PersistenceIntegrationTest
 
     @Test
     @Transactional
+    public void selectDeviceMessagesByDeviceMessageStatusMatching() throws Exception {
+        DeviceMessage deviceMessage1 = device1.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage2 = device2.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage3 = device3.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ERROR_BITS).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage4 = device4.newDeviceMessage(DeviceMessageId.CONTACTOR_OPEN).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessageQueryFilter deviceMessageQueryFilter = new DeviceMessageQueryFilterImpl() {
+            @Override
+            public Collection<DeviceMessageStatus> getStatuses() {
+                return Collections.singletonList(DeviceMessageStatus.WAITING);
+            }
+        };
+
+        List<DeviceMessage> deviceMessages = inMemoryPersistence.getDeviceMessageService()
+                .findDeviceMessagesByFilter(deviceMessageQueryFilter)
+                .find();
+        assertThat(deviceMessages).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void selectDeviceMessagesByDeviceMessageStatusMismatching() throws Exception {
+        DeviceMessage deviceMessage1 = device1.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage2 = device2.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage3 = device3.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ERROR_BITS).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage4 = device4.newDeviceMessage(DeviceMessageId.CONTACTOR_OPEN).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessageQueryFilter deviceMessageQueryFilter = new DeviceMessageQueryFilterImpl() {
+            @Override
+            public Collection<DeviceMessageStatus> getStatuses() {
+                return Collections.singletonList(DeviceMessageStatus.PENDING);
+            }
+        };
+
+        List<DeviceMessage> deviceMessages = inMemoryPersistence.getDeviceMessageService()
+                .findDeviceMessagesByFilter(deviceMessageQueryFilter)
+                .find();
+        assertThat(deviceMessages).hasSize(4);
+        List<DeviceMessageId> deviceMessageIds = deviceMessages.stream()
+                .map(DeviceMessage::getDeviceMessageId)
+                .collect(Collectors.toList());
+        assertThat(deviceMessageIds).containsOnly(DeviceMessageId.CONTACTOR_OPEN, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS, DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ERROR_BITS);
+    }
+
+    @Test
+    @Transactional
     public void selectDeviceMessagesByCombinedFilter_CommandCategories_and_DeviceGroup() throws Exception {
         DeviceMessage deviceMessage1 = device1.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
         DeviceMessage deviceMessage2 = device2.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
@@ -234,6 +279,11 @@ public class DeviceMessageSearchServiceImplIT extends PersistenceIntegrationTest
 
         @Override
         public Collection<DeviceMessageId> getDeviceMessages() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public Collection<DeviceMessageStatus> getStatuses() {
             return Collections.emptyList();
         }
     }

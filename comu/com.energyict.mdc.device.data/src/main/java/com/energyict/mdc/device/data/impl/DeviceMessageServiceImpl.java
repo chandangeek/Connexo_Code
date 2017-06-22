@@ -26,9 +26,12 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+
+import oracle.jdbc.driver.DMSFactory;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -184,6 +187,26 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
                 deviceMessageConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).in(deviceMessageDbIds));
             }
             allFilterConditions.add(deviceMessageConditions.stream().reduce(Condition.FALSE, Condition::or));
+        }
+        if (!deviceMessageQueryFilter.getStatuses().isEmpty()) {
+            List<Condition> messageStatusConditions = new ArrayList<>();
+            if (deviceMessageQueryFilter.getStatuses().contains(DeviceMessageStatus.PENDING)) {
+                messageStatusConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).isEqualTo(DeviceMessageStatus.WAITING)
+                        .and(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isNotNull())
+                        .and(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isLessThan(this.clock.instant())));
+            }
+            if (deviceMessageQueryFilter.getStatuses().contains(DeviceMessageStatus.WAITING)) {
+                messageStatusConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).isEqualTo(DeviceMessageStatus.WAITING)
+                        .and(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isNull()
+                        .or(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isGreaterThanOrEqual(this.clock.instant()))));
+            }
+            ArrayList<DeviceMessageStatus> deviceMessageStatuses = new ArrayList<>(deviceMessageQueryFilter.getStatuses());
+            deviceMessageStatuses.remove(DeviceMessageStatus.WAITING);
+            deviceMessageStatuses.remove(DeviceMessageStatus.PENDING);
+            if (!deviceMessageStatuses.isEmpty()) {
+                messageStatusConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).in(deviceMessageStatuses));
+            }
+            allFilterConditions.add(messageStatusConditions.stream().reduce(Condition.FALSE, Condition::or));
         }
 
         Condition condition = allFilterConditions.stream().reduce(Condition.TRUE, Condition::and);
