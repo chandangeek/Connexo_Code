@@ -43,7 +43,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

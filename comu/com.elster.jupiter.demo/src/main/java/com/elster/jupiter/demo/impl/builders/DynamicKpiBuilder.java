@@ -12,7 +12,6 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 

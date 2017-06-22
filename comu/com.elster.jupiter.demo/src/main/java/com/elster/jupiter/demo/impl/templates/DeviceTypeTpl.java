@@ -154,11 +154,11 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             Collections.emptyList(), true),
     BK_GF("Elster BK-G4", "com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice", 0, null,
             Collections.singletonList(RegisterTypeTpl.BULK_GAS_VOLUME),
-            Arrays.asList(LoadProfileTypeTpl.HOURLY_GAS,LoadProfileTypeTpl.DAILY_GAS,LoadProfileTypeTpl.MONTHLY_GAS),
+            Arrays.asList(LoadProfileTypeTpl.HOURLY_GAS),
             Collections.emptyList(), true),
     V200PR_6("Elster V200PR-6", "com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice", 0, null,
             Arrays.asList(RegisterTypeTpl.BULK_WATER_VOLUME),
-            Arrays.asList(LoadProfileTypeTpl.HOURLY_WATER,LoadProfileTypeTpl.DAILY_WATER,LoadProfileTypeTpl.MONTHLY_WATER),
+            Arrays.asList(LoadProfileTypeTpl.HOURLY_WATER),
             Collections.emptyList(), true);
 
     private String longName;

@@ -19,7 +19,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -54,7 +53,7 @@ public class CreateValidationSetupCommand extends CommandWithTransaction {
     @Inject
     public CreateValidationSetupCommand(
             DeviceConfigurationService deviceConfigurationService,
-            MetrologyConfigurationService metrologyConfigurationService, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService, UsagePointConfigurationService usagePointConfigurationService, DeviceService deviceService,
+            MetrologyConfigurationService metrologyConfigurationService, UsagePointConfigurationService usagePointConfigurationService, DeviceService deviceService,
             MeteringService meteringService,
             ValidationService validationService,
             LicenseService licenseService) {

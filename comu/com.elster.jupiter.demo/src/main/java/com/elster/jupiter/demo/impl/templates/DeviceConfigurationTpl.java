@@ -73,13 +73,13 @@ public enum DeviceConfigurationTpl implements Template<DeviceConfiguration, Devi
     DEFAULT_GAS("Default", GatewayType.NONE,
             Collections.singletonList(SecurityPropertySetTpl.NO_SECURITY),
             Collections.singletonList(RegisterTypeTpl.BULK_GAS_VOLUME),
-            Arrays.asList(LoadProfileTypeTpl.HOURLY_GAS,LoadProfileTypeTpl.DAILY_GAS,LoadProfileTypeTpl.MONTHLY_GAS),
+            Collections.singletonList(LoadProfileTypeTpl.HOURLY_GAS),
             Collections.emptyList(),
             Arrays.asList(ComTaskTpl.BASIC_CHECK, ComTaskTpl.READ_LOAD_PROFILE_DATA_GAS, ComTaskTpl.READ_REGISTER_DATA_GAS), false),
     DEFAULT_WATER("Default", GatewayType.NONE,
             Collections.singletonList(SecurityPropertySetTpl.NO_SECURITY),
             Collections.singletonList(RegisterTypeTpl.BULK_WATER_VOLUME),
-            Arrays.asList(LoadProfileTypeTpl.HOURLY_WATER,LoadProfileTypeTpl.DAILY_WATER,LoadProfileTypeTpl.MONTHLY_WATER),
+            Collections.singletonList(LoadProfileTypeTpl.HOURLY_WATER),
             Collections.emptyList(),
             Arrays.asList(ComTaskTpl.BASIC_CHECK, ComTaskTpl.READ_LOAD_PROFILE_DATA_WATER, ComTaskTpl.READ_REGISTER_DATA_WATER), false)
     ;
