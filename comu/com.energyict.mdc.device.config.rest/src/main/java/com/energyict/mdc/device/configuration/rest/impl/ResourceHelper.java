@@ -111,6 +111,11 @@ public class ResourceHelper {
         return this.firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType);
     }
 
+    public boolean isResumeFirmwareUploadEnabled(DeviceType deviceType){
+        return this.firmwareService.isResumeFirmwareUploadEnabled(deviceType);
+    }
+
+
     public RegisterType findRegisterTypeByIdOrThrowException(long id) {
         return masterDataService
                 .findRegisterType(id)
