@@ -2588,6 +2588,27 @@ Ext.define('Mdc.controller.history.Setup', {
                         }
                     }
                 }
+            },
+            workspace: {
+                title: Uni.I18n.translate('general.workspace', 'MDC', 'Workspace'),
+                route: 'workspace',
+                disabled: true,
+                items: {
+                    commands: {
+                        title: Uni.I18n.translate('general.commands', 'MDC', 'Commands'),
+                        route: 'commands',
+                        controller: 'Mdc.commands.controller.Commands',
+                        action: 'showCommandsOverview',
+                        items: {
+                            add: {
+                                title: Uni.I18n.translate('general.addCommand', 'MDC', 'Add command'),
+                                route: 'add',
+                                controller: 'Mdc.commands.controller.Commands',
+                                action: 'showAddCommand'
+                            }
+                        }
+                    }
+                }
             }
         });
         router.addConfig(this.routeConfig);

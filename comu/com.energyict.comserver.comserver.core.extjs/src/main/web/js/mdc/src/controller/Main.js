@@ -124,7 +124,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.CommandLimitationRules',
         'Mdc.securityaccessors.controller.SecurityAccessors',
         'Mdc.securityaccessors.controller.DeviceSecurityAccessors',
-        'Mdc.controller.setup.DeviceRegisterValidation'
+        'Mdc.controller.setup.DeviceRegisterValidation',
+        'Mdc.commands.controller.Commands'
     ],
 
     stores: [
@@ -356,5 +357,29 @@ Ext.define('Mdc.controller.Main', {
             });
             Uni.store.PortalItems.add(portalItem);
         }
+
+        if (Mdc.privileges.Device.canViewDevices()) {
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.workspace', 'MDC', 'Workspace'),
+                glyph: 'workspace',
+                portal: 'workspace',
+                index: 30
+            }));
+
+            Uni.store.PortalItems.add(
+                Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.dataCommunication', 'MDC', 'Data communication'),
+                    portal: 'workspace',
+                    route: 'commands',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('title.commands', 'MDC', 'Commands'),
+                            href: '#/workspace/commands'
+                        }
+                    ]
+                })
+            );
+        }
+
     }
 });
