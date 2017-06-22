@@ -21,6 +21,8 @@ import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -31,16 +33,19 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
+import static java.util.stream.Collectors.toList;
 
 class DeviceMessageServiceImpl implements DeviceMessageService {
 
@@ -148,11 +153,41 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
 
     @Override
     public Finder<DeviceMessage> findDeviceMessagesByFilter(DeviceMessageQueryFilter deviceMessageQueryFilter) {
-        Condition deviceGroupCondition = deviceMessageQueryFilter.getDeviceGroups().stream()
-                .map(endDeviceGroup -> ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), DeviceMessageImpl.Fields.DEVICE.fieldName()))
-                .map(Condition.class::cast)
-                .reduce(Condition.FALSE, Condition::or);
-        return DefaultFinder.of(DeviceMessage.class, deviceGroupCondition, this.deviceDataModelService.dataModel());
+        List<Condition> allFilterConditions = new ArrayList<>();
+        if (!deviceMessageQueryFilter.getDeviceGroups().isEmpty()) {
+            allFilterConditions.add(deviceMessageQueryFilter.getDeviceGroups().stream()
+                    .map(endDeviceGroup -> ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), DeviceMessageImpl.Fields.DEVICE.fieldName()))
+                    .map(Condition.class::cast)
+                    .reduce(Condition.FALSE, Condition::or));
+        }
+        if (!deviceMessageQueryFilter.getMessageCategories().isEmpty()) {
+            List<Condition> deviceMessageConditions = new ArrayList<>();
+            for (DeviceMessageCategory deviceMessageCategory : deviceMessageQueryFilter.getMessageCategories()) {
+                List<DeviceMessageId> allDeviceMessageIdInCategory = deviceMessageCategory.getMessageSpecifications()
+                        .stream()
+                        .map(DeviceMessageSpec::getId)
+                        .collect(toList());
+                List<DeviceMessageId> deviceMessageIds = deviceMessageQueryFilter.getDeviceMessages()
+                        .stream()
+                        .filter(allDeviceMessageIdInCategory::contains)
+                        .collect(toList());
+                List<Long> deviceMessageDbIds;
+                if (deviceMessageIds.isEmpty()) {
+                    deviceMessageDbIds = allDeviceMessageIdInCategory.stream()
+                            .map(DeviceMessageId::dbValue)
+                            .collect(toList());
+                } else {
+                    deviceMessageDbIds = deviceMessageIds.stream()
+                            .map(DeviceMessageId::dbValue)
+                            .collect(toList());
+                }
+                deviceMessageConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).in(deviceMessageDbIds));
+            }
+            allFilterConditions.add(deviceMessageConditions.stream().reduce(Condition.FALSE, Condition::or));
+        }
+
+        Condition condition = allFilterConditions.stream().reduce(Condition.TRUE, Condition::and);
+        return DefaultFinder.of(DeviceMessage.class, condition, this.deviceDataModelService.dataModel());
     }
 
     @Override

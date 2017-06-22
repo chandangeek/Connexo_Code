@@ -11,20 +11,26 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.TimeZone;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,24 +38,44 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 public class DeviceMessageSearchServiceImplIT extends PersistenceIntegrationTest {
 
     private static final String DEVICE_NAME = "MyUniqueName";
-    private static final TimeZone testDefaultTimeZone = TimeZone.getTimeZone("Canada/East-Saskatchewan");
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
+    private Device device1;
+    private Device device2;
+    private Device device3;
+    private Device device4;
+    private EnumeratedEndDeviceGroup deviceGroup1;
+    private EnumeratedEndDeviceGroup deviceGroup2;
+    private EnumeratedEndDeviceGroup deviceGroup3;
+    private EnumeratedEndDeviceGroup deviceGroup4;
 
     @BeforeClass
     public static void setup() {
         try (TransactionContext context = getTransactionService().getContext()) {
-            deviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newDeviceProtocolPluggableClass("MyTestProtocol", TestProtocol.class.getName());
+            deviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newDeviceProtocolPluggableClass("CommandlyTestProtocol", CommandlyTestProtocol.class.getName());
             deviceProtocolPluggableClass.save();
             context.commit();
         }
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        device1 = createSimpleDeviceWithName("dev1");
+        device2 = createSimpleDeviceWithName("dev2");
+        device3 = createSimpleDeviceWithName("dev3");
+        device4 = createSimpleDeviceWithName("dev4");
+        AmrSystem amrSystem = inMemoryPersistence.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(() -> new IllegalStateException("ARM not found"));
+
+        deviceGroup1 = createDeviceGroup(device1, amrSystem, "group1");
+        deviceGroup2 = createDeviceGroup(device2, amrSystem, "group2");
+        deviceGroup3 = createDeviceGroup(device3, amrSystem, "group3");
+        deviceGroup4 = createDeviceGroup(device4, amrSystem, "group4");
     }
 
     @After
@@ -87,42 +113,211 @@ public class DeviceMessageSearchServiceImplIT extends PersistenceIntegrationTest
         assertThat(device.getSerialNumber()).isNullOrEmpty();
     }
 
-
     @Test
     @Transactional
     public void selectDeviceMessagesByDeviceGroups() throws Exception {
-        Device device1 = createSimpleDeviceWithName("dev1");
-        Device device2 = createSimpleDeviceWithName("dev2");
-        Device device3 = createSimpleDeviceWithName("dev3");
-        Device device4 = createSimpleDeviceWithName("dev4");
-        AmrSystem amrSystem = inMemoryPersistence.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(() -> new IllegalStateException("ARM not found"));
+        DeviceMessage deviceMessage1 = device1.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage2 = device2.newDeviceMessage(DeviceMessageId.CONTACTOR_ARM).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage3 = device3.newDeviceMessage(DeviceMessageId.CONTACTOR_ARM_WITH_ACTIVATION_DATE).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage4 = device4.newDeviceMessage(DeviceMessageId.CONTACTOR_OPEN).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
 
-        EnumeratedEndDeviceGroup deviceGroup1 = createDeviceGroup(device1, amrSystem, "group1");
-        EnumeratedEndDeviceGroup deviceGroup2 = createDeviceGroup(device2, amrSystem, "group2");
-        EnumeratedEndDeviceGroup deviceGroup3 = createDeviceGroup(device3, amrSystem, "group3");
-        EnumeratedEndDeviceGroup deviceGroup4 = createDeviceGroup(device4, amrSystem, "group4");
-
-        DeviceMessageId deviceMessageId = DeviceMessageId.CONTACTOR_CLOSE;
-        DeviceMessage deviceMessage1 = device1.newDeviceMessage(deviceMessageId).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
-        DeviceMessage deviceMessage2 = device2.newDeviceMessage(deviceMessageId).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
-        DeviceMessage deviceMessage3 = device3.newDeviceMessage(deviceMessageId).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
-        DeviceMessage deviceMessage4 = device4.newDeviceMessage(deviceMessageId).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
-
-        DeviceMessageQueryFilter deviceMessageQueryFilter = new DeviceMessageQueryFilter() {
-
+        DeviceMessageQueryFilter deviceMessageQueryFilter = new DeviceMessageQueryFilterImpl() {
             @Override
             public Collection<EndDeviceGroup> getDeviceGroups() {
                 return Arrays.asList(deviceGroup1, deviceGroup4);
             }
-
         };
 
         List<DeviceMessage> deviceMessages = inMemoryPersistence.getDeviceMessageService()
                 .findDeviceMessagesByFilter(deviceMessageQueryFilter)
                 .find();
         assertThat(deviceMessages).hasSize(2);
-        assertThat(deviceMessages.stream().map(DeviceMessage::getDevice).map(Device.class::cast).collect(Collectors.toList())).contains(device1, device4);
-        assertThat(deviceMessages.stream().map(DeviceMessage::getDevice).map(Device.class::cast).collect(Collectors.toList())).doesNotContain(device2, device3);
+        List<DeviceMessageId> deviceMessageIds = deviceMessages.stream()
+                .map(DeviceMessage::getDeviceMessageId)
+                .collect(Collectors.toList());
+        assertThat(deviceMessageIds).containsOnly(deviceMessage1.getDeviceMessageId(), deviceMessage4.getDeviceMessageId());
+        assertThat(deviceMessageIds).doesNotContain(deviceMessage2.getDeviceMessageId(), deviceMessage3.getDeviceMessageId());
     }
+
+    @Test
+    @Transactional
+    public void selectDeviceMessagesByCommandCategories() throws Exception {
+        DeviceMessage deviceMessage1 = device1.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage2 = device2.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage3 = device3.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ERROR_BITS).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage4 = device4.newDeviceMessage(DeviceMessageId.CONTACTOR_OPEN).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessageQueryFilter deviceMessageQueryFilter = new DeviceMessageQueryFilterImpl() {
+            @Override
+            public Collection<DeviceMessageCategory> getMessageCategories() {
+                return Collections.singletonList(DeviceMessageTestCategories.CONTACTOR);
+            }
+        };
+
+        List<DeviceMessage> deviceMessages = inMemoryPersistence.getDeviceMessageService()
+                .findDeviceMessagesByFilter(deviceMessageQueryFilter)
+                .find();
+        assertThat(deviceMessages).hasSize(2);
+        List<DeviceMessageId> deviceMessageIds = deviceMessages.stream()
+                .map(DeviceMessage::getDeviceMessageId)
+                .collect(Collectors.toList());
+        assertThat(deviceMessageIds).containsOnly(DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN);
+    }
+
+    @Test
+    @Transactional
+    public void selectDeviceMessagesBy_CommandCategories_And_DeviceCommands() throws Exception {
+        DeviceMessage deviceMessage1 = device1.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage2 = device2.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage3 = device3.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ERROR_BITS).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage4 = device4.newDeviceMessage(DeviceMessageId.CONTACTOR_OPEN).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessageQueryFilter deviceMessageQueryFilter = new DeviceMessageQueryFilterImpl() {
+            @Override
+            public Collection<DeviceMessageCategory> getMessageCategories() {
+                return Collections.singletonList(DeviceMessageTestCategories.CONTACTOR);
+            }
+
+            @Override
+            public Collection<DeviceMessageId> getDeviceMessages() {
+                return Collections.singletonList(DeviceMessageId.CONTACTOR_CLOSE);
+            }
+        };
+
+        List<DeviceMessage> deviceMessages = inMemoryPersistence.getDeviceMessageService()
+                .findDeviceMessagesByFilter(deviceMessageQueryFilter)
+                .find();
+        assertThat(deviceMessages).hasSize(1);
+        List<DeviceMessageId> deviceMessageIds = deviceMessages.stream()
+                .map(DeviceMessage::getDeviceMessageId)
+                .collect(Collectors.toList());
+        assertThat(deviceMessageIds).containsOnly(DeviceMessageId.CONTACTOR_CLOSE);
+    }
+
+    @Test
+    @Transactional
+    public void selectDeviceMessagesByCombinedFilter_CommandCategories_and_DeviceGroup() throws Exception {
+        DeviceMessage deviceMessage1 = device1.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage2 = device2.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage3 = device3.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ERROR_BITS).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage4 = device4.newDeviceMessage(DeviceMessageId.CONTACTOR_OPEN).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessageQueryFilter deviceMessageQueryFilter = new DeviceMessageQueryFilterImpl() {
+            @Override
+            public Collection<DeviceMessageCategory> getMessageCategories() {
+                return Collections.singletonList(DeviceMessageTestCategories.CONTACTOR);
+            }
+
+            @Override
+            public Collection<EndDeviceGroup> getDeviceGroups() {
+                return Collections.singletonList(deviceGroup4);
+            }
+        };
+
+        List<DeviceMessage> deviceMessages = inMemoryPersistence.getDeviceMessageService()
+                .findDeviceMessagesByFilter(deviceMessageQueryFilter)
+                .find();
+        assertThat(deviceMessages).hasSize(1);
+        List<DeviceMessageId> deviceMessageIds = deviceMessages.stream()
+                .map(DeviceMessage::getDeviceMessageId)
+                .collect(Collectors.toList());
+        assertThat(deviceMessageIds).containsOnly(DeviceMessageId.CONTACTOR_OPEN);
+    }
+
+    private class DeviceMessageQueryFilterImpl implements DeviceMessageQueryFilter {
+        @Override
+        public Collection<EndDeviceGroup> getDeviceGroups() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public Collection<DeviceMessageCategory> getMessageCategories() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public Collection<DeviceMessageId> getDeviceMessages() {
+            return Collections.emptyList();
+        }
+    }
+
+    private enum DeviceMessageTestCategories implements DeviceMessageCategory {
+
+        CONTACTOR {
+            @Override
+            public List<DeviceMessageSpec> getMessageSpecifications() {
+                return Stream.of(DeviceMessageId.CONTACTOR_OPEN,
+                        DeviceMessageId.CONTACTOR_CLOSE,
+                        DeviceMessageId.CONTACTOR_ARM,
+                        DeviceMessageId.CONTACTOR_ARM_WITH_ACTIVATION_DATE)
+                        .map(id->new DeviceMessageTestSpec(id.name(), id, CONTACTOR))
+                        .collect(Collectors.toList());
+            }
+        },
+        ALARMS {
+            @Override
+            public List<DeviceMessageSpec> getMessageSpecifications() {
+                return Stream.of(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS,
+                        DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ERROR_BITS,
+                        DeviceMessageId.ALARM_CONFIGURATION_WRITE_ALARM_FILTER)
+                        .map(id->new DeviceMessageTestSpec(id.name(), id, ALARMS))
+                        .collect(Collectors.toList());
+            }
+        };
+
+        @Override
+        public String getName() {
+            return name();
+        }
+
+        @Override
+        public String getDescription() {
+            return name();
+        }
+
+        @Override
+        public int getId() {
+            return this.ordinal();
+        }
+
+        private class DeviceMessageTestSpec implements DeviceMessageSpec {
+
+
+            private final DeviceMessageId deviceMessageId;
+            private final DeviceMessageCategory deviceMessageCategory;
+            private final String name;
+
+            DeviceMessageTestSpec(String name, DeviceMessageId deviceMessageId, DeviceMessageCategory deviceMessageCategory) {
+                this.deviceMessageId = deviceMessageId;
+                this.deviceMessageCategory = deviceMessageCategory;
+                this.name = name;
+            }
+
+            @Override
+            public DeviceMessageCategory getCategory() {
+                return this.deviceMessageCategory;
+            }
+
+            @Override
+            public String getName() {
+                return this.name;
+            }
+
+            @Override
+            public DeviceMessageId getId() {
+                return this.deviceMessageId;
+            }
+
+            @Override
+            public List<PropertySpec> getPropertySpecs() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public Optional<PropertySpec> getPropertySpec(String name) {
+                return Optional.empty();
+            }
+        }
+
+    }
+
+
 
 }
