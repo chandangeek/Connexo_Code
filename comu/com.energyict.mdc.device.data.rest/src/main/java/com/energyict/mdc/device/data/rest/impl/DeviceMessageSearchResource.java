@@ -52,19 +52,7 @@ public class DeviceMessageSearchResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getDeviceMessages(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter, @Context UriInfo uriInfo) {
-        DeviceMessageQueryFilterImpl deviceMessageQueryFilter = new DeviceMessageQueryFilterImpl();
-        List<Long> deviceGroupIds = jsonQueryFilter.getLongList("deviceGroups");
-        if (!deviceGroupIds.isEmpty()) {
-            deviceMessageQueryFilter.setDeviceGroups(deviceGroupIds.stream().map(id->meteringGroupService.findEndDeviceGroup(id).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_GROUP, id))).collect(Collectors.toList()));
-        }
-        List<Integer> messageCategories = jsonQueryFilter.getIntegerList("messageCategories");
-        if (!messageCategories.isEmpty()) {
-            deviceMessageQueryFilter.setMessageCategories(messageCategories.stream().map(id->deviceMessageSpecificationService.findCategoryById(id).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE_CATEGORY, id))).collect(Collectors.toList()));
-        }
-        List<Integer> deviceMessage = jsonQueryFilter.getIntegerList("deviceMessageIds");
-        if (!deviceMessage.isEmpty()) {
-            deviceMessageQueryFilter.setDeviceMessages(deviceMessage.stream().map(DeviceMessageId::from).collect(Collectors.toList()));
-        }
+        DeviceMessageQueryFilterImpl deviceMessageQueryFilter = getDomainFilterFromExtjsQueryParams(jsonQueryFilter);
         List<DeviceMessageInfo> deviceMessageInfos = deviceMessageService.findDeviceMessagesByFilter(deviceMessageQueryFilter)
                 .from(queryParameters)
                 .stream()
@@ -72,6 +60,34 @@ public class DeviceMessageSearchResource {
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("deviceMessages", deviceMessageInfos, queryParameters);
+    }
+
+    private DeviceMessageQueryFilterImpl getDomainFilterFromExtjsQueryParams(@BeanParam JsonQueryFilter jsonQueryFilter) {
+        DeviceMessageQueryFilterImpl deviceMessageQueryFilter = new DeviceMessageQueryFilterImpl();
+        List<Long> deviceGroupIds = jsonQueryFilter.getLongList("deviceGroups");
+        if (!deviceGroupIds.isEmpty()) {
+            List<EndDeviceGroup> endDeviceGroups = deviceGroupIds.stream()
+                    .map(id -> meteringGroupService.findEndDeviceGroup(id)
+                            .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_GROUP, id)))
+                    .collect(Collectors.toList());
+            deviceMessageQueryFilter.setDeviceGroups(endDeviceGroups);
+        }
+        List<Integer> messageCategories = jsonQueryFilter.getIntegerList("messageCategories");
+        if (!messageCategories.isEmpty()) {
+            List<DeviceMessageCategory> deviceMessageCategories = messageCategories.stream()
+                    .map(id -> deviceMessageSpecificationService.findCategoryById(id)
+                            .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE_CATEGORY, id)))
+                    .collect(Collectors.toList());
+            deviceMessageQueryFilter.setMessageCategories(deviceMessageCategories);
+        }
+        List<Integer> deviceMessage = jsonQueryFilter.getIntegerList("deviceMessageIds");
+        if (!deviceMessage.isEmpty()) {
+            List<DeviceMessageId> deviceMessageIds = deviceMessage.stream()
+                    .map(DeviceMessageId::from)
+                    .collect(Collectors.toList());
+            deviceMessageQueryFilter.setDeviceMessages(deviceMessageIds);
+        }
+        return deviceMessageQueryFilter;
     }
 
     private class DeviceMessageQueryFilterImpl implements DeviceMessageQueryFilter {
