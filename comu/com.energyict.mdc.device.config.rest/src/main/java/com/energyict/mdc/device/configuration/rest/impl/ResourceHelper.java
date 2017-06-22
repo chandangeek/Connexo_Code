@@ -32,6 +32,7 @@ import com.energyict.mdc.device.configuration.rest.EstimationRuleSetRefInfo;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -59,6 +60,7 @@ public class ResourceHelper {
     private final ValidationService validationService;
     private final EstimationService estimationService;
     private final MeteringService meteringService;
+    private final FirmwareService firmwareService;
 
     @Inject
     public ResourceHelper(ExceptionFactory exceptionFactory,
@@ -68,7 +70,9 @@ public class ResourceHelper {
                           DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                           ConcurrentModificationExceptionFactory conflictFactory,
                           ValidationService validationService,
-                          EstimationService estimationService, MeteringService meteringService) {
+                          EstimationService estimationService,
+                          MeteringService meteringService,
+                          FirmwareService firmwareService) {
         super();
         this.exceptionFactory = exceptionFactory;
         this.masterDataService = masterDataService;
@@ -79,6 +83,7 @@ public class ResourceHelper {
         this.validationService = validationService;
         this.estimationService = estimationService;
         this.meteringService = meteringService;
+        this.firmwareService = firmwareService;
     }
 
     public ChannelType findChannelTypeByIdOrThrowException(long id) {
@@ -100,6 +105,10 @@ public class ResourceHelper {
     public DeviceType findDeviceTypeByIdOrThrowException(long id) {
         return deviceConfigurationService.findDeviceType(id)
                 .orElseThrow(() -> new WebApplicationException("No device type with id " + id, Response.Status.NOT_FOUND));
+    }
+
+    public boolean imageIdentifierExpectedAtFirmwareUpload(DeviceType deviceType){
+        return this.firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType);
     }
 
     public RegisterType findRegisterTypeByIdOrThrowException(long id) {

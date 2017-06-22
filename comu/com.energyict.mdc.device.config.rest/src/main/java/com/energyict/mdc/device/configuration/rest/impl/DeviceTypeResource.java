@@ -299,7 +299,7 @@ public class DeviceTypeResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public DeviceTypeInfo findDeviceType(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        return DeviceTypeInfo.from(deviceType, deviceType.getRegisterTypes(), registerTypeInfoFactory);
+        return DeviceTypeInfo.from(deviceType, deviceType.getRegisterTypes(), registerTypeInfoFactory, resourceHelper.imageIdentifierExpectedAtFirmwareUpload(deviceType));
     }
 
     @GET
