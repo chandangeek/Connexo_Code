@@ -289,10 +289,16 @@ public class InMemoryPersistence {
 
             });
 
-            when(deviceMessageSpecificationService.needsImageIdentifierAtUploadOfFirmware(any(DeviceMessageId.class))).thenAnswer(invocation -> {
+            when(deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(any(DeviceMessageId.class))).thenAnswer(invocation -> {
                 Object[] args = invocation.getArguments();
                 DeviceMessageId deviceMessageId = (DeviceMessageId) args[0];
                 return deviceMessageId.dbValue() == 5016 || deviceMessageId.dbValue() == 5017;
+            });
+
+            when(deviceMessageSpecificationService.canResumeFirmwareUpload(any(DeviceMessageId.class))).thenAnswer(invocation -> {
+                Object[] args = invocation.getArguments();
+                DeviceMessageId deviceMessageId = (DeviceMessageId) args[0];
+                return deviceMessageId.dbValue() == 5002 || deviceMessageId.dbValue() == 5003 || deviceMessageId.dbValue() == 5030;
             });
 
             bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);

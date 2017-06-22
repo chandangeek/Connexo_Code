@@ -44,6 +44,7 @@ public interface FirmwareService {
      */
     Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType);
     boolean imageIdentifierExpectedAtFirmwareUpload(DeviceType deviceType);
+    boolean isResumeFirmwareUploadEnabled(DeviceType deviceType);
     Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareManagementOptionsFor(DeviceType deviceType);
     FirmwareManagementOptions newFirmwareManagementOptions(DeviceType deviceType);
     Optional<FirmwareManagementOptions> findFirmwareManagementOptions(DeviceType deviceType);

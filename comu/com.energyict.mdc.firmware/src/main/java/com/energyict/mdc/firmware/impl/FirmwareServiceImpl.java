@@ -181,7 +181,15 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     public boolean imageIdentifierExpectedAtFirmwareUpload(DeviceType deviceType) {
         if (deviceType.getDeviceProtocolPluggableClass().isPresent()){
             DeviceProtocol deviceProtocol = deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol();
-            return deviceProtocol.getSupportedMessages().stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::from).anyMatch(dmid -> this.deviceMessageSpecificationService.needsImageIdentifierAtUploadOfFirmware(dmid));
+            return deviceProtocol.getSupportedMessages().stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::from).anyMatch(dmid -> this.deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(dmid));
+        }
+        return false;
+    }
+
+    public boolean isResumeFirmwareUploadEnabled(DeviceType deviceType){
+        if (deviceType.getDeviceProtocolPluggableClass().isPresent()){
+            DeviceProtocol deviceProtocol = deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol();
+            return deviceProtocol.getSupportedMessages().stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::from).anyMatch(dmid -> this.deviceMessageSpecificationService.canResumeFirmwareUpload(dmid));
         }
         return false;
     }
