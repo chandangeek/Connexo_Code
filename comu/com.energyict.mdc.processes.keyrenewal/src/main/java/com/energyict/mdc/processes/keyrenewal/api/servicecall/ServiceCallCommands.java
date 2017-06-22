@@ -6,7 +6,12 @@ package com.energyict.mdc.processes.keyrenewal.api.servicecall;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.TransactionRequired;
-import com.elster.jupiter.servicecall.*;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.processes.keyrenewal.api.DeviceCommandInfo;
 import com.energyict.mdc.processes.keyrenewal.api.MessageSeeds;
@@ -18,8 +23,8 @@ import java.util.Optional;
 public class ServiceCallCommands {
 
     public enum ServiceCallTypes {
-        RENEW_KEY("flowRenewKeyHandler", "v1.0"),
-        TEST_COMMUNICATION("flowTestCommunication", "v1.0");
+        RENEW_KEY("FlowRenewDeviceKeyHandler", "v1.0"),
+        TEST_COMMUNICATION("FlowTestDeviceCommunication", "v1.0");
 
         private final String typeName;
         private final String typeVersion;
