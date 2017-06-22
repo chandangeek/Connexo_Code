@@ -85,7 +85,7 @@ public class DeviceMessageSearchResourceTest extends DeviceDataRestApplicationJe
 
         String extjsFilter = ExtjsFilter.filter()
                 .property("messageCategories", Arrays.asList(101, 102))
-                .property("deviceMessageIds", Collections.singletonList(15001))
+                .property("deviceMessageIds", Collections.singletonList("CLOCK_SET_TIME"))
                 .create();
         String response = target("/devicemessages").queryParam("filter", extjsFilter).request().get(String.class);
         ArgumentCaptor<DeviceMessageQueryFilter> queryFilterArgumentCaptor = ArgumentCaptor.forClass(DeviceMessageQueryFilter.class);

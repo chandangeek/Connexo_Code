@@ -132,7 +132,8 @@ public enum MessageSeeds implements MessageSeed {
     COMMAND_SHOULD_HAVE_A_TYPE_ATTRIBUTE(311, "command.should.have.a.type.attribute", "The device command ''{0}'' should have a 'Type' attribute"),
     COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE(312, "command.should.have.an.activation.date.attribute", "The device command ''{0}'' should have an 'Activation date' attribute"),
     NO_SUCH_DEVICE_MESSAGE_CATEGORY(313, "NoSuchDeviceMessageCategory", "No device message category with id {0}"),
-    NO_SUCH_DEVICE_MESSAGE_STATUS(314, "NoSuchDeviceMessageStatus", "No device message statis with name {0}");
+    NO_SUCH_DEVICE_MESSAGE_STATUS(314, "NoSuchDeviceMessageStatus", "No device message status with name {0}"),
+    NO_SUCH_DEVICE_COMMAND(315, "NoSuchDeviceMessageId", "No device message with name {0}");
     ;
 
     private final int number;

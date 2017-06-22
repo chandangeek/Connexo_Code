@@ -84,10 +84,10 @@ public class DeviceMessageSearchResource {
                     .collect(Collectors.toList());
             deviceMessageQueryFilter.setMessageCategories(deviceMessageCategories);
         }
-        List<Integer> deviceMessages = jsonQueryFilter.getIntegerList("deviceMessageIds");
+        List<String> deviceMessages = jsonQueryFilter.getStringList("deviceMessageIds");
         if (!deviceMessages.isEmpty()) {
             List<DeviceMessageId> deviceMessageIds = deviceMessages.stream()
-                    .map(DeviceMessageId::from)
+                    .map(this::getDeviceMessageId)
                     .collect(Collectors.toList());
             deviceMessageQueryFilter.setDeviceMessages(deviceMessageIds);
         }
@@ -99,6 +99,14 @@ public class DeviceMessageSearchResource {
             deviceMessageQueryFilter.setDeviceMessagesStatuses(deviceMessageStatuses);
         }
         return deviceMessageQueryFilter;
+    }
+
+    private DeviceMessageId getDeviceMessageId(String name) {
+        try {
+            return DeviceMessageId.valueOf(name);
+        } catch (IllegalArgumentException e) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_COMMAND, name);
+        }
     }
 
     private DeviceMessageStatus getDeviceMessageStatus(String name) {
