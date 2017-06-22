@@ -21,6 +21,14 @@ Ext.define('Fwc.devicefirmware.model.Firmware', {
             mapping: function (data) {
                 return data.activeVersion ? data.activeVersion.firmwareVersion : Uni.I18n.translate('device.firmware.version.unknown', 'FWC', 'Unknown');
             }
+        },
+        {
+            name: 'imageIdentifier',
+            type: 'string',
+            persist: false,
+            mapping: function (data) {
+                return data.activeVersion ? data.activeVersion.imageIdentier : null;
+            }
         }
     ],
 

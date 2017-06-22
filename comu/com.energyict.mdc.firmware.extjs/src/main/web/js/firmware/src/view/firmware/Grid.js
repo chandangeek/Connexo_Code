@@ -11,6 +11,7 @@ Ext.define('Fwc.view.firmware.Grid', {
         'Fwc.view.firmware.ActionMenu',
         'Mdc.privileges.DeviceType'
     ],
+    showImageIdentifierColumn: false,
 
     columns: [
         {
@@ -20,8 +21,13 @@ Ext.define('Fwc.view.firmware.Grid', {
         },
         {
             text: Uni.I18n.translate('general.firmwareType', 'FWC', 'Firmware type'),
-            flex: 2,
+            flex: 1,
             dataIndex: 'type'
+        },
+        {
+            text: Uni.I18n.translate('general.imageIdentifier', 'FWC', 'Image identfier'),
+            flex: 2,
+            dataIndex: 'imageIdentifier'
         },
         {
             text: Uni.I18n.translate('firmware.field.status', 'FWC', 'Firmware status'),
@@ -45,6 +51,9 @@ Ext.define('Fwc.view.firmware.Grid', {
     ],
 
     initComponent: function () {
+        if (!this.showImageIdentifierColumn) {
+            Ext.Array.erase(this.columns, 2,1); //Remove the column identifier
+        }
         this.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',

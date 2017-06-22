@@ -32,6 +32,13 @@ Ext.define('Fwc.view.firmware.FormAdd', {
         },
         {
             xtype: 'textfield',
+            itemId: 'text-imageIdentifier',
+            name: 'imageIdentifier' ,
+            fieldLabel: Uni.I18n.translate('general.imageIdentifier', 'FWC', 'Image identifier'),
+            anchor: '60%'
+        },
+        {
+            xtype: 'textfield',
             itemId: 'firmwareType',
             name: 'firmwareType',
             hidden: true

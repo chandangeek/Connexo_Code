@@ -176,6 +176,11 @@ Ext.define('Fwc.controller.Firmware', {
                         me.getContainer().down('firmware-form-add #disp-firmware-type').setValue(onlyType);
                         me.getContainer().down('firmware-form-add #radio-firmware-type').setValue({id: id});
                     }
+                    if (!deviceType.get('needsImageIdentifierForFirmware')) {
+                        me.getFirmwareForm().down('#text-image-identifier').hide();
+                    }else{
+                        me.getFirmwareForm().down('#text-image-identifier').show();
+                    }
                 }
             });
         });
@@ -207,6 +212,11 @@ Ext.define('Fwc.controller.Firmware', {
 
                     if (firmware.getFirmwareStatus().getId() === 'ghost') {
                         me.getFirmwareForm().down('firmware-status').setValue({id: 'final'});
+                    }
+                    if (!deviceType.get('needsImageIdentifierForFirmware')) {
+                        me.getFirmwareForm().down('#text-image-identifier').hide();
+                    }else{
+                        me.getFirmwareForm().down('#text-image-identifier').show();
                     }
                     if (firmware.getFirmwareStatus().getId() === 'final' && firmware.raw.isInUse) {
                         me.getFirmwareForm().down('uni-form-error-message').setText(

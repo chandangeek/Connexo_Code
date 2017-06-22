@@ -154,6 +154,12 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         },
         {
             xtype: 'displayfield',
+            itemId: 'firmware-image-identifier-field',
+            fieldLabel: Uni.I18n.translate('device.firmware.field.image.identifier', 'FWC', 'Image identifier'),
+            name: 'imageIdentifier'
+        },
+        {
+            xtype: 'displayfield',
             itemId: 'last-checked-date-field',
             fieldLabel: Uni.I18n.translate('device.firmware.field.date', 'FWC', 'Last verified'),
             name: 'lastCheckedDate',
@@ -171,9 +177,12 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             formFailed,
             formOngoing,
             upgradeOption,
-            FirmwareVersion = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareVersion')
+            FirmwareVersion = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareVersion'),
+            imageIdentifierField = me.items[2]
             ;
-
+        if (imageIdentifierField && !me.device.get('protocolNeedsImageIdentifierForFirmwareUpgrade')){
+            imageIdentifierField.hide();
+        }
         switch (true) {
             case !!associatedData.pendingVersion:
                 status = 'pendingVersion';

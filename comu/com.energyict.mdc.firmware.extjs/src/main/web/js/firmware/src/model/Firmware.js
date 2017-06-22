@@ -7,6 +7,7 @@ Ext.define('Fwc.model.Firmware', {
     fields: [
         {name: 'id', type: 'number', useNull: true},
         {name: 'firmwareVersion', type: 'string', useNull: true},
+        {name: 'imageIdentifier', type: 'string', useNull: true},
         {name: 'firmwareFile', useNull: true},
         {name: 'fileSize', type: 'number', useNull: true},
         {

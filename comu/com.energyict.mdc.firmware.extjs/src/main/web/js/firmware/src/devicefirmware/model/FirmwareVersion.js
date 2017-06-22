@@ -10,6 +10,7 @@ Ext.define('Fwc.devicefirmware.model.FirmwareVersion', {
         {name: 'firmwareComTaskId', type: 'number', useNull: true},
         {name: 'firmwareComTaskSessionId', type: 'number', useNull: true},
         {name: 'firmwareVersion', type: 'string', useNull: true},
+        {name: 'imageIdentifier', type: 'string', useNull: true},
         {name: 'plannedDate', type: 'date', dateFormat: 'time', useNull: true},
         {name: 'plannedActivationDate', type: 'date', dateFormat: 'time', useNull: true, persist: false},
         {name: 'lastCheckedDate', type: 'date', dateFormat: 'time', useNull: true},
