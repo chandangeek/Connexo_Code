@@ -12,6 +12,9 @@ import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+
+import com.google.common.collect.ImmutableList;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -22,6 +25,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -80,14 +84,29 @@ public class DeviceMessageSearchResource {
                     .collect(Collectors.toList());
             deviceMessageQueryFilter.setMessageCategories(deviceMessageCategories);
         }
-        List<Integer> deviceMessage = jsonQueryFilter.getIntegerList("deviceMessageIds");
-        if (!deviceMessage.isEmpty()) {
-            List<DeviceMessageId> deviceMessageIds = deviceMessage.stream()
+        List<Integer> deviceMessages = jsonQueryFilter.getIntegerList("deviceMessageIds");
+        if (!deviceMessages.isEmpty()) {
+            List<DeviceMessageId> deviceMessageIds = deviceMessages.stream()
                     .map(DeviceMessageId::from)
                     .collect(Collectors.toList());
             deviceMessageQueryFilter.setDeviceMessages(deviceMessageIds);
         }
+        List<String> statuses = jsonQueryFilter.getStringList("statuses");
+        if (!statuses.isEmpty()) {
+            List<DeviceMessageStatus> deviceMessageStatuses = statuses.stream()
+                    .map(this::getDeviceMessageStatus)
+                    .collect(Collectors.toList());
+            deviceMessageQueryFilter.setDeviceMessagesStatuses(deviceMessageStatuses);
+        }
         return deviceMessageQueryFilter;
+    }
+
+    private DeviceMessageStatus getDeviceMessageStatus(String name) {
+        try {
+            return DeviceMessageStatus.valueOf(name);
+        } catch (IllegalArgumentException e) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_MESSAGE_STATUS, name);
+        }
     }
 
     private class DeviceMessageQueryFilterImpl implements DeviceMessageQueryFilter {
@@ -95,32 +114,42 @@ public class DeviceMessageSearchResource {
         private List<EndDeviceGroup> endDeviceGroups = Collections.emptyList();
         private List<DeviceMessageCategory> deviceMessageCategories = Collections.emptyList();
         private List<DeviceMessageId> deviceMessageIds = Collections.emptyList();
+        private List<DeviceMessageStatus> statuses = Collections.emptyList();
 
         @Override
         public Collection<EndDeviceGroup> getDeviceGroups() {
-            return Collections.unmodifiableList(this.endDeviceGroups);
+            return this.endDeviceGroups;
         }
 
         @Override
         public Collection<DeviceMessageCategory> getMessageCategories() {
-            return Collections.unmodifiableCollection(this.deviceMessageCategories);
-        }
-
-        public void setDeviceGroups(List<EndDeviceGroup> endDeviceGroups) {
-            this.endDeviceGroups = endDeviceGroups;
-        }
-
-        public void setMessageCategories(List<DeviceMessageCategory> deviceMessageCategories) {
-            this.deviceMessageCategories = deviceMessageCategories;
+            return this.deviceMessageCategories;
         }
 
         @Override
         public Collection<DeviceMessageId> getDeviceMessages() {
-            return Collections.unmodifiableCollection(this.deviceMessageIds);
+            return this.deviceMessageIds;
+        }
+
+        @Override
+        public Collection<DeviceMessageStatus> getStatuses() {
+            return this.statuses;
+        }
+
+        public void setDeviceGroups(List<EndDeviceGroup> endDeviceGroups) {
+            this.endDeviceGroups = ImmutableList.copyOf(endDeviceGroups);
+        }
+
+        public void setMessageCategories(List<DeviceMessageCategory> deviceMessageCategories) {
+            this.deviceMessageCategories = ImmutableList.copyOf(deviceMessageCategories);
         }
 
         public void setDeviceMessages(List<DeviceMessageId> deviceMessageIds) {
-            this.deviceMessageIds = deviceMessageIds;
+            this.deviceMessageIds = ImmutableList.copyOf(deviceMessageIds);
+        }
+
+        public void setDeviceMessagesStatuses(List<DeviceMessageStatus> deviceMessageStatuses) {
+            this.statuses = ImmutableList.copyOf(deviceMessageStatuses);
         }
     }
 }

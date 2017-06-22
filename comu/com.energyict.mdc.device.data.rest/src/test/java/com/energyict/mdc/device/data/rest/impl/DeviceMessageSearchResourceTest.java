@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -91,6 +92,18 @@ public class DeviceMessageSearchResourceTest extends DeviceDataRestApplicationJe
         verify(deviceMessageService).findDeviceMessagesByFilter(queryFilterArgumentCaptor.capture());
         assertThat(queryFilterArgumentCaptor.getValue().getMessageCategories()).containsOnly(deviceCategory101, deviceCategory102);
         assertThat(queryFilterArgumentCaptor.getValue().getDeviceMessages()).containsOnly(DeviceMessageId.CLOCK_SET_TIME);
+    }
+
+    @Test
+    public void searchDeviceMessagesFilterDeviceMessageStatus() throws Exception {
+
+        String extjsFilter = ExtjsFilter.filter()
+                .property("statuses", Arrays.asList("CANCELED", "WAITING"))
+                .create();
+        String response = target("/devicemessages").queryParam("filter", extjsFilter).request().get(String.class);
+        ArgumentCaptor<DeviceMessageQueryFilter> queryFilterArgumentCaptor = ArgumentCaptor.forClass(DeviceMessageQueryFilter.class);
+        verify(deviceMessageService).findDeviceMessagesByFilter(queryFilterArgumentCaptor.capture());
+        assertThat(queryFilterArgumentCaptor.getValue().getStatuses()).containsOnly(DeviceMessageStatus.CANCELED, DeviceMessageStatus.WAITING);
     }
 
 }
