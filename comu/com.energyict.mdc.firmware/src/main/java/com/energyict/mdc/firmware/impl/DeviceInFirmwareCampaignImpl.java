@@ -285,7 +285,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
 
     private boolean checkDeviceType() {
         Set<ProtocolSupportedFirmwareOptions> deviceTypeAllowedOptions = firmwareService.getAllowedFirmwareManagementOptionsFor(getDevice().getDeviceType());
-        return !deviceTypeAllowedOptions.isEmpty() && deviceTypeAllowedOptions.contains(getFirmwareCampaign().getFirmwareManagementOption());
+        return deviceTypeAllowedOptions.contains(getFirmwareCampaign().getFirmwareManagementOption());
     }
 
     private boolean checkDeviceConfiguration() {
