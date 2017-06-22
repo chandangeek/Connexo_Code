@@ -43,12 +43,14 @@ public class DeviceFieldResource extends FieldResource {
 
     private final DeviceService deviceService;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceFieldResource(Thesaurus thesaurus, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public DeviceFieldResource(Thesaurus thesaurus, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus1) {
         super(thesaurus);
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.deviceService = deviceService;
+        this.thesaurus = thesaurus1;
     }
 
     @GET
@@ -150,6 +152,12 @@ public class DeviceFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public Object getDeviceMessageStatuses() {
-        return asJsonArrayObjectWithTranslation("deviceMessageStatuses", "deviceMessageStatus", Stream.of(DeviceMessageStatusTranslationKeys.values()).map(DeviceMessageStatusTranslationKeys::getKey).collect(Collectors.toList())) ;
+        List<DeviceMessageStatus> deviceMessageStatuses = Stream.of(DeviceMessageStatusTranslationKeys.values())
+                .map(DeviceMessageStatusTranslationKeys::getDeviceMessageStatus)
+                .collect(Collectors.toList());
+        List<String> translations = deviceMessageStatuses.stream()
+                .map(status -> DeviceMessageStatusTranslationKeys.translationFor(status, thesaurus))
+                .collect(Collectors.toList());
+        return asJsonArrayObjectWithTranslation("deviceMessageStatuses", "deviceMessageStatus", deviceMessageStatuses, translations) ;
     }
 }
