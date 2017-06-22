@@ -66,8 +66,6 @@
         <dependencySet>
             <includes>
                 <include>org.apache.tomcat:tomcat:zip</include>
-                <include>org.wso2:wso2is:zip</include>
-                <include>org.rzo:yajsw:zip</include>
             </includes>
             <scope>provided</scope>
             <outputDirectory>partners</outputDirectory>

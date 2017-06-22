@@ -15,7 +15,7 @@ use Sys::Hostname;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20170505";
+my $INSTALL_VERSION="v20170622";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -34,7 +34,6 @@ my $SERVICE_VERSION="";
 my $INSTALL_CONNEXO="yes";
 my $INSTALL_FACTS="yes";
 my $INSTALL_FLOW="yes";
-my $INSTALL_WSO2IS="yes";
 my $ACTIVATE_SSO="no";
 my $APACHE_PATH;
 my $HTTPS="no";
@@ -192,7 +191,6 @@ sub read_config {
                 if ( "$val[0]" eq "UPGRADE_OLD_SERVICE_VERSION" )   {$UPGRADE_OLD_SERVICE_VERSION=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FACTS" )                 {$INSTALL_FACTS=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FLOW" )                  {$INSTALL_FLOW=$val[1];}
-                if ( "$val[0]" eq "INSTALL_WSO2IS" )                {$INSTALL_WSO2IS=$val[1];}
                 if ( "$val[0]" eq "ACTIVATE_SSO" )                  {$ACTIVATE_SSO=$val[1];}
                 if ( "$val[0]" eq "APACHE_PATH" )                   {$APACHE_PATH=$val[1];}
                 if ( "$val[0]" eq "HTTPS" )                         {$HTTPS=$val[1];}
@@ -289,8 +287,6 @@ sub read_config {
         }
 
         print "\n";
-        print "Do you want to install WSO2IS: (yes/no) ";
-        chomp($INSTALL_WSO2IS=<STDIN>);
         print "Please enter the version of your services (e.g. 10.1) or leave empty: ";
         chomp($SERVICE_VERSION=<STDIN>);        
 
@@ -495,38 +491,6 @@ sub install_tomcat {
 			close($FH);
             chmod 0755,"/etc/init.d/ConnexoTomcat$SERVICE_VERSION";
 		}
-	}
-}
-
-sub install_wso2 {
-	if ("$INSTALL_WSO2IS" eq "yes") {
-		my $WSO2_DIR="$CONNEXO_DIR/partners";
-		print "\n\nInstalling WSO2 Identity Server ...\n";
-		print "==========================================================================\n";
-		chdir "$WSO2_DIR";
-		print "Extracting wso2is-4.5.0.zip\n";
-		system("\"$JAVA_HOME/bin/jar\" -xf wso2is-4.5.0.zip") == 0 or die "$JAVA_HOME/bin/jar -xvf wso2is-4.5.0.zip failed: $?";
-		print "Extracting yajsw-11.11.zip\n";
-		system("\"$JAVA_HOME/bin/jar\" -xf yajsw-11.11.zip") == 0 or die "$JAVA_HOME/bin/jar -xvf yajsw-11.11.zip failed: $?";
-		chdir "$CONNEXO_DIR";
-		$ENV{CARBON_HOME}="$WSO2_DIR/wso2is-4.5.0";
-		copy("$WSO2_DIR/wso2is-4.5.0/bin/yajsw/wrapper.conf","$WSO2_DIR/yajsw-stable-11.11/conf") or die "File cannot be copied: $!";
-		replace_in_file("$WSO2_DIR/yajsw-stable-11.11/conf/wrapper.conf","wrapper.console.title=WSO2 Identity Server","wrapper.console.title=ConnexoWSO2IS$SERVICE_VERSION");
-		replace_in_file("$WSO2_DIR/yajsw-stable-11.11/conf/wrapper.conf","wrapper.ntservice.name=WSO2IS","wrapper.ntservice.name=ConnexoWSO2IS$SERVICE_VERSION");
-		replace_in_file("$WSO2_DIR/yajsw-stable-11.11/conf/wrapper.conf","wrapper.ntservice.displayname=WSO2 Identity Server","wrapper.ntservice.displayname=ConnexoWSO2IS$SERVICE_VERSION");
-		replace_in_file("$WSO2_DIR/yajsw-stable-11.11/conf/wrapper.conf","wrapper.ntservice.description=WSO2 Identity Server","wrapper.ntservice.description=WSO2 Identity Server$SERVICE_VERSION");
-		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-			system("\"$WSO2_DIR/yajsw-stable-11.11/bat/installService.bat\" < NUL");
-		} else {
-            $ENV{PATH}="$JAVA_HOME/bin/:$ENV{PATH}";
-			$ENV{java_home}="$JAVA_HOME";
-			$ENV{carbon_home}="$WSO2_DIR/wso2is-4.5.0";
-			chmod 0755,"$WSO2_DIR/yajsw-stable-11.11/bin/installDaemon.sh";
-			chmod 0755,"$WSO2_DIR/yajsw-stable-11.11/bin/installDaemonNoPriv.sh";
-			chmod 0755,"$WSO2_DIR/yajsw-stable-11.11/bin/wrapper.sh";
-			system("\"$WSO2_DIR/yajsw-stable-11.11/bin/installDaemonNoPriv.sh\" /dev/null 2>&1");
-		}
-		print "WSO2 Identity Server successfully installed\n";
 	}
 }
 
@@ -993,8 +957,6 @@ sub uninstall_tomcat_for_upgrade() {
 }
 
 sub uninstall_all {
-	my $WSO2_DIR="$CONNEXO_DIR/partners";
-	$ENV{CARBON_HOME}="$WSO2_DIR/wso2is-4.5.0";
 	if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 		print "Stop and remove Connexo$SERVICE_VERSION service";
 		system("\"$CONNEXO_DIR/bin/ConnexoService.exe\" /uninstall Connexo$SERVICE_VERSION");
@@ -1003,8 +965,6 @@ sub uninstall_all {
 		while ((`sc query ConnexoTomcat$SERVICE_VERSION` =~ m/STATE.*:.*/) ne "") {
 			sleep 3;
 		}
-        print "Stop and remove wso service";
-		system("\"$WSO2_DIR/yajsw-stable-11.11/bat/uninstallService.bat\" < NUL");
 	} else {
 		print "Stop and remove Connexo$SERVICE_VERSION service";
 		system("/sbin/service Connexo$SERVICE_VERSION stop");
@@ -1020,19 +980,10 @@ sub uninstall_all {
 		system("userdel -r tomcat");
         system("/sbin/chkconfig --del ConnexoTomcat$SERVICE_VERSION");
 		unlink("/etc/init.d/ConnexoTomcat$SERVICE_VERSION");
-		print "Stop and remove wso service";
-        $ENV{PATH}="$JAVA_HOME/bin/:$ENV{PATH}";
-		$ENV{java_home}="$JAVA_HOME";
-		chmod 0755,"$WSO2_DIR/yajsw-stable-11.11/bin/uninstallDaemon.sh";
-		chmod 0755,"$WSO2_DIR/yajsw-stable-11.11/bin/uninstallDaemonNoPriv.sh";
-		chmod 0755,"$WSO2_DIR/yajsw-stable-11.11/bin/wrapper.sh";
-		system("\"$WSO2_DIR/yajsw-stable-11.11/bin/uninstallDaemonNoPriv.sh\" /dev/null 2>&1");
 	}
     #uninstall Apache httpd 2.2 or 2.4
-	print "Remove folders (tomcat, wso2is, yajsw)\n";
+	print "Remove folders (tomcat)\n";
 	if (-d "$CONNEXO_DIR/partners/tomcat") { rmtree("$CONNEXO_DIR/partners/tomcat"); }
-	if (-d "$CONNEXO_DIR/partners/wso2is-4.5.0") { rmtree("$CONNEXO_DIR/partners/wso2is-4.5.0"); }
-	if (-d "$CONNEXO_DIR/partners/yajsw-stable-11.11") { rmtree("$CONNEXO_DIR/partners/yajsw-stable-11.11"); }
 	if (-e "$CONNEXO_DIR/conf/config.properties") { unlink("$CONNEXO_DIR/conf/config.properties"); }
 }
 
@@ -1486,7 +1437,6 @@ if ($help) {
         checking_ports();
         install_connexo();
         install_tomcat();
-        install_wso2();
         install_facts();
         install_flow();
         activate_sso();
