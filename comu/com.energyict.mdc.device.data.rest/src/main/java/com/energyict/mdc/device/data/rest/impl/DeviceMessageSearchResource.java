@@ -78,7 +78,7 @@ public class DeviceMessageSearchResource {
 
         private List<EndDeviceGroup> endDeviceGroups = Collections.emptyList();
         private List<DeviceMessageCategory> deviceMessageCategories = Collections.emptyList();
-        private List<DeviceMessageId> deviceMessageIds;
+        private List<DeviceMessageId> deviceMessageIds = Collections.emptyList();
 
         @Override
         public Collection<EndDeviceGroup> getDeviceGroups() {
