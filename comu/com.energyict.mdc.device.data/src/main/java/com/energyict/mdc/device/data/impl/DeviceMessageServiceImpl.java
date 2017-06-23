@@ -182,7 +182,7 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
             allFilterConditions.add(creationDateConditions.stream().reduce(Condition.TRUE, Condition::and));
         }
         Condition condition = allFilterConditions.stream().reduce(Condition.TRUE, Condition::and);
-        return DefaultFinder.of(DeviceMessage.class, condition, this.deviceDataModelService.dataModel());
+        return DefaultFinder.of(DeviceMessage.class, condition, this.deviceDataModelService.dataModel()).defaultSortColumn(DeviceMessageImpl.Fields.RELEASEDATE.fieldName());
     }
 
     private List<Condition> getReleaseDateConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {
