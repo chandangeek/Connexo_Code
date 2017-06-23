@@ -177,12 +177,8 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             formFailed,
             formOngoing,
             upgradeOption,
-            FirmwareVersion = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareVersion'),
-            imageIdentifierField = me.items[2]
-            ;
-        if (imageIdentifierField && !me.device.get('protocolNeedsImageIdentifierForFirmwareUpgrade')){
-            imageIdentifierField.hide();
-        }
+            FirmwareVersion = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareVersion');
+
         switch (true) {
             case !!associatedData.pendingVersion:
                 status = 'pendingVersion';
@@ -350,6 +346,10 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                 'FWC', 'Verifying upload and activation of version {0}', [
                     record.get('firmwareVersion')
                 ]));
+        }
+        var imageIdentifierField = me.down('#firmware-image-identifier-field');
+        if (imageIdentifierField && !me.device.get('protocolNeedsImageIdentifierForFirmwareUpgrade')){
+            imageIdentifierField.setVisible(false);
         }
     }
 });
