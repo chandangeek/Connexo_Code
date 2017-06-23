@@ -46,6 +46,7 @@ import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +79,7 @@ abstract class AbstractDataQualityKpiCalculator implements DataQualityKpiCalcula
     private ZonedDateTime start;
     private ZonedDateTime end;
     private Map<Key, LongCounter> counterMap;
-    private Map<Long, DataQualityKpiMember> dataQualityKpiChildMap;
+    private Map<Long, List<DataQualityKpiMember>> dataQualityKpiChildMap;
 
     AbstractDataQualityKpiCalculator(DataQualityServiceProvider serviceProvider, DataQualityKpiImpl dataQualityKpi, Logger logger) {
         this.transactionService = serviceProvider.transactionService();
@@ -344,13 +345,18 @@ abstract class AbstractDataQualityKpiCalculator implements DataQualityKpiCalcula
         return dataMap;
     }
 
-    void storeForChannels(Long objectId, String kpiMemberNameSuffix, Collection<Channel> channels) {
-        Kpi kpi = dataQualityKpiChildMap.get(objectId).getChildKpi();
+
+    protected final List<DataQualityKpiMember> getDataQualityKpiMembersFor(long id) {
+        return dataQualityKpiChildMap.containsKey(id) ? dataQualityKpiChildMap.get(id) : Collections.emptyList();
+    }
+
+    protected final void storeForChannels(DataQualityKpiMember dataQualityKpiMember, Collection<Channel> channels) {
+        Kpi kpi = dataQualityKpiMember.getChildKpi();
 
         Map<KpiMember, Map<Instant, BigDecimal>> memberScores = new HashMap<>();
 
         prepareDataMap(channels).entrySet().forEach(entry -> {
-            String kpiMemberName = entry.getKey().getName() + DataQualityKpiMember.KPIMEMBERNAME_SEPARATOR + kpiMemberNameSuffix;
+            String kpiMemberName = entry.getKey().getName();
             KpiMember entryMember = kpi
                     .getMembers()
                     .stream()

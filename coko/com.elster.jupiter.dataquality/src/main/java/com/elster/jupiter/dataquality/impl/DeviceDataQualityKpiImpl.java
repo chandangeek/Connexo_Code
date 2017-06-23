@@ -32,15 +32,13 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.dataquality.impl.DataQualityKpiMember.KPIMEMBERNAME_SEPARATOR;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 @UniqueEndDeviceGroup(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_GROUP_MUST_BE_UNIQUE + "}")
@@ -98,12 +96,12 @@ public final class DeviceDataQualityKpiImpl extends DataQualityKpiImpl implement
     }
 
     @Override
-    public Map<Long, DataQualityKpiMember> updateMembers(Range<Instant> interval) {
+    public Map<Long, List<DataQualityKpiMember>> updateMembers(Range<Instant> interval) {
         if (getKpiMembers().isEmpty()) {
             return createDataQualityKpiMembers(getDeviceGroup());
         }
         Set<Long> deviceGroupDeviceIds = deviceIdsInGroup();
-        Map<Long, DataQualityKpiMember> dataQualityKpiMembersMap = deviceIdsInKpiMembers();
+        Map<Long, List<DataQualityKpiMember>> dataQualityKpiMembersMap = deviceIdsInKpiMembers();
         Set<Long> commonElements = intersection(deviceGroupDeviceIds, dataQualityKpiMembersMap.keySet());
 
         // create kpis for new devices in group
@@ -114,13 +112,13 @@ public final class DeviceDataQualityKpiImpl extends DataQualityKpiImpl implement
         // update existing kpis with the new kpi members (in case new validators/estimators deployed)
         dataQualityKpiMembersMap.entrySet().stream()
                 .filter(entry -> commonElements.contains(entry.getKey()))
-                .map(Map.Entry::getValue)
+                .flatMap(entry -> entry.getValue().stream())
                 .forEach(this::updateKpiMemberIfNeeded);
 
         // remove kpis for devices that disappeared from group
         Set<DataQualityKpiMember> obsoleteKpiMembers = dataQualityKpiMembersMap.entrySet().stream()
                 .filter(not(entry -> commonElements.contains(entry.getKey())))
-                .map(Map.Entry::getValue)
+                .flatMap(entry -> entry.getValue().stream())
                 .peek(DataQualityKpiMember::remove)
                 .collect(Collectors.toSet());
         this.removeAll(obsoleteKpiMembers);
@@ -128,31 +126,28 @@ public final class DeviceDataQualityKpiImpl extends DataQualityKpiImpl implement
         return deviceIdsInKpiMembers();
     }
 
-    private Map<Long, DataQualityKpiMember> createDataQualityKpiMembers(EndDeviceGroup endDeviceGroup) {
+    private Map<Long, List<DataQualityKpiMember>> createDataQualityKpiMembers(EndDeviceGroup endDeviceGroup) {
         return endDeviceGroup.getMembers(getClock().instant()).stream()
                 .map(Meter.class::cast)
-                .collect(Collectors.toMap(
-                        Meter::getId,
-                        meter -> createDataQualityKpiMember(kpiMemberNameSuffix(meter), meter.getZoneId())));
+                .collect(Collectors.toMap(Meter::getId, meter -> Collections.singletonList(createDataQualityKpiMember(meter))));
     }
 
     private DataQualityKpiMemberImpl createDataQualityKpiMember(long endDeviceId) {
         Meter meter = getMeteringService().findMeterById(endDeviceId).get();
-        return createDataQualityKpiMember(kpiMemberNameSuffix(meter), meter.getZoneId());
+        return createDataQualityKpiMember(meter);
     }
 
-    private DataQualityKpiMemberImpl createDataQualityKpiMember(String kpiMemberNameSuffix, ZoneId zoneId) {
+    private DataQualityKpiMemberImpl createDataQualityKpiMember(Meter meter) {
         KpiBuilder kpiBuilder = getKpiService().newKpi();
         kpiBuilder.interval(getFrequency());
-        kpiBuilder.timeZone(zoneId);
+        kpiBuilder.timeZone(meter.getZoneId());
         kpiBuilder.keepZeros(false);
 
         actualKpiMemberTypes()
                 .map(DataQualityKpiMemberType::getName)
-                .map(member -> member + KPIMEMBERNAME_SEPARATOR + kpiMemberNameSuffix)
                 .forEach(member -> kpiBuilder.member().named(member).add());
 
-        DataQualityKpiMemberImpl dataQualityKpiMember = DataQualityKpiMemberImpl.from(getDataModel(), this, kpiBuilder.create());
+        DataQualityKpiMemberImpl dataQualityKpiMember = DataQualityKpiMemberImpl.from(getDataModel(), this, kpiBuilder.create(), meter);
         this.add(dataQualityKpiMember);
         return dataQualityKpiMember;
     }
@@ -162,20 +157,15 @@ public final class DeviceDataQualityKpiImpl extends DataQualityKpiImpl implement
                 .map(EndDevice::getId).collect(Collectors.toSet());
     }
 
-    private Map<Long, DataQualityKpiMember> deviceIdsInKpiMembers() {
-        return getKpiMembers().stream()
-                .collect(Collectors.toMap(
-                        member -> Long.parseLong(member.getTargetIdentifier()),
-                        Function.identity()));
+    private Map<Long, List<DataQualityKpiMember>> deviceIdsInKpiMembers() {
+        return getKpiMembers().stream().collect(Collectors.toMap(DataQualityKpiMember::getDeviceId, Collections::singletonList));
     }
 
     private void updateKpiMemberIfNeeded(DataQualityKpiMember dataQualityKpiMember) {
         Kpi kpi = dataQualityKpiMember.getChildKpi();
         Set<String> existingKpiMemberNames = kpi.getMembers().stream().map(KpiMember::getName).collect(Collectors.toSet());
-        String identifier = dataQualityKpiMember.getTargetIdentifier();
         List<String> membersToCreate = actualKpiMemberTypes()
                 .map(DataQualityKpiMemberType::getName)
-                .map(member -> member + KPIMEMBERNAME_SEPARATOR + identifier)
                 .filter(not(existingKpiMemberNames::contains))
                 .collect(Collectors.toList());
         if (!membersToCreate.isEmpty()) {

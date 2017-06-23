@@ -77,6 +77,9 @@ public enum TableSpecs {
 
             Column dataValidationKpiColumn = table.column("DATAQUALITYKPI").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             Column childKpiColumn = table.column("CHILDKPI").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("device").map("deviceId").number().conversion(ColumnConversion.NUMBER2LONGNULLZERO).add();
+            table.column("usagepoint").map("usagePointId").number().conversion(ColumnConversion.NUMBER2LONGNULLZERO).add();
+            table.column("channelContainer").map("channelContainer").number().conversion(ColumnConversion.NUMBER2LONGNULLZERO).add();
             table.primaryKey("PK_DQK_DATAQUALITYKPIMEMBER").on(dataValidationKpiColumn, childKpiColumn).add();
             table.foreignKey("FK_DQK_KPIMEMBER_KPI")
                     .references(DQK_DATAQUALITYKPI.name())

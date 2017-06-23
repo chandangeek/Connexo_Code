@@ -44,7 +44,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.elster.jupiter.dataquality.impl.DataQualityKpiMember.KPIMEMBERNAME_SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -192,7 +191,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         assertThat(kpi.getKpiMembers()).hasSize(1);
 
         DataQualityKpiMember dataQualityKpiMember = kpi.getKpiMembers().get(0);
-        assertThat(dataQualityKpiMember.getTargetIdentifier()).isEqualTo("" + meter.getId());
+        assertThat(dataQualityKpiMember.getDeviceId()).isEqualTo(meter.getId());
 
         Kpi childKpi = dataQualityKpiMember.getChildKpi();
         assertThat(childKpi.getIntervalLength()).isEqualTo(ONE_HOUR);
@@ -204,7 +203,6 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
                         Stream.of(new DataQualityKpiMemberType.ValidatorKpiMemberType(validator),
                                 new DataQualityKpiMemberType.EstimatorKpiMemberType(estimator)))
                         .map(DataQualityKpiMemberType::getName)
-                        .map(member -> member + KPIMEMBERNAME_SEPARATOR + meter.getId())
                         .toArray(String[]::new);
         assertThat(kpiMemberNames).containsOnly(expectedKpiMemberNames);
     }
@@ -223,10 +221,9 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         // Asserts
         kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.findDeviceDataQualityKpi(kpi.getId()).get();
         assertThat(kpi.getKpiMembers()).hasSize(2);
-        assertThat(kpi.getKpiMembers().stream().map(DataQualityKpiMember::getTargetIdentifier).toArray())
-                .containsOnly("" + meter_1.getId(), "" + meter_2.getId());
+        assertThat(kpi.getKpiMembers().stream().map(DataQualityKpiMember::getDeviceId).toArray()).containsOnly(meter_1.getId(), meter_2.getId());
         Kpi removedKpi = kpi.getKpiMembers().stream()
-                .filter(dataQualityKpiMember -> dataQualityKpiMember.getTargetIdentifier().equals("" + meter_1.getId()))
+                .filter(dataQualityKpiMember -> dataQualityKpiMember.getDeviceId() == meter_1.getId())
                 .map(DataQualityKpiMember::getChildKpi)
                 .findFirst().get();
 
@@ -241,8 +238,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         // Asserts
         kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.findDeviceDataQualityKpi(kpi.getId()).get();
         assertThat(kpi.getKpiMembers()).hasSize(1);
-        assertThat(kpi.getKpiMembers().stream().map(DataQualityKpiMember::getTargetIdentifier).toArray())
-                .containsOnly("" + meter_2.getId());
+        assertThat(kpi.getKpiMembers().stream().map(DataQualityKpiMember::getDeviceId).toArray()).containsOnly(meter_2.getId());
         assertThat(get(KpiService.class).getKpi(removedKpi.getId())).isEmpty();
     }
 
@@ -259,7 +255,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         // Asserts
         kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.findDeviceDataQualityKpi(kpi.getId()).get();
         assertThat(kpi.getKpiMembers()).hasSize(1);
-        assertThat(kpi.getKpiMembers().stream().map(DataQualityKpiMember::getTargetIdentifier).toArray()).containsOnly("" + meter_1.getId());
+        assertThat(kpi.getKpiMembers().stream().map(DataQualityKpiMember::getDeviceId).toArray()).containsOnly(meter_1.getId());
 
         // But once new device added into the group
         Meter meter_2 = createMeter("SPE0002");
@@ -273,8 +269,7 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         // Asserts
         kpi = (DeviceDataQualityKpiImpl) dataQualityKpiService.findDeviceDataQualityKpi(kpi.getId()).get();
         assertThat(kpi.getKpiMembers()).hasSize(2);
-        assertThat(kpi.getKpiMembers().stream().map(DataQualityKpiMember::getTargetIdentifier).toArray())
-                .containsOnly("" + meter_1.getId(), "" + meter_2.getId());
+        assertThat(kpi.getKpiMembers().stream().map(DataQualityKpiMember::getDeviceId).toArray()).containsOnly(meter_1.getId(), meter_2.getId());
     }
 
     @Test
@@ -295,7 +290,6 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
         String[] expectedKpiMemberNames =
                 Stream.of(DataQualityKpiMemberType.PredefinedKpiMemberType.values())
                         .map(DataQualityKpiMemberType::getName)
-                        .map(member -> member + KPIMEMBERNAME_SEPARATOR + meter.getId())
                         .toArray(String[]::new);
         assertThat(kpiMemberNames).containsOnly(expectedKpiMemberNames);
 
@@ -317,7 +311,6 @@ public class DeviceDataQualityKpiIT extends BaseTestIT {
                         Stream.of(new DataQualityKpiMemberType.ValidatorKpiMemberType(validator),
                                 new DataQualityKpiMemberType.EstimatorKpiMemberType(estimator)))
                         .map(DataQualityKpiMemberType::getName)
-                        .map(member -> member + KPIMEMBERNAME_SEPARATOR + meter.getId())
                         .toArray(String[]::new);
         assertThat(kpiMemberNames).containsOnly(expectedKpiMemberNames);
     }
