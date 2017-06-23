@@ -169,7 +169,14 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
             List<Condition> messageStatusConditions = getMessageStatusSearchCondition(deviceMessageQueryFilter.getStatuses());
             allFilterConditions.add(messageStatusConditions.stream().reduce(Condition.FALSE, Condition::or));
         }
-
+        if (deviceMessageQueryFilter.getReleaseDateStart().isPresent() || deviceMessageQueryFilter.getReleaseDateEnd().isPresent()) {
+            List<Condition> releaseDateConditions = new ArrayList<>();
+            deviceMessageQueryFilter.getReleaseDateStart().ifPresent(date ->
+                releaseDateConditions.add(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isGreaterThanOrEqual(date)));
+            deviceMessageQueryFilter.getReleaseDateEnd().ifPresent(date ->
+                releaseDateConditions.add(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isLessThanOrEqual(date)));
+            allFilterConditions.add(releaseDateConditions.stream().reduce(Condition.TRUE, Condition::and));
+        }
         Condition condition = allFilterConditions.stream().reduce(Condition.TRUE, Condition::and);
         return DefaultFinder.of(DeviceMessage.class, condition, this.deviceDataModelService.dataModel());
     }

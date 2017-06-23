@@ -5,7 +5,9 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
+import java.time.Instant;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Structure to specify the attributes to be used when performing a filtered search on DeviceMessages.
@@ -40,4 +42,17 @@ public interface DeviceMessageQueryFilter {
      * @return
      */
     Collection<DeviceMessageStatus> getStatuses();
+
+    /**
+     * Indicates filtered results will only contain device messages whose release date is present AND is after the mentioned timestamp
+     * @return
+     */
+    Optional<Instant> getReleaseDateStart();
+
+    /**
+     * Indicates filtered results will only contain device messages whose release date is present AND is before the mentioned timestamp
+     * @return
+     */
+    Optional<Instant> getReleaseDateEnd();
+
 }
