@@ -101,6 +101,10 @@ public class DeviceMessageSearchResource {
         }
         deviceMessageQueryFilter.setReleaseDateStart(jsonQueryFilter.getInstant("releaseDateStart"));
         deviceMessageQueryFilter.setReleaseDateEnd(jsonQueryFilter.getInstant("releaseDateEnd"));
+        deviceMessageQueryFilter.setSentDateStart(jsonQueryFilter.getInstant("sentDateStart"));
+        deviceMessageQueryFilter.setSentDateEnd(jsonQueryFilter.getInstant("sentDateEnd"));
+        deviceMessageQueryFilter.setCreationDateStart(jsonQueryFilter.getInstant("creationDateStart"));
+        deviceMessageQueryFilter.setCreationDateEnd(jsonQueryFilter.getInstant("creationDateEnd"));
         return deviceMessageQueryFilter;
     }
 
@@ -128,6 +132,10 @@ public class DeviceMessageSearchResource {
         private List<DeviceMessageStatus> statuses = Collections.emptyList();
         private Optional<Instant> releaseDateStart = Optional.empty();
         private Optional<Instant> releaseDateEnd = Optional.empty();
+        private Optional<Instant> sentDateStart = Optional.empty();
+        private Optional<Instant> sentDateEnd = Optional.empty();
+        private Optional<Instant> creationDateStart = Optional.empty();
+        private Optional<Instant> creationDateEnd = Optional.empty();
 
         @Override
         public Collection<EndDeviceGroup> getDeviceGroups() {
@@ -159,6 +167,26 @@ public class DeviceMessageSearchResource {
             return this.releaseDateEnd;
         }
 
+        @Override
+        public Optional<Instant> getSentDateStart() {
+            return this.sentDateStart;
+        }
+
+        @Override
+        public Optional<Instant> getSentDateEnd() {
+            return this.sentDateEnd;
+        }
+
+        @Override
+        public Optional<Instant> getCreationDateStart() {
+            return this.creationDateStart;
+        }
+
+        @Override
+        public Optional<Instant> getCreationDateEnd() {
+            return this.creationDateEnd;
+        }
+
         public void setDeviceGroups(List<EndDeviceGroup> endDeviceGroups) {
             this.endDeviceGroups = ImmutableList.copyOf(endDeviceGroups);
         }
@@ -182,5 +210,22 @@ public class DeviceMessageSearchResource {
         public void setReleaseDateEnd(Instant releaseDateEnd) {
             this.releaseDateEnd = Optional.ofNullable(releaseDateEnd);
         }
+
+        public void setSentDateStart(Instant sentDateStart) {
+            this.sentDateStart = Optional.ofNullable(sentDateStart);
+        }
+
+        public void setSentDateEnd(Instant sentDateEnd) {
+            this.sentDateEnd = Optional.ofNullable(sentDateEnd);
+        }
+
+        public void setCreationDateStart(Instant creationDateStart) {
+            this.creationDateStart = Optional.ofNullable(creationDateStart);
+        }
+
+        public void setCreationDateEnd(Instant creationDateEnd) {
+            this.creationDateEnd = Optional.ofNullable(creationDateEnd);
+        }
+
     }
 }

@@ -125,4 +125,40 @@ public class DeviceMessageSearchResourceTest extends DeviceDataRestApplicationJe
         assertThat(queryFilterArgumentCaptor.getValue().getReleaseDateEnd().get()).isEqualTo(end);
     }
 
+    @Test
+    public void searchDeviceMessagesFilterSentDates() throws Exception {
+
+        Instant start = Instant.now();
+        Instant end = start.plusMillis(1000);
+        String extjsFilter = ExtjsFilter.filter()
+                .property("sentDateStart", start.toEpochMilli())
+                .property("sentDateEnd", end.toEpochMilli())
+                .create();
+        String response = target("/devicemessages").queryParam("filter", extjsFilter).request().get(String.class);
+        ArgumentCaptor<DeviceMessageQueryFilter> queryFilterArgumentCaptor = ArgumentCaptor.forClass(DeviceMessageQueryFilter.class);
+        verify(deviceMessageService).findDeviceMessagesByFilter(queryFilterArgumentCaptor.capture());
+        assertThat(queryFilterArgumentCaptor.getValue().getSentDateStart()).isPresent();
+        assertThat(queryFilterArgumentCaptor.getValue().getSentDateStart().get()).isEqualTo(start);
+        assertThat(queryFilterArgumentCaptor.getValue().getSentDateEnd()).isPresent();
+        assertThat(queryFilterArgumentCaptor.getValue().getSentDateEnd().get()).isEqualTo(end);
+    }
+
+    @Test
+    public void searchDeviceMessagesFilterCreationDates() throws Exception {
+
+        Instant start = Instant.now();
+        Instant end = start.plusMillis(1000);
+        String extjsFilter = ExtjsFilter.filter()
+                .property("creationDateStart", start.toEpochMilli())
+                .property("creationDateEnd", end.toEpochMilli())
+                .create();
+        String response = target("/devicemessages").queryParam("filter", extjsFilter).request().get(String.class);
+        ArgumentCaptor<DeviceMessageQueryFilter> queryFilterArgumentCaptor = ArgumentCaptor.forClass(DeviceMessageQueryFilter.class);
+        verify(deviceMessageService).findDeviceMessagesByFilter(queryFilterArgumentCaptor.capture());
+        assertThat(queryFilterArgumentCaptor.getValue().getCreationDateStart()).isPresent();
+        assertThat(queryFilterArgumentCaptor.getValue().getCreationDateStart().get()).isEqualTo(start);
+        assertThat(queryFilterArgumentCaptor.getValue().getCreationDateEnd()).isPresent();
+        assertThat(queryFilterArgumentCaptor.getValue().getCreationDateEnd().get()).isEqualTo(end);
+    }
+
 }
