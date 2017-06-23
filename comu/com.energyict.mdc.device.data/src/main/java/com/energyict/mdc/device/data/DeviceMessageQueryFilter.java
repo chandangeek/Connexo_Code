@@ -55,4 +55,28 @@ public interface DeviceMessageQueryFilter {
      */
     Optional<Instant> getReleaseDateEnd();
 
+    /**
+     * Indicates filtered results will only contain device messages whose sent date is present AND is after the mentioned timestamp
+     * @return
+     */
+    Optional<Instant> getSentDateStart();
+
+    /**
+     * Indicates filtered results will only contain device messages whose sent date is present AND is before the mentioned timestamp
+     * @return
+     */
+    Optional<Instant> getSentDateEnd();
+
+    /**
+     * Indicates filtered results will only contain device messages whose creation date is present AND is after the mentioned timestamp
+     * @return
+     */
+    Optional<Instant> getCreationDateStart();
+
+    /**
+     * Indicates filtered results will only contain device messages whose creation date is present AND is before the mentioned timestamp
+     * @return
+     */
+    Optional<Instant> getCreationDateEnd();
+
 }

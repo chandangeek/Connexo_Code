@@ -58,7 +58,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         TRACKINGID("trackingId"),
         TRACKINGCATEGORY("trackingCategory"),
         PROTOCOLINFO("protocolInfo"),
-        CREATIONDATE("creationDate"),
+        CREATIONDATE("createTime"),
         RELEASEDATE("releaseDate"),
         SENTDATE("sentDate"),
         DEVICEMESSAGEATTRIBUTES("deviceMessageAttributes"),

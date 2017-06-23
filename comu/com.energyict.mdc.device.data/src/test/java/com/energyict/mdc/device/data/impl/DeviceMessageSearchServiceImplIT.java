@@ -302,6 +302,49 @@ public class DeviceMessageSearchServiceImplIT extends PersistenceIntegrationTest
 
     @Test
     @Transactional
+    public void selectDeviceMessagesByFilter_SentDate_start_and_end() throws Exception {
+
+        Instant now = inMemoryPersistence.getClock().instant();
+        Instant sentDate1 = inMemoryPersistence.getClock().instant();
+        Instant sentDate2 = sentDate1.plusSeconds(3600);
+        Instant sentDate3 = sentDate2.plusSeconds(3600);
+        Instant sentDate4 = sentDate3.plusSeconds(3600);
+
+        DeviceMessage deviceMessage1 = device1.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(now).add();
+        deviceMessage1.setSentDate(sentDate1);
+        deviceMessage1.save();
+        DeviceMessage deviceMessage2 = device2.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS).setReleaseDate(now).add();
+        deviceMessage2.setSentDate(sentDate2);
+        deviceMessage2.save();
+        DeviceMessage deviceMessage3 = device3.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ERROR_BITS).setReleaseDate(now).add();
+        deviceMessage3.setSentDate(sentDate3);
+        deviceMessage3.save();
+        DeviceMessage deviceMessage4 = device4.newDeviceMessage(DeviceMessageId.CONTACTOR_OPEN).setReleaseDate(now).add();
+        deviceMessage4.setSentDate(sentDate4);
+        deviceMessage4.save();
+        DeviceMessageQueryFilter deviceMessageQueryFilter = new DeviceMessageQueryFilterImpl() {
+            @Override
+            public Optional<Instant> getSentDateStart() {
+                return Optional.of(sentDate1.plusSeconds(1));
+            }
+            @Override
+            public Optional<Instant> getSentDateEnd() {
+                return Optional.of(sentDate3);
+            }
+        };
+
+        List<DeviceMessage> deviceMessages = inMemoryPersistence.getDeviceMessageService()
+                .findDeviceMessagesByFilter(deviceMessageQueryFilter)
+                .find();
+        assertThat(deviceMessages).hasSize(2);
+        List<DeviceMessageId> deviceMessageIds = deviceMessages.stream()
+                .map(DeviceMessage::getDeviceMessageId)
+                .collect(Collectors.toList());
+        assertThat(deviceMessageIds).containsOnly(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS, DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ERROR_BITS);
+    }
+
+    @Test
+    @Transactional
     public void selectDeviceMessagesByCombinedFilter_CommandCategories_and_DeviceGroup() throws Exception {
         DeviceMessage deviceMessage1 = device1.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
         DeviceMessage deviceMessage2 = device2.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
@@ -357,6 +400,26 @@ public class DeviceMessageSearchServiceImplIT extends PersistenceIntegrationTest
 
         @Override
         public Optional<Instant> getReleaseDateEnd() {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<Instant> getSentDateStart() {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<Instant> getSentDateEnd() {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<Instant> getCreationDateStart() {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<Instant> getCreationDateEnd() {
             return Optional.empty();
         }
     }

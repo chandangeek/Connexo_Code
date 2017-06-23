@@ -170,15 +170,46 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
             allFilterConditions.add(messageStatusConditions.stream().reduce(Condition.FALSE, Condition::or));
         }
         if (deviceMessageQueryFilter.getReleaseDateStart().isPresent() || deviceMessageQueryFilter.getReleaseDateEnd().isPresent()) {
-            List<Condition> releaseDateConditions = new ArrayList<>();
-            deviceMessageQueryFilter.getReleaseDateStart().ifPresent(date ->
-                releaseDateConditions.add(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isGreaterThanOrEqual(date)));
-            deviceMessageQueryFilter.getReleaseDateEnd().ifPresent(date ->
-                releaseDateConditions.add(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isLessThanOrEqual(date)));
+            List<Condition> releaseDateConditions = getReleaseDateConditions(deviceMessageQueryFilter);
             allFilterConditions.add(releaseDateConditions.stream().reduce(Condition.TRUE, Condition::and));
+        }
+        if (deviceMessageQueryFilter.getSentDateStart().isPresent() || deviceMessageQueryFilter.getSentDateEnd().isPresent()) {
+            List<Condition> sentDateConditions = getSentDateConditions(deviceMessageQueryFilter);
+            allFilterConditions.add(sentDateConditions.stream().reduce(Condition.TRUE, Condition::and));
+        }
+        if (deviceMessageQueryFilter.getCreationDateStart().isPresent() || deviceMessageQueryFilter.getCreationDateEnd().isPresent()) {
+            List<Condition> creationDateConditions = getCreationDateConditions(deviceMessageQueryFilter);
+            allFilterConditions.add(creationDateConditions.stream().reduce(Condition.TRUE, Condition::and));
         }
         Condition condition = allFilterConditions.stream().reduce(Condition.TRUE, Condition::and);
         return DefaultFinder.of(DeviceMessage.class, condition, this.deviceDataModelService.dataModel());
+    }
+
+    private List<Condition> getReleaseDateConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {
+        List<Condition> releaseDateConditions = new ArrayList<>();
+        deviceMessageQueryFilter.getReleaseDateStart().ifPresent(date ->
+            releaseDateConditions.add(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isGreaterThanOrEqual(date)));
+        deviceMessageQueryFilter.getReleaseDateEnd().ifPresent(date ->
+            releaseDateConditions.add(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isLessThanOrEqual(date)));
+        return releaseDateConditions;
+    }
+
+    private List<Condition> getSentDateConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {
+        List<Condition> sentDateConditions = new ArrayList<>();
+        deviceMessageQueryFilter.getSentDateStart().ifPresent(date ->
+            sentDateConditions.add(Where.where(DeviceMessageImpl.Fields.SENTDATE.fieldName()).isGreaterThanOrEqual(date)));
+        deviceMessageQueryFilter.getSentDateEnd().ifPresent(date ->
+            sentDateConditions.add(Where.where(DeviceMessageImpl.Fields.SENTDATE.fieldName()).isLessThanOrEqual(date)));
+        return sentDateConditions;
+    }
+
+    private List<Condition> getCreationDateConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {
+        List<Condition> creationDateConditions = new ArrayList<>();
+        deviceMessageQueryFilter.getCreationDateStart().ifPresent(date ->
+            creationDateConditions.add(Where.where(DeviceMessageImpl.Fields.CREATIONDATE.fieldName()).isGreaterThanOrEqual(date)));
+        deviceMessageQueryFilter.getCreationDateEnd().ifPresent(date ->
+            creationDateConditions.add(Where.where(DeviceMessageImpl.Fields.CREATIONDATE.fieldName()).isLessThanOrEqual(date)));
+        return creationDateConditions;
     }
 
     private List<Condition> getMessageStatusSearchCondition(Collection<DeviceMessageStatus> deviceMessageStatuses) {
