@@ -8,7 +8,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import java.util.Collection;
 
 /**
- * Structure to specify DeviceMessageQuery
+ * Structure to specify the attributes to be used when performing a filtered search on DeviceMessages.
  */
 public interface DeviceMessageQueryFilter {
     /**
@@ -20,7 +20,8 @@ public interface DeviceMessageQueryFilter {
     Collection<EndDeviceGroup> getDeviceGroups();
 
     /**
-     * List of device message categories used in the query.
+     * List of device message categories used in the query. If a category is mentioned without further selection of
+     * DeviceCommands from that category, all device commands in the category will be used in the search.
      */
     Collection<DeviceMessageCategory> getMessageCategories();
 

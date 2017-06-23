@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -158,59 +159,78 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
     public Finder<DeviceMessage> findDeviceMessagesByFilter(DeviceMessageQueryFilter deviceMessageQueryFilter) {
         List<Condition> allFilterConditions = new ArrayList<>();
         if (!deviceMessageQueryFilter.getDeviceGroups().isEmpty()) {
-            allFilterConditions.add(deviceMessageQueryFilter.getDeviceGroups().stream()
-                    .map(endDeviceGroup -> ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), DeviceMessageImpl.Fields.DEVICE.fieldName()))
-                    .map(Condition.class::cast)
-                    .reduce(Condition.FALSE, Condition::or));
+            allFilterConditions.add(getDeviceGroupSearchCondition(deviceMessageQueryFilter.getDeviceGroups()));
         }
         if (!deviceMessageQueryFilter.getMessageCategories().isEmpty()) {
-            List<Condition> deviceMessageConditions = new ArrayList<>();
-            for (DeviceMessageCategory deviceMessageCategory : deviceMessageQueryFilter.getMessageCategories()) {
-                List<DeviceMessageId> allDeviceMessageIdInCategory = deviceMessageCategory.getMessageSpecifications()
-                        .stream()
-                        .map(DeviceMessageSpec::getId)
-                        .collect(toList());
-                List<DeviceMessageId> deviceMessageIds = deviceMessageQueryFilter.getDeviceMessages()
-                        .stream()
-                        .filter(allDeviceMessageIdInCategory::contains)
-                        .collect(toList());
-                List<Long> deviceMessageDbIds;
-                if (deviceMessageIds.isEmpty()) {
-                    deviceMessageDbIds = allDeviceMessageIdInCategory.stream()
-                            .map(DeviceMessageId::dbValue)
-                            .collect(toList());
-                } else {
-                    deviceMessageDbIds = deviceMessageIds.stream()
-                            .map(DeviceMessageId::dbValue)
-                            .collect(toList());
-                }
-                deviceMessageConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).in(deviceMessageDbIds));
-            }
+            List<Condition> deviceMessageConditions = getAllMessageCategorySearchConditions(deviceMessageQueryFilter);
             allFilterConditions.add(deviceMessageConditions.stream().reduce(Condition.FALSE, Condition::or));
         }
         if (!deviceMessageQueryFilter.getStatuses().isEmpty()) {
-            List<Condition> messageStatusConditions = new ArrayList<>();
-            if (deviceMessageQueryFilter.getStatuses().contains(DeviceMessageStatus.PENDING)) {
-                messageStatusConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).isEqualTo(DeviceMessageStatus.WAITING)
-                        .and(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isNotNull())
-                        .and(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isLessThan(this.clock.instant())));
-            }
-            if (deviceMessageQueryFilter.getStatuses().contains(DeviceMessageStatus.WAITING)) {
-                messageStatusConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).isEqualTo(DeviceMessageStatus.WAITING)
-                        .and(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isNull()
-                        .or(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isGreaterThanOrEqual(this.clock.instant()))));
-            }
-            ArrayList<DeviceMessageStatus> deviceMessageStatuses = new ArrayList<>(deviceMessageQueryFilter.getStatuses());
-            deviceMessageStatuses.remove(DeviceMessageStatus.WAITING);
-            deviceMessageStatuses.remove(DeviceMessageStatus.PENDING);
-            if (!deviceMessageStatuses.isEmpty()) {
-                messageStatusConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).in(deviceMessageStatuses));
-            }
+            List<Condition> messageStatusConditions = getMessageStatusSearchCondition(deviceMessageQueryFilter.getStatuses());
             allFilterConditions.add(messageStatusConditions.stream().reduce(Condition.FALSE, Condition::or));
         }
 
         Condition condition = allFilterConditions.stream().reduce(Condition.TRUE, Condition::and);
         return DefaultFinder.of(DeviceMessage.class, condition, this.deviceDataModelService.dataModel());
+    }
+
+    private List<Condition> getMessageStatusSearchCondition(Collection<DeviceMessageStatus> deviceMessageStatuses) {
+        List<Condition> messageStatusConditions = new ArrayList<>();
+        if (deviceMessageStatuses.contains(DeviceMessageStatus.PENDING)) {
+            messageStatusConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).isEqualTo(DeviceMessageStatus.WAITING)
+                    .and(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isNotNull())
+                    .and(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isLessThan(this.clock.instant())));
+        }
+        if (deviceMessageStatuses.contains(DeviceMessageStatus.WAITING)) {
+            messageStatusConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).isEqualTo(DeviceMessageStatus.WAITING)
+                    .and(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isNull()
+                    .or(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isGreaterThanOrEqual(this.clock.instant()))));
+        }
+        ArrayList<DeviceMessageStatus> reducedDeviceMessageStatuses = new ArrayList<>(deviceMessageStatuses);
+        reducedDeviceMessageStatuses.remove(DeviceMessageStatus.WAITING);
+        reducedDeviceMessageStatuses.remove(DeviceMessageStatus.PENDING);
+        if (!reducedDeviceMessageStatuses.isEmpty()) {
+            messageStatusConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).in(reducedDeviceMessageStatuses));
+        }
+        return messageStatusConditions;
+    }
+
+    private List<Condition> getAllMessageCategorySearchConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {
+        List<Condition> deviceMessageConditions = new ArrayList<>();
+        for (DeviceMessageCategory deviceMessageCategory : deviceMessageQueryFilter.getMessageCategories()) {
+            List<Long> deviceMessageDbIds = getMessageCategorySearchCondition(deviceMessageQueryFilter, deviceMessageCategory);
+            deviceMessageConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).in(deviceMessageDbIds));
+        }
+        return deviceMessageConditions;
+    }
+
+    private List<Long> getMessageCategorySearchCondition(DeviceMessageQueryFilter deviceMessageQueryFilter, DeviceMessageCategory deviceMessageCategory) {
+        List<DeviceMessageId> allDeviceMessageIdInCategory = deviceMessageCategory.getMessageSpecifications()
+                .stream()
+                .map(DeviceMessageSpec::getId)
+                .collect(toList());
+        List<DeviceMessageId> deviceMessageIds = deviceMessageQueryFilter.getDeviceMessages()
+                .stream()
+                .filter(allDeviceMessageIdInCategory::contains)
+                .collect(toList());
+        List<Long> deviceMessageDbIds;
+        if (deviceMessageIds.isEmpty()) {
+            deviceMessageDbIds = allDeviceMessageIdInCategory.stream()
+                    .map(DeviceMessageId::dbValue)
+                    .collect(toList());
+        } else {
+            deviceMessageDbIds = deviceMessageIds.stream()
+                    .map(DeviceMessageId::dbValue)
+                    .collect(toList());
+        }
+        return deviceMessageDbIds;
+    }
+
+    private Condition getDeviceGroupSearchCondition(Collection<EndDeviceGroup> endDeviceGroups) {
+        return endDeviceGroups.stream()
+                .map(endDeviceGroup -> ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), DeviceMessageImpl.Fields.DEVICE.fieldName()))
+                .map(Condition.class::cast)
+                .reduce(Condition.FALSE, Condition::or);
     }
 
     @Override
