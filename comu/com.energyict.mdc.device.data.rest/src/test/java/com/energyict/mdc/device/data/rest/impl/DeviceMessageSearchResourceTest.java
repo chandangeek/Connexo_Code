@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -104,6 +105,24 @@ public class DeviceMessageSearchResourceTest extends DeviceDataRestApplicationJe
         ArgumentCaptor<DeviceMessageQueryFilter> queryFilterArgumentCaptor = ArgumentCaptor.forClass(DeviceMessageQueryFilter.class);
         verify(deviceMessageService).findDeviceMessagesByFilter(queryFilterArgumentCaptor.capture());
         assertThat(queryFilterArgumentCaptor.getValue().getStatuses()).containsOnly(DeviceMessageStatus.CANCELED, DeviceMessageStatus.WAITING);
+    }
+
+    @Test
+    public void searchDeviceMessagesFilterReleaseDates() throws Exception {
+
+        Instant start = Instant.now();
+        Instant end = start.plusMillis(1000);
+        String extjsFilter = ExtjsFilter.filter()
+                .property("releaseDateStart", start.toEpochMilli())
+                .property("releaseDateEnd", end.toEpochMilli())
+                .create();
+        String response = target("/devicemessages").queryParam("filter", extjsFilter).request().get(String.class);
+        ArgumentCaptor<DeviceMessageQueryFilter> queryFilterArgumentCaptor = ArgumentCaptor.forClass(DeviceMessageQueryFilter.class);
+        verify(deviceMessageService).findDeviceMessagesByFilter(queryFilterArgumentCaptor.capture());
+        assertThat(queryFilterArgumentCaptor.getValue().getReleaseDateStart()).isPresent();
+        assertThat(queryFilterArgumentCaptor.getValue().getReleaseDateStart().get()).isEqualTo(start);
+        assertThat(queryFilterArgumentCaptor.getValue().getReleaseDateEnd()).isPresent();
+        assertThat(queryFilterArgumentCaptor.getValue().getReleaseDateEnd().get()).isEqualTo(end);
     }
 
 }

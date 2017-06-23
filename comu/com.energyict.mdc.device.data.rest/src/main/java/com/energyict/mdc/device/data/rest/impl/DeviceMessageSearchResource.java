@@ -25,9 +25,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -97,6 +99,8 @@ public class DeviceMessageSearchResource {
                     .collect(Collectors.toList());
             deviceMessageQueryFilter.setDeviceMessagesStatuses(deviceMessageStatuses);
         }
+        deviceMessageQueryFilter.setReleaseDateStart(jsonQueryFilter.getInstant("releaseDateStart"));
+        deviceMessageQueryFilter.setReleaseDateEnd(jsonQueryFilter.getInstant("releaseDateEnd"));
         return deviceMessageQueryFilter;
     }
 
@@ -122,6 +126,8 @@ public class DeviceMessageSearchResource {
         private List<DeviceMessageCategory> deviceMessageCategories = Collections.emptyList();
         private List<DeviceMessageId> deviceMessageIds = Collections.emptyList();
         private List<DeviceMessageStatus> statuses = Collections.emptyList();
+        private Optional<Instant> releaseDateStart = Optional.empty();
+        private Optional<Instant> releaseDateEnd = Optional.empty();
 
         @Override
         public Collection<EndDeviceGroup> getDeviceGroups() {
@@ -143,6 +149,16 @@ public class DeviceMessageSearchResource {
             return this.statuses;
         }
 
+        @Override
+        public Optional<Instant> getReleaseDateStart() {
+            return this.releaseDateStart;
+        }
+
+        @Override
+        public Optional<Instant> getReleaseDateEnd() {
+            return this.releaseDateEnd;
+        }
+
         public void setDeviceGroups(List<EndDeviceGroup> endDeviceGroups) {
             this.endDeviceGroups = ImmutableList.copyOf(endDeviceGroups);
         }
@@ -157,6 +173,14 @@ public class DeviceMessageSearchResource {
 
         public void setDeviceMessagesStatuses(List<DeviceMessageStatus> deviceMessageStatuses) {
             this.statuses = ImmutableList.copyOf(deviceMessageStatuses);
+        }
+
+        public void setReleaseDateStart(Instant releaseDateStart) {
+            this.releaseDateStart = Optional.ofNullable(releaseDateStart);
+        }
+
+        public void setReleaseDateEnd(Instant releaseDateEnd) {
+            this.releaseDateEnd = Optional.ofNullable(releaseDateEnd);
         }
     }
 }
