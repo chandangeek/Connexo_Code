@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
@@ -32,19 +33,14 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
-import oracle.jdbc.driver.DMSFactory;
-
 import javax.inject.Inject;
 import java.time.Clock;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -57,14 +53,16 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
     private final ThreadPrincipalService threadPrincipalService;
     private final MeteringGroupsService meteringGroupsService;
     private final Clock clock;
+    private final Thesaurus thesaurus;
 
     @Inject
-    DeviceMessageServiceImpl(DeviceDataModelService deviceDataModelService, ThreadPrincipalService threadPrincipalService, MeteringGroupsService meteringGroupsService, Clock clock) {
+    DeviceMessageServiceImpl(DeviceDataModelService deviceDataModelService, ThreadPrincipalService threadPrincipalService, MeteringGroupsService meteringGroupsService, Clock clock, Thesaurus thesaurus) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.threadPrincipalService = threadPrincipalService;
         this.meteringGroupsService = meteringGroupsService;
         this.clock = clock;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -182,7 +180,7 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
             allFilterConditions.add(creationDateConditions.stream().reduce(Condition.TRUE, Condition::and));
         }
         Condition condition = allFilterConditions.stream().reduce(Condition.TRUE, Condition::and);
-        return DefaultFinder.of(DeviceMessage.class, condition, this.deviceDataModelService.dataModel()).defaultSortColumn(DeviceMessageImpl.Fields.RELEASEDATE.fieldName());
+        return DefaultFinder.of(DeviceMessage.class, condition, this.deviceDataModelService.dataModel()).defaultSortColumn(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).maxPageSize(thesaurus, 1000);
     }
 
     private List<Condition> getReleaseDateConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {

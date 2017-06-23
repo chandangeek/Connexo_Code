@@ -77,7 +77,7 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
     @Mock
     MeteringGroupsService meteringGroupsService;
 
-    DeviceMessageService deviceMessageService = new DeviceMessageServiceImpl(new DeviceDataModelServiceImpl(), threadPrincipalService, meteringGroupsService, clock);
+    DeviceMessageService deviceMessageService = new DeviceMessageServiceImpl(new DeviceDataModelServiceImpl(), threadPrincipalService, meteringGroupsService, clock, thesaurus);
     DeviceMessage command1;
     private Device device;
     private DeviceConfiguration deviceConfiguration;
