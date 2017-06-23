@@ -212,9 +212,9 @@ class DataQualityOverviewSqlBuilder {
 
     private void appendAllDataWithClause() {
         this.sqlBuilder.append("allData (usagepoint, channelscontainer, kpitype, value, latest) as (");
-        this.sqlBuilder.append("    select to_number(regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\2')),");// usagepoint
-        this.sqlBuilder.append("           to_number(regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\3')),");// channelscontainer
-        this.sqlBuilder.append("                     regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\1'),"); // kpitype
+        this.sqlBuilder.append("    select dqkpim.usagepoint,");// usagepoint
+        this.sqlBuilder.append("           dqkpim.channelcontainer,");// channelscontainer
+        this.sqlBuilder.append("           kpim.name,"); // kpitype
         this.sqlBuilder.append("           sum(kpivalues.slot0),");
         this.sqlBuilder.append("           max(kpivalues.utcstamp)");
         this.sqlBuilder.append("    from DQK_DATAQUALITYKPI dqkpi");
@@ -228,9 +228,9 @@ class DataQualityOverviewSqlBuilder {
             this.appendIds(this.specification.getUsagePointGroups());
             this.sqlBuilder.append(")");
         }
-        this.sqlBuilder.append("    group by to_number(regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\2')),");// usagepoint
-        this.sqlBuilder.append("             to_number(regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\3')),");// channelscontainer
-        this.sqlBuilder.append("                       regexp_replace(kpim.name, '([A-Z]+)_(\\d+):(\\d+)', '\\1')");  // kpitype
+        this.sqlBuilder.append("    group by dqkpim.usagepoint,");// usagepoint
+        this.sqlBuilder.append("             dqkpim.channelcontainer,");// channelscontainer
+        this.sqlBuilder.append("             kpim.name");  // kpitype
         this.sqlBuilder.append(")");
     }
 
