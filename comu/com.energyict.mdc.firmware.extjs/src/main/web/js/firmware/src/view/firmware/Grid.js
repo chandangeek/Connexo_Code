@@ -25,7 +25,7 @@ Ext.define('Fwc.view.firmware.Grid', {
             dataIndex: 'type'
         },
         {
-            text: Uni.I18n.translate('general.imageIdentifier', 'FWC', 'Image identfier'),
+            text: Uni.I18n.translate('general.imageIdentifier', 'FWC', 'Image identifier'),
             flex: 2,
             dataIndex: 'imageIdentifier'
         },
