@@ -19,12 +19,8 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
@@ -37,17 +33,11 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.logging.Level;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
 
 /**
@@ -266,74 +256,11 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
     }
 
-    protected void upgradeFirmwareWithActivationDateAndImageIdentifier(OfflineDeviceMessage pendingMessage) throws IOException {
-        String path = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getValue();
-        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getValue();   // Will return empty string if the MessageAttribute could not be found
-        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getValue(); // Will return empty string if the MessageAttribute could not be found
-
-        ImageTransfer it = getCosemObjectFactory().getImageTransfer();
-        if (isResume(pendingMessage)) {
-            int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
-            if (lastTransferredBlockNumber > 0) {
-                it.setStartIndex(lastTransferredBlockNumber - 1);
-            }
-        }
-
-        it.setBooleanValue(getBooleanValue());
-        it.setUsePollingVerifyAndActivate(true);    //Poll verification
-        it.setPollingDelay(10000);
-        it.setPollingRetries(30);
-        it.setDelayBeforeSendingBlocks(5000);
-
-        try (RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
-            if (imageIdentifier.isEmpty()) {
-                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, ImageTransfer.DEFAULT_IMAGE_NAME, false);
-            } else {
-                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, false);
-            }
-        }
-
-        if (activationDate.isEmpty()) {
-            try {
-                it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
-                it.imageActivation();
-            } catch (DataAccessResultException e) {
-                if (isTemporaryFailure(e)) {
-                    getProtocol().getLogger().log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
-                } else {
-                    throw e;
-                }
-            }
-        } else {
-            SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
-            Array dateArray = convertActivationDateEpochToDateTimeArray(activationDate);
-            sas.writeExecutionTime(dateArray);
-        }
-    }
-
-    /**
-     * Convert the given epoch activation date to a proper DateTimeArray
-     */
-    protected Array convertActivationDateEpochToDateTimeArray(String strDate) {
-        return super.convertEpochToDateTimeArray(strDate);
-    }
-
     /**
      * Not supported in DSMR4.0, subclasses can override
      */
     protected boolean isResume(OfflineDeviceMessage pendingMessage) {
         return false;
-    }
-
-    protected boolean isTemporaryFailure(DataAccessResultException e) {
-        return (e.getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
-    }
-
-    /**
-     * Default value, subclasses can override. This value is used to set the image_transfer_enable attribute.
-     */
-    protected int getBooleanValue() {
-        return 0xFF;
     }
 
     /**

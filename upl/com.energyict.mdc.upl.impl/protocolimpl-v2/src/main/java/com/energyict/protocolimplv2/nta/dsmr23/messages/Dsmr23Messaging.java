@@ -81,7 +81,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDat
  * - Formats the device message attributes from objects to proper string values
  * - Executes a given message
  * - Has a list of all supported device message specs
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 22/11/13
  * Time: 11:32
@@ -178,6 +178,11 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         List<DeviceMessageSpec> supportedMessages = new ArrayList<>();
         supportedMessages.add(this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE));
         supportedMessages.add(this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE));
+        supportedMessages.add(this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME));
+        supportedMessages.add(this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION));
+        supportedMessages.add(this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER));
+        supportedMessages.add(this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER));
+        supportedMessages.add(this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER));
         supportedMessages.add(this.get(DisplayDeviceMessage.CONSUMER_MESSAGE_CODE_TO_PORT_P1));
         supportedMessages.add(this.get(DisplayDeviceMessage.CONSUMER_MESSAGE_TEXT_TO_PORT_P1));
         supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND));

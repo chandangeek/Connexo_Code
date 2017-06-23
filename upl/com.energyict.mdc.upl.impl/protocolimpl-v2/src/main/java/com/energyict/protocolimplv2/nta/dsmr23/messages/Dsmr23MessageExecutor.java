@@ -27,6 +27,8 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.AssociationSN;
 import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.MBusClient;
@@ -102,6 +104,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.conta
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.encryptionLevelAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fullActivityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
@@ -112,6 +115,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEn
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPasswordAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.p1InformationAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
@@ -164,6 +168,16 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     upgradeFirmware(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE)) {
                     upgradeFirmwareWithActivationDate(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME)) {
+                    upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION)) {
+                    upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER)) {
+                    upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
+                    upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER)) {
+                    upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND)) {
                     String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
                     String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarAttributeName).getValue();
@@ -661,6 +675,74 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
+    protected void upgradeFirmwareWithActivationDateAndImageIdentifier(OfflineDeviceMessage pendingMessage) throws IOException {
+        String path = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getValue();
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName)
+                .getValue();   // Will return empty string if the MessageAttribute could not be found
+        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName)
+                .getValue(); // Will return empty string if the MessageAttribute could not be found
+
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer();
+        if (isResume(pendingMessage)) {
+            int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
+            if (lastTransferredBlockNumber > 0) {
+                it.setStartIndex(lastTransferredBlockNumber - 1);
+            }
+        }
+
+        it.setBooleanValue(getBooleanValue());
+        it.setUsePollingVerifyAndActivate(true);    //Poll verification
+        it.setPollingDelay(10000);
+        it.setPollingRetries(30);
+        it.setDelayBeforeSendingBlocks(5000);
+
+        try (RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
+            if (imageIdentifier.isEmpty()) {
+                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, ImageTransfer.DEFAULT_IMAGE_NAME, false);
+            } else {
+                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, false);
+            }
+        }
+
+        if (activationDate.isEmpty()) {
+            try {
+                it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
+                it.imageActivation();
+            } catch (DataAccessResultException e) {
+                if (isTemporaryFailure(e)) {
+                    getProtocol().getLogger().log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
+                } else {
+                    throw e;
+                }
+            }
+        } else {
+            SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+            Array dateArray = convertActivationDateEpochToDateTimeArray(activationDate);
+            sas.writeExecutionTime(dateArray);
+        }
+    }
+
+    /**
+     * Convert the given epoch activation date to a proper DateTimeArray
+     */
+    protected Array convertActivationDateEpochToDateTimeArray(String strDate) {
+        return super.convertEpochToDateTimeArray(strDate);
+    }
+
+    protected boolean isTemporaryFailure(DataAccessResultException e) {
+        return (e.getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
+    }
+
+    /**
+     * Default value, subclasses can override. This value is used to set the image_transfer_enable attribute.
+     */
+    protected int getBooleanValue() {
+        return 0xFF;
+    }
+
+    protected boolean isResume(OfflineDeviceMessage pendingMessage) {
+        return Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, resumeFirmwareUpdateAttributeName).getValue());
+    }
 
     private void activateDlmsEncryption(OfflineDeviceMessage pendingMessage) throws IOException {
         int level = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, encryptionLevelAttributeName));
