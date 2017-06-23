@@ -185,8 +185,8 @@ class DataQualityOverviewSqlBuilder {
 
     private void appendAllDataWithClause() {
         this.sqlBuilder.append("allData (device, kpitype, value, latest) as (");
-        this.sqlBuilder.append("    select to_number(substr(kpim.name, instr(kpim.name, '_') + 1)),");
-        this.sqlBuilder.append("           substr(kpim.name, 1, instr(kpim.name, '_') - 1),");
+        this.sqlBuilder.append("    select dqkpim.device,");
+        this.sqlBuilder.append("           kpim.name,");
         this.sqlBuilder.append("           sum(kpivalues.slot0),");
         this.sqlBuilder.append("           max(kpivalues.utcstamp)");
         this.sqlBuilder.append("    from DQK_DATAQUALITYKPI dqkpi");
@@ -200,7 +200,7 @@ class DataQualityOverviewSqlBuilder {
             this.appendIds(this.specification.getDeviceGroups());
             this.sqlBuilder.append(")");
         }
-        this.sqlBuilder.append("     group by to_number(substr(kpim.name, instr(kpim.name, '_') + 1)), substr(kpim.name, 1, instr(kpim.name, '_') - 1)");
+        this.sqlBuilder.append("     group by dqkpim.device, kpim.name");
         this.sqlBuilder.append(")");
     }
 
