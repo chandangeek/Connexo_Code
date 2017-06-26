@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.ChangeReleaseDateWindow', {
     alias: 'widget.device-command-change-release-date',
     closable: false,
     requires: [
-        'Mdc.widget.DateTimeField'
+        'Uni.form.field.DateTime'
     ],
     layout: {
         type: 'vbox',
@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.ChangeReleaseDateWindow', {
     modal: true,
 
     getDate: function () {
-        return this.down('dateTimeField[name=releaseDate]').getValue()
+        return this.down('date-time[name=releaseDate]').getValue()
     },
 
     getRecord: function () {
@@ -43,40 +43,57 @@ Ext.define('Mdc.view.setup.devicecommand.widget.ChangeReleaseDateWindow', {
                 margins: '32 0 0 0',
                 items: [
                     {
-                        xtype: 'dateTimeField',
-                        name: 'releaseDate',
-                        required: true,
+                        xtype: 'date-time',
                         fieldLabel: Uni.I18n.translate('deviceCommand.add.releaseDate', 'MDC', 'Release date'),
-                        dateCfg: {
+                        layout: 'hbox',
+                        name: 'releaseDate',
+                        valueInMilliseconds: true,
+                        required: true,
+                        dateConfig: {
                             width: 155,
-                            minValue: new Date()
+                            editable: false,
+                            minValue: new Date(),
+                            format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                         },
-                        hourCfg: {
+                        hoursConfig: {
                             width: 60
                         },
-                        minuteCfg: {
+                        minutesConfig: {
                             width: 60
-                        }
-                    }
-                ],
-                buttons: [
-                    {
-                        text: Uni.I18n.translate('general.save','MDC','Save'),
-                        ui: 'action',
-                        handler: function () {
-                            if (me.record) {
-                                me.updateRecord();
-                                me.fireEvent('save', me.getDate(), me.getRecord(), me.oldDate);
-                                me.close()
-                            }
+                        },
+                        dateTimeSeparatorConfig: {
+                            html: Uni.I18n.translate('general.lowercase.at', 'MDC', 'at'),
+                            margin: '0 6 0 6'
                         }
                     },
                     {
-                        text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
-                        ui: 'link',
-                        handler: function () {
-                            me.close()
-                        }
+                        xtype: 'fieldcontainer',
+                        fieldLabel: ' ',
+                        layout: {
+                            type: 'hbox'
+                        },
+                        items: [
+                            {
+                                xtype: 'button',
+                                text: Uni.I18n.translate('general.save','MDC','Save'),
+                                ui: 'action',
+                                handler: function () {
+                                    if (me.record) {
+                                        me.updateRecord();
+                                        me.fireEvent('save', me.getDate(), me.getRecord(), me.oldDate);
+                                        me.close()
+                                    }
+                                }
+                            },
+                            {
+                                xtype: 'button',
+                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                ui: 'link',
+                                handler: function () {
+                                    me.close()
+                                }
+                            }
+                        ]
                     }
                 ]
             }
