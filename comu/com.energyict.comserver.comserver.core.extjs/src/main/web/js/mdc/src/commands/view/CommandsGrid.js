@@ -8,7 +8,7 @@ Ext.define('Mdc.commands.view.CommandsGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.commands.view.CommandActionMenu'
+        'Mdc.view.setup.devicecommand.widget.ActionMenu'
     ],
 
     initComponent: function () {
@@ -70,8 +70,8 @@ Ext.define('Mdc.commands.view.CommandsGrid', {
                 width: 120,
                 privileges: Mdc.privileges.DeviceCommands.executeCommands,
                 menu: {
-                    xtype: 'command-action-menu',
-                    itemId: 'mdc-command-action-menu'
+                    xtype: 'device-command-action-menu',
+                    itemId: 'mdc-commands-grid-action-menu'
                 },
                 //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges,
                 isDisabled: me.fnIsDisabled
@@ -85,7 +85,17 @@ Ext.define('Mdc.commands.view.CommandsGrid', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('commands.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} commands'),
                 displayMoreMsg: Uni.I18n.translate('commands.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} commands'),
-                emptyMsg: Uni.I18n.translate('commands.pagingtoolbartop.emptyMsg', 'MDC', 'There are no commands to display')
+                emptyMsg: Uni.I18n.translate('commands.pagingtoolbartop.emptyMsg', 'MDC', 'There are no commands'),
+                items: [
+                    {
+                        xtype: 'button',
+                        privileges: ['privilege.administrate.device', 'execute.device.message.level1','execute.device.message.level2',
+                                     'execute.device.message.level3','execute.device.message.level4'],
+                        action: 'bulk',
+                        itemId: 'mdc-commands-grid-add-command-btn',
+                        text: Uni.I18n.translate('general.addCommand', 'MDC', 'Add command')
+                    }
+                ]
             },
             {
                 xtype: 'pagingtoolbarbottom',

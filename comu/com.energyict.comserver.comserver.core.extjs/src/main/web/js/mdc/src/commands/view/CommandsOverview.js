@@ -45,7 +45,9 @@ Ext.define('Mdc.commands.view.CommandsOverview', {
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('general.addCommand', 'MDC', 'Add command'),
-                                    itemId: 'mdc-empty-commands-grid-add-button'
+                                    itemId: 'mdc-empty-commands-grid-add-button',
+                                    privileges: ['privilege.administrate.device', 'execute.device.message.level1','execute.device.message.level2',
+                                        'execute.device.message.level3','execute.device.message.level4']
                                 }
                             ]
                         },

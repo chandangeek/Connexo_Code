@@ -9,7 +9,8 @@ Ext.define('Mdc.commands.view.CommandFilter', {
     requires:[
         'Mdc.store.DeviceGroups',
         'Mdc.store.CommandCategories',
-        'Mdc.store.Commands'
+        'Mdc.store.Commands',
+        'Mdc.commands.store.CommandStatuses'
     ],
 
     initComponent: function () {
@@ -30,15 +31,11 @@ Ext.define('Mdc.commands.view.CommandFilter', {
                 itemId: 'mdc-commands-filter-category-combo',
                 dataIndex: 'messageCategories',
                 emptyText: Uni.I18n.translate('general.commandCategory', 'MDC', 'Command category'),
-                multiSelect: true,
+                multiSelect: false,
                 displayField: 'name',
                 valueField: 'id',
                 store: 'Mdc.store.CommandCategories',
                 listeners: {
-                    //collapse: {
-                    //    scope: me,
-                    //    fn: me.onCategoryCollapse
-                    //},
                     change: {
                         scope: me,
                         fn: me.onCategoryChange
@@ -56,6 +53,40 @@ Ext.define('Mdc.commands.view.CommandFilter', {
                 store: 'Mdc.store.Commands',
                 loadStore: false,
                 disabled: true
+            },
+            {
+                type: 'combobox',
+                itemId: 'mdc-commands-filter-status-combo',
+                dataIndex: 'statuses',
+                emptyText: Uni.I18n.translate('general.status', 'MDC', 'Status'),
+                multiSelect: true,
+                displayField: 'localizedValue',
+                valueField: 'deviceMessageStatus',
+                store: 'Mdc.commands.store.CommandStatuses'
+            },
+            {
+                type: 'interval',
+                itemId: 'mdc-commands-release-date',
+                dataIndex: 'releaseDate',
+                dataIndexFrom: 'releaseDateStart',
+                dataIndexTo: 'releaseDateEnd',
+                text: Uni.I18n.translate('general.releasDate', 'MDC', 'Release date')
+            },
+            {
+                type: 'interval',
+                itemId: 'mdc-commands-sent-date',
+                dataIndex: 'sentDate',
+                dataIndexFrom: 'sentDateStart',
+                dataIndexTo: 'sentDateEnd',
+                text: Uni.I18n.translate('general.sentDate', 'MDC', 'Sent date')
+            },
+            {
+                type: 'interval',
+                itemId: 'mdc-commands-creation-date',
+                dataIndex: 'creationDate',
+                dataIndexFrom: 'creationDateStart',
+                dataIndexTo: 'creationDateEnd',
+                text: Uni.I18n.translate('general.creationDate', 'MDC', 'Creation date')
             }
         ];
         me.callParent(arguments);
@@ -66,17 +97,19 @@ Ext.define('Mdc.commands.view.CommandFilter', {
             commandCombo = me.down('#mdc-commands-filter-command-combo'),
             commandStore = commandCombo.getStore();
 
-        if ( Ext.isDefined(oldValue) && !me.mainArrayCcontainsSubArray(newValue, oldValue) ) {
+        if ( Ext.isEmpty(oldValue) || newValue != oldValue ) {
             me.clearCombo(commandCombo);
         }
-        if (categoryCombo.getValue().length > 0) {
+        if (Ext.isDefined(categoryCombo.getValue())) {
             commandCombo.setDisabled(false);
             delete commandStore.getProxy().extraParams.filter;
+            var categoryIds = [];
+            categoryIds.push(categoryCombo.getValue());
             commandStore.getProxy().setExtraParam('filter',
                 Ext.encode([
                 {
                     property: 'categories',
-                    value: categoryCombo.getValue()
+                    value: categoryIds
                 }
             ]));
             commandStore.load(function () {

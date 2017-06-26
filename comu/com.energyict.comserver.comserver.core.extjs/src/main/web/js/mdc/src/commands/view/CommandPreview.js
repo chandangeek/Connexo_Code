@@ -8,7 +8,7 @@ Ext.define('Mdc.commands.view.CommandPreview', {
 
     requires: [
         'Mdc.commands.view.CommandPreviewForm',
-        'Mdc.commands.view.CommandActionMenu'
+        'Mdc.view.setup.devicecommand.widget.ActionMenu'
     ],
 
     initComponent: function () {
@@ -20,7 +20,8 @@ Ext.define('Mdc.commands.view.CommandPreview', {
                 hidden: Mdc.privileges.DeviceCommands.executeCommands,
                 hidden: true,
                 menu: {
-                    xtype: 'command-action-menu'
+                    xtype: 'device-command-action-menu',
+                    itemId: 'mdc-command-preview-action-menu'
                 }
             }
         ];

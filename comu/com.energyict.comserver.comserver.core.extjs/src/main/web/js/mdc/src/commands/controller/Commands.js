@@ -47,19 +47,6 @@ Ext.define('Mdc.commands.controller.Commands', {
             '#mdc-commands-grid': {
                 select: this.loadCommandDetail
             }
-
-        //    '#device-type-add-custom-attribute-sets-setup-id #add-custom-attribute-sets-grid-cancel': {
-        //        click: this.moveToCustomAttributes
-        //    },
-        //    '#device-type-add-custom-attribute-sets-setup-id #add-custom-attribute-sets-grid-add': {
-        //        click: this.addSelectedSets
-        //    },
-        //    '#device-type-add-custom-attribute-sets-setup-id #device-type-add-custom-attribute-sets-grid-id': {
-        //        selectionchange: this.manageAddButton
-        //    },
-        //    'device-type-custom-attribute-sets-action-menu #device-type-custom-attribute-sets-remove': {
-        //        click: this.showRemoveConfirmationMessage
-        //    }
         });
     },
 
@@ -100,19 +87,8 @@ Ext.define('Mdc.commands.controller.Commands', {
             previewActionsMenu.record = record;
         }
 
-        var status = record.get('status').value,
-            actionColumn = me.getCommandsGrid().down('uni-actioncolumn');
-        if (status === 'WAITING' || status === 'PENDING') {
-            previewActionsButton.show();
-            //previewActionsMenu.device = device;
-            //if (!!actionColumn) {
-            //    actionColumn.menu.device = device;
-            //    actionColumn.menu.deviceId = device.get('name');
-            //}
-        } else {
-            previewActionsButton.hide();
-        }
-
+        var status = record.get('status').value;
+        previewActionsButton.setVisible( (status === 'WAITING' || status === 'PENDING') );
     }
 
 });
