@@ -195,6 +195,35 @@ public class DeviceMessageSearchServiceImplIT extends PersistenceIntegrationTest
 
     @Test
     @Transactional
+    public void selectDeviceMessagesBy_MultipleCommandCategories_And_DeviceCommands() throws Exception {
+        DeviceMessage deviceMessage1 = device1.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage2 = device2.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage3 = device3.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ERROR_BITS).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessage deviceMessage4 = device4.newDeviceMessage(DeviceMessageId.CONTACTOR_OPEN).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
+        DeviceMessageQueryFilter deviceMessageQueryFilter = new DeviceMessageQueryFilterImpl() {
+            @Override
+            public Collection<DeviceMessageCategory> getMessageCategories() {
+                return Arrays.asList(DeviceMessageTestCategories.CONTACTOR, DeviceMessageTestCategories.ALARMS);
+            }
+
+            @Override
+            public Collection<DeviceMessageId> getDeviceMessages() {
+                return Collections.singletonList(DeviceMessageId.CONTACTOR_CLOSE);
+            }
+        };
+
+        List<DeviceMessage> deviceMessages = inMemoryPersistence.getDeviceMessageService()
+                .findDeviceMessagesByFilter(deviceMessageQueryFilter)
+                .find();
+        assertThat(deviceMessages).hasSize(3);
+        List<DeviceMessageId> deviceMessageIds = deviceMessages.stream()
+                .map(DeviceMessage::getDeviceMessageId)
+                .collect(Collectors.toList());
+        assertThat(deviceMessageIds).containsOnly(DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS, DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ERROR_BITS);
+    }
+
+    @Test
+    @Transactional
     public void selectDeviceMessagesByDeviceMessageStatusMatching() throws Exception {
         DeviceMessage deviceMessage1 = device1.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(inMemoryPersistence.getClock().instant()).add();
         DeviceMessage deviceMessage2 = device2.newDeviceMessage(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS).setReleaseDate(inMemoryPersistence.getClock().instant()).add();

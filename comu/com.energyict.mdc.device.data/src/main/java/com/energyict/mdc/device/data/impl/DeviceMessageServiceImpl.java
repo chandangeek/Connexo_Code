@@ -180,7 +180,8 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
             allFilterConditions.add(creationDateConditions.stream().reduce(Condition.TRUE, Condition::and));
         }
         Condition condition = allFilterConditions.stream().reduce(Condition.TRUE, Condition::and);
-        return DefaultFinder.of(DeviceMessage.class, condition, this.deviceDataModelService.dataModel()).defaultSortColumn(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).maxPageSize(thesaurus, 1000);
+        return DefaultFinder.of(DeviceMessage.class, condition, this.deviceDataModelService.dataModel())
+                .defaultSortColumn(DeviceMessageImpl.Fields.RELEASEDATE.fieldName());
     }
 
     private List<Condition> getReleaseDateConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {
@@ -245,17 +246,17 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
                 .stream()
                 .map(DeviceMessageSpec::getId)
                 .collect(toList());
-        List<DeviceMessageId> deviceMessageIds = deviceMessageQueryFilter.getDeviceMessages()
+        List<DeviceMessageId> specificDeviceMessageIds = deviceMessageQueryFilter.getDeviceMessages()
                 .stream()
                 .filter(allDeviceMessageIdInCategory::contains)
                 .collect(toList());
         List<Long> deviceMessageDbIds;
-        if (deviceMessageIds.isEmpty()) {
+        if (specificDeviceMessageIds.isEmpty()) {
             deviceMessageDbIds = allDeviceMessageIdInCategory.stream()
                     .map(DeviceMessageId::dbValue)
                     .collect(toList());
         } else {
-            deviceMessageDbIds = deviceMessageIds.stream()
+            deviceMessageDbIds = specificDeviceMessageIds.stream()
                     .map(DeviceMessageId::dbValue)
                     .collect(toList());
         }
