@@ -556,6 +556,16 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceMessageBuilder.setReleaseDate(anyObject())).thenReturn(deviceMessageBuilder);
         when(deviceMessageBuilder.add()).thenReturn(deviceMessage);
         when(device.newDeviceMessage(DeviceMessageId.CONTACTOR_OPEN)).thenReturn(deviceMessageBuilder);
+        DeviceConfiguration configuration = mock(DeviceConfiguration.class);
+        when(configuration.getId()).thenReturn(100L);
+        when(configuration.getName()).thenReturn("config");
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getId()).thenReturn(200L);
+        when(deviceType.getName()).thenReturn("type");
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceConfiguration()).thenReturn(configuration);
+        when(deviceMessage.getDevice()).thenReturn(device);
+
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
         deviceMessageInfo.releaseDate = Instant.now();
         deviceMessageInfo.messageSpecification = new DeviceMessageSpecInfo();
@@ -600,6 +610,18 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
         when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
 
+        DeviceConfiguration configuration = mock(DeviceConfiguration.class);
+        when(configuration.getId()).thenReturn(100L);
+        when(configuration.getName()).thenReturn("config");
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getId()).thenReturn(200L);
+        when(deviceType.getName()).thenReturn("type");
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceConfiguration()).thenReturn(configuration);
+        when(msg1.getDevice()).thenReturn(device);
+        when(msg2.getDevice()).thenReturn(device);
+        when(msg3.getDevice()).thenReturn(device);
+
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
         deviceMessageInfo.status = new DeviceMessageInfo.StatusInfo();
         deviceMessageInfo.status.value = DeviceMessageStatusTranslationKeys.REVOKED.getDeviceMessageStatus().name();
@@ -624,6 +646,17 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(msg2.getId()).thenReturn(2L);
         DeviceMessage msg3 = mockDeviceMessage(3L, device);
         when(device.getMessages()).thenReturn(Arrays.asList(msg1, msg2, msg3));
+        DeviceConfiguration configuration = mock(DeviceConfiguration.class);
+        when(configuration.getId()).thenReturn(100L);
+        when(configuration.getName()).thenReturn("config");
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getId()).thenReturn(200L);
+        when(deviceType.getName()).thenReturn("type");
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceConfiguration()).thenReturn(configuration);
+        when(msg1.getDevice()).thenReturn(device);
+        when(msg2.getDevice()).thenReturn(device);
+        when(msg3.getDevice()).thenReturn(device);
 
         Instant expectedReleaseDate = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();

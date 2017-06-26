@@ -58,6 +58,9 @@ public class DeviceMessageInfoFactory {
             info.trackingCategory.name = thesaurus.getFormat(deviceMessage.getTrackingCategory()).format();
             info.trackingCategory.activeLink = isActive(deviceMessage.getTrackingId(), deviceMessage.getTrackingCategory(), info);
         }
+        info.deviceConfiguration = new IdWithNameInfo(((Device)deviceMessage.getDevice()).getDeviceConfiguration());
+        info.deviceType = new IdWithNameInfo(((Device)deviceMessage.getDevice()).getDeviceType());
+
         info.messageSpecification = new DeviceMessageSpecInfo();
         info.messageSpecification.id = deviceMessage.getSpecification().getId().name();
         info.messageSpecification.name = deviceMessage.getSpecification().getName();

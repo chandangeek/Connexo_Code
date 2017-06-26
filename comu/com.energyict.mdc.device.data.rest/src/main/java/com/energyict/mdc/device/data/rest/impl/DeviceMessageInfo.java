@@ -34,6 +34,8 @@ public class DeviceMessageInfo {
     public boolean userCanAdministrate;
     public long version;
     public VersionInfo<String> parent;
+    public IdWithNameInfo deviceConfiguration;
+    public IdWithNameInfo deviceType;
 
     public DeviceMessageInfo() {
     }

@@ -3,12 +3,20 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.meterdata.Device;
 
+import com.jayway.jsonpath.JsonModel;
+
+import javax.xml.ws.Response;
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,6 +55,43 @@ public class DeviceMessageSearchResourceTest extends DeviceDataRestApplicationJe
         verify(deviceMessageService).findDeviceMessagesByFilter(queryFilterArgumentCaptor.capture());
         // just assert the resource exists on the URL
     }
+
+    @Test
+    public void searchDeviceMessageResultFields() throws Exception {
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+
+        Finder<DeviceMessage> finder = mockFinder(Collections.singletonList(deviceMessage));
+        when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
+        when(deviceMessage.getId()).thenReturn(1L);
+        com.energyict.mdc.device.data.Device device = mock(com.energyict.mdc.device.data.Device.class);
+        DeviceConfiguration configuration = mock(DeviceConfiguration.class);
+        when(configuration.getId()).thenReturn(100L);
+        when(configuration.getName()).thenReturn("config");
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getId()).thenReturn(200L);
+        when(deviceType.getName()).thenReturn("type");
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceConfiguration()).thenReturn(configuration);
+        when(deviceMessage.getDevice()).thenReturn(device);
+        DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
+        when(deviceMessageSpec.getId()).thenReturn(DeviceMessageId.ACTIVATE_CALENDAR_PASSIVE);
+        when(deviceMessageSpec.getName()).thenReturn("calendar");
+        DeviceMessageCategory category = mock(DeviceMessageCategory.class);
+        when(deviceMessageSpec.getCategory()).thenReturn(category);
+        when(deviceMessage.getSpecification()).thenReturn(deviceMessageSpec);
+        when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.FAILED);
+        when(deviceMessage.getSentDate()).thenReturn(Optional.empty());
+
+        javax.ws.rs.core.Response response = target("/devicemessages").request().get();
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.deviceMessages[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.deviceMessages[0].deviceConfiguration.id")).isEqualTo(100);
+        assertThat(jsonModel.<String>get("$.deviceMessages[0].deviceConfiguration.name")).isEqualTo("config");
+        assertThat(jsonModel.<Integer>get("$.deviceMessages[0].deviceType.id")).isEqualTo(200);
+        assertThat(jsonModel.<String>get("$.deviceMessages[0].deviceType.name")).isEqualTo("type");
+    }
+
     @Test
     public void searchDeviceMessagesFilterDeviceGroups() throws Exception {
         EndDeviceGroup endDeviceGroup11 = mock(EndDeviceGroup.class);
