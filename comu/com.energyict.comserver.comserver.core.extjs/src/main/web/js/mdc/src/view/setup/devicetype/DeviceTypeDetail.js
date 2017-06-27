@@ -138,6 +138,27 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                     {
                                         xtype: 'fieldcontainer',
                                         columnWidth: 0.5,
+                                        fieldLabel: Uni.I18n.translate('general.deviceIcon', 'MDC', 'Device icon'),
+                                        layout: {
+                                            type: 'vbox'
+                                        },
+                                        items: [
+                                            {
+                                                name: 'deviceIcon',
+                                                xtype: 'displayfield',
+                                                renderer: function (value) {
+                                                    if(Ext.isEmpty(value)) {
+                                                        return '-'
+                                                    } else {
+                                                        return '<img height="100px" src="data:image;base64,' + value + '"/>';
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        xtype: 'fieldcontainer',
+                                        columnWidth: 0.5,
                                         fieldLabel: Uni.I18n.translate('devicetype.dataSources', 'MDC', 'Data sources'),
                                         layout: {
                                             type: 'vbox'

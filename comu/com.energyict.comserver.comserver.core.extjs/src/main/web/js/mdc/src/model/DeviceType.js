@@ -12,6 +12,7 @@ Ext.define('Mdc.model.DeviceType', {
         {name: 'id',type:'number',useNull:true},
         {name: 'name', type: 'string', useNull: true},
         {name: 'loadProfileCount', type: 'int', useNull: true},
+        {name: 'deviceIcon', type: 'string', useNull: true},
         {name: 'registerCount', type: 'int', useNull: true},
         {name: 'logBookCount', type: 'int', useNull: true},
         {name: 'deviceConfigurationCount', type: 'int', useNull: true},

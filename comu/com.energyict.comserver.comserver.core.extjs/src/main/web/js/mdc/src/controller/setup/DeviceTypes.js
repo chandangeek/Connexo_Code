@@ -17,7 +17,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         'setup.devicetype.DeviceTypeDetail',
         'setup.devicetype.DeviceTypeEdit',
         'setup.devicetype.DeviceTypeLogbooks',
-        'setup.devicetype.AddLogbookTypes'
+        'setup.devicetype.AddLogbookTypes',
+        'setup.devicetype.AddEditDeviceIcon'
     ],
 
     stores: [
@@ -27,6 +28,10 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         'AvailableLogbookTypes',
         'Mdc.store.DeviceLifeCycles',
         'Mdc.store.DeviceTypePurposes'
+    ],
+
+    models: [
+        'Mdc.model.DeviceType'
     ],
 
     refs: [
@@ -54,8 +59,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         {ref: 'deviceTypeDetailLifeCycleLink', selector: 'deviceTypeDetail #details-device-life-cycle-link'},
         {ref: 'deviceTypeDetailOverviewLink', selector: 'deviceTypeDetail deviceTypeSideMenu #overviewLink'},
         {ref: 'deviceTypeDetailConflictingMappingLink', selector: 'deviceTypeDetail deviceTypeSideMenu #conflictingMappingLink'},
-        {ref: 'deviceTypeDetailForm', selector: 'deviceTypeDetail form'},
-        {ref: 'deviceTypeDetailActionMenu', selector: 'deviceTypeDetail device-type-action-menu'}
+        {ref: 'deviceTypeDetailActionMenu', selector: 'deviceTypeDetail device-type-action-menu'},
+        {ref: 'addEditDeviceIcon', selector: 'add-edit-device-icon'}
     ],
 
     init: function () {
@@ -96,6 +101,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             },
             'device-type-action-menu': {
                 click: this.chooseAction
+            },
+            '#addDeviceIconButton': {
+                click: this.saveDeviceIcon
+            },
+            '#deviceIconFileField': {
+                change: this.onDeviceIconFieldChange
             }
         });
     },
@@ -148,7 +159,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
             this.getDeviceTypePreviewForm().loadRecord(deviceTypes[0]);
 
-            if(this.getDeviceTypePreview().down('device-type-action-menu'))
+            if (this.getDeviceTypePreview().down('device-type-action-menu'))
                 this.getDeviceTypePreview().down('device-type-action-menu').record = deviceTypes[0];
 
             this.getDeviceTypePreview().setTitle(Ext.String.htmlEncode(deviceTypes[0].get('name')));
@@ -161,10 +172,10 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             deviceTypePurposesStore = me.getStore('Mdc.store.DeviceTypePurposes'),
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType');
 
-        deviceTypePurposesStore.load(function() {
+        deviceTypePurposesStore.load(function () {
             var widget = Ext.widget('deviceTypeDetail', {
-                    deviceTypeId: deviceType,
-                    purposeStore: deviceTypePurposesStore
+                deviceTypeId: deviceType,
+                purposeStore: deviceTypePurposesStore
             });
 
             me.getApplication().fireEvent('changecontentevent', widget);
@@ -182,40 +193,40 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     if (widget.rendered) {
                         widget.down('deviceTypeSideMenu').setDeviceTypeTitle(deviceType.get('name'));
                         widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
-                        Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
-                    );
-
-                    deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + encodeURIComponent(deviceType.get('deviceLifeCycleId')));
-                    deviceLifeCycleLink.setText(Ext.String.htmlEncode(deviceType.get('deviceLifeCycleName')));
-
-                    registersLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/registertypes');
-                    registersLink.setText(
-                        Uni.I18n.translatePlural('devicetype.registers', deviceType.get('registerCount'), 'MDC',
-                            'No register types', '{0} register type', '{0} register types')
-                    );
-
-                    if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceType.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE') {
-                        logBookLink.hide();
-                    } else {
-                        logBookLink.show();
-                        logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/logbooktypes');
-                        logBookLink.setText(
-                            Uni.I18n.translatePlural('devicetype.logbooks', deviceType.get('logBookCount'), 'MDC',
-                                'No logbook types', '{0} logbook type', '{0} logbook types')
+                            Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
                         );
-                    }
 
-                    loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/loadprofiles');
-                    loadProfilesLink.setText(
-                        Uni.I18n.translatePlural('devicetype.loadprofiles', deviceType.get('loadProfileCount'), 'MDC',
-                            'No load profile types', '{0} load profile type', '{0} load profile types')
-                    );
+                        deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + encodeURIComponent(deviceType.get('deviceLifeCycleId')));
+                        deviceLifeCycleLink.setText(Ext.String.htmlEncode(deviceType.get('deviceLifeCycleName')));
 
-                    deviceConfigurationsLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/deviceconfigurations');
-                    deviceConfigurationsLink.setText(
-                        Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceType.get('deviceConfigurationCount'), 'MDC',
-                            'No device configurations', '{0} device configuration', '{0} device configurations')
-                    );
+                        registersLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/registertypes');
+                        registersLink.setText(
+                            Uni.I18n.translatePlural('devicetype.registers', deviceType.get('registerCount'), 'MDC',
+                                'No register types', '{0} register type', '{0} register types')
+                        );
+
+                        if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceType.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE') {
+                            logBookLink.hide();
+                        } else {
+                            logBookLink.show();
+                            logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/logbooktypes');
+                            logBookLink.setText(
+                                Uni.I18n.translatePlural('devicetype.logbooks', deviceType.get('logBookCount'), 'MDC',
+                                    'No logbook types', '{0} logbook type', '{0} logbook types')
+                            );
+                        }
+
+                        loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/loadprofiles');
+                        loadProfilesLink.setText(
+                            Uni.I18n.translatePlural('devicetype.loadprofiles', deviceType.get('loadProfileCount'), 'MDC',
+                                'No load profile types', '{0} load profile type', '{0} load profile types')
+                        );
+
+                        deviceConfigurationsLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/deviceconfigurations');
+                        deviceConfigurationsLink.setText(
+                            Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceType.get('deviceConfigurationCount'), 'MDC',
+                                'No device configurations', '{0} device configuration', '{0} device configurations')
+                        );
 
                         widget.down('form').loadRecord(deviceType);
                         if (actionMenu) {
@@ -253,7 +264,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: msg,
-            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[deviceTypeToDelete.get('name')]),
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", [deviceTypeToDelete.get('name')]),
             config: {
                 deviceTypeToDelete: deviceTypeToDelete,
                 me: me
@@ -371,7 +382,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 deviceTypePurposes: deviceTypePurposesStore
             }),
             counter = 0,
-            onAllStoresLoaded = function() {
+            onAllStoresLoaded = function () {
                 counter += 1;
                 if (counter === 2) {
                     deviceLifeCyclesStore.load(function () {
@@ -392,7 +403,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         deviceTypePurposesStore.load(onAllStoresLoaded);
     },
 
-    createDeviceType: function () {
+    createDeviceType: function (image) {
         var me = this,
             record = Ext.create(Mdc.model.DeviceType),
             editForm = me.getDeviceTypeEditForm(),
@@ -484,8 +495,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         }
     },
 
-    onDeviceTypePurposeChange: function(combo, newValue) {
-        switch(newValue) {
+    onDeviceTypePurposeChange: function (combo, newValue) {
+        switch (newValue) {
             case 'REGULAR':
                 this.getProtocolCombo().show();
                 break;
@@ -584,18 +595,155 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 router.arguments.deviceTypeId = menu.record.getId();
                 route = 'administration/devicetypes/view/change';
                 break;
+            case 'addDeviceIcon':
+                router.arguments.deviceTypeId = menu.record.getId();
+                route = 'administration/devicetypes/view/adddeviceicon';
+                break;
+            case 'editDeviceIcon':
+                router.arguments.deviceTypeId = menu.record.getId();
+                route = 'administration/devicetypes/view/editdeviceicon';
+                break;
+            case 'removeDeviceIcon':
+                me.removeDeviceIcon(menu.record);
+                return;
+                break;
         }
 
         route && (route = router.getRoute(route));
         route && route.forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
     },
 
+    showEditDeviceIconView: function (deviceTypeId) {
+        var me = this,
+            model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
+            router = me.getController('Uni.controller.history.Router'),
+            widget;
+
+
+        model.load(deviceTypeId, {
+            success: function (deviceType) {
+                widget = Ext.widget('add-edit-device-icon', {
+                    router: me.getController('Uni.controller.history.Router'),
+                    deviceTypeId: deviceTypeId,
+                    version: deviceType.get('version'),
+                    isEdit: !Ext.isEmpty(deviceType.get('deviceIcon')),
+                    deviceTypeName: deviceType.get('name'),
+                    cancelLink: router.getRoute('administration/devicetypes').buildUrl()
+                });
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
+                me.getApplication().fireEvent('changecontentevent', widget);
+                if (!Ext.isEmpty(deviceType.get('deviceIcon'))) {
+                    me.showDeviceIconPreview('data:image;base64,' + deviceType.get('deviceIcon'));
+                }
+            }
+        });
+    },
+
+    onDeviceIconFieldChange: function () {
+        var me = this,
+            addEditDeviceIconPage = me.getAddEditDeviceIcon(),
+            file = addEditDeviceIconPage.down('#deviceIconFileField').getEl().down('input[type=file]').dom.files[0],
+            reader = new FileReader();
+
+        reader.addEventListener("load", function () {
+            me.showDeviceIconPreview(reader.result);
+        }, false);
+        reader.readAsDataURL(file);
+    },
+
+    showDeviceIconPreview: function (base64string) {
+        var me = this,
+            addEditDeviceIconPage = me.getAddEditDeviceIcon(),
+            preview = addEditDeviceIconPage.down('#deviceIconPreview');
+
+        preview.setSrc(base64string);
+        preview.show();
+
+    },
+
+    removeDeviceIcon: function (devicetype) {
+        var me = this,
+            detailForm = me.getDeviceTypeDetailForm(),
+            grid = me.getDeviceTypeGrid();
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: Uni.I18n.translate('general.removeDeviceIcon.message', 'MDC', "The device icon will be removed from the device type."),
+            title: Uni.I18n.translate('general.removeDeviceIcon', 'MDC', "Remove device icon?"),
+            fn: function (btn, opt, text) {
+                if (btn === 'confirm') {
+                    Ext.Ajax.request({
+                        url: '/api/dtc/devicetypes/' + devicetype.get('id') + '/removedeviceicon',
+                        method: 'DELETE',
+                        jsonData: {
+                            version: devicetype.get('version'),
+                            id: devicetype.get('name')
+                        },
+                        success: function (response) {
+                            var json = JSON.parse(response.responseText),
+                                deviceType = Ext.create('Mdc.model.DeviceType', json);
+                            if(!Ext.isEmpty(detailForm)) {
+                                detailForm.loadRecord(deviceType);
+                            } else if (!Ext.isEmpty(grid)) {
+                                grid.getStore().load();
+                            }
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceIcon.acknowlegment.removed', 'MDC', 'Device icon removed'));
+                        }
+                    });
+
+                }
+            }
+        });
+    },
+
+    saveDeviceIcon: function () {
+        var me = this,
+            addEditDeviceIconPage = me.getAddEditDeviceIcon(),
+            form = addEditDeviceIconPage.down('form'),
+            formToSubmit = form.getEl().dom,
+            router = this.getController('Uni.controller.history.Router'),
+            route = router.previousRoute ? router.previousRoute : 'administration/devicetypes/view';
+
+        form.down('#form-errors').hide();
+        if(form.isValid()) {
+            addEditDeviceIconPage.setLoading(true);
+            Ext.Ajax.request({
+                url: '/api/dtc/devicetypes/' + addEditDeviceIconPage.deviceTypeId + '/adddeviceicon',
+                method: 'POST',
+                form: formToSubmit,
+                isFormUpload: true,
+                params: {
+                    version: addEditDeviceIconPage.version,
+                    name: addEditDeviceIconPage.deviceTypeName
+                },
+                headers: {'Content-type': 'multipart/form-data'},
+                callback: function (config, success, response) {
+                    if (!Ext.isEmpty(response.responseText)) {
+                        var responseObject = JSON.parse(response.responseText);
+                        if (!Ext.isEmpty(responseObject.errorCode) && !responseObject.errorCode === 'RUT0005') {
+                            form.down('#deviceIconFileField').markInvalid(responseObject.message);
+                        } else if (!Ext.isEmpty(responseObject.errorCode) && responseObject.errorCode === 'RUT005') {
+                            me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('issues.applyAction.failureTitle', 'ISU', 'Couldn\'t perform your action'), actionRecord.get('issue').title + '.' + responseText.actions[0].message, responseText.actions[0].errorCode);
+                        } else if (Ext.isEmpty(responseObject.errorCode)) {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceIcon.acknowlegment.added', 'MDC', 'Device icon added'));
+                            router.getRoute(route).forward();
+                        }
+                    }
+
+                    addEditDeviceIconPage.setLoading(false);
+                }
+            });
+        } else {
+            form.down('#form-errors').show();
+        }
+    },
+
     showErrorPanel: function () {
         this.getDeviceTypeEditForm().down('#deviceTypeEditFormErrors').show();
-    },
+    }
+    ,
 
     hideErrorPanel: function () {
         this.getDeviceTypeEditForm().down('#deviceTypeEditFormErrors').hide();
     }
 
-});
+})
+;

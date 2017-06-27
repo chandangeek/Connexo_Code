@@ -33,6 +33,10 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                 defaults: {
                     labelWidth: 250
                 },
+                autoEl: {
+                    tag: 'form',
+                    enctype: 'multipart/form-data'
+                },
                 items: [
                     {
                         xtype: 'uni-form-error-message',

@@ -1298,6 +1298,18 @@ Ext.define('Mdc.controller.history.Setup', {
                                     return this;
                                 },
                                 items: {
+                                    adddeviceicon: {
+                                        title: Uni.I18n.translate('deviceType.addDeviceIcon', 'MDC', 'Add device icon'),
+                                        route: 'adddeviceicon',
+                                        controller: 'Mdc.controller.setup.DeviceTypes',
+                                        action: 'showEditDeviceIconView'
+                                    },
+                                    editdeviceicon: {
+                                        title: Uni.I18n.translate('deviceType.editDeviceIcon', 'MDC', 'Edit device icon'),
+                                        route: 'editdeviceicon',
+                                        controller: 'Mdc.controller.setup.DeviceTypes',
+                                        action: 'showEditDeviceIconView'
+                                    },
                                     change: {
                                         title: Uni.I18n.translate('deviceLifeCycle.change', 'MDC', 'Change device life cycle'),
                                         route: 'change',
