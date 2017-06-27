@@ -43,6 +43,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         {ref: 'deviceGeneralInformationDeviceTypeLink', selector: '#deviceGeneralInformationDeviceTypeLink'},
         {ref: 'deviceGeneralInformationDeviceConfigurationLink', selector: '#deviceGeneralInformationDeviceConfigurationLink'},
         {ref: 'deviceGeneralInformationUsagePointLink', selector: '#deviceGeneralInformationUsagePointLink'},
+        {ref: 'deviceIconImage', selector: '#device-information-panel-device-icon'},
         {ref: 'dataCollectionIssuesLink', selector: '#dataCollectionIssuesLink'},
         {ref: 'deviceValidationResultFieldLink', selector: '#lnk-validation-result'},
         {ref: 'validationFromDate', selector: '#validationFromDate'},
@@ -273,6 +274,12 @@ Ext.define('Mdc.controller.setup.Devices', {
                         attributesModel.load('attributes', {
                             success: function (attributes) {
                                 me.getDeviceGeneralInformationForm().loadRecord(attributes);
+                                if(!Ext.isEmpty(attributes.get('deviceIcon'))) {
+                                    me.getDeviceIconImage().setSrc('data:image;base64,' + attributes.get('deviceIcon'));
+                                    me.getDeviceIconImage().show();
+                                } else {
+                                    me.getDeviceIconImage().hide();
+                                }
                                 me.getDeviceSetup().down('#deviceSetupPanel #last-updated-field')
                                     .update(Uni.I18n.translate('general.lastRefreshedAt', 'MDC', 'Last refreshed at {0}', Uni.DateTime.formatTimeShort(new Date())));
                             }

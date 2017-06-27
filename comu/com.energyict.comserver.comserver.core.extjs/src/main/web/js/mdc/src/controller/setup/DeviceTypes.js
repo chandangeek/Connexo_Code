@@ -617,7 +617,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
             router = me.getController('Uni.controller.history.Router'),
-            widget;
+            widget,
+            route = router.previousRoute && router.previousRoute !== 'administration/devicetypes/view/adddeviceicon' && router.previousRoute !== 'administration/devicetypes/view/editdeviceicon'
+                ? router.previousRoute : 'administration/devicetypes/view';;
 
 
         model.load(deviceTypeId, {
@@ -628,7 +630,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     version: deviceType.get('version'),
                     isEdit: !Ext.isEmpty(deviceType.get('deviceIcon')),
                     deviceTypeName: deviceType.get('name'),
-                    cancelLink: router.getRoute('administration/devicetypes').buildUrl()
+                    cancelLink: router.getRoute(route).buildUrl()
                 });
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -643,12 +645,17 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         var me = this,
             addEditDeviceIconPage = me.getAddEditDeviceIcon(),
             file = addEditDeviceIconPage.down('#deviceIconFileField').getEl().down('input[type=file]').dom.files[0],
+            preview = addEditDeviceIconPage.down('#deviceIconPreview'),
             reader = new FileReader();
 
-        reader.addEventListener("load", function () {
-            me.showDeviceIconPreview(reader.result);
-        }, false);
-        reader.readAsDataURL(file);
+        if(addEditDeviceIconPage.down('#deviceIconFileField').isValid()) {
+            reader.readAsDataURL(file);
+            reader.addEventListener("load", function () {
+                me.showDeviceIconPreview(reader.result);
+            }, false);
+        } else {
+            preview.hide();
+        }
     },
 
     showDeviceIconPreview: function (base64string) {
@@ -700,9 +707,11 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             form = addEditDeviceIconPage.down('form'),
             formToSubmit = form.getEl().dom,
             router = this.getController('Uni.controller.history.Router'),
-            route = router.previousRoute ? router.previousRoute : 'administration/devicetypes/view';
+            route = router.previousRoute && router.previousRoute !== 'administration/devicetypes/view/adddeviceicon' && router.previousRoute !== 'administration/devicetypes/view/editdeviceicon'
+                ? router.previousRoute : 'administration/devicetypes/view';
 
         form.down('#form-errors').hide();
+        form.clearInvalid();
         if(form.isValid()) {
             addEditDeviceIconPage.setLoading(true);
             Ext.Ajax.request({
@@ -720,14 +729,14 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                         var responseObject = JSON.parse(response.responseText);
                         if (!Ext.isEmpty(responseObject.errorCode) && !responseObject.errorCode === 'RUT0005') {
                             form.down('#deviceIconFileField').markInvalid(responseObject.message);
-                        } else if (!Ext.isEmpty(responseObject.errorCode) && responseObject.errorCode === 'RUT005') {
-                            me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('issues.applyAction.failureTitle', 'ISU', 'Couldn\'t perform your action'), actionRecord.get('issue').title + '.' + responseText.actions[0].message, responseText.actions[0].errorCode);
+                        } else if (!Ext.isEmpty(responseObject.errorCode) && responseObject.errorCode === 'RUT0005') {
+                            response.status = 409;
+                            Ext.Ajax.fireEvent('requestexception', null, response, config);
                         } else if (Ext.isEmpty(responseObject.errorCode)) {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceIcon.acknowlegment.added', 'MDC', 'Device icon added'));
                             router.getRoute(route).forward();
                         }
                     }
-
                     addEditDeviceIconPage.setLoading(false);
                 }
             });

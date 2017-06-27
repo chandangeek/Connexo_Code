@@ -17,6 +17,7 @@ Ext.define('Mdc.model.DeviceAttribute', {
         {name: 'lifeCycleState', type: 'auto'},
         {name: 'batch', type: 'auto'},
         {name: 'usagePoint', type: 'auto'},
+        {name: 'deviceIcon', type: 'string'},
         {name: 'serviceCategory', type: 'auto'},
         {name: 'shipmentDate', type: 'auto'},
         {name: 'installationDate', type: 'auto'},
