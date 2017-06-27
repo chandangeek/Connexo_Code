@@ -95,7 +95,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                                 store: 'Usr.store.SecurityProtocols',
                                 editable: false,
                                 disabled: false,
-                                emptyText: Uni.I18n.translate('userDirectories.securityProtocolPrompt', 'USR', 'Select a security protocol..'),
+                                emptyText: Uni.I18n.translate('userDirectories.securityProtocolPrompt', 'USR', 'Select a security protocol...'),
                                 allowBlank: false,
                                 queryMode: 'local',
                                 displayField: 'name',
