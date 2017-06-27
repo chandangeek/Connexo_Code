@@ -51,6 +51,7 @@ import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mail.impl.MailModule;
+import com.elster.jupiter.mdm.usagepoint.config.impl.UsagePointConfigModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -400,6 +401,7 @@ public class DemoTest {
                 new TasksModule(),
                 new IssuesModule(),
                 new SchedulingModule(),
+                new UsagePointConfigModule(),
                 new ProtocolApiModule(),
                 new IssueDataCollectionModule(),
                 new IssueDataValidationModule(),
