@@ -16,6 +16,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -25,6 +26,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
@@ -39,9 +41,14 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Membership;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
@@ -127,6 +134,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
@@ -1026,4 +1034,28 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public DeviceType lockDeviceType(long deviceTypeId) {
         return this.dataModel.mapper(DeviceType.class).lock(deviceTypeId);
     }
+
+    @Override
+    public List<DeviceConfiguration> getDeviceConfigsByDeviceGroup(EndDeviceGroup endDeviceGroup) {
+        SqlBuilder sqlBuilder = new SqlBuilder();
+        sqlBuilder.append("SELECT distinct(DEVICECONFIGID) from DDC_DEVICE where id in ( ");
+        Membership contains = ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), "id");
+        sqlBuilder.add(contains.getSubquery().toFragment());
+        sqlBuilder.append(" )");
+
+        List<Long> deviceConfigIds = new ArrayList<>();
+        try (Connection connection = this.dataModel.getConnection(false);
+             PreparedStatement statement = sqlBuilder.prepare(connection);
+             ResultSet resultSet = statement.executeQuery()
+        ) {
+            while (resultSet.next()) {
+                deviceConfigIds.add(resultSet.getLong(1));
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+        QueryExecutor<DeviceConfiguration> query = dataModel.query(DeviceConfiguration.class);
+        return query.select(ListOperator.IN.contains("id", deviceConfigIds));
+    }
+
 }
