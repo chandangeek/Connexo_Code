@@ -656,6 +656,11 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         verify(endDeviceGroup).update();
     }
 
+    @Test
+    public void findDeviceMessagesForDeviceGroup() throws Exception {
+
+    }
+
     private EndDevice mockEndDevice(AmrSystem amrSystem, long id) {
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(id);
