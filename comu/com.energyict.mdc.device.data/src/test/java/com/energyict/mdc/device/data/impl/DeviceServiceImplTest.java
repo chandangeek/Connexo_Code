@@ -613,7 +613,7 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
         MeteringService meteringService = mock(MeteringService.class);
         MultiplierType multiplierType = mock(MultiplierType.class);
         when(meteringService.getMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE)).thenReturn(Optional.of(multiplierType));
-        DeviceServiceImpl service = new DeviceServiceImpl(inMemoryPersistence.getDeviceDataModelService(), meteringService, mock(QueryService.class), mock(Thesaurus.class), inMemoryPersistence.getClock());
+        DeviceServiceImpl service = new DeviceServiceImpl(inMemoryPersistence.getDeviceDataModelService(), meteringService, deviceConfigurationService, mock(QueryService.class), mock(Thesaurus.class), inMemoryPersistence.getClock());
 
         // Business method
         MultiplierType defaultMultiplierType = service.findDefaultMultiplierType();
@@ -630,7 +630,7 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
         MeteringService meteringService = mock(MeteringService.class);
         MultiplierType multiplierType = mock(MultiplierType.class);
         when(meteringService.getMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE)).thenReturn(Optional.of(multiplierType));
-        DeviceServiceImpl service = new DeviceServiceImpl(inMemoryPersistence.getDeviceDataModelService(), meteringService, mock(QueryService.class), mock(Thesaurus.class), inMemoryPersistence.getClock());
+        DeviceServiceImpl service = new DeviceServiceImpl(inMemoryPersistence.getDeviceDataModelService(), meteringService, deviceConfigurationService, mock(QueryService.class), mock(Thesaurus.class), inMemoryPersistence.getClock());
         // First call
         service.findDefaultMultiplierType();
         reset(meteringService);
