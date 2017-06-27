@@ -876,12 +876,14 @@ public class DemoServiceImpl {
 
     @SuppressWarnings("unused")
     public void createMetrologyConfigurations() {
-        CreateMetrologyConfigurationsCommand command = injector.getInstance(CreateMetrologyConfigurationsCommand.class);
-        if(licenseService.getLicenseForApplication("INS").isPresent()) {
-            command.createMetrologyConfigurations();
-        } else {
-            command.createMultisenseMetrologyConfigurations();
-        }
+        executeTransaction(() -> {
+            CreateMetrologyConfigurationsCommand command = injector.getInstance(CreateMetrologyConfigurationsCommand.class);
+            if(licenseService.getLicenseForApplication("INS").isPresent()) {
+                command.createMetrologyConfigurations();
+            } else {
+                command.createMultisenseMetrologyConfigurations();
+            }
+        });
     }
 
 
