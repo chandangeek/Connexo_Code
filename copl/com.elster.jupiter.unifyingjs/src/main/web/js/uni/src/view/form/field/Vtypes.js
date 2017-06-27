@@ -25,7 +25,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
             image:  function(v) {
                 return /^.*\.(jpg|JPG|png|PNG)$/.test(v);
             },
-            imageText: 'Invalid icon file'
+            imageText: Uni.I18n.translate('validation.invalidFileFormat', 'UNI', 'Invalid file format')
         });
     },
 
