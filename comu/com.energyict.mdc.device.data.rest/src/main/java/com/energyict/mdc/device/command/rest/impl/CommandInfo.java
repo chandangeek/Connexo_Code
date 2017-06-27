@@ -6,8 +6,10 @@ package com.energyict.mdc.device.command.rest.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.Objects;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CommandInfo {
+public final class CommandInfo {
     public String category;
     public String command;
     public String commandName;
@@ -20,6 +22,24 @@ public class CommandInfo {
         this.category = category;
         this.command = command;
         this.commandName = commandName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        CommandInfo that = (CommandInfo) o;
+        return Objects.equals(category, that.category) &&
+                Objects.equals(command, that.command);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(category, command);
     }
 
     public int compareTo(CommandInfo o2) {

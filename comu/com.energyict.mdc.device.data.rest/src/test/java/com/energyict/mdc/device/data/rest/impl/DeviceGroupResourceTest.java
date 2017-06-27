@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.rest.util.StatusCode;
 import com.elster.jupiter.search.SearchBuilder;
@@ -37,6 +38,10 @@ import com.elster.jupiter.util.time.ExecutionTimer;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.properties.DeviceGroup;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -48,6 +53,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,6 +61,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Test;
@@ -657,8 +664,84 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
     }
 
     @Test
-    public void findDeviceMessagesForDeviceGroup() throws Exception {
+    public void findDeviceMessagesForDeviceGroup_AllMessageSpecsIncluded() throws Exception {
+        EndDeviceGroup deviceGroup = mock(EndDeviceGroup.class);
+        when(meteringGroupService.findEndDeviceGroup(13L)).thenReturn(Optional.ofNullable(deviceGroup));
+        when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(Stream.of(DeviceMessageTestCategories.values()).collect(Collectors.toList()));
+        DeviceConfiguration deviceConfig1 = mock(DeviceConfiguration.class);
+        when(deviceConfig1.getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageTestCategories.ALARMS)).thenReturn(DeviceMessageTestCategories.ALARMS.getMessageSpecifications());
+        when(deviceConfig1.getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageTestCategories.CONTACTOR)).thenReturn(DeviceMessageTestCategories.CONTACTOR.getMessageSpecifications());
+        DeviceConfiguration deviceConfig2 = mock(DeviceConfiguration.class);
+        when(deviceConfig2.getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageTestCategories.ALARMS)).thenReturn(DeviceMessageTestCategories.ALARMS.getMessageSpecifications());
+        when(deviceConfig2.getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageTestCategories.CONTACTOR)).thenReturn(DeviceMessageTestCategories.CONTACTOR.getMessageSpecifications());
+        when(deviceConfigurationService.getDeviceConfigsByDeviceGroup(deviceGroup)).thenReturn(Arrays.asList(deviceConfig1, deviceConfig2));
 
+        Response response = target("/devicegroups/13/commands").request().get();
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+
+        assertThat(model.<List>get("$")).hasSize(7);
+    }
+
+    @Test
+    public void findDeviceMessagesForDeviceGroup_noCategoriesInCommon() throws Exception {
+        EndDeviceGroup deviceGroup = mock(EndDeviceGroup.class);
+        when(meteringGroupService.findEndDeviceGroup(13L)).thenReturn(Optional.ofNullable(deviceGroup));
+        when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(Stream.of(DeviceMessageTestCategories.values()).collect(Collectors.toList()));
+        DeviceConfiguration deviceConfig1 = mock(DeviceConfiguration.class);
+        when(deviceConfig1.getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageTestCategories.ALARMS)).thenReturn(DeviceMessageTestCategories.ALARMS.getMessageSpecifications());
+        when(deviceConfig1.getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageTestCategories.CONTACTOR)).thenReturn(Collections.emptyList());
+        DeviceConfiguration deviceConfig2 = mock(DeviceConfiguration.class);
+        when(deviceConfig2.getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageTestCategories.ALARMS)).thenReturn(Collections.emptyList());
+        when(deviceConfig2.getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageTestCategories.CONTACTOR)).thenReturn(DeviceMessageTestCategories.CONTACTOR.getMessageSpecifications());
+        when(deviceConfigurationService.getDeviceConfigsByDeviceGroup(deviceGroup)).thenReturn(Arrays.asList(deviceConfig1, deviceConfig2));
+
+        Response response = target("/devicegroups/13/commands").request().get();
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+
+        assertThat(model.<List>get("$")).isEmpty();
+    }
+
+    @Test
+    public void findDeviceMessagesForDeviceGroup_SomeSpecsInCommon() throws Exception {
+        EndDeviceGroup deviceGroup = mock(EndDeviceGroup.class);
+        when(meteringGroupService.findEndDeviceGroup(13L)).thenReturn(Optional.ofNullable(deviceGroup));
+        when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(Stream.of(DeviceMessageTestCategories.values()).collect(Collectors.toList()));
+        DeviceConfiguration deviceConfig1 = mock(DeviceConfiguration.class);
+        when(deviceConfig1.getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageTestCategories.ALARMS)).thenReturn(
+                Stream.of(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS, // common
+                        DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ERROR_BITS)
+                        .map(id->new DeviceMessageTestSpec(id.name(), id, DeviceMessageTestCategories.ALARMS))
+                        .collect(Collectors.toList())
+        );
+        when(deviceConfig1.getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageTestCategories.CONTACTOR)).thenReturn(
+                Stream.of(
+                        DeviceMessageId.CONTACTOR_OPEN, // common
+                        DeviceMessageId.CONTACTOR_CLOSE)
+                        .map(id->new DeviceMessageTestSpec(id.name(), id, DeviceMessageTestCategories.CONTACTOR))
+                        .collect(Collectors.toList())
+        );
+        DeviceConfiguration deviceConfig2 = mock(DeviceConfiguration.class);
+        when(deviceConfig2.getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageTestCategories.ALARMS)).thenReturn(
+                Stream.of(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS, // common
+                        DeviceMessageId.ALARM_CONFIGURATION_WRITE_ALARM_FILTER)
+                        .map(id->new DeviceMessageTestSpec(id.name(), id, DeviceMessageTestCategories.ALARMS))
+                        .collect(Collectors.toList())
+        );
+        when(deviceConfig2.getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageTestCategories.CONTACTOR)).thenReturn(
+                Stream.of(DeviceMessageId.CONTACTOR_OPEN, // common
+                        DeviceMessageId.CONTACTOR_ARM,
+                        DeviceMessageId.CONTACTOR_ARM_WITH_ACTIVATION_DATE)
+                        .map(id->new DeviceMessageTestSpec(id.name(), id, DeviceMessageTestCategories.CONTACTOR))
+                        .collect(Collectors.toList())
+        );
+        when(deviceConfigurationService.getDeviceConfigsByDeviceGroup(deviceGroup)).thenReturn(Arrays.asList(deviceConfig1, deviceConfig2));
+
+        Response response = target("/devicegroups/13/commands").request().get();
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+
+        assertThat(model.<List>get("$")).hasSize(2);
+        assertThat(model.<List<String>>get("$[*].command")).containsOnly("CONTACTOR_OPEN","ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS");
+        assertThat(model.<List<String>>get("$[*].category")).containsOnly("CONTACTOR","ALARMS");
     }
 
     private EndDevice mockEndDevice(AmrSystem amrSystem, long id) {
@@ -681,4 +764,86 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         when(config.getName()).thenReturn(deviceConfig);
         return device;
     }
+
+    private enum DeviceMessageTestCategories implements DeviceMessageCategory {
+
+        CONTACTOR {
+            @Override
+            public List<DeviceMessageSpec> getMessageSpecifications() {
+                return Stream.of(DeviceMessageId.CONTACTOR_OPEN,
+                        DeviceMessageId.CONTACTOR_CLOSE,
+                        DeviceMessageId.CONTACTOR_ARM,
+                        DeviceMessageId.CONTACTOR_ARM_WITH_ACTIVATION_DATE)
+                        .map(id->new DeviceMessageTestSpec(id.name(), id, CONTACTOR))
+                        .collect(Collectors.toList());
+            }
+        },
+        ALARMS {
+            @Override
+            public List<DeviceMessageSpec> getMessageSpecifications() {
+                return Stream.of(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS,
+                        DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ERROR_BITS,
+                        DeviceMessageId.ALARM_CONFIGURATION_WRITE_ALARM_FILTER)
+                        .map(id->new DeviceMessageTestSpec(id.name(), id, ALARMS))
+                        .collect(Collectors.toList());
+            }
+        };
+
+        @Override
+        public String getName() {
+            return name();
+        }
+
+        @Override
+        public String getDescription() {
+            return name();
+        }
+
+        @Override
+        public int getId() {
+            return this.ordinal();
+        }
+
+
+    }
+
+    static private class DeviceMessageTestSpec implements DeviceMessageSpec {
+
+
+        private final DeviceMessageId deviceMessageId;
+        private final DeviceMessageCategory deviceMessageCategory;
+        private final String name;
+
+        DeviceMessageTestSpec(String name, DeviceMessageId deviceMessageId, DeviceMessageCategory deviceMessageCategory) {
+            this.deviceMessageId = deviceMessageId;
+            this.deviceMessageCategory = deviceMessageCategory;
+            this.name = name;
+        }
+
+        @Override
+        public DeviceMessageCategory getCategory() {
+            return this.deviceMessageCategory;
+        }
+
+        @Override
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public DeviceMessageId getId() {
+            return this.deviceMessageId;
+        }
+
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public Optional<PropertySpec> getPropertySpec(String name) {
+            return Optional.empty();
+        }
+    }
+
 }
