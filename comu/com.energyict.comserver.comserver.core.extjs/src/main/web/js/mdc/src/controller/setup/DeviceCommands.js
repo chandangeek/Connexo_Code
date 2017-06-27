@@ -222,7 +222,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('deviceCommand.overview.revoke', 'MDC', 'Revoke')
         }).show({
-            msg: Uni.I18n.translate('deviceCommand.overview.revokeMsg', 'MDC', 'This command will no longer be able to send'),
+            msg: Uni.I18n.translate('deviceCommand.overview.revokeMsg', 'MDC', 'It will no longer be possible to send this command'),
             title: title,
             fn: function (btnId) {
                 if (btnId == 'confirm') {
