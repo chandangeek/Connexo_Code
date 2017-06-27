@@ -24,6 +24,7 @@ import com.elster.jupiter.demo.impl.commands.CreateEstimationSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateG3DemoBoardCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
+import com.elster.jupiter.demo.impl.commands.CreateMetrologyConfigurationsCommand;
 import com.elster.jupiter.demo.impl.commands.CreateMultiElementDeviceSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
 import com.elster.jupiter.demo.impl.commands.CreatePowerUserCommand;
@@ -138,6 +139,7 @@ import java.time.Clock;
         "osgi.command.function=setDeviceLocations",
         "osgi.command.function=createSPEDevice",
         "osgi.command.function=createDefaultAlarmRule",
+        "osgi.command.function=createMetrologyConfigurations",
         "osgi.command.function=createPowerUser",
         "osgi.command.function=createRegisterDevice"
 }, immediate = true)
@@ -870,6 +872,16 @@ public class DemoServiceImpl {
         }
         command.setSkipFirmwareManagementData(skipFirmwareManagementData);
         command.run();
+    }
+
+    @SuppressWarnings("unused")
+    public void createMetrologyConfigurations() {
+        CreateMetrologyConfigurationsCommand command = injector.getInstance(CreateMetrologyConfigurationsCommand.class);
+        if(licenseService.getLicenseForApplication("INS").isPresent()) {
+            command.createMetrologyConfigurations();
+        } else {
+            command.createMultisenseMetrologyConfigurations();
+        }
     }
 
 
