@@ -38,6 +38,7 @@ public class DeviceAttributesInfo {
     public DeviceAttributeInfo<Instant> decommissioningDate;
     public DeviceAttributeInfo<EditLocationInfo> location;
     public DeviceAttributeInfo<CoordinatesInfo> geoCoordinates;
+    public String deviceIcon;
     public DeviceInfo device;
 
     @JsonIgnore
