@@ -165,6 +165,30 @@ public enum TableSpecs {
         }
     },
 
+    DTC_DEVICE_ICON {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<DeviceIcon> table = dataModel.addTable(name(), DeviceIcon.class).since(version(10, 4));
+            table.map(DeviceIcon.class);
+            Column id = table.addAutoIdColumn();
+            table.column("DEVICEICON")
+                    .blob()
+                    .map("deviceIcon")
+                    .since(version(10, 4))
+                    .add();
+            Column deviceType = table.column("DEVICETYPE").notNull().number().add();
+            table.foreignKey("FK_DTC_DEVICEICON_DT")
+                    .on(deviceType)
+                    .references(DTC_DEVICETYPE.name())
+                    .onDelete(CASCADE)
+                    .map("deviceType")
+                    .reverseMap("deviceIcon")
+                    .add();
+            table.primaryKey("PK_DTC_DEVICEICON_DT").on(id).add();
+            table.unique("UQ_DTC_DEVICEICON_DT").on(deviceType).add();
+        }
+    },
+
     DTC_KEYACCTYPEUSRACTN {
         @Override
         public void addTo(DataModel dataModel) {

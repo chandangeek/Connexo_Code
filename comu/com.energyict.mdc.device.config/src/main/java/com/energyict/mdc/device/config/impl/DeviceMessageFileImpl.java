@@ -66,7 +66,7 @@ class DeviceMessageFileImpl implements ServerDeviceMessageFile {
     @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", groups = {Save.Create.class, Save.Update.class})
     private Reference<DeviceType> deviceType = ValueReference.absent();
     private Blob contents = FileBlob.empty();
-    @Max(value = DeviceConfigurationService.MAX_DEVICE_MESSAGE_FILE_SIZE_MB, message = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED + "}", groups = {Save.Create.class, Save.Update.class})
+    @Max(value = DeviceConfigurationService.MAX_DEVICE_MESSAGE_FILE_SIZE_MB, message = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED_MB + "}", groups = {Save.Create.class, Save.Update.class})
     @SuppressWarnings("unused") // For validation only
     private BigDecimal blobSize = BigDecimal.ZERO;
     private Instant obsoleteDate;
