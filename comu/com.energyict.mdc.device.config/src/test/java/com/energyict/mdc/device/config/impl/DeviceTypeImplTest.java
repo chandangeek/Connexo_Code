@@ -38,6 +38,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
@@ -958,6 +959,29 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         // Asserts
         AssertionsForClassTypes.assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceTypeId)).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void addDeviceIcon() throws Exception {
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
+                .findDeviceType(this.deviceType.getId()).get();
+        String blob = "FAKEBLOB";
+        deviceType.setDeviceIcon(new ByteArrayInputStream(blob.getBytes()));
+        deviceType = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(this.deviceType.getId()).get();
+
+        assertThat(new String(deviceType.getDeviceIcon())).isEqualTo(blob);
+    }
+
+    @Test
+    @Transactional
+    public void removeDeviceIcon() throws Exception {
+        String blob = "FAKEBLOB";
+        deviceType.setDeviceIcon(new ByteArrayInputStream(blob.getBytes()));
+        DeviceType reloadedDeviceType = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(this.deviceType.getId()).get();
+        reloadedDeviceType.removeDeviceIcon();
+        reloadedDeviceType = inMemoryPersistence.getDeviceConfigurationService().findDeviceType(this.deviceType.getId()).get();
+        assertThat(reloadedDeviceType.getDeviceIcon()).hasSize(0);
     }
 
     @Test
