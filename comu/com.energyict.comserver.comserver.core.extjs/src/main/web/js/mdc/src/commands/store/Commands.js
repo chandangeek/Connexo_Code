@@ -3,7 +3,7 @@
  */
 Ext.define('Mdc.commands.store.Commands', {
     extend: 'Ext.data.Store',
-    model: 'Mdc.model.DeviceCommand',
+    model: 'Mdc.commands.model.Command',
     autoLoad: false,
 
     proxy: {

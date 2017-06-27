@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
         me.deviceId = me.device.get('name');
         me.columns = [
             {
-                header: Uni.I18n.translate('deviceCommands.view.cmdName', 'MDC', 'Command name'),
+                header: Uni.I18n.translate('general.commandName', 'MDC', 'Command name'),
                 dataIndex: 'command',
                 renderer: function (val) {
                     var res = val.name;
@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 flex: 3
             },
             {
-                header: Uni.I18n.translate('deviceCommands.view.cmdCategory', 'MDC', 'Command category'),
+                header: Uni.I18n.translate('general.commandCategory', 'MDC', 'Command category'),
                 dataIndex: 'category',
                 renderer: function (val) {
                     return val ? Ext.String.htmlEncode(val) : '-'
@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 flex: 2
             },
             {
-                text: Uni.I18n.translate('deviceCommands.view.releaseDate', 'MDC', 'Release date'),
+                text: Uni.I18n.translate('general.releaseDate', 'MDC', 'Release date'),
                 dataIndex: 'releaseDate',
                 flex: 2,
                 renderer: function (value) {

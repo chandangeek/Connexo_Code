@@ -45,7 +45,7 @@ Ext.define('Mdc.commands.controller.Commands', {
                 click: this.navigateToCommandsOverview
             },
             '#mdc-commands-grid': {
-                select: this.loadCommandDetail
+                selectionchange: this.loadCommandDetail
             }
         });
     },
@@ -72,23 +72,43 @@ Ext.define('Mdc.commands.controller.Commands', {
         me.getApplication().fireEvent('changecontentevent', widget);
     },
 
-    loadCommandDetail: function (selectionModel, record) {
+    loadCommandDetail: function (selectionModel, selectedRecords) {
         var me = this,
+            record = selectedRecords[0],
             preview = me.getCommandPreview(),
             previewForm = me.getCommandPreviewForm(),
+            trackingField = previewForm.down('#mdc-command-preview-tracking-field'),
             previewActionsButton = me.getPreviewActionsBtn(),
             previewActionsMenu = preview.down('menu');
 
+        if (Ext.isEmpty(record)) return;
         Ext.suspendLayouts();
+        if (record.get('trackingCategory').id === 'trackingCategory.serviceCall') {
+            trackingField.setFieldLabel(Uni.I18n.translate('general.serviceCall', 'MDC', 'Service call'));
+            trackingField.renderer = function(val) {
+                if (record.get('trackingCategory').activeLink != undefined && record.get('trackingCategory').activeLink) {
+                    return '<a style="text-decoration: underline" href="' +
+                        me.getController('Uni.controller.history.Router').getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: val.id})
+                        + '">' + val.name + '</a>';
+                } else {
+                    return Ext.isEmpty(val.id) ? '-'  : Ext.String.htmlEncode(val.id);
+                }
+            }
+        } else {
+            trackingField.setFieldLabel(Uni.I18n.translate('general.trackingSource', 'MDC', 'Tracking source'));
+            trackingField.renderer = function (val) {
+                return !Ext.isEmpty(val) && !Ext.isEmpty(val.name) ? Ext.String.htmlEncode(val.name) : '-';
+            }
+        }
         previewForm.loadRecord(record);
         preview.setTitle(Ext.String.htmlEncode(record.get('messageSpecification').name));
-        Ext.resumeLayouts(true);
         if (previewActionsMenu) {
             previewActionsMenu.record = record;
         }
 
         var status = record.get('status').value;
         previewActionsButton.setVisible( (status === 'WAITING' || status === 'PENDING') );
+        Ext.resumeLayouts(true);
     }
 
 });

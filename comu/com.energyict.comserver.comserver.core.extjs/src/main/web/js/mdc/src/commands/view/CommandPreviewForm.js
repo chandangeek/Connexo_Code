@@ -28,10 +28,20 @@ Ext.define('Mdc.commands.view.CommandPreviewForm', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type')
+                    fieldLabel: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
+                    name: 'deviceType',
+                    renderer: function (deviceTypeIdAndName) {
+                        return Ext.isEmpty(deviceTypeIdAndName) ? '-' :
+                            '<a href="#/administration/devicetypes/'+deviceTypeIdAndName.id+'">' + Ext.String.htmlEncode(deviceTypeIdAndName.name);
+                    }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration')
+                    fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
+                    name: 'deviceTypeAndConfiguration',
+                    renderer: function (deviceTypeAndConfig) {
+                        return Ext.isEmpty(deviceTypeAndConfig) ? '-' :
+                            '<a href="#/administration/devicetypes/'+deviceTypeAndConfig.deviceType.id+'/deviceconfigurations/'+deviceTypeAndConfig.deviceConfiguration.id+'">' + Ext.String.htmlEncode(deviceTypeAndConfig.deviceConfiguration.name);
+                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.commandName', 'MDC', 'Command name'),
@@ -54,10 +64,19 @@ Ext.define('Mdc.commands.view.CommandPreviewForm', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.trackingSource', 'MDC', 'Tracking source')
+                    fieldLabel: Uni.I18n.translate('general.trackingSource', 'MDC', 'Tracking source'),
+                    itemId: 'mdc-command-preview-tracking-field',
+                    name: 'trackingIdAndName',
+                    renderer: function (val) {
+                        return Ext.isEmpty(val) || Ext.isEmpty(val.name) ? '-' : Ext.String.htmlEncode(val.name);
+                    }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.errorMessage', 'MDC', 'Error message')
+                    fieldLabel: Uni.I18n.translate('general.errorMessage', 'MDC', 'Error message'),
+                    name: 'errorMessage',
+                    renderer: function (val) {
+                        return Ext.isEmpty(val) ? '-' : Ext.String.htmlEncode(val);
+                    }
                 }
             ]
         },

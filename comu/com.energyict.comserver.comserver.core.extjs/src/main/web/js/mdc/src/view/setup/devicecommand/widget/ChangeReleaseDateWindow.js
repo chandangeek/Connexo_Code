@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.ChangeReleaseDateWindow', {
                 items: [
                     {
                         xtype: 'date-time',
-                        fieldLabel: Uni.I18n.translate('deviceCommand.add.releaseDate', 'MDC', 'Release date'),
+                        fieldLabel: Uni.I18n.translate('general.releaseDate', 'MDC', 'Release date'),
                         layout: 'hbox',
                         name: 'releaseDate',
                         valueInMilliseconds: true,

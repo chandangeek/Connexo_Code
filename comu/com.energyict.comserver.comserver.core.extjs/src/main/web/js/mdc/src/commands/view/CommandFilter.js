@@ -70,7 +70,7 @@ Ext.define('Mdc.commands.view.CommandFilter', {
                 dataIndex: 'releaseDate',
                 dataIndexFrom: 'releaseDateStart',
                 dataIndexTo: 'releaseDateEnd',
-                text: Uni.I18n.translate('general.releasDate', 'MDC', 'Release date')
+                text: Uni.I18n.translate('general.releaseDate', 'MDC', 'Release date')
             },
             {
                 type: 'interval',

@@ -18,23 +18,30 @@ Ext.define('Mdc.commands.view.CommandsGrid', {
             {
                 header: Uni.I18n.translate('general.deviceName', 'MDC', 'Device name'),
                 dataIndex: 'parent',
-                flex: 1,
+                flex: 2,
                 renderer: function (value) {
                     return Ext.isEmpty(value) ? '-' : '<a href="#/devices/'+value.id+'">' + Ext.String.htmlEncode(value.id);
                 }
             },
             {
                 header: Uni.I18n.translate('general.commandName', 'MDC', 'Command name'),
-                dataIndex: 'messageSpecification',
-                flex: 1,
-                renderer: function (value) {
-                    return Ext.isEmpty(value) ? '-' : value.name;
+                dataIndex: 'command',
+                flex: 3,
+                renderer: function (val) {
+                    var res = val.name;
+                    if (val.status === 'WAITING' || val.status === 'PENDING') {
+                        res = (Ext.isDefined(val.willBePickedUpByPlannedComTask) && !val.willBePickedUpByPlannedComTask) ||
+                              (Ext.isDefined(val.willBePickedUpByComTask) && !val.willBePickedUpByComTask)
+                            ? '<span class="icon-target" style="display:inline-block; color:rgba(255, 0, 0, 0.3);"></span><span style="position:relative; left:5px;">' + val.name + '</span>'
+                            : val.name;
+                    }
+                    return res;
                 }
             },
             {
                 header: Uni.I18n.translate('general.commandCategory', 'MDC', 'Command category'),
                 dataIndex: 'category',
-                flex: 1
+                flex: 3
             },
             {
                 header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
@@ -47,7 +54,7 @@ Ext.define('Mdc.commands.view.CommandsGrid', {
             {
                 header: Uni.I18n.translate('general.releaseDate', 'MDC', 'Release date'),
                 dataIndex: 'releaseDate',
-                flex: 1,
+                flex: 2,
                 renderer: function (value) {
                     return Ext.isEmpty(value) ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
                 }
@@ -55,7 +62,7 @@ Ext.define('Mdc.commands.view.CommandsGrid', {
             {
                 header: Uni.I18n.translate('general.sentDate', 'MDC', 'Sent date'),
                 dataIndex: 'sentDate',
-                flex: 1,
+                flex: 2,
                 renderer: function (value) {
                     return Ext.isEmpty(value) ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
                 }
@@ -106,7 +113,30 @@ Ext.define('Mdc.commands.view.CommandsGrid', {
             }
         ];
 
+        me.on('afterrender', me.addTooltip);
         me.callParent(arguments);
+    },
+
+    addTooltip: function () {
+        var me = this,
+            view = me.getView(),
+            tip = Ext.create('Ext.tip.ToolTip', {
+                target: view.el,
+                delegate: 'span.icon-target',
+                trackMouse: true,
+                renderTo: Ext.getBody(),
+                listeners: {
+                    beforeshow: function updateTipBody(tip) {
+                        var res,
+                            rowEl = Ext.get(tip.triggerElement).up('tr'),
+                            willBePickedUpByComTask = view.getRecord(rowEl).get('willBePickedUpByComTask'),
+                            willBePickedUpByPlannedComTask = view.getRecord(rowEl).get('willBePickedUpByPlannedComTask');
+                        !willBePickedUpByPlannedComTask && (res = Uni.I18n.translate('deviceCommand.willBePickedUpByPlannedComTask', 'MDC', 'This command is part of a communication task that is not planned to execute.'));
+                        !willBePickedUpByComTask && (res = Uni.I18n.translate('deviceCommand.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device.'));
+                        tip.update(res);
+                    }
+                }
+            });
     },
 
     fnIsDisabled: function (view, rowIndex, colIndex, item, record) {

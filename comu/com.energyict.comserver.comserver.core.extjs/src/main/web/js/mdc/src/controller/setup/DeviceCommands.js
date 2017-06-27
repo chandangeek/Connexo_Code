@@ -344,7 +344,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         router.getRoute('devices/device/commands').forward({deviceId: encodeURIComponent(btn.deviceId)});
     },
 
-    selectCommand: function (grid, selected) {
+    selectCommand: function (selectionModel, selected) {
         var me = this,
             record = selected[0],
             previewForm = me.getPreviewCommandForm(),
@@ -353,49 +353,51 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             previewPropertiesForm = me.getPreviewPropertiesForm(),
             previewPropertiesHeader = me.getPreviewPropertiesHeader(),
             device = me.getDeviceCommandsGrid().device;
-        if (record) {
-            var status = record.get('status').value,
-                title = record.get('command').name,
-                actionsColumn = me.getDeviceCommandsGrid().down('uni-actioncolumn');
 
-            previewPanel.setTitle(title);
-            if (record.get('trackingCategory').id === 'trackingCategory.serviceCall') {
-                previewForm.down('#tracking').setFieldLabel(Uni.I18n.translate('deviceCommands.view.serviceCall', 'MDC', 'Service call'));
-                previewForm.down('#tracking').renderer = function (val) {
-                    if (record.get('trackingCategory').activeLink != undefined && record.get('trackingCategory').activeLink) {
-                        return '<a style="text-decoration: underline" href="' +
-                            me.getController('Uni.controller.history.Router').getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: val.id})
-                            + '">' + val.name + '</a>';
-                    } else {
-                        return val.id ? Ext.String.htmlEncode(val.id) : '-';
-                    }
-                }
-            } else {
-                previewForm.down('#tracking').setFieldLabel(Uni.I18n.translate('deviceCommands.view.trackingSource', 'MDC', 'Tracking source'));
-                previewForm.down('#tracking').renderer = function (val) {
-                    return !Ext.isEmpty(val) && !Ext.isEmpty(val.name) ? Ext.String.htmlEncode(val.name) : '-';
+        if (Ext.isEmpty(record)) return;
+        Ext.suspendLayouts();
+        var status = record.get('status').value,
+            title = record.get('command').name,
+            actionsColumn = me.getDeviceCommandsGrid().down('uni-actioncolumn');
+
+        previewPanel.setTitle(title);
+        if (record.get('trackingCategory').id === 'trackingCategory.serviceCall') {
+            previewForm.down('#tracking').setFieldLabel(Uni.I18n.translate('general.serviceCall', 'MDC', 'Service call'));
+            previewForm.down('#tracking').renderer = function (val) {
+                if (record.get('trackingCategory').activeLink != undefined && record.get('trackingCategory').activeLink) {
+                    return '<a style="text-decoration: underline" href="' +
+                        me.getController('Uni.controller.history.Router').getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: val.id})
+                        + '">' + val.name + '</a>';
+                } else {
+                    return val.id ? Ext.String.htmlEncode(val.id) : '-';
                 }
             }
-            previewForm.loadRecord(record);
-            previewPropertiesForm.loadRecord(record);
-            if (status === 'WAITING' || status === 'PENDING') {
-                actionsButton.show();
-                actionsButton.menu.device = device;
-                actionsButton.menu.record = record;
-                if (Ext.isDefined(actionsColumn)) {
-                    actionsColumn.menu.device = device;
-                    actionsColumn.menu.deviceId = device.get('name');
-                }
-            } else {
-                actionsButton.hide();
-            }
-            if (!Ext.isEmpty(record.get('properties'))) {
-                previewPropertiesHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}', title) + '</h3>');
-                previewPropertiesHeader.show();
-            } else {
-                previewPropertiesHeader.hide();
+        } else {
+            previewForm.down('#tracking').setFieldLabel(Uni.I18n.translate('general.trackingSource', 'MDC', 'Tracking source'));
+            previewForm.down('#tracking').renderer = function (val) {
+                return !Ext.isEmpty(val) && !Ext.isEmpty(val.name) ? Ext.String.htmlEncode(val.name) : '-';
             }
         }
+        previewForm.loadRecord(record);
+        previewPropertiesForm.loadRecord(record);
+        if (status === 'WAITING' || status === 'PENDING') {
+            actionsButton.show();
+            actionsButton.menu.device = device;
+            actionsButton.menu.record = record;
+            if (Ext.isDefined(actionsColumn)) {
+                actionsColumn.menu.device = device;
+                actionsColumn.menu.deviceId = device.get('name');
+            }
+        } else {
+            actionsButton.hide();
+        }
+        if (!Ext.isEmpty(record.get('properties'))) {
+            previewPropertiesHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}', title) + '</h3>');
+            previewPropertiesHeader.show();
+        } else {
+            previewPropertiesHeader.hide();
+        }
+        Ext.resumeLayouts(true);
     },
 
     configureMenu: function (menu) {

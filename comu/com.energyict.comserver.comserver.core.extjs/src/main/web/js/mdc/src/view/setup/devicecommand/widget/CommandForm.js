@@ -6,7 +6,6 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.device-command-add-form',
     requires: [
-        'Mdc.widget.DateTimeField',
         'Uni.form.field.DateTime'
     ],
     layout: {
@@ -53,7 +52,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
                 itemId: 'releaseDate',
                 layout: 'hbox',
                 required: true,
-                fieldLabel: Uni.I18n.translate('deviceCommand.add.releaseDate', 'MDC', 'Release date'),
+                fieldLabel: Uni.I18n.translate('general.releaseDate', 'MDC', 'Release date'),
                 dateConfig: {
                     width: 128,
                     flex: 2,

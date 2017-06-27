@@ -17,14 +17,14 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreviewForm', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdName', 'MDC', 'Command name'),
+                    fieldLabel: Uni.I18n.translate('general.commandName', 'MDC', 'Command name'),
                     name: 'messageSpecification',
                     renderer: function (val) {
                         return val ? Ext.String.htmlEncode(val.name) : '-'
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdCategory', 'MDC', 'Command category'),
+                    fieldLabel: Uni.I18n.translate('general.commandCategory', 'MDC', 'Command category'),
                     name: 'category',
                     renderer: function (val) {
                         return val ? Ext.String.htmlEncode(val) : '-'
@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreviewForm', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('deviceCommands.view.serviceCall', 'MDC', 'Service call'),
+                    fieldLabel: Uni.I18n.translate('general.serviceCall', 'MDC', 'Service call'),
                     name: 'trackingIdAndName',
                     itemId: 'tracking',
                     renderer: function (val) {
@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreviewForm', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdErrorMsg', 'MDC', 'Error message'),
+                    fieldLabel: Uni.I18n.translate('general.errorMessage', 'MDC', 'Error message'),
                     name: 'errorMessage',
                     renderer: function (val) {
                         return val ? Ext.String.htmlEncode(val) : '-'
@@ -76,7 +76,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreviewForm', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('deviceCommands.view.releaseDate', 'MDC', 'Release date'),
+                    fieldLabel: Uni.I18n.translate('general.releaseDate', 'MDC', 'Release date'),
                     name: 'releaseDate',
                     renderer: function (value) {
                         return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
