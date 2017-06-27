@@ -26,10 +26,11 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
 
         this.items =  [
             {
-                fieldLabel: Uni.I18n.translate('deviceCommand.add.commandCategorys', 'MDC', 'Command categories'),
+                fieldLabel: Uni.I18n.translate('general.commandCategory', 'MDC', 'Command category'),
                 name: 'commandCategory',
                 itemId: 'mdc-addCommand-categories-combo',
                 store: 'Mdc.store.DeviceMessageCategories',
+                emptyText: Uni.I18n.translate('general.selectACommandCategory', 'MDC', 'Select a command category...'),
                 displayField: 'name',
                 valueField: 'id',
                 editable: false,
@@ -39,6 +40,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
                 fieldLabel: Uni.I18n.translate('deviceCommand.add.command', 'MDC', 'Command'),
                 name: 'command',
                 itemId: 'mdc-addCommand-commands-combo',
+                emptyText: Uni.I18n.translate('general.selectACommand', 'MDC', 'Select a command...'),
                 displayField: 'name',
                 valueField: 'id',
                 editable: false,
@@ -54,6 +56,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
                 required: true,
                 fieldLabel: Uni.I18n.translate('general.releaseDate', 'MDC', 'Release date'),
                 dateConfig: {
+                    format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault),
                     width: 128,
                     flex: 2,
                     minValue: new Date()

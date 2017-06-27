@@ -2604,7 +2604,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 title: Uni.I18n.translate('general.addCommand', 'MDC', 'Add command'),
                                 route: 'add',
                                 controller: 'Mdc.commands.controller.Commands',
-                                action: 'showAddCommand'
+                                action: 'showAddCommandWizard'
                             }
                         }
                     }

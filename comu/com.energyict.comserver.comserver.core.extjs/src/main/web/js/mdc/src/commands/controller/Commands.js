@@ -14,7 +14,9 @@ Ext.define('Mdc.commands.controller.Commands', {
     ],
 
     stores: [
-        'Mdc.commands.store.Commands'
+        'Mdc.commands.store.Commands',
+        'Mdc.store.DeviceGroups',
+        'Mdc.commands.store.CommandsForDeviceGroup'
     ],
 
     refs: [
@@ -33,20 +35,62 @@ Ext.define('Mdc.commands.controller.Commands', {
         {
             ref: 'commandsGrid',
             selector: 'commands-grid'
+        },
+        {
+            ref: 'addCommandWizard',
+            selector: 'add-command add-command-wizard'
+        },
+        {
+            ref: 'navigationMenu',
+            selector: 'add-command add-command-side-navigation'
+        },
+        {
+            ref: 'step1FormErrorMessage',
+            selector: 'add-command add-command-wizard add-command-step1 #mdc-add-command-step1-error'
+        },
+        {
+            ref: 'step1DeviceGroupCombo',
+            selector: 'add-command add-command-wizard add-command-step1 #mdc-add-command-step1-deviceGroup-combo'
+        },
+        {
+            ref: 'step2FormErrorMessage',
+            selector: 'add-command add-command-wizard add-command-step2 #mdc-add-command-step2-error'
+        },
+        {
+            ref: 'step2CategoryCombo',
+            selector: 'add-command add-command-wizard add-command-step2 #mdc-add-command-step2-category-combo'
+        },
+        {
+            ref: 'step2CommandCombo',
+            selector: 'add-command add-command-wizard add-command-step2 #mdc-add-command-step2-command-combo'
         }
     ],
 
+    wizardInformation: null,
+    categoriesStore: undefined,
+    commandsStore: undefined,
+
     init: function () {
         this.control({
-            '#mdc-empty-commands-grid-add-button': {
-                click: this.navigateToAddCommand
-            },
             '#mdc-add-command-cancel': {
                 click: this.navigateToCommandsOverview
             },
             '#mdc-commands-grid': {
                 selectionchange: this.loadCommandDetail
+            },
+            '#mdc-commands-grid-add-command-btn': {
+                click: this.navigateToAddCommandWizard
+            },
+            '#mdc-empty-commands-grid-add-button': {
+                click: this.navigateToAddCommandWizard
+            },
+            'add-command-wizard button[navigationBtn=true]': {
+                click: this.moveTo
+            },
+            'add-command-side-navigation': {
+                movetostep: this.moveTo
             }
+
         });
     },
 
@@ -54,20 +98,13 @@ Ext.define('Mdc.commands.controller.Commands', {
         this.getController('Uni.controller.history.Router').getRoute('workspace/commands').forward();
     },
 
-    navigateToAddCommand: function () {
+    navigateToAddCommandWizard: function () {
         this.getController('Uni.controller.history.Router').getRoute('workspace/commands/add').forward();
     },
 
     showCommandsOverview: function() {
         var me = this,
             widget = Ext.widget('commands-overview');
-
-        me.getApplication().fireEvent('changecontentevent', widget);
-    },
-
-    showAddCommand: function() {
-        var me = this,
-            widget = Ext.widget('add-command');
 
         me.getApplication().fireEvent('changecontentevent', widget);
     },
@@ -109,6 +146,201 @@ Ext.define('Mdc.commands.controller.Commands', {
         var status = record.get('status').value;
         previewActionsButton.setVisible( (status === 'WAITING' || status === 'PENDING') );
         Ext.resumeLayouts(true);
+    },
+
+
+    showAddCommandWizard: function() {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            widget = Ext.widget('add-command', {
+                itemId: 'mdc-add-command',
+                router: router,
+                returnLink: router.getRoute('workspace/commands').buildUrl()
+            }),
+            deviceGroupStore = Ext.getStore('Mdc.store.DeviceGroups');
+
+        mainView.setLoading();
+        me.wizardInformation = {};
+        deviceGroupStore.load(function () {
+            mainView.setLoading(false);
+            me.getApplication().fireEvent('changecontentevent', widget);
+        });
+    },
+
+    moveTo: function (button) {
+        var me = this,
+            wizardLayout = me.getAddCommandWizard().getLayout(),
+            currentStep = wizardLayout.getActiveItem().navigationIndex,
+            direction,
+            nextStep,
+            changeStep = function () {
+                Ext.suspendLayouts();
+                me.prepareNextStep(nextStep);
+                wizardLayout.setActiveItem(nextStep - 1);
+                me.getNavigationMenu().moveToStep(nextStep);
+                Ext.resumeLayouts(true);
+            };
+
+        if (button.action === 'step-next' || button.action === 'confirm-action') {
+            direction = 1;
+            nextStep = currentStep + direction;
+        } else {
+            direction = -1;
+            if (button.action === 'step-back') {
+                nextStep = currentStep + direction;
+            } else {
+                nextStep = button;
+            }
+        }
+
+        if (direction > 0) {
+            me.validateCurrentStep(currentStep, changeStep);
+        } else {
+            changeStep();
+        }
+    },
+
+    prepareNextStep: function (stepNumber) {
+        var me = this,
+            wizard = me.getAddCommandWizard(),
+            navigationMenu = me.getNavigationMenu(),
+            buttons = wizard.getDockedComponent('mdc-add-command-wizard-buttons'),
+            nextBtn = buttons.down('[action=step-next]'),
+            backBtn = buttons.down('[action=step-back]'),
+            confirmBtn = buttons.down('[action=confirm-action]'),
+            finishBtn = buttons.down('[action=finish]'),
+            cancelBtn = buttons.down('[action=cancel]');
+
+        switch (stepNumber) {
+            case 1:
+                nextBtn.show();
+                backBtn.show();
+                backBtn.disable();
+                confirmBtn.hide();
+                finishBtn.hide();
+                cancelBtn.show();
+                break;
+            case 2:
+                me.getStep2FormErrorMessage().hide();
+                nextBtn.show();
+                backBtn.show();
+                backBtn.enable();
+                confirmBtn.hide();
+                finishBtn.hide();
+                cancelBtn.show();
+                break;
+            case 3:
+                navigationMenu.jumpBack = false;
+                nextBtn.hide();
+                backBtn.hide();
+                confirmBtn.hide();
+                finishBtn.hide();
+                cancelBtn.hide();
+                me.prepareStep3(wizard, navigationMenu, [confirmBtn, backBtn, cancelBtn]);
+                break;
+            case 4:
+                navigationMenu.jumpBack = false;
+                nextBtn.hide();
+                backBtn.hide();
+                confirmBtn.hide();
+                finishBtn.hide();
+                cancelBtn.hide();
+                me.prepareStep4(wizard, finishBtn, navigationMenu);
+                break;
+        }
+    },
+
+    validateCurrentStep: function (stepNumber, callback) {
+        var me = this,
+            doCallback = function () {
+                if (Ext.isFunction(callback)) {
+                    callback();
+                }
+            };
+
+        switch (stepNumber) {
+            case 1:
+                me.validateStep1(function() {
+                    doCallback();
+                    me.prepareStep2();
+                });
+                break;
+            case 2:
+                if (me.validateStep2()) {
+                    doCallback();
+                }
+                break;
+            default:
+                doCallback();
+        }
+    },
+
+    validateStep1: function (callback) {
+        var me = this,
+            wizard = me.getAddCommandWizard(),
+            step1ErrorMsg = me.getStep1FormErrorMessage(),
+            deviceGroupCombo = me.getStep1DeviceGroupCombo();
+
+        step1ErrorMsg.hide();
+        if (!deviceGroupCombo.validate()) {
+            step1ErrorMsg.show();
+        } else {
+            me.wizardInformation.deviceGroupId = deviceGroupCombo.getValue();
+            callback();
+        }
+    },
+
+    prepareStep2: function () {
+        var me = this,
+            wizard = me.getAddCommandWizard(),
+            step2ErrorMsg = me.getStep2FormErrorMessage(),
+            step2 = wizard.down('add-command-step2'),
+            step2Form = step2.getForm(),
+            commandsForDeviceGroupStore = me.getStore('Mdc.commands.store.CommandsForDeviceGroup'),
+            categorySet = new Set(),
+            categoryModels = [],
+            category = undefined;
+
+        step2.setLoading();
+        step2ErrorMsg.hide();
+        step2Form.clearInvalid();
+        if (Ext.isEmpty(me.categoriesStore)) {
+            me.categoriesStore = Ext.create('Ext.data.ArrayStore', {
+                fields: ['name']
+            });
+        }
+        commandsForDeviceGroupStore.getProxy().setUrl(me.wizardInformation.deviceGroupId);
+        commandsForDeviceGroupStore.load(function(records, operation, success) {
+            Ext.Array.forEach(records, function(record, index){
+                category = record.get('category');
+                if (!categorySet.has(category)) {
+                    categorySet.add(category);
+                    categoryModels.push({name: category});
+                }
+            }, me);
+            categoryModels.sort(function (model1, model2) {
+                return model1.name.localeCompare(model2.name); // Sort the categories alphabetically
+            });
+            me.categoriesStore.add(categoryModels);
+            me.getStep2CategoryCombo().bindStore(me.categoriesStore, true);
+            step2.setLoading(false);
+        });
+    },
+
+    validateStep2: function (callback) {
+        var me = this,
+            wizard = me.getAddCommandWizard(),
+            step2ErrorMsg = me.getStep2FormErrorMessage(),
+            step2 = wizard.down('add-command-step2'),
+            step2Form = step2.getForm();
+
+        if (!step2.isValid()) {
+            step2ErrorMsg.show();
+        } else {
+            //me.wizardInformation.deviceGroupId = deviceGroupCombo.getValue();
+            callback();
+        }
     }
 
 });

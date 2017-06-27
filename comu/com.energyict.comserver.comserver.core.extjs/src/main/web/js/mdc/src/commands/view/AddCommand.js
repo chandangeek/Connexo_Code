@@ -5,37 +5,39 @@ Ext.define('Mdc.commands.view.AddCommand', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.add-command',
 
+    requires: [
+        'Mdc.commands.view.AddCommandSideNavigation',
+        'Mdc.commands.view.AddCommandWizard'
+    ],
+
+    returnLink: undefined,
+
     initComponent: function () {
         var me = this;
 
+        me.side = {
+            itemId: 'mdc-add-command-side-menu',
+            xtype: 'panel',
+            ui: 'medium',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            items: [
+                {
+                    xtype: 'add-command-side-navigation',
+                    title: Uni.I18n.translate('general.addCommand', 'MDC', 'Add command'),
+                    itemId: 'mdc-add-command-side-navigation'
+                }
+            ]
+        };
+
         me.content = [
             {
-                xtype: 'panel',
-                ui: 'large',
-                title: Uni.I18n.translate('general.addCommand', 'MDC', 'Add command'),
-                items: [
-                ]
-            },
-            {
-                xtype: 'container',
-                layout: {
-                    type: 'hbox'
-                },
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-                        itemId: 'add-custom-attribute-sets-grid-add',
-                        xtype: 'button',
-                        ui: 'action',
-                        disabled: true
-                    },
-                    {
-                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                        itemId: 'mdc-add-command-cancel',
-                        xtype: 'button',
-                        ui: 'link'
-                    }
-                ]
+                xtype: 'add-command-wizard',
+                itemId: 'mdc-add-command-wizard',
+                router: me.router,
+                returnLink: me.returnLink
             }
         ];
 
