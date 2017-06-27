@@ -83,6 +83,7 @@ import java.time.LocalTime;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -154,6 +155,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         deviceTypeInfo.deviceLifeCycleId = null;
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
         DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getDeviceIcon()).thenReturn(new byte[0]);
         DeviceType.DeviceTypeBuilder deviceTypeBuilder = mock(DeviceType.DeviceTypeBuilder.class);
         when(deviceTypeBuilder.create()).thenReturn(deviceType);
 
@@ -181,6 +183,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(protocolPluggableService.findDeviceProtocolPluggableClassByName("theProtocol")).thenReturn(deviceProtocolPluggableClass);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        when(deviceType.getDeviceIcon()).thenReturn(new byte[0]);
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
         when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
@@ -205,6 +208,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType.DeviceTypeBuilder deviceTypeBuilder = mock(DeviceType.DeviceTypeBuilder.class);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
+        when(deviceType.getDeviceIcon()).thenReturn(new byte[0]);
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
         when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
@@ -229,6 +233,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceType.getDeviceIcon()).thenReturn(new byte[0]);
         when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
         when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         when(deviceTypeBuilder.create()).thenReturn(deviceType);
@@ -363,6 +368,19 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     }
 
     @Test
+    public void testGetDeviceTypeWithIconBase64() throws Exception {
+        DeviceType deviceType = mockDeviceType("any", 887);
+        when(deviceConfigurationService.findDeviceType(887)).thenReturn(Optional.of(deviceType));
+
+        String imageString = "IMAGE";
+        String base64 = Base64.getEncoder().encodeToString(imageString.getBytes());
+        when(deviceType.getDeviceIcon()).thenReturn(imageString.getBytes());
+
+        Map<String, Object> map = target("/devicetypes/887").request().get(Map.class);
+        assertThat(map.get("deviceIcon")).isEqualTo(base64);
+    }
+
+    @Test
     public void testDeviceTypeInfoJavaScriptMappings() throws Exception {
         int NUMBER_OF_CONFIGS = 4;
         int NUMBER_OF_LOADPROFILES = 6;
@@ -400,6 +418,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceType.isDirectlyAddressable()).thenReturn(true);
         when(deviceType.getLogBookTypes()).thenReturn(logBooksList);
         when(deviceType.getRegisterTypes()).thenReturn(registerList);
+        when(deviceType.getDeviceIcon()).thenReturn(new byte[0]);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
 
         Finder<DeviceType> finder = mockFinder(Arrays.asList(deviceType));
@@ -1586,6 +1605,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceType.getConfigurations()).thenReturn(Collections.emptyList());
         when(deviceType.canActAsGateway()).thenReturn(true);
         when(deviceType.isDirectlyAddressable()).thenReturn(true);
+        when(deviceType.getDeviceIcon()).thenReturn(new byte[0]);
         when(deviceType.getVersion()).thenReturn(1L);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         DeviceLifeCycle targetDeviceLifeCycle = mock(DeviceLifeCycle.class);

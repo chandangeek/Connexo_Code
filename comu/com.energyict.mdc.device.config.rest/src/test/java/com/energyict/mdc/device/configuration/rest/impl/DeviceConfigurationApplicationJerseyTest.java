@@ -306,6 +306,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
         when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
         when(deviceType.getVersion()).thenReturn(OK_VERSION);
+        when(deviceType.getDeviceIcon()).thenReturn(new byte[0]);
 
         doReturn(Optional.of(deviceType)).when(deviceConfigurationService).findDeviceType(id);
         doReturn(Optional.of(deviceType)).when(deviceConfigurationService).findAndLockDeviceType(id, OK_VERSION);
