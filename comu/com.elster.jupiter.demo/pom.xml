@@ -309,6 +309,18 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pki</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle.config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.usagepoint.config</artifactId>
+        </dependency>
 
         <!-- TESTS -->
         <dependency>
@@ -400,23 +412,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>usagepoint.lifecycle.config</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>usagepoint.lifecycle</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.pluggable.rest</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>mdm.usagepoint.config</artifactId>
         </dependency>
     </dependencies>
 </project>
