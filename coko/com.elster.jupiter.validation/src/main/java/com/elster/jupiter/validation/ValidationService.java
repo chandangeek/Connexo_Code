@@ -202,7 +202,7 @@ public interface ValidationService {
 
     Optional<DataValidationTask> findAndLockValidationTaskByIdAndVersion(long id, long version);
 
-    Optional<DataValidationTask> findValidationTaskByName(QualityCodeSystem qualityCodeSystem, String name);
+    Optional<DataValidationTask> findValidationTaskByName(String name);
 
     DataValidationOccurrence createValidationOccurrence(TaskOccurrence taskOccurrence);
 
