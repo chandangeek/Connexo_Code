@@ -5,6 +5,9 @@ Ext.define('Mdc.commands.view.CommandPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.command-preview',
     frame: true,
+    header: {
+        height: 37
+    },
 
     requires: [
         'Mdc.commands.view.CommandPreviewForm',

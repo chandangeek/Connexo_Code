@@ -5,7 +5,9 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsPrivilegesEditWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.security-accessors-privileges-edit-window',
     modal: true,
-    width: 400,
+    closable: false,
+    resizable: false,
+    shrinkWrapDock: true,
     securityAccessorRecord: null,
 
     initComponent: function () {

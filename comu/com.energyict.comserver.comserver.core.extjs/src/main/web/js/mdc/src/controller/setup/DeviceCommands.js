@@ -409,13 +409,21 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
 
     msgCategoryChange: function (combo, records) {
         var me = this,
-            cat = records[0];
+            cat = records[0],
+            commandCombo = me.getCommandCombo();
+
         me.getAddPropertyForm().hide();
         me.getAddPropertyHeader().hide();
         if (Ext.isDefined(cat)) {
-            me.getCommandCombo().enable();
-            me.getCommandCombo().reset();
-            me.getCommandCombo().bindStore(cat.deviceMessageSpecs(), true);
+            commandCombo.enable();
+            commandCombo.reset();
+            commandCombo.bindStore(cat.deviceMessageSpecs(), true);
+            if (cat.deviceMessageSpecs().getCount()===1) {
+                commandCombo.setValue( cat.deviceMessageSpecs().getAt(0).get('name') );
+                var recordsArray = [];
+                recordsArray.push(cat.deviceMessageSpecs().getAt(0));
+                me.commandChange(commandCombo, recordsArray);
+            }
         }
     },
 

@@ -13,8 +13,6 @@ Ext.define('Mdc.commands.view.AddCommandStep2', {
         'Mdc.commands.store.CommandsForDeviceGroup'
     ],
 
-    isEdit: false,
-
     initComponent: function () {
         var me = this;
 
@@ -63,8 +61,8 @@ Ext.define('Mdc.commands.view.AddCommandStep2', {
                 fieldLabel: Uni.I18n.translate('deviceCommand.add.command', 'MDC', 'Command'),
                 itemId: 'mdc-add-command-step2-command-combo',
                 emptyText: Uni.I18n.translate('general.selectACommand', 'MDC', 'Select a command...'),
-                displayField: 'name',
-                valueField: 'id',
+                displayField: 'command',
+                valueField: 'commandName',
                 required: true,
                 allowBlank: false,
                 editable: false,
@@ -102,6 +100,20 @@ Ext.define('Mdc.commands.view.AddCommandStep2', {
                 dateTimeSeparatorConfig: {
                     html: Uni.I18n.translate('general.lowercase.at', 'MDC', 'at'),
                     margin: '0 6 0 6'
+                }
+            },
+            {
+                itemId: 'mdc-add-command-step2-property-header',
+                margins: '16 0 0 0'
+            },
+            {
+                itemId: 'mdc-add-command-step2-property-form',
+                xtype: 'property-form',
+                margins: '16 0 0 0',
+                defaults: {
+                    labelWidth: 250,
+                    resetButtonHidden: false,
+                    width: 336 // To be aligned with the above
                 }
             }
         ];

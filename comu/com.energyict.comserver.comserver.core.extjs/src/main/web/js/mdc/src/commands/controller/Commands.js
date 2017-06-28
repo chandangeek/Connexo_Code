@@ -69,6 +69,7 @@ Ext.define('Mdc.commands.controller.Commands', {
     wizardInformation: null,
     categoriesStore: undefined,
     commandsStore: undefined,
+    commandsPerCategory: undefined,
 
     init: function () {
         this.control({
@@ -89,8 +90,10 @@ Ext.define('Mdc.commands.controller.Commands', {
             },
             'add-command-side-navigation': {
                 movetostep: this.moveTo
+            },
+            'add-command-step2 #mdc-add-command-step2-category-combo': {
+                change: this.onCategoryChange
             }
-
         });
     },
 
@@ -163,6 +166,16 @@ Ext.define('Mdc.commands.controller.Commands', {
         mainView.setLoading();
         me.wizardInformation = {};
         deviceGroupStore.load(function () {
+            var numberOfDdeviceGroups = this.getCount();
+            if (numberOfDdeviceGroups === 0) {
+                var deviceGroupCombo = widget.down('#mdc-add-command-step1-deviceGroup-combo');
+                deviceGroupCombo.hide();
+                deviceGroupCombo.setDisabled(true);
+                widget.down('#mdc-add-command-step1-noDeviceGroup-msg').show();
+            } else if (numberOfDdeviceGroups === 1) {
+                var deviceGroupCombo = widget.down('#mdc-add-command-step1-deviceGroup-combo');
+                deviceGroupCombo.setValue(this.getAt(0));
+            }
             mainView.setLoading(false);
             me.getApplication().fireEvent('changecontentevent', widget);
         });
@@ -204,7 +217,6 @@ Ext.define('Mdc.commands.controller.Commands', {
     prepareNextStep: function (stepNumber) {
         var me = this,
             wizard = me.getAddCommandWizard(),
-            navigationMenu = me.getNavigationMenu(),
             buttons = wizard.getDockedComponent('mdc-add-command-wizard-buttons'),
             nextBtn = buttons.down('[action=step-next]'),
             backBtn = buttons.down('[action=step-back]'),
@@ -231,22 +243,20 @@ Ext.define('Mdc.commands.controller.Commands', {
                 cancelBtn.show();
                 break;
             case 3:
-                navigationMenu.jumpBack = false;
                 nextBtn.hide();
-                backBtn.hide();
-                confirmBtn.hide();
+                backBtn.show();
+                confirmBtn.show();
                 finishBtn.hide();
-                cancelBtn.hide();
-                me.prepareStep3(wizard, navigationMenu, [confirmBtn, backBtn, cancelBtn]);
+                cancelBtn.show();
+                me.prepareStep3(wizard);
                 break;
             case 4:
-                navigationMenu.jumpBack = false;
                 nextBtn.hide();
                 backBtn.hide();
                 confirmBtn.hide();
-                finishBtn.hide();
+                finishBtn.show();
                 cancelBtn.hide();
-                me.prepareStep4(wizard, finishBtn, navigationMenu);
+                me.prepareStep4(wizard);
                 break;
         }
     },
@@ -279,14 +289,20 @@ Ext.define('Mdc.commands.controller.Commands', {
     validateStep1: function (callback) {
         var me = this,
             wizard = me.getAddCommandWizard(),
+            step1 = wizard.down('add-command-step1'),
+            noDeviceGroupsMsg = step1.down('#mdc-add-command-step1-noDeviceGroup-msg'),
             step1ErrorMsg = me.getStep1FormErrorMessage(),
             deviceGroupCombo = me.getStep1DeviceGroupCombo();
 
         step1ErrorMsg.hide();
-        if (!deviceGroupCombo.validate()) {
+        if (noDeviceGroupsMsg.isVisible()) { // because of no device groups defined yet
+            step1ErrorMsg.show();
+            noDeviceGroupsMsg.markInvalid(Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'));
+        } else if (!deviceGroupCombo.validate()) {
             step1ErrorMsg.show();
         } else {
             me.wizardInformation.deviceGroupId = deviceGroupCombo.getValue();
+            me.wizardInformation.deviceGroupName = deviceGroupCombo.getRawValue();
             callback();
         }
     },
@@ -302,6 +318,7 @@ Ext.define('Mdc.commands.controller.Commands', {
             categoryModels = [],
             category = undefined;
 
+        me.commandsPerCategory = {};
         step2.setLoading();
         step2ErrorMsg.hide();
         step2Form.clearInvalid();
@@ -309,6 +326,8 @@ Ext.define('Mdc.commands.controller.Commands', {
             me.categoriesStore = Ext.create('Ext.data.ArrayStore', {
                 fields: ['name']
             });
+        } else {
+            me.categoriesStore.removeAll(false);
         }
         commandsForDeviceGroupStore.getProxy().setUrl(me.wizardInformation.deviceGroupId);
         commandsForDeviceGroupStore.load(function(records, operation, success) {
@@ -317,29 +336,85 @@ Ext.define('Mdc.commands.controller.Commands', {
                 if (!categorySet.has(category)) {
                     categorySet.add(category);
                     categoryModels.push({name: category});
+                    me.commandsPerCategory[category] = [];
+                    me.commandsPerCategory[category].push(record);
+                } else {
+                    me.commandsPerCategory[category].push(record);
                 }
             }, me);
             categoryModels.sort(function (model1, model2) {
                 return model1.name.localeCompare(model2.name); // Sort the categories alphabetically
             });
-            me.categoriesStore.add(categoryModels);
-            me.getStep2CategoryCombo().bindStore(me.categoriesStore, true);
+            if (categoryModels.length != 0) {
+                me.categoriesStore.add(categoryModels);
+                me.getStep2CategoryCombo().reset();
+                me.getStep2CategoryCombo().bindStore(me.categoriesStore, true);
+            } else {
+                me.getStep2CategoryCombo().reset();
+                me.getStep2CommandCombo().reset();
+            }
             step2.setLoading(false);
         });
     },
 
-    validateStep2: function (callback) {
+    validateStep2: function() {
         var me = this,
             wizard = me.getAddCommandWizard(),
             step2ErrorMsg = me.getStep2FormErrorMessage(),
             step2 = wizard.down('add-command-step2'),
-            step2Form = step2.getForm();
+            commandCombo = me.getStep2CommandCombo(),
+            valid = true;
 
         if (!step2.isValid()) {
+            valid = false;
             step2ErrorMsg.show();
         } else {
-            //me.wizardInformation.deviceGroupId = deviceGroupCombo.getValue();
-            callback();
+            me.wizardInformation.command = commandCombo.getRawValue();
+            me.wizardInformation.commandName = commandCombo.getValue();
+        }
+        return valid;
+    },
+
+    prepareStep3: function (wizard) {
+        var me = this,
+            step3 = wizard.down('add-command-step3'),
+            confirmationTitle = Uni.I18n.translate('add.command.step3.title', 'MDC',
+                "Add '{0}' to devices in '{1}'?", [me.wizardInformation.command, me.wizardInformation.deviceGroupName]),
+            confirmationMessage = Uni.I18n.translate('add.command.step3.msg', 'MDC', 'The selected command will be added to all devices in the device group.');
+
+        step3.update('<h3>' + confirmationTitle + '</h3><br>' + confirmationMessage);
+    },
+
+    prepareStep4: function (wizard) {
+        var me = this,
+            step4 = wizard.down('add-command-step4'),
+            statusMessage = Uni.I18n.translate('add.command.step4.msg', 'MDC',
+                "The command '{0}' will be added to all devices in the device group '{1}'.", [me.wizardInformation.command, me.wizardInformation.deviceGroupName]);
+
+        step4.update(statusMessage);
+    },
+
+    onCategoryChange: function(combo, newValue, oldValue) {
+        var me = this,
+            commandCombo = me.getStep2CommandCombo(),
+            commandsStore = Ext.create('Ext.data.ArrayStore', {
+                fields: ['category', 'command', 'commandName']
+            });
+
+        if (Ext.isEmpty(me.commandsPerCategory) || Ext.isEmpty(me.commandsPerCategory[newValue])) {
+            commandCombo.setDisabled(true);
+        } else {
+            Ext.suspendLayouts();
+            var commandsArray = me.commandsPerCategory[newValue];
+            commandsStore.add(commandsArray);
+            if (commandsArray.length === 1) {
+                commandCombo.setValue(me.commandsPerCategory[newValue][0].get('command'));
+            } else {
+                commandCombo.reset();
+            }
+            commandCombo.bindStore(commandsStore, true);
+            commandCombo.enable();
+            Ext.resumeLayouts(true);
         }
     }
 

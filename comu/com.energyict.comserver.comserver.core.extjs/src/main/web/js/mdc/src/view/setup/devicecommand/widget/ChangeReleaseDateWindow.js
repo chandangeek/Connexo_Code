@@ -6,6 +6,8 @@ Ext.define('Mdc.view.setup.devicecommand.widget.ChangeReleaseDateWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.device-command-change-release-date',
     closable: false,
+    resizable: false,
+    shrinkWrapDock: true,
     requires: [
         'Uni.form.field.DateTime'
     ],

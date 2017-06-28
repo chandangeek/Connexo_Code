@@ -11,8 +11,6 @@ Ext.define('Mdc.commands.view.AddCommandStep1', {
         'Mdc.store.DeviceGroups'
     ],
 
-    isEdit: false,
-
     initComponent: function () {
         var me = this;
 
@@ -41,6 +39,18 @@ Ext.define('Mdc.commands.view.AddCommandStep1', {
                     afterrender: function (field) {
                         field.focus(false, 200);
                     }
+                }
+            },
+            {
+                xtype: 'displayfield',
+                fieldLabel: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group'),
+                required: true,
+                itemId: 'mdc-add-command-step1-noDeviceGroup-msg',
+                hidden: true,
+                labelWidth: 200,
+                width: 550,
+                renderer: function(value){
+                    return '<div style=" color:#FF0000; margin:6px 10px 6px 0px; ">' + Uni.I18n.translate('general.noDeviceGroup', 'MDC', 'No device group defined yet') + '</div>';
                 }
             }
         ];
