@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.upl.tasks.support.DeviceProtocolConnectionFunctionSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceStatusInformationSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceTopologySupport;
@@ -29,10 +30,10 @@ import java.util.List;
  */
 public interface DeviceProtocol
         extends HasDynamicProperties, DeviceProtocolDialectSupport,
-                DeviceBasicSupport, DeviceAccessSupport, DeviceClockSupport,
-                DeviceLoadProfileSupport, DeviceRegisterSupport, DeviceLogBookSupport,
-                DeviceStatusInformationSupport, DeviceMessageSupport, DeviceSecuritySupport,
-                DeviceTopologySupport, DeviceCachingSupport, DeviceDescriptionSupport, ConnectionTypeSupport {
+        DeviceBasicSupport, DeviceAccessSupport, DeviceClockSupport,
+        DeviceLoadProfileSupport, DeviceRegisterSupport, DeviceLogBookSupport,
+        DeviceStatusInformationSupport, DeviceMessageSupport, DeviceSecuritySupport,
+        DeviceProtocolConnectionFunctionSupport, DeviceTopologySupport, DeviceCachingSupport, DeviceDescriptionSupport, ConnectionTypeSupport {
 
     /**
      * Models common properties that can be marked required or optional
@@ -63,7 +64,7 @@ public interface DeviceProtocol
     /**
      * Initializes the DeviceProtocol, after the physical connection has been
      * created and before the protocol <i>logOn</i> occurs.
-     * <p/>
+     * <p>
      * Implementers should save the arguments for future use.
      *
      * @param offlineDevice contains the complete definition/configuration of a Device
