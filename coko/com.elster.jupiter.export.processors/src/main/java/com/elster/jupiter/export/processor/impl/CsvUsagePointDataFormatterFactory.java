@@ -25,7 +25,7 @@ import java.util.Map;
         immediate = true)
 public class CsvUsagePointDataFormatterFactory extends StandardCsvDataFormatterFactory {
 
-    public static final String NAME = "csvUsagePointDataProcessorFactory";
+    static final String NAME = "csvUsagePointDataProcessorFactory";
 
     //OSGI
     public CsvUsagePointDataFormatterFactory() {
