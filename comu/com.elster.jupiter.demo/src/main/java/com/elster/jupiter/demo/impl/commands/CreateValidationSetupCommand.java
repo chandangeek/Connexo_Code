@@ -27,6 +27,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -69,14 +70,18 @@ public class CreateValidationSetupCommand extends CommandWithTransaction {
     @Override
     public void run() {
         boolean withInsight = licenseService.getLicenseForApplication("INS").isPresent();
-        createMdcValidationTask();
-        if (withInsight) {
-            createMdmValidationTasks();
-            createMdmValidationRuleSets();
+        try {
+            createMdcValidationTask();
+            if (withInsight) {
+                createMdmValidationTasks();
+                createMdmValidationRuleSets();
+            }
+            createValidationRuleSet();
+            addValidationToDeviceConfigurations();
+            addValidationToDevices();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        createValidationRuleSet();
-        addValidationToDeviceConfigurations();
-        addValidationToDevices();
     }
 
     private void createMdmValidationRuleSets() {
