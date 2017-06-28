@@ -98,5 +98,3 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskPreview', {
     ]
 
 });
-
-
