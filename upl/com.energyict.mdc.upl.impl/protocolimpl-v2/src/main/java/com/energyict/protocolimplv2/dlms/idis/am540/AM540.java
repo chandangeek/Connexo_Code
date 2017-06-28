@@ -8,12 +8,14 @@ import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionTy
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.tasks.DeviceConnectionFunction;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.upl.UPLConnectionFunction;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.Issue;
@@ -228,6 +230,11 @@ public class AM540 extends AM130 implements SerialNumberSupport {
                 (DeviceProtocolDialect) new SerialDeviceProtocolDialect(this.getPropertySpecService()), // HDLC.
                 new TcpDeviceProtocolDialect(this.getPropertySpecService()), // Gateway.
                 new MirrorTcpDeviceProtocolDialect(this.getPropertySpecService())); // Mirror.
+    }
+
+    @Override
+    public List<UPLConnectionFunction> getConsumableConnectionFunctions() {
+        return Arrays.asList(DeviceConnectionFunction.MIRROR, DeviceConnectionFunction.GATEWAY);
     }
 
     @Override
