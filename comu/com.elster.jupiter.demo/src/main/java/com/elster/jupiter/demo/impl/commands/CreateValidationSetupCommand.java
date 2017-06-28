@@ -80,6 +80,7 @@ public class CreateValidationSetupCommand extends CommandWithTransaction {
             addValidationToDeviceConfigurations();
             addValidationToDevices();
         } catch (Exception e) {
+            e.getCause().printStackTrace();
             e.printStackTrace();
         }
     }
