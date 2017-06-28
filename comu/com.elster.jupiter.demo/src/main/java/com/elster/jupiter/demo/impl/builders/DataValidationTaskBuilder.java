@@ -75,7 +75,7 @@ public class DataValidationTaskBuilder extends NamedBuilder<DataValidationTask, 
 
     @Override
     public Optional<DataValidationTask> find() {
-        return validationService.findValidationTaskByName(qualityCodeSystem, getName());
+        return validationService.findValidationTaskByName(getName());
     }
 
     @Override
