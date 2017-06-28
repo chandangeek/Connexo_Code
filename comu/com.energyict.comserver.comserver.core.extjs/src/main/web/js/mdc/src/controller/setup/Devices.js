@@ -50,7 +50,8 @@ Ext.define('Mdc.controller.setup.Devices', {
         {ref: 'deviceActionsMenu', selector: 'deviceSetup #deviceActionMenu'},
         {ref: 'addDevicePage', selector: 'deviceAdd'},
         {ref: 'deviceConnectionsList', selector: 'device-connections-list'},
-        {ref: 'deviceCommunicationsList', selector: 'device-communications-list'}
+        {ref: 'deviceCommunicationsList', selector: 'device-communications-list'},
+        {ref: 'deviceGeneralInformationPanel', selector: 'deviceGeneralInformationPanel'}
     ],
 
     init: function () {
@@ -276,6 +277,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                                 me.getDeviceGeneralInformationForm().loadRecord(attributes);
                                 if(!Ext.isEmpty(attributes.get('deviceIcon'))) {
                                     me.getDeviceIconImage().setSrc('data:image;base64,' + attributes.get('deviceIcon'));
+                                    me.getDeviceGeneralInformationPanel().doLayout();
                                     me.getDeviceIconImage().show();
                                 } else {
                                     me.getDeviceIconImage().hide();
