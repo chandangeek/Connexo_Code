@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.impl.ami.eventhandler.CommunicationTestEventHandlerFactory;
 import com.energyict.mdc.device.data.impl.ami.eventhandler.MeterReadingEventHandlerFactory;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
@@ -38,7 +39,9 @@ public enum SubscriberTranslationKeys implements TranslationKey {
     CHANGE_DEVICE_CONFIGURATION(ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SUBSCRIBER, ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SUBSCRIBER_DISPLAY_NAME),
     COMTASK_ENABLEMENT(ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_QUEUE_SUBSCRIBER, ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_QUEUE_SUBSCRIBER_DISPLAY_NAME),
     METER_READING_EVENT(MeterReadingEventHandlerFactory.SUBSCRIBER_NAME, MeterReadingEventHandlerFactory.SUBSCRIBER_DISPLAYNAME),
-    TEST_COMMUNICATION_COMPLETED_EVENT(CommunicationTestEventHandlerFactory.SUBSCRIBER_NAME, CommunicationTestEventHandlerFactory.SUBSCRIBER_DISPLAYNAME);
+    TEST_COMMUNICATION_COMPLETED_EVENT(CommunicationTestEventHandlerFactory.SUBSCRIBER_NAME, CommunicationTestEventHandlerFactory.SUBSCRIBER_DISPLAYNAME),
+    BULK_DEVICE_MESSAGES(DeviceMessageService.BULK_DEVICE_MESSAGE_QUEUE_SUBSCRIBER, DeviceMessageService.BULK_DEVICE_MESSAGE_QUEUE_DISPLAYNAME),
+    DEVICE_MESSAGES(DeviceMessageService.DEVICE_MESSAGE_QUEUE_SUBSCRIBER, DeviceMessageService.DEVICE_MESSAGE_QUEUE_DISPLAYNAME);
 
     private String key;
     private String defaultFormat;
