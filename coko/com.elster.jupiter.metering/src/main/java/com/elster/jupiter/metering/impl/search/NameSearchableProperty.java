@@ -22,7 +22,7 @@ public class NameSearchableProperty implements SearchableUsagePointProperty {
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    public static final String FIELDNAME = "name";
+    private static final String FIELDNAME = "name";
 
     public NameSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();

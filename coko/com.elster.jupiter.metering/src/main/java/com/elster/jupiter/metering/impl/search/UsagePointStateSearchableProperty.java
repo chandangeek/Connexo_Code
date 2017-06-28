@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class UsagePointStateSearchableProperty implements SearchableUsagePointProperty {
-    public static final String FIELD_NAME = "state.state";
+    private static final String FIELD_NAME = "state.state";
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
