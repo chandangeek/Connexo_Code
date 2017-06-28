@@ -114,7 +114,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
             folderName = DEVICE_DESTINATION_FOLDER_NAME;
             preparedGroupName = prepareName(deviceGroup);
             builder.setApplication("MultiSense")
-                    .setDataFormatterFactoryName(CsvMeterDataFormatterFactory.NAME)
+                    .setDataFormatterFactoryName("standardCsvDataProcessorFactory")
                     .selectingMeterReadings()
                     .fromExportPeriod(yesterday)
                     .fromUpdatePeriod(yesterday)
@@ -130,7 +130,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
             folderName = USAGE_POINT_DESTINATION_FOLDER_NAME;
             preparedGroupName = prepareName(usagePointGroup);
             builder.setApplication("Insight")
-                    .setDataFormatterFactoryName(CsvUsagePointDataFormatterFactory.NAME)
+                    .setDataFormatterFactoryName("csvUsagePointDataProcessorFactory")
                     .selectingUsagePointReadings()
                     .fromExportPeriod(yesterday)
                     .fromUpdatePeriod(yesterday)

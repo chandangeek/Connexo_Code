@@ -32,9 +32,9 @@ import java.util.stream.Collectors;
  * {@link Builder} that creates a {@link UsagePointGroup} for the given usage point properties
  */
 public class UsagePointGroupBuilder extends NamedBuilder<UsagePointGroup, UsagePointGroupBuilder> {
-    private static final String PROPERTY_USAGE_POINT_NAME = NameSearchableProperty.FIELDNAME;
-    private static final String PROPERTY_SERVICE_CATEGORY = ServiceCategorySearchableProperty.FIELD_NAME;
-    private static final String PROPERTY_STATE = UsagePointStateSearchableProperty.FIELD_NAME;
+    private static final String PROPERTY_USAGE_POINT_NAME = "name";
+    private static final String PROPERTY_SERVICE_CATEGORY = "SERVICEKIND";
+    private static final String PROPERTY_STATE = "state.state";
 
     private final MeteringGroupsService meteringGroupsService;
     private final SearchService searchService;
