@@ -555,6 +555,7 @@ public enum TableSpecs {
             Column comportpool = table.column("COMPORTPOOL").number().add();
             table.column("RESCHEDULERETRYDELAYCODE").number().conversion(NUMBER2INT).map("rescheduleRetryDelay.timeUnitCode").add();
             Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().since(Version.version(10, 3)).add();
+            table.column("CONNECTIONFUNCTION").number().conversion(NUMBER2LONG).map("connectionFunctionDbValue").since(Version.version(10, 4)).add();
             table.setJournalTableName("DTC_PARTIALCONNECTIONTASKJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.primaryKey("PK_DTC_PARTIALCONNTASK").on(id).add();
@@ -750,6 +751,7 @@ public enum TableSpecs {
             table.column("PRIORITY").number().notNull().conversion(NUMBER2INT).map(ComTaskEnablementImpl.Fields.PRIORITY.fieldName()).add();
             Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().notNull().add().upTo(Version.version(10, 2));
             table.column("IGNORENEXTEXECSPECS").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.IGNORE_NEXT_EXECUTION_SPECS_FOR_INBOUND.fieldName()).add();
+            table.column("CONNECTIONFUNCTION").number().conversion(NUMBER2LONG).map("connectionFunctionDbValue").since(Version.version(10, 4)).add();
             table.foreignKey("FK_DTC_COMTASKENABLMNT_OPARTCT")
                     .on(partialConnectionTask)
                     .references(DTC_PARTIALCONNECTIONTASK.name())

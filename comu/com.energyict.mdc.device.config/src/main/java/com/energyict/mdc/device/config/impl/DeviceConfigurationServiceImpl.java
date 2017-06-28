@@ -677,7 +677,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.dataModel.register(this.getModule());
         upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceConfigurationService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
                 Version.version(10, 2), UpgraderV10_2.class,
-                Version.version(10, 3), UpgraderV10_3.class
+                Version.version(10, 3), UpgraderV10_3.class,
+                Version.version(10, 4), UpgraderV10_4.class
         ));
         initPrivileges();
     }

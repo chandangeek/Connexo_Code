@@ -68,6 +68,7 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
@@ -1734,6 +1735,13 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         public ComTaskEnablementBuilder setPriority(int priority) {
             this.mode.verify();
             this.underConstruction.setPriority(priority);
+            return this;
+        }
+
+        @Override
+        public ComTaskEnablementBuilder setConnectionFunction(ConnectionFunction connectionFunction) {
+            this.mode.verify();
+            this.underConstruction.setConnectionFunction(connectionFunction);
             return this;
         }
 

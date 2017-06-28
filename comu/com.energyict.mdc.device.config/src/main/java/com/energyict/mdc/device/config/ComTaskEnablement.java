@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.tasks.ComTask;
 
 import aQute.bnd.annotation.ProviderType;
@@ -118,6 +119,16 @@ public interface ComTaskEnablement extends HasId {
     Optional<PartialConnectionTask> getPartialConnectionTask();
 
     void setPartialConnectionTask(PartialConnectionTask partialConnectionTask);
+
+    /**
+     * Gets an optional containing the {@link ConnectionFunction} for this {@link ComTaskEnablement}
+     * or else an empty optional in case no function is provided
+     *
+     * @return the {@link ConnectionFunction}
+     */
+    Optional<ConnectionFunction> getConnectionFunction();
+
+    void setConnectionFunction(ConnectionFunction connectionFunction);
 
     /**
      * Saves the changes applied to this ComTaskEnablement.

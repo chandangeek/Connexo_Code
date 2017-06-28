@@ -52,7 +52,13 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -69,6 +75,7 @@ import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -87,15 +94,10 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.assertj.core.api.Assertions;
-import org.junit.*;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -105,10 +107,23 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
+import org.assertj.core.api.Assertions;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartialInboundConnectionTaskCrudIT {
@@ -130,6 +145,7 @@ public class PartialInboundConnectionTaskCrudIT {
     private static LicensedProtocolService licensedProtocolService;
     private static ConnectionTypeService connectionTypeService;
     private static InboundComPortPool inboundComPortPool, inboundComPortPool2;
+    private static long myDeviceProtocolPluggableClassID;
 
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
@@ -141,6 +157,8 @@ public class PartialInboundConnectionTaskCrudIT {
     private DeviceProtocolDialect deviceProtocolDialect1, deviceProtocolDialect2, deviceProtocolDialect3;
     @Mock
     private PropertySpec deviceProtocolDialectSpec1, deviceProtocolDialectSpec2, deviceProtocolDialectSpec3, deviceProtocolDialectSpec4;
+
+    private ConnectionFunction connectionFunction_1, connectionFunction_2;
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -249,8 +267,9 @@ public class PartialInboundConnectionTaskCrudIT {
         when(connectionTypeService.createConnectionType(InboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new InboundNoParamsConnectionTypeImpl());
     }
 
-    private static void setupMasterData () {
+    private static void setupMasterData() {
         try (TransactionContext context = transactionService.getContext()) {
+            protocolPluggableService.addDeviceProtocolService(new DeviceProtocolService());
             protocolPluggableService.addInboundDeviceProtocolService(new InboundDeviceProtocolService());
             protocolPluggableService.addLicensedProtocolService(licensedProtocolService);
             protocolPluggableService.addConnectionTypeService(connectionTypeService);
@@ -259,6 +278,7 @@ public class PartialInboundConnectionTaskCrudIT {
             connectionTypePluggableClass2 = protocolPluggableService.newConnectionTypePluggableClass("NoParamsConnectionType2", InboundNoParamsConnectionTypeImpl.class.getName());
             connectionTypePluggableClass2.save();
             InboundDeviceProtocolPluggableClass discoveryPluggable = protocolPluggableService.newInboundDeviceProtocolPluggableClass("MyDiscoveryName", DummyInboundDiscoveryProtocol.class.getName());
+            myDeviceProtocolPluggableClassID = protocolPluggableService.newDeviceProtocolPluggableClass("MyDeviceProtocol", DummyDeviceProtocolPluggableClassHavingConnectionFunctions.class.getName()).getId();
             discoveryPluggable.save();
             inboundComPortPool = engineConfigurationService.newInboundComPortPool("inboundComPortPool", ComPortType.TCP, discoveryPluggable, Collections.emptyMap());
             inboundComPortPool.setActive(true);
@@ -277,6 +297,9 @@ public class PartialInboundConnectionTaskCrudIT {
 
     @Before
     public void initializeMocks() {
+        connectionFunction_1 = mockConnectionFunction(1, "CF_1", "CF 1");
+        connectionFunction_2 = mockConnectionFunction(2, "CF_2", "CF 2");
+
         when(deviceProtocolDialectSpec1.getName()).thenReturn("deviceProtocolDialectSpec1");
         when(deviceProtocolDialectSpec1.getValueFactory()).thenReturn(new StringFactory());
 
@@ -293,6 +316,8 @@ public class PartialInboundConnectionTaskCrudIT {
         when(deviceProtocolDialect1.getPropertySpecs()).thenReturn(Arrays.asList(deviceProtocolDialectSpec1, deviceProtocolDialectSpec2, deviceProtocolDialectSpec3, deviceProtocolDialectSpec4));
         when(deviceProtocolDialect2.getDeviceProtocolDialectName()).thenReturn("Device Protocol Dialect 2");
         when(deviceProtocolDialect3.getDeviceProtocolDialectName()).thenReturn("Device Protocol Dialect 3");
+        when(deviceProtocolPluggableClass.getId()).thenReturn(myDeviceProtocolPluggableClassID);
+        when(deviceProtocolPluggableClass.getProvidedConnectionFunctions()).thenReturn(Arrays.asList(connectionFunction_1, connectionFunction_2));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
         when(deviceProtocol.getDeviceProtocolDialects()).thenReturn(Arrays.asList(deviceProtocolDialect1, deviceProtocolDialect2, deviceProtocolDialect3));
@@ -308,7 +333,8 @@ public class PartialInboundConnectionTaskCrudIT {
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
 
-        inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+        inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
+                .get(0))
                 .comPortPool(inboundComPortPool)
                 .asDefault(true).build();
         deviceConfiguration.save();
@@ -385,6 +411,73 @@ public class PartialInboundConnectionTaskCrudIT {
 
     @Test
     @Transactional
+    public void createHavingConnectionFunctionNotAlreadyInUseTest() {
+        PartialInboundConnectionTaskImpl havingConnectionFunction1;
+        PartialInboundConnectionTaskImpl havingConnectionFunction2;
+        DeviceConfiguration deviceConfiguration;
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        havingConnectionFunction1 = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+                .comPortPool(inboundComPortPool)
+                .connectionFunction(connectionFunction_1).build();
+        havingConnectionFunction2 = deviceConfiguration.newPartialInboundConnectionTask("MyDefault", connectionTypePluggableClass2, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+                .comPortPool(inboundComPortPool)
+                .connectionFunction(connectionFunction_2).build();
+        deviceConfiguration.save();
+
+        Optional<PartialConnectionTask> havingCF1 = deviceConfigurationService.findPartialConnectionTask(havingConnectionFunction1.getId());
+        Optional<PartialConnectionTask> havingCF2 = deviceConfigurationService.findPartialConnectionTask(havingConnectionFunction2.getId());
+        assertThat(havingCF1.isPresent()).isTrue();
+        assertThat(havingCF1.get().getConnectionFunction().isPresent()).isTrue();
+        assertThat(havingCF1.get().getConnectionFunction().get().getId()).isEqualTo(connectionFunction_1.getId());
+        assertThat(havingCF1.get().isDefault()).isFalse();
+        assertThat(havingCF2.isPresent()).isTrue();
+        assertThat(havingCF2.get().isDefault()).isFalse();
+        assertThat(havingCF2.get().getConnectionFunction().isPresent()).isTrue();
+        assertThat(havingCF2.get().getConnectionFunction().get().getId()).isEqualTo(connectionFunction_2.getId());
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.CONNECTION_FUNCTION_UNIQUE + '}')
+    public void createHavingConnectionFunctionAlreadyInUseTest() {
+        DeviceConfiguration deviceConfiguration;
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+                .comPortPool(inboundComPortPool)
+                .connectionFunction(connectionFunction_1).build();
+        deviceConfiguration.newPartialInboundConnectionTask("MyDefault", connectionTypePluggableClass2, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+                .comPortPool(inboundComPortPool)
+                .connectionFunction(connectionFunction_1).build();
+        deviceConfiguration.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL + '}')
+    public void createHavingUnsupportedConnectionFunctionTest() {
+        DeviceConfiguration deviceConfiguration;
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        ConnectionFunction unsupportedConnectionFunction = mockConnectionFunction(100, "Unsupported_CF", "Unsupported CF");
+        deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+                        .comPortPool(inboundComPortPool)
+                        .connectionFunction(unsupportedConnectionFunction).build();
+        deviceConfiguration.save();
+    }
+
+    @Test
+    @Transactional
     public void testUpdate() {
         PartialInboundConnectionTaskImpl inboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
@@ -393,13 +486,15 @@ public class PartialInboundConnectionTaskCrudIT {
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
 
-        inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+        inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
+                .get(0))
                 .comPortPool(inboundComPortPool)
                 .asDefault(true).build();
         deviceConfiguration.save();
 
         PartialInboundConnectionTask partialInboundConnectionTask = deviceConfiguration.getPartialInboundConnectionTasks().get(0);
         partialInboundConnectionTask.setDefault(false);
+        partialInboundConnectionTask.setConnectionFunction(connectionFunction_1);
         partialInboundConnectionTask.setComportPool(inboundComPortPool2);
         partialInboundConnectionTask.setConnectionTypePluggableClass(connectionTypePluggableClass2);
         partialInboundConnectionTask.setName("Changed");
@@ -416,6 +511,8 @@ public class PartialInboundConnectionTaskCrudIT {
 
         assertThat(reloadedPartialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool2.getId());
         assertThat(reloadedPartialInboundConnectionTask.isDefault()).isFalse();
+        assertThat(reloadedPartialInboundConnectionTask.getConnectionFunction().isPresent()).isTrue();
+        assertThat(reloadedPartialInboundConnectionTask.getConnectionFunction().get().getId()).isEqualTo(connectionFunction_1.getId());
         assertThat(reloadedPartialInboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
         assertThat(reloadedPartialInboundConnectionTask.getName()).isEqualTo("Changed");
     }
@@ -431,16 +528,17 @@ public class PartialInboundConnectionTaskCrudIT {
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
 
-        inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+        inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
+                .get(0))
                 .comPortPool(inboundComPortPool)
                 .asDefault(true).build();
         deviceConfiguration.save();
 
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
-        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec1","test property 1");
-        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec2","test property 2");
-        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec3","test property 3");
-        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec4","test property 4");
+        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec1", "test property 1");
+        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec2", "test property 2");
+        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec3", "test property 3");
+        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec4", "test property 4");
 
         PartialInboundConnectionTask partialInboundConnectionTask = deviceConfiguration.getPartialInboundConnectionTasks().get(0);
         partialInboundConnectionTask.setDefault(false);
@@ -472,7 +570,6 @@ public class PartialInboundConnectionTaskCrudIT {
         assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec3")).isEqualTo("test property 3");
         assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec4")).isEqualTo("test property 4");
     }
-
 
     @Test
     @Transactional
@@ -545,9 +642,41 @@ public class PartialInboundConnectionTaskCrudIT {
         Assertions.assertThat(partialConnectionTask2.isDefault()).isTrue();
     }
 
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.CONNECTION_FUNCTION_UNIQUE + '}')
+    public void updateToConnectionFunctionAlreadyInUseTest() {
+        DeviceConfiguration deviceConfiguration;
+        final String connectionTaskName1 = "MyOutbound";
+        final String connectionTaskName2 = "MyDefault";
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        deviceConfiguration.newPartialInboundConnectionTask(connectionTaskName1, connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+                .comPortPool(inboundComPortPool)
+                .asDefault(true)
+                .connectionFunction(connectionFunction_1).build();
+        deviceConfiguration.newPartialInboundConnectionTask(connectionTaskName2, connectionTypePluggableClass2, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+                .comPortPool(inboundComPortPool)
+                .asDefault(false)
+                .connectionFunction(connectionFunction_2).build();
+        deviceConfiguration.save();
+
+        PartialInboundConnectionTask initialWithConnectionFunction = getConnectionTaskWithName(deviceConfiguration, connectionTaskName1);
+        assertThat(initialWithConnectionFunction.getConnectionFunction().isPresent()).isTrue();
+        assertThat(initialWithConnectionFunction.getConnectionFunction().get().getId()).isEqualTo(1);
+
+        PartialInboundConnectionTask task;
+        task = getConnectionTaskWithName(deviceConfiguration, connectionTaskName2);
+        task.setConnectionFunction(connectionFunction_1);
+        task.save();
+    }
+
     private PartialInboundConnectionTask getConnectionTaskWithName(DeviceConfiguration deviceConfiguration, String connectionTaskName) {
         for (PartialInboundConnectionTask partialScheduledConnectionTask : deviceConfiguration.getPartialInboundConnectionTasks()) {
-            if(partialScheduledConnectionTask.getName().equals(connectionTaskName)){
+            if (partialScheduledConnectionTask.getName().equals(connectionTaskName)) {
                 return partialScheduledConnectionTask;
             }
         }
@@ -564,7 +693,8 @@ public class PartialInboundConnectionTaskCrudIT {
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
 
-        inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+        inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
+                .get(0))
                 .comPortPool(inboundComPortPool)
                 .asDefault(true).build();
         deviceConfiguration.save();
@@ -618,7 +748,8 @@ public class PartialInboundConnectionTaskCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD + "}")
     public void createWithIncorrectConnectionTypeTest() {
         DeviceConfiguration deviceConfiguration;
-        ConnectionTypePluggableClass outboundConnectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("OutboundNoParamsConnectionType", OutboundNoParamsConnectionTypeImpl.class.getName());
+        ConnectionTypePluggableClass outboundConnectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("OutboundNoParamsConnectionType", OutboundNoParamsConnectionTypeImpl.class
+                .getName());
         outboundConnectionTypePluggableClass.save();
 
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -626,7 +757,8 @@ public class PartialInboundConnectionTaskCrudIT {
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
 
-        deviceConfiguration.newPartialInboundConnectionTask("MyInboundWhichHasAnOutboundType", outboundConnectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+        deviceConfiguration.newPartialInboundConnectionTask("MyInboundWhichHasAnOutboundType", outboundConnectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
+                .get(0))
                 .comPortPool(inboundComPortPool)
                 .asDefault(true).build();
         deviceConfiguration.save();
@@ -635,13 +767,24 @@ public class PartialInboundConnectionTaskCrudIT {
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
     }
 
+    private static class DeviceProtocolService implements com.energyict.mdc.protocol.api.services.DeviceProtocolService {
+
+        @Override
+        public Object createProtocol(String className) {
+            if (DummyDeviceProtocolPluggableClassHavingConnectionFunctions.class.getName().equals(className)) {
+                return new DummyDeviceProtocolPluggableClassHavingConnectionFunctions();
+            } else {
+                throw new RuntimeException("Class " + className + " not known or supported by this bundle");
+            }
+        }
+    }
+
     private static class InboundDeviceProtocolService implements com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService {
         @Override
         public InboundDeviceProtocol createInboundDeviceProtocolFor(String javaClassName) {
             if (DummyInboundDiscoveryProtocol.class.getName().equals(javaClassName)) {
                 return new DummyInboundDiscoveryProtocol();
-            }
-            else {
+            } else {
                 throw new RuntimeException("Class " + javaClassName + " not known or supported by this bundle");
             }
         }
@@ -673,9 +816,10 @@ public class PartialInboundConnectionTaskCrudIT {
         clonedDeviceConfig = deviceType.newConfiguration("Clone").add();
         clonedDeviceConfig.save();
 
-        inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+        inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
+                .get(0))
                 .comPortPool(inboundComPortPool)
-                .asDefault(true).build();
+                .asDefault(false).build();
         deviceConfiguration.save();
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(inboundConnectionTask.getId());
@@ -690,6 +834,60 @@ public class PartialInboundConnectionTaskCrudIT {
         assertThat(partialInboundConnectionTask.isDefault()).isTrue();
         assertThat(partialInboundConnectionTask.getConfiguration().getId()).isEqualTo(clonedDeviceConfig.getId());
         assertThat(partialInboundConnectionTask.getName()).isEqualTo("MyInbound");
+    }
 
+    @Test
+    @Transactional
+    public void cloneHavingConnectionFunctionTest() {
+        PartialInboundConnectionTaskImpl inboundConnectionTask;
+        DeviceConfiguration deviceConfiguration;
+        DeviceConfiguration clonedDeviceConfig;
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+        clonedDeviceConfig = deviceType.newConfiguration("Clone").add();
+        clonedDeviceConfig.save();
+
+        inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
+                .get(0))
+                .comPortPool(inboundComPortPool)
+                .asDefault(false)
+                .connectionFunction(connectionFunction_1).build();
+        deviceConfiguration.save();
+
+        Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(inboundConnectionTask.getId());
+
+        PartialConnectionTask partialConnectionTask = ((ServerPartialConnectionTask) found.get()).cloneForDeviceConfig(clonedDeviceConfig);
+
+        assertThat(partialConnectionTask).isInstanceOf(PartialInboundConnectionTaskImpl.class);
+
+        PartialInboundConnectionTaskImpl partialInboundConnectionTask = (PartialInboundConnectionTaskImpl) partialConnectionTask;
+
+        assertThat(partialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool.getId());
+        assertThat(partialInboundConnectionTask.isDefault()).isFalse();
+        assertThat(partialInboundConnectionTask.getConnectionFunction().isPresent()).isTrue();
+        assertThat(partialInboundConnectionTask.getConnectionFunction().get().getId()).isEqualTo(connectionFunction_1.getId());
+        assertThat(partialInboundConnectionTask.getConfiguration().getId()).isEqualTo(clonedDeviceConfig.getId());
+        assertThat(partialInboundConnectionTask.getName()).isEqualTo("MyInbound");
+    }
+
+    private ConnectionFunction mockConnectionFunction(int id, String name, String displayName) {
+            return new ConnectionFunction() {
+                @Override
+                public long getId() {
+                    return id;
+                }
+
+                @Override
+                public String getConnectionFunctionName() {
+                    return name;
+                }
+
+                @Override
+                public String getConnectionFunctionDisplayName() {
+                    return displayName;
+                }
+            };
     }
 }

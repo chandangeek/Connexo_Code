@@ -14,20 +14,23 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.AbstractConnectionTypeDelegate;
 import com.energyict.mdc.device.config.AbstractConnectionTypePluggableClassDelegate;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialConnectionTaskBuilder;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.TypedProperties;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -54,13 +57,16 @@ import java.util.stream.Collectors;
  * @since 21/01/13 - 16:44
  */
 @ProtocolDialectConfigurationPropertiesMustBeFromSameConfiguration(groups = {Save.Create.class, Save.Update.class})
+@ProvidedConnectionFunctionMustBeSupportedByTheDeviceProtocol(groups = {Save.Create.class, Save.Update.class})
+@ProvidedConnectionFunctionMustBeUniqueForDeviceConfiguration(groups = {Save.Create.class, Save.Update.class})
 abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialConnectionTask> implements ServerPartialConnectionTask {
 
     public static final Map<String, Class<? extends PartialConnectionTask>> IMPLEMENTERS = ImmutableMap.of("0", PartialConnectionInitiationTaskImpl.class, "1", PartialInboundConnectionTaskImpl.class, "2", PartialScheduledConnectionTaskImpl.class);
 
     enum Fields {
         CONNECTION_TYPE_PLUGGABLE_CLASS("pluggableClass"),
-        PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES("protocolDialectConfigurationProperties");
+        PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES("protocolDialectConfigurationProperties"),
+        CONNECTION_FUNCTION("connectionFunction");
 
         private final String javaFieldName;
 
@@ -75,7 +81,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
 
     private final ProtocolPluggableService protocolPluggableService;
 
-    @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private String name;
     private Reference<DeviceConfiguration> configuration = ValueReference.absent();
@@ -93,6 +99,8 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     private List<String> addedOrRemovedRequiredProperties = new ArrayList<>();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
+    private long connectionFunctionDbValue;
+    private Optional<ConnectionFunction> connectionFunction = Optional.empty();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -115,7 +123,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     protected abstract ValidateDeleteEventType validateDeleteEventType();
 
     @Override
-    public void validateDelete () {
+    public void validateDelete() {
         if (getConfiguration().getComTaskEnablements()
                 .stream()
                 .filter(ComTaskEnablement::hasPartialConnectionTask)
@@ -144,12 +152,12 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     }
 
     @Override
-    public DeviceConfiguration getConfiguration () {
+    public DeviceConfiguration getConfiguration() {
         return this.configuration.get();
     }
 
     @Override
-    public String toString () {
+    public String toString() {
         return "PartialConnectionTask (" + this.getId() + ")";
     }
 
@@ -164,7 +172,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     }
 
     @Override
-    public List<PartialConnectionTaskProperty> getProperties () {
+    public List<PartialConnectionTaskProperty> getProperties() {
         return Collections.unmodifiableList(properties);
     }
 
@@ -203,8 +211,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
             if (this.addedOrRemovedRequiredProperties.contains(key)) {
                 // The property was removed in the same edit session
                 this.addedOrRemovedRequiredProperties.remove(key);
-            }
-            else {
+            } else {
                 this.addedOrRemovedRequiredProperties.add(key);
             }
         }
@@ -219,8 +226,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
                     if (this.addedOrRemovedRequiredProperties.contains(key)) {
                         // The property was added in the same edit session
                         this.addedOrRemovedRequiredProperties.remove(key);
-                    }
-                    else {
+                    } else {
                         this.addedOrRemovedRequiredProperties.add(key);
                     }
                 }
@@ -231,7 +237,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     }
 
     @Override
-    public TypedProperties getTypedProperties () {
+    public TypedProperties getTypedProperties() {
         TypedProperties typedProperties = TypedProperties.inheritingFrom(this.getPluggableClass().getProperties(getPropertySpecs()));
         this.getProperties()
                 .stream()
@@ -245,12 +251,12 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     }
 
     @Override
-    public ConnectionType getConnectionType () {
+    public ConnectionType getConnectionType() {
         return this.getPluggableClass().getConnectionType();
     }
 
     @Override
-    public ConnectionTypePluggableClass getPluggableClass () {
+    public ConnectionTypePluggableClass getPluggableClass() {
         if (pluggableClass == null && pluggableClassId != 0) {
             pluggableClass = protocolPluggableService.findConnectionTypePluggableClass(pluggableClassId).get();
         }
@@ -258,7 +264,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     }
 
     @Override
-    public ComPortPool getComPortPool () {
+    public ComPortPool getComPortPool() {
         return this.comPortPool.orNull();
     }
 
@@ -287,6 +293,24 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
         this.protocolDialectConfigurationProperties.set(properties);
     }
 
+    @Override
+    public Optional<ConnectionFunction> getConnectionFunction() {
+        if (!this.connectionFunction.isPresent() && this.connectionFunctionDbValue != 0) {
+            Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = getConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
+            List<ConnectionFunction> supportedConnectionFunctions = deviceProtocolPluggableClass.isPresent()
+                    ? deviceProtocolPluggableClass.get().getProvidedConnectionFunctions()
+                    : Collections.emptyList();
+            this.connectionFunction = supportedConnectionFunctions.stream().filter(cf -> cf.getId() == this.connectionFunctionDbValue).findFirst();
+        }
+        return this.connectionFunction;
+    }
+
+    @Override
+    public void setConnectionFunction(ConnectionFunction connectionFunction) {
+        this.connectionFunction = Optional.ofNullable(connectionFunction);
+        this.connectionFunctionDbValue = connectionFunction != null ? connectionFunction.getId() : 0;
+    }
+
     final void doSetComportPool(ComPortPool comPortPool) {
         this.comPortPool.set(comPortPool);
     }
@@ -299,7 +323,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
 
     public void setDefault(boolean asDefault) {
         if (asDefault) {
-            ((DeviceConfigurationImpl)this.configuration.get()).clearDefaultExcept(this);
+            ((DeviceConfigurationImpl) this.configuration.get()).clearDefaultExcept(this);
         }
         this.isDefault = asDefault;
     }
@@ -314,6 +338,11 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     @Override
     protected Object toUpdateEventSource() {
         return new PartialConnectionTaskUpdateDetailsImpl(this, this.addedOrRemovedRequiredProperties);
+    }
+
+    public PartialConnectionTaskBuilder cloneForDeviceConfig(PartialConnectionTaskBuilder builder) {
+        builder.connectionFunction(getConnectionFunction().orElse(null));
+        return builder;
     }
 
     static class HasSpecValidator implements ConstraintValidator<PartialConnectionTaskPropertyMustHaveSpec, PartialConnectionTaskPropertyImpl> {
@@ -346,7 +375,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     protected boolean validateUniqueName() {
         String name = this.getName();
         DeviceConfiguration configuration = getConfiguration();
-        for (PartialConnectionTask partialConnectionTask:configuration.getPartialConnectionTasks()) {
+        for (PartialConnectionTask partialConnectionTask : configuration.getPartialConnectionTasks()) {
             if (partialConnectionTask.getName().equals(name) && partialConnectionTask.getId() != this.getId()) {
                 return false;
             }
@@ -372,14 +401,14 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return super.getPropertySpecs().stream().
-                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(()->getConfiguration().getDeviceType().getKeyAccessorTypes(), ps)).
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getConfiguration().getDeviceType().getKeyAccessorTypes(), ps)).
                     collect(Collectors.toList());
         }
 
         @Override
         public Optional<PropertySpec> getPropertySpec(String name) {
             return super.getPropertySpec(name).
-                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(()->getConfiguration().getDeviceType().getKeyAccessorTypes(), ps));
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getConfiguration().getDeviceType().getKeyAccessorTypes(), ps));
         }
 
         @Override
@@ -400,14 +429,14 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return this.connectionType.getPropertySpecs().stream().
-                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(()->getConfiguration().getDeviceType().getKeyAccessorTypes(), ps)).
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getConfiguration().getDeviceType().getKeyAccessorTypes(), ps)).
                     collect(Collectors.toList());
         }
 
         @Override
         public Optional<PropertySpec> getPropertySpec(String name) {
             return this.connectionType.getPropertySpec(name).
-                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(()->getConfiguration().getDeviceType().getKeyAccessorTypes(), ps));
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getConfiguration().getDeviceType().getKeyAccessorTypes(), ps));
         }
     }
 }

@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import aQute.bnd.annotation.ProviderType;
@@ -21,6 +22,8 @@ public interface PartialConnectionTaskBuilder<S, T extends ComPortPool, U extend
     S name(String name);
 
     S setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
+
+    S connectionFunction(ConnectionFunction connectionFunction);
 
     U build();
 }
