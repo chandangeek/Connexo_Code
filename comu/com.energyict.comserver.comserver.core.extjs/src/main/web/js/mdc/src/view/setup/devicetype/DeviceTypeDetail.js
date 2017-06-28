@@ -34,6 +34,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                     },
                     {
                         xtype: 'uni-button-action',
+                        itemId: 'device-type-detail-action-menu',
                         privileges: Mdc.privileges.DeviceType.admin,
                         menu: {
                             xtype: 'device-type-action-menu'
@@ -146,6 +147,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                             {
                                                 name: 'deviceIcon',
                                                 xtype: 'displayfield',
+                                                itemId: 'deviceIconDisplayField',
                                                 renderer: function (value) {
                                                     if(Ext.isEmpty(value)) {
                                                         return '-'
