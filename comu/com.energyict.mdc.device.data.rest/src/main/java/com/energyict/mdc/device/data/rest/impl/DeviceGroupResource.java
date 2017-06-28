@@ -35,7 +35,6 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.command.rest.impl.CommandInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
@@ -45,9 +44,9 @@ import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.BulkDeviceMessageQueueMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.scheduling.SchedulingService;
 
 import com.google.common.collect.Range;
 
@@ -73,6 +72,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -98,12 +98,14 @@ public class DeviceGroupResource {
     private final CommandInfoFactory commandInfoFactory;
     private final JsonService jsonService;
     private final MessageService messageService;
+    private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
+    private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
 
     @Inject
     public DeviceGroupResource(MeteringGroupsService meteringGroupsService, MeteringService meteringService,
                                DeviceService deviceService, SearchService searchService, ExceptionFactory exceptionFactory,
                                DeviceGroupInfoFactory deviceGroupInfoFactory, ResourceHelper resourceHelper,
-                               DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceConfigurationService deviceConfigurationService, CommandInfoFactory commandInfoFactory, JsonService jsonService, MessageService messageService) {
+                               DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceConfigurationService deviceConfigurationService, CommandInfoFactory commandInfoFactory, JsonService jsonService, MessageService messageService, DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory, DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory) {
         this.meteringGroupsService = meteringGroupsService;
         this.meteringService = meteringService;
         this.deviceService = deviceService;
@@ -116,6 +118,8 @@ public class DeviceGroupResource {
         this.commandInfoFactory = commandInfoFactory;
         this.jsonService = jsonService;
         this.messageService = messageService;
+        this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
+        this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
     }
 
     @GET
@@ -282,19 +286,37 @@ public class DeviceGroupResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
-    public List<CommandInfo> getAvailableCommandsForDeviceGroup(@PathParam("id") long deviceGroupId) {
+    public List<DeviceMessageCategoryInfo> getAvailableCommandsForDeviceGroup(@PathParam("id") long deviceGroupId) {
         EndDeviceGroup endDeviceGroup = resourceHelper.findEndDeviceGroupOrThrowException(deviceGroupId);
         List<DeviceMessageCategory> deviceMessageCategories = deviceMessageSpecificationService.filteredCategoriesForUserSelection();
-        List<CommandInfo> commonCommandInfos = deviceMessageCategories.stream().flatMap(cat->cat.getMessageSpecifications().stream()).map(commandInfoFactory::from).collect(toList());
+        List<DeviceMessageSpecWrapper> allExistingDeviceMessageSpecs = deviceMessageCategories.stream()
+                .flatMap(cat->cat.getMessageSpecifications().stream())
+                .map(DeviceMessageSpecWrapper::new)
+                .collect(toList());
 
-        for (DeviceConfiguration deviceConfiguration : deviceConfigurationService.getDeviceConfigsByDeviceGroup(endDeviceGroup)) {
-            commonCommandInfos.retainAll(deviceMessageCategories.stream()
-                    .flatMap(category -> deviceConfiguration.getEnabledAndAuthorizedDeviceMessageSpecsIn(category)
-                            .stream())
-                    .map(commandInfoFactory::from)
-                    .collect(toList()));
+        List<DeviceConfiguration> allCommonDeviceConfigurations = deviceConfigurationService.getDeviceConfigsByDeviceGroup(endDeviceGroup);
+        List<DeviceMessageCategoryInfo> categoryInfos = new ArrayList<>();
+        for (DeviceMessageCategory deviceMessageCategory : deviceMessageCategories) {
+            List<DeviceMessageSpecWrapper> commonDeviceMessageSpecs = new ArrayList<>(allExistingDeviceMessageSpecs);
+            for (DeviceConfiguration deviceConfiguration : allCommonDeviceConfigurations) {
+                List<DeviceMessageSpecWrapper> deviceMessageSpecWrappersInCategory = deviceConfiguration.getEnabledAndAuthorizedDeviceMessageSpecsIn(deviceMessageCategory)
+                        .stream()
+                        .map(DeviceMessageSpecWrapper::new)
+                        .collect(toList());
+                commonDeviceMessageSpecs.retainAll(deviceMessageSpecWrappersInCategory);
+            }
+            if (!commonDeviceMessageSpecs.isEmpty()) {
+                DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(deviceMessageCategory);
+                info.deviceMessageSpecs = commonDeviceMessageSpecs.stream()
+                        .map(DeviceMessageSpecWrapper::getDeviceMessageSpec)
+                        .map(deviceMessageSpecInfoFactory::asInfoWithMessagePropertySpecs)
+                        .collect(toList());
+                categoryInfos.add(info);
+            }
         }
-        return commonCommandInfos;
+
+        return categoryInfos;
+
     }
 
     @POST
@@ -312,6 +334,39 @@ public class DeviceGroupResource {
             return processMessagePost(message, destinationSpec.get());
         } else {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
+        }
+    }
+
+    /**
+     * Provides hashcode and equals
+     */
+    class DeviceMessageSpecWrapper {
+        private final DeviceMessageSpec deviceMessageSpec;
+
+        DeviceMessageSpecWrapper(DeviceMessageSpec deviceMessageSpec) {
+            this.deviceMessageSpec = deviceMessageSpec;
+        }
+
+        public DeviceMessageSpec getDeviceMessageSpec() {
+            return deviceMessageSpec;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            DeviceMessageSpecWrapper that = (DeviceMessageSpecWrapper) o;
+            return Objects.equals(deviceMessageSpec.getCategory().getName(), that.deviceMessageSpec.getCategory().getName())
+                    && Objects.equals(deviceMessageSpec.getName(), that.deviceMessageSpec.getName());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(deviceMessageSpec.getName());
         }
     }
 

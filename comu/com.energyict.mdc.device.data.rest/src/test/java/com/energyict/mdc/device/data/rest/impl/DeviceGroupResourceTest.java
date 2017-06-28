@@ -678,8 +678,12 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
 
         Response response = target("/devicegroups/13/commands").request().get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-
-        assertThat(model.<List>get("$")).hasSize(7);
+        System.out.println(model.toJson());
+        assertThat(model.<List>get("$")).hasSize(2);
+        assertThat(model.<List>get("$[?(@.name=='CONTACTOR')][0].deviceMessageSpecs")).hasSize(4);
+        assertThat(model.<List<String>>get("$[?(@.name=='CONTACTOR')][0].deviceMessageSpecs[*].name")).containsOnly("CONTACTOR_OPEN", "CONTACTOR_CLOSE", "CONTACTOR_ARM", "CONTACTOR_ARM_WITH_ACTIVATION_DATE");
+        assertThat(model.<List>get("$[?(@.name=='ALARMS')][0].deviceMessageSpecs")).hasSize(3);
+        assertThat(model.<List<String>>get("$[?(@.name=='ALARMS')][0].deviceMessageSpecs[*].name")).containsOnly("ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS", "ALARM_CONFIGURATION_RESET_ALL_ERROR_BITS", "ALARM_CONFIGURATION_WRITE_ALARM_FILTER");
     }
 
     @Test
@@ -698,7 +702,7 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         Response response = target("/devicegroups/13/commands").request().get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
 
-        assertThat(model.<List>get("$")).isEmpty();
+        assertThat(model.<List>get("$")).hasSize(0);
     }
 
     @Test
@@ -740,8 +744,10 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
 
         assertThat(model.<List>get("$")).hasSize(2);
-        assertThat(model.<List<String>>get("$[*].command")).containsOnly("CONTACTOR_OPEN","ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS");
-        assertThat(model.<List<String>>get("$[*].category")).containsOnly("CONTACTOR","ALARMS");
+        assertThat(model.<List>get("$[?(@.name=='CONTACTOR')][0].deviceMessageSpecs")).hasSize(1);
+        assertThat(model.<List<String>>get("$[?(@.name=='CONTACTOR')][0].deviceMessageSpecs[*].name")).containsOnly("CONTACTOR_OPEN");
+        assertThat(model.<List>get("$[?(@.name=='ALARMS')][0].deviceMessageSpecs")).hasSize(1);
+        assertThat(model.<List<String>>get("$[?(@.name=='ALARMS')][0].deviceMessageSpecs[*].name")).containsOnly("ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS");
     }
 
     private EndDevice mockEndDevice(AmrSystem amrSystem, long id) {
