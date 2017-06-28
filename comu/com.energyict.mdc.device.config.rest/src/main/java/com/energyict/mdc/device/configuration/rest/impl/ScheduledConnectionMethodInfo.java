@@ -11,6 +11,7 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
@@ -51,8 +52,8 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
     }
 
     @Override
-    protected void writeTo(PartialScheduledConnectionTask partialConnectionTask, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService) {
-        super.writeTo(partialConnectionTask, engineConfigurationService, protocolPluggableService);
+    protected void writeTo(PartialScheduledConnectionTask partialConnectionTask, DeviceType deviceType, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService) {
+        super.writeTo(partialConnectionTask, deviceType, engineConfigurationService, protocolPluggableService);
         partialConnectionTask.setDefault(this.isDefault);
         partialConnectionTask.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
         if (this.comWindowEnd!=null && this.comWindowStart!=null) {
@@ -85,6 +86,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
                 deviceConfiguration
                         .newPartialScheduledConnectionTask(this.name, connectionTypePluggableClass, rescheduleDelay, getConnectionStrategy(), protocolDialectConfigurationProperties)
                         .comPortPool(engineConfigurationService.findOutboundComPortPoolByName(this.comPortPool).orElse(null))
+                        .connectionFunction(getConnectionFunction(deviceConfiguration.getDeviceType()))
                         .asDefault(this.isDefault)
                         .setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
         if (this.temporalExpression !=null) {

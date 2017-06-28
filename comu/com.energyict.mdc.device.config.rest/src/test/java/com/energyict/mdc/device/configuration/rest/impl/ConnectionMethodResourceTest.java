@@ -23,6 +23,7 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -50,17 +51,20 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 public class ConnectionMethodResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
     public static final long OK_VERSION = 24L;
     public static final long BAD_VERSION = 17L;
+    private static final String COM_PORT_POOL_NAME = "com port pool";
 
     private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
     private PartialInboundConnectionTask partialInboundConnectionTask;
     private PartialScheduledConnectionTask partialScheduledConnectionTask;
     DeviceType deviceType;
     DeviceConfiguration deviceConfiguration;
+    ConnectionFunction connectionFunction_1, connectionFunction_2, connectionFunction_3;
 
     @Override
     public void setupMocks() {
@@ -70,13 +74,68 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         when(protocolDialectConfigurationProperties.getDeviceProtocolDialectName()).thenReturn("Dialectje");
 
         when(deviceConfigurationService.getProtocolDialectConfigurationProperties(1234L)).thenReturn(Optional.of(protocolDialectConfigurationProperties));
+        connectionFunction_1 = mockConnectionFunction(1, "CF_1", "CF 1");
+        connectionFunction_2 = mockConnectionFunction(2, "CF_2", "CF 2");
+        connectionFunction_3 = mockConnectionFunction(3, "CF_3", "CF 3");
+    }
+
+    @Test
+    public void testGetConnectionMethods() throws Exception {
+        String response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
     }
 
     @Test
     public void testGetConnectionMethod() throws Exception {
-        String response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods").request().get(String.class);
+        when(partialScheduledConnectionTask.getConnectionFunction()).thenReturn(Optional.of(connectionFunction_2));
+
+        String response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods/14").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
+        assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(14);
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo("partial scheduled");
+        assertThat(jsonModel.<Integer>get("$.connectionTypePluggableClass.id")).isEqualTo(0);
+        assertThat(jsonModel.<String>get("$.connectionTypePluggableClass.name")).isEqualTo("pluggableClass");
+        assertThat(jsonModel.<Boolean>get("$.isDefault")).isFalse();
+        assertThat(jsonModel.<String>get("$.direction")).isEqualTo("Outbound");
+        assertThat(jsonModel.<String>get("$.comPortPool")).isEqualTo("com port pool");
+        assertThat(jsonModel.<Integer>get("$.numberOfSimultaneousConnections")).isEqualTo(0);
+        assertThat(jsonModel.<Integer>get("$.comWindowStart")).isEqualTo(0);
+        assertThat(jsonModel.<Integer>get("$.comWindowEnd")).isEqualTo(0);
+        assertThat(jsonModel.<Integer>get("$.protocolDialectConfigurationProperties.id")).isEqualTo(11111111);
+        assertThat(jsonModel.<String>get("$.protocolDialectConfigurationProperties.name")).isEqualTo("Mocked Protocol Dialect");
+        assertThat(jsonModel.<String>get("$.protocolDialectConfigurationProperties.displayName")).isEqualTo("DisplayName of the mocked Protocol Dialect");
+        assertThat(jsonModel.<Integer>get("$.connectionFunctionInfo.id")).isEqualTo(2);
+        assertThat(jsonModel.<String>get("$.connectionFunctionInfo.localizedValue")).isEqualTo("CF 2");
+        assertThat(jsonModel.<Integer>get("$.version")).isEqualTo(0);
+        assertThat(jsonModel.<Integer>get("$.parent.id")).isEqualTo(12);
+    }
+
+    @Test
+    public void testGetConnectionMethodWhenNoConnectionFunctionIsSet() throws Exception {
+        //A. No connection function set, but the deviceProtocolPluggableClass has support for connection functions
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceType.getDeviceProtocolPluggableClass().get();
+        when(deviceProtocolPluggableClass.getProvidedConnectionFunctions()).thenReturn(Arrays.asList(connectionFunction_1, connectionFunction_2));
+        when(partialScheduledConnectionTask.getConnectionFunction()).thenReturn(Optional.empty());
+
+        String response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods/14").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(14);
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo("partial scheduled");
+        assertThat(jsonModel.<Boolean>get("$.isDefault")).isFalse();
+        assertThat(jsonModel.<Integer>get("$.connectionFunctionInfo.id")).isEqualTo(-1);
+        assertThat(jsonModel.<String>get("$.connectionFunctionInfo.localizedValue")).isEqualTo("None");
+
+        //A. No connection function set and the deviceProtocolPluggableClass has no support for connection functions
+        when(deviceProtocolPluggableClass.getProvidedConnectionFunctions()).thenReturn(Collections.emptyList());
+        when(partialScheduledConnectionTask.getConnectionFunction()).thenReturn(Optional.empty());
+
+        response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods/14").request().get(String.class);
+        jsonModel = JsonModel.create(response);
+        assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(14);
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo("partial scheduled");
+        assertThat(jsonModel.<Boolean>get("$.isDefault")).isFalse();
+        assertThat(jsonModel.<Integer>get("$.connectionFunctionInfo")).isNull();
     }
 
     @Test
@@ -101,6 +160,37 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         assertThat(comPortPoolArgumentCaptor.getValue()).isNull();
     }
 
+    @Test
+    public void testUpdateConnectionMethodSetConnectionFunction() throws Exception {
+        InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
+        info.name = "name";
+        info.comPortPool = null;
+        info.comWindowStart = 6;
+        info.comWindowEnd = 12;
+        info.connectionTypePluggableClass = new ConnectionMethodInfo.ConnectionTypePluggableClassInfo();
+        info.connectionTypePluggableClass.id = 13L;
+        info.connectionTypePluggableClass.name = "pluggableClass";
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(12L, OK_VERSION);
+        info.protocolDialectConfigurationProperties =  new ConnectionMethodInfo.ProtocolDialectConfigurationPropertiesInfo();
+        info.protocolDialectConfigurationProperties.id = 1234L;
+        info.protocolDialectConfigurationProperties.name = "Dialectje";
+        info.connectionFunctionInfo = new ConnectionFunctionInfo(connectionFunction_1);
+
+        Response response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods/13").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        ArgumentCaptor<ConnectionFunction> connectionFunctionArgumentCaptor = ArgumentCaptor.forClass(ConnectionFunction.class);
+        verify(partialInboundConnectionTask).setConnectionFunction(connectionFunctionArgumentCaptor.capture());
+        assertThat(connectionFunctionArgumentCaptor.getValue()).isEqualTo(connectionFunction_1);
+
+        info.connectionFunctionInfo = null;
+
+        response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods/13").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        connectionFunctionArgumentCaptor = ArgumentCaptor.forClass(ConnectionFunction.class);
+        verify(partialInboundConnectionTask, times(2)).setConnectionFunction(connectionFunctionArgumentCaptor.capture());
+        assertThat(connectionFunctionArgumentCaptor.getValue()).isNull();
+    }
 
     @Test
     public void testUpdateConnectionMethodBadVersion() throws Exception {
@@ -222,11 +312,12 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         when(deviceConfigurationService.findAndLockPartialConnectionTaskByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(partialConnectionTask));
         when(deviceConfigurationService.findAndLockPartialConnectionTaskByIdAndVersion(id, BAD_VERSION)).thenReturn(Optional.empty());
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
-        when(comPortPool.getName()).thenReturn("com port pool");
+        when(comPortPool.getName()).thenReturn(COM_PORT_POOL_NAME);
         when(partialConnectionTask.getComPortPool()).thenReturn(comPortPool);
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mockProtocolDialectConfigurationProperties();
         when(partialConnectionTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
+        when(partialConnectionTask.getConnectionFunction()).thenReturn(Optional.empty());
         return partialConnectionTask;
     }
 
@@ -246,11 +337,12 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         when(deviceConfigurationService.findAndLockPartialConnectionTaskByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(partialConnectionTask));
         when(deviceConfigurationService.findAndLockPartialConnectionTaskByIdAndVersion(id, BAD_VERSION)).thenReturn(Optional.empty());
         OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
-        when(comPortPool.getName()).thenReturn("com port pool");
+        when(comPortPool.getName()).thenReturn(COM_PORT_POOL_NAME);
         when(partialConnectionTask.getComPortPool()).thenReturn(comPortPool);
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mockProtocolDialectConfigurationProperties();
         when(partialConnectionTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
+        when(partialConnectionTask.getConnectionFunction()).thenReturn(Optional.empty());
         return partialConnectionTask;
     }
 
@@ -263,6 +355,8 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceProtocolPluggableClass.getProvidedConnectionFunctions()).thenReturn(Arrays.asList(connectionFunction_1, connectionFunction_2));
+        when(deviceProtocolPluggableClass.getConsumableConnectionFunctions()).thenReturn(Collections.singletonList(connectionFunction_3));
         when(deviceConfigurationService.findDeviceType(id)).thenReturn(Optional.of(deviceType));
         when(deviceConfigurationService.findAndLockDeviceType(id, OK_VERSION)).thenReturn(Optional.of(deviceType));
         when(deviceConfigurationService.findAndLockDeviceType(id, BAD_VERSION)).thenReturn(Optional.empty());
@@ -316,4 +410,22 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         return dialect;
     }
 
+    private ConnectionFunction mockConnectionFunction(int id, String name, String displayName) {
+        return new ConnectionFunction() {
+            @Override
+            public long getId() {
+                return id;
+            }
+
+            @Override
+            public String getConnectionFunctionName() {
+                return name;
+            }
+
+            @Override
+            public String getConnectionFunctionDisplayName() {
+                return displayName;
+            }
+        };
+    }
 }

@@ -14,7 +14,6 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -56,30 +55,33 @@ public class ComTaskEnablementResource {
         this.conflictFactory = conflictFactory;
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getComTaskEnablements(@PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<ComTaskEnablementInfo> comTaskEnablements = ComTaskEnablementInfo.
-                                                            from(ListPager.of(deviceConfiguration.getComTaskEnablements(), new ComTaskEnablementComparator()).
-                                                                    from(queryParameters).
-                                                                    find(), thesaurus);
+                from(ListPager.of(deviceConfiguration.getComTaskEnablements(), new ComTaskEnablementComparator()).
+                        from(queryParameters).
+                        find(), thesaurus);
         return PagedInfoList.fromPagedList("data", comTaskEnablements, queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{comTaskEnablementId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getComTaskEnablement(@PathParam("comTaskEnablementId") long comTaskEnablementId) {
         ComTaskEnablement comTaskEnablement = resourceHelper.findComTaskEnablementByIdOrThrowException(comTaskEnablementId);
         return Response.ok(ComTaskEnablementInfo.from(comTaskEnablement, thesaurus)).build();
     }
 
-    @POST @Transactional
+    @POST
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response createComTaskEnablement(@PathParam("deviceConfigurationId") long deviceConfigurationId, ComTaskEnablementInfo info) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
@@ -95,19 +97,28 @@ public class ComTaskEnablementResource {
                 .setPriority(info.priority)
                 .setIgnoreNextExecutionSpecsForInbound(info.ignoreNextExecutionSpecsForInbound);
 
-        if (partialConnectionTaskInfoParameter != null && !info.partialConnectionTask.id.equals(ComTaskEnablementInfo.PartialConnectionTaskInfo.DEFAULT_PARTIAL_CONNECTION_TASK_ID)) {
-            PartialConnectionTask partialConnectionTask = resourceHelper.findPartialConnectionTaskByIdOrThrowException(info.partialConnectionTask.id);
-            comTaskEnablementBuilder.setPartialConnectionTask(partialConnectionTask).useDefaultConnectionTask(Boolean.FALSE);
+        // Update the partial connection task with A) actual task, B) according to connection function or C) use default
+        if (partialConnectionTaskInfoParameter != null && containsActualPartialConnectionTaskId(info)) {
+            comTaskEnablementBuilder.setPartialConnectionTask(resourceHelper.findPartialConnectionTaskByIdOrThrowException(info.partialConnectionTask.id));
+        } else if(info.getConnectionFunction(deviceConfiguration.getDeviceType()) != null) {
+            comTaskEnablementBuilder.setConnectionFunction(info.getConnectionFunction(deviceConfiguration.getDeviceType()));
+        } else {
+            comTaskEnablementBuilder.useDefaultConnectionTask(true);
         }
 
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
         return Response.status(Response.Status.CREATED).entity(ComTaskEnablementInfo.from(comTaskEnablement, thesaurus)).build();
     }
 
-    @PUT @Transactional
+    private boolean containsActualPartialConnectionTaskId(ComTaskEnablementInfo info) {
+        return info.partialConnectionTask.id > 0; // 0 = use default connection method; negative values = use connection method based on certain connection function
+    }
+
+    @PUT
+    @Transactional
     @Path("/{comTaskEnablementId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response updateComTaskEnablement(@PathParam("comTaskEnablementId") long comTaskEnablementId, ComTaskEnablementInfo info) {
         info.id = comTaskEnablementId;
@@ -115,27 +126,28 @@ public class ComTaskEnablementResource {
 
         ComTaskEnablementInfo.PartialConnectionTaskInfo partialConnectionTaskInfoParameter = info.partialConnectionTask;
 
-        SecurityPropertySet securityPropertySet = info.securityPropertySet != null ?
-                resourceHelper.findSecurityPropertySetByIdOrThrowException(info.securityPropertySet.id) : null;
+        SecurityPropertySet securityPropertySet = info.securityPropertySet != null ? resourceHelper.findSecurityPropertySetByIdOrThrowException(info.securityPropertySet.id) : null;
         info.writeTo(comTaskEnablement);
         comTaskEnablement.setSecurityPropertySet(securityPropertySet);
-        if (partialConnectionTaskInfoParameter != null && !info.partialConnectionTask.id.equals(ComTaskEnablementInfo.PartialConnectionTaskInfo.DEFAULT_PARTIAL_CONNECTION_TASK_ID)) {
-            PartialConnectionTask partialConnectionTask = resourceHelper.findPartialConnectionTaskByIdOrThrowException(info.partialConnectionTask.id);
-            comTaskEnablement.setPartialConnectionTask(partialConnectionTask);
-            comTaskEnablement.useDefaultConnectionTask(Boolean.FALSE);
+
+        // Update the partial connection task with A) actual task, B) according to connection function or C) use default
+        if (partialConnectionTaskInfoParameter != null && containsActualPartialConnectionTaskId(info)) {
+            comTaskEnablement.setPartialConnectionTask(resourceHelper.findPartialConnectionTaskByIdOrThrowException(info.partialConnectionTask.id));
+        } else if (info.getConnectionFunction(comTaskEnablement.getDeviceConfiguration().getDeviceType()) != null) {
+            comTaskEnablement.setConnectionFunction(info.getConnectionFunction(comTaskEnablement.getDeviceConfiguration().getDeviceType()));
         } else {
             comTaskEnablement.useDefaultConnectionTask(Boolean.TRUE);
         }
 
         comTaskEnablement.save();
-
         return Response.ok(ComTaskEnablementInfo.from(comTaskEnablement, thesaurus)).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{comTaskEnablementId}/activate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response activateComTaskEnablement(@PathParam("comTaskEnablementId") long comTaskEnablementId, ComTaskEnablementInfo info) {
         info.id = comTaskEnablementId;
@@ -149,10 +161,11 @@ public class ComTaskEnablementResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{comTaskEnablementId}/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deactivateComTaskEnablement(@PathParam("comTaskEnablementId") long comTaskEnablementId, ComTaskEnablementInfo info) {
         info.id = comTaskEnablementId;
@@ -166,9 +179,10 @@ public class ComTaskEnablementResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @DELETE @Transactional
+    @DELETE
+    @Transactional
     @Path("/{comTaskEnablementId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteComTaskEnablement(@PathParam("comTaskEnablementId") long comTaskEnablementId, ComTaskEnablementInfo info) {
         ComTaskEnablement comTaskEnablement = resourceHelper.lockComTaskEnablementOrThrowException(info);
@@ -219,11 +233,11 @@ public class ComTaskEnablementResource {
 
     private void setComTaskEnablementActive(ComTaskEnablement comTaskEnablement, boolean active) {
         if (active) {
-            if(comTaskEnablement.isSuspended()) {
+            if (comTaskEnablement.isSuspended()) {
                 comTaskEnablement.resume();
             }
         } else {
-            if(!comTaskEnablement.isSuspended()) {
+            if (!comTaskEnablement.isSuspended()) {
                 comTaskEnablement.suspend();
             }
         }

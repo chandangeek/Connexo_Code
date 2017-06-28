@@ -17,12 +17,14 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 public enum TranslationKeys implements TranslationKey {
 
     DEFAULT("Default", "Default"),
+    CONNECTION_FUNCTION("Connection.function", "''{0}'' function"),
     CHANNEL("com.energyict.mdc.device.config.ChannelSpec", "Channel"),
     REGISTER("com.energyict.mdc.device.config.RegisterSpec", "Register"),
     INBOUND(ConnectionType.ConnectionTypeDirection.INBOUND.name(), "Inbound"),
     OUTBOUND(ConnectionType.ConnectionTypeDirection.OUTBOUND.name(), "Outbound"),
     HAS_SOLVED("Solved", "Solved"),
-    HAS_UNSOLVED("Unsolved","Unsolved");
+    HAS_UNSOLVED("Unsolved", "Unsolved"),
+    NONE("None", "None");
 
     private final String key;
     private final String defaultFormat;
@@ -32,7 +34,7 @@ public enum TranslationKeys implements TranslationKey {
         this.defaultFormat = defaultFormat;
     }
 
-    public String translateWith(Thesaurus thesaurus){
+    public String translateWith(Thesaurus thesaurus) {
         return thesaurus.getFormat(this).format();
     }
 

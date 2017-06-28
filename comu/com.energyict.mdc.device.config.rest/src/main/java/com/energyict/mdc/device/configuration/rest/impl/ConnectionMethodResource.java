@@ -156,8 +156,9 @@ public class ConnectionMethodResource {
                                            ConnectionMethodInfo info) {
         info.id = connectionMethodId;
         PartialConnectionTask partialConnectionTask = resourceHelper.lockPartialConnectionTaskOrThrowException(info);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         ProtocolDialectConfigurationProperties dialectConfigurationProperties = resourceHelper.findProtocolDialectConfigurationPropertiesByIdOrThrowException(info.protocolDialectConfigurationProperties.id);
-        info.writeTo(partialConnectionTask, engineConfigurationService, protocolPluggableService);
+        info.writeTo(partialConnectionTask, deviceConfiguration.getDeviceType(), engineConfigurationService, protocolPluggableService);
         partialConnectionTask.setProtocolDialectConfigurationProperties(dialectConfigurationProperties);
         updateProperties(info, partialConnectionTask);
         partialConnectionTask.save();

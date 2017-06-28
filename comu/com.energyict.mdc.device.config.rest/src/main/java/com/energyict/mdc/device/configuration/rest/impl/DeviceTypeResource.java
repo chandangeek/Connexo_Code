@@ -49,9 +49,11 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
+
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -69,9 +71,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -176,7 +181,7 @@ public class DeviceTypeResource {
         Optional<DeviceLifeCycle> deviceLifeCycleRef = deviceTypeInfo.deviceLifeCycleId != null ? resourceHelper.findDeviceLifeCycleById(deviceTypeInfo.deviceLifeCycleId) : Optional
                 .empty();
         DeviceType deviceType = null;
-        switch (deviceTypeInfo.deviceTypePurpose){
+        switch (deviceTypeInfo.deviceTypePurpose) {
             case "REGULAR":
                 deviceType = deviceConfigurationService.newDeviceTypeBuilder(deviceTypeInfo.name,
                         deviceProtocolPluggableClass.isPresent() ? deviceProtocolPluggableClass.get() : null,
@@ -223,7 +228,7 @@ public class DeviceTypeResource {
                 return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
             }
         }
-        if(deviceTypeInfo.fileManagementEnabled) {
+        if (deviceTypeInfo.fileManagementEnabled) {
             deviceType.enableFileManagement();
         } else {
             deviceType.disableFileManagement();
@@ -606,7 +611,7 @@ public class DeviceTypeResource {
     @Produces({MediaType.TEXT_PLAIN})
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response uploadFile(@PathParam("id") long deviceTypeId, @FormDataParam("uploadField") InputStream fileInputStream,
-                                  @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader,
+                               @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader,
                                @FormDataParam("fileName") String fileName) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         addFileToDeviceType(deviceType, fileInputStream, fileName);
@@ -737,7 +742,7 @@ public class DeviceTypeResource {
                     .build();
         }
 
-        if (info.isAllowed && info.allowedOptions != null){
+        if (info.isAllowed && info.allowedOptions != null) {
             Set<ProtocolSupportedCalendarOptions> supportedCalendarOptions = deviceConfigurationService.getSupportedTimeOfUseOptionsFor(deviceType, false);
             Set<ProtocolSupportedCalendarOptions> newAllowedOptions = info.allowedOptions.stream()
                     .map(allowedOption -> ProtocolSupportedCalendarOptions.from((String) allowedOption.id))
@@ -751,6 +756,40 @@ public class DeviceTypeResource {
             timeOfUseOptions.ifPresent(TimeOfUseOptions::delete);
         }
         return Response.ok(getTimeOfUseOptions(deviceType)).build();
+    }
+
+
+    @GET
+    @Path("/{id}/connectionFunctions")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    public Response getConnectionFunctions(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
+        List<ConnectionFunctionInfo> infos;
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        infos = deviceType.getDeviceProtocolPluggableClass().isPresent()
+                ? getInvolvedConnectionFunctions(deviceType, getConnectionFunctionParameterFromUriParams(uriInfo, "connectionFunctionType").orElse(ConnectionFunctionType.PROVIDED))
+                .stream()
+                .sorted(Comparator.comparing(ConnectionFunction::getConnectionFunctionDisplayName))
+                .map(ConnectionFunctionInfo::new)
+                .collect(Collectors.toList())
+                : Collections.emptyList();
+
+        return Response.ok(infos).build();
+    }
+
+    private List<ConnectionFunction> getInvolvedConnectionFunctions(DeviceType deviceType, ConnectionFunctionType connectionFunctionType) {
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceType.getDeviceProtocolPluggableClass().get();
+        return connectionFunctionType.equals(ConnectionFunctionType.PROVIDED) ? deviceProtocolPluggableClass.getProvidedConnectionFunctions() : deviceProtocolPluggableClass.getConsumableConnectionFunctions();
+    }
+
+    private Optional<ConnectionFunctionType> getConnectionFunctionParameterFromUriParams(UriInfo uriInfo, String parameter) {
+        MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
+        if (uriParams.containsKey(parameter) && !uriParams.getFirst(parameter).isEmpty()) {
+            String parameterString = uriParams.getFirst(parameter);
+            return Optional.of(ConnectionFunctionType.fromOrdinal(Integer.parseInt(parameterString)));
+        } else {
+            return Optional.empty();
+        }
     }
 
     private TimeOfUseOptionsInfo getTimeOfUseOptions(DeviceType deviceType) {
@@ -881,5 +920,20 @@ public class DeviceTypeResource {
         } catch (IOException ex) {
             throw exceptionFactory.newException(MessageSeeds.FILE_IO);
         }
+    }
+
+    protected enum ConnectionFunctionType {
+        PROVIDED,
+        CONSUMABLE;
+
+        public static ConnectionFunctionType fromOrdinal(int ordinal) {
+            for (ConnectionFunctionType connectionFunctionType : ConnectionFunctionType.values()) {
+                if (connectionFunctionType.ordinal() == ordinal) {
+                    return connectionFunctionType;
+                }
+            }
+            return ConnectionFunctionType.PROVIDED; // Fallback
+        }
+
     }
 }

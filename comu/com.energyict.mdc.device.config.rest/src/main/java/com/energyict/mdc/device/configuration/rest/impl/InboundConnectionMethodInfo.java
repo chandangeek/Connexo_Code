@@ -7,6 +7,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
@@ -29,8 +30,8 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<PartialInb
     }
 
     @Override
-    protected void writeTo(PartialInboundConnectionTask partialConnectionTask, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService) {
-        super.writeTo(partialConnectionTask, engineConfigurationService, protocolPluggableService);
+    protected void writeTo(PartialInboundConnectionTask partialConnectionTask, DeviceType deviceType, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService) {
+        super.writeTo(partialConnectionTask, deviceType, engineConfigurationService, protocolPluggableService);
         if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
             engineConfigurationService.findInboundComPortPoolByName(this.comPortPool).ifPresent(partialConnectionTask::setComportPool);
         } else {
@@ -48,6 +49,7 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<PartialInb
                 deviceConfiguration
                         .newPartialInboundConnectionTask(name, connectionTypePluggableClass, protocolDialectConfigurationProperties)
                         .comPortPool(inboundComPortPool)
+                        .connectionFunction(getConnectionFunction(deviceConfiguration.getDeviceType()))
                         .asDefault(this.isDefault);
         addPropertiesToPartialConnectionTask(connectionTaskBuilder, connectionTypePluggableClass);
         return connectionTaskBuilder.build();
