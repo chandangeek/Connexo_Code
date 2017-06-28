@@ -689,6 +689,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                                 deviceType = Ext.create('Mdc.model.DeviceType', json);
                             if(!Ext.isEmpty(detailForm)) {
                                 detailForm.loadRecord(deviceType);
+                                if(detailForm.up('#deviceTypeDetail').down('#device-type-action-menu')) {
+                                    detailForm.up('#deviceTypeDetail').down('#device-type-action-menu').record = deviceType;
+                                }
                             } else if (!Ext.isEmpty(grid)) {
                                 grid.getStore().load();
                             }
