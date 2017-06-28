@@ -14,11 +14,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -29,7 +29,6 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
-import com.energyict.mdc.protocol.pluggable.ProtocolNotAllowedByLicenseException;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
@@ -37,13 +36,17 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapterImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnectionFunctionTranslationKeys;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLDeviceProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLMeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLSmartMeterProtocolAdapter;
+import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.upl.UPLConnectionFunction;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.Device;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -111,6 +114,54 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     @Override
     public TypedProperties getProperties() {
         return super.getProperties();
+    }
+
+    @Override
+    public List<ConnectionFunction> getProvidedConnectionFunctions() {
+        List<ConnectionFunction> connectionFunctions = new ArrayList<>();
+        for (UPLConnectionFunction connectionFunction : getDeviceProtocol().getProvidedConnectionFunctions()) {
+            connectionFunctions.add(new ConnectionFunction() {
+                @Override
+                public long getId() {
+                    return connectionFunction.getId();
+                }
+
+                @Override
+                public String getConnectionFunctionName() {
+                    return connectionFunction.getConnectionFunctionName();
+                }
+
+                @Override
+                public String getConnectionFunctionDisplayName() {
+                    return ConnectionFunctionTranslationKeys.translationFor(connectionFunction, getThesaurus());
+                }
+            });
+        }
+        return connectionFunctions;
+    }
+
+    @Override
+    public List<ConnectionFunction> getConsumableConnectionFunctions() {
+        List<ConnectionFunction> connectionFunctions = new ArrayList<>();
+        for (UPLConnectionFunction connectionFunction : getDeviceProtocol().getConsumableConnectionFunctions()) {
+            connectionFunctions.add(new ConnectionFunction() {
+                @Override
+                public long getId() {
+                    return connectionFunction.getId();
+                }
+
+                @Override
+                public String getConnectionFunctionName() {
+                    return connectionFunction.getConnectionFunctionName();
+                }
+
+                @Override
+                public String getConnectionFunctionDisplayName() {
+                    return ConnectionFunctionTranslationKeys.translationFor(connectionFunction, getThesaurus());
+                }
+            });
+        }
+        return connectionFunctions;
     }
 
     @Override

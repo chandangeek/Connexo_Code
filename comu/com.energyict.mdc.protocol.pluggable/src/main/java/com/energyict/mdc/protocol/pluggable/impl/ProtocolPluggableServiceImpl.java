@@ -85,6 +85,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnectionFunctionTranslationKeys;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnectionTypePluggableClassTranslationKeys;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageCategoryAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
@@ -1040,7 +1041,8 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     public List<TranslationKey> getKeys() {
         return Stream.of(
                 Stream.of(TranslationKeys.values()),
-                Stream.of(ConnectionTypePluggableClassTranslationKeys.values()))
+                Stream.of(ConnectionTypePluggableClassTranslationKeys.values()),
+                Stream.of(ConnectionFunctionTranslationKeys.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
