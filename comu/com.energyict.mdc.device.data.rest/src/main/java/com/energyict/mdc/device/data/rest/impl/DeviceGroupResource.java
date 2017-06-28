@@ -6,6 +6,8 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -32,15 +34,20 @@ import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.command.rest.impl.CommandInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.BulkDeviceMessageQueueMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.scheduling.SchedulingService;
 
 import com.google.common.collect.Range;
 
@@ -66,6 +73,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -88,12 +96,14 @@ public class DeviceGroupResource {
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final CommandInfoFactory commandInfoFactory;
+    private final JsonService jsonService;
+    private final MessageService messageService;
 
     @Inject
     public DeviceGroupResource(MeteringGroupsService meteringGroupsService, MeteringService meteringService,
                                DeviceService deviceService, SearchService searchService, ExceptionFactory exceptionFactory,
                                DeviceGroupInfoFactory deviceGroupInfoFactory, ResourceHelper resourceHelper,
-                               DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceConfigurationService deviceConfigurationService, CommandInfoFactory commandInfoFactory) {
+                               DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceConfigurationService deviceConfigurationService, CommandInfoFactory commandInfoFactory, JsonService jsonService, MessageService messageService) {
         this.meteringGroupsService = meteringGroupsService;
         this.meteringService = meteringService;
         this.deviceService = deviceService;
@@ -104,6 +114,8 @@ public class DeviceGroupResource {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.commandInfoFactory = commandInfoFactory;
+        this.jsonService = jsonService;
+        this.messageService = messageService;
     }
 
     @GET
@@ -283,6 +295,30 @@ public class DeviceGroupResource {
                     .collect(toList()));
         }
         return commonCommandInfos;
+    }
+
+    @POST
+    @Transactional
+    @Path("/{id}/commands")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
+    public Response createCommandForAllDevicesInDeviceGroup(@PathParam("id") long deviceGroupId, DeviceMessageInfo deviceMessageInfo) {
+        DeviceMessageId deviceMessageId = DeviceMessageId.valueOf(deviceMessageInfo.messageSpecification.id);
+        EndDeviceGroup endDeviceGroup = resourceHelper.findEndDeviceGroupOrThrowException(deviceGroupId);
+        Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(DeviceMessageService.BULK_DEVICE_MESSAGE_QUEUE_DESTINATION);
+        BulkDeviceMessageQueueMessage message = new BulkDeviceMessageQueueMessage(endDeviceGroup.getId(), deviceMessageId, deviceMessageInfo.releaseDate);
+        if (destinationSpec.isPresent()) {
+            return processMessagePost(message, destinationSpec.get());
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
+        }
+    }
+
+    private Response processMessagePost(QueueMessage message, DestinationSpec destinationSpec) {
+        String json = jsonService.serialize(message);
+        destinationSpec.message(json).send();
+        return Response.accepted().entity("{\"success\":\"true\"}").build();
     }
 
     private List<Device> fetchDevicesOfEnumEndDeviceGroup(EnumeratedEndDeviceGroup endDeviceGroup, JsonQueryParameters queryParameters) {
