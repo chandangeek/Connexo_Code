@@ -711,7 +711,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 ? router.previousRoute : 'administration/devicetypes/view';
 
         form.down('#form-errors').hide();
-        form.clearInvalid();
+        form.down('#deviceIconFileField').clearInvalid();
         if(form.isValid()) {
             addEditDeviceIconPage.setLoading(true);
             Ext.Ajax.request({
