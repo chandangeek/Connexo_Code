@@ -730,7 +730,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 callback: function (config, success, response) {
                     if (!Ext.isEmpty(response.responseText)) {
                         var responseObject = JSON.parse(response.responseText);
-                        if (!Ext.isEmpty(responseObject.errorCode) && !responseObject.errorCode === 'RUT0005') {
+                        if (!Ext.isEmpty(responseObject.errorCode) && responseObject.errorCode !== 'RUT0005') {
                             form.down('#deviceIconFileField').markInvalid(responseObject.message);
                         } else if (!Ext.isEmpty(responseObject.errorCode) && responseObject.errorCode === 'RUT0005') {
                             response.status = 409;
