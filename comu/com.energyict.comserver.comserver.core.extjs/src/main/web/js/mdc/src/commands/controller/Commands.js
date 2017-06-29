@@ -378,7 +378,7 @@ Ext.define('Mdc.commands.controller.Commands', {
     prepareStep3: function (wizard) {
         var me = this,
             step3 = wizard.down('add-command-step3'),
-            confirmationTitle = Uni.I18n.translate('add.command.step3.title', 'MDC',
+            confirmationTitle = Uni.I18n.translate('add.command.step3.title.specific', 'MDC',
                 "Add '{0}' to devices in '{1}'?", [me.wizardInformation.command, me.wizardInformation.deviceGroupName]),
             confirmationMessage = Uni.I18n.translate('add.command.step3.msg', 'MDC', 'The selected command will be added to all devices in the device group.');
 
