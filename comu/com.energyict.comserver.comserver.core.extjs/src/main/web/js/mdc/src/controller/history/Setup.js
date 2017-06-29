@@ -1302,7 +1302,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                         title: Uni.I18n.translate('deviceType.addDeviceIcon', 'MDC', 'Add device icon'),
                                         route: 'adddeviceicon',
                                         controller: 'Mdc.controller.setup.DeviceTypes',
-                                        action: 'showEditDeviceIconView'
+                                        action: 'showAddDeviceIconView'
                                     },
                                     editdeviceicon: {
                                         title: Uni.I18n.translate('deviceType.editDeviceIcon', 'MDC', 'Edit device icon'),

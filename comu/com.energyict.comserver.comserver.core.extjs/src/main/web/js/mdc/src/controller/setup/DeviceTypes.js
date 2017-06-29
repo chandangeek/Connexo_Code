@@ -18,7 +18,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         'setup.devicetype.DeviceTypeEdit',
         'setup.devicetype.DeviceTypeLogbooks',
         'setup.devicetype.AddLogbookTypes',
-        'setup.devicetype.AddEditDeviceIcon'
+        'setup.devicetype.AddEditDeviceIcon',
+        'Uni.view.error.NotFound'
     ],
 
     stores: [
@@ -597,10 +598,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 break;
             case 'addDeviceIcon':
                 router.arguments.deviceTypeId = menu.record.getId();
+                me.triggeredFromGrid = !Ext.isEmpty(me.getDeviceTypeGrid());
                 route = 'administration/devicetypes/view/adddeviceicon';
                 break;
             case 'editDeviceIcon':
                 router.arguments.deviceTypeId = menu.record.getId();
+                me.triggeredFromGrid = !Ext.isEmpty(me.getDeviceTypeGrid());
                 route = 'administration/devicetypes/view/editdeviceicon';
                 break;
             case 'removeDeviceIcon':
@@ -610,32 +613,43 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         }
 
         route && (route = router.getRoute(route));
-        route && route.forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
+        route && route.forward(router.arguments);
+    },
+
+    showAddDeviceIconView: function (deviceTypeId) {
+        this.showChangeDeviceIconView(deviceTypeId, false);
     },
 
     showEditDeviceIconView: function (deviceTypeId) {
+        this.showChangeDeviceIconView(deviceTypeId, true);
+    },
+
+    showChangeDeviceIconView: function (deviceTypeId, isEdit) {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
             router = me.getController('Uni.controller.history.Router'),
             widget,
-            route = router.previousRoute && router.previousRoute !== 'administration/devicetypes/view/adddeviceicon' && router.previousRoute !== 'administration/devicetypes/view/editdeviceicon'
-                ? router.previousRoute : 'administration/devicetypes/view';;
+            route = me.triggeredFromGrid ? 'administration/devicetypes' : 'administration/devicetypes/view';
 
 
         model.load(deviceTypeId, {
             success: function (deviceType) {
-                widget = Ext.widget('add-edit-device-icon', {
-                    router: me.getController('Uni.controller.history.Router'),
-                    deviceTypeId: deviceTypeId,
-                    version: deviceType.get('version'),
-                    isEdit: !Ext.isEmpty(deviceType.get('deviceIcon')),
-                    deviceTypeName: deviceType.get('name'),
-                    cancelLink: router.getRoute(route).buildUrl()
-                });
-                me.getApplication().fireEvent('loadDeviceType', deviceType);
-                me.getApplication().fireEvent('changecontentevent', widget);
-                if (!Ext.isEmpty(deviceType.get('deviceIcon'))) {
-                    me.showDeviceIconPreview('data:image;base64,' + deviceType.get('deviceIcon'));
+                if ((isEdit && Ext.isEmpty(deviceType.get('deviceIcon')) || (!isEdit && !Ext.isEmpty(deviceType.get('deviceIcon'))))) {
+                    crossroads.parse("/error/notfound");
+                } else {
+                    widget = Ext.widget('add-edit-device-icon', {
+                        router: me.getController('Uni.controller.history.Router'),
+                        deviceTypeId: deviceTypeId,
+                        version: deviceType.get('version'),
+                        isEdit: isEdit,
+                        deviceTypeName: deviceType.get('name'),
+                        cancelLink: router.getRoute(route).buildUrl()
+                    });
+                    me.getApplication().fireEvent('loadDeviceType', deviceType);
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    if (!Ext.isEmpty(deviceType.get('deviceIcon'))) {
+                        me.showDeviceIconPreview('data:image;base64,' + deviceType.get('deviceIcon'));
+                    }
                 }
             }
         });
@@ -648,7 +662,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             preview = addEditDeviceIconPage.down('#deviceIconPreview'),
             reader = new FileReader();
 
-        if(addEditDeviceIconPage.down('#deviceIconFileField').isValid()) {
+        if (addEditDeviceIconPage.down('#deviceIconFileField').isValid()) {
             reader.readAsDataURL(file);
             reader.addEventListener("load", function () {
                 me.showDeviceIconPreview(reader.result);
@@ -687,9 +701,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                         success: function (response) {
                             var json = JSON.parse(response.responseText),
                                 deviceType = Ext.create('Mdc.model.DeviceType', json);
-                            if(!Ext.isEmpty(detailForm)) {
+                            if (!Ext.isEmpty(detailForm)) {
                                 detailForm.loadRecord(deviceType);
-                                if(detailForm.up('#deviceTypeDetail').down('#device-type-action-menu')) {
+                                if (detailForm.up('#deviceTypeDetail').down('#device-type-action-menu')) {
                                     detailForm.up('#deviceTypeDetail').down('#device-type-action-menu').record = deviceType;
                                 }
                             } else if (!Ext.isEmpty(grid)) {
@@ -715,7 +729,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         form.down('#form-errors').hide();
         form.down('#deviceIconFileField').clearInvalid();
-        if(form.isValid()) {
+        if (form.isValid()) {
             addEditDeviceIconPage.setLoading(true);
             Ext.Ajax.request({
                 url: '/api/dtc/devicetypes/' + addEditDeviceIconPage.deviceTypeId + '/adddeviceicon',
