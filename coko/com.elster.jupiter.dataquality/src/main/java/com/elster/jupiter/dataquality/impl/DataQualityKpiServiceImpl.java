@@ -32,6 +32,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -44,10 +45,10 @@ import java.time.Clock;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 
 @Component(
@@ -99,7 +100,7 @@ public class DataQualityKpiServiceImpl implements ServerDataQualityKpiService, M
     @Activate
     public final void activate() {
         dataModel.register(this.getModule());
-        upgradeService.register(identifier("Pulse", DataQualityKpiService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(identifier("Pulse", DataQualityKpiService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(version(10, 3, 1), UpgraderV10_3_1.class));
     }
 
     private Module getModule() {
