@@ -34,7 +34,7 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
     private final PropertySpecService propertySpecService;
     private final MeteringTranslationService meteringTranslationService;
     private final Thesaurus thesaurus;
-    private static final String FIELD_NAME = "SERVICEKIND";
+    static final String FIELD_NAME = "SERVICEKIND";
 
     public ServiceCategorySearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, MeteringTranslationService meteringTranslationService, Thesaurus thesaurus) {
         super();
