@@ -295,13 +295,17 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
             if (deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
                 DeviceType deviceType = Builders.from(DeviceTypeTpl.BK_GF).get();
                 if (deviceType.getConfigurations().isEmpty()) {
-                    Builders.from(DeviceConfigurationTpl.DEFAULT_GAS).withDeviceType(deviceType).withPostBuilder(new ChannelsOnDevConfPostBuilder()).get().activate();
+                    ChannelsOnDevConfPostBuilder postBuilder = new ChannelsOnDevConfPostBuilder();
+                    postBuilder.setOverruledObisCode("0.1.24.2.1.255");
+                    Builders.from(DeviceConfigurationTpl.DEFAULT_GAS).withDeviceType(deviceType).withPostBuilder(postBuilder).get().activate();
                 }
                 createGasDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_GAS).withDeviceType(deviceType).get(), serialNumber, DeviceTypeTpl.BK_GF, devicename);
 
                 deviceType = Builders.from(DeviceTypeTpl.V200PR_6).get();
                 if (deviceType.getConfigurations().isEmpty()) {
-                    Builders.from(DeviceConfigurationTpl.DEFAULT_WATER).withDeviceType(deviceType).withPostBuilder(new ChannelsOnDevConfPostBuilder()).get().activate();
+                    ChannelsOnDevConfPostBuilder postBuilder = new ChannelsOnDevConfPostBuilder();
+                    postBuilder.setOverruledObisCode("0.2.24.2.1.255");
+                    Builders.from(DeviceConfigurationTpl.DEFAULT_WATER).withDeviceType(deviceType).withPostBuilder(postBuilder).get().activate();
                 }
                 createWaterDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_GAS).withDeviceType(deviceType).get(), serialNumber, DeviceTypeTpl.V200PR_6, devicename);
             }
