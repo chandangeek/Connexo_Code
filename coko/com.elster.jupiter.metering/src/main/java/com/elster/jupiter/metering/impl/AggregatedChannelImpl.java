@@ -303,7 +303,14 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public Optional<BaseReadingRecord> getReading(Instant when) {
-        return getReadings(Range.singleton(when)).stream().findFirst();
+        Range<Instant> requestRange;
+        if (isRegular()) {
+            requestRange = Range.open(persistedChannel.getPreviousDateTime(when), persistedChannel.getNextDateTime(when));
+        } else {
+            requestRange = Range.open(when.minusSeconds(1), when.plusSeconds(1));
+        }
+
+        return getReadings(requestRange).stream().findFirst();
     }
 
     @Override
@@ -340,34 +347,65 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<BaseReadingRecord> getReadingsBefore(Instant when, int readingCount) {
-        RangeBuilder rangeBuilder = new RangeBuilder();
-        this.dataAggregationService.introspect(this.usagePoint, this.metrologyContract, this.channelsContainer.getRange()).getChannelUsagesFor(this.deliverable)
-                .stream()
-                .flatMap(channelUsage -> channelUsage.getChannel()
-                        .getReadingsBefore(when, readingCount)
-                        .stream()
-                        .filter(readingRecord -> channelUsage.getRange().contains(readingRecord.getTimeStamp())))
-                .filter(readingRecord -> readingRecord.getTimeStamp().isBefore(when))
-                .forEach(record -> rangeBuilder.add(record.getTimeStamp()));
-        List<BaseReadingRecord> readingRecords = new ArrayList<>(rangeBuilder.hasRange() ? getRegisterReadings(rangeBuilder.getRange()) : Collections.emptyList());
-        return readingRecords.subList(Math.max(0, readingRecords.size() - readingCount), readingRecords.size());
+        if (isRegular()) {
+            Instant from = when;
+            for (int i = 0; i <= readingCount; i++) {
+                from = persistedChannel.getPreviousDateTime(from);
+            }
+            return getReadings(Range.openClosed(from, persistedChannel.getPreviousDateTime(when)));
+        } else {
+            RangeBuilder rangeBuilder = new RangeBuilder();
+            this.dataAggregationService.introspect(this.usagePoint, this.metrologyContract, this.channelsContainer.getRange()).getChannelUsagesFor(this.deliverable)
+                    .stream()
+                    .flatMap(channelUsage -> channelUsage.getChannel()
+                            .getReadingsBefore(when, readingCount)
+                            .stream()
+                            .filter(readingRecord -> channelUsage.getRange().contains(readingRecord.getTimeStamp())))
+                    .filter(readingRecord -> readingRecord.getTimeStamp().isBefore(when))
+                    .forEach(record -> rangeBuilder.add(record.getTimeStamp()));
+            if (rangeBuilder.hasRange()) {
+                Range<Instant> range = rangeBuilder.getRange();
+                if (range.hasLowerBound()) {
+                    range = Range.openClosed(range.lowerEndpoint().minusSeconds(1), range.upperEndpoint());
+                }
+                List<BaseReadingRecord> readingRecords = getReadings(range);
+                return readingRecords.subList(Math.max(0, readingRecords.size() - readingCount), readingRecords.size());
+            } else {
+                return Collections.emptyList();
+            }
+        }
     }
 
     @Override
     public List<BaseReadingRecord> getReadingsOnOrBefore(Instant when, int readingCount) {
-        RangeBuilder rangeBuilder = new RangeBuilder();
-        rangeBuilder.add(when);
-        this.dataAggregationService.introspect(this.usagePoint, this.metrologyContract, this.channelsContainer.getRange()).getChannelUsagesFor(this.deliverable)
-                .stream()
-                .flatMap(channelUsage -> channelUsage.getChannel()
-                        .getReadingsBefore(when, readingCount)
-                        .stream()
-                        .filter(readingRecord -> channelUsage.getRange().contains(readingRecord.getTimeStamp())))
-                .filter(readingRecord -> readingRecord.getTimeStamp().isBefore(when))
-                .forEach(record -> rangeBuilder.add(record.getTimeStamp()));
-        List<BaseReadingRecord> readingRecords = new ArrayList<>(rangeBuilder.hasRange() ? getRegisterReadings(rangeBuilder.getRange()) : Collections.emptyList());
-        return readingRecords.subList(Math.max(0, readingRecords.size() - readingCount), readingRecords.size());
-
+        if (isRegular()) {
+            Instant from = when;
+            for (int i = 0; i < readingCount; i++) {
+                from = persistedChannel.getPreviousDateTime(from);
+            }
+            return getReadings(Range.openClosed(from, when));
+        } else {
+            RangeBuilder rangeBuilder = new RangeBuilder();
+            rangeBuilder.add(when);
+            this.dataAggregationService.introspect(this.usagePoint, this.metrologyContract, this.channelsContainer.getRange()).getChannelUsagesFor(this.deliverable)
+                    .stream()
+                    .flatMap(channelUsage -> channelUsage.getChannel()
+                            .getReadingsBefore(when, readingCount)
+                            .stream()
+                            .filter(readingRecord -> channelUsage.getRange().contains(readingRecord.getTimeStamp())))
+                    .filter(readingRecord -> readingRecord.getTimeStamp().isBefore(when))
+                    .forEach(record -> rangeBuilder.add(record.getTimeStamp()));
+            if (rangeBuilder.hasRange()) {
+                Range<Instant> range = rangeBuilder.getRange();
+                if (range.hasLowerBound() && range.hasUpperBound()) {
+                    range = Range.openClosed(range.lowerEndpoint().minusSeconds(1), range.upperEndpoint().plusSeconds(1));
+                }
+                List<BaseReadingRecord> readingRecords = getReadings(range);
+                return readingRecords.subList(Math.max(0, readingRecords.size() - readingCount), readingRecords.size());
+            } else {
+                return Collections.emptyList();
+            }
+        }
     }
 
     @Override
