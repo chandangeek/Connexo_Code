@@ -139,14 +139,17 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             IssueCreationService.CreationRuleActionBuilder actionBuilder = builder.newCreationRuleAction();
             actionBuilder.setPhase(CreationRuleActionPhase.fromString("CREATE"));
             Optional<IssueActionType> actionType = issueService.getIssueActionService().findActionType(3);
-            actionBuilder.setActionType(actionType.get());
-            for (PropertySpec propertySpec : actionType.get().createIssueAction().get().setReasonName(issueType.getName()).getPropertySpecs()) {
-                actionBuilder.addProperty(propertySpec.getName(), propertySpec
-                        .getValueFactory()
-                        .fromStringValue("{\"workgroupId\":2,\"comment\":\"\",\"userId\":-1}"));
-                actionBuilder.complete();
-                rule.update();
-            }
+            //TODO figure out why 3 is not present
+            actionType.ifPresent(issueActionType -> {
+                actionBuilder.setActionType(actionType.get());
+                for (PropertySpec propertySpec : actionType.get().createIssueAction().get().setReasonName(issueType.getName()).getPropertySpecs()) {
+                    actionBuilder.addProperty(propertySpec.getName(), propertySpec
+                            .getValueFactory()
+                            .fromStringValue("{\"workgroupId\":2,\"comment\":\"\",\"userId\":-1}"));
+                    actionBuilder.complete();
+                    rule.update();
+                }
+            });
         }
         return rule;
     }
