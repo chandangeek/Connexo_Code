@@ -4,14 +4,14 @@
     "creator": "Elster Jupiter Project",
     "summary": "Short summary",
     "detailedDescription": "Long description of package",
-    "version": "1.3.0",
-    "compatVersion": "1.3.0",
+    "version": "1.3.1",
+    "compatVersion": "1.3.1",
       "format": "1",
       "local": true,
       "requires": [
-          "com.elster.jupiter.unifyingjs",
-          "com.elster.jupiter.issue.extjs",
-          "com.energyict.mdc.device.data.validation.extjs",
-          "com.energyict.comserver.comserver.core.extjs"
+          "com.elster.jupiter.unifyingjs@1.3.1",
+          "com.elster.jupiter.issue.extjs@1.3.1",
+          "com.energyict.mdc.device.data.validation.extjs@1.3.1",
+          "com.energyict.comserver.comserver.core.extjs@1.3.1"
       ]
 }
