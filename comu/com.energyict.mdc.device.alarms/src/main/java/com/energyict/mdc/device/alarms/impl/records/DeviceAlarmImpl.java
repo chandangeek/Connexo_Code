@@ -173,6 +173,16 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     @Override
+    public void removeComment(long id, User author) {
+        getBaseIssue().removeComment(id, author);
+    }
+
+    @Override
+    public Optional<IssueComment> editComment(long id, String body, User author) {
+        return getBaseIssue().editComment(id, body, author);
+    }
+
+    @Override
     public void assignTo(String type, long userId) {
         assignTo(userId, null);
     }
