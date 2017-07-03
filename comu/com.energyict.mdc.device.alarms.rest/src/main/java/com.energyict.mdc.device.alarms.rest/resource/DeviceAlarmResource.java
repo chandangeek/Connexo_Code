@@ -37,6 +37,8 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -64,6 +66,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -96,12 +99,14 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     private final DeviceAlarmInfoFactory deviceAlarmInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final BpmService bpmService;
+    private final TransactionService transactionService;
 
     @Inject
-    public DeviceAlarmResource(DeviceAlarmInfoFactory deviceAlarmInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, BpmService bpmService) {
+    public DeviceAlarmResource(DeviceAlarmInfoFactory deviceAlarmInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, BpmService bpmService, TransactionService transactionService) {
         this.conflictFactory = conflictFactory;
         this.deviceAlarmInfoFactory = deviceAlarmInfoFactory;
         this.bpmService = bpmService;
+        this.transactionService = transactionService;
     }
 
     @GET
@@ -155,6 +160,36 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         IssueComment comment = deviceAlarm.addComment(request.getComment(), author)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
         return Response.ok(new IssueCommentInfo(comment)).status(Response.Status.CREATED).build();
+    }
+
+    @DELETE
+    @Path("/{id}/comments/{commentId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.COMMENT_ALARM)
+    public Response removeComment(@PathParam("id") long id, @PathParam("commentId") long commentId, CreateCommentRequest request, @Context SecurityContext securityContext) {
+        DeviceAlarm deviceAlarm = getDeviceAlarmService().findAlarm(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        User author = (User) securityContext.getUserPrincipal();
+        try (TransactionContext context = transactionService.getContext()) {
+            deviceAlarm.removeComment(commentId, author);
+            context.commit();
+        }
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("/{id}/comments/{commentId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.COMMENT_ALARM)
+    public Response editComment(@PathParam("id") long id, @PathParam("commentId") long commentId, CreateCommentRequest request, @Context SecurityContext securityContext) {
+        DeviceAlarm deviceAlarm = getDeviceAlarmService().findAlarm(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        User author = (User) securityContext.getUserPrincipal();
+        try (TransactionContext context = transactionService.getContext()) {
+            deviceAlarm.editComment(commentId, request.getComment(), author);
+            context.commit();
+        }
+        return Response.status(Response.Status.OK).build();
     }
 
     @GET
