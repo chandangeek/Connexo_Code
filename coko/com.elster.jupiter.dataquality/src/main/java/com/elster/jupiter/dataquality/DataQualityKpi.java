@@ -22,4 +22,17 @@ public interface DataQualityKpi {
     Optional<Instant> getLatestCalculation();
 
     void delete();
+
+    /**
+     * @deprecated use delete
+     */
+    @Deprecated
+    void makeObsolete();
+
+    /**
+     * @return an empty Optional
+     * @deprecated this will always return an empty Optional
+     */
+    @Deprecated
+    Optional<Instant> getObsoleteTime();
 }
