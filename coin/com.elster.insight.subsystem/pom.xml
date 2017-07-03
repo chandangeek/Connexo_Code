@@ -2,9 +2,7 @@
 <!--
   ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
   -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -14,7 +12,7 @@
     </parent>
 
     <artifactId>mdm</artifactId>
-    <version>1.2.0${revision}</version>
+    <version>1.2.1${revision}</version>
     <packaging>bundle</packaging>
     <name>[Insight Subsystem] com.elster.insight.subsystem</name>
     <description>Assembly project for Insight</description>
@@ -24,7 +22,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>mdm.parent</artifactId>
-                <version>1.2.0${revision}</version>
+                <version>1.2.1${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -35,7 +33,7 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>mdm.parent</artifactId>
-            <version>1.2.0${revision}</version>
+            <version>1.2.1${revision}</version>
             <type>pom</type>
         </dependency>
         <dependency>
