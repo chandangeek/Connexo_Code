@@ -174,4 +174,9 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
                 .tier(readingType.getConsumptionTier())
                 .tou(readingType.getTou());
     }
+
+    @Override
+    public Optional<TimeDuration> getReadingTypeInterval(String readingType) {
+        return ReadingTypeToObisCodeFactory.getIntervalFrom(readingType);
+    }
 }

@@ -4,18 +4,20 @@
 
 package com.energyict.mdc.metering.impl;
 
-import com.energyict.obis.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.metering.ReadingTypeInformation;
 import com.energyict.mdc.metering.impl.matchers.ItemMatcher;
 import com.energyict.mdc.metering.impl.matchers.Matcher;
+
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public final class ReadingTypeToObisCodeFactory {
@@ -115,6 +117,22 @@ public final class ReadingTypeToObisCodeFactory {
         return new ReadingTypeInformation(obisCode, unit, timeDuration);
     }
 
+    public static Optional<TimeDuration> getIntervalFrom(String readingType) {
+        String[] arguments = readingType.split("\\.");
+        if (arguments.length != NUMBER_OF_READING_TYPE_ARGUMENTS) {
+            throw new IllegalArgumentException("The provided ReadingType code should contain " + NUMBER_OF_READING_TYPE_ARGUMENTS + " fields.");
+        }
+        OptionalCollector optionals = new OptionalCollector();
+
+        applyMacroPeriodMapping(arguments[MACRO_PERIOD_INDEX], optionals);
+        applyMeasuringPeriodMapping(arguments[TIME_ATTRIBUTE_INDEX], optionals);
+
+        if (optionals.getIntervalSeconds() != null && optionals.getIntervalSeconds().singleMatch()) {
+            return Optional.of(new TimeDuration(optionals.getIntervalSeconds().getTheCandidate()));
+        } else {
+            return Optional.empty();
+        }
+    }
 
     private static void applyMacroPeriodMapping(String argument, OptionalCollector optionalCollector) {
         for (MacroPeriodMapping macroPeriodMapping : MacroPeriodMapping.values()) {
@@ -320,11 +338,11 @@ public final class ReadingTypeToObisCodeFactory {
         }
 
         private String getAllCandidates(Candidates<Integer> integerCandidates) {
-            if(integerCandidates != null && !integerCandidates.getAllCandidates().isEmpty()){
+            if (integerCandidates != null && !integerCandidates.getAllCandidates().isEmpty()) {
                 StringBuilder stringBuilder = new StringBuilder();
                 Iterator<Integer> iterator = integerCandidates.getAllCandidates().iterator();
                 boolean next = iterator.hasNext();
-                while(next){
+                while (next) {
                     stringBuilder.append(iterator.next());
                     if (next = iterator.hasNext()) {
                         stringBuilder.append(", ");
