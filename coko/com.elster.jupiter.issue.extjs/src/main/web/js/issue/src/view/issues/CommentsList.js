@@ -46,27 +46,13 @@ Ext.define('Isu.view.issues.CommentsList', {
                 hidden: true
             },
             {
-                xtype: 'dataview',
-                itemId: 'issue-comments-view',
-                title: Uni.I18n.translate('issue.userImages', 'ISU', 'User Images'),
-                itemSelector: 'div.thumb-wrap',
-                tpl: new Ext.XTemplate(
-                    '<tpl for=".">',
-                    '{[xindex > 1 ? "<hr>" : ""]}',
-                    '<p><span class="isu-icon-USER"></span><b>{author.name}</b> ' + Uni.I18n.translate('general.addedcomment.lowercase', 'ISU', 'added a comment') + ' - {[values.creationDate ? this.formatCreationDate(values.creationDate) : ""]}</p>',
-                    '<p><tpl for="splittedComments">',
-                    '{.:htmlEncode}</br>',
-                    '</tpl></p>',
-                    '</tpl>',
-                    {
-                        formatCreationDate: function (date) {
-                            date = Ext.isDate(date) ? date : new Date(date);
-                            return Uni.DateTime.formatDateTimeLong(date);
-                        }
-                    }
-                ),
-                header: 'Name',
-                dataIndex: 'name'
+                xtype: 'container',
+                itemId: 'issue-comments-list',
+                layout: {
+                    type: 'fit',
+                    align: 'center'
+                },
+
             },
             {
                 xtype: 'issue-add-comment-form',
@@ -76,5 +62,5 @@ Ext.define('Isu.view.issues.CommentsList', {
         ];
 
         me.callParent(arguments);
-    },
+    }
 });
