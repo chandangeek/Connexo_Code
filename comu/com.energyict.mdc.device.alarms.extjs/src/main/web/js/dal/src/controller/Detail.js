@@ -66,6 +66,15 @@ Ext.define('Dal.controller.Detail', {
             'alarm-detail #alarm-comments #issue-add-comment-area': {
                 change: this.validateCommentForm
             },
+            'alarm-detail #alarm-comments #issue-comment-cancel-editing-button': {
+                click: this.hideEditCommentForm
+            },
+            'alarm-detail #alarm-comments #issue-comment-edit-button': {
+                click: this.editComment
+            },
+            'alarm-detail #alarm-comments #issue-edit-comment-area': {
+                change: this.validateEditCommentForm
+            },
             'alarm-detail #alarm-detail-action-menu': {
                 click: this.chooseAction
             },
