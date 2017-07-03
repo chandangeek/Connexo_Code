@@ -70,6 +70,15 @@ Ext.define('Idc.controller.Detail', {
             'data-collection-issue-detail #data-collection-issue-comments #issue-add-comment-area': {
                 change: this.validateCommentForm
             },
+            'data-collection-issue-detail #data-collection-issue-comments #issue-comment-cancel-editing-button': {
+                click: this.hideEditCommentForm
+            },
+            'data-collection-issue-detail #data-collection-issue-comments #issue-comment-edit-button': {
+                click: this.editComment
+            },
+            'data-collection-issue-detail #data-collection-issue-comments #issue-edit-comment-area': {
+                change: this.validateEditCommentForm
+            },
             'data-collection-issue-detail #issue-detail-action-menu': {
                 click: this.chooseAction
             },
