@@ -79,6 +79,15 @@ Ext.define('Idv.controller.Detail', {
             'data-validation-issue-detail #data-validation-issue-comments #issue-add-comment-area': {
                 change: this.validateCommentForm
             },
+            'data-validation-issue-detail #data-validation-issue-comments #issue-comment-cancel-editing-button': {
+                click: this.hideEditCommentForm
+            },
+            'data-validation-issue-detail #data-validation-issue-comments #issue-comment-edit-button': {
+                click: this.editComment
+            },
+            'data-validation-issue-detail #data-validation-issue-comments #issue-edit-comment-area': {
+                change: this.validateEditCommentForm
+            },
             'data-validation-issue-detail #issue-detail-action-menu': {
                 click: this.chooseAction
             },
