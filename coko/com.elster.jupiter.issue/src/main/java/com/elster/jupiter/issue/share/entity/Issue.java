@@ -51,6 +51,10 @@ public interface Issue extends Entity {
 
     Optional<IssueComment> addComment(String body, User author);
 
+    void removeComment(long id, User author);
+
+    Optional<IssueComment> editComment(long id, String body, User author);
+
     void assignTo(Long userId, Long workGroupId);
 
     void assignTo(IssueAssignee assignee);

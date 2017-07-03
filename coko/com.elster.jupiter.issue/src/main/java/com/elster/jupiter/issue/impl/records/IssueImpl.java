@@ -6,6 +6,7 @@ package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
@@ -13,7 +14,6 @@ import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueForAssign;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
@@ -177,6 +177,31 @@ public class IssueImpl extends EntityImpl implements Issue {
             IssueCommentImpl comment = getDataModel().getInstance(IssueCommentImpl.class);
             comment.init(getId(), body, author).save();
             return Optional.of(IssueComment.class.cast(comment));
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public void removeComment(long id, User author) {
+        if (author != null) {
+            getDataModel().mapper(IssueCommentImpl.class).find("id", id).stream()
+                    .filter(issueComment -> issueComment.getUser().getId() == author.getId())
+                    .findFirst().ifPresent(
+                    issueComment -> issueComment.delete()
+            );
+        }
+    }
+
+    @Override
+    public Optional<IssueComment> editComment(long id, String body, User author) {
+        if (!is(body).emptyOrOnlyWhiteSpace() && author != null) {
+            return getDataModel().mapper(IssueCommentImpl.class).find("id", id).stream()
+                    .findFirst()
+                    .map(issueComment -> {
+                        issueComment.setComment(body);
+                        issueComment.update();
+                        return Optional.of(IssueComment.class.cast(issueComment));
+                    }).orElse(Optional.empty());
         }
         return Optional.empty();
     }
