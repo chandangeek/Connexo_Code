@@ -157,6 +157,16 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
+    public void removeComment(long id, User author) {
+        getBaseIssue().removeComment(id, author);
+    }
+
+    @Override
+    public Optional<IssueComment> editComment(long id, String body, User author) {
+        return getBaseIssue().editComment(id, body, author);
+    }
+
+    @Override
     public void assignTo(Long userId, Long workGroupId) {
         getBaseIssue().assignTo(userId, workGroupId);
     }
