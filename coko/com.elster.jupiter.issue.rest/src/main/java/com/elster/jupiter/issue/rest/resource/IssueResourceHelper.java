@@ -135,6 +135,17 @@ public class IssueResourceHelper {
         return new IssueCommentInfo(comment);
     }
 
+    public void removeComment(Issue issue, long commentId, CreateCommentRequest request, SecurityContext securityContext) {
+        User author = (User) securityContext.getUserPrincipal();
+        issue.removeComment(commentId, author);
+    }
+
+    public IssueCommentInfo editComment(Issue issue, long commentId, CreateCommentRequest request, SecurityContext securityContext) {
+        User author = (User) securityContext.getUserPrincipal();
+        IssueComment comment = issue.editComment(commentId, request.getComment(), author).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
+        return new IssueCommentInfo(comment);
+    }
+
     public IssueFilter buildFilterFromQueryParameters(JsonQueryFilter jsonFilter) {
         IssueFilter filter = issueService.newIssueFilter();
         if (jsonFilter.hasProperty(IssueRestModuleConst.ID)) {

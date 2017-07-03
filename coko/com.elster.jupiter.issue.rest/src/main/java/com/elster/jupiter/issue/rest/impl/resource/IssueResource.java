@@ -41,6 +41,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
@@ -50,6 +51,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -137,6 +139,33 @@ public class IssueResource extends BaseResource {
         return Response.ok(issueResourceHelper.postComment(issue, request, securityContext)).status(Response.Status.CREATED).build();
     }
 
+    @DELETE
+    @Path("/{id}/comments/{commentId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
+    public Response removeComment(@PathParam("id") long id, @PathParam("commentId") long commentId, CreateCommentRequest request, @Context SecurityContext securityContext) {
+        Issue issue = getIssueService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        try (TransactionContext context = transactionService.getContext()) {
+            issueResourceHelper.removeComment(issue, commentId, request, securityContext);
+            context.commit();
+        }
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("/{id}/comments/{commentId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
+    public Response editComment(@PathParam("id") long id, @PathParam("commentId") long commentId, CreateCommentRequest request, @Context SecurityContext securityContext) {
+        Issue issue = getIssueService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        try (TransactionContext context = transactionService.getContext()) {
+            issueResourceHelper.editComment(issue, commentId, request, securityContext);
+            context.commit();
+        }
+        return Response.status(Response.Status.OK).build();
+    }
 
     @PUT
     @Path("/assigntome/{id}")
