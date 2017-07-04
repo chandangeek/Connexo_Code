@@ -666,7 +666,7 @@ Ext.define('Isu.controller.IssueDetail', {
 
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('remove.comment.confirmation.yes', 'ISU', 'Remove'),
-            cancelText: Uni.I18n.translate('remove.comment.confirmation.no', 'MDC', 'Cancel'),
+            cancelText: Uni.I18n.translate('remove.comment.confirmation.no', 'ISU', 'Cancel'),
             confirmation: function () {
                 this.close();
                 commentsView.setLoading();
@@ -683,8 +683,8 @@ Ext.define('Isu.controller.IssueDetail', {
                 });
             }
         }).show({
-            msg: Uni.I18n.translate('remove.comment.msg', 'MDC', 'You will no longer see this comment'),
-            title: Uni.I18n.translate('remove.comment.title', 'MDC', 'Remove this comment?')
+            msg: Uni.I18n.translate('remove.comment.msg', 'ISU', 'You will no longer see this comment'),
+            title: Uni.I18n.translate('remove.comment.title', 'ISU', 'Remove this comment?')
 
         });
     },
