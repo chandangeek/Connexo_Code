@@ -9,7 +9,8 @@ Ext.define('Isu.controller.IssueDetail', {
         'Isu.store.TimelineEntries',
         'Bpm.monitorissueprocesses.store.IssueProcesses',
         'Bpm.monitorissueprocesses.store.AlarmProcesses',
-        'Uni.util.FormEmptyMessage'
+        'Uni.util.FormEmptyMessage',
+        'Isu.view.issues.EditCommentForm'
     ],
 
     stores: [
@@ -63,6 +64,7 @@ Ext.define('Isu.controller.IssueDetail', {
             router: router,
             issuesListLink: me.makeLinkToList(router)
         });
+
         me.widget = widget;
         me.getApplication().fireEvent('changecontentevent', widget);
         me.issueModel = issueModel;
@@ -138,9 +140,12 @@ Ext.define('Isu.controller.IssueDetail', {
                 }
             );
         }
+
+        timelineStore.suspendEvents(false);
         Ext.Array.each(data, function (item) {
             timelineStore.add(item);
         });
+        timelineStore.resumeEvents();
 
         timelineStore.sort('creationDate', 'DESC');
         timelineView.bindStore(timelineStore);
@@ -164,24 +169,25 @@ Ext.define('Isu.controller.IssueDetail', {
     loadComments: function (record, issueType) {
         var
             me = this,
-            commentsView = this.widget ? this.widget.down('#issue-comments-view') : this.getPage().down('#issue-comments-view'),
+            commentsView = this.widget ? this.widget.down('#issue-comments-list') : this.getPage().down('#issue-comments-list'),
             commentsStore = record.comments(),
             router = this.getController('Uni.controller.history.Router');
 
         commentsStore.getProxy().url = me.itemUrl + record.getId() + '/comments';
         commentsStore.sort('creationDate', 'DESC');
-        commentsView.bindStore(commentsStore);
         commentsView.setLoading(true);
         commentsStore.load(function (records) {
             if (!commentsView.isDestroyed) {
                 Ext.suspendLayouts();
                 commentsStore.add(records);
+                commentsView.store = commentsStore;
                 commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
                 commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && me.canComment());
                 if ((issueType === 'datacollection') || (issueType === 'alarm')) {
                     me.loadTimeline(commentsStore);
                 }
+                me.constructComments(commentsView, commentsStore);
                 Ext.resumeLayouts(true);
                 commentsView.setLoading(false);
             }
@@ -226,7 +232,7 @@ Ext.define('Isu.controller.IssueDetail', {
 
     hideCommentForm: function () {
         var commentsPanel = this.getCommentsPanel(),
-            hasComments = commentsPanel.down('#issue-comments-view').getStore().getCount() ? true : false;
+            hasComments = commentsPanel.down('#issue-comments-list').store.getCount() ? true : false;
 
         Ext.suspendLayouts();
         commentsPanel.down('#issue-add-comment-form').hide();
@@ -240,11 +246,15 @@ Ext.define('Isu.controller.IssueDetail', {
         this.getCommentsPanel().down('#issue-comment-save-button').setDisabled(!newValue.trim().length);
     },
 
+    validateEditCommentForm: function (textarea, newValue) {
+        textarea.up('panel').down('#issue-comment-edit-button').setDisabled(!newValue.trim().length);
+    },
+
     addComment: function () {
         var me = this,
             commentsPanel = me.getCommentsPanel(),
-            commentsView = commentsPanel.down('#issue-comments-view'),
-            commentsStore = commentsView.getStore();
+            commentsView = commentsPanel.down('#issue-comments-list'),
+            commentsStore = commentsView.store;
 
         commentsView.setLoading();
         commentsStore.add(commentsPanel.down('#issue-add-comment-form').getValues());
@@ -252,6 +262,7 @@ Ext.define('Isu.controller.IssueDetail', {
             callback: function () {
                 commentsStore.load(function (records) {
                     this.add(records);
+                    me.constructComments(commentsView, commentsStore);
                     commentsView.setLoading(false);
                     me.loadTimeline(commentsStore);
                 })
@@ -264,8 +275,8 @@ Ext.define('Isu.controller.IssueDetail', {
     addCommentValidation: function () {
         var me = this,
             commentsPanel = me.getCommentsPanel(),
-            commentsView = commentsPanel.down('#issue-comments-view'),
-            commentsStore = commentsView.getStore();
+            commentsView = commentsPanel.down('#issue-comments-list'),
+            commentsStore = commentsView.store;
 
         commentsView.setLoading();
         commentsStore.add(commentsPanel.down('#issue-add-comment-form').getValues());
@@ -480,5 +491,216 @@ Ext.define('Isu.controller.IssueDetail', {
 
     canComment: function () {
         return Isu.privileges.Issue.canComment();
+    },
+
+    containerclick: function (view, record) {
+        var className = record && record.getTarget() && record.getTarget().className;
+
+        if (className == 'icon-pencil2') {
+            this.editComment(view, record);
+        }
+        else if (className == 'icon-cancel-circle2') {
+            this.removeComment(view, record)
+        }
+    },
+
+    editComment: function (view, record) {
+        var me = this,
+            commentId = record && record.getTarget() && record.getTarget().id,
+            comment = me.widget.getEl().down('p[id=comment' + commentId + ']'),
+            staticComment = comment.down('span[id=staticComment]'),
+            editedComment = comment.down('span[id=editedComment]');
+
+        staticComment && staticComment.el.setStyle('display', 'none');
+        Ext.create('Isu.view.issues.EditCommentForm', {
+            renderTo: editedComment,
+            comment: staticComment.dom.innerText
+        });
+
+
+    },
+
+    constructComments: function (issueCommentsView, commentsStore) {
+        var me = this,
+            itemsAdded = 0;
+
+        // load current user
+        Ext.Ajax.request({
+            url: '/api/usr/currentuser',
+            success: function (response) {
+                me.currentUserId = Ext.decode(response.responseText, true).id;
+
+                Ext.suspendLayouts();
+                issueCommentsView.removeAll();
+                issueCommentsView.add({
+                    xtype: 'container',
+                    html: '<br>'
+                });
+                commentsStore.each(function (record) {
+                    var creationDate = record.get('creationDate');
+                    var items = [];
+
+                    creationDate = creationDate ? me.formatCreationDate(creationDate) : "";
+
+                    // add new row
+                    itemsAdded++;
+                    html = '<span class="isu-icon-USER"></span><b> ' + record.get('author').name + '</b> ' +
+                        Uni.I18n.translate('general.addedcomment.lowercase', 'ISU', 'added a comment') + ' - ' + creationDate;
+
+                    // title
+                    items.push(Ext.create('Ext.form.FieldContainer', {
+                        html: html
+                    }));
+
+                    // comments
+                    var comments = Ext.create('Ext.container.Container', {
+                        html: record.get('splittedComments').join('<br>')
+                    });
+                    var editComments = Ext.create('Isu.view.issues.EditCommentForm', {
+                        hidden: true,
+                        cntComment: comments
+                    });
+
+                    // edit and remove actions
+                    if ((record.get('author').id == me.currentUserId) && me.canComment()) {
+                        var edit = Ext.create('Ext.button.Button', {
+                            margin: '0 0 0 10',
+                            ui: 'plain',
+                            itemId: 'btn-edit-' + itemsAdded,
+                            iconCls: 'icon-pencil2',
+                            tooltip: Uni.I18n.translate('general.editComment', 'ISU', 'Edit'),
+                            handler: function () {
+                                if (comments.isVisible()) {
+                                    comments.setVisible(false);
+                                    editComments.setVisible(true);
+                                    me.setEnableEditButtons(false);
+                                    editComments.record = record;
+                                    editComments.setComment(record.get('splittedComments').join('\n'));
+                                }
+                            }
+                        });
+
+                        var remove = Ext.create('Ext.button.Button', {
+                            margin: '0 0 0 7',
+                            ui: 'plain',
+                            itemId: 'btn-remove-' + itemsAdded,
+                            iconCls: 'icon-cancel-circle2',
+                            tooltip: Uni.I18n.translate('general.removeComment', 'ISU', 'Remove'),
+                            record: record,
+                            handler: function () {
+                                me.removeComment(issueCommentsView, this);
+                            }
+                        });
+                        items.push(edit);
+                        items.push(remove);
+                    }
+                    issueCommentsView.add(Ext.create('Ext.container.Container', {
+                        layout: 'hbox',
+                        items: items
+                    }));
+
+                    issueCommentsView.add([{
+                        xtype: 'container',
+                        html: '<br>'
+                    },
+                        comments,
+                        editComments,
+                        {
+                            xtype: 'box',
+                            autoEl: {tag: 'hr'}
+                        }
+                    ]);
+                });
+                Ext.resumeLayouts();
+
+                issueCommentsView.doLayout();
+            }
+        });
+    },
+
+    formatCreationDate: function (date) {
+        date = Ext.isDate(date) ? date : new Date(date);
+        return Uni.DateTime.formatDateTimeLong(date);
+    },
+
+    hideEditCommentForm: function (button) {
+        var commentsPanel = this.getCommentsPanel(),
+            hasComments = commentsPanel.down('#issue-comments-list').store.getCount() ? true : false;
+
+        Ext.suspendLayouts();
+        button.editCommentForm.setVisible(false);
+        button.commentPanel.setVisible(true);
+
+        commentsPanel.down('#issue-comments-add-comment-button').setVisible(hasComments && this.canComment());
+        commentsPanel.down('#no-issue-comments').setVisible(!hasComments);
+        Ext.resumeLayouts(true);
+    },
+
+    editComment: function (editButton, b, c) {
+        var me = this,
+            commentsView = editButton.up('#issue-comments-list'),
+            record = editButton.up('panel').record,
+            commentsStore = editButton.up('panel').record.store;
+        value = editButton.up('panel').down('#issue-edit-comment-area').getValue();
+
+        record.beginEdit();
+        record.set('comment', value);
+        record.endEdit();
+
+        commentsView.setLoading();
+        commentsStore.sync({
+            callback: function () {
+                commentsStore.load(function (records) {
+                    this.add(records);
+                    commentsView.setLoading(false);
+                    me.constructComments(commentsView, commentsStore);
+                    me.loadTimeline(commentsStore);
+                })
+            }
+        });
+    },
+
+    removeComment: function (commentsView, button) {
+        var me = this,
+            commentsStore = commentsView.store;
+
+        Ext.create('Uni.view.window.Confirmation', {
+            confirmText: Uni.I18n.translate('remove.comment.confirmation.yes', 'ISU', 'Remove'),
+            cancelText: Uni.I18n.translate('remove.comment.confirmation.no', 'MDC', 'Cancel'),
+            confirmation: function () {
+                this.close();
+                commentsView.setLoading();
+                commentsStore.remove(button.record);
+                commentsStore.sync({
+                    callback: function () {
+                        commentsStore.load(function (records) {
+                            this.add(records);
+                            commentsView.setLoading(false);
+                            me.constructComments(commentsView, commentsStore);
+                            me.loadTimeline(commentsStore);
+                        })
+                    }
+                });
+            }
+        }).show({
+            msg: Uni.I18n.translate('remove.comment.msg', 'MDC', 'You will no longer see this comment'),
+            title: Uni.I18n.translate('remove.comment.title', 'MDC', 'Remove this comment?')
+
+        });
+    },
+
+    setEnableEditButtons: function (enable) {
+        var me = this,
+            editButtons = Ext.ComponentQuery.query("button[itemId^=btn-edit-]"),
+            removeButtons = Ext.ComponentQuery.query("button[itemId^=btn-remove-]"),
+            buttons = Ext.Array.merge(editButtons, removeButtons);
+
+        if (Ext.isArray(buttons)) {
+            Ext.Array.each(buttons, function (button) {
+                button.setWbable(enable)
+            })
+        }
     }
+
+
 });
