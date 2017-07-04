@@ -10,14 +10,10 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
-import java.util.logging.Logger;
 
 class UpgraderV10_4 implements Upgrader {
 
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
     private final DataModel dataModel;
-
-    String name = this.getClass().getName();
 
     @Inject
     UpgraderV10_4(DataModel dataModel) {
