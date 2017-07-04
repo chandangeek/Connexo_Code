@@ -28,10 +28,7 @@ public interface UPLConnectionFunction {
     String getConnectionFunctionName();
 
     /**
-     * Gets the ID of the ConnectionFunction<br/>
-     * <b>Remark</b>:
-     * All connection functions of a certain DeviceProtocol should have an <b>unique</b> ID;<br/>
-     * However, connection functions of different DeviceProtocols can re-use the same ID.
+     * Gets the <b>unique</b> ID of the ConnectionFunction
      *
      * @return the id of the ConnectionFunction
      */
