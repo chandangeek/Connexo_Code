@@ -10,7 +10,7 @@ Ext.define('Mdc.model.ConnectionMethod', {
         'Mdc.model.field.TimeInfo'
     ],
     fields: [
-        {name: 'id', type: 'int', useNull: true},
+        {name: 'id', type: 'number', useNull: true},
         {name: 'name', type: 'string', useNull: true},
         {name: 'direction', type: 'string', useNull: true},
         {name: 'displayDirection', type: 'string', useNull: true},

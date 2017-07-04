@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
             xtype: 'form',
             itemId: 'changeConnectionItemForm',
             defaults: {
-                width: 400,
+                width: 600,
                 labelWidth: 170
             },
             items: [
@@ -42,12 +42,13 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
                     {
                         xtype: 'combobox',
                         fieldLabel: Uni.I18n.translate('deviceCommunicationTask.connectionMethod', 'MDC', 'Connection method'),
-                        name: 'name',
+                        name: 'connectionMethodId',
                         itemId: 'connectionMethodCombo',
                         displayField: 'name',
                         store: this.store,
                         queryMode: 'local',
-                        value: this.init
+                        value: this.init,
+                        valueField: 'id'
                     });
                 break;
             }

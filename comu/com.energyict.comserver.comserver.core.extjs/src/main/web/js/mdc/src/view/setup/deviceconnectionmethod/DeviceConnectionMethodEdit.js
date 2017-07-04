@@ -91,6 +91,25 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 msgTarget: 'under'
                             },
                             {
+                                xtype: 'fieldcontainer',
+                                fieldLabel: Uni.I18n.translate('connectionmethod.connectionFunction', 'MDC', 'Connection function'),
+                                itemId: 'ConnectionFunctionFieldContainer',
+                                disabled: true,
+                                required: true,
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'displayfield',
+                                        itemId: 'ConnectionFunctionField',
+                                        value: '',
+                                        margin: '0 10 0 0'
+                                    }
+                                ]
+                            },
+                            {
                                 xtype: 'combobox',
                                 name: 'comPortPool',
                                 fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),

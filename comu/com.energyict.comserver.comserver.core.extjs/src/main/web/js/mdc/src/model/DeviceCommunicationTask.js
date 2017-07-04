@@ -7,6 +7,7 @@ Ext.define('Mdc.model.DeviceCommunicationTask', {
     fields: [
         {name: 'comTask'},
         {name: 'connectionMethod', type: 'string'},
+        {name: 'connectionFunctionInfo', type: 'Mdc.model.ConnectionFunction', useNull: true},
         {name: 'connectionDefinedOnDevice', type: 'boolean'},
         {name: 'connectionStrategy', type: 'string'},
         {name: 'connectionStrategyKey', type: 'string'},

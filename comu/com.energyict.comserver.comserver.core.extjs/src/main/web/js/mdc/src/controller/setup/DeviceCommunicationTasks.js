@@ -18,7 +18,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
 
     stores: [
         'CommunicationTasksOfDevice',
-        'ConnectionMethodsOfDevice'
+        'ConnectionMethodsOfDevice',
+        'ConnectionFunctions'
     ],
 
     refs: [
@@ -88,7 +89,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     showDeviceCommunicationTasksView: function (deviceId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            communicationTasksOfDeviceStore = me.getCommunicationTasksOfDeviceStore();
+            communicationTasksOfDeviceStore = me.getCommunicationTasksOfDeviceStore(),
+            connectionFunctionsStore = me.getConnectionFunctionsStore();
 
         this.deviceId = deviceId;
 
@@ -100,6 +102,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 me.getApplication().fireEvent('loadDevice', device);
                 viewport.setLoading(false);
                 communicationTasksOfDeviceStore.getProxy().setExtraParam('deviceId', deviceId);
+                connectionFunctionsStore.getProxy().extraParams = ({deviceType: device.data.deviceTypeId});
                 communicationTasksOfDeviceStore.load({
                     callback: function () {
                         me.getDeviceCommunicationTaskGrid().getSelectionModel().doSelect(0);
@@ -118,38 +121,38 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             connectionDefinedOnDevice = selection.get('connectionDefinedOnDevice'),
             isMinimizeConnections = !connectionDefinedOnDevice ? false : selection.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS';
 
-        if(menu.down('#changeConnectionMethodOfDeviceComTask')) {
+        if (menu.down('#changeConnectionMethodOfDeviceComTask')) {
             menu.down('#changeConnectionMethodOfDeviceComTask').show();
         }
-        if(menu.down('#changeUrgencyOfDeviceComTask')) {
+        if (menu.down('#changeUrgencyOfDeviceComTask')) {
             menu.down('#changeUrgencyOfDeviceComTask').show();
         }
-        if(menu.down('#runDeviceComTaskNow')) {
+        if (menu.down('#runDeviceComTaskNow')) {
             if (connectionDefinedOnDevice && !isOnHold && !isSystemComtask) {
                 menu.down('#runDeviceComTaskNow').show();
             } else {
                 menu.down('#runDeviceComTaskNow').hide();
             }
         }
-        if(menu.down('#runDeviceComTask')) {
+        if (menu.down('#runDeviceComTask')) {
             if (connectionDefinedOnDevice && !isOnHold && isMinimizeConnections && !isSystemComtask) {
                 menu.down('#runDeviceComTask').show();
             } else {
                 menu.down('#runDeviceComTask').hide();
             }
         }
-        if(menu.down('#viewHistoryOfDeviceComTask')) {
+        if (menu.down('#viewHistoryOfDeviceComTask')) {
             menu.down('#viewHistoryOfDeviceComTask').show();
         }
-        if(menu.down('#activateDeviceComTask')) {
+        if (menu.down('#activateDeviceComTask')) {
             if (isOnHold && !isSystemComtask) {
                 menu.down('#activateDeviceComTask').show();
             } else {
                 menu.down('#activateDeviceComTask').hide();
             }
         }
-        if(menu.down('#deactivateDeviceComTask')) {
-            if (!isOnHold  && !isSystemComtask) {
+        if (menu.down('#deactivateDeviceComTask')) {
+            if (!isOnHold && !isSystemComtask) {
                 menu.down('#deactivateDeviceComTask').show();
             } else {
                 menu.down('#deactivateDeviceComTask').hide();
@@ -190,51 +193,101 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         var comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
         switch (menuItem.action) {
             case 'changeConnectionMethodOfDeviceComTask':
-                var connectionMethodsOfDeviceStore = this.getConnectionMethodsOfDeviceStore();
+                var connectionMethodsOfDeviceStore = me.getConnectionMethodsOfDeviceStore(),
+                    connectionFunctionsStore = me.getConnectionFunctionsStore();
                 connectionMethodsOfDeviceStore.getProxy().setExtraParam('deviceId', this.deviceId);
                 connectionMethodsOfDeviceStore.load({
                     callback: function () {
-                        var nameOfDefaultConnectionMethod = Uni.I18n.translate('deviceCommunicationTask.notDefinedYey', 'MDC', 'Not defined yet');
-                        Ext.each(connectionMethodsOfDeviceStore.data.items,function(value){
-                            if(value.data.isDefault){
-                                nameOfDefaultConnectionMethod = value.data.name;
+                        connectionFunctionsStore.getProxy().setExtraParam('connectionFunctionType', 1); // 1 = the consumable connection functions
+                        connectionFunctionsStore.load({
+                            callback: function (records) {
+                                me.addSpecialConnectionMethodsToConnectionMethodsOfDeviceStore(connectionMethodsOfDeviceStore, records);
+                                if (!Ext.isEmpty(comTask.get('connectionFunctionInfo'))) {
+                                    initialValue = -comTask.get('connectionFunctionInfo').id;
+                                } else {
+                                    initialValue = me.findConnectionMethodIdBasedOnName(connectionMethodsOfDeviceStore, comTask.get('connectionMethod'));
+                                    // Which should be either 0 fo the 'Default (name)' connection method or should be the real id of the connection method
+                                }
+                                me.showPopUp(menuItem.action, connectionMethodsOfDeviceStore, initialValue, comTask.get('scheduleName'));
                             }
                         });
-                        connectionMethodsOfDeviceStore.insert(0,Ext.create('Mdc.model.DeviceConnectionMethod', {
-                            id: -1,
-                            name: Uni.I18n.translate('deviceCommunicationTask.defaultWithCount', 'MDC', 'Default ({0})',[nameOfDefaultConnectionMethod]),
-                            isDefault: false
-                        }));
-                        if(comTask.get('connectionMethod').toLowerCase().indexOf('default')>-1){
-                            var initialValue = Uni.I18n.translate('deviceCommunicationTask.defaultWithCount', 'MDC', 'Default ({0})',[nameOfDefaultConnectionMethod]);
-
-                        } else {
-                            initialValue = comTask.get('connectionMethod');
-                        }
-                        me.showPopUp(menuItem.action, connectionMethodsOfDeviceStore, initialValue,comTask.get('scheduleName'));
                     }
                 });
                 break;
             case 'changeUrgencyOfDeviceComTask':
-                me.showPopUp(menuItem.action, null, comTask.get('urgency'),comTask.get('scheduleName'));
+                me.showPopUp(menuItem.action, null, comTask.get('urgency'), comTask.get('scheduleName'));
                 break;
             case 'runDeviceComTask':
                 break;
         }
     },
 
+    addSpecialConnectionMethodsToConnectionMethodsOfDeviceStore: function (connectionMethodsOfDeviceStore, records) {
+        var defaultConnectionMethod = this.findDefaultConnectionMethod(connectionMethodsOfDeviceStore);
+        connectionMethodsOfDeviceStore.add(defaultConnectionMethod);
+
+        for (var i = 0; i < records.length; i++) {
+            connectionMethodsOfDeviceStore.add(this.findConnectionMethodWithConnectionFunction(connectionMethodsOfDeviceStore, records[i].getData()));
+        }
+    },
+
+    findDefaultConnectionMethod: function (connectionMethodsOfDeviceStore) {
+        var defaultConnectionMethodName = Uni.I18n.translate('deviceCommunicationTask.notDefinedYet', 'MDC', 'Not defined yet');
+        Ext.each(connectionMethodsOfDeviceStore.data.items, function (value) {
+            if (value.data.isDefault) {
+                defaultConnectionMethodName = value.data.name
+            }
+        });
+        return Ext.create('Mdc.model.DeviceConnectionMethod', {
+            id: 0,
+            name: Uni.I18n.translate('deviceCommunicationTask.defaultWithCount', 'MDC', 'Default ({0})', Uni.I18n.translate('deviceCommunicationTask.notDefinedYet', 'MDC', defaultConnectionMethodName)),
+            isDefault: true
+        });
+    },
+
+    findConnectionMethodWithConnectionFunction: function (connectionMethodsOfDeviceStore, connectionFunction) {
+        var connectionMethodName = Uni.I18n.translate('deviceCommunicationTask.notDefinedYet', 'MDC', 'Not defined yet');
+        Ext.each(connectionMethodsOfDeviceStore.data.items, function (value) {
+            if (value.data.connectionFunctionInfo['localizedValue'] === connectionFunction['localizedValue']) {
+                connectionMethodName = value.data.name;
+            }
+        });
+        return Ext.create('Mdc.model.DeviceConnectionMethod', {
+            id: -connectionFunction['id'], // Negate the connection function id and use it as special connection method id
+            name: Uni.I18n.translate(
+                'communicationtasks.form.selectKnownPartialConnectionTaskBasedOnConnectionFunction',
+                'MDC',
+                'Connection method with \'{0}\' function ({1})',
+                [connectionFunction['localizedValue'], Uni.I18n.translate('deviceCommunicationTask.notDefinedYet', 'MDC', connectionMethodName)]
+            ),
+            connectionFunctionInfo: connectionFunction
+        });
+    },
+
+    findConnectionMethodIdBasedOnName: function (connectionMethodsOfDeviceStore, name) {
+        var connectionMethod = null;
+        connectionMethodsOfDeviceStore.data.items.some(function (value) {
+            if (value.data.name.indexOf(name) !== -1) {
+                connectionMethod = value.data;
+                return true;
+            } else {
+                return false;
+            }
+        });
+        return !Ext.isEmpty(connectionMethod) ? connectionMethod.id : 0;
+    },
+
     showPopUp: function (action, store, initialValue, scheduleName) {
         var comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
         this.comTask = comTask.get('comTask');
-        var widget = Ext.widget('changeConnectionItemPopUp', {action: action, store: store, init: initialValue, scheduleName: scheduleName,comTaskName: this.comTask.name});
-        // widget.down('#changeConnectionItemForm').loadRecord(comTask);
+        var widget = Ext.widget('changeConnectionItemPopUp', {action: action, store: store, init: initialValue, scheduleName: scheduleName, comTaskName: this.comTask.name});
         widget.show();
     },
 
     changeConnectionMethod: function () {
         var request = {};
         var values = this.getChangeConnectionItemForm().getForm().getValues();
-        request.connectionMethod = values.name;
+        request.connectionMethod = values.connectionMethodId;
         this.sendToServer(request,
             '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.id + '/connectionmethod',
             Uni.I18n.translate('deviceCommunicationTask.connectionMethodChanged', 'MDC', 'Connection method changed'));
@@ -257,15 +310,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.id + '/frequency',
             Uni.I18n.translate('deviceCommunicationTask.frequencyChanged', 'MDC', 'Frequency changed'));
     },
-
-    //changeProtocolDialect: function () {
-    //    var request = {};
-    //    var values = this.getChangeConnectionItemForm().getForm().getValues();
-    //    request.protocolDialect = values.name;
-    //    this.sendToServer(request,
-    //        '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.id + '/protocoldialect',
-    //        Uni.I18n.translate('deviceCommunicationTask.protocolDialectChanged', 'MDC', 'Protocol dialect changed'));
-    //},
 
     activateDeviceComTask: function () {
         var request = {};
@@ -293,7 +337,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             timeout: 180000,
             success: function (response) {
                 var changeConnectionItemPopUp = me.getChangeConnectionItemPopUp();
-                if(changeConnectionItemPopUp){
+                if (changeConnectionItemPopUp) {
                     changeConnectionItemPopUp.close();
                 }
                 me.getApplication().fireEvent('acknowledge', actionMsg);
@@ -313,7 +357,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                         }
                     });
                     form.markInvalid(json.errors);
-                } else if(changeConnectionItemPopUp){
+                } else if (changeConnectionItemPopUp) {
                     changeConnectionItemPopUp.close();
                 }
             }

@@ -124,6 +124,19 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                 },
                                 {
                                     xtype: 'displayfield',
+                                    name: 'connectionFunctionInfo',
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.connectionFunction', 'MDC', 'Connection function'),
+                                    renderer: function (value, field) {
+                                        if (!Ext.isEmpty(value)) {
+                                            field.show();
+                                            return value.localizedValue;
+                                        } else {
+                                            field.hide();
+                                        }
+                                    }
+                                },
+                                {
+                                    xtype: 'displayfield',
                                     name: 'comPortPool',
                                     fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool')
                                 }

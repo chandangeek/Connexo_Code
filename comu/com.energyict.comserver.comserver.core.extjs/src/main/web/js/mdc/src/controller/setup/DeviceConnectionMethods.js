@@ -50,7 +50,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         {ref: 'propertyForm', selector: '#propertyForm'},
         {ref: 'connectionMethodActionMenu', selector: '#device-connection-method-action-menu'},
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
-        {ref: 'deviceConnectionMethodSetup', selector: 'deviceConnectionMethodSetup'}
+        {ref: 'deviceConnectionMethodSetup', selector: 'deviceConnectionMethodSetup'},
+        {ref: 'ConnectionFunctionFieldContainer', selector: '#ConnectionFunctionFieldContainer'}
     ],
 
     init: function () {
@@ -242,7 +243,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             } else {
                 this.getDeviceConnectionMethodPreview().down('#connectionDetailsTitle').setVisible(false);
             }
-            if (connectionMethod[0].get('direction') === 'Inbound' ||connectionMethod[0].get('connectionStrategyInfo')['connectionStrategy'] === 'MINIMIZE_CONNECTIONS') {
+            if (connectionMethod[0].get('direction') === 'Inbound' || connectionMethod[0].get('connectionStrategyInfo')['connectionStrategy'] === 'MINIMIZE_CONNECTIONS') {
                 this.getDeviceConnectionMethodPreview().down('#numberOfSimultaneousConnections').setVisible(false);
             } else {
                 this.getDeviceConnectionMethodPreview().down('#numberOfSimultaneousConnections').setVisible(true);
@@ -368,6 +369,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.getDeviceConnectionMethodEditView().down('#protocolDialectComboBox').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#connectionStrategyComboBox').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#scheduleFieldContainer').setDisabled(false);
+        this.getDeviceConnectionMethodEditView().down('#ConnectionFunctionFieldContainer').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#activeRadioGroup').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#comWindowField').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#numberOfSimultaneousConnections').setDisabled(false);
@@ -387,6 +389,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.getDeviceConnectionMethodEditView().down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
         this.getDeviceConnectionMethodEditView().down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategyInfo')['connectionStrategy']);
         this.getDeviceConnectionMethodEditView().down('form').down('#protocolDialectComboBox').setValue(connectionMethod.get('protocolDialectConfigurationProperties')['name']);
+        this.getDeviceConnectionMethodEditView().down('form').down('#ConnectionFunctionField').setValue(connectionMethod.get('connectionFunctionInfo')['localizedValue']);
         this.showPropertiesAsInherited(connectionMethod);
     },
 
@@ -472,6 +475,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             } else {
                 record.set('connectionStrategyInfo', undefined);
             }
+            record.set('connectionFunctionInfo', undefined); // No need to transfer
             record.endEdit();
             var propertyForm = me.getDeviceConnectionMethodEditView().down('property-form');
             if (propertyForm) {
@@ -672,6 +676,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                                         me.getDeviceConnectionMethodEditView().down('#numberOfSimultaneousConnections').setDisabled(false);
                                                         me.getDeviceConnectionMethodEditView().down('#connectionStrategyComboBox').setDisabled(false);
                                                         me.getDeviceConnectionMethodEditView().down('#scheduleFieldContainer').setDisabled(false);
+                                                        me.getDeviceConnectionMethodEditView().down('#ConnectionFunctionFieldContainer').setDisabled(false);
                                                         me.getDeviceConnectionMethodEditView().down('#activeRadioGroup').setDisabled(false);
                                                         me.getDeviceConnectionMethodEditView().down('#comWindowField').setDisabled(false);
                                                         me.getDeviceConnectionMethodEditView().down('#protocolDialectComboBox').setDisabled(false);
@@ -689,7 +694,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                                         widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
                                                         widget.down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategyInfo')['connectionStrategy']);
                                                         widget.down('form').down('#protocolDialectComboBox').setValue(connectionMethod.get('protocolDialect'));
-                                                        me.showProperties(connectionMethod);
+                                                        widget.down('form').down('#ConnectionFunctionField').setValue(connectionMethod.get('connectionFunctionInfo')['localizedValue']);                                                        me.showProperties(connectionMethod);
                                                         widget.setLoading(false);
                                                     }
                                                 });

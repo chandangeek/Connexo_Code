@@ -30,7 +30,8 @@ Ext.define('Mdc.model.DeviceConnectionMethod', {
             }
         },
         {name: 'protocolDialect', type: 'string', useNull: true},
-        {name: 'protocolDialectDisplayName', type: 'string', useNull: true}
+        {name: 'protocolDialectDisplayName', type: 'string', useNull: true},
+        {name: 'connectionFunctionInfo', type: 'Mdc.model.ConnectionFunction', useNull: true}
 
     ],
     associations: [
