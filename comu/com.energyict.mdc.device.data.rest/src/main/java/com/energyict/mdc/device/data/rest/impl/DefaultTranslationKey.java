@@ -21,6 +21,8 @@ public enum DefaultTranslationKey implements TranslationKey {
     CONNECTION_TASK_STATUS_ACTIVE(Keys.CONNECTION_TASK_STATUS_ACTIVE, "Active"),
     CONNECTION_TASK_STATUS_INACTIVE(Keys.CONNECTION_TASK_STATUS_INACTIVE, "Inactive"),
     DEFAULT("Default", "Default"),
+    NONE("None", "None"),
+    CONNECTION_FUNCTION("Connection.function", "''{0}'' function"),
     DEFAULT_NOT_DEFINED("DefaultNotDefined", "Default (not defined yet)"),
     INDIVIDUAL("Individual", "Individual"),
     FAILURE("Failure", "Failed"),

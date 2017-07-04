@@ -22,6 +22,8 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -38,6 +40,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -482,12 +485,23 @@ public class DeviceComTaskResource {
 
     private Consumer<ComTaskExecution> updateComTaskConnectionMethod(ComTaskConnectionMethodInfo comTaskConnectionMethodInfo, Device device) {
         return comTaskExecution -> {
-            Optional<ConnectionTask<?, ?>> connectionTaskOptional = device.getConnectionTasks().stream().filter(ct -> ct.getName().equals(comTaskConnectionMethodInfo.connectionMethod)).findFirst();
+            Optional<ConnectionTask<?, ?>> connectionTaskOptional = device.getConnectionTasks().stream().filter(ct -> ct.getId() == comTaskConnectionMethodInfo.connectionMethod).findFirst();
             if (connectionTaskOptional.isPresent()) {
                 device.getComTaskExecutionUpdater(comTaskExecution).connectionTask(connectionTaskOptional.get()).update();
+            } else if ((comTaskConnectionMethodInfo.connectionMethod) < 0) {
+                device.getComTaskExecutionUpdater(comTaskExecution).setConnectionFunction(findConnectionFunctionOrThrowException(device, Math.abs(comTaskConnectionMethodInfo.connectionMethod))).update();
             } else {
                 device.getComTaskExecutionUpdater(comTaskExecution).useDefaultConnectionTask(true).update();
             }
         };
+    }
+
+    ConnectionFunction findConnectionFunctionOrThrowException(Device device, long connectionFunctionId) {
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = device.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
+            List<ConnectionFunction> supportedConnectionFunctions = deviceProtocolPluggableClass.isPresent()
+                    ? deviceProtocolPluggableClass.get().getConsumableConnectionFunctions()
+                    : Collections.emptyList();
+        return supportedConnectionFunctions.stream().filter(cf -> cf.getId() == connectionFunctionId).findFirst()
+                .orElseThrow(() -> this.exceptionFactory.newException(MessageSeeds.NO_SUCH_CONNECTION_FUNCTION));
     }
 }

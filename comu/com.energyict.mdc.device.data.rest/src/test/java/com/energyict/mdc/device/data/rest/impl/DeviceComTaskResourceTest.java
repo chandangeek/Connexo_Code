@@ -26,7 +26,9 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
@@ -162,6 +164,8 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskExecution.getComTask()).thenReturn(comTask1);
         when(comTaskEnablement1.getComTask()).thenReturn(comTask1);
         when(comTaskEnablement2.getComTask()).thenReturn(comTask2);
+        when(comTaskEnablement1.getConnectionFunction()).thenReturn(Optional.empty());
+        when(comTaskEnablement2.getConnectionFunction()).thenReturn(Optional.empty());
 
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1, comTaskEnablement2));
@@ -402,7 +406,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testChangeConnectionMethodFromManualExecutionWithExistingConnectionMethodOnDevice() throws Exception {
         ComTaskConnectionMethodInfo comTaskConnectionMethodInfo = new ComTaskConnectionMethodInfo();
-        comTaskConnectionMethodInfo.connectionMethod = "connectionMethod";
+        comTaskConnectionMethodInfo.connectionMethod = 123L;
         comTaskConnectionMethodInfo.device = getDeviceInfo();
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
@@ -417,9 +421,9 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
 
         ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(123L);
         when(connectionTask.getName()).thenReturn("connectionMethod");
         when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
-
 
         ComTaskExecutionUpdater manuallyScheduledComTaskExecutionUpdater = mock(ComTaskExecutionUpdater.class);
         when(device.getComTaskExecutionUpdater(comTaskExecution)).thenReturn(manuallyScheduledComTaskExecutionUpdater);
@@ -431,11 +435,83 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         verify(manuallyScheduledComTaskExecutionUpdater, times(1)).update();
     }
 
+    @Test
+    public void testChangeConnectionMethodFromManualExecutionWithDefaultConnectionMethodOnDevice() throws Exception {
+        ComTaskConnectionMethodInfo comTaskConnectionMethodInfo = new ComTaskConnectionMethodInfo();
+        comTaskConnectionMethodInfo.connectionMethod = 0; // = Use the default connection method
+        comTaskConnectionMethodInfo.device = getDeviceInfo();
+
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
+
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        when(comTaskExecution.isScheduledManually()).thenReturn(true);
+
+        ComTask comTask = mockComTask(comTaskEnablement, 111L);
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
+
+        when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
+
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(123L);
+        when(connectionTask.getName()).thenReturn("connectionMethod");
+        when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
+
+        ComTaskExecutionUpdater manuallyScheduledComTaskExecutionUpdater = mock(ComTaskExecutionUpdater.class);
+        when(device.getComTaskExecutionUpdater(comTaskExecution)).thenReturn(manuallyScheduledComTaskExecutionUpdater);
+        when(manuallyScheduledComTaskExecutionUpdater.useDefaultConnectionTask(true)).thenReturn(manuallyScheduledComTaskExecutionUpdater);
+
+        Response response = target("/devices/" + DEVICE_NAME + "/comtasks/111/connectionmethod").request().put(Entity.json(comTaskConnectionMethodInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(manuallyScheduledComTaskExecutionUpdater, times(1)).useDefaultConnectionTask(true);
+        verify(manuallyScheduledComTaskExecutionUpdater, times(1)).update();
+    }
+
+    @Test
+    public void testChangeConnectionMethodFromManualExecutionWithConnectionFunctionOnDevice() throws Exception {
+        ComTaskConnectionMethodInfo comTaskConnectionMethodInfo = new ComTaskConnectionMethodInfo();
+        comTaskConnectionMethodInfo.connectionMethod = -2; // = Use the connection function with id '1'
+        comTaskConnectionMethodInfo.device = getDeviceInfo();
+
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
+
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        when(comTaskExecution.isScheduledManually()).thenReturn(true);
+
+        ComTask comTask = mockComTask(comTaskEnablement, 111L);
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
+
+        when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
+
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(123L);
+        when(connectionTask.getName()).thenReturn("connectionMethod");
+        when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
+
+        ConnectionFunction connectionFunction1 = mockConnectionFunction(1, "CF_1", "CF 1");
+        ConnectionFunction connectionFunction2 = mockConnectionFunction(2, "CF_2", "CF 2");
+        ConnectionFunction connectionFunction3 = mockConnectionFunction(2, "CF_3", "CF 3");
+        DeviceType deviceType = mock(DeviceType.class);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(deviceProtocolPluggableClass.getConsumableConnectionFunctions()).thenReturn(Arrays.asList(connectionFunction1, connectionFunction2, connectionFunction3));
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+
+        ComTaskExecutionUpdater manuallyScheduledComTaskExecutionUpdater = mock(ComTaskExecutionUpdater.class);
+        when(device.getComTaskExecutionUpdater(comTaskExecution)).thenReturn(manuallyScheduledComTaskExecutionUpdater);
+        when(manuallyScheduledComTaskExecutionUpdater.setConnectionFunction(connectionFunction2)).thenReturn(manuallyScheduledComTaskExecutionUpdater);
+
+        Response response = target("/devices/" + DEVICE_NAME + "/comtasks/111/connectionmethod").request().put(Entity.json(comTaskConnectionMethodInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(manuallyScheduledComTaskExecutionUpdater, times(1)).setConnectionFunction(connectionFunction2);
+        verify(manuallyScheduledComTaskExecutionUpdater, times(1)).update();
+    }
 
     @Test
     public void testChangeConnectionMethodFromSharedExecutionWithExistingConnectionMethodOnDevice() throws Exception {
         ComTaskConnectionMethodInfo comTaskConnectionMethodInfo = new ComTaskConnectionMethodInfo();
-        comTaskConnectionMethodInfo.connectionMethod = "connectionMethod";
+        comTaskConnectionMethodInfo.connectionMethod = 123L;
         comTaskConnectionMethodInfo.device = getDeviceInfo();
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
@@ -450,6 +526,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(scheduledComTaskExecution));
 
         ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(123L);
         when(connectionTask.getName()).thenReturn("connectionMethod");
         when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
 
@@ -467,7 +544,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testChangeConnectionMethodFromManualExecutionWithNoExistingConnectionMethodOnDevice() throws Exception {
         ComTaskConnectionMethodInfo comTaskConnectionMethodInfo = new ComTaskConnectionMethodInfo();
-        comTaskConnectionMethodInfo.connectionMethod = "connectionMethod";
+        comTaskConnectionMethodInfo.connectionMethod = 123L;
         comTaskConnectionMethodInfo.device = getDeviceInfo();
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
@@ -496,7 +573,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testChangeConnectionMethodFromSharedExecutionWithNoExistingConnectionMethodOnDevice() throws Exception {
         ComTaskConnectionMethodInfo comTaskConnectionMethodInfo = new ComTaskConnectionMethodInfo();
-        comTaskConnectionMethodInfo.connectionMethod = "connectionMethod";
+        comTaskConnectionMethodInfo.connectionMethod = 123L;
         comTaskConnectionMethodInfo.device = getDeviceInfo();
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
@@ -838,4 +915,23 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         verify(device).newAdHocComTaskExecution(comTaskEnablement2);
         verify(firmwareComTaskExecution, never()).putOnHold();
     }
+
+    private ConnectionFunction mockConnectionFunction(int id, String name, String displayName) {
+           return new ConnectionFunction() {
+               @Override
+               public long getId() {
+                   return id;
+               }
+
+               @Override
+               public String getConnectionFunctionName() {
+                   return name;
+               }
+
+               @Override
+               public String getConnectionFunctionDisplayName() {
+                   return displayName;
+               }
+           };
+       }
 }

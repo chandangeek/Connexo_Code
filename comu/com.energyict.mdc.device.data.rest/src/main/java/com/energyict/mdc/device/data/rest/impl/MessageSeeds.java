@@ -130,7 +130,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_KEY_ACCESSOR(309, "NoSuchKeyAccessor", "No such security accessor"),
     COMMAND_SHOULD_HAVE_A_CONTRACT_ATTRIBUTE(310, "command.should.have.a.contract.attribute", "The device command ''{0}'' should have a 'Contract' attribute"),
     COMMAND_SHOULD_HAVE_A_TYPE_ATTRIBUTE(311, "command.should.have.a.type.attribute", "The device command ''{0}'' should have a 'Type' attribute"),
-    COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE(312, "command.should.have.an.activation.date.attribute", "The device command ''{0}'' should have an 'Activation date' attribute"),;
+    COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE(312, "command.should.have.an.activation.date.attribute", "The device command ''{0}'' should have an 'Activation date' attribute"),
+    NO_SUCH_CONNECTION_FUNCTION(313, "NoSuchConnectionFunction", "The connection function could not be found"),;
     ;
 
     private final int number;

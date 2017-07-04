@@ -28,7 +28,7 @@ public class ConnectionMethodInfoFactory {
 
     public ConnectionMethodInfo<?> asInfo(ConnectionTask<?,?> connectionTask, UriInfo uriInfo) {
         if (InboundConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
-            ConnectionMethodInfo connectionMethodInfo = new InboundConnectionMethodInfo((InboundConnectionTask) connectionTask, uriInfo, mdcPropertyUtils);
+            ConnectionMethodInfo connectionMethodInfo = new InboundConnectionMethodInfo((InboundConnectionTask) connectionTask, uriInfo, mdcPropertyUtils, thesaurus);
             connectionMethodInfo.displayDirection = DefaultTranslationKey.INBOUND.translateWith(thesaurus);
             return connectionMethodInfo;
         } else if (ScheduledConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {

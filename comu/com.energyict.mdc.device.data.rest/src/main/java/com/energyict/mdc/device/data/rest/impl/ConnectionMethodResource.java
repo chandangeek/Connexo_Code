@@ -24,7 +24,15 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -80,13 +88,17 @@ public class ConnectionMethodResource {
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
     }
 
-    private void pauseOrResumeTask(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
+    private void pauseOrResumeTaskIfNeeded(ConnectionMethodInfo<?> connectionMethodInfo, ConnectionTask<?, ?> task) {
         switch (connectionMethodInfo.status) {
             case ACTIVE:
-                task.activate();
+                if (!task.isActive()) {
+                    task.activate();
+                }
                 break;
             case INACTIVE:
-                task.deactivate();
+                if (task.isActive()) {
+                    task.deactivate();
+                }
                 break;
         }
     }
@@ -127,7 +139,8 @@ public class ConnectionMethodResource {
         }
         info.writeTo(task, partialConnectionTask, engineConfigurationService, mdcPropertyUtils);
         task.saveAllProperties();
-        pauseOrResumeTask(info, task);
+        pauseOrResumeTaskIfNeeded(info, task);
+        task.save();
         if (info.isDefault && !wasConnectionTaskDefault) {
             connectionTaskService.setDefaultConnectionTask(task);
         } else if (!info.isDefault && wasConnectionTaskDefault) {
