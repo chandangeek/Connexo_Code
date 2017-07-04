@@ -140,9 +140,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                         xtype: 'fieldcontainer',
                                         columnWidth: 0.5,
                                         fieldLabel: Uni.I18n.translate('general.deviceIcon', 'MDC', 'Device icon'),
-                                        layout: {
-                                            type: 'vbox'
-                                        },
                                         items: [
                                             {
                                                 xtype: 'image',

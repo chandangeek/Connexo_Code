@@ -61,7 +61,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         {ref: 'deviceTypeDetailOverviewLink', selector: 'deviceTypeDetail deviceTypeSideMenu #overviewLink'},
         {ref: 'deviceTypeDetailConflictingMappingLink', selector: 'deviceTypeDetail deviceTypeSideMenu #conflictingMappingLink'},
         {ref: 'deviceTypeDetailActionMenu', selector: 'deviceTypeDetail device-type-action-menu'},
-        {ref: 'addEditDeviceIcon', selector: 'add-edit-device-icon'}
+        {ref: 'addEditDeviceIcon', selector: 'add-edit-device-icon'},
+        {ref: 'deviceIconDisplayField', selector: 'deviceTypeDetail #deviceIconDisplayField'},
+        {ref: 'noDeviceIconDisplayField', selector: 'deviceTypeDetail #noDeviceIconDisplayField'}
     ],
 
     init: function () {
@@ -233,16 +235,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                         if (actionMenu) {
                             actionMenu.record = deviceType;
                         }
-
-                        var deviceIconInfo = deviceType.get('deviceIcon'),
-                            deviceIconDisplayField = widget.down('#deviceIconDisplayField'),
-                            noDeviceIconDisplayField = widget.down('#noDeviceIconDisplayField');
-
-                        deviceIconDisplayField.setVisible(!Ext.isEmpty(deviceIconInfo));
-                        noDeviceIconDisplayField.setVisible(Ext.isEmpty(deviceIconInfo));
-                        if (!Ext.isEmpty(deviceIconInfo)) {
-                            deviceIconDisplayField.setSrc('data:image;base64,' + deviceIconInfo);
-                        }
+                        me.updateDeviceTypeIcon(deviceType.get('deviceIcon'));
                     }
 
                     Ext.resumeLayouts(true);
@@ -716,6 +709,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                                 if (detailForm.up('#deviceTypeDetail').down('#device-type-action-menu')) {
                                     detailForm.up('#deviceTypeDetail').down('#device-type-action-menu').record = deviceType;
                                 }
+                                me.updateDeviceTypeIcon(deviceType.get('deviceIcon'));
                             } else if (!Ext.isEmpty(grid)) {
                                 grid.getStore().load();
                             }
@@ -726,6 +720,15 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 }
             }
         });
+    },
+
+    updateDeviceTypeIcon: function(iconInfo) {
+        var me = this;
+        me.getDeviceIconDisplayField().setVisible(!Ext.isEmpty(iconInfo));
+        me.getNoDeviceIconDisplayField().setVisible(Ext.isEmpty(iconInfo));
+        if (!Ext.isEmpty(iconInfo)) {
+            me.getDeviceIconDisplayField().setSrc('data:image;base64,' + iconInfo);
+        }
     },
 
     saveDeviceIcon: function () {
