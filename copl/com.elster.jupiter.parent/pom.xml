@@ -331,6 +331,7 @@
                     <supportedProjectTypes>
                         <supportedProjectType>bundle</supportedProjectType>
                     </supportedProjectTypes>
+                    <obrRepository>none</obrRepository>
                 </configuration>
                 <executions>
                     <execution>
