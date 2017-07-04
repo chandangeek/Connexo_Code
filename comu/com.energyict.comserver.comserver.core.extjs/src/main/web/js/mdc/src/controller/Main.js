@@ -358,7 +358,7 @@ Ext.define('Mdc.controller.Main', {
             Uni.store.PortalItems.add(portalItem);
         }
 
-        if (Mdc.privileges.Device.canViewDevices()) {
+        if (Mdc.privileges.Device.canViewCommands()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.workspace', 'MDC', 'Workspace'),
                 glyph: 'workspace',

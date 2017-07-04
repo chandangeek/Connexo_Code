@@ -80,7 +80,6 @@ Ext.define('Mdc.commands.view.CommandsGrid', {
                     xtype: 'device-command-action-menu',
                     itemId: 'mdc-commands-grid-action-menu'
                 },
-                //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges,
                 isDisabled: me.fnIsDisabled
             }
         ];
@@ -96,8 +95,7 @@ Ext.define('Mdc.commands.view.CommandsGrid', {
                 items: [
                     {
                         xtype: 'button',
-                        privileges: ['privilege.administrate.device', 'execute.device.message.level1','execute.device.message.level2',
-                                     'execute.device.message.level3','execute.device.message.level4'],
+                        privileges: Mdc.privileges.DeviceCommands.executeCommands,
                         action: 'bulk',
                         itemId: 'mdc-commands-grid-add-command-btn',
                         text: Uni.I18n.translate('general.addCommand', 'MDC', 'Add command')
