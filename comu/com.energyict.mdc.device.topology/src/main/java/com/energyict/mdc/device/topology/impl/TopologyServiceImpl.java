@@ -57,6 +57,7 @@ import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.device.topology.impl.utils.ChannelDataTransferor;
 import com.energyict.mdc.device.topology.impl.utils.MeteringChannelProvider;
 import com.energyict.mdc.device.topology.impl.utils.Utils;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -199,6 +200,23 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             Optional<Device> physicalGateway = this.getPhysicalGateway(device);
             if (physicalGateway.isPresent()) {
                 return this.findDefaultConnectionTaskForTopology(physicalGateway.get());
+            } else {
+                return Optional.empty();
+            }
+        }
+    }
+
+    @Override
+    public Optional<ConnectionTask> findConnectionTaskWithConnectionFunctionForTopology(Device device, ConnectionFunction connectionFunction) {
+        Optional<ConnectionTask> connectionTask = this.connectionTaskService.findConnectionTaskByDeviceAndConnectionFunction(device, connectionFunction);
+        if (connectionTask.isPresent()) {
+            return connectionTask;
+        } else {
+            /* No matching ConnectionTask found on the device,
+            * let's try the physical gateway if there is one. */
+            Optional<Device> physicalGateway = this.getPhysicalGateway(device);
+            if (physicalGateway.isPresent()) {
+                return this.findConnectionTaskWithConnectionFunctionForTopology(physicalGateway.get(), connectionFunction);
             } else {
                 return Optional.empty();
             }

@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -144,6 +145,16 @@ public interface TopologyService {
      * @return The default ConnectionTask for the given Device if one exists
      */
     Optional<ConnectionTask> findDefaultConnectionTaskForTopology(Device device);
+
+    /**
+     * Finds the {@link ConnectionTask} for the specified Device that has the given ConnectionFunction.
+     * The search will start at the Device but if none is found there,
+     * it will continue to the gateway level (if the Device has a gateway of course).
+     *
+     * @param device The Device for which we need to search the specific ConnectionTask
+     * @return The ConnectionTask having the specified ConnectionFunction for the given Device if one exists
+     */
+    Optional<ConnectionTask> findConnectionTaskWithConnectionFunctionForTopology(Device device, ConnectionFunction connectionFunction);
 
     /**
      * Starts the building process of the specified {@link Device}'s neighborhood,
