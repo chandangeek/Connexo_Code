@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.elster.jupiter.time.TemporalExpression;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import aQute.bnd.annotation.ProviderType;
@@ -18,6 +19,19 @@ import java.time.Instant;
 public interface ComTaskExecutionUpdater {
 
     ComTaskExecutionUpdater useDefaultConnectionTask(boolean useDefaultConnectionTask);
+
+    /**
+     * Set the {@link ConnectionFunction} for the {@link ComTaskExecution}.<br/>
+     * This may be the default connectionTask, but if the default flag changes, then this ComTaskExecution
+     * will still be marked to use the ConnectionTask corresponding to the {@link ConnectionFunction} from this setter.<br/>
+     * Setting an Empty value will result in using the default ConnectionTask
+     * <p>
+     * <i>If you want to use the default ConnectionTask, set {@link #useDefaultConnectionTask(boolean)} to true</i>
+     *
+     * @param connectionFunction the ConnectionFunction to set
+     * @return the current updater
+     */
+    ComTaskExecutionUpdater setConnectionFunction(ConnectionFunction connectionFunction);
 
     /**
      * Internal call, should not be in API

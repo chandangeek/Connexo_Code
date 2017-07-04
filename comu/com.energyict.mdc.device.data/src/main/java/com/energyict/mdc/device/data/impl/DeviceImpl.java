@@ -140,7 +140,6 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAtt
 import com.energyict.mdc.device.data.impl.pki.CertificateAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.PassphraseAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
-import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForActivation;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForInfo;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForMultiplierChange;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForRemoval;
@@ -164,6 +163,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -182,6 +182,7 @@ import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -2911,6 +2912,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                     .forEach(builder -> builder.useDefaultConnectionTask(useDefaultConnectionTask));
             comTaskExecutionsUpdaters.stream()
                     .forEach(updater -> updater.useDefaultConnectionTask(useDefaultConnectionTask));
+            return this;
+        }
+
+        @Override
+        public ComTaskExecutionBuilder setConnectionFunction(ConnectionFunction connectionFunction) {
+            comTaskExecutionsBuilders.stream()
+                    .forEach(builder -> builder.setConnectionFunction(connectionFunction));
+            comTaskExecutionsUpdaters.stream()
+                    .forEach(updater -> updater.setConnectionFunction(connectionFunction));
             return this;
         }
 

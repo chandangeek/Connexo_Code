@@ -13,6 +13,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -39,6 +40,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -187,7 +189,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public List<ConnectionTask> findAllConnectionTasksByDevice(Device device) {
-        return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).find(ConnectionTaskFields.DEVICE.fieldName(), device.getId());
+        return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).find(ConnectionTaskFields.DEVICE.fieldName(), device);
     }
 
     @Override
@@ -214,6 +216,15 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         else {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public Optional<ConnectionTask> findConnectionTaskByDeviceAndConnectionFunction(Device device, ConnectionFunction connectionFunction) {
+        return findAllConnectionTasksByDevice(device)
+                .stream()
+                .filter(Predicates.not(ConnectionTask::isObsolete))
+                .filter(ct -> ct.getPartialConnectionTask().getConnectionFunction().isPresent() && ct.getPartialConnectionTask().getConnectionFunction().get().getId() == connectionFunction.getId())
+                .findFirst();
     }
 
     @Override

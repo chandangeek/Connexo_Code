@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
@@ -110,6 +111,14 @@ public interface ConnectionTaskService {
      * @return The default ConnectionTask for the given Device if one exists
      */
     Optional<ConnectionTask> findDefaultConnectionTaskForDevice(Device device);
+
+    /**
+     * Finds the {@link ConnectionTask} with the specified {@link ConnectionFunction} for the specified Device.
+     *
+     * @param device The Device for which we need to search the ConnectionTask
+     * @return The ConnectionTask with the specified ConnectionFunction for the given Device if one exists
+     */
+    Optional<ConnectionTask> findConnectionTaskByDeviceAndConnectionFunction(Device device, ConnectionFunction connectionFunction);
 
     /**
      * Finds all the {@link ConnectionTask}s with the specified {@link TaskStatus}.

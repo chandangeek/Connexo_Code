@@ -10,11 +10,12 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -404,4 +405,14 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     ComTask getComTask();
 
     Optional<ComSchedule> getComSchedule();
+
+    /**
+     * Gets an optional containing the {@link ConnectionFunction} for this {@link ComTaskExecution}
+     * or else an empty optional in case no function is provided
+     *
+     * @return the {@link ConnectionFunction}
+     */
+    Optional<ConnectionFunction> getConnectionFunction();
+
+    void setConnectionFunction(ConnectionFunction connectionFunction);
 }
