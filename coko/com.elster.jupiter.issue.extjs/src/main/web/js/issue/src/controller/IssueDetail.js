@@ -595,8 +595,14 @@ Ext.define('Isu.controller.IssueDetail', {
                     }));
 
                     // comments
+                    var splittedComments = [];
+                    if (Ext.isArray(record.get('splittedComments'))) {
+                        Ext.Array.each(record.get('splittedComments'), function (splittedComment) {
+                            splittedComments.push(Ext.String.htmlEncode(splittedComment));
+                        })
+                    }
                     var comments = Ext.create('Ext.container.Container', {
-                        html: record.get('splittedComments').join('<br>')
+                        html: splittedComments.join('<br>')
                     });
                     var editComments = Ext.create('Isu.view.issues.EditCommentForm', {
                         hidden: true,
