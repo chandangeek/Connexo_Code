@@ -274,16 +274,18 @@ Ext.define('Mdc.controller.setup.Devices', {
 
                         attributesModel.load('attributes', {
                             success: function (attributes) {
+                                Ext.suspendLayouts();
                                 me.getDeviceGeneralInformationForm().loadRecord(attributes);
                                 if(!Ext.isEmpty(attributes.get('deviceIcon'))) {
+                                    me.getDeviceIconImage().show();
                                     me.getDeviceIconImage().setSrc('data:image;base64,' + attributes.get('deviceIcon'));
                                     me.getDeviceGeneralInformationPanel().doLayout();
-                                    me.getDeviceIconImage().show();
                                 } else {
                                     me.getDeviceIconImage().hide();
                                 }
                                 me.getDeviceSetup().down('#deviceSetupPanel #last-updated-field')
                                     .update(Uni.I18n.translate('general.lastRefreshedAt', 'MDC', 'Last refreshed at {0}', Uni.DateTime.formatTimeShort(new Date())));
+                                Ext.resumeLayouts(true);
                             }
                         });
                         if (!Ext.isEmpty(me.getDeviceCommunicationTopologyPanel())) {
