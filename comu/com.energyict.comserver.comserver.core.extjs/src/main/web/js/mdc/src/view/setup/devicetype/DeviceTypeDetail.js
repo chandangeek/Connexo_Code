@@ -145,16 +145,14 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                         },
                                         items: [
                                             {
-                                                name: 'deviceIcon',
-                                                xtype: 'displayfield',
+                                                xtype: 'image',
+                                                height: 100,
                                                 itemId: 'deviceIconDisplayField',
-                                                renderer: function (value) {
-                                                    if(Ext.isEmpty(value)) {
-                                                        return '-'
-                                                    } else {
-                                                        return '<img height="100px" src="data:image;base64,' + value + '"/>';
-                                                    }
-                                                }
+                                                hidden: true
+                                            },
+                                            {
+                                                xtype: 'displayfield',
+                                                itemId: 'noDeviceIconDisplayField'
                                             }
                                         ]
                                     },

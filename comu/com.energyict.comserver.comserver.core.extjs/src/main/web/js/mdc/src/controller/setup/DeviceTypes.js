@@ -233,6 +233,16 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                         if (actionMenu) {
                             actionMenu.record = deviceType;
                         }
+
+                        var deviceIconInfo = deviceType.get('deviceIcon'),
+                            deviceIconDisplayField = widget.down('#deviceIconDisplayField'),
+                            noDeviceIconDisplayField = widget.down('#noDeviceIconDisplayField');
+
+                        deviceIconDisplayField.setVisible(!Ext.isEmpty(deviceIconInfo));
+                        noDeviceIconDisplayField.setVisible(Ext.isEmpty(deviceIconInfo));
+                        if (!Ext.isEmpty(deviceIconInfo)) {
+                            deviceIconDisplayField.setSrc('data:image;base64,' + deviceIconInfo);
+                        }
                     }
 
                     Ext.resumeLayouts(true);
