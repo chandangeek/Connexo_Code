@@ -106,7 +106,6 @@ Ext.define('Isu.controller.IssueDetail', {
 
     loadTimeline: function (commentsStore) {
         var me = this,
-
             timelineView = this.widget ? this.widget.down('#issue-timeline-view') : this.getPage().down('#issue-timeline-view'),
             processView = this.widget ? this.widget.down('#issue-process-view') : this.getPage().down('#issue-process-view'),
             timelineStore = me.getStore('Isu.store.TimelineEntries'),
@@ -116,7 +115,6 @@ Ext.define('Isu.controller.IssueDetail', {
             data = [];
 
         timelineStore.data.clear();
-
         commentsStore.each(function (rec) {
                 data.push({
                     user: rec.data.author.name,
@@ -141,21 +139,25 @@ Ext.define('Isu.controller.IssueDetail', {
             );
         }
 
-        timelineStore.suspendEvents(false);
-        Ext.Array.each(data, function (item) {
-            timelineStore.add(item);
-        });
-        timelineStore.resumeEvents();
+        if (timelineView) {
+            timelineStore.suspendEvents(false);
+            Ext.Array.each(data, function (item) {
+                timelineStore.add(item);
+            });
+            timelineStore.resumeEvents();
+            timelineStore.sort('creationDate', 'DESC');
 
-        timelineStore.sort('creationDate', 'DESC');
-        timelineView.bindStore(timelineStore);
-        timelineView.previousSibling('#no-issue-timeline').setVisible(timelineStore.data.items.length <= 0);
+            timelineView.bindStore(timelineStore);
+            timelineView.previousSibling('#no-issue-timeline').setVisible(timelineStore.data.items.length <= 0);
+        }
 
         if (!me.canViewProcesses()) return;
 
         procesStore.sort('startDate', 'DESC');
-        processView.bindStore(procesStore);
-        processView.previousSibling('#no-issue-processes').setVisible(procesStore.data.items.length <= 0);
+        if (processView) {
+            processView.bindStore(procesStore);
+            processView.previousSibling('#no-issue-processes').setVisible(procesStore.data.items.length <= 0);
+        }
     },
 
     makeLinkToList: function (router) {
@@ -202,13 +204,23 @@ Ext.define('Isu.controller.IssueDetail', {
     },
 
     showCommentForm: function () {
-        var page = this.widget ? this.widget : this.getCommentsPanel();
+        var me = this,
+            page = this.widget ? this.widget : this.getCommentsPanel(),
+            editButtons = Ext.ComponentQuery.query("button[itemId^=btn-edit-]"),
+            removeButtons = Ext.ComponentQuery.query("button[itemId^=btn-remove-]"),
+            buttons = Ext.Array.merge(editButtons, removeButtons);
 
         Ext.suspendLayouts();
         page.down('#issue-add-comment-form').show();
         page.down('#issue-add-comment-area').focus();
         page.down('#no-issue-comments').hide();
         page.down('#issue-comments-add-comment-button').hide();
+
+        if (Ext.isArray(buttons)) {
+            Ext.Array.each(buttons, function (button) {
+                button.setDisabled(true);
+            })
+        }
 
         if (page.down('#tab-issue-context')) {
             page.down('#tab-issue-context').setActiveTab(1);
@@ -219,27 +231,56 @@ Ext.define('Isu.controller.IssueDetail', {
     },
 
     showCommentFormValidation: function () {
-        var page = this.widget ? this.widget : this.getCommentsPanel();
+        var me = this,
+            page = this.widget ? this.widget : this.getCommentsPanel(),
+            editButtons = Ext.ComponentQuery.query("button[itemId^=btn-edit-]"),
+            removeButtons = Ext.ComponentQuery.query("button[itemId^=btn-remove-]"),
+            buttons = Ext.Array.merge(editButtons, removeButtons);
 
         Ext.suspendLayouts();
         page.down('#issue-add-comment-form').show();
         page.down('#issue-add-comment-area').focus();
         page.down('#no-issue-comments').hide();
         page.down('#issue-comments-add-comment-button').hide();
+        if (Ext.isArray(buttons)) {
+            Ext.Array.each(buttons, function (button) {
+                button.setDisabled(true);
+            })
+        }
 
         Ext.resumeLayouts(true);
     },
 
     hideCommentForm: function () {
-        var commentsPanel = this.getCommentsPanel(),
-            hasComments = commentsPanel.down('#issue-comments-list').store.getCount() ? true : false;
+        var me = this,
+            commentsPanel = this.getCommentsPanel(),
+            hasComments = commentsPanel.down('#issue-comments-list').store.getCount() ? true : false,
+            editButtons = Ext.ComponentQuery.query("button[itemId^=btn-edit-]"),
+            removeButtons = Ext.ComponentQuery.query("button[itemId^=btn-remove-]"),
+            router = this.getController('Uni.controller.history.Router'),
+            buttons = Ext.Array.merge(editButtons, removeButtons);
 
         Ext.suspendLayouts();
         commentsPanel.down('#issue-add-comment-form').hide();
         commentsPanel.down('#issue-add-comment-area').reset();
         commentsPanel.down('#issue-comments-add-comment-button').setVisible(hasComments && this.canComment());
         commentsPanel.down('#no-issue-comments').setVisible(!hasComments);
+        if (Ext.isArray(buttons)) {
+            Ext.Array.each(buttons, function (button) {
+                button.setDisabled(false);
+            })
+        }
+
+        if (router.queryParams.addComment) {
+            delete router.queryParams.addComment;
+            url = router.getRoute().buildUrl(router.arguments, router.queryParams);
+            Uni.util.History.setParsePath(false);
+            Uni.util.History.suspendEventsForNextCall();
+            window.location.replace(url);
+        }
+
         Ext.resumeLayouts(true);
+
     },
 
     validateCommentForm: function (textarea, newValue) {
@@ -284,6 +325,7 @@ Ext.define('Isu.controller.IssueDetail', {
             callback: function () {
                 commentsStore.load(function (records) {
                     this.add(records);
+                    me.constructComments(commentsView, commentsStore);
                     commentsView.setLoading(false);
                 })
             }
@@ -571,9 +613,9 @@ Ext.define('Isu.controller.IssueDetail', {
                             tooltip: Uni.I18n.translate('general.editComment', 'ISU', 'Edit'),
                             handler: function () {
                                 if (comments.isVisible()) {
+                                    me.setDisableEditButtons(true);
                                     comments.setVisible(false);
                                     editComments.setVisible(true);
-                                    me.setEnableEditButtons(false);
                                     editComments.record = record;
                                     editComments.setComment(record.get('splittedComments').join('\n'));
                                 }
@@ -611,8 +653,17 @@ Ext.define('Isu.controller.IssueDetail', {
                         }
                     ]);
                 });
-                Ext.resumeLayouts();
 
+                if (me.getController('Uni.controller.history.Router').queryParams.addComment) {
+                    var buttons = Ext.Array.merge(Ext.ComponentQuery.query("button[itemId^=btn-edit-]"),
+                        Ext.ComponentQuery.query("button[itemId^=btn-remove-]"));
+                    if (Ext.isArray(buttons)) {
+                        Ext.Array.each(buttons, function (button) {
+                            button.setDisabled(true);
+                        })
+                    }
+                }
+                Ext.resumeLayouts();
                 issueCommentsView.doLayout();
             }
         });
@@ -624,14 +675,16 @@ Ext.define('Isu.controller.IssueDetail', {
     },
 
     hideEditCommentForm: function (button) {
-        var commentsPanel = this.getCommentsPanel(),
+        var me = this,
+            commentsPanel = me.getCommentsPanel(),
             hasComments = commentsPanel.down('#issue-comments-list').store.getCount() ? true : false;
 
         Ext.suspendLayouts();
         button.editCommentForm.setVisible(false);
         button.commentPanel.setVisible(true);
+        me.setDisableEditButtons(false);
 
-        commentsPanel.down('#issue-comments-add-comment-button').setVisible(hasComments && this.canComment());
+        commentsPanel.down('#issue-comments-add-comment-button').setVisible(hasComments && me.canComment());
         commentsPanel.down('#no-issue-comments').setVisible(!hasComments);
         Ext.resumeLayouts(true);
     },
@@ -640,28 +693,43 @@ Ext.define('Isu.controller.IssueDetail', {
         var me = this,
             commentsView = editButton.up('#issue-comments-list'),
             record = editButton.up('panel').record,
-            commentsStore = editButton.up('panel').record.store;
-        value = editButton.up('panel').down('#issue-edit-comment-area').getValue();
+            commentsStore = editButton.up('panel').record.store,
+            value = editButton.up('panel').down('#issue-edit-comment-area').getValue(),
+            oldValue = record.get('comment');
 
-        record.beginEdit();
-        record.set('comment', value);
-        record.endEdit();
+        if (value != oldValue) {
+            record.beginEdit();
+            record.set('comment', value);
+            record.endEdit();
 
-        commentsView.setLoading();
-        commentsStore.sync({
-            callback: function () {
-                commentsStore.load(function (records) {
-                    this.add(records);
-                    commentsView.setLoading(false);
-                    me.constructComments(commentsView, commentsStore);
-                    me.loadTimeline(commentsStore);
-                })
-            }
-        });
+            commentsView.setLoading();
+            commentsStore.sync({
+                callback: function () {
+                    commentsStore.load(function (records) {
+                        this.add(records);
+                        me.constructComments(commentsView, commentsStore);
+                        me.loadTimeline(commentsStore);
+                        me.setDisableEditButtons(false);
+                        commentsView.setLoading(false);
+                    })
+                }
+            });
+        }
+        else {
+            commentsView.setLoading();
+            me.setDisableEditButtons(false);
+            commentsStore.load(function (records) {
+                this.add(records);
+                commentsView.setLoading(false);
+                me.constructComments(commentsView, commentsStore);
+                me.loadTimeline(commentsStore);
+            })
+        }
     },
 
     removeComment: function (commentsView, button) {
         var me = this,
+            router = this.getController('Uni.controller.history.Router'),
             commentsStore = commentsView.store;
 
         Ext.create('Uni.view.window.Confirmation', {
@@ -675,9 +743,11 @@ Ext.define('Isu.controller.IssueDetail', {
                     callback: function () {
                         commentsStore.load(function (records) {
                             this.add(records);
-                            commentsView.setLoading(false);
+                            commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
+                            commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && me.canComment());
                             me.constructComments(commentsView, commentsStore);
                             me.loadTimeline(commentsStore);
+                            commentsView.setLoading(false);
                         })
                     }
                 });
@@ -689,15 +759,16 @@ Ext.define('Isu.controller.IssueDetail', {
         });
     },
 
-    setEnableEditButtons: function (enable) {
+    setDisableEditButtons: function (enable) {
         var me = this,
             editButtons = Ext.ComponentQuery.query("button[itemId^=btn-edit-]"),
             removeButtons = Ext.ComponentQuery.query("button[itemId^=btn-remove-]"),
-            buttons = Ext.Array.merge(editButtons, removeButtons);
+            addCommentButton = Ext.ComponentQuery.query("button[itemId^=issue-comments-add-comment-button]"),
+            buttons = Ext.Array.merge(editButtons, removeButtons, addCommentButton);
 
         if (Ext.isArray(buttons)) {
             Ext.Array.each(buttons, function (button) {
-                button.setWbable(enable)
+                button.setDisabled(enable);
             })
         }
     }
