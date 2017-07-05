@@ -30,6 +30,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.util.streams.ExtraCollectors;
+import com.elster.jupiter.util.time.RangeBuilder;
 import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.Range;
@@ -302,7 +303,14 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public Optional<BaseReadingRecord> getReading(Instant when) {
-        return persistedChannel.getReading(when);
+        Range<Instant> requestRange;
+        if (isRegular()) {
+            requestRange = Range.open(persistedChannel.getPreviousDateTime(when), persistedChannel.getNextDateTime(when));
+        } else {
+            requestRange = Range.open(when.minusSeconds(1), when.plusSeconds(1));
+        }
+
+        return getReadings(requestRange).stream().findFirst();
     }
 
     @Override
@@ -339,12 +347,65 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<BaseReadingRecord> getReadingsBefore(Instant when, int readingCount) {
-        return persistedChannel.getReadingsBefore(when, readingCount);
+        if (isRegular()) {
+            Instant from = when;
+            for (int i = 0; i <= readingCount; i++) {
+                from = persistedChannel.getPreviousDateTime(from);
+            }
+            return getReadings(Range.openClosed(from, persistedChannel.getPreviousDateTime(when)));
+        } else {
+            RangeBuilder rangeBuilder = new RangeBuilder();
+            this.dataAggregationService.introspect(this.usagePoint, this.metrologyContract, this.channelsContainer.getRange()).getChannelUsagesFor(this.deliverable)
+                    .stream()
+                    .flatMap(channelUsage -> channelUsage.getChannel()
+                            .getReadingsBefore(when, readingCount)
+                            .stream()
+                            .filter(readingRecord -> channelUsage.getRange().contains(readingRecord.getTimeStamp())))
+                    .filter(readingRecord -> readingRecord.getTimeStamp().isBefore(when))
+                    .forEach(record -> rangeBuilder.add(record.getTimeStamp()));
+            if (rangeBuilder.hasRange()) {
+                Range<Instant> range = rangeBuilder.getRange();
+                if (range.hasLowerBound()) {
+                    range = Range.openClosed(range.lowerEndpoint().minusSeconds(1), range.upperEndpoint());
+                }
+                List<BaseReadingRecord> readingRecords = getReadings(range);
+                return readingRecords.subList(Math.max(0, readingRecords.size() - readingCount), readingRecords.size());
+            } else {
+                return Collections.emptyList();
+            }
+        }
     }
 
     @Override
     public List<BaseReadingRecord> getReadingsOnOrBefore(Instant when, int readingCount) {
-        return persistedChannel.getReadingsOnOrBefore(when, readingCount);
+        if (isRegular()) {
+            Instant from = when;
+            for (int i = 0; i < readingCount; i++) {
+                from = persistedChannel.getPreviousDateTime(from);
+            }
+            return getReadings(Range.openClosed(from, when));
+        } else {
+            RangeBuilder rangeBuilder = new RangeBuilder();
+            rangeBuilder.add(when);
+            this.dataAggregationService.introspect(this.usagePoint, this.metrologyContract, this.channelsContainer.getRange()).getChannelUsagesFor(this.deliverable)
+                    .stream()
+                    .flatMap(channelUsage -> channelUsage.getChannel()
+                            .getReadingsBefore(when, readingCount)
+                            .stream()
+                            .filter(readingRecord -> channelUsage.getRange().contains(readingRecord.getTimeStamp())))
+                    .filter(readingRecord -> readingRecord.getTimeStamp().isBefore(when))
+                    .forEach(record -> rangeBuilder.add(record.getTimeStamp()));
+            if (rangeBuilder.hasRange()) {
+                Range<Instant> range = rangeBuilder.getRange();
+                if (range.hasLowerBound() && range.hasUpperBound()) {
+                    range = Range.openClosed(range.lowerEndpoint().minusSeconds(1), range.upperEndpoint().plusSeconds(1));
+                }
+                List<BaseReadingRecord> readingRecords = getReadings(range);
+                return readingRecords.subList(Math.max(0, readingRecords.size() - readingCount), readingRecords.size());
+            } else {
+                return Collections.emptyList();
+            }
+        }
     }
 
     @Override
