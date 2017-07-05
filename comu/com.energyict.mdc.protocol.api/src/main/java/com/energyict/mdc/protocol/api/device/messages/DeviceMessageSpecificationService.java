@@ -81,4 +81,5 @@ public interface DeviceMessageSpecificationService {
     Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOptionsFor(DeviceMessageId deviceMessageId);
 
     DeviceMessageCategory getFirmwareCategory();
+
 }
