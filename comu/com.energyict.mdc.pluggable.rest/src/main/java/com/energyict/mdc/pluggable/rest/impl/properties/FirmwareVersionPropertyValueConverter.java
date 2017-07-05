@@ -6,13 +6,9 @@ package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 
-/**
- * Created by mbarinov on 31.08.2016.
- */
 public class FirmwareVersionPropertyValueConverter implements PropertyValueConverter {
 
     @Override
@@ -32,8 +28,19 @@ public class FirmwareVersionPropertyValueConverter implements PropertyValueConve
 
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
-        FirmwareVersion firmwareVersion = (FirmwareVersion) domainValue;
-        return new IdWithNameInfo(firmwareVersion.getId(), firmwareVersion.getFirmwareVersion());
+        return new FirmwareVersionInfo((FirmwareVersion) domainValue);
+    }
+
+    private class FirmwareVersionInfo{
+        public Object id;
+        public String name;
+        public String imageIdentifier;
+
+        FirmwareVersionInfo(FirmwareVersion firmwareVersion){
+            this.id = firmwareVersion.getId();
+            this.name = firmwareVersion.getFirmwareVersion();
+            this.imageIdentifier = firmwareVersion.getImageIdentifier();
+        }
     }
 
 }
