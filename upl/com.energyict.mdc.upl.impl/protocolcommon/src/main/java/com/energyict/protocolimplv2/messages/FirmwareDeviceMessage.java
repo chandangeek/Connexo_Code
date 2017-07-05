@@ -298,6 +298,11 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
         }
+
+        @Override
+        public Optional<PropertySpec> getFirmwareIdentifierPropertySpec(PropertySpecService service) {
+            return Optional.of(this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation));
+        }
     },
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER(5017, "Upload firmware with file and image identifier") {
         @Override
@@ -435,6 +440,11 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
+
+        @Override
+        public Optional<PropertySpec> getFirmwareIdentifierPropertySpec(PropertySpecService service) {
+            return Optional.of(this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation));
+        }
     },
     ENABLE_IMAGE_TRANSFER(5024, "Enable image transfer") {
         @Override
@@ -530,6 +540,11 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
+        }
+
+        @Override
+        public Optional<PropertySpec> getFirmwareIdentifierPropertySpec(PropertySpecService service) {
+            return Optional.of(this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation));
         }
 
         @Override
