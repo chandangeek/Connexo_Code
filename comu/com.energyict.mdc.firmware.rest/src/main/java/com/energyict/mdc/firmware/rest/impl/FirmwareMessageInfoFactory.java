@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -20,6 +21,11 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class FirmwareMessageInfoFactory {
+
+    static String PROPERTY_KEY_FIRMWARE_VERSION = "FirmwareDeviceMessage.upgrade.userfile";
+    static String PROPERTY_KEY_IMAGE_IDENTIFIER = "FirmwareDeviceMessage.image.identifier";
+    static String PROPERTY_KEY_RESUME = "FirmwareDeviceMessage.upgrade.resume";
+
     private final MdcPropertyUtils mdcPropertyUtils;
     private final FirmwareService firmwareService;
 
@@ -58,7 +64,21 @@ public class FirmwareMessageInfoFactory {
         FirmwareMessageInfo info = new FirmwareMessageInfo();
         info.uploadOption = uploadOption;
         info.localizedValue = deviceMessageSpec.getName();
-        info.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceMessageSpec.getPropertySpecs(), TypedProperties.empty(), provider);
+        info.setProperties(mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceMessageSpec.getPropertySpecs(), TypedProperties.empty(), provider));
+        initImageIdentifier(info, null);
+        initResumeProperty(info, false);
         return info;
     }
+
+    void initImageIdentifier(FirmwareMessageInfo info, String imageIdentifier){
+        info.getPropertyInfo(PROPERTY_KEY_IMAGE_IDENTIFIER).ifPresent(x -> x.propertyValueInfo = new PropertyValueInfo<>(imageIdentifier, imageIdentifier, imageIdentifier != null));
+        info.setPropertyEditable(PROPERTY_KEY_IMAGE_IDENTIFIER, false);
+    }
+
+    void initResumeProperty(FirmwareMessageInfo info, boolean doResume){
+        info.getPropertyInfo(PROPERTY_KEY_RESUME).ifPresent(x -> x.propertyValueInfo =new PropertyValueInfo<>(doResume, doResume, true));
+        info.setPropertyEditable(PROPERTY_KEY_RESUME, false);
+    }
+
+
 }
