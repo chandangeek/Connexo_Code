@@ -39,7 +39,7 @@ public class UpgraderV10_3_1 implements Upgrader {
                     "device=to_number(substr(mem.name, instr(mem.name, '_') +1 )) " +
                     "where exists (select * from DQK_DATAQUALITYKPI kpi where kpi.id=mem.dataqualitykpi and kpi.discriminator='EDDQ')");
             execute(statement, "update KPI_KPIMEMBER set name=substr(name, 1, instr(name, '_')-1) where kpi in (select childkpi from DQK_DATAQUALITYKPIMEMBER)");
-
+            execute(statement, "update KPI_KPI set keepzeros='N' where id in (select childkpi from DQK_DATAQUALITYKPIMEMBER)");
             execute(statement, "alter table DQK_DATAQUALITYKPIMEMBER drop column name");
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
