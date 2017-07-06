@@ -59,6 +59,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.upl.messages.DeviceMessageAttribute;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
@@ -76,8 +77,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -185,13 +188,48 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         }
         return false;
     }
-
+    @Override
     public boolean isResumeFirmwareUploadEnabled(DeviceType deviceType){
         if (deviceType.getDeviceProtocolPluggableClass().isPresent()){
             DeviceProtocol deviceProtocol = deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol();
             return deviceProtocol.getSupportedMessages().stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::from).anyMatch(dmid -> this.deviceMessageSpecificationService.canResumeFirmwareUpload(dmid));
         }
         return false;
+    }
+
+    @Override
+    public Optional<com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec> defaultFirmwareVersionSpec() {
+        return deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE.dbValue());
+    }
+
+    @Override
+    public Optional<DeviceMessageId> bestSuitableFirmwareUpgradeMessageId(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOption,FirmwareVersion firmwareVersion){
+        if (deviceType.getDeviceProtocolPluggableClass().isPresent() ) {
+            List<DeviceMessageId> deviceMessageIdList = deviceType.getDeviceProtocolPluggableClass()
+                    .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                            .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
+                            .map(DeviceMessageId::from)
+                            .collect(Collectors.toList())).orElse(Collections.emptyList())
+                    .stream()
+                    .filter(firmwareMessageCandidate -> {
+                        Optional<ProtocolSupportedFirmwareOptions> firmwareOptionForCandidate = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(firmwareMessageCandidate);
+                        return firmwareOptionForCandidate.isPresent() && firmwareManagementOption.equals(firmwareOptionForCandidate.get());
+                    })
+                    .collect(Collectors.toList());
+
+            if (!deviceMessageIdList.isEmpty()){
+                if (deviceMessageIdList.size()== 1){
+                   return Optional.of(deviceMessageIdList.get(0));
+                }else{
+                    if (firmwareVersion == null || firmwareVersion.getImageIdentifier() == null){
+                       return Stream.of(DeviceMessageId.values()).filter(x-> (x.dbValue() >= 5000 && x.dbValue() < 6000 && !DeviceMessageId.needsImageIdentifier().contains(x))).findFirst();
+                    }else {
+                        return deviceMessageIdList.stream().filter(DeviceMessageId.needsImageIdentifier()::contains).findFirst();
+                    }
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -413,6 +451,33 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return fwComTaskExecution.isPresent() && cancelFirmwareUpload(fwComTaskExecution);
     }
 
+    public void resumeFirmwareUploadForDevice(Device device) {
+            device.getMessagesByState(DeviceMessageStatus.PENDING)
+                    .stream()
+                    .filter(this::isItAFirmwareRelatedMessage)
+                    .forEach(x-> this.resume(device, x));
+    }
+
+    private void resume(Device device, DeviceMessage deviceMessage){
+        // "Cloning" the current message but with a resume attribute set to true
+        Device.DeviceMessageBuilder deviceMessageBuilder = device
+                .newDeviceMessage(deviceMessage.getDeviceMessageId())
+                .setReleaseDate(deviceMessage.getReleaseDate())
+                .setTrackingId(deviceMessage.getTrackingId());
+        for (DeviceMessageAttribute attribute: deviceMessage.getAttributes()) {
+            if (attribute.getName().equals("FirmwareDeviceMessage.upgrade.resume")){
+                deviceMessageBuilder.addProperty("FirmwareDeviceMessage.upgrade.resume" , true);
+            }else {
+                deviceMessageBuilder.addProperty(attribute.getName(), attribute.getValue());
+            }
+        }
+        // revoking the previous message
+        deviceMessage.revoke();
+        // Persisting the clone
+        deviceMessageBuilder.add();
+    }
+
+
     @Override
     public boolean retryFirmwareUploadForDevice(DeviceInFirmwareCampaign deviceInFirmwareCampaign) {
         if (deviceInFirmwareCampaign.getFirmwareCampaign().getStatus() != FirmwareCampaignStatus.ONGOING) {
@@ -443,16 +508,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         if (comTaskExecution1.getNextExecutionTimestamp() != null) {
             comTaskExecution1.schedule(null);
             cancelPendingFirmwareMessages(comTaskExecution1.getDevice());
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private boolean rescheduleFirmwareUpload(Optional<ComTaskExecution> fwComTaskExecution) {
-        ComTaskExecution comTaskExecution1 = fwComTaskExecution.get();
-        if (comTaskExecution1.getNextExecutionTimestamp() != null) {
-            comTaskExecution1.scheduleNow();
             return true;
         } else {
             return false;

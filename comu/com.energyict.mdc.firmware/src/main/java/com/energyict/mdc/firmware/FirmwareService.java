@@ -10,6 +10,8 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import aQute.bnd.annotation.ProviderType;
@@ -45,6 +47,8 @@ public interface FirmwareService {
     Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType);
     boolean imageIdentifierExpectedAtFirmwareUpload(DeviceType deviceType);
     boolean isResumeFirmwareUploadEnabled(DeviceType deviceType);
+    Optional<com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec> defaultFirmwareVersionSpec();
+    Optional<DeviceMessageId> bestSuitableFirmwareUpgradeMessageId(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOption, FirmwareVersion firmwareVersion);
     Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareManagementOptionsFor(DeviceType deviceType);
     FirmwareManagementOptions newFirmwareManagementOptions(DeviceType deviceType);
     Optional<FirmwareManagementOptions> findFirmwareManagementOptions(DeviceType deviceType);
@@ -93,6 +97,14 @@ public interface FirmwareService {
      * @return true if we did a cancel, false if no action was required
      */
     boolean cancelFirmwareUploadForDevice(Device device);
+
+    /**
+        * Tries to resume the current FirmwareComTaskExecution on the device if it was still pending.
+        *
+        * @param device the device to cancel the firmware upload
+        *
+        */
+    void resumeFirmwareUploadForDevice(Device device);
 
     /**
      * Tries to retry the current FirmwareComTaskExecution on the device if it was still pending.
