@@ -39,12 +39,12 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandAdd', {
                     },
                     {
                         itemId: 'device-command-add-property-header',
-                        margins: '16 0 0 0'
+                        margin: '16 0 0 0'
                     },
                     {
                         itemId: 'device-command-add-property-form',
                         xtype: 'property-form',
-                        margins: '16 0 0 0',
+                        margin: '16 0 0 0',
                         defaults: {
                             labelWidth: 250,
                             resetButtonHidden: false,

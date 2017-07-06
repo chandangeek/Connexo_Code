@@ -10,13 +10,14 @@ Ext.define('Mdc.commands.controller.Commands', {
         'Mdc.commands.view.AddCommand'
     ],
 
-    requires: [
+    models: [
+        'Mdc.model.DeviceCommand'
     ],
 
     stores: [
         'Mdc.commands.store.Commands',
         'Mdc.store.DeviceGroups',
-        'Mdc.commands.store.CommandsForDeviceGroup'
+        'Mdc.commands.store.CommandCategoriesForDeviceGroup'
     ],
 
     refs: [
@@ -63,13 +64,20 @@ Ext.define('Mdc.commands.controller.Commands', {
         {
             ref: 'step2CommandCombo',
             selector: 'add-command add-command-wizard add-command-step2 #mdc-add-command-step2-command-combo'
+        },
+        {
+            ref: 'addPropertyForm',
+            selector: 'add-command add-command-wizard add-command-step2 #mdc-add-command-step2-property-form'
+        },
+        {
+            ref: 'addPropertyHeader',
+            selector: 'add-command add-command-wizard add-command-step2 #mdc-add-command-step2-property-header'
         }
     ],
 
     wizardInformation: null,
     categoriesStore: undefined,
     commandsStore: undefined,
-    commandsPerCategory: undefined,
 
     init: function () {
         this.control({
@@ -93,6 +101,9 @@ Ext.define('Mdc.commands.controller.Commands', {
             },
             'add-command-step2 #mdc-add-command-step2-category-combo': {
                 change: this.onCategoryChange
+            },
+            'add-command-step2 #mdc-add-command-step2-command-combo': {
+                select: this.onCommandSelect
             }
         });
     },
@@ -251,6 +262,7 @@ Ext.define('Mdc.commands.controller.Commands', {
                 me.prepareStep3(wizard);
                 break;
             case 4:
+                me.addCommandToDeviceGroup();
                 nextBtn.hide();
                 backBtn.hide();
                 confirmBtn.hide();
@@ -312,46 +324,20 @@ Ext.define('Mdc.commands.controller.Commands', {
             wizard = me.getAddCommandWizard(),
             step2ErrorMsg = me.getStep2FormErrorMessage(),
             step2 = wizard.down('add-command-step2'),
-            step2Form = step2.getForm(),
-            commandsForDeviceGroupStore = me.getStore('Mdc.commands.store.CommandsForDeviceGroup'),
-            categorySet = new Set(),
-            categoryModels = [],
-            category = undefined;
+            step2Form = step2.getForm();
 
-        me.commandsPerCategory = {};
+        me.categoriesStore = me.getStore('Mdc.commands.store.CommandCategoriesForDeviceGroup');
         step2.setLoading();
         step2ErrorMsg.hide();
         step2Form.clearInvalid();
-        if (Ext.isEmpty(me.categoriesStore)) {
-            me.categoriesStore = Ext.create('Ext.data.ArrayStore', {
-                fields: ['name']
-            });
-        } else {
-            me.categoriesStore.removeAll(false);
-        }
-        commandsForDeviceGroupStore.getProxy().setUrl(me.wizardInformation.deviceGroupId);
-        commandsForDeviceGroupStore.load(function(records, operation, success) {
-            Ext.Array.forEach(records, function(record, index){
-                category = record.get('category');
-                if (!categorySet.has(category)) {
-                    categorySet.add(category);
-                    categoryModels.push({name: category});
-                    me.commandsPerCategory[category] = [];
-                    me.commandsPerCategory[category].push(record);
-                } else {
-                    me.commandsPerCategory[category].push(record);
-                }
-            }, me);
-            categoryModels.sort(function (model1, model2) {
-                return model1.name.localeCompare(model2.name); // Sort the categories alphabetically
-            });
-            if (categoryModels.length != 0) {
-                me.categoriesStore.add(categoryModels);
-                me.getStep2CategoryCombo().reset();
-                me.getStep2CategoryCombo().bindStore(me.categoriesStore, true);
-            } else {
+        me.categoriesStore.getProxy().setUrl(me.wizardInformation.deviceGroupId);
+        me.categoriesStore.load(function(records, operation, success) {
+            if (records.length === 0) {
                 me.getStep2CategoryCombo().reset();
                 me.getStep2CommandCombo().reset();
+            } else if (records.length === 1) {
+                me.getStep2CategoryCombo().reset();
+                me.getStep2CategoryCombo().setValue(records[0].get('id'));
             }
             step2.setLoading(false);
         });
@@ -360,6 +346,7 @@ Ext.define('Mdc.commands.controller.Commands', {
     validateStep2: function() {
         var me = this,
             wizard = me.getAddCommandWizard(),
+            addCommandForm = wizard.down('#mdc-add-command-step2'),
             step2ErrorMsg = me.getStep2FormErrorMessage(),
             step2 = wizard.down('add-command-step2'),
             commandCombo = me.getStep2CommandCombo(),
@@ -369,8 +356,7 @@ Ext.define('Mdc.commands.controller.Commands', {
             valid = false;
             step2ErrorMsg.show();
         } else {
-            me.wizardInformation.command = commandCombo.getRawValue();
-            me.wizardInformation.commandName = commandCombo.getValue();
+            me.wizardInformation.releaseDate = new Date(addCommandForm.getValues().releaseDate).getTime()
         }
         return valid;
     },
@@ -379,7 +365,7 @@ Ext.define('Mdc.commands.controller.Commands', {
         var me = this,
             step3 = wizard.down('add-command-step3'),
             confirmationTitle = Uni.I18n.translate('add.command.step3.title.specific', 'MDC',
-                "Add '{0}' to devices in '{1}'?", [me.wizardInformation.command, me.wizardInformation.deviceGroupName]),
+                "Add '{0}' to devices in '{1}'?", [me.wizardInformation.command.get('name'), me.wizardInformation.deviceGroupName]),
             confirmationMessage = Uni.I18n.translate('add.command.step3.msg', 'MDC', 'The selected command will be added to all devices in the device group.');
 
         step3.update('<h3>' + confirmationTitle + '</h3><br>' + confirmationMessage);
@@ -389,33 +375,88 @@ Ext.define('Mdc.commands.controller.Commands', {
         var me = this,
             step4 = wizard.down('add-command-step4'),
             statusMessage = Uni.I18n.translate('add.command.step4.msg', 'MDC',
-                "The command '{0}' will be added to all devices in the device group '{1}'.", [me.wizardInformation.command, me.wizardInformation.deviceGroupName]);
+                "The command '{0}' will be added to all devices in the device group '{1}'.", [me.wizardInformation.command.get('name'), me.wizardInformation.deviceGroupName]);
 
         step4.update(statusMessage);
     },
 
-    onCategoryChange: function(combo, newValue, oldValue) {
+    onCategoryChange: function(combo, categoryId) {
         var me = this,
+            step2ErrorMsg = me.getStep2FormErrorMessage(),
             commandCombo = me.getStep2CommandCombo(),
-            commandsStore = Ext.create('Ext.data.ArrayStore', {
-                fields: ['category', 'command', 'commandName']
-            });
+            storeIndex = me.categoriesStore.findExact('id', categoryId),
+            category = storeIndex >= 0 ? me.categoriesStore.getAt(storeIndex) : null;
 
-        if (Ext.isEmpty(me.commandsPerCategory) || Ext.isEmpty(me.commandsPerCategory[newValue])) {
-            commandCombo.setDisabled(true);
-        } else {
-            Ext.suspendLayouts();
-            var commandsArray = me.commandsPerCategory[newValue];
-            commandsStore.add(commandsArray);
-            if (commandsArray.length === 1) {
-                commandCombo.setValue(me.commandsPerCategory[newValue][0].get('command'));
-            } else {
-                commandCombo.reset();
-            }
-            commandCombo.bindStore(commandsStore, true);
+        step2ErrorMsg.hide();
+        me.getAddPropertyForm().hide();
+        me.getAddPropertyHeader().hide();
+        commandCombo.reset();
+        if (!Ext.isEmpty(category)) {
             commandCombo.enable();
-            Ext.resumeLayouts(true);
+            commandCombo.bindStore(category.deviceMessageSpecs(), true);
+            if (category.deviceMessageSpecs().getCount()===1) {
+                commandCombo.setValue( category.deviceMessageSpecs().getAt(0) );
+                var records = [];
+                records.push(category.deviceMessageSpecs().getAt(0));
+                me.onCommandSelect(commandCombo, records);
+            }
+        } else {
+            commandCombo.disable();
         }
-    }
+    },
 
+    onCommandSelect: function (combo, selectedRecords) {
+        var me = this,
+            command = selectedRecords[0].copy(),
+            propertyHeader = me.getAddPropertyHeader();
+
+        selectedRecords[0].properties().each(function (record) {
+            command.properties().add(record)
+        });
+        if (command) {
+            me.getAddPropertyForm().loadRecord(command);
+            if (command.properties() && (command.properties().getCount() > 0)) {
+                propertyHeader.show();
+                propertyHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}', command.get('name')) + '</h3>');
+                me.getAddPropertyForm().show();
+            } else {
+                me.getAddPropertyForm().hide();
+                propertyHeader.hide();
+            }
+            me.wizardInformation.command = command;
+        }
+    },
+
+    addCommandToDeviceGroup: function() {
+        var me = this,
+            wizard = me.getAddCommandWizard(),
+            propertyForm = me.getAddPropertyForm();
+
+        wizard.setLoading(true);
+        propertyForm.updateRecord();
+        var newRecord = propertyForm.getRecord(),
+            messageSpecification;
+        if (!Ext.isEmpty(newRecord.get('id'))) {
+            messageSpecification = {id: newRecord.get('id')}
+        }
+        newRecord.beginEdit();
+        newRecord.set('id', '');
+        me.wizardInformation.releaseDate && newRecord.set('releaseDate', me.wizardInformation.releaseDate);
+        messageSpecification && newRecord.set('messageSpecification', messageSpecification);
+        newRecord.set('status', null);
+        newRecord.set('trackingCategory', null);
+        newRecord.endEdit();
+        newRecord.save({
+            url: '/api/ddr/devicegroups/' + me.wizardInformation.deviceGroupId + '/commands',
+            method: 'POST',
+            callback: function (record, operation, success) {
+                if (operation.success) {
+                    if (wizard.rendered) {
+                        wizard.setLoading(false);
+                        //wizard.down('#cmbw-step4').setResultMessage(action, success);
+                    }
+                }
+            }
+        });
+    }
 });

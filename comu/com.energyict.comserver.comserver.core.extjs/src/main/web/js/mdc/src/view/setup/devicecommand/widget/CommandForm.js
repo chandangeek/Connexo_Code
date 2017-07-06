@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.device-command-add-form',
     requires: [
-        'Uni.form.field.DateTime'
+        'Uni.form.field.DateTime',
+        'Mdc.store.DeviceMessageCategories'
     ],
     layout: {
         type: 'vbox',

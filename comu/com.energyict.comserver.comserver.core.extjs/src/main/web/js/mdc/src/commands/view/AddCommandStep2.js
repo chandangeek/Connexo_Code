@@ -10,7 +10,7 @@ Ext.define('Mdc.commands.view.AddCommandStep2', {
         'Uni.util.FormInfoMessage',
         'Uni.util.FormErrorMessage',
         'Uni.form.field.DateTime',
-        'Mdc.commands.store.CommandsForDeviceGroup'
+        'Mdc.commands.store.CommandCategoriesForDeviceGroup'
     ],
 
     initComponent: function () {
@@ -41,10 +41,11 @@ Ext.define('Mdc.commands.view.AddCommandStep2', {
                 fieldLabel: Uni.I18n.translate('general.commandCategory', 'MDC', 'Command category'),
                 itemId: 'mdc-add-command-step2-category-combo',
                 emptyText: Uni.I18n.translate('general.selectACommandCategory', 'MDC', 'Select a command category...'),
+                store: 'Mdc.commands.store.CommandCategoriesForDeviceGroup',
                 editable: false,
                 required: true,
                 allowBlank: false,
-                valueField: 'name',
+                valueField: 'id',
                 displayField: 'name',
                 labelWidth: 200,
                 queryMode: 'local',
@@ -61,8 +62,8 @@ Ext.define('Mdc.commands.view.AddCommandStep2', {
                 fieldLabel: Uni.I18n.translate('deviceCommand.add.command', 'MDC', 'Command'),
                 itemId: 'mdc-add-command-step2-command-combo',
                 emptyText: Uni.I18n.translate('general.selectACommand', 'MDC', 'Select a command...'),
-                displayField: 'command',
-                valueField: 'commandName',
+                displayField: 'name',
+                valueField: 'id',
                 required: true,
                 allowBlank: false,
                 editable: false,
@@ -74,7 +75,7 @@ Ext.define('Mdc.commands.view.AddCommandStep2', {
             {
                 xtype: 'date-time',
                 name: 'releaseDate',
-                itemId: 'releaseDate',
+                itemId: 'mdc-add-command-step2-releaseDate',
                 layout: 'hbox',
                 required: true,
                 fieldLabel: Uni.I18n.translate('general.releaseDate', 'MDC', 'Release date'),
@@ -104,14 +105,14 @@ Ext.define('Mdc.commands.view.AddCommandStep2', {
             },
             {
                 itemId: 'mdc-add-command-step2-property-header',
-                margins: '16 0 0 0'
+                margin: '25 0 0 0'
             },
             {
-                itemId: 'mdc-add-command-step2-property-form',
                 xtype: 'property-form',
-                margins: '16 0 0 0',
+                itemId: 'mdc-add-command-step2-property-form',
+                margin: '20 0 0 0',
                 defaults: {
-                    labelWidth: 250,
+                    labelWidth: 200,
                     resetButtonHidden: false,
                     width: 336 // To be aligned with the above
                 }
