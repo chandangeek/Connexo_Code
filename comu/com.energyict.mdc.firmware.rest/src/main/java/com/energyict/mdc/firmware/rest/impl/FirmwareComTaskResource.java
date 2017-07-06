@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.firmware.FirmwareService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -34,14 +35,16 @@ public class FirmwareComTaskResource {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final Thesaurus thesaurus;
     private final DeviceService deviceService;
+    private final FirmwareService firmwareService;
 
     @Inject
-    public FirmwareComTaskResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus, DeviceService deviceService) {
+    public FirmwareComTaskResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus, DeviceService deviceService, FirmwareService firmwareService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.conflictFactory = conflictFactory;
         this.thesaurus = thesaurus;
         this.deviceService = deviceService;
+        this.firmwareService = firmwareService;
     }
 
 
@@ -59,10 +62,13 @@ public class FirmwareComTaskResource {
                         .withMessageBody(MessageSeeds.FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_BODY, actionName)
                         .supplier());
 
+        firmwareService.resumeFirmwareUploadForDevice(device);
+
         ComTaskExecution firmwareComTaskExecution = device.getComTaskExecutions().stream()
                 .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE, comTaskId));
+
         firmwareComTaskExecution.runNow();
         return Response.ok().build();
     }
