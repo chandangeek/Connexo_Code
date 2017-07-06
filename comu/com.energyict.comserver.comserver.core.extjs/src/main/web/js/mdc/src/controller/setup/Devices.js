@@ -268,26 +268,28 @@ Ext.define('Mdc.controller.setup.Devices', {
                             widget.renderFlag(deviceLabelsStore);
                         });
 
+                        me.getDeviceGeneralInformationPanel().on('afterrender', function(){
+                            attributesModel.load('attributes', {
+                                success: function (attributes) {
+                                    Ext.suspendLayouts();
+                                    me.getDeviceGeneralInformationForm().loadRecord(attributes);
+                                    if(!Ext.isEmpty(attributes.get('deviceIcon'))) {
+                                        me.getDeviceIconImage().show();
+                                        me.getDeviceIconImage().setSrc('data:image;base64,' + attributes.get('deviceIcon'));
+                                    } else {
+                                        me.getDeviceIconImage().hide();
+                                    }
+                                    me.getDeviceSetup().down('#deviceSetupPanel #last-updated-field')
+                                        .update(Uni.I18n.translate('general.lastRefreshedAt', 'MDC', 'Last refreshed at {0}', Uni.DateTime.formatTimeShort(new Date())));
+                                    Ext.resumeLayouts(true);
+                                }
+                            });
+                        }, me, {single:true});
+
                         me.getApplication().fireEvent('changecontentevent', widget);
 
                         me.doRefresh();
 
-                        attributesModel.load('attributes', {
-                            success: function (attributes) {
-                                Ext.suspendLayouts();
-                                me.getDeviceGeneralInformationForm().loadRecord(attributes);
-                                if(!Ext.isEmpty(attributes.get('deviceIcon'))) {
-                                    me.getDeviceIconImage().show();
-                                    me.getDeviceIconImage().setSrc('data:image;base64,' + attributes.get('deviceIcon'));
-                                    me.getDeviceGeneralInformationPanel().doLayout();
-                                } else {
-                                    me.getDeviceIconImage().hide();
-                                }
-                                me.getDeviceSetup().down('#deviceSetupPanel #last-updated-field')
-                                    .update(Uni.I18n.translate('general.lastRefreshedAt', 'MDC', 'Last refreshed at {0}', Uni.DateTime.formatTimeShort(new Date())));
-                                Ext.resumeLayouts(true);
-                            }
-                        });
                         if (!Ext.isEmpty(me.getDeviceCommunicationTopologyPanel())) {
                             if (device.get('isDataLoggerSlave') || device.get('isMultiElementSlave')) {
                                 me.getDeviceCommunicationTopologyPanel().hide();
