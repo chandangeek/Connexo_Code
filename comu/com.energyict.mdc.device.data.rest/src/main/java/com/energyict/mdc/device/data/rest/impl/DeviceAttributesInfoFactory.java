@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -161,6 +162,7 @@ public class DeviceAttributesInfoFactory {
         info.decommissioningDate.displayValue = lifecycleDates.getRetiredDate().orElse(null);
         fillAvailableAndEditable(info.decommissioningDate, DeviceAttribute.DECOMMISSIONING_DATE, state, false);
 
+        info.deviceIcon = Base64.getEncoder().encodeToString(device.getDeviceType().getDeviceIcon());
         return info;
     }
 
