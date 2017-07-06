@@ -203,7 +203,7 @@ public class DeviceMessageFileImplIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED_MB + "}")
     @Transactional
     public void addWithFileThatIsTooLarge() throws IOException {
         DeviceLifeCycle defaultDeviceLifeCycle = inMemoryBootstrapModule.getDeviceLifeCycleConfigurationService().findDefaultDeviceLifeCycle().get();

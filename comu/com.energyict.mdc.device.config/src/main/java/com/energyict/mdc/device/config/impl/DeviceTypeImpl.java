@@ -12,9 +12,12 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.Blob;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.FileBlob;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.pki.CryptographicType;
@@ -65,14 +68,21 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.meterdata.Device;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
+import com.google.common.io.ByteStreams;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Size;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
@@ -121,6 +131,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private String description;
     @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", groups = {Save.Create.class, Save.Update.class})
     private TemporalReference<DeviceLifeCycleInDeviceType> deviceLifeCycle = Temporals.absent();
+    private Reference<DeviceIcon> deviceIcon = Reference.empty();
     private int deviceUsageTypeId;
     private DeviceUsageType deviceUsageType;
     @Valid
@@ -276,6 +287,23 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public void setDescription(String newDescription) {
         this.description = newDescription;
+    }
+
+    @Override
+    public void setDeviceIcon(InputStream inputStream) {
+        removeDeviceIcon();
+        DeviceIcon icon = this.getDataModel().getInstance(DeviceIcon.class).initialize(this, inputStream);
+        icon.save();
+        this.touch();
+    }
+
+    @Override
+    public void removeDeviceIcon() {
+        if(this.deviceIcon.isPresent()) {
+            deviceIcon.get().delete();
+            this.deviceIcon = Reference.empty();
+        }
+        this.touch();
     }
 
     @Override
@@ -926,6 +954,15 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             this.fileManagementEnabled = false;
             this.fileManagementDisabled();
             this.update();
+        }
+    }
+
+    @Override
+    public byte[] getDeviceIcon() {
+        if(deviceIcon.isPresent()) {
+            return deviceIcon.get().getBlob();
+        } else {
+            return new byte[0];
         }
     }
 
