@@ -37,7 +37,7 @@ Ext.define('MdmApp.controller.Main', {
     applicationKey: 'INS',
     defaultToken: '/dashboard',
     searchEnabled: true,
-    onlineHelpEnabled: false,
+    onlineHelpEnabled: true,
 
     privileges: Ext.Array.merge(
         Sam.privileges.DeploymentInfo.all(),
