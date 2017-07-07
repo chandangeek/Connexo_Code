@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
   ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
   -->
@@ -125,6 +126,7 @@
             <id>insight</id>
             <modules>
                 <module>../com.elster.insight.app</module>
+                <module>../com.elster.insight.app.help</module>
                 <module>../com.elster.insight.common</module>
                 <module>../com.elster.insight.metering.extjs</module>
                 <module>../com.elster.insight.usagepoint.config</module>
