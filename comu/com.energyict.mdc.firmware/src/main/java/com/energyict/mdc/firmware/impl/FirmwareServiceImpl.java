@@ -221,7 +221,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                 if (deviceMessageIdList.size()== 1){
                    return Optional.of(deviceMessageIdList.get(0));
                 }else{
-                    if (firmwareVersion == null || firmwareVersion.getImageIdentifier() == null){
+                    if (firmwareVersion != null && firmwareVersion.getImageIdentifier() == null){
                        return Stream.of(DeviceMessageId.values()).filter(x-> (x.dbValue() >= 5000 && x.dbValue() < 6000 && !DeviceMessageId.needsImageIdentifier().contains(x))).findFirst();
                     }else {
                         return deviceMessageIdList.stream().filter(DeviceMessageId.needsImageIdentifier()::contains).findFirst();
