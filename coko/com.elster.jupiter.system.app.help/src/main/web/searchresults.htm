@@ -43,6 +43,20 @@
 <script type="text/javascript" src="template/scripts/searchfield.js" language="JavaScript1.2"></script>
 <script type="text/javascript" src="template/scripts/tabpanels3.js" language="JavaScript1.2"></script>
 <script type="text/javascript" language="JavaScript1.2">
+	gRootRelPath = ".";
+	gCommonRootRelPath = ".";
+</script>
+	<script type="text/javascript" language="JavaScript1.2">
+		gGloTermHtml = "<span  class=\"wGloTermText\">{%LINK_NAME%}</span>";
+		gGloDefHtml = "<span  class=\"wGloDefinitionText\">{%LINK_NAME%}</span>";
+		gGloCategoryHtml = "<span  class=\"wGloAlphabetText\">{%LINK_NAME%}</span>";
+	</script>
+	<script type="text/javascript" language="JavaScript1.2">
+		gIdxKWHtml = "<span  class=\"wIdxKeywordText\">{%LINK_NAME%}</span>";
+		gIdxLinkHtml = "<span  class=\"wIdxLinkText\">{%LINK_NAME%}</span>";
+		gIdxCategoryHtml = "<span  class=\"wIdxAlphabetText\">{%LINK_NAME%}</span>";
+	</script>
+	<script type="text/javascript" language="JavaScript1.2">
 gTocPageHtml = "{%ICON%}<span  class=\"wTOCTreePageText\">{%LINK_NAME%}</span>";
 gTocBookClosedHtml = "{%ICON%}<span  class=\"wTOCTreeCloseBookText\">{%LINK_NAME%}</span>";
 gTocBookOpenHtml = "{%ICON%}<span  class=\"wTOCTreeCloseBookText\">{%LINK_NAME%}</span>";
@@ -67,20 +81,6 @@ gTocUrlIconHoverSrc = "template/Theme1_Standard/TOCTreeLinkHover.png";
 gTocUrlIconSelSrc = "template/Theme1_Standard/TOCTreeLinkSelected.png";
 gTocUrlIconClass = "wTOCTreeLinkIcon";
 gTocUrlIconStyle = "";
-</script>
-<script type="text/javascript" language="JavaScript1.2">
-gRootRelPath = ".";
-gCommonRootRelPath = ".";
-</script>
-<script type="text/javascript" language="JavaScript1.2">
-gIdxKWHtml = "<span  class=\"wIdxKeywordText\">{%LINK_NAME%}</span>";
-	gIdxLinkHtml = "<span  class=\"wIdxLinkText\">{%LINK_NAME%}</span>";
-	gIdxCategoryHtml = "<span  class=\"wIdxAlphabetText\">{%LINK_NAME%}</span>";
-</script>
-<script type="text/javascript" language="JavaScript1.2">
-gGloTermHtml = "<span  class=\"wGloTermText\">{%LINK_NAME%}</span>";
-	gGloDefHtml = "<span  class=\"wGloDefinitionText\">{%LINK_NAME%}</span>";
-	gGloCategoryHtml = "<span  class=\"wGloAlphabetText\">{%LINK_NAME%}</span>";
 </script>
  <link rel="SHORTCUT ICON" href="Responsive HTML5_favicon.png" />
 </head>
@@ -121,7 +121,7 @@ gGloTermHtml = "<span  class=\"wGloTermText\">{%LINK_NAME%}</span>";
 					</div>
 					<div id="idxTabPane" class="wTabContent">
 						<div id="idx" class="wIndex">
-							<input class="wIdxFilter" id="idxFilterBox" type="text" data-placeholder="Find Keyword" onkeyup="filterIdx()"></input>
+							<input class="wIdxFilter" id="idxFilterBox" type="text" data-placeholder="Find Keyword" onkeyup="filterIdx()"/>
 							
 							
 							
@@ -129,7 +129,7 @@ gGloTermHtml = "<span  class=\"wGloTermText\">{%LINK_NAME%}</span>";
 					</div>
 					<div id="gloTabPane" class="wTabContent">
 						<div id="glo" class="wGlossary">
-							<input class="wGloFilter" id="gloFilterBox" type="text" data-placeholder="Find Term" onkeyup="filterGlo()"></input>
+							<input class="wGloFilter" id="gloFilterBox" type="text" data-placeholder="Find Term" onkeyup="filterGlo()"/>
 							
 							
 							
@@ -165,17 +165,17 @@ gGloTermHtml = "<span  class=\"wGloTermText\">{%LINK_NAME%}</span>";
 						<div class="wSearchHighlight">
 							<div class="switch">
 								<label for="highlightsearch" class="switch-toggle" 
-										 data-on="I" data-off="O"></label> 
-								 <input id="highlightsearch" type="checkbox" checked="true" class="wSearchHighlight" onclick="onToggleHighlightSearch()"></input><span class="wSearchHighlight">Highlight Search Results</span> 
-								 
+										 data-on="I" data-off="O"></label>
+								<input id="highlightsearch" type="checkbox" checked="true" class="wSearchHighlight" onclick="onToggleHighlightSearch()"/><span class="wSearchHighlight">Highlight Search Results</span>
+
 							</div>
 						</div>
 						<div class="cSearchAND">
 							<div class="switch">
 								<label for="andsearch" class="switch-toggle" 
-										 data-on="I" data-off="O"></label> 
-								 <input id="andsearch" type="checkbox" class="wSearchAND" onclick="onToggleANDSearch()"></input><span class="wSearchAND" checked="false">Show results that include all search words</span> 
-								 
+										 data-on="I" data-off="O"></label>
+								<input id="andsearch" type="checkbox" class="wSearchAND" onclick="onToggleANDSearch()"/><span class="wSearchAND" checked="false">Show results that include all search words</span>
+
 							</div>
 						</div>
 						<div class="wSearchCount">
@@ -228,7 +228,7 @@ gGloTermHtml = "<span  class=\"wGloTermText\">{%LINK_NAME%}</span>";
 				<a href="table_of_contents.htm" target="_top">&#160;</a> 
 			</div>
 			<div class="bar_index" id="xmlEditorButtonBarIDX" title="Index">
-				<a href="index1.htm" target="_top">&#160;</a> 
+				<a href="index.htm" target="_top">&#160;</a>
 			</div>
 			<div class="bar_glossary" id="xmlEditorButtonBarGLO" title="Glossary">
 				<a href="glossary.htm" target="_top">&#160;</a> 

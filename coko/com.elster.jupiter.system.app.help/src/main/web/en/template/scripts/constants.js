@@ -86,6 +86,7 @@ var URL = "url";
 var SRC = "src";
 var TARGET = "target";
 var CHILDNAME = "childname";
+var DATA_RHTAGS = "data-rhtags";
 
 
 var TREEITEMCLASS = "treeitem";
@@ -176,3 +177,4 @@ var RHSEARCHSTR 		= "rhsearch";
 var RHSYNSTR			= "rhsyns";
 var RHHIGHLIGHTTERM		= "rhhlterm";
 var TOCID 				= "rhtocid";
+

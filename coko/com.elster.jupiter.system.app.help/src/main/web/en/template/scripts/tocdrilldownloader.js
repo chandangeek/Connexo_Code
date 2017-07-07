@@ -7,7 +7,7 @@ var gTocDataFolder = "whxdata";
 var gParentDataFile = "parentdata.js";
 
 gRootRelPath = ".";
-gCommonRootRelPath = "";
+gCommonRootRelPath = "..";
 
 var gTocPageHtml = "{%LINK_NAME%}";
 var gTocBookClosedHtml = "{%LINK_NAME%}";

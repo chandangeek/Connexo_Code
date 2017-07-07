@@ -21,28 +21,44 @@ gCSHWnd.sBHeight="49%";
 var gMapType = null;
 var gMapData = "";
 var gCshRootPathsArr = null;
-function loadTopic(defaultTopicURL)
-{
-	gDefTopicURL = defaultTopicURL;
-	var mapnum = getUrlParameter(RHMAPNO);
-	if(mapnum!="")
-	{
-		showCSHTopic(ITEMTYPEMAPNO, mapnum);
-		return true;
-	}
-	else
-	{
-		var mapid = getUrlParameter(RHMAPID);
-		if(mapid!="")
-		{
-			showCSHTopic(ITEMTYPEMAPID, mapid);
+(function () {
+	var _loadTopic = function (defaultTopicURL) {
+		if (!rh._.isRelativeUrl(defaultTopicURL)) {
+			return false;
+		}
+
+		gDefTopicURL = defaultTopicURL;
+		var mapnum = getUrlParameter(RHMAPNO);
+		if (mapnum != "") {
+			showCSHTopic(ITEMTYPEMAPNO, mapnum);
 			return true;
 		}
+		else {
+			var mapid = getUrlParameter(RHMAPID);
+			if (mapid != "") {
+				showCSHTopic(ITEMTYPEMAPID, mapid);
+				return true;
+			}
+		}
+		gTopicURL = gDefTopicURL;
+		redirectToTopic();
 	}
-	gTopicURL = gDefTopicURL;
-	redirectToTopic();
-}
 
+	window.loadTopic = function (defaultTopicURL)
+	{
+		var isLoaded = rh.model.get(rh.consts('EVT_PROJECT_LOADED'));
+		if (isLoaded) {
+			_loadTopic(defaultTopicURL);
+		}
+		else {
+			var unSub = rh.model.subscribe(rh.consts('EVT_PROJECT_LOADED'), function () {
+				_loadTopic(defaultTopicURL);
+				unSub();
+			});
+		}
+	}
+
+})();
 function showCSHTopic(maptype, mapdata)
 {
 	gMapType = maptype;
@@ -90,7 +106,7 @@ function callBackCSHLoaded(xmlDoc, arrIndex)
 	}
 	redirectToTopic(true);
 }
-function redirectToTopic(bReload)
+function redirectToTopic(bCSH)
 {
 	var bNewWin = getUrlParameter(RHNEWWINDOW);
 	var strWndName = getUrlParameter(RHWINDOW);
@@ -99,20 +115,33 @@ function redirectToTopic(bReload)
 		if(strWndName != "")
 			loadWindow(strWndName);
 		else
-			showTopicWindow(gCSHWnd);
+			showTopicWindow(gCSHWnd, bNewWin);
 	}
 	else
 	{
-		if (bReload == true)
+		rh.model.subscribe(rh.consts('KEY_PUBLISH_MODE'), function (value) {
+			if (value) {
+				rh.rhs.logTopicView(gTopicURL);
+			}
+		});
+
+		if (bCSH == true)
 		{
-			window.location.href = gTopicURL;
+			showTopicWindow(gCSHWnd, false);
 		}
 		else
 		{
 			var target = document.querySelector("[name=" + gTopicFrameName + "]");
 
 			if (target) {
-				target.contentWindow.location.replace(gTopicURL);
+				var fullUrl = rh._.makeFullUrl(gTopicURL);
+				if (rh._.isInternal(fullUrl) && rh._.isUrlAllowdInIframe(fullUrl)) {
+					try {
+						target.contentWindow.location.replace(fullUrl);
+					} catch (e) {
+						target.contentWindow.document.location.replace(fullUrl);
+					}
+				}
 			}
 		}
 	}
@@ -150,71 +179,66 @@ function callBackWndLoaded(xmlDoc, strWndName)
 			gCSHWnd.nBOptions = parseInt(attribVal);
 		}
 	}
-	showTopicWindow(gCSHWnd);
+	showTopicWindow(gCSHWnd, true);
 }
-function showTopicWindow(oWnd)
+function showTopicWindow(oWnd, bNewWindow)
 {
-	var	strOpt = getBrowserOptionString(oWnd);
-	var	sNewName=convertWindowName(oWnd.sName);
+	if (gTopicURL) {
+		var strOpt = getBrowserOptionString(oWnd);
+		var sNewName = oWnd ? convertWindowName(oWnd.sName) : window.name;
+		var fullUrl = rh._.makeFullUrl(gTopicURL);
 
-	if(gbNav4 || gbSafari)
-	{
-		if (gbNav6)
-		{
-			if (navigator.appVersion.indexOf("rv:11.0") > -1)
-			{
-				// IE 11
-				gBrowserWnd = window.open(gTopicURL, sNewName, strOpt);
+		if (bNewWindow) {
+			if (gbNav4 || gbSafari) {
+				if (gbNav6) {
+					if (navigator.appVersion.indexOf("rv:11.0") > -1) { // IE 11
+						gBrowserWnd = window.open(fullUrl, sNewName, strOpt);
+					} else {
+						gBrowserWnd = window.open("about:blank", sNewName, strOpt);
+						setTimeout("postTopicWindowOpen();", 100);
+					}
+				} else {
+					window.open("about:blank", sNewName, strOpt);
+					var oNewWnd = window.open(fullUrl, sNewName);
+					window.close();
+					oNewWnd.focus();
+					top.blur();
+				}
+			} else {
+				if (gbIE5) {
+					var curWnd = null;
+					curWnd = window.open("about:blank", sNewName, strOpt);
+					gBrowserWnd = window.open(gTopicURL, sNewName);
+				}
+				else {
+					// IE4 had hard time to handle bookmark.
+					gBrowserWnd = window.open("about:blank", sNewName, strOpt);
+				}
+				setTimeout("postTopicIEWindowOpen();", 100);
 			}
-			else
-			{
-			gBrowserWnd=window.open("about:blank",sNewName,strOpt);
-			setTimeout("postWindowNSOpen();",100);
+		} else {
+			document.location.href = fullUrl;
+			window.name = sNewName;
 		}
-		}
-		else
-		{
-			window.open("about:blank",sNewName,strOpt);
-			var oNewWnd=window.open(gTopicURL,sNewName);
-			window.close();
-			oNewWnd.focus();
-			top.blur();
-		}
-	}
-	else
-	{
-		if(gbIE5)
-		{
-			var curWnd = null;	
-			curWnd = window.open("about:blank",sNewName,strOpt);
-			gBrowserWnd=window.open(gTopicURL,sNewName);
-		}
-		else
-		{
-			// IE4 had hard time to handle bookmark.
-			gBrowserWnd=window.open("about:blank",sNewName,strOpt);
-		}
-		setTimeout("postWindowOpen();",100);
 	}
 }
-function postWindowNSOpen()
-{
-	if(gBrowserWnd)
-	{
-		if (gTopicURL)
-			gBrowserWnd.document.location.href=gTopicURL;
+function postTopicWindowOpen() {
+	if (gBrowserWnd) {
+		if (gTopicURL) {
+			var fullUrl = rh._.makeFullUrl(gTopicURL);
+			gBrowserWnd.document.location.href = fullUrl;
+		}
 		window.close();
 		gBrowserWnd.focus();
 		top.blur();
 	}
 }
-
-function postWindowOpen()
-{
-	if(gBrowserWnd)
-	{
-		if (gTopicURL&&!gbIE5&&gbIE4)
-			gBrowserWnd.document.location.href=gTopicURL;
+function postTopicIEWindowOpen() {
+	if (gBrowserWnd) {
+		if (gTopicURL && !gbIE5 && gbIE4) {
+			var fullUrl = rh._.makeFullUrl(gTopicURL);
+			gBrowserWnd.document.location.href = fullUrl;
+		}
 		gBrowserWnd.focus();
 	}
 }

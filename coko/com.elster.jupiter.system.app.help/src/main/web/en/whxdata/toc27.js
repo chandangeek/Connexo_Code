@@ -2,4 +2,4 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-gXMLBuffer ="<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc26.js\"  name=\"Service calls, service call types and life cycle\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Service_calls/Service_calls_service_call_types_and_life_cycle.htm\"><item name=\"Understand service calls\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Service_calls/Service_calls_service_call_types_and_life_cycle.htm#TOC_Understand_service_callsbc-1\" /></data>";
+gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Data purge\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Purge_data/000016_UMNL_Purge_data.htm\"><item name=\"Configure data purge\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Purge_data/Configure_data_purge.htm\" /><book name=\"Monitor data purge\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Purge_data/Monitor_data_purge.htm\" src=\"toc28.js\" /></data>";

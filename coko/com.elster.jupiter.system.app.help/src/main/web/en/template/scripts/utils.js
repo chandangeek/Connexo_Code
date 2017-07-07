@@ -383,6 +383,7 @@ function fireRhLoadCompleteEvent()
 	for(var i=0; i<len; i++)
 		gRhEvtFuncsList[i]();
 	gRhEvtFuncsList.splice(0, gRhEvtFuncsList.length);
+	window.rh.model.publish(window.rh.consts('EVT_PROJECT_LOADED'), true);
 }
 function patchInputForSubmit(input, func)
 {

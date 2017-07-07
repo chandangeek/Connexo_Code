@@ -1,0 +1,143 @@
+<!DOCTYPE HTML>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Configure dual control in Admin</title>
+
+    <link rel="stylesheet" href="000016_UMNL_Security.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "4.2.0_2";
+    </script>
+    <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Security/Dual_control.htm">
+    <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ApplicationServers/000016_UMNL_ApplicationServers.htm">
+    <meta name="topic-breadcrumbs" content="Security > Dual control"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic">Configure dual control in
+        <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>
+    </p>
+    <p dir="ltr" class="FM_H4Topic">How to configure dual control in
+        <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>
+    </p>
+    <p dir="ltr" class="FM_Body">To be able to have dual control for different processes, default roles are available in Connexo. The user administrator just has to appoint the right role to the right
+        user.</p>
+    <p dir="ltr" class="FM_Body">There are two roles needed for the dual control mechanism: </p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style=" width:100%; max-width:25cm;" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Role</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;">Dual control administrator</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">A user with this role is able to appoint which people need to approve alterations to specific parameters.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Approver</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">A user with this role needs to approve the alteration of the parameter. All users with this role for a specific parameter need to approve before
+                        the alteration is effective.</p>
+                    <p dir="ltr" class="FM_CellBody">There is an approver role available per feature that requires dual control.</p>
+                    <p dir="ltr" class="FM_CellBody">Only the dual control administrator can assign this role to a user.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Body">The user administrator assigns the <span class="FM_UIRef">Dual control administrator role</span>&#160;to specific users. These users can then assign the approver role
+        to other specific users. For more information on how to configure and assign user and user roles see <a
+                href="../000016_UMNL_Manage_users/000016_UMNL_Manage_users.htm#XREF_21710_3_User_management"><span class="FM_blue_crossreference">“User management”</span></a>.</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse">
+            <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Figure: Different roles involved in dual control.</caption>
+            <tr class="tr6">
+                <td class="td6">
+                    <p dir="ltr" class="FM_CGraphicCell"><img alt="Dual_control_user_roles.png" id="image26" src="../../assets/Dual_control_user_roles.png" style="width:100%; max-width:510px"/>&nbsp;
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Body">To see how to effective approval process works see <a><span class="FM_blue_crossreference">“Command limitation rules”</span></a>&#160;in the chapter Device commands in
+        the
+        <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>
+        user guide.
+    </p>
+    <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+    <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+    <p dir="ltr" class="FM_Body">Be aware no user is allowed to have the dual control administrator role as well as the approver role at the same time.</p>
+    <p dir="ltr" class="FM_Body">&nbsp;</p>
+    <p dir="ltr" class="FM_H4Topic">&nbsp;</p>
+</div>
+</body>
+</html>

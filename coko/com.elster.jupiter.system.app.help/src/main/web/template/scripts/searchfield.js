@@ -16,8 +16,8 @@ rh.model.subscribe(rh.consts('KEY_SEARCH_TERM'), function (searchTerm) {
 		searchBoxes[i].value = searchTerm; 
 	}
 });
-	
-function searchHelp(e, searchBoxId, cshmode)
+
+function searchHelp(e, searchBoxId, cshmode, doNotUpdateHash)
 {
 	if(e == null || e.keyCode == 13 || e.type == 'submit')
 	{

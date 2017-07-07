@@ -2,4 +2,4 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-gXMLBuffer="<?xml version=\"1.0\" encoding=\"utf-8\"?><cki><ck fm=\"#\" to=\"added\"/><ck fm=\"adding\" to=\"be\"/><ck fm=\"becaus\" to=\"cover\"/><ck fm=\"coverag\" to=\"exist\"/><ck fm=\"expand\" to=\"in\"/><ck fm=\"inactiv\" to=\"monitor\"/><ck fm=\"month\" to=\"perform\"/><ck fm=\"performanc\" to=\"see\"/><ck fm=\"seen\" to=\"that\"/><ck fm=\"the\" to=\"transmit\"/><ck fm=\"trie\" to=\"you\"/><ck fm=\"your\" to=\"”\"/></cki>";
+gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\"?><cki><ck fm=\"!\" to=\"2\"/><ck fm=\"20\" to=\"&gt;\"/><ck fm=\"?\" to=\"and\"/><ck fm=\"another\" to=\"but\"/><ck fm=\"button\" to=\"configur\"/><ck fm=\"configuration\" to=\"devic\"/><ck fm=\"device\" to=\"figur\"/><ck fm=\"fil\" to=\"import\"/><ck fm=\"important\" to=\"lif\"/><ck fm=\"lik\" to=\"no\"/><ck fm=\"not\" to=\"peak\"/><ck fm=\"peopl\" to=\"request\"/><ck fm=\"requester\" to=\"show\"/><ck fm=\"shown\" to=\"the\"/><ck fm=\"theft\" to=\"typical\"/><ck fm=\"u\" to=\"will\"/><ck fm=\"window\" to=\"•\"/></cki>";

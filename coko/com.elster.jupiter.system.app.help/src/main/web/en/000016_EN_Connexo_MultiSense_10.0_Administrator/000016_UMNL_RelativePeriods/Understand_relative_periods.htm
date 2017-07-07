@@ -9,11 +9,10 @@
  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
  <title>Understand relative periods</title>
 
- <meta name="generator" content="Adobe FrameMaker 12" />
- <meta name="Originator" content="ImportMif" />
- <meta name="OriginalFile" content="P:\Private\04 Portfolio\02 SW\06 Jupiter\03 Jupiter MDC 10.x\03 Collateral\01 Docs\01 User manuals\EMNL000016_EN Connexo MDC 1.0 System administrator's guide\01 DRAFT\01 SOURCE\000016_UMNL_RelativePeriods.fm" />
  <link rel="stylesheet" href="000016_UMNL_RelativePeriods.css" type="text/css" />
- <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
 
 
 <script type="text/javascript" language="JavaScript">
@@ -40,7 +39,7 @@ visibility:hidden; }
 p.WebHelpNavBar { text-align:right; }
 -->
 </style>
-
+ <meta name="generator" content="Adobe FrameMaker 2017"/>
 <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
 <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
 <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
@@ -55,21 +54,32 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
 <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
 <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "8.0_1";
+gTopicId = "9.0_1";
 </script>
- <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_RelativePeriods/Relative_periods.htm">
+ <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_RelativePeriods/000016_UMNL_RelativePeriods.htm">
  <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_RelativePeriods/Manage_relative_periods.htm">
+ <meta name="topic-breadcrumbs" content="Relative periods"/>
 </head>
 
-<body>
+<body dir="ltr">
 <script type="text/javascript" src="../../ehlpdhtm.js"></script>
-
- <p class="FM_H2Section">Understand relative periods</p>
- <p class="FM_H4Topic">Relative periods in Connexo</p>
- <p class="FM_Body">Relative periods define a time window, for example the previous week. The user can define the exact time window during the configuration of the feature that uses the relative period. Then you will select an exact time point and then the time window will be calculated relative to this date. </p>
- <p class="FM_Body">Connexo uses relative periods for different purposes. In <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;for example they are used for data estimation and data export.</p>
- </body>
+<div dir="ltr">
+ <p dir="ltr" class="FM_H2Section">Understand relative periods</p>
+ <p dir="ltr" class="FM_H4Topic">Relative periods in Connexo</p>
+ <p dir="ltr" class="FM_Body">Relative periods define a time window, for example the previous week. The user can define the exact time window during the configuration of the feature that uses the
+  relative period. Then you will select an exact time point and then the time window will be calculated relative to this date. </p>
+ <p dir="ltr" class="FM_Body">Connexo uses relative periods for different purposes. In
+  <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>
+  &#160;for example they are used for data estimation and data export.
+ </p>
+ <p dir="ltr" class="FM_H4Topic">Relative periods for gas days</p>
+ <p dir="ltr" class="FM_Body">In contrast to electricity, a gas day does not start at midnight. Depending on the country this start is early in the morning for example 05:00. The start of the gas day
+  can be entered in the config.properties file upon installation.</p>
+ <p dir="ltr" class="FM_Body">Because the start of a gas day is different from electricity, relative periods are also different calculated based on the start of the gas day.</p>
+</div>
+</body>
 </html>

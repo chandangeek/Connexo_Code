@@ -68,6 +68,7 @@ function GloList(gloRootPathsArr, dataFolder, rootFile)
 	GloList.prototype.init = function()
 	{
 		this.rootHtmlNode = document.getElementById(this.rootId);
+		this.fragment = document.createDocumentFragment();
 		if(this.rootHtmlNode.attachEvent)
 		{
 			this.rootHtmlNode.attachEvent("onkeydown", function(){onGloListKeyPress(event);});
@@ -162,12 +163,13 @@ function GloList(gloRootPathsArr, dataFolder, rootFile)
 			this.nextChunkIndex = 0;
 			if(this.curChunksToBeMerged.length != 0)
 			{
-				this.insertTerm(this.rootHtmlNode, this.curChunksToBeMerged);
+				this.insertTerm(this.fragment, this.curChunksToBeMerged);
 				this.curChunksToBeMerged.splice(0, this.curChunksToBeMerged.length);
 				this.curTermName = "";
 			}
 			else
 			{
+				this.rootHtmlNode.appendChild(this.fragment);
 				this.removeLoadingMsg(this.rootHtmlNode);
 				this.curTermName = "";
 				this.filterKeywords(true);
@@ -210,13 +212,7 @@ function GloList(gloRootPathsArr, dataFolder, rootFile)
 		
 		var listNode = document.createElement("div");
 		listNode.setAttribute('class', TREEITEMCLASS);
-		if(parentHtmlNode == this.rootHtmlNode)
-		{
-			var divLoading = this.getLoadingHtmlNode();
-			parentHtmlNode.insertBefore(listNode, divLoading);
-		}
-		else
-			parentHtmlNode.appendChild(listNode);
+		parentHtmlNode.appendChild(listNode);
 		
 
 		this.insertChildHtmlNode(listNode, termName, ITEMTYPETERM, html, classNormal, classHover, classClick, inlinestyle);
@@ -270,8 +266,6 @@ function GloList(gloRootPathsArr, dataFolder, rootFile)
 		categoryElem.innerHTML = this.categoryHtml.replace(LINK_NAME_MACRO, ch);
 		this.setNodeItemType(categoryElem, ITEMTYPECATEGORY);
 		listNode.appendChild(categoryElem);
-		var divLoading = this.getLoadingHtmlNode();
-		this.rootHtmlNode.insertBefore(listNode, divLoading);
 	}
 	GloList.prototype.addEventsToNode = function(htmlNode, classNormal, classHover, classClick, url)
 	{
@@ -375,6 +369,9 @@ function GloList(gloRootPathsArr, dataFolder, rootFile)
 		var listNode = null;
 		var htmlNode = null;
 		var event = "";
+
+		if (kCode != 13 && e.target && e.target.nodeName == 'INPUT') return;
+		
 		if(kCode == 38)
 		{
 			listNode = this.getPreviousTreeItem(this.hoveredListNode);
@@ -454,7 +451,7 @@ function GloList(gloRootPathsArr, dataFolder, rootFile)
 			var pNode = htmlNode.parentNode;
 			if(pNode != null && pNode.nodeName == "A")
 				pNode = pNode.parentNode;
-			if(pNode == this.rootHtmlNode)
+			if (pNode == this.fragment)
 				return null;
 			else
 				return pNode;
@@ -483,7 +480,7 @@ function GloList(gloRootPathsArr, dataFolder, rootFile)
 	}
 	GloList.prototype.getFirstListNode = function()
 	{
-		var listNodes = this.rootHtmlNode.getElementsByTagName("div");
+		var listNodes = this.fragment.getElementsByTagName("div");
 		if(listNodes.length > 0)
 			return listNodes[0];
 	}
@@ -690,12 +687,22 @@ function GloList(gloRootPathsArr, dataFolder, rootFile)
 	}
 	GloList.prototype.toggleNode = function(htmlNode)
 	{
+		var $ = window.rh.$;
 		var listNode = this.getListNodeFromHtmlNode(htmlNode);
-		var defNode = this.getHtmlChildNode(listNode, "div", ITEMTYPEDEF)
-		if(defNode.style.display == "none")
+		var defNode = this.getHtmlChildNode(listNode, "div", ITEMTYPEDEF);
+		var termTextNode = $.find(htmlNode, "span")[0];
+		if (defNode.style.display == "none") {
 			defNode.style.display = "block";
-		else
+			if (termTextNode) {
+				$.addClass(termTextNode, "expanded");
+			}
+		}
+		else {
 			defNode.style.display = "none";
+			if (termTextNode) {
+				$.removeClass(termTextNode, "expanded");
+			}
+		}
 	}
 	GloList.prototype.clickNode = function(htmlNode, clickClass, normalClass, url)
 	{
@@ -803,8 +810,11 @@ function onGloNodeCollapse(e, minusHtmlNode)
 }
 function filterGlo(e)
 {
-	if(e != null && e.type == 'submit')
+	e = e || window.event;
+	if (e != null && (e.type == 'submit' || e.keyCode == 13)) {
 		preventEvent(e);
+		e.target.blur();
+	}
 	return gGloList.filterKeywords();
 }
 function callbackGloCSHModeRead(cshmode)

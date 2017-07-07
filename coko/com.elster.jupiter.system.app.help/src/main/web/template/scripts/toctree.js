@@ -144,6 +144,8 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 			var name = xmlNode.getAttribute(NAME);
 			var url = xmlNode.getAttribute(URL);
 			var target = xmlNode.getAttribute(TARGET);
+			var rhTags = xmlNode.getAttribute(DATA_RHTAGS);
+			rhTags = window.rh._.mapTagIndex(rhTags, commonRootRelPath);
 			if(url != null && url != 'undefined' && xmlNode.tagName != URLNODE && !_isRemoteUrl(url))
 				url = rootRelPath + "/" + url;
 				
@@ -154,19 +156,19 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 				objContext.bookCount = bookCount;
 				objContext.pageCount = pageCount;
 				var src = xmlNode.getAttribute(SRC);
-				this.insertTreeItem(parentHtmlNode, name, url, target, bookCount, pageCount, projOrderStr, ITEMTYPEBOOKCLOSED, src, origRootRelPath, origCommonRootRelPath);
+				this.insertTreeItem(parentHtmlNode, name, url, target, rhTags, bookCount, pageCount, projOrderStr, ITEMTYPEBOOKCLOSED, src, origRootRelPath, origCommonRootRelPath);
 			}
 			else if(xmlNode.tagName == PAGENODE)
 			{
 				pageCount++;
 				objContext.pageCount = pageCount;
-				this.insertTreeItem(parentHtmlNode, name, url, target, bookCount, pageCount, projOrderStr, ITEMTYPEPAGE);
+				this.insertTreeItem(parentHtmlNode, name, url, target, rhTags, bookCount, pageCount, projOrderStr, ITEMTYPEPAGE);
 			}
 			else if(xmlNode.tagName == URLNODE)
 			{
 				pageCount++;
 				objContext.pageCount = pageCount;
-				this.insertTreeItem(parentHtmlNode, name, url, target, bookCount, pageCount, projOrderStr, ITEMTYPEURL);
+				this.insertTreeItem(parentHtmlNode, name, url, target, rhTags, bookCount, pageCount, projOrderStr, ITEMTYPEURL);
 			}
 			else if(xmlNode.tagName == PROJNODE)
 			{
@@ -182,6 +184,7 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 				break;
 			}
 		}
+		window.rh.util.loadContentFilter(parentHtmlNode);
 		if(len == i)
 			this.loadFromStack(objContext);
 
@@ -226,7 +229,7 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 			}
 		}
 	}
-	Tree.prototype.insertTreeItem = function(parentHtmlNode, name, url, target, bookCount, pageCount, projOrderStr, itemType, src, rootRelPath, commonRootRelPath)
+	Tree.prototype.insertTreeItem = function (parentHtmlNode, name, url, target, rhTags, bookCount, pageCount, projOrderStr, itemType, src, rootRelPath, commonRootRelPath)
 	{
 		var treeNode = document.createElement("div");
 		treeNode.setAttribute('class', TREEITEMCLASS);
@@ -279,6 +282,11 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 			classClick = this.urlClassClick;	
 			html = this.urlHtml;
 		}
+
+		if (rhTags) {
+			treeNode.setAttribute(DATA_RHTAGS, rhTags);
+		}
+
 		parentHtmlNode.appendChild(treeNode);
 		this.insertChildHtmlNode(treeNode, name, itemType, html, classNormal, classHover, classClick, url, target);
 	}

@@ -1,0 +1,5 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Service calls\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Service_calls/000016_UMNL_Service_calls.htm\"><book name=\"Service calls, service call types and life cycle\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Service_calls/Service_calls_service_call_types_and_life_cycle.htm\" src=\"toc31.js\" /><book name=\"Manage service call types\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Service_calls/Manage_service_call_types.htm\" src=\"toc32.js\" /><book name=\"Manage service call custom attribute sets\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Service_calls/Manage_service_call_custom_attribute_sets.htm\" src=\"toc33.js\" /></data>";
