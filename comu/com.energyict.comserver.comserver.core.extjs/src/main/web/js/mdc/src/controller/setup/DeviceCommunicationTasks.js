@@ -248,7 +248,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     findConnectionMethodWithConnectionFunction: function (connectionMethodsOfDeviceStore, connectionFunction) {
         var connectionMethodName = Uni.I18n.translate('deviceCommunicationTask.notDefinedYet', 'MDC', 'Not defined yet');
         Ext.each(connectionMethodsOfDeviceStore.data.items, function (value) {
-            if (value.data.connectionFunctionInfo['localizedValue'] === connectionFunction['localizedValue']) {
+            if (!Ext.isEmpty(value.data.connectionFunctionInfo) && (value.data.connectionFunctionInfo['localizedValue'] === connectionFunction['localizedValue'])) {
                 connectionMethodName = value.data.name;
             }
         });
