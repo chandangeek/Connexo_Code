@@ -8,13 +8,15 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 
 import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
  * Listens for events of {@link ComTaskExecution}s that are marked
- * to use the default {@link ConnectionTask} of the related
+ * to use either the default {@link ConnectionTask} or either the {@link ConnectionTask}
+ * corresponding to a certain {@link ConnectionFunction} of the related
  * {@link com.energyict.mdc.device.data.Device}
  * but are not linked to the default connection task.
  *
@@ -45,14 +47,15 @@ public abstract class ComTaskExecutionEventHandler implements TopicHandler {
     public void handle(LocalEvent localEvent) {
         ComTaskExecution comTaskExecution = (ComTaskExecution) localEvent.getSource();
         if (comTaskExecution.usesDefaultConnectionTask()) {
-            this.handle(comTaskExecution);
-        }
-        else {
-            LOGGER.fine("Ignoring creation event since the ComTaskExecution is not configured to use the default");
+            this.handleWhenUsingDefaultConnectionTask(comTaskExecution);
+        } else if (comTaskExecution.getConnectionFunction().isPresent()) {
+            this.handleWhenUsingConnectionFunction(comTaskExecution);
+        } else {
+            LOGGER.fine("Ignoring creation event since the ComTaskExecution is not configured to use the default nor is configured to use a connection function");
         }
     }
 
-    private void handle(ComTaskExecution comTaskExecution) {
+    private void handleWhenUsingDefaultConnectionTask(ComTaskExecution comTaskExecution) {
         Optional<ConnectionTask> defaultConnectionTask = this.findDefaultConnectionTaskForTopology(comTaskExecution);
         defaultConnectionTask.ifPresent(dct -> this.setDefaultConnectionTask(comTaskExecution, dct));
     }
@@ -60,6 +63,17 @@ public abstract class ComTaskExecutionEventHandler implements TopicHandler {
     private void setDefaultConnectionTask(ComTaskExecution comTaskExecution, ConnectionTask dct) {
         if (different(comTaskExecution.getConnectionTask(), dct)) {
             comTaskExecution.getUpdater().useDefaultConnectionTask(dct).update();
+        }
+    }
+
+    private void handleWhenUsingConnectionFunction(ComTaskExecution comTaskExecution) {
+        Optional<ConnectionTask> connectionTask = this.findConnectionTaskWithConnectionFunctionForTopology(comTaskExecution);
+        connectionTask.ifPresent(dct -> this.setConnectionTaskHavingConnectionFunction(comTaskExecution, dct));
+    }
+
+    private void setConnectionTaskHavingConnectionFunction(ComTaskExecution comTaskExecution, ConnectionTask dct) {
+        if (different(comTaskExecution.getConnectionTask(), dct)) {
+            comTaskExecution.getUpdater().useConnectionTaskBasedOnConnectionFunction(dct).update();
         }
     }
 
@@ -78,6 +92,11 @@ public abstract class ComTaskExecutionEventHandler implements TopicHandler {
 
     private Optional<ConnectionTask> findDefaultConnectionTaskForTopology(ComTaskExecution comTaskExecution) {
         return this.topologyService.findDefaultConnectionTaskForTopology(comTaskExecution.getDevice());
+    }
+
+    private Optional<ConnectionTask> findConnectionTaskWithConnectionFunctionForTopology(ComTaskExecution comTaskExecution) {
+        ConnectionFunction connectionFunction = comTaskExecution.getConnectionFunction().get(); // If we reach this point, the optional should be present (that is already checked before)
+        return this.topologyService.findConnectionTaskWithConnectionFunctionForTopology(comTaskExecution.getDevice(), connectionFunction);
     }
 
     @SuppressWarnings("unused")
