@@ -323,6 +323,17 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     @Override
+    public void setConnectionTaskHavingConnectionFunction(ConnectionTask<?, ?> task) {
+        this.doSetConnectionTaskHavingConnectionFunction((ConnectionTaskImpl) task);
+    }
+
+    public void doSetConnectionTaskHavingConnectionFunction(final ConnectionTaskImpl newConnectionTask) {
+        if (newConnectionTask != null) {
+            newConnectionTask.setAsConnectionFunction();
+        }
+    }
+
+    @Override
     public <T extends ConnectionTask> T attemptLockConnectionTask(T connectionTask, ComServer comServer) {
         Optional<ConnectionTask> lockResult = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).lockNoWait(connectionTask.getId());
         if (lockResult.isPresent()) {

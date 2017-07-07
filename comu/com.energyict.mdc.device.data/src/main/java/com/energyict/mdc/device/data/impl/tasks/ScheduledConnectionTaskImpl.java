@@ -214,10 +214,16 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     protected void doSetAsDefault() {
         super.doSetAsDefault();
-        this.notifyComTaskExecutionsThatDefaultHasBeenSet(PostingMode.LATER);
+        this.notifyComTaskExecutionsThatConnectionMethodHasChanged(PostingMode.LATER);
     }
 
-    protected void notifyComTaskExecutionsThatDefaultHasBeenSet(PostingMode postingMode) {
+    @Override
+    protected void doSetAsConnectionFunction() {
+        super.doSetAsConnectionFunction();
+        this.notifyComTaskExecutionsThatConnectionMethodHasChanged(PostingMode.LATER);
+    }
+
+    protected void notifyComTaskExecutionsThatConnectionMethodHasChanged(PostingMode postingMode) {
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = this.getEarliestNextExecutionTimeStampAndPriority();
         if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
             if (earliestNextExecutionTimestampAndPriority != null) {

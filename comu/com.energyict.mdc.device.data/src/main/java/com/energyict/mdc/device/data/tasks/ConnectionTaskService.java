@@ -168,6 +168,12 @@ public interface ConnectionTaskService {
     void clearDefaultConnectionTask(Device device);
 
     /**
+     * Sets the specified {@link ConnectionTask} as the one
+     * @param task
+     */
+    void setConnectionTaskHavingConnectionFunction(ConnectionTask<?, ?> task);
+
+    /**
      * Attempts to lock the {@link ConnectionTask} that is about to be executed
      * by the specified {@link ComServer} and returns the locked ConnectionTask
      * when the lock succeeds and <code>null</code> when the lock fails.
@@ -234,6 +240,6 @@ public interface ConnectionTaskService {
     /**
      * Finds all ConnectionTasks locked by a specific ComServer
      */
-    public List<ConnectionTask> findLockedByComServer(ComServer comServer);
+    List<ConnectionTask> findLockedByComServer(ComServer comServer);
 
 }

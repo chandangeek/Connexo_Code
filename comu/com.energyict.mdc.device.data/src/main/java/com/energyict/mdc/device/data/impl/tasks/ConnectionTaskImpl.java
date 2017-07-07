@@ -15,7 +15,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.AbstractConnectionTypeDelegate;
 import com.energyict.mdc.device.config.AbstractConnectionTypePluggableClassDelegate;
 import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
@@ -51,6 +50,7 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.TypedProperties;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -634,6 +634,15 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     protected void doSetAsDefault() {
         this.isDefault = true;
         this.postEvent(EventType.CONNECTIONTASK_SETASDEFAULT);
+    }
+
+    public void setAsConnectionFunction() {
+        this.doSetAsConnectionFunction();
+        this.update();
+    }
+
+    protected void doSetAsConnectionFunction() {
+        this.postEvent(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION);
     }
 
     private void postEvent(EventType eventType) {

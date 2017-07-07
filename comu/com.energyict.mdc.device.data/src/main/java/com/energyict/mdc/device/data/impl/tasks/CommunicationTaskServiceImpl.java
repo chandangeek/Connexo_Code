@@ -180,6 +180,14 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
+    public List<ComTaskExecution> findComTaskExecutionsWithConnectionFunction(Device device, ConnectionFunction connectionFunction) {
+        Condition query = where(ComTaskExecutionFields.CONNECTION_FUNCTION.fieldName()).isEqualTo(connectionFunction.getId())
+                .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device))
+                .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
+        return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).select(query);
+    }
+
+    @Override
     public void removePreferredConnectionTask(ComTask comTask, DeviceConfiguration deviceConfiguration, PartialConnectionTask partialConnectionTask) {
         this.deviceDataModelService.executeUpdate(this.removePreferredConnectionTaskSqlBuilder(comTask, deviceConfiguration, partialConnectionTask));
     }

@@ -15,6 +15,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -49,6 +50,16 @@ public interface CommunicationTaskService {
      * @return The List of ComTaskExecution
      */
     List<ComTaskExecution> findComTaskExecutionsWithDefaultConnectionTask(Device device);
+
+    /**
+     * Gets all {@link ComTaskExecution}s of the specified {@link Device}
+     * that are using the specified {@link ConnectionFunction}
+     *
+     * @param device The Device
+     * @param connectionFunction the ConnectionFunction
+     * @return The List of ComTaskExecution
+     */
+    List<ComTaskExecution> findComTaskExecutionsWithConnectionFunction(Device device, ConnectionFunction connectionFunction);
 
     TimeDuration releaseTimedOutComTasks(ComServer comServer);
 

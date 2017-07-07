@@ -2475,6 +2475,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public void setConnectionTaskForComTaskExecutions(ConnectionTask connectionTask) {
         List<ComTask> comTasksWithConnectionTask = this.getDeviceConfiguration().getComTaskEnablements().stream()
                 .filter(comTaskEnablement -> !comTaskEnablement.usesDefaultConnectionTask())
+                .filter(comTaskEnablement -> !comTaskEnablement.getConnectionFunction().isPresent())
                 .filter(comTaskEnablement -> comTaskEnablement.getPartialConnectionTask().isPresent())
                 .filter(comTaskEnablement -> comTaskEnablement.getPartialConnectionTask().get().equals(connectionTask.getPartialConnectionTask()))
                 .map(ComTaskEnablement::getComTask)

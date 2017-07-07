@@ -13,6 +13,7 @@ public enum ComTaskExecutionFields implements ImplField {
     COMTASK("comTask"),
     CONNECTIONTASK("connectionTask"),
     USEDEFAULTCONNECTIONTASK("useDefaultConnectionTask"),
+    CONNECTION_FUNCTION("connectionFunctionDbValue"),
     NEXTEXECUTIONSPEC("nextExecutionSpecs"),
     LASTEXECUTIONTIMESTAMP("lastExecutionTimestamp"),
     PLANNEDNEXTEXECUTIONTIMESTAMP("plannedNextExecutionTimestamp"),
