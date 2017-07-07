@@ -84,6 +84,8 @@ public class ConnectionMethodResource {
         ConnectionTask<?, ?> task = connectionMethodInfo.createTask(engineConfigurationService, device, mdcPropertyUtils, partialConnectionTask);
         if (connectionMethodInfo.isDefault) {
             connectionTaskService.setDefaultConnectionTask(task);
+        } else if (task.getPartialConnectionTask().getConnectionFunction().isPresent()) {
+            connectionTaskService.setConnectionTaskHavingConnectionFunction(task);
         }
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
     }
