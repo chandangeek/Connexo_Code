@@ -60,6 +60,8 @@ var isLocal 		= document.location.protocol.substring(0, 4) == "file";
 var gbChromeLocal        = window.chrome && isLocal ;
 var gbInsideCHM 	= document.location.href.search("::")>0 && document.location.href.search(/chm/i)>0;
 var gbBsIsMobile	= (gstrBsAgent.indexOf("mobile") != -1);
+var gbBsiOSDevice = gbBsMac && (gstrBsAgent.indexOf("ipad") !== -1 || gstrBsAgent.indexOf("iphone") !== -1 || gstrBsAgent.indexOf("macintosh") !== -1);
+
 if(gbBsIsMobile == false)
 {
 	gbBsIsMobile = isTouchDevice();
@@ -69,7 +71,6 @@ function isTouchDevice() {
 }
 
 gbBsIE = (navigator.appName.indexOf("Microsoft") != -1) && !gbBsOpera && !gbBsKonqueror && !gbBsSafari;;
-
 if (gbBsIE)
 {
 	if (parseInt(navigator.appVersion) >= 4) {
@@ -89,9 +90,20 @@ if (gbBsIE)
 		}
 	}
 }
+
 var re  = new RegExp("rv:([0-9]{1,}[\.0-9]{0,})");
 if (re.exec(navigator.appVersion) != null)
 {
+	gbBsIE = true;
+	gbBsIE4 = true;
+	gbBsIE5 = true;
+	gbBsIE55 = true;
+}
+
+var isNetScape = (navigator.appName.indexOf("Netscape") != -1);
+var isMSIE = (gstrBsAgent.indexOf('msie') != -1);
+if (isNetScape && isMSIE) {
+	//It is the (Preview) Browser Control
 	gbBsIE = true;
 	gbBsIE4 = true;
 	gbBsIE5 = true;
@@ -361,7 +373,7 @@ function BsHHActivateComponents()
 		if( typeof(objBody) == "object" )
 		{
 			insertAdjacentHTML(objBody, "beforeEnd", '<OBJECT ID="HHComponentActivator" CLASSID="CLSID:399CB6C4-7312-11D2-B4D9-00105A0422DF" width=0 height=0></OBJECT>');
-			if (HHComponentActivator.object)
+			if (typeof(HHComponentActivator) != "undefined" && HHComponentActivator.object)
 				HHComponentActivator.Activate(HH_ChmFilename, HH_WindowName, HH_GlossaryFont, HH_Glossary, HH_Avenue);
 		}
 	}
@@ -1243,7 +1255,7 @@ var gbPopupTimeoutExpired = false;
 
 function DHTMLPopupSupport()
 {
-	if (((gbBsIE4) && (!gbBsMac))||gbBsOpera7|| gbBsNS7 || gbSafari3||gbAIR) {
+	if (((gbBsIE4) && (!gbBsMac)) || gbBsOpera7 || gbBsNS7 || gbSafari3 || gbAIR || gbBsiOSDevice) {
 		return true;
 	}
 	return false;
@@ -1305,7 +1317,7 @@ function BSSCPopup_PostWork(nIndex)
 	window.gbPopupTimeoutExpired = true;
 
 	try{
-		BSSCPopup_ChangeTargettoParent(getPopupIFrame(nIndex).document);
+		BSSCPopup_ChangeTargettoBlank(getPopupIFrame(nIndex).document);
 		if (gbBsNS6)
 			getPopupIFrame(nIndex).document.body.addEventListener("click",BSSCPopupClicked,false);
 		else
@@ -1335,27 +1347,31 @@ function BSSCPopup_Timeout(nIndex, nToken)
 
 // VH 08/10/00 
 // do not change target to parent if the href is using javascript
-function BSSCPopup_ChangeTargettoParent(tagsObject)
+function BSSCPopup_ChangeTargettoBlank(tagsObject)
 {
 	var collA = getElementsByTag(tagsObject, "A");
-	BSSCPopup_ChangeTargettoParent2(collA);
+	BSSCPopup_ChangeTargettoBlank2(collA);
 
 	var collIMG = getElementsByTag(tagsObject,"IMG");
-	BSSCPopup_ChangeTargettoParent2(collIMG);
+	BSSCPopup_ChangeTargettoBlank2(collIMG);
 }
 
-function BSSCPopup_ChangeTargettoParent2(colls)
+function BSSCPopup_ChangeTargettoBlank2(colls)
 {
 	if (colls != null)  {
 		for (var j = 0; j < colls.length; j ++ )
 		{
-			var strtemp = colls[j].href;
+			var strtemp = colls[j].getAttribute('href');
 			if (strtemp)
 			{
 				strtemp = strtemp.toLowerCase();
 				if (strtemp.indexOf("javascript:") == -1)
-				if (colls[j].target == "")
+					if (colls[j].target == "") {
+						if (IsInternal(strtemp))
 					colls[j].target = "_parent";
+						else
+							colls[j].target = "_blank";
+					}
 			}
 		}
 	}
@@ -4734,7 +4750,7 @@ CAgencyChangeStyle.prototype.EndEffect = function()
 
 //Begin to collaborate with other event handler settings 
 CCSSP.RegisterEventHandler( window, "onload", "CEngine.OnPageLoad(event);BSSCOnLoad(event);InitTriggersInHead(event);");
-CCSSP.RegisterEventHandler( document, "onclick", "CEngine.OnPageClick(event);BSSCOnClick(event);");
+CCSSP.RegisterEventHandler(document, "onclick", "window.event || (window.event = arguments[0]); CEngine.OnPageClick(window.event);BSSCOnClick(window.event);");
 CCSSP.RegisterEventHandler( document, "onmouseover", "CEngine.OnMouseOver(event);BSSCOnMouseOver(event);" );
 CCSSP.RegisterEventHandler( document, "onmouseout", "CEngine.OnMouseOver(event);BSSCOnMouseOut(event);" );
 CCSSP.RegisterEventHandler( window, "onunload", "BSSCOnUnload();");
@@ -4807,6 +4823,10 @@ var	gLastHeight = 0;
 var	gLastWidth = 0;
 function onRcvContentSizeMsg(event)
 {
+	if (typeof(event.data) != 'string') {
+		return;
+	}
+
     var msg = event.data.split(gMsgSeparator);
     var msgType = msg[0];
     var msgData = msg[1];
@@ -4858,7 +4878,7 @@ function onRcvContentSizeMsg(event)
 	replyContentSize(event.source);
         break;
      case "updateLinks":
-	BSSCPopup_ChangeTargettoParent(document);
+		 BSSCPopup_ChangeTargettoBlank(document);
 	break;
      case "getCpHTML5Size":
 	replyCpHTML5Size(event.source, msgData);
@@ -5275,7 +5295,7 @@ function RHPopupEx()
 		}
 
 		try{
-			BSSCPopup_ChangeTargettoParent(this.getPopupIFrame().contentWindow.document);
+			BSSCPopup_ChangeTargettoBlank(this.getPopupIFrame().contentWindow.document);
 		}catch(e)
 		{
 			//comes here for chrome local

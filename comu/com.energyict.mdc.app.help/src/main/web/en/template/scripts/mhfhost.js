@@ -35,7 +35,7 @@ var g_bServerResult=false;
 
 var gSearchDataFolderName =  "whxdata";
 var gFtsFileName = "whfts.xml";
-var gbANDSearch = 0;
+var gbANDSearch = 1;
 var gstrSyn = "";
 
 var gbSearchInitialized = false;
@@ -49,26 +49,60 @@ function initializeSearch() {
 	
 	if (rh.util.isUsefulString(searchText) && searchText != searchedText) {
 		rh.model.publish(rh.consts('KEY_SEARCH_TERM'), searchText);
-		doSearch();
+		rh.model.subscribeOnce(rh.consts('EVT_PROJECT_LOADED'), function (value) {
+			if (value && !rh.rhs.doSearch()) {
+				window.doSearch();
+			}
+		});
 	}
 }
 
 function doSearch()
 {
+	gbANDSearch = 1;
 	var searchText = rh.model.get(rh.consts('KEY_SEARCH_TERM'));
+	rh.model.publish(".l.searchText_actual", searchText, {sync: true});
+	searchText = removeStopWordsFromInp(searchText);
 	if(searchText) {
 		rh.model.publish(rh.consts('KEY_SEARCHED_TERM'), searchText, {sync: true});
+		rh.model.publish(rh.consts('EVT_SEARCH_IN_PROGRESS'), true, {sync: true});
+		rh.model.publish(rh.consts('KEY_SEARCH_PROGRESS'), 0, {sync: true});
+
+		initSearchPage();
+		readSetting(RHANDSEARCH, callbackAndSearchFlagRead);
+	} else {
+		rh.model.publish(rh.consts('EVT_SEARCH_IN_PROGRESS'), false, {sync: true});
+		rh.model.publish(rh.consts('KEY_SEARCH_PROGRESS'), null, {sync: true});
 	}
-	initSearchPage();
-	readSetting(RHANDSEARCH, callbackAndSearchFlagRead);
+}
+
+function removeStopWordsFromInp(searchText) {
+	var openingQuoteFound = false;
+	searchText = searchText.split(" ");
+	var stopWordsRemovedInp = [];
+	for (var i = 0; i < searchText.length; i++) {
+		if (openingQuoteFound == false && searchText[i][0] == '"' || searchText[i][0] == "'")
+			openingQuoteFound = true;
+		if (openingQuoteFound == true && searchText[i][searchText[i].length - 1] == '"' || searchText[i][searchText[i].length - 1] == "'")
+			gbANDSearch = 0;
+		if (!IsStopWord(searchText[i], gaFtsStop) && searchText[i] != "")
+			stopWordsRemovedInp.push(searchText[i]);
+		if (searchText[i] == "or" || searchText[i] == "OR")
+			gbANDSearch = 0;
+	}
+	stopWordsRemovedInp = stopWordsRemovedInp.join(" ");
+	return stopWordsRemovedInp;
 }
 
 function callbackAndSearchFlagRead(andFlag)
 {
+	//gbANDSearch is made to 1 by default. It is made 0 only if we find an "or" in the input. 
+	/*
 	if(andFlag == TRUESTR)
 		gbANDSearch = 1;
 	else if(andFlag = FALSESTR)
 		gbANDSearch = 0;
+	 */
 	if(rh.model.get(rh.consts('KEY_SEARCHED_TERM')))
 	{
 		displaySearchProgressBar(0);
@@ -81,6 +115,32 @@ function registListener( a_Context, a_this )
 
 }
 
+// Dirty - This function is copied from mhtopic.js.
+// TODO: Find a way to eliminate 2 copies of the same code.
+function IsStopWord(sCW, aFtsStopArray) {
+	var nStopArrayLen = aFtsStopArray.length;
+	var nB = 0;
+	var nE = nStopArrayLen - 1;
+	var nM = 0;
+	var bFound = false;
+	var sStopWord = "";
+	while (nB <= nE) {
+		nM = (nB + nE);
+		nM >>= 1;
+		sStopWord = aFtsStopArray[nM];
+		if (compare(sCW, sStopWord) > 0) {
+			nB = (nB == nM) ? nM + 1 : nM;
+		} else {
+			if (compare(sCW, sStopWord) < 0) {
+				nE = (nE == nM) ? nM - 1 : nM;
+			} else {
+				bFound = true;
+				break;
+			}
+		}
+	}
+	return bFound;
+}
 
 ////////////// ODIN FULL-TEXT SEARCH--------------------------------------
 
@@ -247,6 +307,9 @@ function XmlReader()
 
 	this.getWordRec = function ( a_strQuery , bPhraseSearch)
 	{
+		if (!bPhraseSearch && IsStopWord(a_strQuery, gaFtsStop))
+			return ""; // Return empty if no phrase search and term is a stop word.
+		
 		var begin = 0 ; 
 		var end = this.curData.aNodes.length ; 
 		var mid = Math.floor((end -begin ) / 2) ;
@@ -325,7 +388,8 @@ function XmlReader()
 			var objResult = new Object() ;
 			objResult.rd = this.curData.aNodes[a_nTopicId].aAttrs["rd"];
 			objResult.ct = this.curData.aNodes[a_nTopicId].aAttrs["ct"];
-			return objResult ;
+			objResult.bc = this.curData.aNodes[a_nTopicId].aAttrs["bc"];
+			return objResult;
 		}
 		else
 			return null ;	
@@ -507,6 +571,10 @@ function mergeTopicRec(a_strParentRec , a_strNewRec)
 			var temp = arrOldRecords[i].split(":");
 			var uEmphasis =  (oldTopicRecord.uEmphasis > newTopicRecord.uEmphasis)?oldTopicRecord.uEmphasis:newTopicRecord.uEmphasis;
 			var strRec = oldTopicRecord.nTopicId + "," + uEmphasis + ":" + temp [1] ; //since this will not be called in case of phrase search, we can ignore positions of other rec
+			var tagComboId = [oldTopicRecord.tagComboId, newTopicRecord.tagComboId].filter(function (val) {
+				return val;
+			}).join(',');
+			strRec += ":" + tagComboId;
 			arrFinalRec[arrFinalRec.length] = strRec ;
 			j++ ;
 			i++ ;
@@ -545,6 +613,7 @@ function getTopicDetails( a_strRecord )
 	var record = new Object();
 	record.nTopicId = nTopicId ;
 	record.uEmphasis = parseInt( aShapes[0] );
+	record.tagComboId = aShapes[2];
 	return record ;
 }
 
@@ -1030,6 +1099,7 @@ function HuginTopicTableReader()
 	this.bSucc = true;
 	this.strTopicInfo = null;
 	this.strTopicContext = null;
+	this.strTopicBreadcrumbs = null;
 	this.topicMap = null ;
 	this.curTopicIndex = null ;
 	
@@ -1059,6 +1129,7 @@ function HuginTopicTableReader()
 		var topicInfo = theXmlReader.getTopicRec(queryId);
 		a_this.strTopicInfo = topicInfo.rd;
 		a_this.strTopicContext = topicInfo.ct;
+		a_this.strTopicBreadcrumbs = topicInfo.bc;
 	}
 
 	this.parseTopicInfo = function( a_Context, a_this )
@@ -1075,6 +1146,10 @@ function HuginTopicTableReader()
 		}
 		a_this.topicInfo.strUrl = v[0];
 		a_this.topicInfo.strTitle = v[1];
+
+		if (a_this.strTopicBreadcrumbs == null || a_this.strTopicBreadcrumbs.length == 0) {
+			a_this.strTopicBreadcrumbs = a_this.topicInfo.strUrl;
+		}
 	}
 
 	this.queryTopicInfo = function( a_Context, a_this )
@@ -1335,6 +1410,7 @@ function HuginDatabase()
 		a_this.aQueryTopics[a_this.iCurTopic].strUrl = a_this.topicReader.topicInfo.strUrl;
 		a_this.aQueryTopics[a_this.iCurTopic].strTitle = a_this.topicReader.topicInfo.strTitle;
 		a_this.aQueryTopics[a_this.iCurTopic].strSummary = a_this.topicReader.strTopicContext;
+		a_this.aQueryTopics[a_this.iCurTopic].strBreadcrumbs = a_this.topicReader.strTopicBreadcrumbs;
 	}
 	
 	this.incCurTopic = function( a_Context, a_this )
@@ -2476,6 +2552,11 @@ function HuginHunter()
 			}
 		}
 	}
+
+	this.evaluateTag = function (tagCombinationIndex) {
+		this.tagExpression = this.tagExpression || window.rh.model.get(window.rh.consts('KEY_TAG_EXPRESSION'));
+		return window.rh._.evalTagExpression(tagCombinationIndex, this.tagExpression);
+	};
 	
 	this.addToTopicImage = function( a_Image, a_nWordId, a_Record )
 	{
@@ -2489,6 +2570,14 @@ function HuginHunter()
 														a_Image.aTiles );
 			tileImage.aWords[tileImage.aWords.length] = new HuginImageTileWord( a_nWordId, 0 /*nWordShape*/ );			
 		}
+
+		if (a_Record.tagComboId) {
+			a_Image.rhTags = a_Image.rhTags || [];
+			if (a_Image.rhTags.indexOf(a_Record.tagComboId) == -1) {
+				a_Image.rhTags.push(a_Record.tagComboId);
+			}
+	}
+
 	}
 	
 	this.unpackTopicRecord = function( a_strRecord )
@@ -2501,7 +2590,19 @@ function HuginHunter()
 		record.uEmphasis = parseInt( aShapes[0] );
 		record.aPositions = aShapes[1].split( "," );
 		if ( record.aPositions.length < 1 )
-			return null;		
+			return null;
+		var mappedIds = [];
+		if (this.aProjPathes[this.iCurProj] != null && aShapes[2] != null) {
+			mappedIds = window.rh._.map(aShapes[2].split(","), function (id) {
+				return window.rh._.mapTagIndex(id, this.aProjPathes[this.iCurProj].strProjDir);
+			}, this);
+			if (!window.rh._.any(mappedIds, function (id) {
+					return this.evaluateTag(id);
+				}, this))
+				return null;
+		}
+		record.tagComboId = mappedIds.join(",");
+
 		return record;
 	}
 	
@@ -2514,7 +2615,9 @@ function HuginHunter()
 				continue;
 
 			var record = this.unpackTopicRecord( this.aRecordTable[strWordId][a_nTopicId] )
+			if (record) {
 			this.addToTopicImage( topicImage, parseInt( strWordId ), record );
+		}
 		}
 		return topicImage;
 	}
@@ -2556,12 +2659,14 @@ function HuginHunter()
 			return;
 		
 		var rankedTopic = new Object();
-		rankedTopic.fRanking = a_this.calculateRanking( a_this.makeTopicImage( a_this.aTopics[a_this.iCurTopic] ) );
+		var topicImage = a_this.makeTopicImage(a_this.aTopics[a_this.iCurTopic]);
+		rankedTopic.fRanking = a_this.calculateRanking(topicImage);
 		if ( rankedTopic.fRanking > 0 )
 		{
 			rankedTopic.nTopicId = parseInt( a_this.aTopics[a_this.iCurTopic] );
 			a_this.aRankedTopics[a_this.iCurProj][a_this.aRankedTopics[a_this.iCurProj].length] = rankedTopic;
 		}
+		rankedTopic.rhTags = topicImage.rhTags || [];
 		a_Context.push( a_this.incCurTopic, a_this,
 						a_this.evaluateTopic, a_this );
 	}
@@ -2684,6 +2789,7 @@ function HuginHunter()
 				    a_this.queryResult.aTopics[nLen].strUrl = a_this.aProjPathes[i].strProjDir
 														  + a_this.queryResult.aTopics[nLen].strUrl;
 				a_this.queryResult.aTopics[nLen].fRanking = a_this.aRankedTopics[i][j].fRanking;
+				a_this.queryResult.aTopics[nLen].rhTags = a_this.aRankedTopics[i][j].rhTags;
 			}
 		}
 		a_this.quickSortRankedTopics( 0, a_this.queryResult.aTopics.length - 1 );
@@ -2879,15 +2985,24 @@ function changeResultView( a_strHTML )
 		if (!resultDivParent )
 			return;
 		resultDiv.innerHTML = a_strHTML;
+		rh.util.loadContentFilter(resultDiv);
 	}
 }
 
+function navigateToTopic(topics, params) {
+	if (topics.length > 0) {
+		var absUrl = window._getFullPath(rh._.parentPath(), topics[0].strUrl + params);
+		rh.model.publish(rh.consts('EVT_NAVIGATE_TO_URL'), {
+			absUrl: "" + absUrl
+		});
+	}
+}
 
 function displayTopics( a_QueryResult )
 {
 	var sHTML = "";
 	var sLine = "";
-	var szSearchStrings= rh.model.get(rh.consts('KEY_SEARCHED_TERM'));
+	var szSearchStrings = rh.model.get(".l.searchText_actual");
 	var sHighlight = "CLRF=" + gsHLColorFront +
 					 ",CLRB=" + gsHLColorBackground + ",HL=";
 	
@@ -2916,35 +3031,46 @@ function displayTopics( a_QueryResult )
 			i = (g_CurPage-1)*g_nMaxResult;
 			nNumPages = Math.ceil(a_QueryResult.aTopics.length / g_nMaxResult );
 		}
-		for( ; (i < a_QueryResult.aTopics.length); i++ )
-		{
-			if(bShowAll == false && i>=(g_CurPage*g_nMaxResult))
-				break;
-			
-			var szTopicURL = a_QueryResult.aTopics[i].strUrl;
-			if(!_isRemoteUrl(szTopicURL))
+
+		if (checkResultDiv()) {
+			// Old search widget workflow: Render html.
+			for (; (i < a_QueryResult.aTopics.length); i++)
 			{
-				szTopicURL += strParams;
+				if (bShowAll == false && i >= (g_CurPage * g_nMaxResult))
+					break;
+
+				var szTopicURL = a_QueryResult.aTopics[i].strUrl;
+				if (!_isRemoteUrl(szTopicURL)) {
+					szTopicURL += strParams;
+				}
+				sLine += writeResult(szTopicURL,
+					a_QueryResult.aTopics[i].strTitle,
+					a_QueryResult.aTopics[i].nIndex,
+					a_QueryResult.aTopics[i].strSummary,
+					a_QueryResult.aTopics[i].rhTags,
+					a_QueryResult.aTopics[i].strBreadcrumbs);
+				if (i & 0xF == 0) {
+					sHTML += sLine;
+					sLine = "";
+				}
 			}
-			sLine += writeResult( szTopicURL,
-								  a_QueryResult.aTopics[i].strTitle,
-								  a_QueryResult.aTopics[i].nIndex,
-								  a_QueryResult.aTopics[i].strSummary );
-			if( i & 0xF == 0 )
-			{
+			if (sLine.length > 0)
 				sHTML += sLine;
-				sLine = "";
-			}
+
+			updateNavigationPagesBar(g_CurPage, nNumPages);
+			updatePrevNextButtons(g_CurPage, nNumPages);
 		}
-		if( sLine.length > 0 )
-			sHTML += sLine;
-		
-		updateNavigationPagesBar(g_CurPage, nNumPages);
-		updatePrevNextButtons(g_CurPage, nNumPages);
+		else {
+			// New search widget workflow. Publish search results.
+			rh.model.publish(rh.consts('KEY_SEARCH_RESULT_PARAMS'), strParams);
+			rh.model.publish(rh.consts("KEY_SEARCH_RESULTS"), a_QueryResult.aTopics);
+			//navigateToTopic(a_QueryResult.aTopics, strParams);
+		}
 	}
-	
-	if( a_QueryResult.aTopics.length == 0 )
-		displayMsg(gsNoTopics)
+
+	if (a_QueryResult.aTopics.length == 0) {
+		displayMsg(gsNoTopics);
+	}
 
 	changeResultView( sHTML );
 }
@@ -2983,6 +3109,7 @@ function displaySearchProgressBar( a_nProgress )
 		setInnerHTML( pt, gsSearching + " " + a_nProgress + "%" );
 		pb.style.width = a_nProgress + "%";
 	}
+	rh.model.publish(rh.consts('KEY_SEARCH_PROGRESS'), a_nProgress, {sync: true});
 }
 function displayErrorMsg(msg)
 {
@@ -2995,10 +3122,9 @@ function updateResultView()
 {
 	if ( g_CurState == ECS_SEARCHING )
 		displaySearchProgressBar( goOdinHunter.nProgress );
-		
-	else if ( g_CurState == ECS_FOUND )
+	else if (g_CurState == ECS_FOUND) {
 		displayTopics( goOdinHunter.queryResult );
-		
+	}		
 	else if ( g_CurState == ECS_SEARCHFAILED )
 		displayErrorMsg( context.strMsg );
 		
@@ -3010,6 +3136,10 @@ function updateResultView()
 		
 }
 
+function checkResultDiv() {
+	return getElement(gsResultDivID) != null;
+}
+
 function processHunterResult( a_Context )
 {
 	if ( a_Context )
@@ -3018,6 +3148,9 @@ function processHunterResult( a_Context )
 		setTimeout( "processHunterResult();", 1 );
 		return;
 	}
+
+	rh.model.publish(rh.consts('EVT_SEARCH_IN_PROGRESS'), false, {sync: true});
+	rh.model.publish(rh.consts('KEY_SEARCH_PROGRESS'), null, {sync: true});
 	
 	if ( goOdinHunter == null )
 		return;

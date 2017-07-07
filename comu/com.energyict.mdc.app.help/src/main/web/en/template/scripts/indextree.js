@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
@@ -71,6 +72,7 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 	IdxTree.prototype.init = function()
 	{
 		this.rootHtmlNode = document.getElementById(this.rootId);
+		this.fragment = document.createDocumentFragment();
 		if(this.rootHtmlNode.attachEvent)
 		{
 			this.rootHtmlNode.attachEvent("onkeydown", function(){onIdxTreeKeyPress(event);});
@@ -165,12 +167,13 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 			this.nextChunkIndex = 0;
 			if(this.curChunksToBeMerged.length != 0)
 			{
-				this.insertKeyword(this.rootHtmlNode, this.curChunksToBeMerged, ITEMTYPEKW);
+				this.insertKeyword(this.fragment, this.curChunksToBeMerged, ITEMTYPEKW);
 				this.curChunksToBeMerged.splice(0, this.curChunksToBeMerged.length);
 				this.curKeyName = "";
 			}
 			else
 			{
+				this.rootHtmlNode.appendChild(this.fragment);
 				this.removeLoadingMsg(this.rootHtmlNode);
 				this.curKeyName = "";
 				this.filterKeywords(true);
@@ -187,6 +190,7 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 		chunkXmlObj.nodeIndex = 0;
 		chunkXmlObj.length = getChildElementsByTagName(dataNode,KEYNODE).length;
 		this.mergeKeywords();
+		window.rh.util.loadDataHandlers(this.rootHtmlNode);
 	}
 	IdxTree.prototype.insertKeyword = function(parentHtmlNode, chunksArr, itemType)
 	{
@@ -196,6 +200,7 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 		var url = null;
 		var keyNode = null;
 		var kwName = "";
+		var rhTags = null;
 		
 		
 		var classNormal = this.kWClass;
@@ -228,7 +233,9 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 			var kwInfoObj = chunksArr[i];
 			keyNode = kwInfoObj.node;
 			kwName = keyNode.getAttribute(NAME);
+			rhTags = keyNode.getAttribute(DATA_RHTAGS);
 			path = kwInfoObj.path;
+			rhTags = window.rh._.mapTagIndex(rhTags, path);
 			var tempTopicsNodes = getChildElementsByTagName(keyNode,TOPICNODE);
 			if(tempTopicsNodes.length > 0)
 			{
@@ -245,24 +252,23 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 		
 		var treeNode = document.createElement("div");
 		treeNode.setAttribute('class', TREEITEMCLASS);
-		if(parentHtmlNode == this.rootHtmlNode)
-		{
-			var divLoading = this.getLoadingHtmlNode();
-			parentHtmlNode.insertBefore(treeNode, divLoading);	
-		}
-		else
 			parentHtmlNode.appendChild(treeNode);
+
+		if (rhTags) {
+			treeNode.setAttribute(DATA_RHTAGS, rhTags);
+			rhTags = "";
+		}
 		
 		if(noTopics == 1)
 		{
 			var topicUrl = topicNodes[0].getAttribute(URL);
 			if(topicUrl != null && !_isHTTPUrl(topicUrl))
 				topicUrl = path + "/" + topicUrl;
-			this.insertChildHtmlNode(treeNode, kwName, itemType, html, classNormal, classHover, classClick, inlinestyle, topicUrl);
+			this.insertChildHtmlNode(treeNode, kwName, itemType, rhTags, html, classNormal, classHover, classClick, inlinestyle, topicUrl);
 		}	
 		else
 		{
-			this.insertChildHtmlNode(treeNode, kwName, itemType, html, classNormal, classHover, classClick, inlinestyle, null);
+			this.insertChildHtmlNode(treeNode, kwName, itemType, rhTags, html, classNormal, classHover, classClick, inlinestyle, null);
 			var curTopicName = "";
 			var curPath = null;
 			var curKwInfoObj = null;
@@ -293,6 +299,8 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 						topicNode = topicNodes[kwInfoObj.nodeIndex];
 						topicName = topicNode.getAttribute(NAME);
 						url = topicNode.getAttribute(URL);
+						rhTags = topicNode.getAttribute(DATA_RHTAGS);
+						rhTags = window.rh._.mapTagIndex(rhTags, path);
 					}
 					else
 					{
@@ -318,7 +326,7 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 					else
 						topicUrl = curUrl;
 				}
-				this.insertChildHtmlNode(childsHtmlNode, curTopicName, ITEMTYPELINK, linkHtml, linkClassNormal, linkClassHover, linkClassClick, linkInlineStyle, topicUrl); 
+				this.insertChildHtmlNode(childsHtmlNode, curTopicName, ITEMTYPELINK, rhTags, linkHtml, linkClassNormal, linkClassHover, linkClassClick, linkInlineStyle, topicUrl); 
 			}
 		}	
 		var subKwParentHtmlNode = null;
@@ -377,7 +385,7 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 				break;
 		}
 	}
-	IdxTree.prototype.insertChildHtmlNode = function(parentHtmlNode, name, itemType, html, classNormal, classHover, classClick, style, url)
+	IdxTree.prototype.insertChildHtmlNode = function (parentHtmlNode, name, itemType, rhTags, html, classNormal, classHover, classClick, style, url)
 	{
 		var bAddAnchor = false;
 		if(url != null && url != "")
@@ -400,8 +408,19 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 		else
 			parentHtmlNode.appendChild(htmlNode);
 		var urlWithId = this.addEventsToNode(htmlNode, classNormal, classHover, classClick, url);
-		if(bAddAnchor)
-			anchorNode.setAttribute("href", url);	
+
+		if (bAddAnchor) {
+			anchorNode.setAttribute("href", url);
+		}
+
+		if (rhTags) {
+			if (bAddAnchor) {
+				anchorNode.setAttribute(DATA_RHTAGS, rhTags);
+			} else {
+				htmlNode.setAttribute(DATA_RHTAGS, rhTags);
+			}
+		}
+			
 		this.setNodeItemType(htmlNode, itemType);
 		if(itemType == ITEMTYPEKW)
 			this.setNodeTerm(htmlNode, name);
@@ -417,8 +436,6 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 		categoryElem.innerHTML = this.categoryHtml.replace(LINK_NAME_MACRO, ch);
 		this.setNodeItemType(categoryElem, ITEMTYPECATEGORY);
 		treeNode.appendChild(categoryElem);
-		var divLoading = this.getLoadingHtmlNode();
-		this.rootHtmlNode.insertBefore(treeNode, divLoading);
 	}
 	IdxTree.prototype.addEventsToNode = function(htmlNode, classNormal, classHover, classClick, url)
 	{
@@ -522,7 +539,6 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 	}
 	IdxTree.prototype.pressKey = function(e)
 	{
-
 		var kCode = 0;
 		if(e.keyCode)
 			kCode = e.keyCode;
@@ -531,6 +547,9 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 		var treeNode = null;
 		var htmlNode = null;
 		var event = "";
+
+		if (kCode != 13 && e.target && e.target.nodeName == 'INPUT') return;
+		
 		if(kCode == 38)
 		{
 			treeNode = this.getPreviousTreeItem(this.hoveredTreeNode);
@@ -610,7 +629,7 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 			var pNode = htmlNode.parentNode;
 			if(pNode != null && pNode.nodeName == "A")
 				pNode = pNode.parentNode;
-			if(pNode == this.rootHtmlNode)
+			if (pNode == this.fragment)
 				return null;
 			else
 				return pNode;
@@ -623,23 +642,23 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 		var node = document.getElementById(IDXLOADINGDIVID);
 		return node;
 	}
-	IdxTree.prototype.getHtmlChildNode = function(node, tag, type)
+	IdxTree.prototype.getHtmlChildNodes = function (node, tag, type)
 	{
 		if(tag == "" || tag == 'undefined')
-			return null;
+			return [];
 		var nodeChilds = node.getElementsByTagName(tag);
 		var len = nodeChilds.length;
-		var i=0;
+		var i = 0, arr = [];
 		for(i=0; i<len; i++)
 		{
 			if(this.isNodeItemTypeThis(nodeChilds[i],type))
-			 return nodeChilds[i];		
+				arr.push(nodeChilds[i]);
 		}
-		return null;
+		return arr;
 	}
 	IdxTree.prototype.getFirstTreeNode = function()
 	{
-		var treeNodes = this.rootHtmlNode.getElementsByTagName("div");
+		var treeNodes = this.fragment.getElementsByTagName("div");
 		if(treeNodes.length > 0)
 			return treeNodes[0];
 	}
@@ -814,8 +833,15 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 			fireEvent(htmNode, 'mouseout');
 		}
 		var treeNode = this.getTreeNodeFromHtmlNode(htmlNode);
-		if(treeNode != this.selectedTreeNode)
-			htmlNode.className = hoverClass + " " + UNSELECTABLECLASS;
+		var itemType = treeNode.getAttribute(DATAITEMTYPE);
+		if (itemType === ITEMTYPELINK) {
+			rh.$.removeClass(treeNode, this.linkClass);
+			rh.$.addClass(treeNode, this.linkClassHover);
+		}
+		else {
+			rh.$.removeClass(treeNode, this.kWClass);
+			rh.$.addClass(treeNode, this.kWClassHover);
+		}
 		this.hoveredTreeNode = treeNode;
 	}
 	IdxTree.prototype.focusHoveredNode = function()
@@ -839,19 +865,29 @@ function IdxTree(idxRootPathsArr, dataFolder, rootFile)
 	IdxTree.prototype.hoverOutNode = function(htmlNode, normalClass)
 	{
 		var treeNode = this.getTreeNodeFromHtmlNode(htmlNode);
+		var itemType = treeNode.getAttribute(DATAITEMTYPE);
 		if(treeNode != this.selectedTreeNode)
 		{
-			htmlNode.className = normalClass + " " + UNSELECTABLECLASS;
+			if (itemType === ITEMTYPELINK) {
+				rh.$.addClass(treeNode, this.linkClass);
+				rh.$.removeClass(treeNode, this.linkClassHover);
+			}
+			else {
+				rh.$.addClass(treeNode, this.kWClass);
+				rh.$.removeClass(treeNode, this.kWClassHover);
+			}
 		}
 	}
 	IdxTree.prototype.toggleNode = function(htmlNode)
 	{
 		var treeNode = this.getTreeNodeFromHtmlNode(htmlNode);
-		var bookChildsNode = this.getHtmlChildNode(treeNode, "div", ITEMTYPEBOOKCHILDS);
-		if(bookChildsNode.style.display == "none")
-			bookChildsNode.style.display = "block";
-		else
-			bookChildsNode.style.display = "none";
+		var bookChildsNodes = this.getHtmlChildNodes(treeNode, "div", ITEMTYPEBOOKCHILDS);
+		rh._.each(bookChildsNodes, function (node) {
+			if (node.style.display == "none")
+				node.style.display = "block";
+			else
+				node.style.display = "none";
+		});
 	}
 	IdxTree.prototype.clickNode = function(htmlNode, clickClass, normalClass, url)
 	{
@@ -929,8 +965,11 @@ function callbackChunkLoaded(xmlDoc, arg)
 }
 function filterIdx(e)
 {
-	if(e != null && e.type == 'submit')
+	e = e || window.event;
+	if (e != null && (e.type == 'submit' || e.keyCode == 13)) {
 		preventEvent(e);
+		e.target.blur();
+	}
 	return gIdxTree.filterKeywords();
 }
 function callbackIdxCSHModeRead(cshmode)

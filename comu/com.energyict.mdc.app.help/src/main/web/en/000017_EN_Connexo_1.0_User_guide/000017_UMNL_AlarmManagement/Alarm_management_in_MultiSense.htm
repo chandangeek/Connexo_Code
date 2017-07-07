@@ -1,0 +1,282 @@
+<!DOCTYPE HTML>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Alarm management in MultiSense</title>
+
+    <link rel="stylesheet" href="000017_UMNL_AlarmManagement.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "18.1.0_2";
+    </script>
+    <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_AlarmManagement/Understand_alarms.htm">
+    <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_AlarmManagement/Configure_alarms.htm">
+    <meta name="topic-breadcrumbs" content="Alarm management > Understand alarms"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic">Alarm management in
+        <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>
+    </p>
+    <p dir="ltr" class="FM_H4Topic">Explore the alarm page</p>
+    <p dir="ltr" class="FM_Body" style="margin-bottom : 4.000pt;">Go to <span class="FM_UIRef">Workspace</span>&#160;&gt; <span class="FM_UIRef">Alarms </span>&gt; <span
+            class="FM_UIRef">Alarms.</span></p>
+    <p dir="ltr" class="FM_Body" style="margin-bottom : 4.000pt;">On top of the alarms page all available <span class="FM_UIRef">filters</span>&#160;are shown and can be configured here. You can for
+        example filter all alarms raised by specific reason or assigned to a specific user or workgroup. Which filters are applied, is shown in the menu filter menu itself.</p>
+    <p dir="ltr" class="FM_Body" style="display:inline">Below the filter pane there is a possibility to <span class="FM_UIRef">sort</span>&#160;alarms based on the parameters <span class="FM_UIRef">Priority</span>&#160;and
+        <span class="FM_UIRef">Due date</span>. If sorting is active this is shown by a button below the filter menu. The arrow next to the sorting parameter shows the order of the sorting. Click the
+        button to change the order. Remove the sorting parameter by clicking the remove icon <img alt="delete.png" id="image329" src="../../assets/delete.png" style="width:100%; max-width:21px"/>. By
+        default alarms are sorted by decreasing priority.</p>
+    <p dir="ltr" class="FM_Body">In the middle of the page the <span class="FM_UIRef">overview table</span>&#160;is displayed. This table shows all alarms corresponding to the selected filters. In
+        this table there is an option to handle alarms by using the actions icon next to each alarm.</p>
+    <p dir="ltr" class="FM_Body" style="display:inline">Below the overview table you can find the <span class="FM_UIRef">details pane</span>. Here you can find some more detailed information of the
+        alarm selected in the overview table. Links are provided to devices, usage point and logbooks linked to the alarm. Next to some parameters you can find a filter icon <img alt="Filter.png"
+                                                                                                                                                                                   id="image330"
+                                                                                                                                                                                   src="../../assets/Filter.png"
+                                                                                                                                                                                   style="width:100%; max-width:21px"/>.
+        If you click this icon all alarms will be filtered showing only those containing this parameter.</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse">
+            <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Figure: The alarm overview page</caption>
+            <tr class="tr1">
+                <td class="td6">
+                    <p dir="ltr" class="FM_CGraphicCell"><img alt="Alarm_overview.png" id="image331" src="../../assets/Alarm_overview.png" style="width:100%; max-width:533px"/>&nbsp;</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_H4Topic">View alarms</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Workspace</span>&#160;&gt; <span class="FM_UIRef">Alarms </span>&gt; <span class="FM_UIRef">Alarms </span>&gt; click
+        an alarm or click an alarm in the <span class="FM_UIRef">What’s going on widget</span>&#160;on the device landing page or in the <span class="FM_UIRef">My worklist</span>&#160;widget on the
+        dashboard.</p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; The alarm details page is divided into three parts: <span class="FM_UIRef">Details</span>, <span class="FM_UIRef">Related events</span>&#160;and <span
+            class="FM_UIRef">Contextual information</span>. The details part shows the following parameters:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table0 TParameter" border-collapse="collapse" style=" width:100%; max-width:25cm;" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter </p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">ID</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Alarm specific ID. All alarm IDs start with ALM.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Reason</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The reason for creating the alarm as defined by the alarm creation rule.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Usage point</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Usage point linked to this alarm.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Device</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Device on which this alarm was raised.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Location</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Full location details of the device.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Logbook</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Name of the logbook that contains the event that originally triggered the current alarm.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Status</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">The current status of the alarm.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Due date</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Date when the alarm should be handled.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Priority</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Shows the priority of the alarm:</p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>1 - 20: very low</p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>21 - 40: low</p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>41 - 60: medium</p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>61 - 80: high</p>
+                    <p dir="ltr" class="FM_ListBulletTable"><span class="FM_BulletA">o<span style="padding-left: 5pt;" class="FMAutoNumber_1"></span></span>81 - 100: very high</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Workgroup</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Name of the workgroup assigned to the alarm.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">User</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Name of the user assigned to the alarm.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Creation date</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">This date is typically identical to the event occurrence date that originally triggered the alarm.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_BodyProcedure">The <span class="FM_UIRef">Related events</span>&#160;part contains events that are registered in the device’s logbook and are related to the current alarm or
+        that are added to the alarm in line with specifications defined in the alarm creation rule.</p>
+    <p dir="ltr" class="FM_BodyProcedure">The <span class="FM_UIRef">Contextual information</span>&#160;parts shows extra information linked to the alarm: it contains comments as well as processes
+        linked to this alarm. All changes made on this alarm are shown in the <span class="FM_UIRef">Time line</span>.</p>
+    <p dir="ltr" class="FM_H4Topic">View alarms overview</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Workspace</span>&#160;&gt; <span class="FM_UIRef">Alarms</span>&#160;&gt; <span
+            class="FM_UIRef">Alarms overview</span>.</p>
+    <p dir="ltr" class="FM_BodyProcedure">This page shows an overall overview of all alarms in
+        <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>
+        . Alarms are grouped per status, workgroup, user and reason.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Click one of the links to see all alarms in that group.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Use the filters on top of the page to see get an overview of all alarms corresponding to the selected filters.</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse">
+            <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Figure: Alarms overview</caption>
+            <tr class="tr3">
+                <td class="td6">
+                    <p dir="ltr" class="FM_CGraphicCell"><img alt="Alarms_Overview(10_3).png" id="image332" src="../../assets/Alarms_Overview(10_3).png" style="width:100%; max-width:488px"/>&nbsp;</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_H4Topic">View alarm history</p>
+    <p dir="ltr" class="FM_Body">The alarm history provides a quick overview of all alarms to show you how many alarms still have to be handled.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Workspace</span>&#160;&gt; <span class="FM_UIRef">Alarms</span>&#160;&gt; <span
+            class="FM_UIRef">Alarms overview</span>&#160;&gt; select the <span class="FM_UIRef">History</span> tab.</p>
+    <p dir="ltr" class="FM_BodyProcedure">The history page shows two different graphs:</p>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet2">Alarms per reason: shows the amount of alarms raised per day and divided into different colour categories based on the alarm reason.</p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet2">Alarms open vs closed: shows the amount of alarms raised per day and how many alarms are closed or still open.</p>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Use the filters on top of the page to only see specific alarms.</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse">
+            <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Figure: The history view of the alarms overview.</caption>
+            <tr class="tr4">
+                <td class="td6">
+                    <p dir="ltr" class="FM_CGraphicCell"><img alt="Alarms_Overview_History(10_3).png" id="image333" src="../../assets/Alarms_Overview_History(10_3).png"
+                                                              style="width:100%; max-width:489px"/>&nbsp;</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

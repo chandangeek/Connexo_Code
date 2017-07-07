@@ -183,7 +183,7 @@ function initSearchPage()
 	updatePrevNextButtons(0,0);
 }
 
-function writeResult( a_strUrl, a_strTitle, a_nIndex, a_sSummary )
+function writeResult(a_strUrl, a_strTitle, a_nIndex, a_sSummary, a_rhTags, a_strBreadcrumbs)
 {
 	var strTitleStyle = "";
 	if(gSearchResTitleStyle != "")
@@ -217,12 +217,11 @@ function writeResult( a_strUrl, a_strTitle, a_nIndex, a_sSummary )
 	var pos = a_strUrl.indexOf("?");
 	if(pos != -1)
 		a_strUrl = a_strUrl.substring(0, pos);
-	html = html.replace(SEARCH_URL_MACRO, _htmlToText(a_strUrl));
+	html = html.replace(SEARCH_URL_MACRO, _htmlToText(a_strBreadcrumbs));
 	var strStyle ="";
 	if(gSearchResStyle != "")
 		strStyle = "style=\"" + gSearchResStyle + "\" ";
-	var	strOutput = "<div class='" + gSearchResClassName + "' " + strStyle + " >" + html + "</div>";
-	return strOutput;
+	return "<div class=\'" + gSearchResClassName + "\' " + strStyle + " >" + html + "</div>";
 }
 function setResultsStringHTML(results_no, searchStr)
 {

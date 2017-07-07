@@ -9,11 +9,10 @@
  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
  <title>Understand data estimation</title>
 
- <meta name="generator" content="Adobe FrameMaker 12" />
- <meta name="Originator" content="ImportMif" />
- <meta name="OriginalFile" content="P:\Private\04 Portfolio\02 SW\06 Jupiter\03 Jupiter MDC 10.x\03 Collateral\01 Docs\01 User manuals\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_Estimate data.fm" />
  <link rel="stylesheet" href="000017_UMNL_Estimate_data.css" type="text/css" />
- <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+ <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+ <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
 
 
 <script type="text/javascript" language="JavaScript">
@@ -40,7 +39,7 @@ visibility:hidden; }
 p.WebHelpNavBar { text-align:right; }
 -->
 </style>
-
+ <meta name="generator" content="Adobe FrameMaker 2017"/>
 <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
 <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
 <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
@@ -55,35 +54,51 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
 <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
 <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+ <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "13.0_1";
+gTopicId = "15.0_1";
 </script>
- <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Estimate_data/Data_estimation.htm">
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Estimate_data/000017_UMNL_Estimate_data.htm">
  <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Estimate_data/Configure_data_estimation.htm">
+ <meta name="topic-breadcrumbs" content="Data estimation"/>
 </head>
 
-<body>
+<body dir="ltr">
 <script type="text/javascript" src="../../ehlpdhtm.js"></script>
-
- <p class="FM_H2Section">Understand data estimation</p>
- <p class="FM_H4Topic">What is data estimation</p>
- <p class="FM_Body">Data estimation corrects suspect values, detected by the validation process, using &#160;‘predefined’ algorithms. With data estimation you can estimate the data based on valid collected data or using custom values.</p>
- <p class="FM_Body">In some cases data cannot be estimated and needs to be edited, see <a href="../000017_UMNL_Get_data_valid/Data_editing.htm#XREF_76175_4_Get_data_valid"><span class="FM_blue_crossreference">“Data editing”</span></a>&#160;for more information.</p>
- <p class="FM_H4Topic">Data estimation in <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable></p>
- <p class="FM_Body">The configuration of data estimation is similar to that of data validation. Estimation rules are grouped in estimation rule sets. Within the rule set you define the order of the rules to select which estimation rule will be used first. Typically the rules that result in the most realistic values are put on top of the list. Once the value is estimated with one of the rules this value is no longer available for estimation by the other estimation rules in the set.</p>
- <p class="FM_Body">In <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;different default estimators are already available upon installation, these estimators still need to be configured further in the estimation rule. The estimators cover all basic needs. You can find a more detailed description of these estimators in the topic <a href="Default_estimators.htm#XREF_71003_Default_estimation"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Default estimators”</span></a>. </p>
-
- <table style=" border-spacing:0; float:alignleft; margin-top:12.00pt; margin-left:14.17pt; width:100%; max-width:351.50pt;" cellspacing="0">
-  <caption class="FM_CGraphic" align="bottom">Figure: How estimation works in Connexo.</caption>
-  <tr style=" height : 181.46pt;">
-  <td style="width : 351.496pt; vertical-align : top;padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
-  <p class="FM_CGraphicCell"><img alt="Estimation.png" style=" margin-bottom:0.000pt; width:100%; max-width:510px;" id="image0" src="Estimation.png" />&nbsp;</p>
+<div dir="ltr">
+ <p dir="ltr" class="FM_H2Section">Understand data estimation</p>
+ <p dir="ltr" class="FM_H4Topic">What is data estimation</p>
+ <p dir="ltr" class="FM_Body">Data estimation corrects suspect values, detected by the validation process, using &#160;‘predefined’ algorithms. With data estimation you can estimate the data based on
+  valid collected data or using custom values.</p>
+ <p dir="ltr" class="FM_Body">In some cases data cannot be estimated and needs to be edited, see <a
+         href="../000017_UMNL_Get_data_valid/000017_UMNL_Get_data_valid.htm#XREF_76175_4_Get_data_valid"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference"
+                                                                                                                                                            style="font-family : Lato; font-weight : normal; color   : #0000ff; ">Data editing”</span></a>&#160;for
+  more information.</p>
+ <p dir="ltr" class="FM_H4Topic">Data estimation in
+  <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>
+ </p>
+ <p dir="ltr" class="FM_Body">The configuration of data estimation is similar to that of data validation. Estimation rules are grouped in estimation rule sets. Within the rule set you define the order
+  of the rules to select which estimation rule will be used first. Typically the rules that result in the most realistic values are put on top of the list. Once the value is estimated with one of the
+  rules this value is no longer available for estimation by the other estimation rules in the set.</p>
+ <p dir="ltr" class="FM_Body">In
+  <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>
+  &#160;different default estimators are already available upon installation, these estimators still need to be configured further in the estimation rule. The estimators cover all basic needs. You can
+  find a more detailed description of these estimators in the topic <a href="Default_estimators.htm#XREF_71003_Default_estimation"><span class="FM_blue_crossreference">“</span><span
+          class="FM_CR_URL"></span><span class="FM_blue_crossreference">Default estimators”</span></a>.
+ </p>
+ <div width="100%" align="left">
+  <table border-spacing="0" dir="ltr" class="table4" border-collapse="collapse">
+   <caption dir="ltr" class="FM_CGraphic" style=" width: 351.50pt;" align="bottom">Figure: How estimation works in Connexo.</caption>
+   <tr class="tr0">
+    <td class="td6">
+     <p dir="ltr" class="FM_CGraphicCell"><img alt="Estimation.png" id="image277" src="../../assets/Estimation.png" style="width:100%; max-width:510px"/>&nbsp;</p>
 </td>
 </tr>
- </table>
-
- <p class="FM_Body">&nbsp;</p>
- </body>
+  </table>
+ </div>
+ <p dir="ltr" class="FM_Body">&nbsp;</p>
+</div>
+</body>
 </html>

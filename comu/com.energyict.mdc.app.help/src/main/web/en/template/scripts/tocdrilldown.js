@@ -155,6 +155,8 @@ function DDList(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 			var xmlNode = dataXmlNode.childNodes[i];
 			var name = xmlNode.getAttribute(NAME);
 			var url = xmlNode.getAttribute(URL);
+			var rhTags = xmlNode.getAttribute(DATA_RHTAGS);
+			rhTags = window.rh._.mapTagIndex(rhTags, commonRootRelPath);
 			if(url != null && url != 'undefined' && xmlNode.tagName != URLNODE && !_isRemoteUrl(url))
 				url = rootRelPath + "/" + url;
 			if(xmlNode.tagName == BOOKNODE)
@@ -164,19 +166,19 @@ function DDList(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 				objContext.bookCount = bookCount;
 				objContext.pageCount = pageCount;
 				var src = xmlNode.getAttribute(SRC);
-				this.insertListItem(parentId, name, url, bookCount, pageCount, objContext.childProjOrder, ITEMTYPEBOOKCLOSED, src, origRootRelPath, origCommonRootRelPath);
+				this.insertListItem(parentId, name, url, rhTags, bookCount, pageCount, objContext.childProjOrder, ITEMTYPEBOOKCLOSED, src, origRootRelPath, origCommonRootRelPath);
 			}
 			else if(xmlNode.tagName == PAGENODE)
 			{
 				pageCount++;
 				objContext.pageCount = pageCount;
-				this.insertListItem(parentId, name, url, bookCount, pageCount, objContext.childProjOrder, ITEMTYPEPAGE);
+				this.insertListItem(parentId, name, url, rhTags, bookCount, pageCount, objContext.childProjOrder, ITEMTYPEPAGE);
 			}
 			else if(xmlNode.tagName == URLNODE)
 			{
 				pageCount++;
 				objContext.pageCount = pageCount;
-				this.insertListItem(parentId, name, url, bookCount, pageCount, objContext.childProjOrder, ITEMTYPEURL);
+				this.insertListItem(parentId, name, url, rhTags, bookCount, pageCount, objContext.childProjOrder, ITEMTYPEURL);
 			}
 			else if(xmlNode.tagName == PROJNODE)
 			{
@@ -191,6 +193,7 @@ function DDList(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 				break;
 			}
 		}
+		window.rh.util.loadContentFilter(this.rootHtmlNode);
 		if(len == i)
 			this.loadFromStack(objContext);
 
@@ -217,7 +220,7 @@ function DDList(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 				loadParentDataForSyncing(gCommonRootRelPath, SCR_PARENT_TOCSYNC);
 		}
 	}
-	DDList.prototype.insertListItem = function(parentId, name, url, bookCount, pageCount, childProjOrder, itemType, src, rootRelPath, commonRootRelPath)
+	DDList.prototype.insertListItem = function (parentId, name, url, rhTags, bookCount, pageCount, childProjOrder, itemType, src, rootRelPath, commonRootRelPath)
 	{
 		var listNode = document.createElement("div");
 		listNode.setAttribute('class', LISTITEMCLASS);
@@ -280,6 +283,9 @@ function DDList(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 			classClick = this.urlClassClick;	
 			html = this.urlHtml;
 			expandableNode = false;
+		}
+		if (rhTags) {
+			listNode.setAttribute(DATA_RHTAGS, rhTags);
 		}
 		this.rootHtmlNode.appendChild(listNode);
 		this.insertChildHtmlNode(listNode, name, itemType, html, classNormal, classHover, classClick, url, expandableNode);

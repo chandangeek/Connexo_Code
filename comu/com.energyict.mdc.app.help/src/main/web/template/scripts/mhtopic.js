@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-var gTopicElemId = "{{MSM_PH_DATA.TOPIC_PH_ID}}";
+var gTopicElemId = "";
 var gsPPath="";
 var gaPaths=new Array();
 var gaAvenues=new Array();
@@ -71,7 +71,10 @@ rh.util.addEventListener(document, 'DOMContentLoaded', verifyEnvironment);
 function verifyEnvironment() {
 	if (window.self === window.top) {
 		// Loaded without a parent.
-		addRhLoadCompleteEvent(rh._.redirectToLayout);
+		//addRhLoadCompleteEvent(rh._.redirectToLayout);
+		rh.model.subscribe(rh.consts('EVT_PROJECT_LOADED'), function () {
+			rh._.onTopicLoad();
+		});
 	}
 	else {
 		addRhLoadCompleteEvent(initializeTopic);
@@ -81,14 +84,16 @@ function verifyEnvironment() {
 
 function initializeTopic() {
 	publishTopicData();
-	applyHighlight();
+	rh.model.subscribe(rh.consts('KEY_TOPIC_ORIGIN'), function () {
+		setTimeout(applyHighlight, 50);
+	});
 	loadParentDataForSyncing(gCommonRootRelPath, SCR_PARENT_TOCSYNC);
 }
 
 function publishTopicData()
 {
 	// Active topic URL
-	rh.model.publish(rh.consts('KEY_TOPIC_URL'), document.location.href);
+	rh.model.publish(rh.consts('KEY_TOPIC_URL'), decodeURI(document.location.href));
 	
 	// Active topic title
 	rh.model.publish(rh.consts('KEY_TOPIC_TITLE'), document.title);
@@ -375,19 +380,45 @@ function DomTexts()
 	{
 		return a_strTextWord.indexOf(a_strHlWord.toLowerCase()) != -1;
 	}
-					 
+	this.calculateMatchLength = function (countTerms) {
+		var nMatch = 0;
+		for (key in countTerms) {
+			nMatch += countTerms[key];
+		}
+		this.nMatch = nMatch;
+	}				 
+
 	this.makeHighlightRanges = function()
 	{
 		if(typeof(gaSearchTerms[0]) == "undefined")
 			return;
+		var count = 0;
+		var str = gaSearchTerms.reduce(function (result, value, index) {
+			var term = escapeRegExp(value.toLowerCase());
+			if (!(gsSubstrSrch || rh.util.hasNonAsciiChar(term))) {
+				term = '\\b' + term + '\\b';
+			}
+			result += (result != '' ? '|' : '') + term;
+			return result;
+		}, '');
 
-		var str = escapeRegExp(gaSearchTerms[0].toLowerCase());
-		for(var j = 1; j < gaSearchTerms.length; j++)
-		{
-			str += "|" + escapeRegExp(gaSearchTerms[j].toLowerCase());
-			
-		}
+		var countTerms = {};
+		gaSearchTerms.forEach(function (value) {
+			var term = escapeRegExp(value.toLowerCase());
+			if (!(gsSubstrSrch || rh.util.hasNonAsciiChar(term))) {
+				term = '\\b' + term + '\\b';
+			}
 
+			countTerms [term] = 0;
+		});
+		var str = gaSearchTerms.reduce(function (result, value, index) {
+			var term = escapeRegExp(value.toLowerCase());
+			if (!(gsSubstrSrch || rh.util.hasNonAsciiChar(term))) {
+				term = '\\b' + term + '\\b';
+			}
+			result += (result != '' ? '|' : '') + term;
+			return result;
+		}, '');
 		var regexp = new RegExp(str, "i");
 
 		var aWords ;
@@ -412,13 +443,22 @@ function DomTexts()
 
 				if (n != null &&  n.index > -1 )
 				{
+
+
 					var strWord = n[0];
+					for (var key in countTerms) {
+						var regexp_term = new RegExp(key, "i");
+						if (regexp_term.test(strWord)) {
+							countTerms[key] = 1;
+						}
+					}
 					this.aRanges[this.aRanges.length] = new ClosedRange( aWords[i].nCharLocation + prevLen + n.index,
 								aWords[i].nCharLocation + prevLen + n.index + strWord.length);
-					prevLen = prevLen + n.index + strWord.length;							
+					prevLen = prevLen + n.index + strWord.length;
 					tmpStr1 = tmpStr1.substring(n.index + strWord.length, tmpStr1.length);
 				}
 			}
+			this.calculateMatchLength(countTerms);
 		}
 	}
 	
@@ -436,7 +476,7 @@ function DomTexts()
 	}
 }
 
-function processSuspendNodes( a_aNodes )
+function processSuspendNodes(a_aNodes)
 {
 	if ( a_aNodes.length == 0 )
 		return false;
@@ -458,7 +498,15 @@ function processSuspendNodes( a_aNodes )
 	}
 	
 	dt.makeHighlightRanges();
+	if (dt.nMatch > aLongestlength) {
+		aLongestlength = dt.nMatch;
+		aLongestNodes.length = 0;
+		gnYPos = -1;
+		for (var i = 0, len = dt.aRanges.length; i < len; ++i)
+			aLongestNodes.push(dt.aNodes[i]);
+	}	
 	dt.highlightNodes();
+
 	dt.jump2FirstHighlightedWord();
 }
 
@@ -468,7 +516,7 @@ var s_strRecursiveTags = "sub sup img applet object br iframe embed noembed para
 						 "dt dd caption thead tfoot tbody tr th td legend h1 h2 h3 h4 h5 h6 " +
 						 "ul ol dir menu li pre xmp listing plaintext ins del";
 
-var s_strSpanInvalidParents = "applet object iframe embed table thead tfoot tbody tr ul ol";
+var s_strSpanInvalidParents = "applet object iframe embed table thead tfoot tbody tr ul ol script";
 
 function doesTagRecursiveProcess( a_Node )
 {
@@ -493,7 +541,7 @@ function isValidParentForSpan(a_Node)
 	return ss == null;
 }
 
-function doHighLightDomElement( a_aSuspendedNodes, a_Node )
+function doHighLightDomElement(a_aSuspendedNodes, a_Node)
 {
 	var childNodes = a_Node.childNodes;
 	
@@ -513,11 +561,11 @@ function doHighLightDomElement( a_aSuspendedNodes, a_Node )
 			{
 				if ( a_aSuspendedNodes.length > 0 )
 				{
-					processSuspendNodes( a_aSuspendedNodes );
+					processSuspendNodes(a_aSuspendedNodes);
 					a_aSuspendedNodes.length = 0;
 				}
 			}
-			doHighLightDomElement( a_aSuspendedNodes, node );
+			doHighLightDomElement(a_aSuspendedNodes, node);
 		}
 		else if ( node.nodeType == 3 )
 		{	//text
@@ -532,10 +580,12 @@ function highlightDocument()
 		return;
 		
 	var aSuspendedNodes = new Array();
+	aLongestNodes = new Array();
+	aLongestlength = 0;
 	var topicNode = document.getElementById(gTopicElemId);
 	if(!topicNode)
 		topicNode = document.body;
-	doHighLightDomElement( aSuspendedNodes, topicNode );
+	doHighLightDomElement(aSuspendedNodes, topicNode);
 	processSuspendNodes( aSuspendedNodes );
 }
 
@@ -671,8 +721,12 @@ function findSearchTerms(searchTerms, bSkip)
 				var stemWord = GetStem(sCW);
 				if(stemWord != sCW)
 				{
-					gaSearchTerms[gaSearchTerms.length] = stemWord;
-					gaSearchTermType[gaSearchTermType.length] = EST_STEM ;
+					gaFtsStem.forEach(function (value) {
+						if (stemWord + value != sCW) {
+							gaSearchTerms[gaSearchTerms.length] = stemWord + value;
+							gaSearchTermType[gaSearchTermType.length] = EST_STEM;
+						}
+					});
 				}
 			}
 		}
