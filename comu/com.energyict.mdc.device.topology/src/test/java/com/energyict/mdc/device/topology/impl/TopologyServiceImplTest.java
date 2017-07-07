@@ -9,9 +9,14 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.topology.G3CommunicationPath;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
@@ -22,15 +27,15 @@ import com.energyict.mdc.device.topology.PhaseInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
+
 import com.google.common.collect.Range;
-import org.assertj.core.api.Condition;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,9 +44,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.assertj.core.api.Condition;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 /**
  * Tests the {@link TopologyServiceImpl} component.
@@ -1495,6 +1507,35 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(getDeviceService().findAllDevices(notLinkedToMasterDevices).stream().count()).isEqualTo(1);
     }
 
+    @Test
+    @Transactional
+    public void setOrUpdateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopologyTest() {
+        Device device = createSimpleDevice();
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
+        ConnectionFunction connectionFunction = mock(ConnectionFunction.class);
+        when(partialConnectionTask.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
+        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
+        ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
+        ComTaskExecutionUpdater comTaskExecutionUpdater = mock(ComTaskExecutionUpdater.class);
+        when(comTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction(connectionTask)).thenReturn(comTaskExecutionUpdater);
+        when(comTaskExecution1.getUpdater()).thenReturn(comTaskExecutionUpdater);
+        when(comTaskExecution2.getUpdater()).thenReturn(comTaskExecutionUpdater);
+        CommunicationTaskService communicationTaskService = mock(CommunicationTaskService.class);
+        when(communicationTaskService.findComTaskExecutionsWithConnectionFunction(device, connectionFunction)).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
+
+        TopologyService topologyService = this.getTopologyService();
+        ((TopologyServiceImpl) topologyService).setCommunicationTaskService(communicationTaskService);
+
+        // Business method
+        ((TopologyServiceImpl) topologyService).setOrUpdateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(device, connectionTask);
+
+        // Asserts
+        verify(comTaskExecutionUpdater, times(2)).useConnectionTaskBasedOnConnectionFunction(connectionTask);
+        verify(comTaskExecutionUpdater, times(2)).update();
+    }
+
     private ServerDeviceService getDeviceService() {
         return inMemoryPersistence.getDeviceService();
     }
@@ -1502,5 +1543,4 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     private TopologyService getTopologyService() {
         return inMemoryPersistence.getTopologyService();
     }
-
 }

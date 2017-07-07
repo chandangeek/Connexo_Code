@@ -190,6 +190,31 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
+    public void setOrUpdateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(Device device, ConnectionTask connectionTask) {
+        ConnectionFunction connectionFunction = connectionTask.getPartialConnectionTask().getConnectionFunction().get();
+        List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithConnectionFunctionForCompleteTopology(device, connectionFunction);
+        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+            ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            comTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction(connectionTask);
+            comTaskExecutionUpdater.update();
+        }
+    }
+
+    private List<ComTaskExecution> findComTaskExecutionsWithConnectionFunctionForCompleteTopology(Device device, ConnectionFunction connectionFunction) {
+        List<ComTaskExecution> scheduledComTasks = new ArrayList<>();
+        this.collectComTaskWithConnectionFunctionForCompleteTopology(device, scheduledComTasks, connectionFunction);
+        return scheduledComTasks;
+    }
+
+    private void collectComTaskWithConnectionFunctionForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks, ConnectionFunction connectionFunction) {
+        List<ComTaskExecution> comTaskExecutions = this.communicationTaskService.findComTaskExecutionsWithConnectionFunction(device, connectionFunction);
+        scheduledComTasks.addAll(comTaskExecutions);
+        for (Device slave : this.findPhysicalConnectedDevices(device)) {
+            this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(slave, scheduledComTasks);
+        }
+    }
+
+    @Override
     public Optional<ConnectionTask> findDefaultConnectionTaskForTopology(final Device device) {
         Optional<ConnectionTask> connectionTask = this.connectionTaskService.findDefaultConnectionTaskForDevice(device);
         if (connectionTask.isPresent()) {
