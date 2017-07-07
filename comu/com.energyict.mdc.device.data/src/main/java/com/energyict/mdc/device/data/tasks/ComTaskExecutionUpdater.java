@@ -39,6 +39,11 @@ public interface ComTaskExecutionUpdater {
     ComTaskExecutionUpdater useDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask);
 
     /**
+     * Internal call, should not be in API
+     */
+    ComTaskExecutionUpdater useConnectionTaskBasedOnConnectionFunction(ConnectionTask<?, ?> connectionTask);
+
+    /**
      * Explicitly setting a ConnectionTask will result in NOT using the default connectionTask.
      * This may be the default connectionTask, but if the default flag changes, then this ComTaskExecution
      * will still be marked to use the ConnectionTask from this setter.<br/>

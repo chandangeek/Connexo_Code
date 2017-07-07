@@ -363,6 +363,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         setConnectionTask(defaultConnectionTask);
     }
 
+    void setConnectionTaskBasedOnConnectionFunction(ConnectionTask<?, ?> connectionTask) {
+        doSetConnectionFunction(connectionTask.getPartialConnectionTask().getConnectionFunction().get());
+        setConnectionTask(connectionTask);
+    }
+
     @Override
     public Instant getExecutionStartedTimestamp() {
         return this.executionStart;
@@ -1521,12 +1526,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public ComTaskExecutionUpdater useDefaultConnectionTask(boolean useDefaultConnectionTask) {
-            this.comTaskExecution.setUseDefaultConnectionTask(useDefaultConnectionTask);
-            return this;
-        }
-
-        @Override
         public ComTaskExecutionUpdater connectionTask(ConnectionTask<?, ?> connectionTask) {
             this.comTaskExecution.setConnectionTask(connectionTask);
             this.comTaskExecution.doSetUseDefaultConnectionTask(false);
@@ -1562,6 +1561,12 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
+        public ComTaskExecutionUpdater useDefaultConnectionTask(boolean useDefaultConnectionTask) {
+            this.comTaskExecution.setUseDefaultConnectionTask(useDefaultConnectionTask);
+            return this;
+        }
+
+        @Override
         public ComTaskExecutionUpdater useDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
             this.comTaskExecution.setDefaultConnectionTask(defaultConnectionTask);
             this.connectionTaskSchedulingMayHaveChanged = true;
@@ -1571,6 +1576,14 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public ComTaskExecutionUpdater setConnectionFunction(ConnectionFunction connectionFunction) {
             this.comTaskExecution.setConnectionFunction(connectionFunction);
+            this.connectionTaskSchedulingMayHaveChanged = true;
+            return this;
+        }
+
+        @Override
+        public ComTaskExecutionUpdater useConnectionTaskBasedOnConnectionFunction(ConnectionTask<?, ?> connectionTask) {
+            this.comTaskExecution.setConnectionTaskBasedOnConnectionFunction(connectionTask);
+            this.connectionTaskSchedulingMayHaveChanged = true;
             return this;
         }
 
