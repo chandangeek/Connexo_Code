@@ -55,33 +55,10 @@ public class FirmwareMessageInfoFactory {
     }
 
     public FirmwareMessageInfo from(DeviceMessageSpec deviceMessageSpec, DeviceType deviceType, String uploadOption, String firmwareType) {
-        PropertyDefaultValuesProvider provider =  (propertySpec, propertyType) -> {
-            if (BaseFirmwareVersion.class.equals(propertySpec.getValueFactory().getValueType())){
-                FirmwareVersionFilter filter = firmwareService.filterForFirmwareVersion(deviceType);
-                if (firmwareType != null) {
-                    filter.addFirmwareTypes(Collections.singletonList(FirmwareTypeFieldAdapter.INSTANCE.unmarshal(firmwareType)));
-                }
-                filter.addFirmwareStatuses(Arrays.asList(FirmwareStatus.FINAL, FirmwareStatus.TEST));
-                return firmwareService.findAllFirmwareVersions(filter).find();
-            }
-            return null;
-        };          
-        
-        return from(deviceMessageSpec, uploadOption, provider);
+        return from(deviceMessageSpec, uploadOption, firmwareVersionValuesProvider(deviceType, firmwareType));
     }
     
     public List<PropertyInfo> getProperties(DeviceMessageSpec deviceMessageSpec, DeviceType deviceType, String firmwareType, Map<String, Object> propertyValues ){
-        PropertyDefaultValuesProvider provider =  (propertySpec, propertyType) -> {
-            if (BaseFirmwareVersion.class.equals(propertySpec.getValueFactory().getValueType())){
-                FirmwareVersionFilter filter = firmwareService.filterForFirmwareVersion(deviceType);
-                if (firmwareType != null) {
-                    filter.addFirmwareTypes(Collections.singletonList(FirmwareTypeFieldAdapter.INSTANCE.unmarshal(firmwareType)));
-                }
-                filter.addFirmwareStatuses(Arrays.asList(FirmwareStatus.FINAL, FirmwareStatus.TEST));
-                return firmwareService.findAllFirmwareVersions(filter).find();
-            }
-            return null;
-        };
         TypedProperties typedProperties = TypedProperties.empty();
         if (propertyValues != null){
             for (Map.Entry<String, Object> property : propertyValues.entrySet()) {
@@ -89,12 +66,26 @@ public class FirmwareMessageInfoFactory {
             }
         }
         
-        List<PropertyInfo> properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceMessageSpec.getPropertySpecs(), typedProperties, provider);
+        List<PropertyInfo> properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceMessageSpec.getPropertySpecs(), typedProperties, firmwareVersionValuesProvider(deviceType, firmwareType));
         if (typedProperties.size() == 0) {
             properties.stream().filter(y -> y.key.equals(PROPERTY_KEY_IMAGE_IDENTIFIER)).findFirst().ifPresent(x -> x.propertyValueInfo = new PropertyValueInfo<>(null, null, false));
             properties.stream().filter(y -> y.key.equals(PROPERTY_KEY_RESUME)).findFirst().ifPresent(x -> x.propertyValueInfo = new PropertyValueInfo<>(false, false, false));
         }
         return properties;
+    }
+
+    private PropertyDefaultValuesProvider firmwareVersionValuesProvider(DeviceType deviceType, String firmwareType){
+        return (propertySpec, propertyType) -> {
+                    if (BaseFirmwareVersion.class.equals(propertySpec.getValueFactory().getValueType())){
+                        FirmwareVersionFilter filter = firmwareService.filterForFirmwareVersion(deviceType);
+                        if (firmwareType != null) {
+                            filter.addFirmwareTypes(Collections.singletonList(FirmwareTypeFieldAdapter.INSTANCE.unmarshal(firmwareType)));
+                        }
+                        filter.addFirmwareStatuses(Arrays.asList(FirmwareStatus.FINAL, FirmwareStatus.TEST));
+                        return firmwareService.findAllFirmwareVersions(filter).find();
+                    }
+                    return null;
+               };
     }
     
     private FirmwareMessageInfo from(DeviceMessageSpec deviceMessageSpec, String uploadOption, PropertyDefaultValuesProvider provider) {
