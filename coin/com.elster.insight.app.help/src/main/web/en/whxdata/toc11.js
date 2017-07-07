@@ -1,0 +1,5 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc9.js\"  name=\"Manage usage point groups\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Manage_usage_point_groups.htm\"><item name=\"Understand usage point groups\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Manage_usage_point_groups.htm#TOC_Understand_usage_pointbc-1\" /><item name=\"View usage point groups\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/View_usage_point_groups.htm\" /><item name=\"Add, edit and remove usage point groups\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Add_edit_and_remove_usage_point_groups.htm\" /><item name=\"Mark a usage point group as favourite\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Mark_a_usage_point_group_as_favourite.htm\" /></data>";

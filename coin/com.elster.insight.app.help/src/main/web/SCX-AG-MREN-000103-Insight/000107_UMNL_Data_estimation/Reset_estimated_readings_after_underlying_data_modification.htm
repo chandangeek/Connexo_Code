@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Reset estimated readings after underlying data modification</title>
+
+    <link rel="stylesheet" href="000107_UMNL_Data_estimation.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "6.2.0_3";
+    </script>
+    <meta name="brsprev" value="SCX-AG-MREN-000103-Insight/000107_UMNL_Data_estimation/Estimate_data_on_request.htm">
+    <meta name="brsnext" value="SCX-AG-MREN-000103-Insight/000107_UMNL_Data_editing/000107_UMNL_Data_editing.htm">
+    <meta name="topic-breadcrumbs" content="Data estimation > Execute estimation"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic"><a name="XREF_95081_Reset_estimated"></a>Reset estimated readings after underlying data modification</p>
+    <p dir="ltr" class="FM_Body"><span
+            class="FM_change_bar">Estimated readings are reset on a usage point output after modification of the underlying data in order to keep the output data up to date.</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">The estimated readings will only be reset on dependent channels after the modification of data on meters that are linked to the selected usage point or of the data on usage point channels that are used for the calculation of dependent channels. </span>
+    </p>
+    <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+    <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">Changes in reading qualities on a device won’t lead to resetting estimated data on a usage point as long as the change in reading qualities (suspect flagging, confirmation, etc.) isn’t the result of a data change.</span>
+    </p>
+</div>
+</body>
+</html>

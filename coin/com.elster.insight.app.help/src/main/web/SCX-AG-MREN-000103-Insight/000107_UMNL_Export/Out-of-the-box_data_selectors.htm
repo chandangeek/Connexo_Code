@@ -1,0 +1,506 @@
+<!DOCTYPE HTML>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Out-of-the-box data selectors</title>
+
+    <link rel="stylesheet" href="000107_UMNL_Export.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "10.1.0_2";
+    </script>
+    <meta name="brsprev" value="SCX-AG-MREN-000103-Insight/000107_UMNL_Export/Configure_export_tasks.htm">
+    <meta name="brsnext" value="SCX-AG-MREN-000103-Insight/000107_UMNL_Export/Manage_export_tasks.htm">
+    <meta name="topic-breadcrumbs" content="Export > Configure export tasks"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic"><a name="XREF_13031_Out_of_the_box"></a>Out-of-the-box data selector<span class="FM_change_bar" style="font-size  : 11.0pt; ">s</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">The standard out-of-the box data selectors are marked by </span><span class="FM_change_bar"
+                                                                                                                                   style="font-family : Lato; font-weight : bold; ">STD</span><span
+            class="FM_change_bar">&#160;between square brackets at the end of the data selector’s name. For instance </span><span class="FM_change_bar"
+                                                                                                                                  style="font-family : Lato; font-weight : bold; ">Usage point readings data selector [STD]</span><span
+            class="FM_change_bar">. Custom data selectors are described in the specific project documentation.</span></p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_61926_Add_export_task"></a>Add export task with the<span class="FM_change_bar" style="font-size  : 11.0pt; ">&#160;</span>data selector Usage point
+        readings</p>
+    <p dir="ltr" class="FM_Body">The <span class="FM_UIRef">Usage point readings</span>&#160;exporter is used to export aggregated usage point readings for billing or other purposes.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administratio</span><span class="FM_change_bar">n</span><span class="FM_change_bar">&#160;&gt; </span><span
+            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Data exchange &gt; Export tasks</span><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; <span class="FM_change_bar">Click the button </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Add </span><span
+            class="FM_UIRef">export task</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Type a unique name in <span class="FM_UIRef">Name</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Select a log leve<span class="FM_change_bar">l.</span></p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Enter the needed recurrence and start date and time.</p>
+    <p dir="ltr" class="FM_ListNumber1">6. &#160; In <span class="FM_UIRef">Data selector,</span>&#160;select <span class="FM_UIRef">Usage point readings</span>.</p>
+    <p dir="ltr" class="FM_Indent">The following properties are added to the page:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="max-width: 100% ;height: auto" cellspacing="0px">
+            <caption dir="ltr" class="FM_CTableTitle" style=" width: 416.69pt;">
+                <uservariable x-value="Part &#160;of " x-showvalue="TRUE" name="Table_Sheet" x-format="Table_Sheet">Part &#160;of</uservariable>
+                &#160;</caption>
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Field</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Usage point group</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Select the usage point group to export data from.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;">Purpose</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Select a purpose for the exp<span class="FM_change_bar">ort.</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Reading types</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Click the button <span class="FM_UIRef">Add reading types</span>&#160;to select the needed reading types. See <a
+                            href="../000107_UMNL_Data_validation/Manage_validation_rule_set_versions_and_associated_validation.htm#XREF_61651_Add_reading_types"><span class="FM_blue_crossreference">“Add reading types”</span></a>.
+                        At this point, you are indicating what data will be exported. See <a
+                                href="../000107_UMNL_Metrology_configuration/Understand_the_metrology_configuration_landing_page.htm#XREF_17531_View_the_metrology"><span
+                                class="FM_blue_crossreference">“View the metrology configuration landing page”</span></a>&#160;to read more about how the outputs of a usage point are configured.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Export window</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">This is the period for which to export the selected data. These periods are based on the available relative periods. If you have sufficient privileges, you can add additional relative periods in Connexo Admin. See the Connexo Admin user guide for more information. The following export windows are available out-of-the-box:</span>
+                    </p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Last 7 days.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Previous month.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Previous week.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">This month.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">This week.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Today.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Yesterday.</span></p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">There are two options to use the export window. The export window can start from:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">start of export window</span></p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">Default value.</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">last exported data (continuous data)</span></p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">This option overrules the start of the export window by the last export date. The exported file will contain data starting where the previous export ended. With this option, there won’t be overlapping data in the export, i.e. the data will be continuous. For instance, if the export window is Previous month and the export task was run manually two weeks ago, then the export will only contain the data of the last two weeks. This continuity can only be interrupted by choices in the export strategy regarding updated, missing and validated data.</span>
+                    </p>
+                    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">In the preview of the five next periods (see bottom of this step) the start of the export period can’t be shown in an exact manner. This is because the last export date may vary between usage points from the selected usage point group. In this case, the start of the export window is shown as the defined start of the export window. So, the preview will look as if you had selected </span><span
+                            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">start of export window</span><span class="FM_change_bar">.</span></p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">When the continuous blocks or data and the updated data strategies are combined, the start of the update window won’t shift if the last export date is before or after the export period.</span>
+                    </p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">If strategies are edited, the last exported date won’t be reset. The edit doesn’t work retro-active. This means that when the last exported date was already set and the export task is edited, then the historical data that was skipped won’t be exported.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;">Update<span class="FM_change_bar">d dat</span>a</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Export updated data for delivery to <span class="FM_change_bar">an external billing system.</span></p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">There are two options available:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Don’t export</span><span class="FM_change_bar">.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Export within the update window</span><span
+                                    class="FM_change_bar">.</span></p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_Indent"><span
+                            class="FM_change_bar">Select the update window from the dropdown. In this dropdown you can select only the relative periods in the category </span><span
+                            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Update window</span><span
+                            class="FM_change_bar">. You can add a new period by clicking the </span><span class="FM_change_bar"
+                                                                                                          style="font-family : Lato; font-weight : bold; ">Add update window link</span><span
+                            class="FM_change_bar">&#160;in Connexo Admin. You will need corresponding privileges.</span></p>
+                    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">After selection of the update period, the start and end of the update window are added to the preview section.</span></p>
+                    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">Following, you can determine what needs to be exported from this period:</span></p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Updated values only</span><span
+                                    class="FM_change_bar">.</span></p>
+                        </li>
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet2"><span class="FM_change_bar"
+                                                                      style="font-family : Lato; font-weight : bold; ">Updated values and adjacent data within timeframe</span><span
+                                    class="FM_change_bar">.</span></p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_Indent" style="text-indent : 0.000pt;"><span class="FM_change_bar">When selected, the update timeframe must be selected in the dropdown. In this dropdown you can select only the relative periods in the category </span><span
+                            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Update timeframe</span><span class="FM_change_bar">. You can add a new period by clicking the </span><span
+                            class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Add update timeframe</span><span class="FM_change_bar">&#160;link in Connexo Admin. You will need corresponding privileges.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Missing data</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">With <span class="FM_UIRef">Missing data</span>&#160;you determine your strategy to deliver complete data without gaps in the export file. There
+                        are two options:</p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_UIRef">Skip intervals with missing data (data with gaps)</span>.</p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_Indent">Example: If there isn’t any data from 10:00 until 11:00, then the interval 10:00-11:00 won’t be exported.</p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1"><span class="FM_UIRef">Skip export window for reading types with missing data (complete data)</span>.</p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_Indent">Example: If there isn’t any data from 10:00 until 11:00, then the entire export window for this <a
+                            href="javascript:BSSCPopup('../../Glo$$aryPopup$/reading type.htm');" id="GLPOPUPOut-Resp1011">
+                        <script type="text/javascript">if (typeof( FilePopupInit ) != 'function') FilePopupInit = new Function();
+                        FilePopupInit('GLPOPUPOut-Resp1011');</script>
+                        reading type</a> won’t be exported. The export complete data strategy is mostly used in combination with the<span class="FM_UIRef"> Export continuous blocks of data</span>&#160;strategy.
+                    </p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Skip export window for usage points with missing data (complete data).</span>
+                            </p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">If selected, then data for a usage point with missing data on the required reading types on the chosen purpose won’t be exported. If not selected, then no data from any purpose will be exported for a usage point with missing data on the required reading types.</span>
+                    </p>
+                    <p dir="ltr" class="FM_CellBody">If an interval or an export window isn’t exported, then this is logged with log level <span class="FM_UIRef">Info</span>.</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left; font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Validated data</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">With <span class="FM_UIRef">Validated data</span>&#160;you determine your strategy to deliver validated data to market parties. There are three
+                        options:</p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Export all data (including suspect/not validated data)</span></p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_Indent">All intervals or reading types are exported regardless of the validation result.</p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Skip intervals with suspect/not validated data</span></p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_Indent">An interval which contains suspect data or not validated data won’t be exported.</p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Skip export window for reading types with suspect/not validated data</span>
+                            </p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_Indent">The entire export window for a reading type which contains suspect data or not validated data won’t be exported.</p>
+                    <ul type="disc" dir="ltr">
+                        <li>
+                            <p dir="ltr" class="FM_ListBullet1" style="font-family : Lato; font-weight : bold;"><span class="FM_UIRef">Skip export window for usage points </span><span
+                                    class="FM_change_bar">with suspect/not validated data</span></p>
+                        </li>
+                    </ul>
+                    <p dir="ltr" class="FM_Indent"><span class="FM_change_bar">If selected, then data for a usage point with suspect/not validated data on the required reading types on the chosen purpose won’t be exported. If not selected, then no data from any purpose will be exported for a usage point with suspect/not validated data on the required reading types.</span>
+                    </p>
+                    <p dir="ltr" class="FM_CellBody">If an interval or an export window isn’t exported, then this is logged with log level <span class="FM_UIRef">Info</span>. </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Indent">After the <span class="FM_UIRef">Schedule</span>, <span class="FM_UIRef">Export window</span>&#160;and - if needed - the <span class="FM_UIRef">Updated data</span>&#160;fields
+        have been completed, a preview with the next five default periods is shown.</p>
+    <p dir="ltr" class="FM_ListNumber1">7. &#160; In the field <span class="FM_UIRef">Data formatter</span>, <span class="FM_UIRef">CSV formatter</span> is selected.</p>
+    <p dir="ltr" class="FM_Indent">Additional formatters may be available.</p>
+    <p dir="ltr" class="FM_Indent">The tooltip on info icon next to this field shows the format of the export file.</p>
+    <p dir="ltr" class="FM_Indent">After selecting <span class="FM_UIRef">CSV formatter</span>, the following properties are shown:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Identifier</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Custom tag to add to the file name of all exported files related to the selected <span class="FM_change_bar">e</span>xport task. The following
+                        symbols aren’t allowed: &quot;: \ / * ? &quot; &lt; &gt; and |</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Update identifier</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Custom tag to distinguish updated data from regular data in the export file. The following symbols aren’t allowed: &quot;: \ / * ? &quot; &lt; &gt; and |</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Separator</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Specify the s<span class="FM_change_bar">ymbol that separates values in the exported file. Can be a comma (</span>default) or a semicolon.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+    <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+    <ul type="disc" dir="ltr">
+        <li>
+            <p dir="ltr" class="FM_ListBullet1"><span
+                    class="FM_change_bar">If no specific purpose is specified on the export task, then data is exported for all the purposes of the usage points. </span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Specific purpose data will only be exported if a purpose is specified on the export task.</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">New data is marked with the tag that is defined in the </span><span class="FM_change_bar"
+                                                                                                                                                style="font-family : Lato; font-weight : bold; ">Identifier</span><span
+                    class="FM_change_bar">&#160;field from the </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Output formatter.</span></p>
+        </li>
+        <li>
+            <p dir="ltr" class="FM_ListBullet1"><span class="FM_change_bar">Updated data is marked with the </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Update identifier</span><span
+                    class="FM_change_bar">&#160;tag from the </span><span class="FM_change_bar" style="font-family : Lato; font-weight : bold; ">Output formatter</span><span
+                    class="FM_change_bar">.</span></p>
+        </li>
+    </ul>
+    <p dir="ltr" class="FM_BodyGrey">&nbsp;</p>
+    <p dir="ltr" class="FM_Body">The expo<span class="FM_change_bar">rted f</span>ile has the following format:</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table117 TParameter" border-collapse="collapse" style="max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Column</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Type</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading"><span class="FM_change_bar">Comment</span></p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Interval timestamp</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Same for interval and non-interval <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/reading type.htm');"
+                                                                                                                       id="GLPOPUPOut-Resp1012">
+                        <script type="text/javascript">if (typeof( FilePopupInit ) != 'function') FilePopupInit = new Function();
+                        FilePopupInit('GLPOPUPOut-Resp1012');</script>
+                        reading type</a>s, i.e. channels and registers. The interval timestamp is in the ISO format. It is the complete date plus hours, minutes, seconds and a decimal fraction of a second (if different from 0). The format is YYYY-MM-DDThh:mm:ss.sTZD. </span>
+                    </p>
+                    <p dir="ltr" class="FM_CellBody" style="text-align  : left;"><span class="FM_change_bar">Example: 1997-07-16T19:20:30.45+01:00</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">MRID</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Name</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String, maximum 80 characters</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The name can’t have the defined separator symbol, i.e. a comma or a semicolon, in its value.</span></p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Purpose</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String, maximum 80 characters</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Reading type</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String, 18 digits that are separated by dots</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">The reading types are grouped per device. Within a reading type, the values are ordered chronologically on the interval timestamp. The oldest interval timestamp comes first.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Aggregated value</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">Big decimal</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_change_bar">Validation result</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">String</span></p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">If the data wasn’t validated, the value is an empty string.</span></p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">If the data was validated and deemed valid, the value is</span><span class="FM_change_bar"
+                                                                                                                                                      style="font-family : Lato; font-weight : bold; "> Valid</span><span
+                            class="FM_change_bar">.</span></p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">If the data is missing, the value is</span><span class="FM_change_bar"
+                                                                                                                                  style="font-family : Lato; font-weight : bold; "> Missing</span><span
+                            class="FM_change_bar">.</span></p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_change_bar">If the data is present and suspect, the value is</span><span class="FM_change_bar"
+                                                                                                                                              style="font-family : Lato; font-weight : bold; "> Suspect</span><span
+                            class="FM_change_bar">.</span></p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_Body">&nbsp;</p>
+    <p dir="ltr" class="FM_Body"><span class="FM_Bold">Exam</span><span class="FM_change_bar">ple</span><span class="FM_change_bar">:</span></p>
+    <p dir="ltr" class="FM_Body"><span
+            class="FM_change_bar">2016-12-02T00:00:00.000+01:00,421e0aad-92e3-0c32-e053-0100007f8dcb,UP_0001,Billing,11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0,86.47,valid</span></p>
+    <p dir="ltr" class="FM_Body"><span
+            class="FM_change_bar">2016-12-03T00:00:00.000+01:00,421e0aad-92e3-0c32-e053-0100007f8dcb,UP_0001,Billing,11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0,86.392,valid</span></p>
+    <p dir="ltr" class="FM_Body"><span
+            class="FM_change_bar">2016-12-04T00:00:00.000+01:00,421e0aad-92e3-0c32-e053-0100007f8dcb,UP_0001,Billing,11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0,86.263,valid</span></p>
+    <p dir="ltr" class="FM_Body"><span
+            class="FM_change_bar">2016-12-05T00:00:00.000+01:00,421e0aad-92e3-0c32-e053-0100007f8dcb,UP_0001,Billing,11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0,86.69,suspect</span></p>
+    <p dir="ltr" class="FM_Body"><span
+            class="FM_change_bar">2016-12-02T00:00:00.000+01:00,421e0aad-92e4-0c32-e053-0100007f8dcb,UP_0002,Billing,11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0,86.171,suspect</span></p>
+    <p dir="ltr" class="FM_Body"><span
+            class="FM_change_bar">2016-12-03T00:00:00.000+01:00,421e0aad-92e4-0c32-e053-0100007f8dcb,UP_0002,Billing,11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0,86.415,valid</span></p>
+    <p dir="ltr" class="FM_Body"><span
+            class="FM_change_bar">2016-12-04T00:00:00.000+01:00,421e0aad-92e4-0c32-e053-0100007f8dcb,UP_0002,Billing,11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0,86.531,valid</span></p>
+    <p dir="ltr" class="FM_Body"><span class="FM_change_bar">2016-12-05T00:00:00.000+01:00,421e0aad-92e4-0c32-e053-0100007</span>f8dcb,UP_0002,Billing,11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0,86.186,suspect
+    </p>
+</div>
+</body>
+</html>

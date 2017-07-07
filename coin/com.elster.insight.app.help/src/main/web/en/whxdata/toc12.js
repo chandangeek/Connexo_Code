@@ -1,0 +1,5 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc9.js\"  name=\"Manage usage point life cycles\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Manage_usage_point_life_cycles.htm\"><item name=\"Manage usage point life cycles\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Manage_usage_point_life_cycles1.htm\" /><item name=\"Manage states on a usage point life cycle\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Manage_states_on_a_usage_point_life_cycle.htm\" /><item name=\"Manage transitions on a usage point life cycle\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Manage_transitions_on_a_usage_point_life_cycle.htm\" /><item name=\"Manage usage point life cycle on a usage point\" url=\"SCX-AG-MREN-000103-Insight/000107_UMNL_Usage_point_management/Manage_usage_point_life_cycle_on_a_usage_point.htm\" /></data>";

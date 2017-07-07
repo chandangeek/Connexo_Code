@@ -1,0 +1,292 @@
+<!DOCTYPE HTML>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Manage validation rule set versions and associated validation rules</title>
+
+    <link rel="stylesheet" href="000107_UMNL_Data_validation.css" type="text/css"/>
+
+    <link rel="stylesheet" href="../../HTMLStyling.css" type="text/css"/>
+    <link rel="StyleSheet" href="../../responsive_html5_!OverrideStyle!/Styles.css" type="text/css"/>
+
+
+    <script type="text/javascript" language="JavaScript">
+        //<![CDATA[
+        function reDo() {
+            if (innerWidth != origWidth || innerHeight != origHeight)
+                location.reload();
+        }
+        if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+            origWidth = innerWidth;
+            origHeight = innerHeight;
+            onresize = reDo;
+        }
+        onerror = null;
+        //]]>
+    </script>
+    <style type="text/css">
+        <!--
+        div.WebHelpPopupMenu {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 4;
+            visibility: hidden;
+        }
+
+        p.WebHelpNavBar {
+            text-align: right;
+        }
+
+        -->
+    </style>
+    <meta name="generator" content="Adobe FrameMaker 2017"/>
+    <script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+    <script type="text/javascript" src="../../template/scripts/constants.js"></script>
+    <script type="text/javascript" src="../../template/scripts/utils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+    <script type="text/javascript" src="../../template/scripts/settings.js"></script>
+    <script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+    <script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+    <script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../template/styles/topic.min.css">
+    <script type="text/javascript">
+        gRootRelPath = "../..";
+        gCommonRootRelPath = "../..";
+        gTopicId = "5.0_3";
+    </script>
+    <meta name="brsprev" value="SCX-AG-MREN-000103-Insight/000107_UMNL_Data_validation/Manage_validation_rule_sets.htm">
+    <meta name="brsnext" value="SCX-AG-MREN-000103-Insight/000107_UMNL_Data_validation/Out-of-the-box_validators.htm">
+    <meta name="topic-breadcrumbs" content="Data validation"/>
+</head>
+
+<body dir="ltr">
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+<div dir="ltr">
+    <p dir="ltr" class="FM_H3SectionTopic">Manage validation rule set versions and associated validation rules</p>
+    <p dir="ltr" class="FM_Body">Validation rule set versions are used to manage validation over time. They define the validity period of <a
+            href="javascript:BSSCPopup('../../Glo$$aryPopup$/validation rules.htm');" id="GLPOPUPManaResp1011">
+        <script type="text/javascript">if (typeof( FilePopupInit ) != 'function') FilePopupInit = new Function();
+        FilePopupInit('GLPOPUPManaResp1011');</script>
+        validation rules</a> and different versions can have different validation rules associated with them. This mechanism allows to switch between applicable rules in line with a validation
+        calendar.
+    </p>
+    <p dir="ltr" class="FM_H4Topic">View validation rule set versions and their associated validation rules</p>
+    <p dir="ltr" class="FM_Body">Discover the different versions with their proper validity periods and associated validation rules.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data validation</span>&#160;&gt; <span class="FM_UIRef">Validation rule sets</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Select the desired validation rule set in the first table listing the validation rule sets.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; In the second table, under the validation rule sets, the versions of the selected validation rule set are listed. The validity period is shown in the
+        column <span class="FM_UIRef">Period</span>. Additionally, the number of active and inactive rules in this version are indicated.</p>
+    <p dir="ltr" class="FM_PNote"><span class="FM_Icons">3</span></p>
+    <p dir="ltr" class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+    <p dir="ltr" class="FM_BodyGrey">Alternatively, you can click the desired validation rule set to open its detail page. Then click <span class="FM_UIRef">Versions</span>&#160;on the left navigation
+        menu. Use the breadcrumb to navigate back to the validation rule set overview.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Select the desired version to see the associated validation rules in the third table under the versions. In this table, the status of each rule is
+        shown.</p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Select the desired validation rule to see its full details in the details pane under the validation rules table.</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_47260_Add_a_version_to_a"></a>Add a version to a validation rule set</p>
+    <p dir="ltr" class="FM_Body">You can add multiple versions to a validation rule set with their own validity period and associated validation rule sets. Only one version per validation rule set can
+        be active simultaneously. </p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data validation</span>&#160;&gt; <span class="FM_UIRef">Validation rule sets</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Select the desired validation rule set.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; If there is no version associated yet, then click <span class="FM_UIRef">Add validation rule set version</span>&#160;under the table listing the
+        validation rule sets.</p>
+    <p dir="ltr" class="FM_Indent">If at least one version is already associated with the selected validation rule set, adding further versions is only possible by opening the details page of the
+        validation rule set:</p>
+    <p dir="ltr" class="FM_ListNumber2">a. Click desired validation rule link in the overview table to open its details page.</p>
+    <p dir="ltr" class="FM_ListNumber2">b. Click <span class="FM_UIRef">Versions</span> in the left navigation menu.</p>
+    <p dir="ltr" class="FM_ListNumber2">c. Click the button <span class="FM_UIRef">Add version </span>above the version overview table.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Complete the fields in <span class="FM_UIRef">Add validation rule set version</span>.</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Field</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Description</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Type a short description explaining the specific use of this validation rule set version.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Start</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Define when the new version becomes valid. </p>
+                    <p dir="ltr" class="FM_CellBody">Select <span class="FM_UIRef">None</span>&#160;if you want no restriction in validity. In the versions overview table the validity period will be
+                        indicated as <span class="FM_UIRef">Always</span>&#160;in the column <span class="FM_UIRef">Period</span>.</p>
+                    <p dir="ltr" class="FM_CellBody">If you specify a start date, this date will be shown as From /date/ in the column <span class="FM_UIRef">Period</span>.</p>
+                    <p dir="ltr" class="FM_CellBody">If there is already at least one version associated with the current validation rule set, then the validity period in the column <span
+                            class="FM_UIRef">Period</span>&#160;of the currently valid version will automatically be changed into <span class="FM_UIRef">Until /date/</span>&#160;when the new version
+                        becomes valid where /date/ is the start date of the next version. Versions of the same validation rule set can’t be valid simultaneously.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">6. &#160; The version is now listed in the versions overview table of the current validation rule set. </p>
+    <p dir="ltr" class="FM_ListNumber1">7. &#160; Next task is to add validation rules to the new version.</p>
+    <p dir="ltr" class="FM_H4Topic">Clone a validation rule set version</p>
+    <p dir="ltr" class="FM_Body">To save time you can base a new validation rule set version on an existing one.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data validation</span>&#160;&gt; <span class="FM_UIRef">Validation rule sets</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Select the desired validation rule set.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Select the desired version.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Click the actions icon <img alt="000107_UMNL_Data_validation00023.png" id="image93" src="../../assets/000107_UMNL_Data_validation00023.png"
+                                                                              style="max-width: 100% ;height: auto"/>&#160;and select <span class="FM_UIRef">Clone</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Enter <span class="FM_UIRef">Description</span>&#160;and <span class="FM_UIRef">Start date</span>. See <a href="#XREF_47260_Add_a_version_to_a"><span
+            class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">Add a version to a validation rule set”</span></a>.</p>
+    <p dir="ltr" class="FM_ListNumber1">6. &#160; The new version is now listed in the versions overview table. The associated validation rules can be adjusted as needed.</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_77117_Add_a_validation"></a>Add a validation rule to a validation rule set version and activate it</p>
+    <p dir="ltr" class="FM_Body">As a final step you need to add each needed validation rule to the correct version of the validation rule set. Don’t forget to activate the added validation rules. In
+        case you don’t want to use certain validation rules anymore, you can deactivate them.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data validation</span>&#160;&gt; <span class="FM_UIRef">Validation rule sets</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Select the needed validation rule set.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click the correct version to open its detail page.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Validation rules</span> in the left navigation menu.</p>
+    <p dir="ltr" class="FM_ListNumber1">5. &#160; Click <span class="FM_UIRef">Add validation rule</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">6. &#160; Complete the fields in <span class="FM_UIRef">Add validation rule</span>.</p>
+    <div width="100%" align="left">
+        <table border-spacing="0" dir="ltr" class="table3 TParameter" border-collapse="collapse" style="max-width: 100% ;height: auto" cellspacing="0px">
+            <tr class="t1st">
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Parameter</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellHeading">Description</p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Validation rule</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Type a unique name to identify the validation rule.</p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Validator</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Select how the validation must work, e.g. Check missing values, Reading qualities, <a
+                            href="javascript:BSSCPopup('../../Glo$$aryPopup$/register.htm');" id="GLPOPUPManaResp1012">
+                        <script type="text/javascript">if (typeof( FilePopupInit ) != 'function') FilePopupInit = new Function();
+                        FilePopupInit('GLPOPUPManaResp1012');</script>
+                        Register</a> increase, etc. Depending on the selected validator, additional parameters may require completion. The complete list of validators is shown under this procedure.
+                    </p>
+                </td>
+            </tr>
+            <tr class="t2Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody"><a href="javascript:BSSCPopup('../../Glo$$aryPopup$/reading type.htm');" id="GLPOPUPManaResp1013">
+                        <script type="text/javascript">if (typeof( FilePopupInit ) != 'function') FilePopupInit = new Function();
+                        FilePopupInit('GLPOPUPManaResp1013');</script>
+                        Reading type</a>s
+                    </p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Determine the data that will be validated by selecting the corresponding <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/reading type.htm');"
+                                                                                                                                 id="GLPOPUPManaResp1014">
+                        <script type="text/javascript">if (typeof( FilePopupInit ) != 'function') FilePopupInit = new Function();
+                        FilePopupInit('GLPOPUPManaResp1014');</script>
+                        reading type</a>s. See <a href="#XREF_61651_Add_reading_types"><span class="FM_blue_crossreference">“</span><span class="FM_CR_URL"></span><span class="FM_blue_crossreference">Add reading types”</span></a>.
+                    </p>
+                </td>
+            </tr>
+            <tr class="t1Row">
+                <td>
+                    <p dir="ltr" class="FM_CellBody">Data quality level</p>
+                </td>
+                <td>
+                    <p dir="ltr" class="FM_CellBody">With the data quality level you can configure the behaviour of the validation rule if validation fails on a particular value.</p>
+                    <p dir="ltr" class="FM_CellBody">&nbsp;</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Suspect</span>: The data is invalid and needs attention. The concerned value will be subjected to estimation and is
+                        indicated in red on the graphic data representation.</p>
+                    <p dir="ltr" class="FM_CellBody"><span class="FM_UIRef">Informative</span>: The data is valid but potentially wrong. The concerned value will not be estimated and is indicated in
+                        yellow on the graphic data representation.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p dir="ltr" class="FM_ListNumber1">7. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+    <p dir="ltr" class="FM_Body">By default, validation rules are inactive.</p>
+    <p dir="ltr" class="FM_ListNumber1">8. &#160; To activate a validation rule, in the validation rule overview table, click the actions icon <img alt="000107_UMNL_Data_validation00024.png"
+                                                                                                                                                    id="image94"
+                                                                                                                                                    src="../../assets/000107_UMNL_Data_validation00024.png"
+                                                                                                                                                    style="max-width: 100% ;height: auto"/>&#160;and
+        select <span class="FM_UIRef">Activate</span>.</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_61651_Add_reading_types"></a>Add reading types</p>
+    <p dir="ltr" class="FM_Body">At several occasions it is required to define the concerned data by selecting <a href="javascript:BSSCPopup('../../Glo$$aryPopup$/reading type.htm');"
+                                                                                                                  id="GLPOPUPManaResp1015">
+        <script type="text/javascript">if (typeof( FilePopupInit ) != 'function') FilePopupInit = new Function();
+        FilePopupInit('GLPOPUPManaResp1015');</script>
+        reading type</a>s, e.g. when adding a validation rule.
+    </p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Click the button <span class="FM_UIRef">Add reading types</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Use the filters on top of the page <span class="FM_UIRef">Add reading types</span>&#160;to narrow down the number of reading types to choose from.
+        Don’t forget to click <span class="FM_UIRef">Apply</span> to apply your filters.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Select the needed reading types.</p>
+    <p dir="ltr" class="FM_Indent">Click on the information icon next to each reading type to see its CIM code details.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+    <p dir="ltr" class="FM_H4Topic"><a name="XREF_24157_Edit_or_remove"></a>Edit or remove validation rule set versions and validation rules</p>
+    <p dir="ltr" class="FM_Body">It is possible to edit or remove a validation rule set version or a validation rule to correct mistakes.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data validation</span>&#160;&gt; <span class="FM_UIRef">Validation rule sets</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Select the needed version or rule.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click the actions icon <img alt="masterActions.png" id="image95" src="../../assets/masterActions.png" style="max-width: 100% ;height: auto"/>&#160;and
+        select <span class="FM_UIRef">Edit</span>&#160;or <span class="FM_UIRef">Remove</span>.</p>
+    <p dir="ltr" class="FM_ListNumber1">4. &#160; Apply the desired changes and click <span class="FM_UIRef">Save</span> or confirm the removal message.</p>
+    <p dir="ltr" class="FM_Body">&nbsp;</p>
+    <p dir="ltr" class="FM_PImportant"><span class="FM_Icons">1</span></p>
+    <p dir="ltr" class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
+    <p dir="ltr" class="FM_Body"><span
+            class="FM_change_bar">Changing the name of a validation rule can potentially remove validation attributes that were changed on the usage point output. See </span><a
+            href="../000107_UMNL_Usage_point_management/View_the_usage_point_landing_page.htm#XREF_19916_View_validators_on"><span class="FM_change_bar"></span><span class="FM_blue_crossreference">“View/Edit/Restore validation attributes on reading type level”</span><span
+            class="FM_change_bar"></span></a><span class="FM_change_bar">.</span></p>
+    <p dir="ltr" class="FM_H4Topic">Deactivate a validation rule</p>
+    <p dir="ltr" class="FM_Body">You can deactivate a validation rule if you don’t want it to be applied any longer.</p>
+    <p dir="ltr" class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+    <p dir="ltr" class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+    <p dir="ltr" class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data validation</span>&#160;&gt; <span class="FM_UIRef">Validation rule sets</span>.
+    </p>
+    <p dir="ltr" class="FM_ListNumber1">2. &#160; Select the needed version and then the validation rule.</p>
+    <p dir="ltr" class="FM_ListNumber1">3. &#160; Click the actions icon <img alt="masterActions_1.png" id="image96" src="../../assets/masterActions_1.png" style="max-width: 100% ;height: auto"/>&#160;and
+        select <span class="FM_UIRef">Deactivate</span>.</p>
+</div>
+</body>
+</html>
