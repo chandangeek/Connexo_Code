@@ -510,77 +510,84 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         }
 
         private void postEvent() {
-            if (this.usedDefaultPreviously) {   //TODO: should we also post events when switching from/to using connection function based connection task
+            if (this.usedDefaultPreviously) {
                 this.postEventWhenUsingDefaultBefore();
+            } else if (this.previousConnectionFunction.isPresent()) {
+                this.postEventWhenUsingConnectionFunctionBefore();
+            } else if (this.previousPartialConnectionTask.isPresent()) {
+                this.postEventWhenUsingSpecificTaskBefore();
             } else {
-                this.postEventWhenNotUsingDefaultBefore();
+                this.postEventWhenUsingNothingBefore();
             }
         }
 
         private void postEventWhenUsingDefaultBefore() {
             if (!this.useDefaultNow) {
-                // Are we using a specific task or not?
-                if (this.newPartialConnectionTask.isPresent()) {
+                if (this.newConnectionFunction.isPresent()) {
+                    // Using default before but using connection function now
+                    this.postEvent(new SwitchFromDefaultConnectionToConnectionFunctionEventData(ComTaskEnablementImpl.this, this.newConnectionFunction.get()));
+                } else if (this.newPartialConnectionTask.isPresent()) {
                     // Using default before but using a specific task now
                     this.postEvent(new SwitchFromDefaultConnectionToPartialConnectionTaskEventData(ComTaskEnablementImpl.this, this.newPartialConnectionTask.get()));
                 } else {
                     // Simply switching off using the default
                     this.postEvent(new SwitchOffUsingDefaultConnectionEventData(ComTaskEnablementImpl.this));
                 }
-            } else {
-                // Still using the default, no changes, no event to post
-            }
+            } // Else we are still using the default, so no changes and no event to post
         }
 
-        private void postEventWhenNotUsingDefaultBefore() {
+        private void postEventWhenUsingConnectionFunctionBefore() {
             if (this.useDefaultNow) {
-                // Not using default before but we are now
-                this.postEventWhenNotUsingDefaultBeforeButWeAreNow();
+                // Using connection function before but using default task now
+                this.postEvent(new SwitchFromConnectionFunctionToDefaultConnectionEventData(ComTaskEnablementImpl.this, this.previousConnectionFunction.get()));
+            } else if (this.newConnectionFunction.isPresent()) {
+                // Using connection function before and using connection function now
+                if (this.previousConnectionFunction.get().getId() != this.newConnectionFunction.get().getId()) {
+                    // Switching between different connection functions
+                    this.postEvent(new SwitchBetweenConnectionFunctionsEventData(ComTaskEnablementImpl.this, this.previousConnectionFunction.get(), this.newConnectionFunction.get()));
+                } // Else we are still using the same connection function, so no changes and no event to post
+            } else if (this.newPartialConnectionTask.isPresent()) {
+                // Using connection function before but using specific task now
+                this.postEvent(new SwitchFromConnectionFunctionToPartialConnectionTaskEventData(ComTaskEnablementImpl.this, this.previousConnectionFunction.get(), this.newPartialConnectionTask.get()));
             } else {
-                // Not using default before and we are not using default now
-                this.postEventWhenStillNotUsingDefault();
+                // Switching off usage of connection function
+                this.postEvent(new SwitchOffUsingConnectionFunctionEventData(ComTaskEnablementImpl.this, this.previousConnectionFunction.get()));
             }
         }
 
-        private void postEventWhenNotUsingDefaultBeforeButWeAreNow() {
-            // Was there a preferred connection task before?
-            if (this.previousPartialConnectionTask.isPresent()) {
-                // Switching off usage of preferred connection task and using default
+        private void postEventWhenUsingSpecificTaskBefore() {
+            if (this.useDefaultNow) {
+                // Using specific task before but using default task now
                 this.postEvent(new SwitchFromPartialConnectionTaskToDefaultConnectionEventData(ComTaskEnablementImpl.this, this.previousPartialConnectionTask.get()));
+            } else if (this.newConnectionFunction.isPresent()) {
+                // Using specific task before but using connection function now
+                this.postEvent(new SwitchFromPartialConnectionTaskToConnectionFunctionEventData(ComTaskEnablementImpl.this, this.previousPartialConnectionTask.get(), this.newConnectionFunction.get()));
+            } else if (this.newPartialConnectionTask.isPresent()) {
+                if (this.differentPartialConnectionTasks(this.previousPartialConnectionTask.get(), this.newPartialConnectionTask.get())) {
+                    // switching between different preferred connection tasks
+                    this.postEvent(
+                            new SwitchBetweenPartialConnectionTasksEventData(
+                                    ComTaskEnablementImpl.this,
+                                    this.previousPartialConnectionTask.get(),
+                                    this.newPartialConnectionTask.get()));
+                } // Else we are still using the same partial connection task, so no changes and no event to post
             } else {
-                // Simply switching on usage of default connection task
-                this.postEvent(new SwitchOnUsingDefaultConnectionEventData(ComTaskEnablementImpl.this));
+                // Switching off usage of preferred connection task
+                this.postEvent(new RemovePartialConnectionTaskEventData(ComTaskEnablementImpl.this, this.previousPartialConnectionTask.get()));
             }
         }
 
-        private void postEventWhenStillNotUsingDefault() {
-            // Must have a new PartialConnectionTask
-            if (this.previousPartialConnectionTask.isPresent()) {
-                if (this.newPartialConnectionTask.isPresent()) {
-                    if (this.differentPartialConnectionTasks(this.previousPartialConnectionTask.get(), this.newPartialConnectionTask.get())) {
-                        // switching between different preferred connection tasks
-                        this.postEvent(
-                                new SwitchBetweenPartialConnectionTasksEventData(
-                                        ComTaskEnablementImpl.this,
-                                        this.previousPartialConnectionTask.get(),
-                                        this.newPartialConnectionTask.get()));
-                    } else {
-                        // Still using the same partial connection task, no changes, no event to post
-                        return;
-                    }
-                } else {
-                    // Switching off usage of preferred connection task and using default
-                    this.postEvent(new RemovePartialConnectionTaskEventData(ComTaskEnablementImpl.this, this.previousPartialConnectionTask.get()));
-                }
-            } else {
-                if (this.newPartialConnectionTask.isPresent()) {
-                    // Starting to use preferred connection task without changes to the default flag
-                    this.postEvent(new StartUsingPartialConnectionTaskEventData(ComTaskEnablementImpl.this, this.newPartialConnectionTask.get()));
-                } else {
-                    // Still not using the default, no changes, no event to post
-                    return;
-                }
-            }
+        private void postEventWhenUsingNothingBefore() {
+            if (this.useDefaultNow) {
+                // Using default task now
+                this.postEvent(new SwitchOnUsingDefaultConnectionEventData(ComTaskEnablementImpl.this));
+            } else if (this.newConnectionFunction.isPresent()) {
+                // Using using connection function now
+                this.postEvent(new SwitchOnUsingConnectionFunctionEventData(ComTaskEnablementImpl.this, this.newConnectionFunction.get()));
+            } else if (this.newPartialConnectionTask.isPresent()) {
+                // Starting to use preferred connection task
+                this.postEvent(new StartUsingPartialConnectionTaskEventData(ComTaskEnablementImpl.this, this.newPartialConnectionTask.get()));
+            } // Else previous and new are missing, so we remain without task, so no changes and no event to post
         }
 
         private boolean differentPartialConnectionTasks(PartialConnectionTask previousPartialConnectionTask, PartialConnectionTask newPartialConnectionTask) {
@@ -590,7 +597,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         private void postEvent(ConnectionStrategyChangeEventData eventData) {
             eventData.publish(getEventService());
         }
-
     }
 
     @Override

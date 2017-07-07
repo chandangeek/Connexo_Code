@@ -472,6 +472,35 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
     @Test
     @Transactional
+    public void testSwitchFromDefaultToConnectionFunction() {
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        comTaskEnablementBuilder.useDefaultConnectionTask(true);
+        ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
+
+        // Business method
+        this.registerSubscriber();
+        comTaskEnablement.setConnectionFunction(connectionFunction_1);
+        comTaskEnablement.save();
+
+        // Asserts
+        ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(this.topicHandler, times(2)).handle(eventArgumentCaptor.capture());
+        List<LocalEvent> localEvents = eventArgumentCaptor.getAllValues();
+        assertThat(localEvents.get(0).getSource()).isInstanceOf(SwitchFromDefaultConnectionToConnectionFunctionEventData.class);
+        SwitchFromDefaultConnectionToConnectionFunctionEventData eventData = (SwitchFromDefaultConnectionToConnectionFunctionEventData) localEvents.get(0).getSource();
+        assertThat(eventData.getNewConnectionFunctionId()).isEqualTo(this.connectionFunction_1.getId());
+        assertThat(localEvents.get(1).getSource()).isEqualTo(comTaskEnablement);
+        assertThat(localEvents.get(1).getType().getTopic()).isEqualTo(UpdateEventType.COMTASKENABLEMENT.topic());
+
+        // Assert that none of the other attributes have changed
+        assertThat(comTaskEnablement.getComTask().getId()).isEqualTo(this.comTask1.getId());
+        assertThat(comTaskEnablement.getDeviceConfiguration().getId()).isEqualTo(this.deviceConfiguration1.getId());
+        assertThat(comTaskEnablement.getSecurityPropertySet().getId()).isEqualTo(this.securityPropertySet1.getId());
+        assertThat(comTaskEnablement.getPriority()).isEqualTo(ComTaskEnablement.DEFAULT_PRIORITY);
+    }
+
+    @Test
+    @Transactional
     public void testSwitchFromDefaultToConnectionTask() {
         ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
         comTaskEnablementBuilder.useDefaultConnectionTask(true);
@@ -555,6 +584,98 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
     @Test
     @Transactional
+    public void testSwitchFromConnectionFunctionToDefault() {
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        comTaskEnablementBuilder.setConnectionFunction(this.connectionFunction_1);
+        ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
+
+        this.registerSubscriber();
+
+        // Business method
+        comTaskEnablement.useDefaultConnectionTask(true);
+        comTaskEnablement.save();
+
+        // Asserts
+        ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(this.topicHandler, times(2)).handle(eventArgumentCaptor.capture());    //Once for the connection strategy change and once for the update of the object itself
+        List<LocalEvent> localEvents = eventArgumentCaptor.getAllValues();
+        assertThat(localEvents.get(0).getSource()).isInstanceOf(SwitchFromConnectionFunctionToDefaultConnectionEventData.class);
+        SwitchFromConnectionFunctionToDefaultConnectionEventData eventData = (SwitchFromConnectionFunctionToDefaultConnectionEventData) localEvents.get(0).getSource();
+        assertThat(eventData.getOldConnectionFunctionId()).isEqualTo(this.connectionFunction_1.getId());
+        assertThat(localEvents.get(1).getSource()).isEqualTo(comTaskEnablement);
+        assertThat(localEvents.get(1).getType().getTopic()).isEqualTo(UpdateEventType.COMTASKENABLEMENT.topic());
+
+        // Assert that none of the other attributes have changed
+        assertThat(comTaskEnablement.getComTask().getId()).isEqualTo(this.comTask1.getId());
+        assertThat(comTaskEnablement.getDeviceConfiguration().getId()).isEqualTo(this.deviceConfiguration1.getId());
+        assertThat(comTaskEnablement.getSecurityPropertySet().getId()).isEqualTo(this.securityPropertySet1.getId());
+        assertThat(comTaskEnablement.getPriority()).isEqualTo(ComTaskEnablement.DEFAULT_PRIORITY);
+    }
+
+    @Test
+    @Transactional
+    public void testSwitchFromConnectionFunctionToPartialConnectionTask() {
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        comTaskEnablementBuilder.setConnectionFunction(this.connectionFunction_1);
+        ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
+
+        this.registerSubscriber();
+
+        // Business method
+        comTaskEnablement.setPartialConnectionTask(partialConnectionTask1);
+        comTaskEnablement.save();
+
+        // Asserts
+        ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(this.topicHandler, times(2)).handle(eventArgumentCaptor.capture());    //Once for the connection strategy change and once for the update of the object itself
+        List<LocalEvent> localEvents = eventArgumentCaptor.getAllValues();
+        assertThat(localEvents.get(0).getSource()).isInstanceOf(SwitchFromConnectionFunctionToPartialConnectionTaskEventData.class);
+        SwitchFromConnectionFunctionToPartialConnectionTaskEventData eventData = (SwitchFromConnectionFunctionToPartialConnectionTaskEventData) localEvents.get(0).getSource();
+        assertThat(eventData.getOldConnectionFunctionId()).isEqualTo(this.connectionFunction_1.getId());
+        assertThat(eventData.getNewPartialConnectionTaskId()).isEqualTo(this.partialConnectionTask1.getId());
+        assertThat(localEvents.get(1).getSource()).isEqualTo(comTaskEnablement);
+        assertThat(localEvents.get(1).getType().getTopic()).isEqualTo(UpdateEventType.COMTASKENABLEMENT.topic());
+
+        // Assert that none of the other attributes have changed
+        assertThat(comTaskEnablement.getComTask().getId()).isEqualTo(this.comTask1.getId());
+        assertThat(comTaskEnablement.getDeviceConfiguration().getId()).isEqualTo(this.deviceConfiguration1.getId());
+        assertThat(comTaskEnablement.getSecurityPropertySet().getId()).isEqualTo(this.securityPropertySet1.getId());
+        assertThat(comTaskEnablement.getPriority()).isEqualTo(ComTaskEnablement.DEFAULT_PRIORITY);
+    }
+
+    @Test
+    @Transactional
+    public void testSwitchFromOneConnectionFunctionToAnother() {
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        comTaskEnablementBuilder.setConnectionFunction(this.connectionFunction_1);
+        ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
+
+        this.registerSubscriber();
+
+        // Business method
+        comTaskEnablement.setConnectionFunction(connectionFunction_2);
+        comTaskEnablement.save();
+
+        // Asserts
+        ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(this.topicHandler, times(2)).handle(eventArgumentCaptor.capture());
+        List<LocalEvent> localEvents = eventArgumentCaptor.getAllValues();
+        assertThat(localEvents.get(0).getSource()).isInstanceOf(SwitchBetweenConnectionFunctionsEventData.class);
+        SwitchBetweenConnectionFunctionsEventData eventData = (SwitchBetweenConnectionFunctionsEventData) localEvents.get(0).getSource();
+        assertThat(eventData.getOldConnectionFunctionId()).isEqualTo(this.connectionFunction_1.getId());
+        assertThat(eventData.getNewConnectionFunctionId()).isEqualTo(this.connectionFunction_2.getId());
+        assertThat(localEvents.get(1).getSource()).isEqualTo(comTaskEnablement);
+        assertThat(localEvents.get(1).getType().getTopic()).isEqualTo(UpdateEventType.COMTASKENABLEMENT.topic());
+
+        // Assert that none of the other attributes have changed
+        assertThat(comTaskEnablement.getComTask().getId()).isEqualTo(this.comTask1.getId());
+        assertThat(comTaskEnablement.getDeviceConfiguration().getId()).isEqualTo(this.deviceConfiguration1.getId());
+        assertThat(comTaskEnablement.getSecurityPropertySet().getId()).isEqualTo(this.securityPropertySet1.getId());
+        assertThat(comTaskEnablement.getPriority()).isEqualTo(ComTaskEnablement.DEFAULT_PRIORITY);
+    }
+
+    @Test
+    @Transactional
     public void testSwitchFromConnectionTaskToDefault() {
         ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
         comTaskEnablementBuilder.setPartialConnectionTask(this.partialConnectionTask1);
@@ -573,6 +694,37 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
         assertThat(localEvents.get(0).getSource()).isInstanceOf(SwitchFromPartialConnectionTaskToDefaultConnectionEventData.class);
         SwitchFromPartialConnectionTaskToDefaultConnectionEventData eventData = (SwitchFromPartialConnectionTaskToDefaultConnectionEventData) localEvents.get(0).getSource();
         assertThat(eventData.getPartialConnectionTaskId()).isEqualTo(this.partialConnectionTask1.getId());
+        assertThat(localEvents.get(1).getSource()).isEqualTo(comTaskEnablement);
+        assertThat(localEvents.get(1).getType().getTopic()).isEqualTo(UpdateEventType.COMTASKENABLEMENT.topic());
+
+        // Assert that none of the other attributes have changed
+        assertThat(comTaskEnablement.getComTask().getId()).isEqualTo(this.comTask1.getId());
+        assertThat(comTaskEnablement.getDeviceConfiguration().getId()).isEqualTo(this.deviceConfiguration1.getId());
+        assertThat(comTaskEnablement.getSecurityPropertySet().getId()).isEqualTo(this.securityPropertySet1.getId());
+        assertThat(comTaskEnablement.getPriority()).isEqualTo(ComTaskEnablement.DEFAULT_PRIORITY);
+    }
+
+    @Test
+    @Transactional
+    public void testSwitchFromConnectionTaskToConnectionFunction() {
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        comTaskEnablementBuilder.setPartialConnectionTask(this.partialConnectionTask1);
+        ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
+
+        this.registerSubscriber();
+
+        // Business method
+        comTaskEnablement.setConnectionFunction(connectionFunction_1);
+        comTaskEnablement.save();
+
+        // Asserts
+        ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
+        verify(this.topicHandler, times(2)).handle(eventArgumentCaptor.capture());    //Once for the connection strategy change and once for the update of the object itself
+        List<LocalEvent> localEvents = eventArgumentCaptor.getAllValues();
+        assertThat(localEvents.get(0).getSource()).isInstanceOf(SwitchFromPartialConnectionTaskToConnectionFunctionEventData.class);
+        SwitchFromPartialConnectionTaskToConnectionFunctionEventData eventData = (SwitchFromPartialConnectionTaskToConnectionFunctionEventData) localEvents.get(0).getSource();
+        assertThat(eventData.getOldPartialConnectionTaskId()).isEqualTo(this.partialConnectionTask1.getId());
+        assertThat(eventData.getNewConnectionFunctionId()).isEqualTo(this.connectionFunction_1.getId());
         assertThat(localEvents.get(1).getSource()).isEqualTo(comTaskEnablement);
         assertThat(localEvents.get(1).getType().getTopic()).isEqualTo(UpdateEventType.COMTASKENABLEMENT.topic());
 
