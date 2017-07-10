@@ -215,6 +215,17 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
+    public List<ConnectionTask<?, ?>> findAllConnectionTasksForTopology(Device device) {
+        List<ConnectionTask<?, ?>> allConnectionTasks = new ArrayList<>(device.getConnectionTasks()); // Should be a mutable list
+        Optional<Device> physicalGateway = this.getPhysicalGateway(device);
+        if (physicalGateway.isPresent()) {
+            allConnectionTasks.addAll(this.findAllConnectionTasksForTopology(physicalGateway.get()));
+        }
+
+        return allConnectionTasks;
+    }
+
+    @Override
     public Optional<ConnectionTask> findDefaultConnectionTaskForTopology(final Device device) {
         Optional<ConnectionTask> connectionTask = this.connectionTaskService.findDefaultConnectionTaskForDevice(device);
         if (connectionTask.isPresent()) {

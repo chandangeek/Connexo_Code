@@ -137,6 +137,16 @@ public interface TopologyService {
     List<Channel> getAllChannels(LoadProfile loadProfile);
 
     /**
+     * Finds all {@link ConnectionTask}s across the full topology of the specified Device.
+     * All ConnectionTasks of the device itself <b>and</b> of the gateway level
+     * (if the Device has a gateway of course) will be included.
+     *
+     * @param device The Device for which we need to search all ConnectionTasks of the full topology
+     * @return The connection tasks for the Device
+     */
+    List<ConnectionTask<?, ?>> findAllConnectionTasksForTopology(Device device);
+
+    /**
      * Finds the default {@link ConnectionTask} for the specified Device.
      * The search will start at the Device but if none is found there,
      * it will continue to the gateway level (if the Device has a gateway of course).

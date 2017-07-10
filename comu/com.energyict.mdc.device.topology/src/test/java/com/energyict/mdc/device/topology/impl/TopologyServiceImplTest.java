@@ -53,8 +53,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
@@ -1619,6 +1621,31 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         verify(comTaskExecutionUpdater2, never()).setConnectionFunction(connectionFunction);
         verify(comTaskExecutionUpdater2, times(2)).useConnectionTaskBasedOnConnectionFunction(connectionTask);
         verify(comTaskExecutionUpdater2, never()).useDefaultConnectionTask(anyBoolean());
+    }
+
+    @Test
+    @Transactional
+    public void findAllConnectionTasksForTopologyTest() throws Exception {
+        Device device = spy(createSimpleDeviceWithName("SlaveDevice"));
+        Device masterDevice = spy(createSimpleDeviceWithName("MasterDevice"));
+        ConnectionTask masterConnectionTask1 = mock(ConnectionTask.class);
+        ConnectionTask masterConnectionTask2 = mock(ConnectionTask.class);
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+
+        when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
+        when(masterDevice.getConnectionTasks()).thenReturn(Arrays.asList(masterConnectionTask1, masterConnectionTask2));
+
+        TopologyService topologyService = spy(getTopologyService());
+        doReturn(Optional.of(masterDevice)).when(topologyService).getPhysicalGateway(device);
+        topologyService.setPhysicalGateway(device, masterDevice);
+
+
+        // Business method
+        List<ConnectionTask<?, ?>> connectionTasks = topologyService.findAllConnectionTasksForTopology(device);
+
+        // Asserts
+        assertThat(connectionTasks.size()).isEqualTo(3);
+        assertThat(connectionTasks).containsExactly(connectionTask, masterConnectionTask1, masterConnectionTask2);
     }
 
     private ComTaskExecutionUpdater getComTaskExecutionUpdater(ConnectionTask connectionTask, ComTaskExecution... comTaskExecutions) {
