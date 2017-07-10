@@ -771,7 +771,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                 comTaskExecutions = map.get(connectionFunction);
                 comTaskExecutions.add(cte);
             } else {
-                comTaskExecutions = Arrays.asList(cte); // Should be mutable list
+                comTaskExecutions = new ArrayList(Arrays.asList(cte));  // Should be mutable list
             }
             map.put(connectionFunction, comTaskExecutions);
         });
