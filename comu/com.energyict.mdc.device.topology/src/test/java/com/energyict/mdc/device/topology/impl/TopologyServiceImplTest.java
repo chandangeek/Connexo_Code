@@ -46,6 +46,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.assertj.core.api.Condition;
+import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -68,6 +69,13 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
  * @since 2014-12-05 (10:00)
  */
 public class TopologyServiceImplTest extends PersistenceIntegrationTest {
+
+    @After
+    public void tearDown() throws Exception {
+        // Make sure the services are set back to the inMemoryPersistece ones (as some tests inject a mocked service)
+        ((TopologyServiceImpl) getTopologyService()).setCommunicationTaskService(inMemoryPersistence.getCommunicationTaskService());
+        ((TopologyServiceImpl) getTopologyService()).setConnectionTaskService(inMemoryPersistence.getConnectionTaskService());
+    }
 
     @Test
     @Transactional
