@@ -25,6 +25,7 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -153,6 +154,15 @@ public interface CommunicationTaskService {
     List<ComTaskExecution> findComTaskExecutionsByComScheduleWithinRange(ComSchedule comSchedule, long minId, long maxId);
 
     List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device);
+
+    /**
+     * Finds all the ComTaskExecutions which are using a ConnectionFunction
+     * as a map of <ConnectionFunction, List<ComTaskExecution>>
+     *
+     * @param device the Device for which to search for
+     * @return a map containing the list of ComTaskExecutions per ConnectionFunction
+     */
+    Map<ConnectionFunction,List<ComTaskExecution>> findComTasksUsingConnectionFunction(Device device);
 
     Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(OutboundComPort comPort);
 

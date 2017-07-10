@@ -57,11 +57,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
@@ -750,6 +753,29 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                 .select(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device)
                         .and(where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true))
                         .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()));
+    }
+
+    @Override
+    public Map<ConnectionFunction, List<ComTaskExecution>> findComTasksUsingConnectionFunction(Device device) {
+        List<ComTaskExecution> allComTaskExecutionsWithConnectionFunction = this.deviceDataModelService.dataModel()
+                .query(ComTaskExecution.class)
+                .select(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device)
+                        .and(where(ComTaskExecutionFields.CONNECTION_FUNCTION.fieldName()).isNotNull())
+                        .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()));
+
+        Map<ConnectionFunction, List<ComTaskExecution>> map = new HashMap<>();
+        allComTaskExecutionsWithConnectionFunction.forEach(cte -> {
+            ConnectionFunction connectionFunction = cte.getConnectionFunction().get();
+            List<ComTaskExecution> comTaskExecutions;
+            if (map.containsKey(connectionFunction)) {
+                comTaskExecutions = map.get(connectionFunction);
+                comTaskExecutions.add(cte);
+            } else {
+                comTaskExecutions = Arrays.asList(cte); // Should be mutable list
+            }
+            map.put(connectionFunction, comTaskExecutions);
+        });
+        return map;
     }
 
     @Override
