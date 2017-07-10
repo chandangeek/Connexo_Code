@@ -45,6 +45,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -119,6 +120,38 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<String>get("$.connectionMethods[0].protocolDialectDisplayName")).isEqualTo("Protocol Dialect DisplayName");
         assertThat(jsonModel.<Integer>get("$.connectionMethods[0].connectionFunctionInfo.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.connectionMethods[0].connectionFunctionInfo.localizedValue")).isEqualTo("CF 1");
+    }
+
+    @Test
+    public void testGetAllConnectionsForFullTopology() {
+        doReturn(Arrays.asList(connectionTask, mockConnectionTask(123L), mockConnectionTask(421L))).when(topologyService).findAllConnectionTasksForTopology(device);
+
+        String response = target("/devices/ZABF0000000/connectionmethods").queryParam("fullTopology", true).request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(3);
+        assertThat(jsonModel.<List<?>>get("$.connectionMethods")).hasSize(3);
+        Integer connectionTaskId1 = jsonModel.<Integer>get("$.connectionMethods[0].id");
+        Integer connectionTaskId2 = jsonModel.<Integer>get("$.connectionMethods[1].id");
+        Integer connectionTaskId3 = jsonModel.<Integer>get("$.connectionMethods[2].id");
+        assertThat(connectionTaskId1).isNotEqualTo(connectionTaskId2);
+        assertThat(connectionTaskId1).isNotEqualTo(connectionTaskId3);
+        assertThat(connectionTaskId2).isNotEqualTo(connectionTaskId3);
+        assertThat(connectionTaskId1).isIn(9, 123, 421);
+        assertThat(connectionTaskId2).isIn(9, 123, 421);
+        assertThat(connectionTaskId3).isIn(9, 123, 421);
+    }
+
+    @Test
+    public void testGetAllConnectionsForDeviceOnly() {
+        doReturn(Arrays.asList(connectionTask, mockConnectionTask(123L), mockConnectionTask(421L))).when(topologyService).findAllConnectionTasksForTopology(device);
+
+        String response = target("/devices/ZABF0000000/connectionmethods").queryParam("fullTopology", favoritesService).request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List<?>>get("$.connectionMethods")).hasSize(1);
+        assertThat(jsonModel.<Integer>get("$.connectionMethods[0].id")).isEqualTo(9);
     }
 
     @Test

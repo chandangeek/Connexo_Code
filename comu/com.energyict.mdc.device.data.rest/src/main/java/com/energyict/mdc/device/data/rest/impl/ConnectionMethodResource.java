@@ -17,6 +17,7 @@ import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -35,6 +36,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
@@ -51,16 +53,18 @@ public class ConnectionMethodResource {
     private final EngineConfigurationService engineConfigurationService;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final ConnectionTaskService connectionTaskService;
+    private final TopologyService topologyService;
     private final ExceptionFactory exceptionFactory;
     private final Provider<ComSessionResource> comTaskExecutionResourceProvider;
 
     @Inject
-    public ConnectionMethodResource(ResourceHelper resourceHelper, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineConfigurationService engineConfigurationService, MdcPropertyUtils mdcPropertyUtils, ConnectionTaskService connectionTaskService, ExceptionFactory exceptionFactory, Provider<ComSessionResource> comTaskExecutionResourceProvider) {
+    public ConnectionMethodResource(ResourceHelper resourceHelper, ConnectionMethodInfoFactory connectionMethodInfoFactory, EngineConfigurationService engineConfigurationService, MdcPropertyUtils mdcPropertyUtils, ConnectionTaskService connectionTaskService, TopologyService topologyService, ExceptionFactory exceptionFactory, Provider<ComSessionResource> comTaskExecutionResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.connectionMethodInfoFactory = connectionMethodInfoFactory;
         this.engineConfigurationService = engineConfigurationService;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.connectionTaskService = connectionTaskService;
+        this.topologyService = topologyService;
         this.exceptionFactory = exceptionFactory;
         this.comTaskExecutionResourceProvider = comTaskExecutionResourceProvider;
     }
@@ -70,7 +74,10 @@ public class ConnectionMethodResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getConnectionMethods(@PathParam("name") String name, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<ConnectionTask<?, ?>> connectionTasks = ListPager.of(device.getConnectionTasks(), new ConnectionTaskComparator()).from(queryParameters).find();
+        Optional<String> fullTopologyBoolean = getParameterFromUriParams(uriInfo, "fullTopology");
+        boolean fullTopology = fullTopologyBoolean.isPresent() ? Boolean.valueOf(fullTopologyBoolean.get()) : false;
+        List<ConnectionTask<?, ?>> correspondingConnectionTasks = fullTopology ? topologyService.findAllConnectionTasksForTopology(device) : device.getConnectionTasks();
+        List<ConnectionTask<?, ?>> connectionTasks = ListPager.of(correspondingConnectionTasks, new ConnectionTaskComparator()).from(queryParameters).find();
         List<ConnectionMethodInfo<?>> connectionMethodInfos = connectionMethodInfoFactory.asInfoList(connectionTasks, uriInfo);
         return Response.ok(PagedInfoList.fromPagedList("connectionMethods", connectionMethodInfos, queryParameters)).build();
     }
@@ -176,4 +183,12 @@ public class ConnectionMethodResource {
         return comTaskExecutionResourceProvider.get();
     }
 
+    private Optional<String> getParameterFromUriParams(UriInfo uriInfo, String parameter) {
+        MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
+        if (uriParams.containsKey(parameter) && !uriParams.getFirst(parameter).isEmpty()) {
+            return Optional.of(uriParams.getFirst(parameter));
+        } else {
+            return Optional.empty();
+        }
+    }
 }

@@ -424,6 +424,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(connectionTask.getId()).thenReturn(123L);
         when(connectionTask.getName()).thenReturn("connectionMethod");
         when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
+        when(topologyService.findAllConnectionTasksForTopology(device)).thenReturn(Collections.singletonList(connectionTask));
 
         ComTaskExecutionUpdater manuallyScheduledComTaskExecutionUpdater = mock(ComTaskExecutionUpdater.class);
         when(device.getComTaskExecutionUpdater(comTaskExecution)).thenReturn(manuallyScheduledComTaskExecutionUpdater);
@@ -529,7 +530,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(connectionTask.getId()).thenReturn(123L);
         when(connectionTask.getName()).thenReturn("connectionMethod");
         when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
-
+        when(topologyService.findAllConnectionTasksForTopology(device)).thenReturn(Collections.singletonList(connectionTask));
 
         ComTaskExecutionUpdater scheduledComTaskExecutionUpdater = mock(ComTaskExecutionUpdater.class);
         when(device.getComTaskExecutionUpdater(scheduledComTaskExecution)).thenReturn(scheduledComTaskExecutionUpdater);
