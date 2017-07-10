@@ -819,7 +819,7 @@ public class PartialInboundConnectionTaskCrudIT {
         inboundConnectionTask = deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass, deviceConfiguration.getProtocolDialectConfigurationPropertiesList()
                 .get(0))
                 .comPortPool(inboundComPortPool)
-                .asDefault(false).build();
+                .asDefault(true).build();
         deviceConfiguration.save();
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(inboundConnectionTask.getId());
