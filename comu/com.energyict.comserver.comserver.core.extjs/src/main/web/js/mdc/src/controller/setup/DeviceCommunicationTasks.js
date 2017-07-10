@@ -196,6 +196,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 var connectionMethodsOfDeviceStore = me.getConnectionMethodsOfDeviceStore(),
                     connectionFunctionsStore = me.getConnectionFunctionsStore();
                 connectionMethodsOfDeviceStore.getProxy().setExtraParam('deviceId', this.deviceId);
+                connectionMethodsOfDeviceStore.getProxy().setExtraParam('fullTopology', true); // Which indicates we want to load the connection methods of the full topology
+                                                                                               // (the device and - if present - the devices gateway)
                 connectionMethodsOfDeviceStore.load({
                     callback: function () {
                         connectionFunctionsStore.getProxy().setExtraParam('connectionFunctionType', 1); // 1 = the consumable connection functions
