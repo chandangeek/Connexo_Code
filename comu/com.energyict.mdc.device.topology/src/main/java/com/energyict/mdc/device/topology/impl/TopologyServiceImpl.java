@@ -796,18 +796,42 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     public void slaveTopologyChanged(Device slave, Optional<Device> gateway) {
         List<ComTaskExecution> comTasksForDefaultConnectionTask = this.communicationTaskService.findComTasksByDefaultConnectionTask(slave);
+        Map<ConnectionFunction, List<ComTaskExecution>> comTasksUsingConnectionFunction = this.communicationTaskService.findComTasksUsingConnectionFunction(slave);
         if (gateway.isPresent()) {
             this.updateComTasksToUseNewDefaultConnectionTask(slave, comTasksForDefaultConnectionTask);
+            this.updateComTasksToUseNewConnectionTaskBasedOnConnectionFunction(slave, comTasksUsingConnectionFunction);
         } else {
             this.updateComTasksToUseNonExistingDefaultConnectionTask(comTasksForDefaultConnectionTask);
+            this.updateComTasksToUseNonExistingConnectionTaskBasedOnConnectionFunction(comTasksUsingConnectionFunction);
         }
     }
 
     private void updateComTasksToUseNewDefaultConnectionTask(Device slave, List<ComTaskExecution> comTasksForDefaultConnectionTask) {
-        this.findDefaultConnectionTaskForTopology(slave).ifPresent(dct -> {
-            for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
+        Optional<ConnectionTask> defaultConnectionTaskForTopology = this.findDefaultConnectionTaskForTopology(slave);
+        for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
+            ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            if (defaultConnectionTaskForTopology.isPresent()) {
+                comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTaskForTopology.get());
+            } else {
+                comTaskExecutionUpdater.useDefaultConnectionTask(true);
+            }
+            comTaskExecutionUpdater.update();
+        }
+    }
+
+    private void updateComTasksToUseNewConnectionTaskBasedOnConnectionFunction(Device slave, Map<ConnectionFunction, List<ComTaskExecution>> comTasksUsingConnectionFunction) {
+        comTasksUsingConnectionFunction.entrySet().forEach(entry -> {
+            ConnectionFunction connectionFunction = entry.getKey();
+            List<ComTaskExecution> affectedComTaskExecutions = entry.getValue();
+
+            Optional<ConnectionTask> connectionTaskOptional = this.findConnectionTaskWithConnectionFunctionForTopology(slave, connectionFunction);
+            for (ComTaskExecution comTaskExecution : affectedComTaskExecutions) {
                 ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
-                comTaskExecutionUpdater.useDefaultConnectionTask(dct);
+                if (connectionTaskOptional.isPresent()) {
+                    comTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction(connectionTaskOptional.get());
+                } else {
+                    comTaskExecutionUpdater.setConnectionFunction(connectionFunction);
+                }
                 comTaskExecutionUpdater.update();
             }
         });
@@ -816,8 +840,17 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private void updateComTasksToUseNonExistingDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
         for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
             ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
-            comTaskExecutionUpdater.connectionTask(null);
             comTaskExecutionUpdater.useDefaultConnectionTask(true);
+            comTaskExecutionUpdater.update();
+        }
+    }
+
+    private void updateComTasksToUseNonExistingConnectionTaskBasedOnConnectionFunction(Map<ConnectionFunction, List<ComTaskExecution>> comTasksUsingConnectionFunction) {
+        List<ComTaskExecution> allComtaskExecutions = new ArrayList<>();
+        comTasksUsingConnectionFunction.values().stream().forEach(allComtaskExecutions::addAll);
+        for (ComTaskExecution comTaskExecution : allComtaskExecutions) {
+            ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            comTaskExecutionUpdater.setConnectionFunction(comTaskExecution.getConnectionFunction().orElse(null));
             comTaskExecutionUpdater.update();
         }
     }
