@@ -210,6 +210,10 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                 step5panelText = Uni.I18n.translate('alarms.processing.close', 'DAL', 'Closing {0} alarm(s). Please wait...',
                     (requestData.allAlarms ? Uni.I18n.translate('general.all', 'DAL', 'all') : requestData.alarms.length));
                 break;
+            case 'setPriority':
+                step5panelText = Uni.I18n.translate('alarms.processing.setPriority', 'DAL', 'Setting priority for {0} alarm(s). Please wait...',
+                    (requestData.allAlarms ? Uni.I18n.translate('general.all', 'DAL', 'all') : requestData.alarms.length));
+                break;
             default:
                 requestUrl = '/api/dal/alarms/' + operation;
                 step5panelText = Uni.I18n.translate('alarms.processing.default', 'DAL', 'Processing {0} alarm(s). Please wait...',
@@ -277,6 +281,11 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                                 successMessage = Uni.I18n.translatePlural('alarms.close.success.result', successCount, 'DAL', '-', '<h3>Successfully closed alarm</h3><br>', '<h3>Successfully closed alarms</h3><br>');
                             }
                             break;
+                        case 'setpriority':
+                            if (successCount > 0) {
+                                successMessage = Uni.I18n.translatePlural('alarms.setpriority.success.result', successCount, 'DAL', '-', '<h3>Successfully set priority for alarm(s)</h3><br>', '<h3>Successfully set priority for alarm(s)</h3><br>');
+                            }
+                            break;
 
                     }
                 }
@@ -319,6 +328,14 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                             }
                             if (failedCount > 0) {
                                 failedMessage = Uni.I18n.translatePlural('alarms.close.failed.results', failedCount, 'DAL', '-', '<h3 style="color: #eb5642">Failed to close one alarm</h3><br>', '<h3 style="color: #eb5642">Failed to close {0} alarms</h3><br>') + failList;
+                            }
+                            break;
+                        case 'setpriority':
+                            if (warnCount > 0) {
+                                warnMessage = Uni.I18n.translatePlural('alarms.setpriority.unable.results', warnCount, 'DAL', '-','<h3 style="color: #eb5642">Unable to set priority for one alarm</h3><br>', '<h3 style="color: #eb5642">Unable to set priority for {0} alarms</h3><br>') + warnList;
+                            }
+                            if (failedCount > 0) {
+                                failedMessage = Uni.I18n.translatePlural('alarms.setpriority.failed.results', failedCount, 'DAL', '-', '<h3 style="color: #eb5642">Unable to set priority for one alarm</h3><br>', '<h3 style="color: #eb5642">Unable to set priority for {0} alarms</h3><br>') + failList;
                             }
                             break;
                     }
@@ -423,6 +440,9 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
             case 'close':
                 requestData.status = bulkStoreRecord.get('status');
                 break;
+            case 'setpriority' :
+                requestData.status = bulkStoreRecord.get('status');
+                break;
         }
 
         requestData.comment = bulkStoreRecord.get('comment');
@@ -520,12 +540,20 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
             case  'close':
                 view = 'issues-close-form';
                 break;
+            case  'setpriority':
+                view = 'set-priority-form';
+                break;
         }
 
         widget = Ext.widget(view, {
             labelWidth: 120,
             controlsWidth: 500
         });
+
+        if (operation == 'setpriority') {
+            widget.down('#savePriority').setVisible(false);
+            widget.down('#cancel').setVisible(false);
+        }
 
         if (operation == 'assign') {
             widget.down('#frm-assign-issue').setTitle('');
@@ -596,6 +624,7 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                             + Uni.I18n.translate('alarms.selectedAlarms.assign.title8', 'DAL', 'All alarms will be assigned to {0} workgroup and {1} user', [Ext.String.htmlEncode(workGroupCombo.rawValue), Ext.String.htmlEncode(userCombo.rawValue)])
                     }
                 }
+                record.set('comment', formPanel.down('textarea').getValue().trim());
                 break;
 
             case 'close':
@@ -606,12 +635,18 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                     message = Uni.I18n.translate('alarms.allAlarms.willBeClosed.title', 'DAL', '<h3>Close all alarms?</h3><br>')
                         + Uni.I18n.translate('alarms.allAlarms.willBeClosed', 'DAL', 'All alarms will be closed with status "<b>{0}</b>"',[record.get('statusName')]);
                 }
+                record.set('comment', formPanel.down('textarea').getValue().trim());
                 break;
 
-        }
+            case 'setpriority':
+                if (!record.get('allAlarms')) {
+                    message = Uni.I18n.translatePlural('alarms.selectedAlarms.setPriority.withCount', record.get('alarms').length, 'DAL', '-', '<h3>Set priority for one alarm?</h3><br>', '<h3>Set priority for {0} alarms?</h3><br>')
+                        + Uni.I18n.translate('alarms.selectedAlarms.setPriority','DAL', 'Setting priority for alarm(s)."');
+                }else {
+                    message = Uni.I18n.translatePlural('alarms.selectedAlarms.setPriority.withCount', record.get('alarms').length, 'DAL', '-', '<h3>Set priority for one alarm?</h3><br>', '<h3>Set priority for {0} alarms?</h3><br>')
+                        + Uni.I18n.translate('alarms.allAlarms.setPriority','DAL', 'The priority of the selected alarm(s) will be set to {0}', [record.get('priority')]);
+                }
 
-        if (formPanel) {
-            record.set('comment', formPanel.down('textarea').getValue().trim());
         }
 
         widget = Ext.widget('container', {

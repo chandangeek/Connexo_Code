@@ -41,6 +41,13 @@ Ext.define('Dal.view.bulk.Step2', {
                                 name: 'operation',
                                 inputValue: 'close',
                                 privileges: Dal.privileges.Alarm.close
+                            },
+                            {
+                                itemId: 'PrioritySet',
+                                boxLabel: Uni.I18n.translate('alarms.PrioritySet', 'DAL', 'Set priority'),
+                                name: 'operation',
+                                inputValue: 'setpriority',
+                                privileges: Dal.privileges.Alarm.action
                             }
                         ]
                     }

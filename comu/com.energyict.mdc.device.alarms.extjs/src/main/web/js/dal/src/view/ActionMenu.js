@@ -28,6 +28,10 @@ Ext.define('Dal.view.ActionMenu', {
                     privileges = Dal.privileges.Alarm.canDoAction() && Dal.privileges.Alarm.close;
                     section = this.SECTION_REMOVE;
                     break;
+                case 'Set priority for alarm(s)':
+                    privileges = Dal.privileges.Alarm.canDoAction() && Dal.privileges.Alarm.setPriority;
+                    section = this.SECTION_REMOVE;
+                    break;
             }
 
             var menuItem = {
