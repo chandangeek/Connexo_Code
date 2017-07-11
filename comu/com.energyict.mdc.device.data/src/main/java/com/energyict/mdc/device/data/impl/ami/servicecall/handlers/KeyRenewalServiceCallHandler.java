@@ -27,7 +27,7 @@ import org.osgi.service.component.annotations.Reference;
 public class KeyRenewalServiceCallHandler extends AbstractOperationServiceCallHandler {
 
     public static final String VERSION = "v1.0";
-    public static final String SERVICE_CALL_HANDLER_NAME = "KeyRenewalServiceCallHandler";
+    public static final String SERVICE_CALL_HANDLER_NAME = "DeviceKeyRenewalServiceCallHandler";
 
     public KeyRenewalServiceCallHandler() {
         super();
