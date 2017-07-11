@@ -747,6 +747,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.markSuccessfullyCompleted();
         this.doReschedule(calculateNextExecutionTimestamp(clock.instant()));
         updateForScheduling(true);
+        getBehavior().comTaskCompleted();
     }
 
     @Override
@@ -776,6 +777,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             this.doExecutionFailed();
         }
         updateForScheduling(true);
+        getBehavior().comTaskFailed();
     }
 
     protected void doExecutionAttemptFailed() {
@@ -865,7 +867,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
                 ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName(),
                 ComTaskExecutionFields.COMPORT.fieldName()
         );
-        this.updateEventType();
+        getBehavior().comTaskStarted();
     }
 
     private void doExecutionStarted(ComPort comPort) {
@@ -1127,6 +1129,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
          */
         boolean isFirmware();
 
+        void comTaskStarted();
+
+        void comTaskCompleted();
+
+        void comTaskFailed();
     }
 
     private class FirmwareBehavior implements Behavior {
@@ -1163,6 +1170,21 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public boolean isFirmware() {
             return true;
+        }
+
+        @Override
+        public void comTaskStarted() {
+            postEvent(EventType.FIRMWARE_COMTASKEXECUTION_STARTED);
+        }
+
+        @Override
+        public void comTaskCompleted() {
+            postEvent(EventType.FIRMWARE_COMTASKEXECUTION_COMPLETED);
+        }
+
+        @Override
+        public void comTaskFailed() {
+            postEvent(EventType.FIRMWARE_COMTASKEXECUTION_FAILED);
         }
 
         @Override
@@ -1241,6 +1263,21 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public boolean isFirmware() {
             return false;
+        }
+
+        @Override
+        public void comTaskStarted() {
+            // no event triggered
+        }
+
+        @Override
+        public void comTaskCompleted() {
+            // no event triggered
+        }
+
+        @Override
+        public void comTaskFailed() {
+            // no event triggered
         }
 
         @Override
@@ -1333,6 +1370,21 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public boolean isFirmware() {
             return false;
+        }
+
+        @Override
+        public void comTaskStarted() {
+            // no event triggered
+        }
+
+        @Override
+        public void comTaskCompleted() {
+            // no event triggered
+        }
+
+        @Override
+        public void comTaskFailed() {
+            // no event triggered
         }
 
         public Optional<ComSchedule> getComSchedule() {
