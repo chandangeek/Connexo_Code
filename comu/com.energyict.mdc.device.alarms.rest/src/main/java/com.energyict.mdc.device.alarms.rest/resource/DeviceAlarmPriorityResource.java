@@ -18,20 +18,16 @@ import com.energyict.mdc.device.alarms.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 @Path("/{id}/priority")
-public class DeviceAlarmPriorityResorce extends BaseAlarmResource{
+public class DeviceAlarmPriorityResource extends BaseAlarmResource{
 
     private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public DeviceAlarmPriorityResorce(ConcurrentModificationExceptionFactory conflictFactory){
+    public DeviceAlarmPriorityResource(ConcurrentModificationExceptionFactory conflictFactory){
         this.conflictFactory = conflictFactory;
     }
 

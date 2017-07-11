@@ -14,12 +14,7 @@ import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -28,22 +23,10 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
 import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
-import com.energyict.mdc.device.alarms.rest.resource.ActionResource;
-import com.energyict.mdc.device.alarms.rest.resource.AlarmRuleResource;
-import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmCreationRuleResource;
-import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmPriorityResorce;
-import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmResource;
-import com.energyict.mdc.device.alarms.rest.resource.HistoryResource;
-import com.energyict.mdc.device.alarms.rest.resource.MeterResource;
-import com.energyict.mdc.device.alarms.rest.resource.ReasonResource;
-import com.energyict.mdc.device.alarms.rest.resource.StatusResource;
-import com.energyict.mdc.device.alarms.rest.resource.TopAlarmsResource;
-import com.energyict.mdc.device.alarms.rest.resource.UserResource;
-import com.energyict.mdc.device.alarms.rest.resource.WorkGroupsResource;
+import com.energyict.mdc.device.alarms.rest.resource.*;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfoFactory;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
-
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -51,11 +34,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Component(name = "com.energyict.mdc.device.com.energyict.mdc.device.alarms.rest", service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/dal", "app=MDC", "name=" + DeviceAlarmApplication.DEVICE_ALARMS_REST_COMPONENT})
@@ -94,7 +73,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
                 WorkGroupsResource.class,
                 ReasonResource.class,
                 MeterResource.class,
-                DeviceAlarmPriorityResorce.class,
+                DeviceAlarmPriorityResource.class,
                 TopAlarmsResource.class,
                 UserResource.class,
                 DeviceAlarmCreationRuleResource.class,
