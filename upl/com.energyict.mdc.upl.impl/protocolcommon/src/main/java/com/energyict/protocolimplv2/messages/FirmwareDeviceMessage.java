@@ -445,6 +445,11 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         public Optional<PropertySpec> getFirmwareIdentifierPropertySpec(PropertySpecService service) {
             return Optional.of(this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation));
         }
+
+        @Override
+        public Optional<PropertySpec> getResumeFirmwareUploadPropertySpec(PropertySpecService service) {
+            return Optional.of(this.booleanSpec(service, resumeFirmwareUpdateAttributeName, resumeFirmwareUpdateAttributeDefaultTranslation, Boolean.TRUE));
+        }
     },
     ENABLE_IMAGE_TRANSFER(5024, "Enable image transfer") {
         @Override
