@@ -374,6 +374,7 @@ Ext.define('Mdc.controller.Main', {
                     items: [
                         {
                             text: Uni.I18n.translate('title.commands', 'MDC', 'Commands'),
+                            itemId: 'mdc-workspace-commands-link',
                             href: '#/workspace/commands'
                         }
                     ]
