@@ -43,13 +43,15 @@ Ext.define('Mdc.controller.setup.Devices', {
         {ref: 'deviceGeneralInformationDeviceTypeLink', selector: '#deviceGeneralInformationDeviceTypeLink'},
         {ref: 'deviceGeneralInformationDeviceConfigurationLink', selector: '#deviceGeneralInformationDeviceConfigurationLink'},
         {ref: 'deviceGeneralInformationUsagePointLink', selector: '#deviceGeneralInformationUsagePointLink'},
+        {ref: 'deviceIconImage', selector: '#device-information-panel-device-icon'},
         {ref: 'dataCollectionIssuesLink', selector: '#dataCollectionIssuesLink'},
         {ref: 'deviceValidationResultFieldLink', selector: '#lnk-validation-result'},
         {ref: 'validationFromDate', selector: '#validationFromDate'},
         {ref: 'deviceActionsMenu', selector: 'deviceSetup #deviceActionMenu'},
         {ref: 'addDevicePage', selector: 'deviceAdd'},
         {ref: 'deviceConnectionsList', selector: 'device-connections-list'},
-        {ref: 'deviceCommunicationsList', selector: 'device-communications-list'}
+        {ref: 'deviceCommunicationsList', selector: 'device-communications-list'},
+        {ref: 'deviceGeneralInformationPanel', selector: 'deviceGeneralInformationPanel'}
     ],
 
     init: function () {
@@ -266,17 +268,28 @@ Ext.define('Mdc.controller.setup.Devices', {
                             widget.renderFlag(deviceLabelsStore);
                         });
 
+                        me.getDeviceGeneralInformationPanel().on('afterrender', function(){
+                            attributesModel.load('attributes', {
+                                success: function (attributes) {
+                                    Ext.suspendLayouts();
+                                    me.getDeviceGeneralInformationForm().loadRecord(attributes);
+                                    if(!Ext.isEmpty(attributes.get('deviceIcon'))) {
+                                        me.getDeviceIconImage().show();
+                                        me.getDeviceIconImage().setSrc('data:image;base64,' + attributes.get('deviceIcon'));
+                                    } else {
+                                        me.getDeviceIconImage().hide();
+                                    }
+                                    me.getDeviceSetup().down('#deviceSetupPanel #last-updated-field')
+                                        .update(Uni.I18n.translate('general.lastRefreshedAt', 'MDC', 'Last refreshed at {0}', Uni.DateTime.formatTimeShort(new Date())));
+                                    Ext.resumeLayouts(true);
+                                }
+                            });
+                        }, me, {single:true});
+
                         me.getApplication().fireEvent('changecontentevent', widget);
 
                         me.doRefresh();
 
-                        attributesModel.load('attributes', {
-                            success: function (attributes) {
-                                me.getDeviceGeneralInformationForm().loadRecord(attributes);
-                                me.getDeviceSetup().down('#deviceSetupPanel #last-updated-field')
-                                    .update(Uni.I18n.translate('general.lastRefreshedAt', 'MDC', 'Last refreshed at {0}', Uni.DateTime.formatTimeShort(new Date())));
-                            }
-                        });
                         if (!Ext.isEmpty(me.getDeviceCommunicationTopologyPanel())) {
                             if (device.get('isDataLoggerSlave') || device.get('isMultiElementSlave')) {
                                 me.getDeviceCommunicationTopologyPanel().hide();
