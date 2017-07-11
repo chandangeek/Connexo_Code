@@ -22,7 +22,7 @@ public interface DeviceMessageService {
     String BULK_DEVICE_MESSAGE_QUEUE_DISPLAYNAME = "Handle creation of device messages on a device group in bulk";
     String DEVICE_MESSAGE_QUEUE_DESTINATION = "DevMsgQD";
     String DEVICE_MESSAGE_QUEUE_SUBSCRIBER = "DevMsgQS";
-    String DEVICE_MESSAGE_QUEUE_DISPLAYNAME = "Create a device message for a device";
+    String DEVICE_MESSAGE_QUEUE_DISPLAYNAME = "Create a device message for a single device";
 
     Optional<DeviceMessage> findDeviceMessageById(long id);
 

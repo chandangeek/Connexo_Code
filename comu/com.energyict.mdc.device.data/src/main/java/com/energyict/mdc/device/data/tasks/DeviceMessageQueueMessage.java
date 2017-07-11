@@ -7,7 +7,8 @@ package com.energyict.mdc.device.data.tasks;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by bvn on 3/27/15.
@@ -15,14 +16,16 @@ import java.time.Instant;
 public class DeviceMessageQueueMessage implements QueueMessage {
     public Long deviceId;
     public DeviceMessageId deviceMessageId;
-    public Instant releaseDate;
+    public long releaseDate;
+    public final Map<String, Object> properties = new HashMap<>();
 
     public DeviceMessageQueueMessage() {
     }
 
-    public DeviceMessageQueueMessage(Long deviceId, DeviceMessageId deviceMessageId, Instant releaseDate) {
+    public DeviceMessageQueueMessage(Long deviceId, DeviceMessageId deviceMessageId, long releaseDate, Map<String, Object> properties) {
         this.deviceId = deviceId;
         this.deviceMessageId = deviceMessageId;
         this.releaseDate = releaseDate;
+        this.properties.putAll(properties);
     }
 }

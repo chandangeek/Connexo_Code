@@ -44,7 +44,7 @@ public class DeviceMessageItemizerMessageHandler implements MessageHandler {
                 for (EndDevice endDevice : deviceGroupOptional.get().getMembers(clock.instant())) {
                     try {
                         long deviceId = Long.parseLong(endDevice.getAmrId());
-                        DeviceMessageQueueMessage deviceMessage = new DeviceMessageQueueMessage(deviceId, queueMessage.deviceMessageId, queueMessage.releaseDate);
+                        DeviceMessageQueueMessage deviceMessage = new DeviceMessageQueueMessage(deviceId, queueMessage.deviceMessageId, queueMessage.releaseDate, queueMessage.properties);
                         processMessagePost(deviceMessage, destinationSpec.get());
                     } catch (Exception e) {
                         LOGGER.log(Level.SEVERE, String.format("Failed to create message for device with amr id '%s' : %s", endDevice.getAmrId(), e.getLocalizedMessage()));

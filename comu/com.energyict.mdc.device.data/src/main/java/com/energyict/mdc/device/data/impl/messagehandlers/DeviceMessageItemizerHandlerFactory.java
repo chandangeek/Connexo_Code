@@ -40,10 +40,12 @@ public class DeviceMessageItemizerHandlerFactory implements MessageHandlerFactor
                 init(jsonService, meteringGroupService, clock, messageService);
     }
 
+    @Reference
     public void setMeteringGroupService(MeteringGroupsService meteringGroupService) {
         this.meteringGroupService = meteringGroupService;
     }
 
+    @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
     }
