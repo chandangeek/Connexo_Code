@@ -42,6 +42,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.app.help</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>mdm.common</artifactId>
         </dependency>
         <dependency>
