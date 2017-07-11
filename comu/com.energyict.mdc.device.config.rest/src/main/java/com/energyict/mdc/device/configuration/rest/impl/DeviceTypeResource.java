@@ -37,6 +37,7 @@ import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeExceptio
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
+import com.energyict.mdc.device.config.exceptions.DeviceIconTooBigException;
 import com.energyict.mdc.device.config.exceptions.DeviceMessageFileTooBigException;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.Device;
@@ -62,6 +63,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -193,6 +195,34 @@ public class DeviceTypeResource {
 
         }
         return DeviceTypeInfo.from(deviceType);
+    }
+
+    @POST
+    @Path("/{id}/adddeviceicon")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response createDeviceIcon(@PathParam("id") long deviceTypeId,
+                                     @FormDataParam("deviceIconField") InputStream fileInputStream,
+                                     @FormDataParam("deviceIconField") FormDataContentDisposition contentDispositionHeader,
+                                     @FormDataParam("version") long version,
+                                     @FormDataParam("name") String name) {
+        DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(deviceTypeId, version, name);
+        addDeviceIconToDeviceType(deviceType, fileInputStream);
+        return Response.ok(DeviceTypeInfo.from(resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId))).build();
+    }
+
+    @DELETE
+    @Path("/{id}/removedeviceicon")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response removeDeviceIcon(@PathParam("id") long deviceTypeId, VersionInfo<String> versionInfo) {
+        DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(deviceTypeId, versionInfo.version, versionInfo.id);
+        deviceType.removeDeviceIcon();
+        return Response.ok(DeviceTypeInfo.from(deviceType)).build();
     }
 
     @PUT
@@ -878,6 +908,23 @@ public class DeviceTypeResource {
             }
             byte[] firmwareFile = out.toByteArray();
             deviceType.addDeviceMessageFile(new ByteArrayInputStream(firmwareFile), fileName);
+        } catch (IOException ex) {
+            throw exceptionFactory.newException(MessageSeeds.FILE_IO);
+        }
+    }
+
+    private void addDeviceIconToDeviceType(DeviceType deviceType, InputStream inputStream) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream(); InputStream fis = inputStream) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = fis.read(buffer)) != -1) {
+                out.write(buffer, 0, length);
+                if (out.size() > DeviceConfigurationService.MAX_DEVICE_ICON_SIZE_BYTES) {
+                    throw new DeviceIconTooBigException(DeviceConfigurationService.MAX_DEVICE_ICON_SIZE_KB, thesaurus);
+                }
+            }
+            byte[] firmwareFile = out.toByteArray();
+            deviceType.setDeviceIcon(new ByteArrayInputStream(firmwareFile));
         } catch (IOException ex) {
             throw exceptionFactory.newException(MessageSeeds.FILE_IO);
         }
