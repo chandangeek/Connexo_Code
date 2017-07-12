@@ -37,6 +37,7 @@ Ext.define('Mdc.commands.view.CommandsOverview', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
+                            itemId: 'mdc-commands-empty-grid',
                             title: Uni.I18n.translate('commands.noItems', 'MDC', 'No commands found'),
                             reasons: [
                                 Uni.I18n.translate('commands.empty.list.reason1', 'MDC', 'No commands have been defined yet.'),
