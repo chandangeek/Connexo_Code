@@ -47,6 +47,7 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
                         try {
                             convertedValue = propertySpec.getValueFactory().fromStringValue(stringValue);
                             deviceMessageBuilder.addProperty(propertySpec.getName(), convertedValue);
+                            deviceMessageBuilder.add();
                             LOGGER.info(String.format("Set property '%s' on device command '%s' to value '%s'", propertySpec.getName(), queueMessage.deviceMessageId, convertedValue));
                         } catch (Exception e) {
                             LOGGER.log(Level.SEVERE, String.format("Failed to set property '%s' on device command '%s': value '%s' was refused: %s", propertySpec.getName(), queueMessage.deviceMessageId, convertedValue, e.getMessage()));
