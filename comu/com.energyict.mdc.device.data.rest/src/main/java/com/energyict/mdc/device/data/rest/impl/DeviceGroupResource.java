@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -337,12 +338,21 @@ public class DeviceGroupResource {
         if (destinationSpec.isPresent()) {
             DeviceMessageId deviceMessageId = DeviceMessageId.valueOf(deviceMessageInfo.messageSpecification.id);
             EndDeviceGroup endDeviceGroup = resourceHelper.findEndDeviceGroupOrThrowException(deviceGroupId);
-            Map<String, Object> properties = getPropertiesFromInfo(deviceMessageInfo, deviceMessageId);
+            Map<String, String> properties = convertPropertyInfosToMap(deviceMessageInfo.properties);
             BulkDeviceMessageQueueMessage message = new BulkDeviceMessageQueueMessage(endDeviceGroup.getId(), deviceMessageId, deviceMessageInfo.releaseDate.getEpochSecond(), properties);
             return processMessagePost(message, destinationSpec.get());
         } else {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
         }
+    }
+
+    private Map<String, String> convertPropertyInfosToMap(List<PropertyInfo> propertyInfos) {
+        Map<String, String> properties = new HashMap<>();
+        propertyInfos.stream().forEach(info -> {
+            Object value = info.getPropertyValueInfo().getValue();
+            properties.put(info.key, value==null?null:jsonService.serialize(value));
+        });
+        return properties;
     }
 
     private Map<String, Object> getPropertiesFromInfo(DeviceMessageInfo deviceMessageInfo, DeviceMessageId deviceMessageId) {
