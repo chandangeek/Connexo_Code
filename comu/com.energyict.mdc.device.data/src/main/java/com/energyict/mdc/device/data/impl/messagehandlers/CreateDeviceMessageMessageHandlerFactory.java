@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -27,12 +28,13 @@ public class CreateDeviceMessageMessageHandlerFactory implements MessageHandlerF
     private volatile JsonService jsonService;
     private volatile DataModel dataModel;
     private volatile DeviceService deviceService;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Override
     public MessageHandler newMessageHandler() {
         return dataModel.
                 getInstance(CreateDeviceMessageMessageHandler.class).
-                init(jsonService, deviceService);
+                init(jsonService, deviceService, deviceMessageSpecificationService);
     }
 
     @Reference
@@ -48,6 +50,11 @@ public class CreateDeviceMessageMessageHandlerFactory implements MessageHandlerF
     @Reference
     public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.newDataModel("CommunicationTaskMessageHandlers", "Message handler for bulk action on communication tasks");
+    }
+
+    @Reference
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @Activate
