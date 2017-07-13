@@ -222,6 +222,22 @@ public class DeviceAlarmImpl implements DeviceAlarm {
         getBaseIssue().setCreateDateTime(dateTime);
     }
 
+    @Override
+    public Optional<Instant> getSnoozeDateTime() {
+        return getBaseIssue().getSnoozeDateTime();
+    }
+
+    @Override
+    public void snooze(Instant snoozeDateTime) {
+        getBaseIssue().snooze(snoozeDateTime);
+
+    }
+
+    @Override
+    public void clearSnooze(){
+        this.snooze(null);
+    }
+
     public DeviceAlarmClearStatus getClearStatus() {
         return clearStatus;
     }
