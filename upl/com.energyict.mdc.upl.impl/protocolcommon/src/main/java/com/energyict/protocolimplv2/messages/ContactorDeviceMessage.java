@@ -237,7 +237,7 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
     public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         return new DeviceMessageSpecImpl(
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
-                DeviceMessageCategories.LOAD_BALANCE,
+                DeviceMessageCategories.CONTACTOR,
                 this.getPropertySpecs(propertySpecService),
                 propertySpecService, nlsService, converter);
     }

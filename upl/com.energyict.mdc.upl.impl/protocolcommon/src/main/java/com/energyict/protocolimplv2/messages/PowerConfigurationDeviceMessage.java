@@ -66,7 +66,7 @@ public enum PowerConfigurationDeviceMessage implements DeviceMessageSpecSupplier
     public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         return new DeviceMessageSpecImpl(
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
-                DeviceMessageCategories.SMS_CONFIGURATION,
+                DeviceMessageCategories.POWER_CONFIGURATION,
                 this.getPropertySpecs(propertySpecService),
                 propertySpecService, nlsService, converter);
     }
