@@ -682,8 +682,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 Version.version(10, 2), UpgraderV10_2.class,
                 Version.version(10, 3), UpgraderV10_3.class,
                 Version.version(10, 4), UpgraderV10_4.class
-                Version.version(10, 3), UpgraderV10_3.class,
-                Version.version(10, 4), V10_4SimpleUpgrader.class
         ));
         initPrivileges();
     }
