@@ -296,33 +296,34 @@ public class DeviceGroupResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
     public List<DeviceMessageCategoryInfo> getAvailableCommandsForDeviceGroup(@PathParam("id") long deviceGroupId) {
         EndDeviceGroup endDeviceGroup = resourceHelper.findEndDeviceGroupOrThrowException(deviceGroupId);
-        List<DeviceMessageCategory> deviceMessageCategories = deviceMessageSpecificationService.filteredCategoriesForUserSelection();
-        List<DeviceMessageSpecWrapper> allExistingDeviceMessageSpecs = deviceMessageCategories.stream()
-                .flatMap(cat->cat.getMessageSpecifications().stream())
-                .map(DeviceMessageSpecWrapper::new)
-                .collect(toList());
-
         List<DeviceConfiguration> allCommonDeviceConfigurations = deviceConfigurationService.getDeviceConfigsByDeviceGroup(endDeviceGroup);
         List<DeviceMessageCategoryInfo> categoryInfos = new ArrayList<>();
-        for (DeviceMessageCategory deviceMessageCategory : deviceMessageCategories) {
-            List<DeviceMessageSpecWrapper> commonDeviceMessageSpecs = new ArrayList<>(allExistingDeviceMessageSpecs);
-            for (DeviceConfiguration deviceConfiguration : allCommonDeviceConfigurations) {
-                List<DeviceMessageSpecWrapper> deviceMessageSpecWrappersInCategory = deviceConfiguration.getEnabledAndAuthorizedDeviceMessageSpecsIn(deviceMessageCategory)
-                        .stream()
-                        .map(DeviceMessageSpecWrapper::new)
-                        .collect(toList());
-                commonDeviceMessageSpecs.retainAll(deviceMessageSpecWrappersInCategory);
-            }
-            if (!commonDeviceMessageSpecs.isEmpty()) {
-                DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(deviceMessageCategory);
-                info.deviceMessageSpecs = commonDeviceMessageSpecs.stream()
-                        .map(DeviceMessageSpecWrapper::getDeviceMessageSpec)
-                        .map(deviceMessageSpecInfoFactory::asInfoWithMessagePropertySpecs)
-                        .collect(toList());
-                categoryInfos.add(info);
+        if (!allCommonDeviceConfigurations.isEmpty()) {
+            List<DeviceMessageCategory> deviceMessageCategories = deviceMessageSpecificationService.filteredCategoriesForUserSelection();
+            List<DeviceMessageSpecWrapper> allExistingDeviceMessageSpecs = deviceMessageCategories.stream()
+                    .flatMap(cat -> cat.getMessageSpecifications().stream())
+                    .map(DeviceMessageSpecWrapper::new)
+                    .collect(toList());
+
+            for (DeviceMessageCategory deviceMessageCategory : deviceMessageCategories) {
+                List<DeviceMessageSpecWrapper> commonDeviceMessageSpecs = new ArrayList<>(allExistingDeviceMessageSpecs);
+                for (DeviceConfiguration deviceConfiguration : allCommonDeviceConfigurations) {
+                    List<DeviceMessageSpecWrapper> deviceMessageSpecWrappersInCategory = deviceConfiguration.getEnabledAndAuthorizedDeviceMessageSpecsIn(deviceMessageCategory)
+                            .stream()
+                            .map(DeviceMessageSpecWrapper::new)
+                            .collect(toList());
+                    commonDeviceMessageSpecs.retainAll(deviceMessageSpecWrappersInCategory);
+                }
+                if (!commonDeviceMessageSpecs.isEmpty()) {
+                    DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(deviceMessageCategory);
+                    info.deviceMessageSpecs = commonDeviceMessageSpecs.stream()
+                            .map(DeviceMessageSpecWrapper::getDeviceMessageSpec)
+                            .map(deviceMessageSpecInfoFactory::asInfoWithMessagePropertySpecs)
+                            .collect(toList());
+                    categoryInfos.add(info);
+                }
             }
         }
-
         return categoryInfos;
 
     }

@@ -687,6 +687,19 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
     }
 
     @Test
+    public void findDeviceMessagesForEmptyDeviceGroup() throws Exception {
+        EndDeviceGroup deviceGroup = mock(EndDeviceGroup.class);
+        when(meteringGroupService.findEndDeviceGroup(13L)).thenReturn(Optional.ofNullable(deviceGroup));
+        when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(Stream.of(DeviceMessageTestCategories.values()).collect(Collectors.toList()));
+        when(deviceConfigurationService.getDeviceConfigsByDeviceGroup(deviceGroup)).thenReturn(Collections.emptyList());
+
+        Response response = target("/devicegroups/13/commands").request().get();
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        System.out.println(model.toJson());
+        assertThat(model.<List>get("$")).isEmpty();
+    }
+
+    @Test
     public void findDeviceMessagesForDeviceGroup_noCategoriesInCommon() throws Exception {
         EndDeviceGroup deviceGroup = mock(EndDeviceGroup.class);
         when(meteringGroupService.findEndDeviceGroup(13L)).thenReturn(Optional.ofNullable(deviceGroup));
