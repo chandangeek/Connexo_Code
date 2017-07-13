@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -28,6 +29,7 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -61,6 +63,7 @@ public class DeviceMessageSearchResource {
         List<DeviceMessageInfo> deviceMessageInfos = deviceMessageService.findDeviceMessagesByFilter(deviceMessageQueryFilter)
                 .from(queryParameters)
                 .stream()
+                .sorted(Comparator.comparing(DeviceMessage::getReleaseDate).reversed())
                 .map(dm -> deviceMessageInfoFactory.asInfo(dm, uriInfo))
                 .collect(Collectors.toList());
 
