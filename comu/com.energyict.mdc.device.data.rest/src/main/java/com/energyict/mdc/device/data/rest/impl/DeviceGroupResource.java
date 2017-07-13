@@ -34,6 +34,7 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -46,14 +47,12 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.BulkDeviceMessageQueueMessage;
-import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.google.common.collect.Range;
-import org.json.JSONArray;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -87,7 +86,6 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Functions.asStream;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 @Path("/devicegroups")
 public class DeviceGroupResource {
@@ -105,6 +103,7 @@ public class DeviceGroupResource {
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final PropertyValueInfoService propertyValueInfoService;
+    private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
     public DeviceGroupResource(MeteringGroupsService meteringGroupsService, MeteringService meteringService,
@@ -113,7 +112,7 @@ public class DeviceGroupResource {
                                DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceConfigurationService deviceConfigurationService,
                                JsonService jsonService, MessageService messageService,
                                DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory, DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory,
-                               PropertyValueInfoService propertyValueInfoService) {
+                               PropertyValueInfoService propertyValueInfoService, ThreadPrincipalService threadPrincipalService) {
         this.meteringGroupsService = meteringGroupsService;
         this.meteringService = meteringService;
         this.deviceService = deviceService;
@@ -128,6 +127,7 @@ public class DeviceGroupResource {
         this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
         this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
         this.propertyValueInfoService = propertyValueInfoService;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @GET
@@ -340,7 +340,7 @@ public class DeviceGroupResource {
             DeviceMessageId deviceMessageId = DeviceMessageId.valueOf(deviceMessageInfo.messageSpecification.id);
             EndDeviceGroup endDeviceGroup = resourceHelper.findEndDeviceGroupOrThrowException(deviceGroupId);
             Map<String, String> properties = convertPropertyInfosToMap(deviceMessageInfo.properties);
-            BulkDeviceMessageQueueMessage message = new BulkDeviceMessageQueueMessage(endDeviceGroup.getId(), deviceMessageId, deviceMessageInfo.releaseDate.getEpochSecond(), properties);
+            BulkDeviceMessageQueueMessage message = new BulkDeviceMessageQueueMessage(endDeviceGroup.getId(), deviceMessageId, deviceMessageInfo.releaseDate.getEpochSecond(), properties, threadPrincipalService.getPrincipal().getName());
             return processMessagePost(message, destinationSpec.get());
         } else {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
