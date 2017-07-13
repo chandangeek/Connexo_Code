@@ -466,7 +466,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                 .setTrackingId(deviceMessage.getTrackingId());
         for (DeviceMessageAttribute attribute: deviceMessage.getAttributes()) {
             if (attribute.getName().equals("FirmwareDeviceMessage.upgrade.resume")){
-                deviceMessageBuilder.addProperty("FirmwareDeviceMessage.upgrade.resume" , true);
+                deviceMessageBuilder.addProperty("FirmwareDeviceMessage.upgrade.resume" , Boolean.TRUE);
             }else {
                 deviceMessageBuilder.addProperty(attribute.getName(), attribute.getValue());
             }
@@ -487,8 +487,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         if (!deviceInFirmwareCampaign.getStatus().canTransitToStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING)) {
             throw RetryDeviceInFirmwareCampaignExceptions.transitionToPendingStateImpossible(this.thesaurus, deviceInFirmwareCampaign);
         }
-        DeviceInFirmwareCampaignImpl dfc = ((DeviceInFirmwareCampaignImpl) deviceInFirmwareCampaign);
-        dfc.retryFirmwareProces();
+        ((DeviceInFirmwareCampaignImpl) deviceInFirmwareCampaign).retryFirmwareProces();
         return true;
     }
 

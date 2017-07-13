@@ -259,7 +259,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
                 .setReleaseDate(getFirmwareCampaign().getStartedOn());
         for (Map.Entry<String, Object> property : getFirmwareCampaign().getProperties().entrySet()) {
             if (resume && property.getKey().equals(PROPERTY_NAME_RESUME)){
-                deviceMessageBuilder.addProperty(property.getKey(), "1");
+                deviceMessageBuilder.addProperty(property.getKey(), Boolean.TRUE);
                 continue;
             }
             deviceMessageBuilder.addProperty(property.getKey(), property.getValue());
