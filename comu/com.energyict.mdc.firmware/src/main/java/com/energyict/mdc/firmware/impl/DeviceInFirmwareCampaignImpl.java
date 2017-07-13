@@ -43,6 +43,8 @@ import java.util.function.Predicate;
 
 public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
 
+    private final static String PROPERTY_NAME_RESUME = "FirmwareDeviceMessage.upgrade.resume";
+
     public enum Fields {
         CAMPAIGN("campaign"),
         DEVICE("device"),
@@ -130,7 +132,15 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         return (FirmwareCampaignImpl) this.campaign.get();
     }
 
+    public void retryFirmwareProces(){
+       startFirmwareProcess(true);
+    }
+
     public void startFirmwareProcess() {
+        startFirmwareProcess(false);
+    }
+
+    public void startFirmwareProcess(boolean retry) {
         Optional<DeviceMessageId> firmwareMessageId = getFirmwareCampaign().getFirmwareMessageId();
         if (!checkDeviceType()
                 || !checkDeviceConfiguration()
@@ -142,7 +152,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
             if (deviceAlreadyHasTheSameVersion()) {
                 setStatus(FirmwareManagementDeviceStatus.VERIFICATION_SUCCESS);
             } else {
-                createFirmwareMessage(firmwareMessageId);
+                createFirmwareMessage(firmwareMessageId, retry);
                 setStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
                 scheduleFirmwareTask();
             }
@@ -199,7 +209,6 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     @Override
     public void cancel() {
         setStatus(FirmwareManagementDeviceStatus.CANCELLED);
-
         save();
     }
 
@@ -244,11 +253,15 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         return NON_FINAL_STATUSES.contains(this.getStatus().key());
     }
 
-    private void createFirmwareMessage(Optional<DeviceMessageId> firmwareMessageId) {
+    private void createFirmwareMessage(Optional<DeviceMessageId> firmwareMessageId, boolean resume) {
         Device.DeviceMessageBuilder deviceMessageBuilder = getDevice()
                 .newDeviceMessage(firmwareMessageId.get())
                 .setReleaseDate(getFirmwareCampaign().getStartedOn());
         for (Map.Entry<String, Object> property : getFirmwareCampaign().getProperties().entrySet()) {
+            if (resume && property.getKey().equals(PROPERTY_NAME_RESUME)){
+                deviceMessageBuilder.addProperty(property.getKey(), "1");
+                continue;
+            }
             deviceMessageBuilder.addProperty(property.getKey(), property.getValue());
         }
         DeviceMessage firmwareMessage = deviceMessageBuilder.add();

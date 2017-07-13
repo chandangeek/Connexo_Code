@@ -487,7 +487,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         if (!deviceInFirmwareCampaign.getStatus().canTransitToStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING)) {
             throw RetryDeviceInFirmwareCampaignExceptions.transitionToPendingStateImpossible(this.thesaurus, deviceInFirmwareCampaign);
         }
-        ((DeviceInFirmwareCampaignImpl) deviceInFirmwareCampaign).startFirmwareProcess();
+        DeviceInFirmwareCampaignImpl dfc = ((DeviceInFirmwareCampaignImpl) deviceInFirmwareCampaign);
+        dfc.retryFirmwareProces();
         return true;
     }
 
