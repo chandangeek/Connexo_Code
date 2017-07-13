@@ -15,7 +15,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import java.time.Instant;
-import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,7 +37,7 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
             Optional<DeviceMessageSpec> deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(queueMessage.deviceMessageId.dbValue());
             if (deviceMessageSpec.isPresent()) {
                 Device.DeviceMessageBuilder deviceMessageBuilder = deviceOptional.get().newDeviceMessage(queueMessage.deviceMessageId)
-                        .setReleaseDate(Instant.ofEpochMilli(queueMessage.releaseDate));
+                        .setReleaseDate(Instant.ofEpochSecond(queueMessage.releaseDate));
 
                 for (PropertySpec propertySpec : deviceMessageSpec.get().getPropertySpecs()) {
                     if (queueMessage.properties.containsKey(propertySpec.getName())) {
@@ -47,13 +46,14 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
                         try {
                             convertedValue = propertySpec.getValueFactory().fromStringValue(stringValue);
                             deviceMessageBuilder.addProperty(propertySpec.getName(), convertedValue);
-                            deviceMessageBuilder.add();
                             LOGGER.info(String.format("Set property '%s' on device command '%s' to value '%s'", propertySpec.getName(), queueMessage.deviceMessageId, convertedValue));
                         } catch (Exception e) {
                             LOGGER.log(Level.SEVERE, String.format("Failed to set property '%s' on device command '%s': value '%s' was refused: %s", propertySpec.getName(), queueMessage.deviceMessageId, convertedValue, e.getMessage()));
                         }
                     }
                 }
+                deviceMessageBuilder.add();
+                LOGGER.info(String.format("Added device command '%s' on device '%s'", queueMessage.deviceMessageId, deviceOptional.get().getName()));
             } else {
                 LOGGER.log(Level.SEVERE, "Could not find device message spec with db value "+queueMessage.deviceMessageId.dbValue());
             }
