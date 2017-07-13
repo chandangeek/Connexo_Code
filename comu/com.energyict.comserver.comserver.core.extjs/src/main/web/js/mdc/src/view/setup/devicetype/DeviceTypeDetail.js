@@ -34,6 +34,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                     },
                     {
                         xtype: 'uni-button-action',
+                        itemId: 'device-type-detail-action-menu',
                         privileges: Mdc.privileges.DeviceType.admin,
                         menu: {
                             xtype: 'device-type-action-menu'
@@ -135,6 +136,23 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                     labelWidth: 250
                                 },
                                 items: [
+                                    {
+                                        xtype: 'fieldcontainer',
+                                        columnWidth: 0.5,
+                                        fieldLabel: Uni.I18n.translate('general.deviceIcon', 'MDC', 'Device icon'),
+                                        items: [
+                                            {
+                                                xtype: 'image',
+                                                height: 100,
+                                                itemId: 'deviceIconDisplayField',
+                                                hidden: true
+                                            },
+                                            {
+                                                xtype: 'displayfield',
+                                                itemId: 'noDeviceIconDisplayField'
+                                            }
+                                        ]
+                                    },
                                     {
                                         xtype: 'fieldcontainer',
                                         columnWidth: 0.5,
