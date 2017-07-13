@@ -55,6 +55,7 @@ public class IssueImpl extends EntityImpl implements Issue {
     private final IssueAssignmentService issueAssignmentService;
     private final Clock clock;
     private Instant createDateTime;
+    private Instant snoozeDateTime;
 
     private static final String DEFAULT_ISSUE_PREFIX = "ISU";
 
@@ -249,6 +250,33 @@ public class IssueImpl extends EntityImpl implements Issue {
     @Override
     public void setCreateDateTime(Instant dateTime) {
         createDateTime = dateTime;
+    }
+
+    @Override
+    public Optional<Instant> getSnoozeDateTime() {
+        return Optional.ofNullable(snoozeDateTime);
+    }
+
+    @Override
+    public void snooze(Instant snoozeDateTime) {
+        IssueStatus openIssueStatus = issueService.findStatus(IssueStatus.OPEN).orElse(null);
+        IssueStatus snoozedIssueStaus = issueService.findStatus(IssueStatus.SNOOZED).orElse(null);
+        if (snoozeDateTime != null &&
+                openIssueStatus != null &&
+                snoozedIssueStaus != null &&
+                (this.getStatus().equals(openIssueStatus) || this.getStatus().equals(snoozedIssueStaus))) {
+            this.snoozeDateTime = snoozeDateTime;
+            this.setStatus(snoozedIssueStaus);
+        } else {
+            throw new UnsupportedOperationException("Incorrect status");
+        }
+
+    }
+
+    @Override
+    public void clearSnooze() {
+        this.setStatus(issueService.findStatus(IssueStatus.OPEN).orElse(null));
+        this.snoozeDateTime = null;
     }
 
     @Override
