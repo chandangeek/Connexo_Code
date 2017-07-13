@@ -471,10 +471,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                 deviceMessageBuilder.addProperty(attribute.getName(), attribute.getValue());
             }
         }
-        // revoking the previous message
-        deviceMessage.revoke();
         // Persisting the clone
         deviceMessageBuilder.add();
+        // revoking the previous message
+        // deviceMessage.revoke();    ???? Revoking = Change status to DeviceMessageStatus.CANCELED ... can't we leave it as DeviceMessageStatus.FAILED
+        // As revoking the message leads to canceling the deviceInFirmwareCampaign : see FirmwareCampaignHandler
     }
 
 
