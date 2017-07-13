@@ -17,7 +17,8 @@ public enum TranslationKeys implements TranslationKey {
     ISSUE_ACTION_PHASE_NOT_APPLICABLE_DESCRIPTION("IssueActionPhaseNotApplicableDescription", "The action will be never performed"),
     ISSUE_ACTION_UNASSIGNED("action.issue.unassigned", "Issue unassigned"),
     ISSUE_ACTION_ASSIGNED("action.issue.assigned.user", "Issue assigned"),
-    ISSUE_ACTION_PRIORITY_CHANGED("action.issue.priority.changed", "Issue priority changed");
+    ISSUE_ACTION_PRIORITY_CHANGED("action.issue.priority.changed", "Issue priority changed"),
+    ISSUE_ACTION_SNOOZED("action.issue.snoozed", "Issue snoozed");
 
     private final String key;
     private final String defaultFormat;

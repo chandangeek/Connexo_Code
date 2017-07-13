@@ -6,13 +6,16 @@ package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.rest.MessageSeeds;
+import com.elster.jupiter.issue.rest.TranslationKeys;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.AssignSingleIssueRequest;
 import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
+import com.elster.jupiter.issue.rest.request.BulkSnoozeRequest;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.request.SingleIssueRequest;
+import com.elster.jupiter.issue.rest.request.SingleSnoozeRequest;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.IssueRestModuleConst;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
@@ -25,6 +28,8 @@ import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.rest.transactions.AssignSingleIssueTransaction;
 import com.elster.jupiter.issue.rest.transactions.AssignToMeSingleIssueTransaction;
+import com.elster.jupiter.issue.rest.transactions.BulkSnoozeTransaction;
+import com.elster.jupiter.issue.rest.transactions.SingleSnoozeTransaction;
 import com.elster.jupiter.issue.rest.transactions.UnassignSingleIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.IssueActionResult;
@@ -63,6 +68,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -345,6 +351,38 @@ public class IssueResource extends BaseResource {
             issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
         }
         ActionInfo info = getTransactionService().execute(new AssignIssueTransaction(request, performer, issueProvider));
+        return entity(info).build();
+    }
+
+    @PUT
+    @Path("/snooze/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
+    public Response snooze(@Context SecurityContext securityContext, SingleSnoozeRequest request) {
+        User performer = (User) securityContext.getUserPrincipal();
+        Function<ActionInfo, Issue> issueProvider;
+        issueProvider = result -> getIssue(request, result);
+        ActionInfo info = getTransactionService().execute(new SingleSnoozeTransaction(request, performer, issueProvider, getThesaurus()));
+        return entity(info).build();
+    }
+
+
+    @PUT
+    @Path("/snooze")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ASSIGN_ISSUE)
+    @Deprecated
+    public Response assignIssues(BulkSnoozeRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
+        User performer = (User) securityContext.getUserPrincipal();
+        Function<ActionInfo, List<? extends Issue>> issueProvider;
+        if (request.allIssues) {
+            issueProvider = bulkResults -> getIssuesForBulk(filter);
+        } else {
+            issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
+        }
+        ActionInfo info = getTransactionService().execute(new BulkSnoozeTransaction(request, performer, issueProvider));
         return entity(info).build();
     }
 
