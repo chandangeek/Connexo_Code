@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -28,13 +29,19 @@ public class CreateDeviceMessageMessageHandlerFactory implements MessageHandlerF
     private volatile JsonService jsonService;
     private volatile DataModel dataModel;
     private volatile DeviceService deviceService;
+    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Override
     public MessageHandler newMessageHandler() {
         return dataModel.
                 getInstance(CreateDeviceMessageMessageHandler.class).
-                init(jsonService, deviceService, deviceMessageSpecificationService);
+                init(jsonService, deviceService, deviceMessageSpecificationService, threadPrincipalService);
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference

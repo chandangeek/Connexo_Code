@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.impl.messagehandlers;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -28,10 +29,12 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
     private JsonService jsonService;
     private DeviceService deviceService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private ThreadPrincipalService threadPrincipalService;
 
     @Override
     public void process(Message message) {
         DeviceMessageQueueMessage queueMessage = jsonService.deserialize(message.getPayload(), DeviceMessageQueueMessage.class);
+        threadPrincipalService.set(()->queueMessage.createdByUser);
         Optional<Device> deviceOptional = deviceService.findDeviceById(queueMessage.deviceId);
         if (deviceOptional.isPresent()) {
             Optional<DeviceMessageSpec> deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(queueMessage.deviceMessageId.dbValue());
@@ -67,10 +70,11 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
 
     }
 
-    public MessageHandler init(JsonService jsonService, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public MessageHandler init(JsonService jsonService, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, ThreadPrincipalService threadPrincipalService) {
         this.jsonService = jsonService;
         this.deviceService = deviceService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.threadPrincipalService = threadPrincipalService;
         return this;
     }
 }

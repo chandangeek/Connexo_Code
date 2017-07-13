@@ -18,14 +18,16 @@ public class BulkDeviceMessageQueueMessage implements QueueMessage {
     public DeviceMessageId deviceMessageId;
     public long releaseDate;
     public final Map<String, String> properties = new HashMap<>();
+    public String createdByUser;
 
     public BulkDeviceMessageQueueMessage() {
     }
 
-    public BulkDeviceMessageQueueMessage(Long endDeviceGroupId, DeviceMessageId deviceMessageId, long releaseDate, Map<String, String> properties) {
+    public BulkDeviceMessageQueueMessage(Long endDeviceGroupId, DeviceMessageId deviceMessageId, long releaseDate, Map<String, String> properties, String user) {
         this.endDeviceGroupId = endDeviceGroupId;
         this.deviceMessageId = deviceMessageId;
         this.releaseDate = releaseDate;
+        this.createdByUser = user;
         this.properties.putAll(properties);
     }
 }
