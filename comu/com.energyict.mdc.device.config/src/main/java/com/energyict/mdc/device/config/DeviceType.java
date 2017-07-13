@@ -222,6 +222,12 @@ public interface DeviceType extends HasId, HasName {
      */
     void disableFileManagement();
 
+    byte[] getDeviceIcon();
+
+    void setDeviceIcon(InputStream inputStream);
+
+    void removeDeviceIcon();
+
     /**
      * The List of {@link DeviceMessageFile}s that have been added
      * to this DeviceType. Note that when file management is not enabled

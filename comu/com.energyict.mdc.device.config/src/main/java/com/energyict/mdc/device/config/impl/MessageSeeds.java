@@ -26,7 +26,8 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_TOO_LONG(1003, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
     FIELD_IS_REQUIRED(1004, Keys.FIELD_IS_REQUIRED, "This field is required"),
     DUPLICATE_DEVICE_MESSAGE_FILE_IN_DEVICE_TYPE(1005, "deviceType.deviceMessageFile.duplicate", "Another device message file with the name ''{0}'' already added to the device type ''{1}''."),
-    MAX_FILE_SIZE_EXCEEDED(1006, Keys.MAX_FILE_SIZE_EXCEEDED, "File size should be less than {0} MB"),
+    MAX_FILE_SIZE_EXCEEDED(1006, Keys.MAX_FILE_SIZE_EXCEEDED_MB, "File size should be less than {0} MB"),
+    MAX_FILE_SIZE_EXCEEDED_KB(1007, Keys.MAX_FILE_SIZE_EXCEEDED_KB, "File size should be less than {0} kB"),
     REGISTER_GROUP_NAME_IS_REQUIRED(1501, "registerGroup.name.required", "The name of a register group is required"),
     READING_TYPE_ALREADY_EXISTS(2002, Keys.READING_TYPE_ALREADY_EXISTS, "Reading type {0} already exists"),
     DEFAULT_PRODUCT_SPEC_CANNOT_BE_DELETED(2003, "productSpec.cannotDeleteDefault", "The default product spec can''t be removed"),
@@ -227,7 +228,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NAME_UNIQUE = "X.name.unique";
         public static final String FIELD_TOO_LONG = "fieldTooLong";
         public static final String FIELD_IS_REQUIRED = "field.required";
-        public static final String MAX_FILE_SIZE_EXCEEDED = "MaxFileSizeExceeded";
+        public static final String MAX_FILE_SIZE_EXCEEDED_MB = "MaxFileSizeExceeded";
+        public static final String MAX_FILE_SIZE_EXCEEDED_KB = "MaxFileSizeExceededKb";
         public static final String INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS = "InvalidNumberOfSimultaneousConnections";
         public static final String DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS = "deviceType.XstillHasActiveConfigurations";
         public static final String DEVICE_PROTOCOL_IS_REQUIRED = "deviceType.protocol.required";

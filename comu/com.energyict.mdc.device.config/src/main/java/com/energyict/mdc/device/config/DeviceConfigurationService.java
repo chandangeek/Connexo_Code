@@ -40,6 +40,8 @@ public interface DeviceConfigurationService {
     String COMPONENTNAME = "DTC";
     int MAX_DEVICE_MESSAGE_FILE_SIZE_MB = 2;
     int MAX_DEVICE_MESSAGE_FILE_SIZE_BYTES = MAX_DEVICE_MESSAGE_FILE_SIZE_MB * 1024 * 1024;    // 2MB
+    int MAX_DEVICE_ICON_SIZE_KB = 500;
+    int MAX_DEVICE_ICON_SIZE_BYTES = MAX_DEVICE_ICON_SIZE_KB * 1024;
 
     Finder<DeviceType> findAllDeviceTypes();
 
