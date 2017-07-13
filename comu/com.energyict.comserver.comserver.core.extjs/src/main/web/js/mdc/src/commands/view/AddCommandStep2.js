@@ -81,12 +81,12 @@ Ext.define('Mdc.commands.view.AddCommandStep2', {
                 fieldLabel: Uni.I18n.translate('general.releaseDate', 'MDC', 'Release date'),
                 labelWidth: 200,
                 width: 550,
+                value: new Date(),
                 dateConfig: {
                     width: 128,
                     flex: 2,
                     minValue: new Date(),
                     allowBlank: false,
-                    value: new Date(),
                     editable: false,
                     format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                 },
