@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology;
 
 import com.energyict.mdc.upl.SmartMeterProtocol;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
@@ -15,8 +16,8 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.utils.DummyDLMSConnection;
 import com.energyict.protocolimpl.utils.MockSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
@@ -93,9 +94,9 @@ public class MeterTopologyTest {
         assertNotNull(mt.getPhysicalAddress("MasterSerialNumber"));
         assertEquals(0, mt.getPhysicalAddress("MasterSerialNumber"));
         try {
-            assertEquals(-1, mt.getPhysicalAddress("SomeSerialNumber"));
-        } catch (Exception e) {
-            fail(e.getMessage());
+            mt.getPhysicalAddress("SomeSerialNumber");
+        } catch (DeviceConfigurationException e) {
+            assertEquals("[PRTCL-142] Unexpected value ''SomeSerialNumber'' for property ''SerialNumber''", e.getMessage());
         }
 
         DeviceMapping dmSlave1 = new DeviceMapping("MbusSlave1", 1);
