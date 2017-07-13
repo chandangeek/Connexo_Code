@@ -16,10 +16,12 @@ import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.ws.rs.core.StreamingOutput;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Base64;
 
 @XmlRootElement
 public class DeviceTypeInfo {
@@ -36,6 +38,7 @@ public class DeviceTypeInfo {
     public long deviceConflictsCount;
     public boolean canBeDirectlyAddressed;
     public boolean canBeGateway;
+    public String deviceIcon;
     @JsonProperty(COMMUNICATION_PROTOCOL_NAME)
     public String deviceProtocolPluggableClassName;
     public long deviceProtocolPluggableClassId;
@@ -89,6 +92,7 @@ public class DeviceTypeInfo {
         deviceTypeInfo.deviceTypePurpose = deviceType.isDataloggerSlave() ? DeviceTypePurpose.DATALOGGER_SLAVE.name() : (deviceType.isMultiElementSlave() ? DeviceTypePurpose.MULTI_ELEMENT_SLAVE.name() : DeviceTypePurpose.REGULAR.name());
         deviceTypeInfo.fileManagementEnabled = deviceType.isFileManagementEnabled();
         deviceTypeInfo.isLogicalSlave = deviceType.isLogicalSlave();
+        deviceTypeInfo.deviceIcon = Base64.getEncoder().encodeToString(deviceType.getDeviceIcon());
         return deviceTypeInfo;
     }
 
