@@ -48,12 +48,16 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                 change: this.onStep3RadiogroupCloseChangeEvent,
                 afterrender: this.getDefaultCloseStatus
             },
-            'alarm-bulk-browse alarm-bulk-step4': {
+            'alarm-bulk-browse alarm-bulk-wizard alarm-bulk-step3 set-priority-form radiogroup': {
+                change: this.onStep3RadiogroupSetPriorityChangeEvent,
+                afterrender: this.getDefaultSetPriorityStatus
+            },
+            'issues-close-form': {
                 beforeactivate: this.beforeStep4
             },
             'alarm-bulk-browse alarm-bulk-wizard alarm-bulk-step3 issues-close-form': {
                 beforerender: this.alarmClosingFormBeforeRenderEvent
-            }
+            },
         });
     },
 
@@ -436,16 +440,16 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                     userId: bulkStoreRecord.get('assignee').userId,
                     workGroupId: bulkStoreRecord.get('assignee').workGroupId
                 };
+                requestData.comment = bulkStoreRecord.get('comment');
                 break;
             case 'close':
                 requestData.status = bulkStoreRecord.get('status');
+                requestData.comment = bulkStoreRecord.get('comment');
                 break;
             case 'setpriority' :
-                requestData.status = bulkStoreRecord.get('status');
+                requestData.priority = bulkStoreRecord.get('priority');
                 break;
         }
-
-        requestData.comment = bulkStoreRecord.get('comment');
 
         return requestData;
     },
@@ -490,6 +494,13 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
         record.commit();
     },
 
+    onStep3RadiogroupSetPriorityChangeEvent: function (radiogroup, newValue, oldValue) {
+        var record = this.getBulkRecord();
+        record.set('status', newValue.status);
+        record.set('statusName', radiogroup.getChecked()[0].boxLabel);
+        record.commit();
+    },
+
     getDefaultStep2Operation: function () {
         var formPanel = this.getPage().down('alarm-bulk-wizard').down('alarm-bulk-step2').down('panel'),
             default_operation = formPanel.down('radiogroup').getValue().operation,
@@ -500,6 +511,14 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
 
     getDefaultCloseStatus: function () {
         var formPanel = this.getPage().down('alarm-bulk-wizard').down('alarm-bulk-step3').down('issues-close-form'),
+            default_status = formPanel.down('radiogroup').getValue().status,
+            record = this.getBulkRecord();
+        record.set('status', default_status);
+        record.commit();
+    },
+
+    getDefaultSetPriorityStatus: function () {
+        var formPanel = this.getPage().down('alarm-bulk-wizard').down('alarm-bulk-step3').down('set-priority-form'),
             default_status = formPanel.down('radiogroup').getValue().status,
             record = this.getBulkRecord();
         record.set('status', default_status);
@@ -553,6 +572,8 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
         if (operation == 'setpriority') {
             widget.down('#savePriority').setVisible(false);
             widget.down('#cancel').setVisible(false);
+            widget.down('#num-urgency').setValue(25);
+            widget.down('#num-impact').setValue(5);
         }
 
         if (operation == 'assign') {
@@ -639,12 +660,13 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                 break;
 
             case 'setpriority':
+                record.set('priority', formPanel.down("#num-urgency").getValue() + ":" + formPanel.down("#num-impact").getValue());
                 if (!record.get('allAlarms')) {
-                    message = Uni.I18n.translatePlural('alarms.selectedAlarms.setPriority.withCount', record.get('alarms').length, 'DAL', '-', '<h3>Set priority for one alarm?</h3><br>', '<h3>Set priority for {0} alarms?</h3><br>')
-                        + Uni.I18n.translate('alarms.selectedAlarms.setPriority','DAL', 'Setting priority for alarm(s)."');
+                    message = Uni.I18n.translatePlural('alarms.selectedAlarms.setPriority.withCount', record.get('alarms').length, 'DAL', '<h3>Set priority for one alarm?</h3><br>', '<h3>Set priority for {0} alarms?</h3><br>')
+                        + Uni.I18n.translate('alarms.selectedAlarms.setPriority','DAL', 'The priority of all the alarms will be set to {0}', [formPanel.down("#priority-label").text]);
                 }else {
-                    message = Uni.I18n.translatePlural('alarms.selectedAlarms.setPriority.withCount', record.get('alarms').length, 'DAL', '-', '<h3>Set priority for one alarm?</h3><br>', '<h3>Set priority for {0} alarms?</h3><br>')
-                        + Uni.I18n.translate('alarms.allAlarms.setPriority','DAL', 'The priority of the selected alarm(s) will be set to {0}', [record.get('priority')]);
+                    message = Uni.I18n.translatePlural('alarms.selectedAlarms.setPriority.withCount', record.get('alarms').length, 'DAL', '<h3>Set priority for one alarm?</h3><br>', '<h3>Set priority for {0} alarms?</h3><br>')
+                        + Uni.I18n.translate('alarms.allAlarms.setPriority','DAL', 'The priority of the selected alarm(s) will be set to {0}', [formPanel.down("#priority-label").text]);
                 }
 
         }
