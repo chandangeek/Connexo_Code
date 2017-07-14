@@ -8,11 +8,7 @@ import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
-import com.elster.jupiter.issue.rest.request.EntityReference;
-import com.elster.jupiter.issue.rest.request.IssueDueDateInfo;
-import com.elster.jupiter.issue.rest.request.IssueDueDateInfoAdapter;
-import com.elster.jupiter.issue.rest.request.PerformActionRequest;
+import com.elster.jupiter.issue.rest.request.*;
 import com.elster.jupiter.issue.rest.resource.IssueRestModuleConst;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
@@ -21,22 +17,11 @@ import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
-import com.elster.jupiter.issue.share.entity.HistoricalIssue;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.issue.share.entity.IssueComment;
-import com.elster.jupiter.issue.share.entity.IssueGroup;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
@@ -49,6 +34,7 @@ import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.rest.request.AssignDeviceAlarmRequest;
 import com.energyict.mdc.device.alarms.rest.request.BulkDeviceAlarmRequest;
 import com.energyict.mdc.device.alarms.rest.request.CloseDeviceAlarmRequest;
+import com.energyict.mdc.device.alarms.rest.request.SetPriorityAlarmRequest;
 import com.energyict.mdc.device.alarms.rest.response.AlarmProcessInfos;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmActionInfo;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfo;
@@ -57,35 +43,18 @@ import com.energyict.mdc.device.alarms.rest.transactions.AssignDeviceAlarmTransa
 import com.energyict.mdc.device.alarms.rest.transactions.AssignToMeSingleDeviceAlarmTransaction;
 import com.energyict.mdc.device.alarms.rest.transactions.UnassignSingleDeviceAlarmTransaction;
 import com.energyict.mdc.device.alarms.security.Privileges;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -391,6 +360,24 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         return Response.ok().entity(info).build();
     }
 
+
+
+    @PUT @Transactional
+    @Path("/setpriority")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ACTION_ALARM)
+    public Response setPriority(SetPriorityAlarmRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
+        Function<ActionInfo, List<? extends Issue>> alarmProvider;
+        if (request.allAlarms) {
+            alarmProvider = bulkResults -> getDeviceAlarmForBulk(filter);
+        } else {
+            alarmProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
+        }
+        ActionInfo info = doBulkSetPriority(request, alarmProvider);
+        return Response.ok().entity(info).build();
+    }
+
     private ActionInfo doBulkClose(CloseDeviceAlarmRequest request, User performer, Function<ActionInfo, List<? extends Issue>> issueProvider) {
         ActionInfo response = new ActionInfo();
         Optional<IssueStatus> status = getIssueService().findStatus(request.status);
@@ -409,6 +396,20 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         } else {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
+        return response;
+    }
+
+    private ActionInfo doBulkSetPriority(SetPriorityAlarmRequest request, Function<ActionInfo, List<? extends Issue>> issueProvider) {
+        ActionInfo response = new ActionInfo();
+        for (Issue issue : issueProvider.apply(response)) {
+            if (issue.getStatus().isHistorical()) {
+                response.addFail(getThesaurus().getFormat(DeviceAlarmTranslationKeys.ALARM_ALREADY_CLOSED).format(), issue.getId(), issue.getTitle());
+            } else {
+                issue.setPriority(Priority.fromStringValue(request.priority));
+                response.addSuccess(issue.getId());
+            }
+        }
+
         return response;
     }
 
