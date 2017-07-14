@@ -106,7 +106,7 @@ public abstract class FieldResource {
      * @param <T> The type of values being listed
      * @return ExtJS JSON format for listed values
      */
-    final protected <T> Map<String, Object> asJsonArrayObjectWithTranslation(String fieldName, String valueName, Collection<T> values) {
+    protected <T> Map<String, Object> asJsonArrayObjectWithTranslation(String fieldName, String valueName, Collection<T> values) {
         Map<String, Object> map = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
         map.put(fieldName, list);
@@ -120,7 +120,7 @@ public abstract class FieldResource {
         return map;
     }
 
-    final public List<Map<String, Object>> sortList(List<Map<String, Object>> list) {
+    public List<Map<String, Object>> sortList(List<Map<String, Object>> list) {
         Collections.sort(list, Comparator.comparing(m -> m.values().toString()));
         return list;
     }
@@ -165,7 +165,7 @@ public abstract class FieldResource {
      * @param <T> The type of values being listed
      * @return ExtJS JSON format for listed values
      */
-    final protected <T> Map<String, Object> asJsonArrayObject(String fieldName, String valueName, Collection<T> values) {
+    protected <T> Map<String, Object> asJsonArrayObject(String fieldName, String valueName, Collection<T> values) {
         Map<String, Object> map = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
         map.put(fieldName, list);
@@ -220,7 +220,7 @@ public abstract class FieldResource {
      * @param <T> The type of values being listed
      * @return ExtJS JSON format for listed values
      */
-    final protected <T> Map<String, Object> asJsonArrayObjectWithTranslation(String fieldName, String valueName, List<T> values, List<String> translationKeys) {
+    protected <T> Map<String, Object> asJsonArrayObjectWithTranslation(String fieldName, String valueName, List<T> values, List<String> translationKeys) {
         if (values.size()!=translationKeys.size()) {
             throw new IllegalStateException(String.format("Not enough translation keys for field resource '%s'", fieldName));
         }
