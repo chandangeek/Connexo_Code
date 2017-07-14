@@ -14,7 +14,7 @@
     </parent>
 
     <artifactId>mdc.protocols.api</artifactId>
-    <version>4.1.0${revision}</version>
+    <version>5.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.protocols.api [init PAC, DMC]</name>
     <description>
