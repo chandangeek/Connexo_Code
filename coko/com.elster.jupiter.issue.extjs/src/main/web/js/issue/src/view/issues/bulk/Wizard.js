@@ -83,6 +83,9 @@ Ext.define('Isu.view.issues.bulk.Wizard', {
                 closeRadio = wizard.down('issues-close-form').down('radiogroup').items.items[0].getGroupValue();
             Ext.state.Manager.set('formCloseRadio', closeRadio);
             Ext.state.Manager.set('formCloseValues', closeValues);
+        }else if (wizard.down('set-priority-form')) {
+            var setPriorityValues = wizard.getForm().getValues();
+            Ext.state.Manager.set('formSetPriorityValues', setPriorityValues);
         }
         wizard.getLayout().setActiveItem(--wizard.activeItemId);
         wizard.fireEvent('wizardpagechange', wizard);

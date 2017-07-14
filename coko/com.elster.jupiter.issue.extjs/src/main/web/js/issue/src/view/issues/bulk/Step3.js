@@ -9,7 +9,8 @@ Ext.define('Isu.view.issues.bulk.Step3', {
 
     requires: [
         'Isu.view.issues.CloseForm',
-        'Isu.view.issues.AssignIssue'
+        'Isu.view.issues.AssignIssue',
+        'Isu.view.issues.SetPriority'
     ],
 
     initComponent: function () {
