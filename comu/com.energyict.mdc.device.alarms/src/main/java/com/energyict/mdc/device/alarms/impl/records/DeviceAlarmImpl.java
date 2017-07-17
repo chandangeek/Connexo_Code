@@ -235,7 +235,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
 
     @Override
     public void clearSnooze(){
-        this.snooze(null);
+        getBaseIssue().clearSnooze();
     }
 
     public DeviceAlarmClearStatus getClearStatus() {
