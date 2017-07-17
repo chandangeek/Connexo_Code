@@ -197,6 +197,22 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
+    public Optional<Instant> getSnoozeDateTime() {
+        return getBaseIssue().getSnoozeDateTime();
+    }
+
+    @Override
+    public void snooze(Instant snoozeDateTime) {
+        getBaseIssue().snooze(snoozeDateTime);
+
+    }
+
+    @Override
+    public void clearSnooze() {
+        getBaseIssue().clearSnooze();
+    }
+
+    @Override
     public Instant getCreateDateTime() {
         return getBaseIssue().getCreateDateTime();
     }
