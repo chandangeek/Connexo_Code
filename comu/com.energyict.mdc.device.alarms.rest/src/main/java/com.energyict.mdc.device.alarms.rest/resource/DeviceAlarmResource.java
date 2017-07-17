@@ -406,6 +406,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
                 response.addFail(getThesaurus().getFormat(DeviceAlarmTranslationKeys.ALARM_ALREADY_CLOSED).format(), issue.getId(), issue.getTitle());
             } else {
                 issue.setPriority(Priority.fromStringValue(request.priority));
+                issue.update();
                 response.addSuccess(issue.getId());
             }
         }
