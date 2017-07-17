@@ -19,6 +19,7 @@ import com.elster.jupiter.rest.util.GenericExceptionMapper;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.elster.jupiter.rest.util.MacExceptionInfo;
 import com.elster.jupiter.rest.util.MacExceptionMapper;
 import com.elster.jupiter.rest.util.OptimisticLockExceptionMapper;
 import com.elster.jupiter.rest.util.RestExceptionMapper;
@@ -187,6 +188,7 @@ public class WhiteBoard {
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(ConcurrentModificationInfo.class).to(ConcurrentModificationInfo.class);
                 bind(GenericExceptionInfo.class).to(GenericExceptionInfo.class);
+                bind(MacExceptionInfo.class).to(MacExceptionInfo.class);
                 bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
                 bind(jsonService).to(JsonService.class);
                 bind(transactionService).to(TransactionService.class);
