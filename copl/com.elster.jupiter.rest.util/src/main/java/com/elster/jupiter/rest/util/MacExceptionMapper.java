@@ -30,7 +30,7 @@ public class MacExceptionMapper implements ExceptionMapper<MacException> {
         MacExceptionInfo exceptionInfo = infoProvider.get();
         exceptionInfo = exceptionInfo.from(exception);
         log(exceptionInfo.errorCode, exception);
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionInfo).build();
+        return Response.status(550).entity(exceptionInfo).build();
     }
 
     private void log(String errorReference, Exception exception) {
