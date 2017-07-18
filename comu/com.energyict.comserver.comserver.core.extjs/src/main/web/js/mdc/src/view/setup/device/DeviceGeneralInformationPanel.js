@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.deviceGeneralInformationPanel',
@@ -9,10 +13,10 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
     dataLoggerSlave: undefined,
 
     requires: [
-      'Mdc.view.setup.device.DeviceAttributesForm'
+        'Mdc.view.setup.device.DeviceAttributesForm'
     ],
 
-    initComponent: function() {
+    initComponent: function () {
         var me = this;
 
         me.items = [
@@ -33,12 +37,22 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                     text: Uni.I18n.translate('deviceGeneralInformation.manageLinkText', 'MDC', 'Manage device attributes'),
                     ui: 'link',
                     itemId: 'view-more-general-information-link',
-                    handler: function() {
+                    handler: function () {
                         me.router.getRoute('devices/device/attributes').forward();
                     }
                 }
             ]
         };
+
+        me.tools = [
+            {
+                xtype: 'image',
+                height: 45,
+                itemId: 'device-information-panel-device-icon',
+                hidden: true
+            }
+        ]
+        ;
 
         me.callParent(arguments);
     }

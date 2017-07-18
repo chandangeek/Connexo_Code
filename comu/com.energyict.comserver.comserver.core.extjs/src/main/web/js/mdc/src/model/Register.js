@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.Register', {
     extend: 'Mdc.model.RegisterConfiguration',
     fields: [
@@ -10,10 +14,12 @@ Ext.define('Mdc.model.Register', {
                 if (!Ext.isEmpty(record.data.lastReading)) {
                     var value, unit;
                     if (record.get('type') === 'billing' || record.get('type') === 'numerical') {
-                        value = record.get('lastReading').value;
-                        unit = record.get('lastReading').unit;
-                        if (Ext.isEmpty(value)) {
-                            value = record.get('lastReading').calculatedValue;
+                        if (!Ext.isEmpty(record.get('lastReading').value)) {
+                            value = Uni.Number.formatNumber(record.get('lastReading').value, -1);
+                            unit = record.get('lastReading').unit;
+                        }
+                        else if (!Ext.isEmpty(record.get('lastReading').calculatedValue)) {
+                            value = Uni.Number.formatNumber(record.get('lastReading').calculatedValue, -1);
                             unit = record.get('lastReading').calculatedUnit;
                         }
                         return Ext.isEmpty(value) ? '-' : value + ' ' + (unit ? unit : '');
@@ -31,6 +37,8 @@ Ext.define('Mdc.model.Register', {
             }
         },
         {name: 'isCumulative', type: 'boolean'},
+        {name: 'hasEvent', type: 'boolean'},
+        {name: 'isBilling', type: 'boolean'},
         {name: 'timeStamp', mapping: 'lastReading.timeStamp', useNull: true},
         {name: 'reportedDateTime', mapping: 'lastReading.reportedDateTime', useNull: true},
         {name: 'interval', mapping: 'lastReading.interval', useNull: true},

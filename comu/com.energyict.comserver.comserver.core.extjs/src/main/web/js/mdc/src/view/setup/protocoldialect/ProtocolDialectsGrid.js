@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.protocolDialectsGrid',
@@ -26,8 +30,13 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DeviceType.admin,
-                menu: { xtype: 'protocol-dialect-action-menu' }
+                menu: {xtype: 'protocol-dialect-action-menu'},
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    return record.propertiesStore.count() === 0;
+
+                }
             }
 
         ];

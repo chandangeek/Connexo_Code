@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
     extend: 'Ext.panel.Panel',
     frame: true,
@@ -44,7 +48,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                     {
                         defaults: {
                             xtype: 'displayfield',
-                            labelWidth: 150
+                            labelWidth: 200
                         },
                         items: [
                             {
@@ -62,7 +66,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                     {
                         defaults: {
                             xtype: 'displayfield',
-                            labelWidth: 150
+                            labelWidth: 200
                         },
                         items: [
                             {

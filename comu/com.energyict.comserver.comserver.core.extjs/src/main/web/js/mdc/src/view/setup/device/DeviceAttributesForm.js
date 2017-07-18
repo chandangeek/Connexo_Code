@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.deviceAttributesForm',
@@ -26,9 +30,9 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
 
         me.items = [
             {
-                name: 'mrid',
-                itemId: 'fld-device-mrid',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID'),
+                name: 'name',
+                itemId: 'fld-device-name',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.name', 'MDC', 'Name'),
                 renderer: function (value) {
                     if (me.fullInfo && value && value.available) {
                         this.show();
@@ -40,9 +44,9 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 }
             },
             {
-                name: 'name',
-                itemId: 'fld-device-name',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.name', 'MDC', 'Name'),
+                name: 'mrid',
+                itemId: 'fld-device-mrid',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID'),
                 renderer: function (value) {
                     if (me.fullInfo && value && value.available) {
                         this.show();
@@ -135,11 +139,55 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 }
             },
             {
+                name: 'manufacturer',
+                itemId: 'fld-device-manufacturer',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.manufacturer', 'MDC', 'Manufacturer'),
+                renderer: function (value) {
+                    if (me.fullInfo) {
+                        this.show();
+                        return Ext.isEmpty(value.displayValue) ? '-' : Ext.String.htmlEncode(value.displayValue);
+                    } else {
+                        this.hide();
+                        return null;
+                    }
+
+                }
+            },
+            {
+                name: 'modelNbr',
+                itemId: 'fld-device-model-number',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.modelNumber', 'MDC', 'Model number'),
+                renderer: function (value) {
+                    if (me.fullInfo) {
+                        this.show();
+                        return Ext.isEmpty(value.displayValue) ? '-' : Ext.String.htmlEncode(value.displayValue);
+                    } else {
+                        this.hide();
+                        return null;
+                    }
+
+                }
+            },
+            {
+                name: 'modelVersion',
+                itemId: 'fld-device-model-version',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.modelVersion', 'MDC', 'Model version'),
+                renderer: function (value) {
+                    if (me.fullInfo) {
+                        this.show();
+                        return Ext.isEmpty(value.displayValue) ? '-' : Ext.String.htmlEncode(value.displayValue);
+                    } else {
+                        this.hide();
+                        return null;
+                    }
+                }
+            },
+            {
                 itemId: 'fld-data-logger',
                 fieldLabel: Uni.I18n.translate('general.dataLogger', 'MDC', 'Data logger'),
                 hidden: Ext.isEmpty(me.dataLoggerSlave),
                 renderer: function() {
-                    var dataloggerName = Ext.isEmpty(me.dataLoggerSlave) ? undefined : me.dataLoggerSlave.get('dataloggerName');
+                    var dataloggerName = Ext.isEmpty(me.dataLoggerSlave) ? undefined : (me.dataLoggerSlave.get('isDataloggerSlave') ? me.dataLoggerSlave.get('dataloggerName'): me.dataLoggerSlave.get('multiElementDeviceName')) ;
                     if (Ext.isEmpty(dataloggerName)) {
                         return '-';
                     }
@@ -279,6 +327,9 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 fullInfo: me.fullInfo
             }
         ];
+        if (!Ext.isEmpty(me.dataLoggerSlave) && me.dataLoggerSlave.get('isMultiElementSlave')){
+           me.items[9].fieldLabel =  Uni.I18n.translate('general.multiElementDevice', 'MDC', 'Multi-element device');
+        }
         me.callParent(arguments);
     }
 });

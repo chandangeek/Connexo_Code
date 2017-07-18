@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceChannels', {
     extend: 'Ext.app.Controller',
     requires: [
@@ -95,7 +99,6 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                         if (record.get('hasLoadProfiles')) {
                             me.getApplication().fireEvent('loadDevice', record);
                             widget = Ext.widget('deviceLoadProfileChannelsSetup', {
-                                deviceId: deviceId,
                                 router: router,
                                 device: record
                             });
@@ -196,6 +199,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'validateNowChannelConfirmationWindow',
                 confirmText: Uni.I18n.translate('general.validate', 'MDC', 'Validate'),
+                green: true,
                 confirmation: function () {
                     me.activateDataValidation(record, this);
                 }
@@ -207,7 +211,8 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             url: '../../api/ddr/devices/' + encodeURIComponent(deviceId) + '/validationrulesets/validationstatus',
             method: 'GET',
             success: function (response) {
-                var res = Ext.JSON.decode(response.responseText);
+                var res = Ext.JSON.decode(response.responseText),
+                    code = undefined;
                 if (res.hasValidation) {
                     if (res.lastChecked) {
                         me.dataValidationLastChecked = new Date(res.lastChecked);
@@ -216,16 +221,20 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                     }
                     confirmationWindow.insert(1, me.getValidationContent());
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('deviceloadprofiles.channels.validateNow', 'MDC', 'Validate data of channel {0}?', [record.get('name')]),
+                        title: Uni.I18n.translate('deviceloadprofiles.channels.validateNow', 'MDC', 'Validate data of channel {0}?', [record.get('readingType').fullAliasName]),
                         msg: ''
                     });
                 } else {
-                    var title = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.error', 'MDC', 'Failed to validate data of channel {0}', [record.get('name')]),
-                        message = Uni.I18n.translate('deviceloadprofiles.channels.noData', 'MDC', 'There is currently no data for this channel'),
+                    if (res && res.errorCode) {
+                        code = res.errorCode;
+                    }
+                    var title = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.errorTitle', 'MDC', 'Couldn\'t perform your action'),
+                        message = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.errorMsg', 'MDC', "Failed to validate data of channel '{0}'", record.get('readingType').fullAliasName)
+                            + '. ' + Uni.I18n.translate('deviceloadprofiles.channels.noData', 'MDC', 'There is currently no data for this channel.'),
                         config = {
                             icon: Ext.MessageBox.WARNING
                         };
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message, config);
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, code, config);
                 }
             }
         });
@@ -264,7 +273,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                 },
                 {
                     xtype: 'displayfield',
-                    value: '',
+                    value: ' ',
                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.validateNow.item2', 'MDC', 'Note: The date displayed by default is the last checked (the moment when the last interval was checked in the validation process).'),
                     labelWidth: 500
                 }
@@ -308,7 +317,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             timeout = setTimeout(function () {
                 viewport.setLoading(false);
                 me.getApplication().fireEvent('acknowledge',
-                    Uni.I18n.translate('deviceloadprofiles.channels.activation.putToBackground', 'MDC', 'The data validation takes longer as expected and will continue in the background.'));
+                    Uni.I18n.translate('device.dataValidation.timeout.message', 'MDC', 'Data validation takes longer than expected and will continue in the background.'));
             }, 180000);
         }
     },
@@ -345,7 +354,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         form.loadRecord(formRecord);
     },
 
-    editChannel: function(deviceId, channelIdAsString) {
+    editChannel: function (deviceId, channelIdAsString) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
@@ -511,6 +520,11 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                 errorMsgPnl.show();
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
+                    Ext.Array.each(json.errors, function (item) {
+                        if (item.id === 'readingTypeObisCodeUsages[0].obisCode.obisCode') {
+                            form.down('#obis-code-container').setActiveError(item.msg);
+                        }
+                    });
                     baseForm.markInvalid(json.errors);
                 }
                 Ext.resumeLayouts(true);

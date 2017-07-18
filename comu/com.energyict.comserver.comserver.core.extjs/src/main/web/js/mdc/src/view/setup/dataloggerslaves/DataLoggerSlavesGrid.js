@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.dataLoggerSlavesGrid',
@@ -9,7 +13,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
         'Mdc.store.DataLoggerSlaves',
         'Mdc.view.setup.dataloggerslaves.DataLoggerSlavesActionMenu'
     ],
-
+    purpose: undefined,
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -48,6 +52,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'dataloggerslaves-action-menu',
                     itemId: 'mdc-dataloggerslaves-action-menu'
@@ -61,13 +66,13 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
                 store: me.store,
                 deferLoading: true,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} data logger slaves'),
-                displayMoreMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} data logger slaves'),
-                emptyMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbartop.emptyMsg', 'MDC', 'There are no data logger slaves to display'),
+                displayMsg: me.purpose.slavesGridDisplayMsg,
+                displayMoreMsg: me.purpose.slavesGridDisplayMoreMsg,
+                emptyMsg: me.purpose.slavesGridEmptyMsg,
                 items: [
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('general.linkDataLoggerSlave', 'MDC', 'Link data logger slave'),
+                        text: me.purpose.displayValue,
                         itemId: 'mdc-dataloggerslavesgrid-link-slave-btn',
                         privileges: Mdc.privileges.Device.administrateDevice
                     }
@@ -77,7 +82,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
                 xtype: 'pagingtoolbarbottom',
                 deferLoading: true,
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Data logger slaves per page'),
+                itemsPerPageMsg: me.purpose.slavesGridItemsPerPageMsg,
                 dock: 'bottom'
             }
         ];

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.DeviceCommunicationTask', {
     extend: 'Ext.data.Model',
     fields: [
@@ -10,7 +14,6 @@ Ext.define('Mdc.model.DeviceCommunicationTask', {
         {name: 'lastCommunicationStart', dateFormat: 'time', type: 'date'},
         {name: 'urgency', type: 'int'},
         {name: 'securitySettings', type: 'string'},
-        {name: 'protocolDialect', type: 'string'},
         'temporalExpression',
         {name: 'scheduleType', type: 'string'},
         {name: 'scheduleTypeKey', type: 'string'},

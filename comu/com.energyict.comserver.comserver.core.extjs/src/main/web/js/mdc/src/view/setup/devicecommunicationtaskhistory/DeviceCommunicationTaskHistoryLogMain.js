@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTaskHistoryLogMain', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceCommunicationTaskHistoryLogMain',
@@ -77,11 +81,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                                 fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.duration', 'MDC', 'Duration'),
                                                 itemId: 'duration',
                                                 usesSeconds: true
-                                            },
-                                            {
-                                                xtype: 'displayfield',
-                                                name: 'result',
-                                                fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.result', 'MDC', 'Result')
                                             }
                                         ]
                                     },
@@ -104,17 +103,22 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                                     if (value && value !== '') {
                                                         var data = this.up('form').getRecord().data;
 
-                                                        var link = '#/devices/' + encodeURIComponent(data.comSession.device.id)
+                                                        var link = '#/devices/' + encodeURIComponent(data.comSession.device.name)
                                                             + '/connectionmethods/' + data.comSession.connectionMethod.id
                                                             + '/history/' + data.comSession.id
                                                             + '/viewlog'
-                                                            + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications';
+                                                            + '?logLevels=Debug&logTypes=Connections&logTypes=Communications';
 
                                                         return '<a href="' + link + '">' + Ext.String.htmlEncode(value.connectionMethod.name) + '</a>'
                                                     } else {
                                                         return '-';
                                                     }
                                                 }
+                                            },
+                                            {
+                                                xtype: 'displayfield',
+                                                name: 'result',
+                                                fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.result', 'MDC', 'Result')
                                             }
                                         ]
                                     }

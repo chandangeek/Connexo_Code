@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.DeviceAttribute', {
     extend: 'Ext.data.Model',
     fields: [
@@ -5,11 +9,15 @@ Ext.define('Mdc.model.DeviceAttribute', {
         {name: 'mrid', type: 'auto'},
         {name: 'deviceType', type: 'auto'},
         {name: 'serialNumber', type: 'auto'},
+        {name: 'manufacturer', type: 'auto'},
+        {name: 'modelNbr', type: 'auto'},
+        {name: 'modelVersion', type: 'auto'},
         {name: 'deviceConfiguration', type: 'auto'},
         {name: 'yearOfCertification', type: 'auto'},
         {name: 'lifeCycleState', type: 'auto'},
         {name: 'batch', type: 'auto'},
         {name: 'usagePoint', type: 'auto'},
+        {name: 'deviceIcon', type: 'string'},
         {name: 'serviceCategory', type: 'auto'},
         {name: 'shipmentDate', type: 'auto'},
         {name: 'installationDate', type: 'auto'},

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsView', {
     extend: 'Ext.container.Container',
     alias: 'widget.deviceRegisterReadingsView',
@@ -39,9 +43,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsView', {
                             itemId: 'mdc-register-readings-grid',
                             router: me.router,
                             store: registerReadingsStore,
-                            mRID: encodeURIComponent(me.device.get('name')),
-                            showDataLoggerSlaveColumn: !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')
-                        },
+                            device: me.device
+                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
                             itemId: 'mdc-no-register-readings-message',

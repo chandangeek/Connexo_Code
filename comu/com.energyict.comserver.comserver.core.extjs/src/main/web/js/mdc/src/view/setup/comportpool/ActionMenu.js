@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.comportpool.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.comportpool-actionmenu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'edit',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanningGrid', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.DeviceCommunicationPlanningGrid',
@@ -47,7 +51,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                         flex: 2,
                         dataIndex: 'schedule',
                         renderer: function (value, meta, record) {
-                            if (Ext.isEmpty(value) || record.get('type')==='ONREQUEST') {
+                            if (Ext.isEmpty(value) || record.get('type') === 'ONREQUEST') {
                                 return '-';
                             }
                             return Mdc.util.ScheduleToStringConverter.convert(value, true);
@@ -96,6 +100,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                     },
                     {
                         xtype: 'uni-actioncolumn',
+                        width: 120,
                         menu: {
                             plain: true,
                             border: false,
@@ -157,8 +162,8 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                         changeScheduleMenuItem = me.down('#mdc-device-communication-planning-change-schedule'),
                                         removeScheduleMenuItem = me.down('#mdc-device-communication-planning-remove-schedule'),
                                         taskType = me.record.get('type'),
-                                        addScheduleVisible = taskType==='ONREQUEST' || taskType==='ADHOC',
-                                        changeAndRemoveSchedulePossible = taskType==='INDIVIDUAL',
+                                        addScheduleVisible = taskType === 'ONREQUEST' || taskType === 'ADHOC',
+                                        changeAndRemoveSchedulePossible = taskType === 'INDIVIDUAL',
                                         isActive = me.record.get('active'),
                                         connectionDefinedOnDevice = me.record.get('connectionDefinedOnDevice'),
                                         isMinimize = !connectionDefinedOnDevice ? false : me.record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS',
@@ -209,7 +214,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                 }
                             }
                         },
-                        isDisabled: function(view, rowIndex, callIndex, item, record) {
+                        isDisabled: function (view, rowIndex, callIndex, item, record) {
                             var me = this,
                                 activateMenuItem = me.menu.down('#mdc-device-communication-planning-activate-task'),
                                 deactivateMenuItem = me.menu.down('#mdc-device-communication-planning-deactivate-task'),
@@ -220,8 +225,8 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                 connectionDefinedOnDevice = record.get('connectionDefinedOnDevice'),
                                 isMinimize = !connectionDefinedOnDevice ? false : record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS',
                                 taskType = record.get('type'),
-                                addScheduleVisible = taskType==='ONREQUEST' || taskType==='ADHOC',
-                                changeAndRemoveScheduleVisible = taskType==='INDIVIDUAL',
+                                addScheduleVisible = taskType === 'ONREQUEST' || taskType === 'ADHOC',
+                                changeAndRemoveScheduleVisible = taskType === 'INDIVIDUAL',
 
                                 runNowEnabled = isActive && connectionDefinedOnDevice,
                                 runEnabled = runNowEnabled && isMinimize,
@@ -232,7 +237,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                 removeScheduleEnabled = !Ext.isEmpty(removeScheduleMenuItem) && changeAndRemoveScheduleVisible;
 
                             return !(runNowEnabled || runEnabled || activateEnabled || deactivateEnabled ||
-                                addScheduleEnabled || changeScheduleEnabled || removeScheduleEnabled);
+                            addScheduleEnabled || changeScheduleEnabled || removeScheduleEnabled);
                         }
                     }
                 ],

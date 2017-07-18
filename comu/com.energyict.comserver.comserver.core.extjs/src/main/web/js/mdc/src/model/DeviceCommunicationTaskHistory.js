@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.DeviceCommunicationTaskHistory', {
     requires: [
         'Mdc.model.DeviceConnectionHistory'
@@ -18,6 +22,8 @@ Ext.define('Mdc.model.DeviceCommunicationTaskHistory', {
         {name: 'finishTime', dateFormat: 'time', type: 'date'},
         {name: 'durationInSeconds', type: 'int'},
         {name: 'alwaysExecuteOnInbound', type: 'string'},
+        {name: 'errors'},
+        {name: 'warnings'},
         'comSession'
     ],
     associations: [

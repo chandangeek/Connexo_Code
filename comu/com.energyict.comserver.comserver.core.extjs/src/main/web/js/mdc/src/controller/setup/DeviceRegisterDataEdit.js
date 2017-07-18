@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
     extend: 'Ext.app.Controller',
 
@@ -66,6 +70,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
     editRegisterDataRecord: function (values, cfg) {
         var me = this,
             record = me.getDeviceregisterreportedit().down('#registerDataEditForm').getRecord();
+        if(values.eventDate && !values.timeStamp){
+            values.timeStamp = values.eventDate;
+        }
         me.updateRecord(record, values, Ext.apply({
             successMessage: Uni.I18n.translate('device.registerData.updated', 'MDC', 'Register data saved')
         }, cfg));
@@ -73,8 +80,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
 
     addRegisterDataRecord: function (values, cfg) {
         var me = this,
-            registerType = me.getDeviceregisterreportedit().registerType,
-            record = me.getReadingModelInstanceByType(registerType);
+        //   registerType = me.getDeviceregisterreportedit().registerType,
+            registerSubType = me.getDeviceregisterreportedit().subType,
+            record = me.getReadingModelInstanceByType(registerSubType);
+        if(values.eventDate && !values.timeStamp){
+            values.timeStamp = values.eventDate;
+        }
         me.updateRecord(record, values, Ext.apply({
             successMessage: Uni.I18n.translate('device.registerData.created', 'MDC', 'Register data saved')
         }, cfg));
@@ -88,9 +99,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Ext.String.format(
                 Uni.I18n.translate('device.registerData.delete.message', 'MDC', 'The register reading with measurement time {0} will no longer be available'),
-                Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                    [Uni.DateTime.formatDateShort(lastSelected.get('timeStamp')), Uni.DateTime.formatTimeShort(lastSelected.get('timeStamp'))]
-                )
+                Uni.DateTime.formatDateTimeShort(new Date(lastSelected.get('timeStamp')))
             ),
             title: Uni.I18n.translate('device.registerData.delete.title.question', 'MDC', 'Remove the reading?'),
             config: {
@@ -114,13 +123,13 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                 callback: function (record, operation) {
                     if (operation.wasSuccessful()) {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.registerData.removed', 'MDC', 'Register data successfully removed'));
-                        router.getRoute('devices/device/registers/registerdata').forward();
                         dataStore.load();
                     }
                 }
             });
         }
     },
+
 
     getReadingTypePrefix: function (type) {
         if (!Ext.isEmpty(type)) {
@@ -140,7 +149,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             modelClass = me.getReadingModelClassByType(type),
             record = Ext.create(modelClass);
 
-        record.set("type", type);
+        record.set("type", type==='billing'?'numerical':type);
 
         return record;
     },
@@ -151,11 +160,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
 
         if (record) {
             me.setRecordValues(record, values);
-            record.getProxy().setParams(router.arguments.deviceId, router.arguments.registerId);
+            record.getProxy().setParams(decodeURIComponent(router.arguments.deviceId), router.arguments.registerId);
             record.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', cfg.successMessage);
-                    window.history.back();
+                    window.location = me.getRegisterDataEditForm().up('contentcontainer').returnLink
                 },
                 failure: function (record, resp) {
                     var response = resp.response;
@@ -178,11 +187,16 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         if (!Ext.isEmpty(values.value)) {
             record.data.value = values.value;
         }
-        record.set("timeStamp", values.timeStamp);
-
+        record.set("timeStamp", values.timeStamp==="null"?values.eventDate:values.timeStamp);
+        record.set("eventDate", values.eventDate);
         record.get('isConfirmed') && record.set('isConfirmed', false);
-        if (record.get("type") == 'billing') {
+        if (record.get("type") == 'billing' || record.get("type") == 'numerical') {
             record.set("interval", {start: values['interval.start'], end: values['interval.end']});
+        } else {
+            delete record.data.interval;
+        }
+        if(!values['interval.start'] && !values['interval.end']){
+            delete record.data.interval;
         }
         if (record.get("type") == 'text') {
             delete record.data.deltaValue;
@@ -195,8 +209,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             grid = me.getDeviceregisterreportgrid(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected(),
             router = me.getController('Uni.controller.history.Router');
-
-        router.getRoute('devices/device/registers/registerdata/edit').forward({timestamp: lastSelected.getData().timeStamp});
+        router.getRoute('devices/device/registers/registerdata/edit').forward({registerId:registerBeingViewed.get('id'), timestamp: lastSelected.getData().timeStamp});
     },
 
     showDeviceRegisterConfigurationDataEditView: function (deviceId, registerId, timestamp) {
@@ -205,6 +218,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             router = me.getController('Uni.controller.history.Router');
 
         contentPanel.setLoading(true);
+
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
@@ -217,11 +231,23 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                         model.load(timestamp, {
                             success: function (reading) {
                                 var type = register.get('type');
-                                var widget = Ext.widget('deviceregisterreportedit-' + type, {
+                                var subType = type;
+                                if(type === 'numerical' && register.get('isBilling')){
+                                    subType = 'billing';
+                                } else {
+                                    subType = type;
+                                }
+
+                                var widget = Ext.widget('deviceregisterreportedit-' + subType, {
                                     edit: true,
-                                    returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({deviceId: encodeURIComponent(deviceId), registerId: registerId}) + (me.getController('Uni.controller.history.EventBus').getPreviousQueryString()!==null ? '?'+me.getController('Uni.controller.history.EventBus').getPreviousQueryString() : ''),
+                                    returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({
+                                        deviceId: encodeURIComponent(deviceId),
+                                        registerId: registerId
+                                    }) + (me.getController('Uni.controller.history.EventBus').getPreviousQueryString() !== null ? '?' + me.getController('Uni.controller.history.EventBus').getPreviousQueryString() : ''),
                                     registerType: type,
-                                    router: router
+                                    subType: subType,
+                                    router: router,
+                                    hasEvent: register.get('hasEvent')
                                 });
                                 me.getApplication().fireEvent('loadRegisterConfiguration', register);
                                 if (reading.get('calculatedValue')) {
@@ -233,9 +259,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                                 widget.setValues(register);
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 widget.down('#stepsMenu').setTitle(
-                                    Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                                        [ Uni.DateTime.formatDateShort(new Date(reading.get('timeStamp'))), Uni.DateTime.formatTimeShort(new Date(reading.get('timeStamp')))]
-                                    )
+                                    Uni.DateTime.formatDateTimeShort(new Date(Number(timestamp)))
                                 );
                                 widget.down('#stepsMenu #editReading').setText(Uni.I18n.translate('device.registerData.editReading', 'MDC', 'Edit reading'));
                             },
@@ -264,13 +288,21 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                 model.load(registerId, {
                     success: function (register) {
                         var type = register.get('type');
-                        var widget = Ext.widget('deviceregisterreportedit-' + type, {
+                        var subType = type;
+                        if(type === 'numerical' && register.get('isBilling')){
+                            subType = 'billing';
+                        } else {
+                            subType = type;
+                        }
+                        var widget = Ext.widget('deviceregisterreportedit-' + subType, {
                             edit: false,
                             returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({deviceId: encodeURIComponent(deviceId), registerId: registerId}),
                             registerType: type,
+                            subType: subType,
                             deviceId: deviceId,
                             registerId: registerId,
-                            router: router
+                            router: router,
+                            hasEvent: register.get('hasEvent')
                         });
                         widget.setValues(register);
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);

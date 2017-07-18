@@ -34,7 +34,7 @@
                         {
                             "key":"connectionTimeout",
                             "propertyTypeInfo":{
-                                "simplePropertyType":"TIMEDURATION"
+                                "simplePropertyType":"TEMPORALAMOUNT"
                             },
                             "required":false
                         }
@@ -69,7 +69,7 @@
                         {
                             "key":"connectionTimeout",
                             "propertyTypeInfo":{
-                                "simplePropertyType":"TIMEDURATION"
+                                "simplePropertyType":"DURATION"
                             },
                             "required":false
                         }

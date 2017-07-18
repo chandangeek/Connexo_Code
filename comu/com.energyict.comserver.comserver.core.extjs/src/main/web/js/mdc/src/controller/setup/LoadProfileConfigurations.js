@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     extend: 'Ext.app.Controller',
 
@@ -99,7 +103,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                         deviceConfigurationId: deviceConfigurationId
                     });
                     me.getApplication().fireEvent('changecontentevent', widget);
-                    widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfiguration.get('name'));
+                    widget.down('#stepsMenu').setHeader(deviceConfiguration.get('name'));
                 }
             },
             widget,
@@ -251,43 +255,48 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             record = form.getRecord(),
             modelProxy = me.getModel('Mdc.model.LoadProfileConfiguration').getProxy();
 
-        if (basicForm.isValid()) {
-            formErrorsPanel.hide();
-            mainView.setLoading();
-            form.updateRecord(record);
-            if (!editPage.edit) {            // workaround to create entity with a given id
-                record.phantom = true;       // force 'POST' method for request otherwise 'PUT' will be performed
-                modelProxy.appendId = false; // remove 'id' part from request url
-            }
-            record.save({
-                backUrl: backUrl,
-                success: function () {
-                    window.location.href = backUrl;
-                    me.getApplication().fireEvent('acknowledge', editPage.edit
-                        ? Uni.I18n.translate('loadprofileconfig.acknowledgment.saved', 'MDC', 'Load profile configuration saved')
-                        : Uni.I18n.translate('loadprofileconfig.acknowledgment.added', 'MDC', 'Load profile configuration added'));
-                },
-                failure: function (record, options) {
-                    var responseObj;
-
-                    if (options && options.response && options.response.status === 400) {
-                        responseObj = Ext.decode(options.response.responseText, true);
-                        if (responseObj && responseObj.errors) {
-                            Ext.suspendLayouts();
-                            formErrorsPanel.show();
-                            basicForm.markInvalid(responseObj.errors);
-                            Ext.resumeLayouts(true);
-                        }
-                    }
-                },
-                callback: function () {
-                    mainView.setLoading(false);
-                }
-            });
-            modelProxy.appendId = true; // restore id for normal functionality
-        } else {
-            formErrorsPanel.show();
+        formErrorsPanel.hide();
+        basicForm.clearInvalid();
+        mainView.setLoading();
+        form.updateRecord(record);
+        if (!editPage.edit) {            // workaround to create entity with a given id
+            record.phantom = true;       // force 'POST' method for request otherwise 'PUT' will be performed
+            modelProxy.appendId = false; // remove 'id' part from request url
         }
+        record.save({
+            backUrl: backUrl,
+            success: function () {
+                window.location.href = backUrl;
+                me.getApplication().fireEvent('acknowledge', editPage.edit
+                    ? Uni.I18n.translate('loadprofileconfig.acknowledgment.saved', 'MDC', 'Load profile configuration saved')
+                    : Uni.I18n.translate('loadprofileconfig.acknowledgment.added', 'MDC', 'Load profile configuration added'));
+            },
+            failure: function (record, options) {
+                var responseObj;
+
+                if (options && options.response && options.response.status === 400) {
+                    responseObj = Ext.decode(options.response.responseText, true);
+                    if (responseObj && responseObj.errors) {
+                        Ext.suspendLayouts();
+                        formErrorsPanel.show();
+                        Ext.each(responseObj.errors,function(error){
+                            if (error.id === 'overruledObisCode.obisCode') {
+                                error.id = 'overruledObisCode';
+                            }
+                            if (error.id === 'loadProfileType') {
+                                error.id = 'id';
+                            }
+                        });
+                        basicForm.markInvalid(responseObj.errors);
+                        Ext.resumeLayouts(true);
+                    }
+                }
+            },
+            callback: function () {
+                mainView.setLoading(false);
+            }
+        });
+        modelProxy.appendId = true; // restore id for normal functionality
     },
 
     onObisCodeChange: function(obisCodeField, newValue) {

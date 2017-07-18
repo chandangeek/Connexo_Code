@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
     extend: 'Ext.panel.Panel',
     frame: true,
@@ -79,20 +83,92 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 },
                                 {
                                     xtype: 'displayfield',
+                                    name: 'isDefault',
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.default', 'MDC', 'Default'),
+                                    renderer: function(value){
+                                        return value? Uni.I18n.translate('general.yes', 'MDC', 'Yes'):Uni.I18n.translate('general.no', 'MDC', 'No');
+                                    }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'connectionTypePluggableClass',
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type'),
+                                    renderer: function (value) {
+                                        return Ext.String.htmlEncode(value.name);
+                                    }
+                                },
+                                {
+                                    xtype: 'displayfield',
                                     name: 'displayDirection',
                                     fieldLabel: Uni.I18n.translate('connectionmethod.direction', 'MDC', 'Direction')
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'numberOfSimultaneousConnections',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.numberOfSimultaneousConnections', 'MDC', 'Number of simultaneous connections'),
+                                    fieldLabel: Uni.I18n.translate('communicationtasks.task.protocolDialectConfigurationProperties', 'MDC', 'Protocol dialect'),
+                                    name: 'protocolDialectConfigurationProperties',
+                                    renderer: function (value) {
+                                        return Ext.String.htmlEncode(value.displayName);
+                                    }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'comPortPool',
+                                    fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool')
+                                }
+                            ]
+                        },
+                        {
+                            xtype: 'container',
+                            columnWidth: 0.49,
+                            layout: {
+                                type: 'vbox',
+                                align: 'stretch'
+                            },
+                            defaults: {
+                                labelWidth: 250
+                            },
+                            items: [
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'connectionStrategyInfo',
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.connectionStrategy', 'MDC', 'Connection strategy'),
+                                    renderer: function (value, field) {
+                                        if (!Ext.isEmpty(value)) {
+                                            field.show();
+                                            return value.localizedValue;
+                                        } else {
+                                            field.hide();
+                                        }
+                                    }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'temporalExpression',
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.connectionSchedule', 'MDC', 'Connection schedule'),
+                                    renderer: function (value, field) {
+                                        var record = this.up('form').getRecord(),
+                                            isOutbound = record && record.get('direction') === 'Outbound',
+                                            connectionStrategyInfo = record && record.get('connectionStrategyInfo'),
+                                            isMinimizeConnections = connectionStrategyInfo && connectionStrategyInfo.connectionStrategy === 'MINIMIZE_CONNECTIONS';
+                                        if (isOutbound && isMinimizeConnections) {
+                                            field.show();
+                                            return Mdc.util.ScheduleToStringConverter.convert(record.get('temporalExpression'));
+                                        } else {
+                                            field.hide();
+                                        }
+                                    }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'rescheduleRetryDelay',
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
                                     renderer: function (value, field) {
                                         var record = this.up('form').getRecord();
                                         if (record && (record.get('direction') == 'Inbound')) {
                                             field.hide();
-                                        } else {
+                                        } else if (value) {
                                             field.show();
-                                            return value;
+                                            return value.count + ' ' + (value.translatedTimeUnit ? value.translatedTimeUnit : value.timeUnit);
                                         }
                                     }
                                 },
@@ -112,7 +188,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
 
                                                 var addZeroIfOneSymbol = function (timeCount) {
                                                     var timeInString = timeCount.toString();
-
                                                     if (timeInString.length === 1) {
                                                         timeInString = '0' + timeInString;
                                                     }
@@ -127,49 +202,21 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                             }
                                         }
                                     }
-                                }
-                            ]
-                        },
-                        {
-                            xtype: 'container',
-                            columnWidth: 0.49,
-                            layout: {
-                                type: 'vbox',
-                                align: 'stretch'
-                            },
-                            defaults: {
-                                labelWidth: 250
-                            },
-                            items: [
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'connectionTypePluggableClass',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type')
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'isDefault',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.default', 'MDC', 'Default'),
-                                    renderer: function(value){
-                                        return value? Uni.I18n.translate('general.yes', 'MDC', 'Yes'):Uni.I18n.translate('general.no', 'MDC', 'No');
-                                    }
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'comPortPool',
-                                    fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool')
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'rescheduleRetryDelay',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.rescheduleRetryDelay', 'MDC', 'Retry delay'),
+                                    name: 'numberOfSimultaneousConnections',
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.numberOfSimultaneousConnections', 'MDC', 'Number of simultaneous connections'),
                                     renderer: function (value, field) {
-                                        var record = this.up('form').getRecord();
-                                        if (record && (record.get('direction') == 'Inbound')) {
-                                            field.hide();
-                                        } else if (value) {
+                                        var record = this.up('form').getRecord(),
+                                            isOutbound = record && record.get('direction') === 'Outbound',
+                                            connectionStrategyInfo = record && record.get('connectionStrategyInfo'),
+                                            isASAP = connectionStrategyInfo && connectionStrategyInfo.connectionStrategy === 'AS_SOON_AS_POSSIBLE';
+                                        if (isOutbound && isASAP) {
                                             field.show();
-                                            return value.count + ' ' + (value.translatedTimeUnit ? value.translatedTimeUnit : value.timeUnit);
+                                            return value;
+                                        } else {
+                                            field.hide();
                                         }
                                     }
                                 }
@@ -193,7 +240,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                     items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: '<h3>' + Uni.I18n.translate('deviceconnectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h3>',
+                            name: 'connectionTypePluggableClass',
+                            fieldLabel: '<h3>' +  Uni.I18n.translate('deviceconnectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h3>',
                             renderer: function() {
                                 return ''; // No dash!
                             }
@@ -217,7 +265,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
 
     initComponent: function () {
         this.callParent(arguments);
-    }
+     }
 });
 
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceRegisterTab', {
     extend: 'Ext.app.Controller',
     stores: [
@@ -20,7 +24,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterTab', {
         });
     },
 
-    initTabDeviceRegisterConfigurationDetailsView: function(deviceId, registerId){
+    initTabDeviceRegisterConfigurationDetailsView: function (deviceId, registerId) {
         this.deviceId = deviceId;
         this.registerId = registerId;
         this.getController('Mdc.controller.setup.DeviceRegisterConfiguration').fromSpecification = true;
@@ -34,11 +38,19 @@ Ext.define('Mdc.controller.setup.DeviceRegisterTab', {
         if(this.veto===true)this.veto=false;
     },
 
-    initTabShowDeviceRegisterDataView: function(deviceId, registerId) {
+    initTabShowDeviceRegisterDataView: function (deviceId, registerId) {
         this.deviceId = deviceId;
         this.registerId = registerId;
         var c = this.getController('Mdc.controller.setup.DeviceRegisterData');
         c.showDeviceRegisterDataView(deviceId, registerId, this);
+        this.veto = true;
+    },
+
+    initTabShowDeviceRegisterValidationView: function (deviceId, registerId) {
+        this.deviceId = deviceId;
+        this.registerId = registerId;
+        var c = this.getController('Mdc.controller.setup.DeviceRegisterValidation');
+        c.showDeviceRegisterValidationView(deviceId, registerId, this);
         this.veto = true;
     },
 
@@ -63,6 +75,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterTab', {
                 route = 'devices/device/registers/register';
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, filterParams);
+            } else if (tab.itemId === 'register-validation-configuration') {
+                routeParams.registerId = this.registerId;
+                route = 'devices/device/registers/validation';
+                route && (route = router.getRoute(route));
+                route && route.forward(routeParams);
             }
         } else {
             this.veto = false;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-communication-action-menu',
@@ -16,46 +20,45 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
         }
     },
 
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.run', 'MDC', 'Run'),
                 action: 'run',
-                visible: function() {
+                visible: function () {
                     return this.record.get('connectionDefinedOnDevice') &&
-                        this.record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS' &&
-                        !this.record.get('isOnHold');
+                        this.record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS' && !this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask;
                 },
                 section: this.SECTION_ACTION
             },
             {
                 text: Uni.I18n.translate('general.runNow', 'MDC', 'Run now'),
                 action: 'runNow',
-                visible: function() {
-                    return this.record.get('connectionDefinedOnDevice') && !this.record.get('isOnHold');
+                visible: function () {
+                    return this.record.get('connectionDefinedOnDevice') && !this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask;;
                 },
                 section: this.SECTION_ACTION
             },
             {
                 text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
                 action: 'toggleActivation',
-                visible: function() {
-                    return !!this.record.get('isOnHold')
+                visible: function () {
+                    return !!this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask;
                 },
                 section: this.SECTION_ACTION
             },
             {
                 text: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
                 action: 'toggleActivation',
-                visible: function() {
-                    return !this.record.get('isOnHold')
+                visible: function () {
+                    return !this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask;
                 },
                 section: this.SECTION_ACTION
             },
             {
                 text: Uni.I18n.translate('general.viewHistory', 'MDC', 'View history'),
                 action: 'viewHistory',
-                handler: function() {
+                handler: function () {
                     var me = this.parentMenu;
                     me.router.getRoute('devices/device/communicationtasks/history').forward({comTaskId: me.record.get('comTask').id});
                 },

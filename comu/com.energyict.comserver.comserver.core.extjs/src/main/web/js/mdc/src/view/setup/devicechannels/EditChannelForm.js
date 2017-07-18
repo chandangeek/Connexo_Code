@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicechannels.EditChannelForm', {
     extend: 'Ext.form.Panel',
     requires: [
@@ -26,6 +30,7 @@ Ext.define('Mdc.view.setup.devicechannels.EditChannelForm', {
             {
                 xtype: 'fieldcontainer',
                 itemId: 'obis-code-container',
+                msgTarget: 'under',
                 required: true,
                 width: 450,
                 layout: 'hbox',

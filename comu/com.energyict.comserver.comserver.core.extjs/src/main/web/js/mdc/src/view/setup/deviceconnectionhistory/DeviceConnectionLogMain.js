@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceConnectionLogMain',
@@ -76,12 +80,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                                                 fieldLabel: Uni.I18n.translate('deviceconnectionhistory.duration', 'MDC', 'Duration'),
                                                 itemId: 'duration',
                                                 usesSeconds: true
-                                            },
-                                            {
-                                                xtype: 'displayfield',
-                                                name: 'status',
-                                                fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
-                                                itemId: 'status'
                                             }
                                         ]
                                     },
@@ -96,6 +94,12 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                                             labelWidth: 250
                                         },
                                         items: [
+                                            {
+                                                xtype: 'displayfield',
+                                                name: 'status',
+                                                fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
+                                                itemId: 'status'
+                                            },
                                             {
                                                 xtype: 'displayfield',
                                                 name: 'result',

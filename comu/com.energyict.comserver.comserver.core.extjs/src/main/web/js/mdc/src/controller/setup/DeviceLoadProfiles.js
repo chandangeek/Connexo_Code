@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
     extend: 'Ext.app.Controller',
 
@@ -41,6 +45,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             selector: 'deviceLoadProfilesOverview'
         }
     ],
+    deviceId: null,
 
     init: function () {
         this.control({
@@ -163,6 +168,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'validateNowLoadProfileConfirmationWindow',
                 confirmText: Uni.I18n.translate('general.validate', 'MDC', 'Validate'),
+                green: true,
                 confirmation: function () {
                     me.activateDataValidation(record, this);
                 }
@@ -181,18 +187,22 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     } else {
                         me.dataValidationLastChecked = new Date();
                     }
-                    confirmationWindow.insert(1,me.getValidationContent());
+                    confirmationWindow.insert(1, me.getValidationContent());
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('deviceloadprofiles.validateNow', 'MDC', 'Validate data of load profile {0}?', [record.get('name')]),
-                        msg: ''
+                        title: Uni.I18n.translate('deviceloadprofiles.validateNow', 'MDC', 'Validate data of load profile {0}?', record.get('name'))
                     });
                 } else {
-                    var title = Uni.I18n.translate('deviceloadprofiles.validateNow.error', 'MDC', 'Failed to validate data of load profile {0}', [record.get('name')]),
-                        message = Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile'),
+                    var title = Uni.I18n.translate('deviceloadprofiles.validateNow.errorTitle', 'MDC', 'Couldn\'t perform your action'),
+                        message = Uni.I18n.translate('deviceloadprofiles.validateNow.error', 'MDC', 'Failed to validate data of load profile {0}', record.get('name'))
+                            + '. ' + Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile.'),
+                        code = '',
                         config = {
                             icon: Ext.MessageBox.WARNING
                         };
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message, config);
+                    if (res && res.errorCode) {
+                        code = res.errorCode;
+                    }
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, code, config);
                 }
             }
         });
@@ -212,44 +222,52 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             deviceId = me.deviceId || router.arguments.deviceId,
-            loadProfileId = me.loadProfileId ? me.loadProfileId : router.arguments.loadProfileId;
+            viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            loadProfileId = me.loadProfileId ? me.loadProfileId : router.arguments.loadProfileId,
+            lastChecked = confWindow.down('#validateLoadProfileFromDate').getValue().getTime();
 
         if (confWindow.down('#validateLoadProfileFromDate').getValue() > me.dataValidationLastChecked) {
             confWindow.down('#validateLoadProfileDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'MDC', 'The date should be before or equal to the default date.'));
             confWindow.down('#validateLoadProfileDateErrors').setVisible(true);
         } else {
-            confWindow.down('button').setDisabled(true);
+            confWindow.removeAll(true);
+            confWindow.destroy();
+            viewport.setLoading();
             Ext.Ajax.request({
                 url: '../../api/ddr/devices/' + encodeURIComponent(deviceId) + '/loadprofiles/' + loadProfileId + '/validate',
                 method: 'PUT',
+                timeout: 1800000,
                 isNotEdit: true,
                 jsonData: Ext.merge(_.pick(record.getRecordData(), 'id', 'name', 'version', 'parent'), {
-                    lastChecked: confWindow.down('#validateLoadProfileFromDate').getValue().getTime()
+                    lastChecked: lastChecked
                 }),
                 success: function () {
-                    confWindow.removeAll(true);
-                    confWindow.destroy();
+                    clearTimeout(timeout);
                     me.getApplication().fireEvent('acknowledge',
                         Uni.I18n.translate('deviceloadprofiles.activation.completed', 'MDC', 'Data validation completed'));
                     router.getRoute().forward();
                 },
-                failure: function () {
-                    confWindow.destroy();
+                callback: function () {
+                    viewport.setLoading(false);
                 }
             });
+            timeout = setTimeout(function () {
+                viewport.setLoading(false);
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translate('device.dataValidation.timeout.message', 'MDC', 'Data validation takes longer than expected and will continue in the background.'));
+            }, 180000);
         }
     },
 
-    saveLoadProfile: function() {
+    saveLoadProfile: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             editWindow = me.getDeviceLoadProfileEditWindow(),
             datePicker = editWindow.down('#mdc-deviceloadprofile-edit-window-date-picker'),
             loadProfileRecordInEditWindow = editWindow.loadProfileRecord,
             loadProfileModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
-            deviceId = this.getController('Uni.controller.history.Router').arguments.deviceId,
             loadProfileId = loadProfileRecordInEditWindow.get('id'),
-            onLoadProfileLoaded = function(loadProfileRecord) {
+            onLoadProfileLoaded = function (loadProfileRecord) {
                 loadProfileRecordInEditWindow.set('lastReading', datePicker.getValue());
                 loadProfileRecord.beginEdit();
                 loadProfileRecord.set('lastReading', datePicker.getValue());
@@ -265,7 +283,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 });
                 editWindow.close();
             },
-            onLoadProfileSaved = function() {
+            onLoadProfileSaved = function () {
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translate('deviceloadpofiles.acknowledge.updateSuccess', 'MDC', 'Load profile saved')
                 );
@@ -276,7 +294,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 }
             };
 
-        loadProfileModel.getProxy().setExtraParam('deviceId', deviceId);
+        loadProfileModel.getProxy().setExtraParam('deviceId', me.deviceId);
         loadProfileModel.load(loadProfileId, {
             success: onLoadProfileLoaded
         });

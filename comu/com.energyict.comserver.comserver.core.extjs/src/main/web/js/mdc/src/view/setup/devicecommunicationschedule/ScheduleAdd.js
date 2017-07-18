@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicecommunicationschedule.ScheduleAdd', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.device-schedule-add',
@@ -76,7 +80,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.ScheduleAdd', {
                                 text: me.editMode ? Uni.I18n.translate('general.save', 'MDC', 'Save') : Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                 xtype: 'button',
                                 ui: 'action',
-                                action: me.editMode ? 'editScheduleAction' :'addScheduleAction',
+                                action: me.editMode ? 'editScheduleAction' : 'addScheduleAction',
                                 itemId: 'device-schedule-add-addButton'
                             },
                             {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.ComServerComPortsView', {
     extend: 'Ext.app.Controller',
 
@@ -116,7 +120,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 success: function (record) {
                     widget.down('comServerComPortsGrid').reconfigure(comPortsStore);
                     me.getApplication().fireEvent('comServerOverviewLoad', record);
-                    widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
+                    widget.down('comserversidemenu').setHeader(record.get('name'));
                 }
             });
         }, false);
@@ -248,10 +252,11 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                     errorsObj = Ext.decode(options.response.responseText);
                     errorsArray = errorsObj.errors;
                     message = '';
+                    var code = errorsObj.errorCode;
                     Ext.Array.each(errorsArray, function (obj) {
                         message += obj.msg + '.'
                     });
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message);
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, code);
                 }
             }
         });

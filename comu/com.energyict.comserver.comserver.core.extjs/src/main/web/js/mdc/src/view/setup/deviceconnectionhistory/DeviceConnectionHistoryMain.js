@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceConnectionHistoryMain',
@@ -31,11 +35,10 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain',
                 ui: 'large',
                 xtype: 'panel',
                 itemId: 'deviceConnectionHistoryPanel',
-                title: Uni.I18n.translate('deviceconnectionhistory.connectionHistory', 'MDC', "History of '{0}'",[this.connectionMethodName]),
+                title: Uni.I18n.translate('deviceconnectionhistory.connectionHistory', 'MDC', "History of '{0}'", this.connectionMethodName),
                 items: [
                     {
                         xtype: 'preview-container',
-                        //itemId: 'previewContainer',
                         grid: {
                             xtype: 'deviceConnectionHistoryGrid',
                             deviceId: this.deviceId,
@@ -68,8 +71,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain',
                                     items: [
                                         {
                                             xtype: 'preview-container',
-
-                                            //itemId: 'previewContainer',
                                             grid: {
                                                 xtype: 'deviceCommunicationTaskExecutionGrid',
                                                 deviceId: this.deviceId

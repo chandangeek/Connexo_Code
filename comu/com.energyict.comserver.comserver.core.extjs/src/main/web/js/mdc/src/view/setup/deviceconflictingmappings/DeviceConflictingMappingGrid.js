@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceconflictingmappings.DeviceConflictingMappingGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.device-conflicting-mapping-grid',
@@ -28,6 +32,7 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.DeviceConflictingMappingGri
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'device-conflicting-mapping-action-menu',
                     itemId: 'device-conflicting-mapping-action-menu'

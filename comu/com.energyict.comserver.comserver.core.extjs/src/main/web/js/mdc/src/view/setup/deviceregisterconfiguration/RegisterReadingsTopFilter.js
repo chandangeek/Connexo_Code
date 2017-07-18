@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'mdc-registerReadings-overview-topfilter',
@@ -10,6 +14,9 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
     store: 'Mdc.store.RegisterReadings',
     deviceId: null,
     containsBillingRegisters: false,
+    containsCumulativeRegisters: false,
+    containsEventRegisters: false,
+    containsMultiplierRegisters: false,
 
     initComponent: function () {
         var me = this,
@@ -18,12 +25,16 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
 
         registerGroupsStore.getProxy().setUrl(me.deviceId);
         registerStore.getProxy().setUrl(me.deviceId);
-        registerStore.on('load', function(store, records) {
-            Ext.Array.forEach(records, function(record) {
+        registerStore.on('load', function (store, records) {
+            Ext.Array.forEach(records, function (record) {
                 me.containsBillingRegisters = me.containsBillingRegisters || record.get('isBilling');
+                me.containsCumulativeRegisters = me.containsCumulativeRegisters || record.get('isCumulative');
+                me.containsEventRegisters = me.containsEventRegisters || record.get('hasEvent');
+                me.containsMultiplierRegisters = me.containsMultiplierRegisters || record.get('useMultiplier');
             });
             me.showOrHideToTimeFilter(me.containsBillingRegisters);
-        }, me, {single:true});
+            me.customizeGrid(me.containsBillingRegisters,me.containsCumulativeRegisters,me.containsEventRegisters,me.containsMultiplierRegisters)
+        }, me, {single: true});
 
         me.filters = [
             {
@@ -78,7 +89,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
         me.callParent(arguments);
     },
 
-    onRegisterGroupComboCollapse: function() {
+    onRegisterGroupComboCollapse: function () {
         var me = this,
             groupCombo = me.down('#mdc-register-group-filter'),
             registerCombo = me.down('#mdc-register-filter'),
@@ -91,14 +102,20 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
         registerStore.load(function () {
             registerCombo.select(registerCombo.getValue()); // restore previous selection(s)
             me.containsBillingRegisters = false;
-            registerStore.each(function(record) {
+            me.containsCumulativeRegisters = false;
+            me.containsEventRegisters = false;
+            me.containsMultiplierRegisters = false;
+            registerStore.each(function (record) {
                 me.containsBillingRegisters = me.containsBillingRegisters || record.get('isBilling');
+                me.containsCumulativeRegisters = me.containsCumulativeRegisters || record.get('isCumulative');
+                me.containsEventRegisters = me.containsEventRegisters || record.get('hasEvent');
+                me.containsMultiplierRegisters = me.containsMultiplierRegisters || record.get('useMultiplier');
             });
             me.showOrHideToTimeFilter(me.containsBillingRegisters);
         });
     },
 
-    onRegisterGroupComboChange: function(combo) {
+    onRegisterGroupComboChange: function (combo) {
         if (combo.isExpanded) {
             return; // if expanded, the collapse trigger will do
         }
@@ -111,7 +128,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
 
         if (groupCombo.isExpanded) {
             groupCombo.collapse();
-            Ext.defer(function(){
+            Ext.defer(function () {
                 me.callParent(arguments);
             }, 250);
         } else {
@@ -119,7 +136,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
         }
     },
 
-    showOrHideToTimeFilter: function(showIt) {
+    showOrHideToTimeFilter: function (showIt) {
         var toTimeFilter = this.down('#mdc-to-time-filter');
         if (!toTimeFilter) {
             return;
@@ -129,11 +146,13 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
         } else {
             toTimeFilter.hide();
         }
+    },
 
+    customizeGrid: function(billing,cumulative,event,multiplier){
         // Also show/hide the corresponding columns in the grid
         var correspondinGrid = this.up('deviceRegisterReadingsView').down('deviceRegisterReadingsGrid');
         if (correspondinGrid) {
-            correspondinGrid.showOrHideBillingColumns(showIt);
+            correspondinGrid.customizeColumns(billing,cumulative,event,multiplier);
         }
     }
 });

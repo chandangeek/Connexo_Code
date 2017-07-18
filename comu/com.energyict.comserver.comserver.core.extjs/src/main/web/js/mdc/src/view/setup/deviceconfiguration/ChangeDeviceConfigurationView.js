@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceconfiguration.ChangeDeviceConfigurationView', {
     extend: 'Uni.view.container.ContentContainer',
     require: [
@@ -36,7 +40,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.ChangeDeviceConfigurationView', {
                             {
                                 xtype: 'uni-form-empty-message',
                                 itemId: 'form-notification',
-                                text: Uni.I18n.translate('device.changeDeviceConfiguration.lossDataNotification', 'MDC', 'The device configuration change can possibly lead to critical data loss (security settings, connection attributes...)'),
+                                text: Uni.I18n.translate('device.changeDeviceConfiguration.lossDataNotification', 'MDC', 'Changing the device configuration could lead to critical data loss (security settings, connection methods, communication tasks,...)'),
                             },
                             {
                                 xtype: 'uni-form-error-message',
@@ -55,7 +59,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.ChangeDeviceConfigurationView', {
                                 xtype: 'displayfield',
                                 itemId: 'no-device-configuration',
                                 fieldLabel: Uni.I18n.translate('device.changeDeviceConfiguration.newDeviceConfiguration', 'MDC', 'New device configuration'),
-                                value: Uni.I18n.translate('general.noOtherActiveNonDataLoggerDeviceConfigurationsDefined', 'MDC', 'No other active, non-data logger device configurations defined.'),
+                                value: Uni.I18n.translate('device.changeDeviceConfiguration.noOtherDeviceConfigurationsDefined', 'MDC', 'No other device configurations defined'),
                                 fieldStyle: 'color: #eb5642',
                                 required: true,
                                 hidden: true

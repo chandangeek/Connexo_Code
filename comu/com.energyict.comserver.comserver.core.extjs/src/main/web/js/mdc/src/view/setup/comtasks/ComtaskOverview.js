@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.comtasks.ComtaskOverview', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.comTaskOverview',
@@ -18,7 +22,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskOverview', {
             items: [
                 {
                     ui: 'large',
-                    title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+                    itemId: 'mdc-comtask-overview-panel',
+                    title: Uni.I18n.translate('general.details', 'MDC', 'Details'),
                     flex: 1,
                     items: {
                         xtype: 'comtaskpreviewform',

@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.filemanagement.view.SpecificationsActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.files-spec-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'edit-files-specifications',

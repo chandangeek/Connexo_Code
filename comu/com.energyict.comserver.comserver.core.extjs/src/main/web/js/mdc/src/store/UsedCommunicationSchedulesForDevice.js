@@ -1,4 +1,8 @@
-Ext.define('Mdc.store.UsedCommunicationSchedulesForDevice',{
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+Ext.define('Mdc.store.UsedCommunicationSchedulesForDevice', {
     extend: 'Ext.data.Store',
     requires: [
         'Mdc.model.CommunicationSchedule'

@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterdata.text.Edit', {
     extend: 'Mdc.view.setup.deviceregisterdata.MainEdit',
     alias: 'widget.deviceregisterreportedit-text',
     itemId: 'deviceregisterreportedit',
 
     requires: [
-        'Uni.form.field.DateTime'
+        'Uni.form.field.DateTime',
+        'Uni.util.FormErrorMessage'
     ],
 
     setEdit: function (edit, returnLink) {
@@ -38,15 +43,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Edit', {
                 },
                 items: [
                     {
-                        name: 'errors',
-                        ui: 'form-error-framed',
                         itemId: 'registerDataEditFormErrors',
-                        layout: 'hbox',
-                        margin: '0 0 10 0',
-                        hidden: true,
-                        defaults: {
-                            xtype: 'container'
-                        }
+                        xtype: 'uni-form-error-message',
+                        hidden: true
                     },
                     {
                         xtype: 'displayfield',
@@ -55,9 +54,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Edit', {
                         itemId: 'timeStampDisplayField',
                         renderer: function (value) {
                             if(!Ext.isEmpty(value)) {
-                                return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                                    [ Uni.DateTime.formatDateShort(new Date(value)), Uni.DateTime.formatTimeShort(new Date(value))]
-                                );
+                                return Uni.DateTime.formatDateTimeShort(new Date(value));
                             }
                         },
                         submitValue: true,
@@ -83,6 +80,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Edit', {
                     },
                     {
                         xtype: 'textareafield',
+                        enforceMaxLength: true,
+                        maxLength: 4000,
                         name: 'value',
                         width: 500,
                         height: 300,

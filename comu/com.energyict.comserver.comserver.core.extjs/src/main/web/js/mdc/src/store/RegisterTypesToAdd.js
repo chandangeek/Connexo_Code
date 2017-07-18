@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.store.RegisterTypesToAdd', {
     extend: 'Ext.data.Store',
     requires: [
@@ -12,7 +16,6 @@ Ext.define('Mdc.store.RegisterTypesToAdd', {
 
     proxy: {
         type: 'rest',
-        baseUrl: '/api/mds/loadprofiles/measurementtypes',
         url: '/api/mds/loadprofiles/measurementtypes',
         reader: {
             type: 'json',

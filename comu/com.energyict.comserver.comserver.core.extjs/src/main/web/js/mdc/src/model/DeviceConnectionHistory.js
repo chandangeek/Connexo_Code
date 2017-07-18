@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.DeviceConnectionHistory', {
     extend: 'Ext.data.Model',
     fields: [
@@ -16,7 +20,9 @@ Ext.define('Mdc.model.DeviceConnectionHistory', {
         {name: 'isDefault', type: 'boolean'},
         {name: 'device'},
         {name: 'deviceConfiguration'},
-        {name: 'deviceType'}
+        {name: 'deviceType'},
+        {name: 'errors'},
+        {name: 'warnings'}
     ],
     proxy: {
         type: 'rest',

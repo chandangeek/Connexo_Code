@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterdata.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.deviceregisterdataactionmenu',
     itemId: 'deviceregisterdataactionmenu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'confirm-value',
@@ -10,6 +14,12 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ActionMenu', {
                 text: Uni.I18n.translate('general.confirm', 'MDC', 'Confirm'),
                 action: 'confirmValue',
                 section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'viewHistory',
+                text: Uni.I18n.translate('general.viewHistory', 'MDC', 'View history'),
+                action: 'viewHistory',
+                section: this.SECTION_VIEW
             },
             {
                 itemId: 'editData',

@@ -1,12 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.device.DeviceMenu', {
     extend: 'Uni.view.menu.SideMenu',
     xtype: 'deviceMenu',
-
-    // TODO See what impact removing the 'toggleById' function has.
-//    toggleId: null,
+    requires: ['Mdc.util.LinkPurpose'],
+    uniqueMenuId: 'device-side-menu',
     device: null,
-
-    title: Uni.I18n.translate('devicemenu.title', 'MDC', 'Device'),
+    objectType: Uni.I18n.translate('devicemenu.title', 'MDC', 'Device'),
 
     initComponent: function () {
         var me = this,
@@ -15,7 +17,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 xtype: 'menu',
                 items: [
                     {
-                        text: deviceId,
+                        text: Uni.I18n.translate('devicemenu.overviewx', 'MDC', 'Overview'),
                         itemId: 'deviceOverviewLink',
                         href: '#/devices/' + encodeURIComponent(deviceId)
                     },
@@ -33,13 +35,14 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                     }
                 ]
             };
+        me.title = deviceId || Uni.I18n.translate('devicemenu.title', 'MDC', 'Device');
 
-        if ( !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger') ) {
+        if ((!Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')) || (!Ext.isEmpty(me.device.get('isMultiElementDevice')) && me.device.get('isMultiElementDevice'))) {
             menu.items.push(
                 {
-                    text: Uni.I18n.translate('devicemenu.dataLoggerSlaves', 'MDC', 'Data logger slaves'),
+                    text: Mdc.util.LinkPurpose.forDevice(me.device).pageTitle,
                     itemId: 'device-dataLoggerSlaves-link',
-                    href: '#/devices/' + encodeURIComponent(deviceId) + '/dataloggerslaves',
+                    href: '#/devices/' + encodeURIComponent(deviceId) + '/slaves',
                     privileges: Mdc.privileges.Device.viewDevice
                 }
             );
@@ -137,7 +140,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             );
         }
 
-        if (!me.device.get('isDataLoggerSlave')) {
+        if (!me.device.get('isDataLoggerSlave') && !me.device.get('isMultiElementSlave')) {
             me.menuItems.push(
                 {
                     title: Uni.I18n.translate('device.communication', 'MDC', 'Communication'),
@@ -164,9 +167,14 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                             href: '#/devices/' + encodeURIComponent(deviceId) + '/connectionmethods'
                         },
                         {
-                            text: Uni.I18n.translate('devicemenu.security', 'MDC', 'Security settings'),
+                            text: Uni.I18n.translate('general.securitySets', 'MDC', 'Security sets'),
                             itemId: 'securitySettingLink',
                             href: '#/devices/' + encodeURIComponent(deviceId) + '/securitysettings'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                            itemId: 'securityAccessorsLink',
+                            href: '#/devices/' + encodeURIComponent(deviceId) + '/keys'
                         },
                         {
                             text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocol dialects'),
@@ -209,17 +217,10 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
         me.callParent(arguments);
     },
 
-    toggleByItemId: function (toggleId) {
-        // TODO See what impact removing this function has.
-
-//        var cls = this.selectedCls,
-//            item = this.down('#' + toggleId);
-//
-//        if (item.hasCls(cls)) {
-//            item.removeCls(cls);
-//        } else {
-//            item.addCls(cls);
-//        }
+    preProcessFullTokenForSelection: function(fullToken) {
+        if (Ext.String.endsWith(fullToken, '/certificates')) {
+            fullToken = fullToken.replace('/certificates', '/keys');
+        }
+        return fullToken;
     }
-
 });

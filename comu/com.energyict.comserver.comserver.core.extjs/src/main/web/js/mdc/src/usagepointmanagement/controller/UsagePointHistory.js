@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
     extend: 'Ext.app.Controller',
 
@@ -78,7 +82,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
                     app.fireEvent('changecontentevent', widget);
                     switch (tab) {
                         case 'devices' :
-                            me.showDevicesTab(widget.down('#usage-point-devices'));
+                            me.showDevicesTab(widget.down('#usage-point-devices'), id);
                             break;
                         case 'metrologyconfigurationversion' :
                             me.showMetrologyConfigurationHistory(widget.down('#usage-point-metrologyconfigurationversion'));
@@ -105,7 +109,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
         }
     },
 
-    showDevicesTab: function (panel) {
+    showDevicesTab: function (panel, usagePointId) {
         var me = this,
             store = me.getStore('Mdc.usagepointmanagement.store.UsagePointHistoryDevices'),
             router = me.getController('Uni.controller.history.Router');
@@ -114,7 +118,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
         Uni.util.History.setParsePath(false);
         router.getRoute('usagepoints/usagepoint/history').forward({tab: 'devices'});
 
-        store.getProxy().setExtraParam('usagePointId', router.arguments.usagePointId);
+        store.getProxy().setExtraParam('usagePointId', decodeURIComponent(router.arguments.usagePointId));
         store.load(function () {
             Ext.suspendLayouts();
             panel.removeAll();
@@ -247,7 +251,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
             router = me.getController('Uni.controller.history.Router'),
             usagePointModel = me.getModel('Mdc.usagepointmanagement.model.UsagePoint'),
             versionRecord = me.getModel('Mdc.usagepointmanagement.model.MetrologyConfigurationVersion'),
-            //usagePointWithVersionModel = me.getModel('Mdc.usagepointmanagement.model.UsagePointWithVersion'),
+        //usagePointWithVersionModel = me.getModel('Mdc.usagepointmanagement.model.UsagePointWithVersion'),
             availableConfigs = me.getStore('Mdc.usagepointmanagement.store.AvailableMetrologyConfigurations'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
@@ -309,7 +313,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
                 fn: function (action) {
                     if (action == "confirm") {
                         doRemove();
-                    };
+                    }
                 }
             });
         }

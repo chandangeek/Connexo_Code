@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
     extend: 'Ext.app.Controller',
 
@@ -66,7 +70,7 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
                 backUrl: me.getController('Uni.controller.history.Router').getRoute('devices/device/generalattributes').buildUrl(),
                 success: function () {
                     editView.setLoading(false);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('generalAttributes.saved', 'MDC', 'General attributes saved.'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('generalAttributes.saved', 'MDC', 'General attributes saved'));
                     me.moveToPreviousPage();
 
                 },

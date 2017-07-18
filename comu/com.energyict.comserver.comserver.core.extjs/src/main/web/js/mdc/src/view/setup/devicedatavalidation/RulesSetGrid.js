@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceDataValidationRulesSetGrid',
@@ -48,6 +52,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges:Cfg.privileges.Validation.device,
                 menu: {
                     xtype: 'deviceDataValidationRulesSetActionMenu'

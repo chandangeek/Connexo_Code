@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.loadProfileTypeGrid',
@@ -32,8 +36,9 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 itemId: 'load-profile-type-action-menu-column',
-                menu: { xtype: 'load-profile-type-action-menu' }
+                menu: {xtype: 'load-profile-type-action-menu'}
             }
         ]
     },
@@ -46,7 +51,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
             emptyMsg: Uni.I18n.translate('loadProfileTypes.pagingtoolbartop.emptyMsg', 'MDC', 'There are no load profile types to display'),
             items: [
                 {
-                    text: Uni.I18n.translate('loadProfileTypes.add.loadprofileTypes', 'MDC', 'Add load profile types'),
+                    text: Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'),
                     itemId: 'addLoadProfileType',
                     xtype: 'button',
                     action: 'addloadprofiletypeaction',

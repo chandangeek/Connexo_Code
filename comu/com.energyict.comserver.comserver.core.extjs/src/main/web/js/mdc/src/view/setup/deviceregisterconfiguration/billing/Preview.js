@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
     extend: 'Mdc.view.setup.deviceregisterconfiguration.GeneralPreview',
     alias: 'widget.deviceRegisterConfigurationPreview-billing',
@@ -38,7 +42,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                                 name: 'readingType'
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                                fieldLabel: me.linkPurpose.channelGridSlaveColumn,
                                 name: 'dataloggerSlaveName',
                                 hidden: !me.showDataLoggerSlaveField,
                                 renderer: function(value) {
@@ -68,15 +72,22 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
                                 name: 'value'
                             },
-                            {
-                                fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
-                                name: 'interval',
-                                renderer: function (value) {
-                                    return Ext.isEmpty(value)
-                                        ? '-'
-                                        : Uni.DateTime.formatDateTimeShort(new Date(value.start)) + ' - ' + Uni.DateTime.formatDateTimeShort(new Date(value.end));
-                                }
-                            },
+                            //{
+                            //    fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
+                            //    name: 'interval',
+                            //    renderer: function (value) {
+                            //        var startDate,endDate;
+                            //        if (!Ext.isEmpty(value) && !!value.start) {
+                            //            startDate = new Date(value.start);
+                            //            endDate = new Date(value.end);
+                            //            return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
+                            //        } else if (!Ext.isEmpty(value) && !!value.end){
+                            //            endDate = new Date(value.end);
+                            //            return Uni.DateTime.formatDateTimeShort(endDate)
+                            //        }
+                            //        return '-';
+                            //    }
+                            //},
                             {
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
                                 name: 'overruledNumberOfFractionDigits'

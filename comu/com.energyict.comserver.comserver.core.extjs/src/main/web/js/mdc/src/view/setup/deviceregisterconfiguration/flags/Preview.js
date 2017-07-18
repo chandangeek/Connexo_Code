@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Preview', {
     extend: 'Mdc.view.setup.deviceregisterconfiguration.GeneralPreview',
     alias: 'widget.deviceRegisterConfigurationPreview-flags',
@@ -37,7 +41,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Preview', {
                                 name: 'readingType'
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                                fieldLabel: me.linkPurpose.channelGridSlaveColumn,
                                 name: 'dataloggerSlaveName',
                                 hidden: !me.showDataLoggerSlaveField,
                                 renderer: function(value) {

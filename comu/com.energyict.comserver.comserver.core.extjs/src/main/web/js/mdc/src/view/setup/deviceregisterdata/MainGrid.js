@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterdata.MainGrid', {
     extend: 'Ext.grid.Panel',
 
@@ -7,7 +11,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainGrid', {
         'Uni.grid.column.Obis',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.view.setup.deviceregisterdata.ActionMenu'
+        'Mdc.view.setup.deviceregisterdata.ActionMenu',
+        'Mdc.view.setup.deviceregisterdata.DataBulkActionMenu'
     ],
 
     deviceId: null,
@@ -27,10 +32,21 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainGrid', {
                 items: [
                     {
                         xtype: 'button',
+                        itemId: 'device-register-data-add-reading-action-button',
                         text: Uni.I18n.translate('general.addReading', 'MDC', 'Add reading'),
                         privileges: Mdc.privileges.Device.administrateDeviceData,
                         href: '#/devices/' + encodeURIComponent(me.deviceId) + '/registers/' + me.registerId + '/data/add',
                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'device-register-data-bulk-action-button',
+                        text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action'),
+                        privileges: Mdc.privileges.Device.administrateDeviceData,
+                        menu: {
+                            xtype: 'register-data-bulk-action-menu',
+                            itemId: 'register-data-bulk-action-menu'
+                        }
                     }
                 ]
             },
@@ -61,7 +77,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainGrid', {
 
         if (!Ext.isEmpty(record.get('readingQualities'))) {
             Ext.Array.forEach(record.get('readingQualities'), function (readingQualityObject) {
-                if (readingQualityObject.cimCode.startsWith('1.')) {
+                if (Ext.String.startsWith(readingQualityObject.cimCode, '1.')) {
                     showDeviceQualityIcon |= true;
                     tooltipContent += readingQualityObject.indexName + '<br>';
                 }
@@ -76,6 +92,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainGrid', {
                     + tooltipContent + '"></span>';
             }
         }
-        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)]) + icon;
+        return Uni.DateTime.formatDateTimeShort(date) + icon;
     }
 });

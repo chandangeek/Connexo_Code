@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.device-configuration-logbooks',
@@ -45,8 +49,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                 },
                                 {
                                     xtype: 'uni-actioncolumn',
+                                    width: 120,
                                     privileges: Mdc.privileges.DeviceType.admin,
-                                    menu: { xtype: 'device-logbook-action-menu' }
+                                    menu: {xtype: 'device-logbook-action-menu'}
                                 }
                             ]
                         },

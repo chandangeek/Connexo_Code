@@ -1,12 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.rule-device-configuration-grid',
     store: 'Mdc.store.RuleDeviceConfigurations',
     overflowY: 'auto',
     ruleSetId: null,
-    requires: [
-        'Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationActionMenu'
-    ],
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -20,13 +21,6 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid',
                 header: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
                 dataIndex: 'deviceType_name',
                 flex: 1
-            },
-            {
-                xtype: 'uni-actioncolumn',
-                privileges: Cfg.privileges.Validation.deviceConfiguration,
-                menu: {
-                    xtype: 'rule-device-configuration-action-menu'
-                }
             }
         ];
         me.dockedItems = [

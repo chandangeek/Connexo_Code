@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.filemanagement.view.PreviewContainer', {
     extend: 'Uni.view.container.PreviewContainer',
     alias: 'widget.files-devicetype-preview-container',
@@ -25,7 +29,9 @@ Ext.define('Mdc.filemanagement.view.PreviewContainer', {
             itemId: 'no-files',
             title: Uni.I18n.translate('filemanagement.files.empty.title', 'MDC', 'No files found'),
             reasons: [
-                Uni.I18n.translate('filemanagement.files.empty.list.item', 'MDC', 'No files have been defined yet.'),
+                me.fileManagementEnabled
+                ? Uni.I18n.translate('filemanagement.files.empty.list.reason1', 'MDC', 'No files have been defined yet.')
+                : Uni.I18n.translate('filemanagement.files.empty.list.reason2', 'MDC', 'File management not allowed.')
             ],
             stepItems: [
                 {
@@ -51,13 +57,13 @@ Ext.define('Mdc.filemanagement.view.PreviewContainer', {
                             buttonOnly: true,
                             itemId: 'add-file-btn2',
                             vtype: 'fileUpload',
-                            disabled: !me.fileManagementEnabled
+                            hidden: !me.fileManagementEnabled
                         },
                         {
                             xtype: 'button',
                             text: Uni.I18n.translate('tou.allowFilemanagement', 'MDC', 'Allow file management'),
                             itemId: 'enable-file-management-btn',
-                            disabled: me.fileManagementEnabled
+                            hidden: me.fileManagementEnabled
                         }
                     ]
                 }

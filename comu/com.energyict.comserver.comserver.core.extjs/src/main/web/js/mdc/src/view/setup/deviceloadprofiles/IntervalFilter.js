@@ -1,9 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceloadprofiles.IntervalFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'mdc-view-setup-deviceloadprofiles-intervalfilter',
 
     // TODO Integrate the filter on screens.
     store: 'Mdc.store.LoadProfilesOfDevice',
+
+    requires:[
+        'Mdc.store.LoadProfileDataDurations'
+    ],
 
     filters: [
         {

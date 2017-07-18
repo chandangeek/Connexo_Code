@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterconfiguration.DataLoggerSlaveHistory', {
     extend: 'Ext.form.FieldContainer',
     alias: 'widget.dataLogger-slaveRegisterHistory',
@@ -5,25 +9,26 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DataLoggerSlaveHistory', 
 
     requires: [
         'Uni.util.FormEmptyMessage',
-        'Mdc.store.DataLoggerSlaveRegisterHistory'
+        'Mdc.store.DataLoggerSlaveRegisterHistory',
+        'Mdc.util.LinkPurpose'
     ],
 
     fieldLabel: Uni.I18n.translate('dataLoggerSlaveHistory.title', 'MDC', 'Data logger slave history'),
 
     labelAlign: 'top',
-
+    linkPurpose: null,
     dataLoggerSlaveHistoryStore: null,
 
     initComponent: function () {
         var me = this;
-
+        me.fieldLabel = me.linkPurpose.dataLoggerSlaveHistoryTitle;
         if (me.dataLoggerSlaveHistoryStore.getTotalCount() === 0) {
             me.items = [
                 {
                     xtype: 'form',
                     items: {
                         xtype: 'uni-form-empty-message',
-                        text: Uni.I18n.translate('dataLoggerSlaveHistory.empty', 'MDC', 'No data logger slave history available.')
+                        text: me.linkPurpose.dataLoggerSlaveHistoryEmpty
                     }
                 }
             ];
@@ -45,7 +50,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DataLoggerSlaveHistory', 
                             flex: 1
                         },
                         {
-                            header: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                            header: me.linkPurpose.channelGridSlaveColumn,
                             dataIndex: 'deviceName',
                             flex: 1,
                             renderer: function(value, meta, record) {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
     extend: 'Ext.form.Panel',
     alias: 'widget.usage-point-channel-preview',
@@ -55,7 +59,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
                     if (Ext.isArray(value)) {
                         Ext.Array.each(value, function (deviceChannel, index) {
                             var device = canViewDevices
-                                ? '<a href="'
+                                    ? '<a href="'
                                 + me.router.getRoute('devices/device').buildUrl({
                                     deviceId: deviceChannel.device
                                 })

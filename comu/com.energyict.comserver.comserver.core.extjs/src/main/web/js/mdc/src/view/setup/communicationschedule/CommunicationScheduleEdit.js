@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.communicationScheduleEdit',
@@ -231,7 +235,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                             flex: 1,
                                             renderer: function (value) {
                                                 return value
-                                                    ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateLong(value),Uni.DateTime.formatTimeLong(value)])
+                                                    ? Uni.DateTime.formatDateTimeShort(new Date(value))
                                                     : ''
                                             }
                                         }

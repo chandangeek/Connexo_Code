@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.timeofuse.view.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.tou-devicetype-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'view-preview-tou',

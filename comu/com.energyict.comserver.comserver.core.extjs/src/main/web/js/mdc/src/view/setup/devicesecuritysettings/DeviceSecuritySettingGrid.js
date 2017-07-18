@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceSecuritySettingGrid',
@@ -8,7 +12,6 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.SecuritySettingsOfDevice',
-        'Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingActionMenu',
         'Uni.grid.column.Default'
     ],
 
@@ -19,12 +22,31 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('deviceSecuritySetting.name', 'MDC', 'Security setting'),
+                header: Uni.I18n.translate('general.securitySet', 'MDC', 'Security set'),
                 dataIndex: 'name',
+                flex: 3
+            },
+            {
+                header: Uni.I18n.translate('securitySetting.client', 'MDC', 'Client'),
+                itemId: 'mdc-deviceSecuritySettingGrid-client',
+                dataIndex: 'client',
+                renderer: function (value, grid, record) {
+                    return Ext.isEmpty(record.getClient()) ? '-' : record.getClient().getPropertyValue().get('value');
+                },
                 flex: 2
             },
             {
+                header: Uni.I18n.translate('securitySetting.securitySuite', 'MDC', 'Security suite'),
+                itemId: 'mdc-deviceSecuritySettingGrid-securitySuite',
+                dataIndex: 'securitySuite',
+                flex: 3,
+                renderer: function (value) {
+                    return Ext.String.htmlEncode(value.name);
+                }
+            },
+            {
                 header: Uni.I18n.translate('deviceSecuritySetting.authenticationLevel', 'MDC', 'Authentication level'),
+                itemId: 'mdc-deviceSecuritySettingGrid-authenticationLevel',
                 dataIndex: 'authenticationLevel',
                 flex: 3,
                 renderer: function (value) {
@@ -33,29 +55,11 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
             },
             {
                 header: Uni.I18n.translate('deviceSecuritySetting.encryptionLevel', 'MDC', 'Encryption level'),
+                itemId: 'mdc-deviceSecuritySettingGrid-encryptionLevel',
                 dataIndex: 'encryptionLevel',
                 flex: 3,
                 renderer: function (value) {
                     return Ext.String.htmlEncode(value.name);
-                }
-            },
-            {
-                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
-                dataIndex: 'status',
-                renderer: function (value) {
-                    return Ext.String.htmlEncode(value.name);
-                },
-                flex: 3
-            },
-            {
-                xtype: 'uni-actioncolumn',
-                privileges:Mdc.privileges.DeviceSecurity.viewOrEditLevels,
-                menu: {
-                    xtype: 'device-security-setting-action-menu',
-                    itemId: 'deviceSecurityGridMenu'
-                },
-                isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    return !record.data.userHasEditPrivilege
                 }
             }
         ];
@@ -65,19 +69,24 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('deviceSecuritySetting.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} security settings'),
-                displayMoreMsg: Uni.I18n.translate('deviceSecuritySetting.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} security settings'),
-                emptyMsg: Uni.I18n.translate('deviceSecuritySetting.pagingtoolbartop.emptyMsg', 'MDC', 'There are no security settings to display'),
+                displayMsg: Uni.I18n.translate('deviceSecuritySet.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} security sets'),
+                displayMoreMsg: Uni.I18n.translate('deviceSecuritySet.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} security sets'),
+                emptyMsg: Uni.I18n.translate('deviceSecuritySet.pagingtoolbartop.emptyMsg', 'MDC', 'There are no security sets to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('deviceSecuritySetting.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Security settings per page'),
+                itemsPerPageMsg: Uni.I18n.translate('deviceSecuritySet.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Security sets per page'),
                 dock: 'bottom'
             }
         ];
 
         me.callParent();
+    },
+
+    updateColumns: function (hasSecuritySuite, hasClient) {
+        this.down('#mdc-deviceSecuritySettingGrid-client').setVisible(hasClient);
+        this.down('#mdc-deviceSecuritySettingGrid-securitySuite').setVisible(hasSecuritySuite);
     }
 });
 

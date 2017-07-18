@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.store.AvailableDeviceTypes',{
     extend: 'Ext.data.Store',
     requires: [
@@ -9,6 +13,13 @@ Ext.define('Mdc.store.AvailableDeviceTypes',{
         property: 'name',
         direction: 'ASC'
     }],
+    filters: [
+        function(deviceType) {
+            return deviceType.get('deviceTypePurpose') !== 'MULTI_ELEMENT_SLAVE';
+        }
+    ],
+    filterOnLoad: true,
+    remoteFilter: false,
     remoteSort: true,
     proxy: {
         type: 'rest',

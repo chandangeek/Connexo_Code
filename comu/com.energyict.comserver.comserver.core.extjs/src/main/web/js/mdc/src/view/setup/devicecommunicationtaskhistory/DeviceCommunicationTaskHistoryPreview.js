@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTaskHistoryPreview', {
     extend: 'Ext.container.Container',
 
@@ -18,6 +22,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
             xtype: 'panel',
             title: Uni.I18n.translate('devicecommunicationtaskhistory.communicationTask', 'MDC', 'Communication task'),
             frame: true,
+            itemId: 'deviceCommunicationTaskHistoryPreviewPanel',
             layout: {
                 type: 'vbox'
             },
@@ -38,9 +43,38 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
             ],
             items: [
                 {
+                    xtype: 'displayfield',
+                    htmlEncode: false,
+                    name: 'communicationSummary',
+                    fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.communicationSummary', 'MDC', 'Communication summary'),
+                    itemId: 'com-task-communication-summary',
+                    width: '100%',
+                    labelWidth: 250
+                },
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    width: 250,
+                    items: [
+                        {
+                            xtype: 'component',
+                            flex: 1
+                        },
+                        {
+                            xtype: 'button',
+                            itemId: 'btn-com-task-show-communication-details',
+                            text: Uni.I18n.translate('devicecommunicationtaskhistory.showCommunicationDetails','MDC','Show communication details'),
+                            action: 'showComTaskCommunicationDetails'
+                        }
+                    ]
+                },
+                {
                     xtype: 'form',
                     border: false,
                     width: '100%',
+                    hidden: true,
                     layout: {
                         type: 'column'
                     },
@@ -109,11 +143,11 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     renderer: function (value) {
                                         if (value && value !== '') {
                                             var data = this.up('form').getRecord().data,
-                                                link = '#/devices/' + encodeURIComponent(data.comSession.device.id)
+                                                link = '#/devices/' + encodeURIComponent(data.comSession.device.name)
                                                     + '/connectionmethods/' + data.comSession.connectionMethod.id
                                                     + '/history/' + data.comSession.id
                                                     + '/viewlog'
-                                                    + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications';
+                                                    + '?logLevels=Debug&logTypes=Connections&logTypes=Communications';
 
                                             return '<a href="' + link + '">' + Ext.String.htmlEncode(value.connectionMethod.name) + '</a>'
                                         } else {
@@ -122,6 +156,26 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     }
                                 }
                             ]
+                        }
+                    ]
+                },
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    width: 250,
+                    items: [
+                        {
+                            xtype: 'component',
+                            flex: 1
+                        },
+                        {
+                            xtype: 'button',
+                            itemId: 'btn-com-task-hide-communication-details',
+                            text: Uni.I18n.translate('devicecommunicationtaskhistory.hideCommunicationDetails','MDC','Hide communication details'),
+                            action: 'hideComTaskCommunicationDetails',
+                            hidden: true
                         }
                     ]
                 }
@@ -154,8 +208,37 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
             },
             items: [
                 {
+                    xtype: 'displayfield',
+                    htmlEncode: false,
+                    name: 'connectionSummary',
+                    fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.connectionSummary', 'MDC', 'Connection summary'),
+                    itemId: 'com-task-connection-summary',
+                    width: '100%',
+                    labelWidth: 250
+                },
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    width: 250,
+                    items: [
+                        {
+                            xtype: 'component',
+                            flex: 1
+                        },
+                        {
+                            xtype: 'button',
+                            itemId: 'btn-com-task-show-connection-details',
+                            text: Uni.I18n.translate('devicecommunicationtaskhistory.showConnectionDetails','MDC','Show connection details'),
+                            action: 'showComTaskConnectionDetails'
+                        }
+                    ]
+                },
+                {
                     xtype: 'form',
                     border: false,
+                    hidden: true,
                     width: '100%',
                     layout: {
                         type: 'column'
@@ -179,7 +262,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.device', 'MDC', 'Device'),
                                     itemId: 'device',
                                     renderer: function (device) {
-                                        return device !== '' ? '<a href="#/devices/' + device.id + '">' + Ext.String.htmlEncode(device.name) + '</a>' : '-';
+                                        return device !== '' ? '<a href="#/devices/' + device.name + '">' + Ext.String.htmlEncode(device.name) + '</a>' : '-';
                                     }
                                 },
                                 {
@@ -251,9 +334,34 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                         if (Ext.isEmpty(val)) {
                                             return '-';
                                         }
-                                        var template = '';
-                                        template += '<tpl><span class="icon-checkmark"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '<br></tpl>';
-                                        template += '<tpl><span class="icon-cross"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '<br></tpl>';
+                                        var template = '',
+                                            tooltipText = '';
+                                        tooltipText += Uni.I18n.translatePlural(
+                                            'device.connections.comTasksSuccessful', val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : 0, 'MDC',
+                                            'No communication tasks successful', '1 communication task successful', '{0} communication tasks successful'
+                                        );
+                                        tooltipText += '<br>';
+                                        tooltipText += Uni.I18n.translatePlural(
+                                            'device.connections.comTasksFailed', val.numberOfFailedTasks ? val.numberOfFailedTasks : 0, 'MDC',
+                                            'No communication tasks failed', '1 communication task failed', '{0} communication tasks failed'
+                                        );
+                                        tooltipText += '<br>';
+                                        tooltipText += Uni.I18n.translatePlural(
+                                            'device.connections.comTasksNotCompleted', val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : 0, 'MDC',
+                                            'No communication tasks not completed', '1 communication task not completed', '{0} communication tasks not completed'
+                                        );
+
+                                        if (this.tooltip){
+                                            this.tooltip.update(tooltipText);
+                                        }else {
+                                            this.tooltip = Ext.create('Ext.tip.ToolTip', {
+                                                target: this.getEl(),
+                                                html: tooltipText
+                                            });
+                                        }
+
+                                        template += '<tpl><span class="icon-checkmark"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '</tpl>';
+                                        template += '<tpl><span class="icon-cross"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '</tpl>';
                                         template += '<tpl><span  class="icon-stop2"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</tpl>';
                                         return template;
                                     }
@@ -281,6 +389,26 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     usesSeconds: true
                                 }
                             ]
+                        }
+                    ]
+                },
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    width: 250,
+                    items: [
+                        {
+                            xtype: 'component',
+                            flex: 1
+                        },
+                        {
+                            xtype: 'button',
+                            itemId: 'btn-com-task-hide-connection-details',
+                            text: Uni.I18n.translate('devicecommunicationtaskhistory.hideConnectionDetails','MDC','Hide connection details'),
+                            action: 'hideComTaskConnectionDetails',
+                            hidden: true
                         }
                     ]
                 }

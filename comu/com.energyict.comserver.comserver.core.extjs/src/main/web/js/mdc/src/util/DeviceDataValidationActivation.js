@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.util.DeviceDataValidationActivation', {
     requires: [
         'Mdc.view.setup.device.DeviceDataValidationPanel',
@@ -9,7 +13,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
     dataValidationLastChecked: null,
 	validationOnStorage: null,
 
-    updateDataValidationStatusSection: function (deviceId, view) {
+    updateDataValidationStatusSection: function (deviceId, view, deviceRecord) {
         var me = this;
         me.deviceId = deviceId;
         if (view.down('#deviceDataValidationStatusField')) {
@@ -17,13 +21,16 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             view.down('#dataValidationStatusPanel').setLoading(true);
             !!view.down('#deviceDataValidationStateChangeBtn') && view.down('#deviceDataValidationStateChangeBtn').setDisabled(true);
         }
-        if (view && view.device) {
+        if (view && view.device && Ext.isEmpty(deviceRecord)) {
             me.getModel('Mdc.model.Device').load(deviceId, {
                 success: function (record) {
                     view.device = record;
                 }
             });
+        } else if(view && view.device) {
+            view.device = deviceRecord;
         }
+
         Ext.Ajax.request({
             url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/validationrulesets/validationstatus',
             method: 'GET',
@@ -38,8 +45,9 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
                 if (view.down('#dataValidationStatusPanel')) {
+                    var validateOnStorage = res.isStorage?'(' + Uni.I18n.translate('general.validateOnStore', 'MDC', 'Validate data on storage') + ')':'(' + Uni.I18n.translate('general.validateOnValidationTask', 'MDC', 'Validate data using validation task')+')';
                     view.down('#deviceDataValidationStatusField').setValue(res.isActive ?
-                        Uni.I18n.translate('general.active', 'MDC', 'Active') :
+                        Uni.I18n.translate('general.active', 'MDC', 'Active') + ' ' + validateOnStorage:
                         Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
                     );
                     if (!!view.down('#deviceDataValidationStateChangeBtn')) {
@@ -68,6 +76,8 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'activationConfirmationWindow',
+                green: true,
+                confirmBtnUi: 'action',
                 confirmText: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
 				confirmAndRunText: Uni.I18n.translate('general.activateAndRun', 'MDC', 'Activate & Run'),
                 confirmation: function () {
@@ -79,7 +89,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
 				
             });
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validationstatusactivation',
+            url: '/api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validationstatus',
             method: 'GET',
             timeout: 60000,
             success: function (response) {
@@ -90,7 +100,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 } else {
                     me.dataValidationLastChecked = new Date();
                 }
-				if (res.isStorage) {
+				if (res.validateOnStorageConfiguration) {
                     me.validationOnStorage = true;
                 } else {
                     me.validationOnStorage = false;
@@ -112,8 +122,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
 					owner.insert(1, me.getButtonContent(confirmationWindow));
 					
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'MDC', 'Activate data validation on device {0}?', [me.deviceId]),
-                        msg: ''
+                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'MDC', 'Activate data validation on device {0}?', me.deviceId)
                     });
                 } else {
                     confirmationWindow.insert(1,[{
@@ -126,8 +135,8 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                         padding: '0 0 15px 48px'
                     }]);
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'MDC', 'Activate data validation on device {0}?', [me.deviceId]),
-                        msg: Uni.I18n.translate('device.dataValidation.activateMsg', 'MDC', 'There are currently no readings for this device')
+                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'MDC', 'Activate data validation on device {0}?', me.deviceId),
+                        msg: Uni.I18n.translate('device.dataValidation.activateMsg', 'MDC', 'There are currently no readings for this device.')
                     });
                 }
             }
@@ -139,9 +148,9 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
 
     activateDataValidation: function (view, confWindow, runNow) {
         var me = this,
-			validationOnStorage, isValidationOnStorage = 'false';
+			validationOnStorage = confWindow.down('#validationOnStorage'),
+            isValidationOnStorage = 'false';
         
-		validationOnStorage = confWindow.down('#validationOnStorage');
 		if (validationOnStorage){
 			isValidationOnStorage = confWindow.down('#validationOnStorage').getValue();
 		}
@@ -168,8 +177,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                     });
                 } else {
                     me.destroyConfirmationWindow();
-                    me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translate('device.dataValidation.activation.activated', 'MDC', 'Data validation activated'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.dataValidation.activation.activated', 'MDC', 'Data validation activated'));
                 }
             },
             failure: function (response) {
@@ -212,8 +220,8 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                     }
                 }).show({
                     ui: 'notification-error',
-                    title: Uni.I18n.translate('device.dataValidation.timeout.title', 'MDC', 'Data validation takes longer as expected'),
-                    msg: Uni.I18n.translate('device.dataValidation.timeout.msg', 'MDC', 'Data validation takes longer as expected. Data validation will continue in the background'),
+                    title: Uni.I18n.translate('device.dataValidation.timeout.title1', 'MDC', 'Data validation takes longer than expected'),
+                    msg: Uni.I18n.translate('device.dataValidation.timeout.message', 'MDC', 'Data validation takes longer than expected and will continue in the background.'),
                     icon: Ext.MessageBox.ERROR
                 });
             }
@@ -385,9 +393,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
     },
 
     destroyConfirmationWindow: function () {
-		var activationConfirmationWindow;
-		
-		activationConfirmationWindow = Ext.ComponentQuery.query('#activationConfirmationWindow')[0];
+		var activationConfirmationWindow = Ext.ComponentQuery.query('#activationConfirmationWindow')[0];
         if (activationConfirmationWindow) {
             activationConfirmationWindow.removeAll(true);
             activationConfirmationWindow.destroy();

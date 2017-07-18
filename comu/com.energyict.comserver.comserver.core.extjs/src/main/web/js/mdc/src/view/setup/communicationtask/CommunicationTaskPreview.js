@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.communicationTaskPreview',
@@ -52,14 +56,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskPreview', {
                             fieldLabel: Uni.I18n.translate('communicationtasks.task.partialConnectionTask', 'MDC', 'Connection method'),
                             name: 'partialConnectionTask',
                             renderer: function (value) {
-                                return value ? Ext.String.htmlEncode(value.name) : '';
-                            }
-                        },
-                        {
-                            fieldLabel: Uni.I18n.translate('communicationtasks.task.protocolDialectConfigurationProperties', 'MDC', 'Protocol dialect'),
-                            name: 'protocolDialectConfigurationProperties',
-                            renderer: function (value) {
-                                return Ext.String.htmlEncode(value.name);
+                                return value ? Ext.String.htmlEncode(value.name) : '-';
                             }
                         }
                     ]

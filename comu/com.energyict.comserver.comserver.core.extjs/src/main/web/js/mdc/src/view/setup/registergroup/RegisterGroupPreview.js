@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
     extend: 'Ext.panel.Panel',
     border: true,

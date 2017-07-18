@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicechannels.DeviceTopologiesTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'mdc-view-setup-devicechannels-topologiestopfilter',
 
     requires: [
         'Mdc.store.DeviceTypes',
-        'Mdc.store.DeviceConfigurations'
+        'Mdc.store.DeviceConfigurations',
+        'Mdc.store.filter.DeviceTypes'
     ],
 
     store: 'Mdc.store.DeviceTopology',

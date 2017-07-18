@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.RegisterData', {
     extend: 'Ext.data.Model',
     fields: [
@@ -7,13 +11,14 @@ Ext.define('Mdc.model.RegisterData', {
         {name: 'validationStatus', type:'auto', useNull: true, persist: false},
         {name: 'type', type:'string'},
         {name: 'value', type:'string'},
-        {name: 'unit', type:'string'},
+        {name: 'unit', type:'string', useNull: true, defaultValue: null},
         {name: 'deltaValue', type:'string'},
         {name: 'dataValidated', type:'auto', persist: false},
         {name: 'suspectReason', type:'auto', persist: false},
         {name: 'validationResult', type:'auto', persist: false},
         {name: 'isConfirmed', type: 'boolean'},
         {name: 'readingQualities', type: 'auto', defaultValue: null},
+        {name: 'confirmedInApps', type: 'auto', defaultValue: null},
         {name: 'slaveRegister', type:'auto', defaultValue: null},
         {
             name: 'modificationState',

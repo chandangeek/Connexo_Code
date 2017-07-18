@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-connection-method-action-menu',
     itemId: 'device-connection-method-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),

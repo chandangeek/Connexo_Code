@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.tou-calendars-grid',
@@ -31,7 +35,7 @@ Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
                 menu: {
                     xtype: 'tou-devicetype-action-menu'
                 },
-                flex: 0.7
+                width: 120
             }
         ];
 

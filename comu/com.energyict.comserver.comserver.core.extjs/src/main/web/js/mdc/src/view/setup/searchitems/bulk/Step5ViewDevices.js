@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.searchitems.bulk.Step5ViewDevices', {
     extend: 'Ext.panel.Panel',
     requires: ['Mdc.model.Device'],

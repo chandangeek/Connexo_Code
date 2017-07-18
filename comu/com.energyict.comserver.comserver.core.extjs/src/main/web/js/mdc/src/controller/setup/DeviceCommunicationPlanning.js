@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
     extend: 'Ext.app.Controller',
 
@@ -200,7 +204,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
         });
     },
 
-    previewCommunicationSchedule: function(grid, record) {
+    previewCommunicationSchedule: function (grid, record) {
         var preview = this.getSharedCommunicationSchedulePreview(),
             previewForm = this.getSharedCommunicationSchedulePreviewForm(),
             taskList = '';
@@ -317,7 +321,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
         }
     },
 
-    onRemovedSharedComScheduleSelectionChange: function(grid, selection) {
+    onRemovedSharedComScheduleSelectionChange: function (grid, selection) {
         if (selection.length > 1) {
             this.getSharedCommunicationSchedulePreview().show();
         }
@@ -343,7 +347,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
         }
     },
 
-    onAddSchedule: function() {
+    onAddSchedule: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             gridRecord = me.getDeviceCommunicationPlanningGrid().getSelectionModel().getSelection()[0];
@@ -351,7 +355,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
         router.getRoute('devices/device/communicationschedules/addSchedule').forward({comTaskId: gridRecord.get('comTask').id});
     },
 
-    showAddSchedule: function(deviceName, comTaskId) {
+    showAddSchedule: function (deviceName, comTaskId) {
         var me = this,
             comTaskModel = Ext.ModelManager.getModel('Mdc.model.DeviceSchedule'),
             comTaskName = undefined;
@@ -377,7 +381,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
         });
     },
 
-    addOrEditSchedule: function(button) {
+    addOrEditSchedule: function (button) {
         var me = this,
             scheduleField = me.getScheduleField(),
             addScheduleView = me.getAddScheduleView(),
@@ -397,7 +401,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
                 timeout: me.REQUEST_TIMEOUT,
                 success: function (response) {
                     me.showDeviceCommunicationPlanning(deviceName);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationPlanning.addScheduleSucceeded', 'MDC', 'Schedule added.'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationPlanning.addScheduleSucceeded', 'MDC', 'Schedule added'));
                     me.navigateToCommunicationPlanning();
                 }
             });
@@ -416,13 +420,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
                 timeout: me.REQUEST_TIMEOUT,
                 success: function (response) {
                     me.showDeviceCommunicationPlanning(deviceName);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationPlanning.editScheduleSucceeded', 'MDC', 'Schedule saved.'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationPlanning.editScheduleSucceeded', 'MDC', 'Schedule saved'));
                 }
             });
         }
     },
 
-    onEditSchedule: function() {
+    onEditSchedule: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             gridRecord = me.getDeviceCommunicationPlanningGrid().getSelectionModel().getSelection()[0];
@@ -430,7 +434,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
         router.getRoute('devices/device/communicationschedules/editSchedule').forward({comTaskId: gridRecord.get('comTask').id});
     },
 
-    showEditSchedule: function(deviceName, comTaskId) {
+    showEditSchedule: function (deviceName, comTaskId) {
         var me = this,
             comTaskModel = Ext.ModelManager.getModel('Mdc.model.DeviceSchedule'),
             comTaskName = undefined;
@@ -459,15 +463,15 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
         });
     },
 
-    navigateToCommunicationPlanning: function() {
+    navigateToCommunicationPlanning: function () {
         this.getController('Uni.controller.history.Router').getRoute('devices/device/communicationschedules').forward();
     },
 
-    onCancelAddSchedule: function() {
+    onCancelAddSchedule: function () {
         this.navigateToCommunicationPlanning();
     },
 
-    onRemoveSchedule: function() {
+    onRemoveSchedule: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             deviceName = router.arguments.deviceId,
@@ -488,45 +492,45 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
         });
     },
 
-    removeCommunicationSchedule: function(record, deviceName) {
+    removeCommunicationSchedule: function (record, deviceName) {
         var me = this;
 
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(deviceName) + '/schedules',
+            url: '/api/ddr/devices/' + deviceName + '/schedules',
             isNotEdit: true,
             method: 'PUT',
             params: '',
             jsonData: _.pick(record.getRecordData(), 'id', 'version', 'parent', 'name'),
             timeout: me.REQUEST_TIMEOUT,
             success: function (response) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationPlanning.removeScheduleSucceeded', 'MDC', 'Schedule removed.'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationPlanning.removeScheduleSucceeded', 'MDC', 'Schedule removed'));
                 me.navigateToCommunicationPlanning();
             }
         });
     },
 
-    onRunSchedule: function() {
+    onRunSchedule: function () {
         this.applyActionOnComTask('run');
     },
 
-    onRunNowSchedule: function() {
+    onRunNowSchedule: function () {
         this.applyActionOnComTask('runnow');
     },
 
-    activateComTask: function() {
+    activateComTask: function () {
         this.applyActionOnComTask('activate');
     },
 
-    deactivateComTask: function() {
+    deactivateComTask: function () {
         this.applyActionOnComTask('deactivate');
     },
 
-    applyActionOnComTask: function(action) {
+    applyActionOnComTask: function (action) {
         var me = this,
             gridRecord = me.getDeviceCommunicationPlanningGrid().getSelectionModel().getSelection()[0],
             ackMessage = undefined;
 
-        switch(action) {
+        switch (action) {
             case 'run':
                 ackMessage = Uni.I18n.translate('deviceCommunicationPlanning.runSuccess', 'MDC', 'Run succeeded.');
                 break;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.GeneralAttributes', {
     extend: 'Ext.app.Controller',
 
@@ -51,32 +55,31 @@ Ext.define('Mdc.controller.setup.GeneralAttributes', {
             editView = me.getGeneralAttributesEdit(),
             formErrorsPanel = editView.down('#form-errors');
 
-        editView.setLoading();
 
         form.updateRecord();
 
         if (!form.isValid()) {
             formErrorsPanel.show();
-            editView.setLoading(false);
         } else {
             if (!formErrorsPanel.isHidden()) {
                 formErrorsPanel.hide();
             }
-
+            editView.setLoading();
             form.getRecord().save({
                 backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/deviceconfigurations/view/generalattributes').buildUrl(),
                 callback: function (model, operation, success) {
 
                     if (success) {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('generalAttributes.saved', 'MDC', 'General attributes saved.'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('generalAttributes.saved', 'MDC', 'General attributes saved'));
                         me.moveToPreviousPage();
                     }
                     else {
                         var json = Ext.decode(operation.response.responseText);
                         if (operation.response.status === 400) {
                             if (json && json.errors) {
-                                form.getForm().markInvalid(json.errors);
+                                form.markInvalid(json.errors);
                             }
+                            editView.setLoading(false);
                             formErrorsPanel.show();
                         }
                     }
@@ -144,7 +147,7 @@ Ext.define('Mdc.controller.setup.GeneralAttributes', {
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                        widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
+                        widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
                     }
                 });
             }

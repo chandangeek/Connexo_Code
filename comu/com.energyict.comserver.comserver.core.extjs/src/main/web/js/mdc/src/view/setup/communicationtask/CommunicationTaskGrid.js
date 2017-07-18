@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.communicationTaskGrid',
@@ -52,8 +56,11 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DeviceType.admin,
-                items:'Mdc.view.setup.communicationtask.CommunicationTaskActionMenu'
+                menu: {
+                    xtype: 'communication-task-action-menu'
+                }
             }
         ];
 

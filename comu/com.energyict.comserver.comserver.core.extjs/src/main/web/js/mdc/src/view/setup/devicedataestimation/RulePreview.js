@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicedataestimation.RulePreview', {
     extend: 'Ext.form.Panel',
     alias: 'widget.deviceDataEstimationRulePreview',
@@ -45,6 +49,14 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulePreview', {
             isEdit: false,
             defaults: {
                 labelWidth: 250
+            }
+        },
+        {
+            itemId: 'estimation-comment-field',
+            name: 'commentValue',
+            fieldLabel: Uni.I18n.translate('general.estimationComment', 'MDC', 'Estimation comment'),
+            renderer: function (string) {
+                return string ? string : '-';
             }
         }
     ],

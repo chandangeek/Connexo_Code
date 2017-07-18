@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.device.DeviceSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceSetup',
@@ -20,7 +24,6 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.view.widget.WhatsGoingOn',
         'Mdc.view.setup.device.DataLoggerSlavesPanel'
-        //'Mdc.view.setup.device.DeviceHealthCheckPanel'
     ],
 
     content: [
@@ -35,7 +38,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         }
     ],
 
-    renderFlag: function(labelsStore) {
+    renderFlag: function (labelsStore) {
         var me = this,
             toolbar = me.down('#deviceSetupFlags'),
             flag = null;
@@ -56,14 +59,14 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             pressed: !!flag,
             privileges: Mdc.privileges.Device.flagDevice,
             enableToggle: true,
-            toggleHandler: function(button, state) {
+            toggleHandler: function (button, state) {
                 button.setIconCls(state ? 'icon-star-full' : 'icon-star-empty');
                 button.setTooltip(state
                     ? Uni.I18n.translate('device.flag.tooltip.unflag', 'MDC', 'Click to remove from the list of flagged devices')
                     : Uni.I18n.translate('device.flag.tooltip.flag', 'MDC', 'Click to flag the device')
                 );
             },
-            handler: function(button) {
+            handler: function (button) {
                 if (!button.flag) {
                     button.window && button.window.isVisible()
                         ? button.window.close()
@@ -88,10 +91,10 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         });
     },
 
-    openFlagWindow: function(button, flag) {
+    openFlagWindow: function (button, flag) {
         var me = this;
         button.window = Ext.create('Ext.window.Window', {
-            title: Uni.I18n.translate('device.flag.title', 'MDC', 'Flag device {0}',[me.device.get('name')], false),
+            title: Uni.I18n.translate('device.flag.title', 'MDC', 'Flag device {0}', [me.device.get('name')], false),
             closable: false,
             height: 200,
             alignTarget: button,
@@ -174,7 +177,6 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             panel = me.content[0],
             isGateway = me.device.get('isGateway'),
             isDirectlyAddressable = me.device.get('isDirectlyAddressed'),
-            disableChangeConfigSinceDataLoggerOrSlave = me.device.get('isDataLogger') || me.device.get('isDataLoggerSlave'),
             hasValidationRules = me.device.get('hasValidationRules');
 
         panel.tools = [
@@ -185,7 +187,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 items: [
                     {
                         xtype: 'displayfield',
-                        value: me.device.get('name'),
+                        value: Uni.I18n.translate('overview.widget.overview', 'MDC', 'Overview'),
                         fieldCls: 'x-panel-header-text-container-large',
                         style: 'margin-right: 10px'
                     },
@@ -202,19 +204,11 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     {
                         xtype: 'component',
                         itemId: 'last-updated-field',
-                        width: 150,
-                        style: {
-                            'font': 'normal 13px/17px Lato',
-                            'color': '#686868',
-                            'margin-right': '10px'
-                        }
+                        margins: '0 15 0 0'
                     },
                     {
                         xtype: 'button',
                         itemId: 'refresh-btn',
-                        style: {
-                            'background-color': '#71adc7'
-                        },
                         text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'MDC', 'Refresh'),
                         iconCls: 'icon-spinner11'
                     },
@@ -228,7 +222,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                             xtype: 'device-action-menu',
                             itemId: 'deviceActionMenu',
                             router: me.router,
-                            disableChangeConfigSinceDataLoggerOrSlave: disableChangeConfigSinceDataLoggerOrSlave,
+                            disableChangeConfigSinceSlave: me.device.get('isDataLoggerSlave') || me.device.get('isMultiElementSlave'),
                             deviceName: me.device.get('name'),
                             actionsStore: me.actionsStore
                         }
@@ -313,7 +307,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     },
                     {
                         xtype: 'deviceGeneralInformationPanel',
-                        dataLoggerSlave: me.device.get('isDataLoggerSlave') ? me.device : undefined,
+                        dataLoggerSlave: me.device.get('isDataLoggerSlave') ? me.device : (me.device.get('isMultiElementSlave') ? me.device: undefined ),
                         router: me.router,
                         minWidth: 300,
                         style: {
@@ -413,7 +407,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         var me = this,
             panelContainer = me.down('#mdc-panel-container');
 
-        if ( Ext.isEmpty(me.device.get('isDataLogger')) || !me.device.get('isDataLogger') ) {
+        if (( Ext.isEmpty(me.device.get('isDataLogger')) || !me.device.get('isDataLogger')) &&
+            ( Ext.isEmpty(me.device.get('isMultiElementDevice')) || !me.device.get('isMultiElementDevice'))) {
             return;
         }
 

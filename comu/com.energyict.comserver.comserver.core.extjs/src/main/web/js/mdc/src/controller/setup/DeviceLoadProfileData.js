@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
     extend: 'Ext.app.Controller',
 
@@ -85,7 +89,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             };
 
         if(loadProfile){
-            if(loadProfile.data.id != loadProfileId || loadProfile.data.parent.id != deviceId){
+            if (loadProfile.data.id != loadProfileId || loadProfile.data.parent.id != deviceId) {
                 loadProfile = null;
             }
         }
@@ -101,24 +105,24 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             }
         });
 
-        var initGasDayYearStart = function(device) {
-            var loadProfile = me.getLoadProfile(),
-                isGasLoadProfile = loadProfile.get('channels').filter(function(channel) {
-                    return channel.readingType.isGasRelated;
-                }).length>0;
-            if (isGasLoadProfile) {
-                var yearStartStore = me.getStore('Uni.store.GasDayYearStart');
-                yearStartStore.on('load',
-                    function(store, records) {
-                        initView(device, records[0]);
-                    },
-                    me, {single: true});
-                yearStartStore.load();
-            } else {
-                initView(device);
-            }
-        },
-        initView = function (device, gasDayYearStart) {
+        var initGasDayYearStart = function (device) {
+                var loadProfile = me.getLoadProfile(),
+                    isGasLoadProfile = loadProfile.get('channels').filter(function (channel) {
+                            return channel.readingType.isGasRelated;
+                        }).length > 0;
+                if (isGasLoadProfile) {
+                    var yearStartStore = me.getStore('Uni.store.GasDayYearStart');
+                    yearStartStore.on('load',
+                        function (store, records) {
+                            initView(device, records[0]);
+                        },
+                        me, {single: true});
+                    yearStartStore.load();
+                } else {
+                    initView(device);
+                }
+            },
+            initView = function (device, gasDayYearStart) {
             var record = me.getLoadProfile(),
                 dataIntervalAndZoomLevels = me.getStore('Uni.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
                 durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
@@ -133,13 +137,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     intervalStart,
                     fromDate;
 
-                if ( Ext.isEmpty(me.loadProfileModel.get('lastReading')) ) {
+                if (Ext.isEmpty(me.loadProfileModel.get('lastReading'))) {
                     fromDate = moment().startOf('day');
                     if (!Ext.isEmpty(gasDayYearStart)) {
                         fromDate.add(gasDayYearStart.get('hours'), 'hours')
                             .add(gasDayYearStart.get('minutes'), 'minutes');
                     }
-                    intervalStart = dataIntervalAndZoomLevels.getIntervalStart( fromDate.toDate() );
+                    intervalStart = dataIntervalAndZoomLevels.getIntervalStart(fromDate.toDate());
                 } else {
                     fromDate = me.loadProfileModel.get('lastReading');
                     if (!Ext.isEmpty(gasDayYearStart)) {
@@ -152,7 +156,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                             fromDate = lastReadingDayAtGasDayOffset;
                         }
                     }
-                    intervalStart = dataIntervalAndZoomLevels.getIntervalStart( fromDate );
+                    intervalStart = dataIntervalAndZoomLevels.getIntervalStart(fromDate);
                 }
                 widget = Ext.widget('tabbedDeviceLoadProfilesView',{
                     device: device,
@@ -312,7 +316,15 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             var yAxisObject = {
                     opposite: false,
                     gridLineDashStyle: 'Dot',
-                    showEmpty: false
+                    showEmpty: false,
+                    labels: {
+                        style: {
+                            color: '#686868',
+                            fontWeight: 'normal',
+                            fontSize: '14px',
+                            fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                        }
+                    }
                 },
                 yAxisTitle = channel.name;
 
@@ -332,8 +344,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             yAxisObject['title'] = {
                 rotation: 0,
                 align: 'high',
-                margin: -5 * yAxisTitle.length,
-                text: yAxisTitle
+                margin: -6 * yAxisTitle.length,
+                text: yAxisTitle,
+                style: {
+                    color: '#686868',
+                    fontWeight: 'normal',
+                    fontSize: '14px',
+                    fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                }
             };
             yAxis.push(yAxisObject);
         });

@@ -1,13 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.comtasks.SideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.comTaskSideMenu',
     title: Uni.I18n.translate('general.communicationTask', 'MDC', 'Communication task'),
+    objectType: Uni.I18n.translate('general.communicationTask', 'MDC', 'Communication task'),
     router: null,
     initComponent: function () {
         var me = this;
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+                text: Uni.I18n.translate('general.details', 'MDC', 'Details'),
                 itemId: 'mdc-comtask-sidemenu-overviewLink',
                 href: me.router.getRoute('administration/communicationtasks/view').buildUrl()
             },

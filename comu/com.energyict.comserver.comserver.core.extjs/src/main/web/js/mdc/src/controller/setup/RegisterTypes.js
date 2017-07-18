@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.RegisterTypes', {
     extend: 'Ext.app.Controller',
 
@@ -228,6 +232,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 failure: function (rec, operation) {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
+                        Ext.each(json.errors, function(error){
+                           if(error.id === 'obisCodeCached.obisCode') {
+                               error.id = 'obisCode';
+                           }
+                        });
                         me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
                         me.showErrorPanel();
                     }

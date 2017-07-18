@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     extend: 'Ext.tab.Panel',
     alias: 'widget.deviceLoadProfileChannelDataPreview',
@@ -13,18 +17,16 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     channels: null,
     router: null,
     frame: false,
-    mentionDataLoggerSlave: false,
+    linkPurpose: Mdc.util.LinkPurpose.NOT_APPLICABLE,
 
-    updateForm: function(record) {
+    updateForm: function (record) {
         var me = this,
             intervalEnd = record.get('interval_end'),
-            title = Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                [Uni.DateTime.formatDateLong(intervalEnd), Uni.DateTime.formatTimeShort(intervalEnd)],
-                false),
+            title = Uni.DateTime.formatDateTime(intervalEnd,Uni.DateTime.LONG,Uni.DateTime.SHORT),
             mainValidationInfo,
             bulkValidationInfo,
             dataQualities,
-            dataQualitiesForChannels = false,            
+            dataQualitiesForChannels = false,
             router = me.router;
 
         me.setLoading();
@@ -97,6 +99,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             detailRecord.set('value', record.get('value'));
             detailRecord.set('collectedValue', record.get('collectedValue'));
             detailRecord.set('multiplier', record.get('multiplier'));
+            detailRecord.set('mainCommentValue', record.get('mainCommentValue'));
+            detailRecord.set('bulkCommentValue', record.get('bulkCommentValue'));
             me.down('#values-panel').loadRecord(detailRecord);
             me.setLoading(false);
         });
@@ -114,11 +118,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         if (type === 'main') {
             unitOfMeasure = me.channelRecord
                 ? (me.channelRecord.get('calculatedReadingType')
-                    ? me.channelRecord.get('calculatedReadingType').names.unitOfMeasure
-                    : me.channelRecord.get('readingType').names.unitOfMeasure)
+                ? me.channelRecord.get('calculatedReadingType').names.unitOfMeasure
+                : me.channelRecord.get('readingType').names.unitOfMeasure)
                 : (channel.calculatedReadingType
-                    ? channel.calculatedReadingType.names.unitOfMeasure
-                    : channel.readingType.names.unitOfMeasure);
+                ? channel.calculatedReadingType.names.unitOfMeasure
+                : channel.readingType.names.unitOfMeasure);
         } else { // 'bulk'
             unitOfMeasure = me.channelRecord
                 ? me.channelRecord.get('readingType').names.unitOfMeasure
@@ -137,22 +141,33 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         }
 
         if (validationInfo && validationInfo.validationResult) {
-            switch (validationInfo.validationResult.split('.')[1]) {
-                case 'notValidated':
-                    validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated') + ')' +
-                        '<span class="icon-flag6" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
-                    break;
-                case 'suspect':
-                    validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.suspect', 'MDC', 'Suspect') + ')' +
-                        '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
-                    break;
-                case 'ok':
-                    validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect') + ')';
-                    if (!me.channels && validationInfo.isConfirmed) {
-                        validationResultText += '<span class="icon-checkmark" style="margin-left:5px; vertical-align:top;"></span>';
-                    }
-                    break;
+            if (validationInfo.isConfirmed) {
+                validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect') + ')';
+                if (!me.channels) {
+                    validationResultText += '<span class="icon-checkmark" style="margin-left:5px; vertical-align:top;"></span>';
+                }
+            } else {
+                switch (validationInfo.validationResult.split('.')[1]) {
+                    case 'notValidated':
+                        validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated') + ')' +
+                            '<span class="icon-flag6" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
+                        break;
+                    case 'suspect':
+                        validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.suspect', 'MDC', 'Suspect') + ')' +
+                            '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
+                        if (validationInfo.estimatedByRule) {
+                            validationResultText += '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:green;"></span>';
+                        }
+                        break;
+                    case 'ok':
+                        validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect') + ')';
+                        if (!me.channels && validationInfo.isConfirmed) {
+                            validationResultText += '<span class="icon-checkmark" style="margin-left:5px; vertical-align:top;"></span>';
+                        }
+                        break;
+                }
             }
+
         }
 
         if (!Ext.isEmpty(value)) {
@@ -162,15 +177,15 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             );
             return !Ext.isEmpty(formatValue) ? formatValue + ' ' + unitOfMeasure + ' ' + validationResultText : '';
         } else {
-            if(type === 'main'){
-                return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText], false);
+            if (type === 'main') {
+                return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}', [validationResultText], false);
             } else {
-                return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText], false);
+                return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}', [validationResultText], false);
             }
         }
     },
 
-    setDataQuality: function(dataQualities) {
+    setDataQuality: function (dataQualities) {
         var me = this,
             deviceQualityField = me.down('#mdc-device-quality'),
             multiSenseQualityField = me.down('#mdc-multiSense-quality'),
@@ -185,7 +200,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         me.setDataQualityFields(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities);
     },
 
-    setDataQualityForChannel: function(channelId, dataQualities) {
+    setDataQualityForChannel: function (channelId, dataQualities) {
         var me = this,
             channelQualityContainer = me.down('#channelQualityContainer' + channelId);
 
@@ -204,7 +219,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         me.setDataQualityFields(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities);
     },
 
-    setDataQualityFields: function(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
+    setDataQualityFields: function (deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
         var me = this,
             showDeviceQuality = false,
             showMultiSenseQuality = false,
@@ -249,7 +264,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         show3rdPartyQuality ? thirdPartyQualityField.show() : thirdPartyQualityField.hide();
     },
 
-    getTooltip: function(systemName, categoryName, indexName) {
+    getTooltip: function (systemName, categoryName, indexName) {
         var me = this,
             tooltip = '<table><tr><td>';
 
@@ -266,7 +281,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         var me = this,
             generalItems = [],
             valuesItems = [],
-            qualityItems = [];
+            qualityItems = [],
+            linkPurposeValue;
 
         generalItems.push(
             {
@@ -274,23 +290,22 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 name: 'interval',
                 renderer: function (value) {
                     return value
-                        ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                            [Uni.DateTime.formatDateLong(new Date(value.start)),Uni.DateTime.formatTimeLong(new Date(value.start))])
-                          + ' - ' +
-                          Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                            [Uni.DateTime.formatDateLong(new Date(value.end)),Uni.DateTime.formatTimeLong(new Date(value.end))])
+                        ? Uni.DateTime.formatDateTimeLong(new Date(value.start))
+                    + ' - ' +
+                    Uni.DateTime.formatDateTimeLong(new Date(value.end))
                         : '';
                 },
                 htmlEncode: false
             }
         );
 
-        if (me.mentionDataLoggerSlave) {
+        linkPurposeValue = Ext.isDefined(me.linkPurpose.value) ? me.linkPurpose.value : me.linkPurpose;
+        if (linkPurposeValue !== Mdc.util.LinkPurpose.NOT_APPLICABLE) {
             generalItems.push(
                 {
-                    fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                    fieldLabel: me.linkPurpose.channelGridSlaveColumn,
                     itemId: 'mdc-channel-data-preview-data-logger-slave',
-                    renderer: function(slaveChannel) {
+                    renderer: function (slaveChannel) {
                         if (Ext.isEmpty(slaveChannel)) {
                             return '-';
                         }
@@ -312,10 +327,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
 
         generalItems.push(
             {
-                fieldLabel: Uni.I18n.translate('deviceloadprofiles.readingTime', 'MDC', 'Reading time'),
-                name: 'readingTime',
-                renderer: function (value, field) {
-                    return value ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]) : '-';
+                fieldLabel: Uni.I18n.translate('device.channelData.lastUpdate', 'MDC', 'Last update'),
+                name: 'reportedDateTime',
+                renderer: function (value) {
+                    var date = new Date(value);
+                    return value?Uni.DateTime.formatDateTimeLong(date) :'-';
                 }
             },
             {
@@ -373,7 +389,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
 
                 valueItem.items.push(
                     {
-                        fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
+                        fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated'),
                         xtype: 'displayfield',
                         labelWidth: 200,
                         itemId: 'channelValue' + channel.id,
@@ -459,7 +475,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 {
                     xtype: 'fieldcontainer',
                     labelWidth: 200,
-                    fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
+                    fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated'),
                     layout: 'hbox',
                     items: [
                         {
@@ -483,6 +499,22 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     itemId: 'mainValidationInfo',
                     name: 'mainValidationInfo',
                     htmlEncode: false
+                },
+                {
+                    xtype: 'displayfield',
+                    labelWidth: 200,
+                    fieldLabel: Uni.I18n.translate('general.estimationComment', 'MDC', 'Estimation comment'),
+                    itemId: 'main-estimation-comment-field',
+                    layout: 'hbox',
+                    name: 'mainCommentValue',
+                    renderer: function (value) {
+                        if (!value) {
+                            this.hide();
+                        } else {
+                            this.show();
+                            return value;
+                        }
+                    }
                 }
             );
             var calculatedReadingType = me.channelRecord.get('calculatedReadingType');
@@ -491,7 +523,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     {
                         xtype: 'fieldcontainer',
                         labelWidth: 200,
-                        fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
+                        fieldLabel: Uni.I18n.translate('general.collected.value', 'MDC', 'Collected value'),
                         layout: 'hbox',
                         items: [
                             {
@@ -515,6 +547,22 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         itemId: 'bulkValidationInfo',
                         name: 'bulkValidationInfo',
                         htmlEncode: false
+                    },
+                    {
+                        xtype: 'displayfield',
+                        labelWidth: 200,
+                        fieldLabel: Uni.I18n.translate('general.estimationComment', 'MDC', 'Estimation comment'),
+                        itemId: 'bulk-estimation-comment-field',
+                        layout: 'hbox',
+                        name: 'bulkCommentValue',
+                        renderer: function (value) {
+                            if (!value) {
+                                this.hide();
+                            } else {
+                                this.show();
+                                return value;
+                            }
+                        }
                     }
                 );
             }
@@ -529,7 +577,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     hidden: true
                 }
             );
-
             qualityItems.push(
                 {
                     xtype: 'uni-form-info-message',

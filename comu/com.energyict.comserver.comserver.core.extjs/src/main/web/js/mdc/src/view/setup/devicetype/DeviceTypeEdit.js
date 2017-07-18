@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceTypeEdit',
@@ -28,6 +32,10 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                 ui: 'large',
                 defaults: {
                     labelWidth: 250
+                },
+                autoEl: {
+                    tag: 'form',
+                    enctype: 'multipart/form-data'
                 },
                 items: [
                     {

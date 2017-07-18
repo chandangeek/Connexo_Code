@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.Device', {
     extend: 'Uni.model.ParentVersion',
     requires: [
@@ -12,6 +16,9 @@ Ext.define('Mdc.model.Device', {
         {name: 'mRID', type: 'string', useNull: true},
         {name: 'state', defaultValue: null},
         {name: 'serialNumber', type: 'string', useNull: true},
+        {name: 'manufacturer', type: 'string', useNull: true},
+        {name: 'modelNbr', type: 'string', useNull: true},
+        {name: 'modelVersion', type: 'string', useNull: true},
         {name: 'deviceTypeId', type: 'number', useNull: true},
         {name: 'deviceTypeName', type: 'string', useNull: true},
         {name: 'deviceConfigurationId', type: 'number', useNull: true},
@@ -28,10 +35,13 @@ Ext.define('Mdc.model.Device', {
         {name: 'linkingTimeStamp', type: 'number', useNull: true}, // Only for a data logger slave device
         {name: 'unlinkingTimeStamp', type: 'number', useNull: true}, // Only for a data logger slave device
         {name: 'dataloggerName', type: 'string', useNull: true}, // Only for a data logger slave device
+        {name: 'multiElementDeviceName', type: 'string', useNull: true}, // Only for a data logger slave device
         {name: 'isDirectlyAddressed', type: 'boolean'},
         {name: 'isGateway', type: 'boolean'},
         {name: 'isDataLogger', type: 'boolean'},
         {name: 'isDataLoggerSlave', type: 'boolean'},
+        {name: 'isMultiElementDevice', type: 'boolean'},
+        {name: 'isMultiElementSlave', type: 'boolean'},
         {name: 'hasLoadProfiles', type: 'boolean'},
         {name: 'hasLogBooks', type: 'boolean'},
         {name: 'hasRegisters', type: 'boolean'},

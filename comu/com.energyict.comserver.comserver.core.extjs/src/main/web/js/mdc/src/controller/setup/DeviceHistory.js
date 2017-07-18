@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceHistory', {
     extend: 'Ext.app.Controller',
 
@@ -119,7 +123,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         store.load();
     },
 
-    showCustomAttributeSet: function(deviceId) {
+    showCustomAttributeSet: function (deviceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             versionsStore = me.getStore('Mdc.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnDevice'),

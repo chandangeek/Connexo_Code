@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.estimation-deviceconfigurations-setup',
@@ -21,9 +25,10 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Setup', {
                     itemId: 'estimation-rule-set-side-menu',
                     router: me.router,
                     title: Uni.I18n.translate('estimationrulesets.estimationruleset', 'MDC', 'Estimation rule set'),
+                    objectType: Uni.I18n.translate('estimationrulesets.estimationruleset', 'MDC', 'Estimation rule set'),
                     menuItems: [
                         {
-                            text: Uni.I18n.translate('estimationrulesets.estimationruleset', 'MDC', 'Estimation rule set'),
+                            text: Uni.I18n.translate('estimationrulesets.details', 'MDC', 'Details'),
                             itemId: 'estimation-rule-set-link',
                             href: me.router.getRoute('administration/estimationrulesets/estimationruleset').buildUrl()
                         },
@@ -58,7 +63,7 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Setup', {
                         itemId: 'no-items-found-panel',
                         title: Uni.I18n.translate('estimationDeviceConfigurations.empty.title', 'MDC', 'No device configurations found'),
                         reasons: [
-                            Uni.I18n.translate('estimationDeviceConfigurations.empty.list.item1', 'MDC', 'No device configurations have been defined yet')
+                            Uni.I18n.translate('estimationDeviceConfigurations.empty.list.item1', 'MDC', 'No device configurations have been defined yet.')
                         ],
                         stepItems: [
                             {

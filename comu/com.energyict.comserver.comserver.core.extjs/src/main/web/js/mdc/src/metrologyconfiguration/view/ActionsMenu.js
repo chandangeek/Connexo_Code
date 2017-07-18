@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.metrologyconfiguration.view.ActionsMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.metrology-configuration-actions-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),

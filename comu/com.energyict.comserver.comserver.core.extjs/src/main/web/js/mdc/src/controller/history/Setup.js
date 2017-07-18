@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.history.Setup', {
     extend: 'Uni.controller.history.Converter',
 
@@ -6,7 +10,8 @@ Ext.define('Mdc.controller.history.Setup', {
     currentPath: null,
 
     requires: [
-        'Uni.store.Apps'
+        'Uni.store.Apps',
+        'Mdc.util.LinkPurpose'
     ],
 
     checkInsightRedirect: function (route) {
@@ -109,7 +114,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'editCustomAttributeVersion',
                                     callback: function (route) {
                                         this.getApplication().on('loadCustomAttributeSetVersionOnDevice', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('period')]));
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('period'), false));
                                             return true;
                                         }, {single: true});
 
@@ -139,7 +144,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     privileges: Mdc.privileges.Device.administrateDeviceData,
                                     callback: function (route) {
                                         this.getApplication().on('loadCustomAttributeSetVersionOnDeviceClone', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.clonex', 'MDC', "Clone '{0}'", [record.get('period')]));
+                                            route.setTitle(Uni.I18n.translate('general.clonex', 'MDC', "Clone '{0}'", [record.get('period')], false));
                                             return true;
                                         }, {single: true});
 
@@ -514,6 +519,44 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'showDeviceRegisterConfigurationDataEditView',
                                             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                             dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
+                                        },
+                                        history: {
+                                            title: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                                            route: 'history',
+                                            controller: 'Mdc.controller.setup.DeviceRegisterHistoryData',
+                                            privileges: Mdc.privileges.Device.administrateDevice,
+                                            action: 'viewHistory'
+                                        }
+                                    }
+                                },
+                                validation: {
+                                    title: Uni.I18n.translate('general.validationConfiguration', 'MDC', 'Validation configuration'),
+                                    route: '{registerId}/validation',
+                                    controller: 'Mdc.controller.setup.DeviceRegisterTab',
+                                    privileges: Mdc.privileges.Device.viewValidationConfiguration,
+                                    action: 'initTabShowDeviceRegisterValidationView',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadRegisterConfiguration', function (record) {
+                                            route.setTitle(record.get('readingType').fullAliasName);
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    },
+                                    items: {
+                                        editrule: {
+                                            title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                            route: '{ruleId}/editRule',
+                                            controller: 'Mdc.controller.setup.DeviceRegisterValidation',
+                                            privileges: Mdc.privileges.Device.administerValidationConfiguration,
+                                            action: 'showEditRuleWithAttributes',
+                                            callback: function (route) {
+                                                this.getApplication().on('rule-with-attributes-loaded', function (rule) {
+                                                    if (rule) {
+                                                        route.setTitle(Ext.String.format("{0} '{1}'", Uni.I18n.translate('general.editAttributesFor', 'MDC', 'Edit attributes for'), rule.get('name')));
+                                                    }
+                                                    return true;
+                                                }, {single: true});
+                                            }
                                         }
                                     }
                                 },
@@ -527,18 +570,35 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         },
                         dataloggerslaves: {
-                            title: Uni.I18n.translate('general.dataLoggerSlaves', 'MDC', 'Data logger slaves'),
-                            route: 'dataloggerslaves',
+                            title: Uni.I18n.translate('general.slaves', 'MDC', 'Slaves'),
+                            route: 'slaves',
                             privileges: Mdc.privileges.Device.viewOrAdministrateDeviceData,
                             controller: 'Mdc.controller.setup.DataLoggerSlaves',
                             action: 'showDataLoggerSlaves',
+                            callback: function (route) {
+                                this.getApplication().on('loadDevice', function (device) {
+                                    var purpose = Mdc.util.LinkPurpose.forDevice(device);
+                                    if (!Ext.isEmpty(purpose)){
+                                        route.setTitle(purpose.pageTitle);
+                                    }
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
                             items: {
                                 link: {
                                     title: Uni.I18n.translate('general.linkDataLoggerSlave', 'MDC', 'Link data logger slave'),
                                     route: 'link',
                                     controller: 'Mdc.controller.setup.DataLoggerSlaves',
                                     privileges: Mdc.privileges.Device.administrateDevice,
-                                    action: 'showLinkWizard'
+                                    action: 'showLinkWizard',
+                                    callback: function (route) {
+                                        this.getApplication().on('linkSlave', function (purpose) {
+                                            route.setTitle(purpose.displayValue);
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
                                 }
                             }
                         },
@@ -913,6 +973,77 @@ Ext.define('Mdc.controller.history.Setup', {
                                             return true;
                                         }, {single: true});
                                         return this;
+                                    },
+                                    items: {
+                                        history: {
+                                            title: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                                            route: 'history',
+                                            controller: 'Mdc.controller.setup.DeviceChannelData',
+                                            privileges: Mdc.privileges.Device.administrateDevice,
+                                            action: 'viewHistory'
+                                        }
+                                    }
+                                },
+                                validation: {
+                                    title: Uni.I18n.translate('general.validationConfiguration', 'MDC', 'Validation configuration'),
+                                    route: '{channelId}/validation',
+                                    controller: 'Mdc.controller.setup.DeviceChannelData',
+                                    privileges: Mdc.privileges.Device.viewValidationConfiguration,
+                                    action: 'showValidationConfiguration',
+                                    callback: function (route) {
+                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('readingType').fullAliasName);
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    },
+                                    items: {
+                                        editrule: {
+                                            title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                            route: '{ruleId}/editRule',
+                                            controller: 'Mdc.controller.setup.DeviceChannelData',
+                                            privileges: Mdc.privileges.Device.administerValidationConfiguration,
+                                            action: 'showEditValidationRuleWithAttributes',
+                                            callback: function (route) {
+                                                this.getApplication().on('rule-with-attributes-loaded', function (rule) {
+                                                    if (rule) {
+                                                        route.setTitle(Ext.String.format("{0} '{1}'", Uni.I18n.translate('general.editAttributesFor', 'MDC', 'Edit attributes for'), rule.get('name')));
+                                                    }
+                                                    return true;
+                                                }, {single: true});
+                                            }
+                                        }
+                                    }
+                                },
+                                estimation: {
+                                    title: Uni.I18n.translate('general.estimationConfiguration', 'MDC', 'Estimation configuration'),
+                                    route: '{channelId}/estimation',
+                                    controller: 'Mdc.controller.setup.DeviceChannelData',
+                                    privileges: Mdc.privileges.Device.viewEstimationConfiguration,
+                                    action: 'showEstimationConfiguration',
+                                    callback: function (route) {
+                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('readingType').fullAliasName);
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    },
+                                    items: {
+                                        editrule: {
+                                            title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                            route: '{ruleId}/editRule',
+                                            controller: 'Mdc.controller.setup.DeviceChannelData',
+                                            privileges: Mdc.privileges.Device.administerEstimationConfiguration,
+                                            action: 'showEditEstimationRuleWithAttributes',
+                                            callback: function (route) {
+                                                this.getApplication().on('rule-with-attributes-loaded', function (rule) {
+                                                    if (rule) {
+                                                        route.setTitle(Ext.String.format("{0} '{1}'", Uni.I18n.translate('general.editAttributesFor', 'MDC', 'Edit attributes for'), rule.get('name')));
+                                                    }
+                                                    return true;
+                                                }, {single: true});
+                                            }
+                                        }
                                     }
                                 },
                                 channelvalidationblocks: {
@@ -1005,27 +1136,52 @@ Ext.define('Mdc.controller.history.Setup', {
                             filter: 'Mdc.model.LogbookOfDeviceDataFilter'
                         },
                         securitysettings: {
-                            title: Uni.I18n.translate('securitySetting.title', 'MDC', 'Security settings'),
+                            title: Uni.I18n.translate('general.securitySets', 'MDC', 'Security sets'),
                             route: 'securitysettings',
                             controller: 'Mdc.controller.setup.DeviceSecuritySettings',
                             privileges: Ext.Array.merge(Mdc.privileges.Device.deviceOperator, Mdc.privileges.DeviceSecurity.viewOrEditLevels),
                             action: 'showDeviceSecuritySettings',
-                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore
+                        },
+                        keys: {
+                            title: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                            route: 'keys',
+                            controller: 'Mdc.securityaccessors.controller.DeviceSecurityAccessors',
+                            privileges: Mdc.privileges.Device.viewDevice,
+                            action: 'showDeviceKeys',
                             items: {
                                 edit: {
-                                    title: Uni.I18n.translate('securitySetting.edit', 'MDC', 'Edit security setting'),
-                                    route: '{securitySettingId}/edit',
-                                    controller: 'Mdc.controller.setup.DeviceSecuritySettings',
-                                    privileges: Mdc.privileges.DeviceSecurity.viewOrEditLevels,
-                                    action: 'showDeviceSecuritySettingEditView',
-                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
-                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.securitySettingsActions,
+                                    route: '{accessorId}/edit',
+                                    controller: 'Mdc.securityaccessors.controller.DeviceSecurityAccessors',
+                                    privileges: Mdc.privileges.Device.administrateDevice,
+                                    action: 'editDeviceKey',
                                     callback: function (route) {
-                                        this.getApplication().on('loadDeviceSecuritySetting', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                        this.getApplication().on('deviceKeyLoaded', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
                                             return true;
                                         }, {single: true});
-
+                                        return this;
+                                    }
+                                }
+                            }
+                        },
+                        certificates: {
+                            title: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                            route: 'certificates',
+                            controller: 'Mdc.securityaccessors.controller.DeviceSecurityAccessors',
+                            privileges: Mdc.privileges.Device.viewDevice,
+                            action: 'showDeviceCertificates',
+                            items: {
+                                edit: {
+                                    route: '{accessorId}/edit',
+                                    controller: 'Mdc.securityaccessors.controller.DeviceSecurityAccessors',
+                                    privileges: Mdc.privileges.Device.administrateDevice,
+                                    action: 'editDeviceCertificate',
+                                    callback: function (route) {
+                                        this.getApplication().on('deviceCertificateLoaded', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
+                                            return true;
+                                        }, {single: true});
                                         return this;
                                     }
                                 }
@@ -1155,6 +1311,18 @@ Ext.define('Mdc.controller.history.Setup', {
                                     return this;
                                 },
                                 items: {
+                                    adddeviceicon: {
+                                        title: Uni.I18n.translate('deviceType.addDeviceIcon', 'MDC', 'Add device icon'),
+                                        route: 'adddeviceicon',
+                                        controller: 'Mdc.controller.setup.DeviceTypes',
+                                        action: 'showAddDeviceIconView'
+                                    },
+                                    editdeviceicon: {
+                                        title: Uni.I18n.translate('deviceType.editDeviceIcon', 'MDC', 'Edit device icon'),
+                                        route: 'editdeviceicon',
+                                        controller: 'Mdc.controller.setup.DeviceTypes',
+                                        action: 'showEditDeviceIconView'
+                                    },
                                     change: {
                                         title: Uni.I18n.translate('deviceLifeCycle.change', 'MDC', 'Change device life cycle'),
                                         route: 'change',
@@ -1395,32 +1563,32 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     },
                                                     //Security settings routes
                                                     securitysettings: {
-                                                        title: Uni.I18n.translate('securitySetting.title', 'MDC', 'Security settings'),
+                                                        title: Uni.I18n.translate('general.securitySets', 'MDC', 'Security sets'),
                                                         route: 'securitysettings',
                                                         privileges: Mdc.privileges.DeviceType.view,
                                                         controller: 'Mdc.controller.setup.SecuritySettings',
                                                         action: 'showSecuritySettings',
                                                         items: {
                                                             create: {
-                                                                title: Uni.I18n.translate('securitySetting.addSecuritySetting', 'MDC', 'Add security setting'),
+                                                                title: Uni.I18n.translate('securitySetting.addSecuritySet', 'MDC', 'Add security set'),
                                                                 route: 'add',
                                                                 privileges: Mdc.privileges.DeviceType.admin,
                                                                 controller: 'Mdc.controller.setup.SecuritySettings',
                                                                 action: 'showSecuritySettingsCreateView'
                                                             },
                                                             edit: {
-                                                                title: Uni.I18n.translate('securitySetting.edit', 'MDC', 'Edit security setting'),
+                                                                title: Uni.I18n.translate('securitySetting.edit', 'MDC', 'Edit security set'),
                                                                 route: '{securitySettingId}/edit',
                                                                 privileges: Mdc.privileges.DeviceType.admin,
                                                                 controller: 'Mdc.controller.setup.SecuritySettings',
-                                                                action: 'showSecuritySettingsEditView'
-                                                            },
-                                                            executionLevels: {
-                                                                title: Uni.I18n.translate('executionlevels.addExecutionLevels', 'MDC', 'Add privileges'),
-                                                                route: '{securitySettingId}/privileges/add',
-                                                                privileges: Mdc.privileges.DeviceType.admin,
-                                                                controller: 'Mdc.controller.setup.SecuritySettings',
-                                                                action: 'showAddExecutionLevelsView'
+                                                                action: 'showSecuritySettingsEditView',
+                                                                callback: function (route) {
+                                                                    this.getApplication().on('loadSecuritySetting', function (record) {
+                                                                        route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
+                                                                        return true;
+                                                                    }, {single: true});
+                                                                    return this;
+                                                                }
                                                             }
                                                         }
                                                     },
@@ -1720,6 +1888,35 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 action: 'showEditSpecifications'
                                             }
                                         }
+                                    },
+                                    securityaccessors: {
+                                        title: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                                        route: 'securityaccessors',
+                                        privileges: Mdc.privileges.DeviceType.view,
+                                        controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                                        action: 'showSecurityAccessorsOverview',
+                                        items: {
+                                            add: {
+                                                title: Uni.I18n.translate('securityaccessors.addSecurityAccessor', 'MDC', 'Add security accessor'),
+                                                route: 'add',
+                                                privileges: Mdc.privileges.DeviceType.admin,
+                                                controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                                                action: 'showAddSecurityAccessor'
+                                            },
+                                            edit: {
+                                                title: Uni.I18n.translate('securityaccessors.editSecurityAccessor', 'MDC', 'Edit security accessor'),
+                                                route: '{securityAccessorId}/edit',
+                                                privileges: Mdc.privileges.DeviceType.admin,
+                                                controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                                                action: 'showEditSecurityAccessor',
+                                                callback: function (route) {
+                                                    this.getApplication().on('securityaccessorload', function (name) {
+                                                        route.setTitle(Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", name, false));
+                                                    }, {single: true});
+                                                    return this;
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -1786,28 +1983,12 @@ Ext.define('Mdc.controller.history.Setup', {
                                 controller: 'Mdc.controller.setup.ComServerEdit',
                                 action: 'showOnlineAddView'
                             },
-                            edit: {
-                                title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                route: '{id}/edit',
-                                privileges: Mdc.privileges.Communication.admin,
-                                controller: 'Mdc.controller.setup.ComServerEdit',
-                                action: 'showEditView',
-                                callback: function (route) {
-                                    this.getApplication().on('loadComServer', function (record) {
-                                        route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
-                                        return true;
-                                    }, {single: true});
-
-                                    return this;
-                                }
-                            },
                             detail: {
                                 title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                                 route: '{id}',
                                 privileges: Mdc.privileges.Communication.view,
                                 controller: 'Mdc.controller.setup.ComServerOverview',
                                 action: 'showOverview',
-                                redirect: 'administration/comservers/detail/overview',
                                 callback: function (route) {
                                     this.getApplication().on('comServerOverviewLoad', function (record) {
                                         route.setTitle(Ext.String.htmlEncode(record.get('name')));
@@ -1816,16 +1997,9 @@ Ext.define('Mdc.controller.history.Setup', {
                                     return this;
                                 },
                                 items: {
-                                    overview: {
-                                        title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
-                                        route: 'overview',
-                                        privileges: Mdc.privileges.Communication.view,
-                                        controller: 'Mdc.controller.setup.ComServerOverview',
-                                        action: 'showOverview'
-                                    },
                                     edit: {
                                         title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                        route: 'edit_',
+                                        route: 'edit',
                                         privileges: Mdc.privileges.Communication.admin,
                                         controller: 'Mdc.controller.setup.ComServerEdit',
                                         action: 'showEditView'
@@ -1941,21 +2115,6 @@ Ext.define('Mdc.controller.history.Setup', {
                                 controller: 'Mdc.controller.setup.ComPortPoolEdit',
                                 action: 'showOutboundAddView'
                             },
-                            edit: {
-                                title: Uni.I18n.translate('general.editCommunicationPortPool', 'MDC', 'Edit communication port pool'),
-                                route: '{id}/edit',
-                                privileges: Mdc.privileges.Communication.admin,
-                                controller: 'Mdc.controller.setup.ComPortPoolEdit',
-                                action: 'showEditView',
-                                callback: function (route) {
-                                    this.getApplication().on('loadComPortPool', function (record) {
-                                        route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
-                                        return true;
-                                    }, {single: true});
-
-                                    return this;
-                                }
-                            },
                             detail: {
                                 title: Uni.I18n.translate('general.detail', 'MDC', 'Detail'),
                                 route: '{id}',
@@ -1972,7 +2131,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 items: {
                                     edit: {
                                         title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                                        route: 'edit_',
+                                        route: 'edit',
                                         privileges: Mdc.privileges.Communication.admin,
                                         controller: 'Mdc.controller.setup.ComPortPoolEdit',
                                         action: 'showEditView'
@@ -2240,6 +2399,70 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         }
+                    },
+                    commandrules: {
+                        title: Uni.I18n.translate('general.commandLimitationRules', 'MDC', 'Command limitation rules'),
+                        route: 'commandrules',
+                        privileges: Mdc.privileges.CommandLimitationRules.view,
+                        controller: 'Mdc.controller.setup.CommandLimitationRules',
+                        action: 'showRulesView',
+                        items: {
+                            add: {
+                                title: Uni.I18n.translate('commandRules.create', 'MDC', 'Add command limitation rule'),
+                                route: 'add',
+                                privileges: Mdc.privileges.CommandLimitationRules.admin,
+                                controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                action: 'showAddEditCommandRule',
+                                items: {
+                                    commands: {
+                                        title: Uni.I18n.translate('general.addCommands', 'MDC', 'Add commands'),
+                                        route: 'commands',
+                                        controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                        privileges: Mdc.privileges.CommandLimitationRules.admin,
+                                        action: 'showAddCommandsPage'
+                                    }
+                                }
+                            },
+                            view: {
+                                title: Uni.I18n.translate('general.Overview', 'MDC', 'Overview'),
+                                route: '{ruleId}',
+                                privileges: Mdc.privileges.CommandLimitationRules.view,
+                                controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                action: 'showCommandRuleOverview',
+                                callback: function (route) {
+                                    this.getApplication().on('loadCommandRule', function (record) {
+                                        route.setTitle(record.get('name'));
+                                        return true;
+                                    }, {single: true});
+                                    return this;
+                                },
+                                items: {
+                                    edit: {
+                                        title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                        route: 'edit',
+                                        privileges: Mdc.privileges.CommandLimitationRules.admin,
+                                        controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                        action: 'showAddEditCommandRule',
+                                        items: {
+                                            commands: {
+                                                title: Uni.I18n.translate('general.addCommands', 'MDC', 'Add commands'),
+                                                route: 'commands',
+                                                controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                                privileges: Mdc.privileges.CommandLimitationRules.admin,
+                                                action: 'showAddCommandsPage'
+                                            }
+                                        }
+                                    },
+                                    changes: {
+                                        title: Uni.I18n.translate('general.pendingChanges', 'MDC', 'Pending changes'),
+                                        route: 'changes',
+                                        privileges: Mdc.privileges.CommandLimitationRules.view,
+                                        controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                        action: 'showCommandRulePendingChanges'
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -2277,16 +2500,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 route: 'edit',
                                 controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
-                                action: 'showEditUsagePoint',
-                                callback: function (route) {
-                                    me.checkInsightRedirect(route);
-                                    this.getApplication().on('editUsagePointLoaded', function (record) {
-                                        route.setTitle(Uni.I18n.translate('general.editCurrentUsagePoint', 'MDC', "Edit '{0}'", record.get('name')));
-                                        return true;
-                                    }, {single: true});
-
-                                    return this;
-                                }
+                                action: 'showEditUsagePoint'
                             },
                             'processes': {
                                 title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
@@ -2361,6 +2575,32 @@ Ext.define('Mdc.controller.history.Setup', {
                                         callback: function (route) {
                                             me.checkInsightRedirect(route);
                                             this.getApplication().on('usagePointChannelLoaded', function (record) {
+                                                route.setTitle(record.get('readingType').fullAliasName);
+                                                return true;
+                                            }, {single: true});
+
+                                            return this;
+                                        }
+                                    }
+                                }
+                            },
+                            registers: {
+                                title: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
+                                privileges: Mdc.privileges.UsagePoint.canView(),
+                                route: 'registers',
+                                controller: 'Mdc.usagepointmanagement.controller.ViewRegistersList',
+                                action: 'showOverview',
+                                callback: me.checkInsightRedirect,
+                                items: {
+                                    registerdata: {
+                                        title: Uni.I18n.translate('routing.registers', 'MDC', 'Registers'),
+                                        privileges: Mdc.privileges.UsagePoint.canView(),
+                                        route: '{registerId}/data',
+                                        controller: 'Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualities',
+                                        action: 'showOverview',
+                                        callback: function (route) {
+                                            me.checkInsightRedirect(route);
+                                            this.getApplication().on('usagePointRegisterLoaded', function (record) {
                                                 route.setTitle(record.get('readingType').fullAliasName);
                                                 return true;
                                             }, {single: true});

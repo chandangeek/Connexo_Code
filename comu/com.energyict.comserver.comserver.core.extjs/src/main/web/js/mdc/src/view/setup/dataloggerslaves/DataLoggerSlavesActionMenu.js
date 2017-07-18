@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.dataloggerslaves-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'mdc-unlink-slave',

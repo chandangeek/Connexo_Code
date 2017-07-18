@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicegroup.Navigation', {
     extend: 'Uni.view.menu.NavigationMenu',
     alias: 'widget.devicegroup-add-navigation',

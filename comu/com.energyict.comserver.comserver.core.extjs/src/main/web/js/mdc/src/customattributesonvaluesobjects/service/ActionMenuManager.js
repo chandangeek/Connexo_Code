@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.customattributesonvaluesobjects.service.ActionMenuManager', {
     singleton: true,
 
@@ -18,6 +22,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.service.ActionMenuManager', {
                     menuItemClass: 'customAttributeSet',
                     privileges: Mdc.privileges.Device.administrateDeviceData,
                     text: Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [Ext.String.htmlEncode(record.get('name'))]),
+                    section: 2,
                     handler: function () {
                         routeArguments.customAttributeSetId = record.get('id');
                         if (record.get('timesliced')) {
@@ -25,7 +30,8 @@ Ext.define('Mdc.customattributesonvaluesobjects.service.ActionMenuManager', {
                         }
                         router.getRoute(route).forward(routeArguments);
                     }
-                })
+                });
+                menu.reorderItems();
             });
         }
         Ext.resumeLayouts(true);

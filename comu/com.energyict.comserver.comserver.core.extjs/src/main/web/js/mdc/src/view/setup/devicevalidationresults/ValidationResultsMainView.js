@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsMainView', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.mdc-device-validation-results-main-view',
@@ -70,7 +74,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsMainView', {
                                 xtype: 'mdc-device-validation-results-filter',
                                 itemId: 'validation-results-data-filter',
                                 store: 'Mdc.store.DeviceValidationResults',
-                                duration: '1years'
+                                duration: '20years'
                             },
                             {
                                 xtype: 'mdc-device-validation-results-load-profile-register',

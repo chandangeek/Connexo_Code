@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.LogbookTypes', {
     extend: 'Ext.app.Controller',
     stores: [
@@ -178,8 +182,12 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
-
                     if (json && json.errors) {
+                        Ext.Array.each(json.errors, function (item) {
+                            if (item.id === 'obisCodeCached.obisCode') {
+                                item.id = 'obisCode'
+                            }
+                        });
                         baseForm.markInvalid(json.errors);
                         formErrorsPanel.show();
                     }

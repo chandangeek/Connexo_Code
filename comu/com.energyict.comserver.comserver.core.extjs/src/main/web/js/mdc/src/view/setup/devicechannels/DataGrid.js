@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceLoadProfileChannelDataGrid',
@@ -10,7 +14,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         'Uni.grid.column.Edited',
         'Uni.view.toolbar.PagingTop',
         'Uni.grid.column.Action',
-        'Mdc.view.setup.devicechannels.DataBulkActionMenu'
+        'Mdc.view.setup.devicechannels.DataBulkActionMenu',
+        'Uni.grid.plugin.CopyPasteForGrid'
     ],
     viewConfig: {
         loadMask: false,
@@ -32,6 +37,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
 
         me.plugins = [
             {
+                ptype: 'gridviewcopypaste',
+                editColumnDataIndex: 'value'
+            },
+            {
                 ptype: 'bufferedrenderer',
                 trailingBufferZone: 12,
                 leadingBufferZone: 24
@@ -40,6 +49,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 ptype: 'cellediting',
                 clicksToEdit: 1,
                 pluginId: 'cellplugin',
+                onSpecialKey: Ext.emptyFn, // workaround to fix CXO-6274
                 listeners: {
                     'beforeedit': function (e, f) {
                         return !f.record.get('slaveChannel');
@@ -55,9 +65,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 renderer: function (value, metaData, record) {
                     var readingQualitiesPresent = !Ext.isEmpty(record.get('readingQualities')),
                         text = value
-                            ? Uni.I18n.translate(
-                                'general.dateAtTime', 'MDC', '{0} at {1}',
-                                [Uni.DateTime.formatDateShort(value), Uni.DateTime.formatTimeShort(value)])
+                            ? Uni.DateTime.formatDateTimeShort(new Date(value))
                             : '-',
                         tooltipContent = '',
                         icon = '';
@@ -86,7 +94,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
-                    return me.formatColumn(v, metaData, record, record.get('mainValidationInfo'));
+                    return me.formatColumn(v, metaData, record, 'mainValidationInfo');
                 },
                 editor: {
                     xtype: 'textfield',
@@ -105,7 +113,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
-                    return me.formatColumn(v, metaData, record, record.get('mainValidationInfo'));
+                    return me.formatColumn(v, metaData, record, 'mainValidationInfo');
                 },
                 hidden: Mdc.dynamicprivileges.DeviceState.canEditData(),
                 width: 200
@@ -124,7 +132,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 align: 'right',
                 hidden: Ext.isEmpty(calculatedReadingType),
                 renderer: function (v, metaData, record) {
-                    return me.formatColumn(v, metaData, record, record.get('bulkValidationInfo'));
+                    return me.formatColumn(v, metaData, record, 'bulkValidationInfo');
                 }
             },
             {
@@ -135,7 +143,21 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 emptyText: ' '
             },
             {
+                header: Uni.I18n.translate('device.channelData.lastUpdate', 'MDC', 'Last update'),
+                dataIndex: 'reportedDateTime',
+                flex: 0.5,
+                renderer: function(value){
+                    if (value) {
+                        var date = new Date(value);
+                        return Uni.DateTime.formatDateTimeShort(date)
+                    } else {
+                        return '-';
+                    }
+                }
+            },
+            {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 itemId: 'channel-data-grid-action-column',
                 menu: {
                     xtype: 'deviceLoadProfileChannelDataActionMenu',
@@ -157,6 +179,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 noBottomPaging: true,
                 displayMsg: ' ',
                 items: [
+                    {
+                        xtype: 'button',
+                        itemId: 'pre-validate-button',
+                        text: Uni.I18n.translate('general.preValidate', 'MDC', 'Pre-validate'),
+                        privileges: Mdc.privileges.Device.administrateDeviceData,
+                        disabled: true
+                    },
                     {
                         xtype: 'button',
                         itemId: 'save-changes-button',
@@ -190,28 +219,69 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
 
     formatColumn: function (v, metaData, record, validationInfo) {
         var me = this,
+            validationFlag = validationInfo === 'mainValidationInfo' ? 'mainValidationInfo' : validationInfo === 'bulkValidationInfo' ? 'bulkValidationInfo' : null,
+            validationInfo = validationFlag ? record.get(validationInfo) : validationInfo,
             status = validationInfo.validationResult ? validationInfo.validationResult.split('.')[1] : '',
             icon = '',
+            validationRules = validationFlag === 'mainValidationInfo' ? record.get('validationRules') : record.get('bulkValidationRules'),
+            app,
+            date,
+            tooltipText,
+            formattedDate,
+            estimationComment = null,
             value = Ext.isEmpty(v)
                 ? '-'
                 : Uni.Number.formatNumber(
-                    v.toString(),
-                    me.channelRecord && !Ext.isEmpty(me.channelRecord.get('overruledNbrOfFractionDigits')) ? me.channelRecord.get('overruledNbrOfFractionDigits') : -1
-                );
+                v.toString(),
+                me.channelRecord && !Ext.isEmpty(me.channelRecord.get('overruledNbrOfFractionDigits')) ? me.channelRecord.get('overruledNbrOfFractionDigits') : -1
+            );
+
+        if (validationFlag && validationInfo && validationInfo.commentValue) {
+            estimationComment = validationInfo.commentValue;
+        }
 
         if (status === 'notValidated') {
-            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
+            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
+                + Uni.I18n.translate('general.notValidated', 'MDC', 'Not validated') + '"></span>';
         } else if (validationInfo.confirmedNotSaved) {
             metaData.tdCls = 'x-grid-dirty-cell';
         } else if (status === 'suspect') {
-            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
+            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;" data-qtip="'
+                + Uni.I18n.translate('general.suspect', 'MDC', 'Suspect') + '"></span>';
         }
 
-        if (validationInfo.estimatedByRule && !record.isModified('value')) {
-            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
-        } else if (validationInfo.isConfirmed && !record.isModified('value')) {
-            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
+        if (validationInfo.estimatedByRule && status !== 'suspect') {
+            date = Ext.isDate(record.get('readingTime')) ? record.get('readingTime') : new Date(record.get('readingTime'));
+            formattedDate = Uni.DateTime.formatDateTimeLong(date);
+            tooltipText = validationInfo.estimatedNotSaved ? Uni.I18n.translate('general.estimatedNotSaved', 'MDC', 'Estimated.') : Uni.I18n.translate('general.estimatedOnX', 'MDC', 'Estimated on {0}', formattedDate);
+            if (estimationComment) {
+                tooltipText += ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'MDC', 'Estimation comment: {0}', estimationComment);
+            }
+            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
+                + tooltipText + '"></span>';
+        } else if ((validationInfo.isConfirmed || validationInfo.confirmedNotSaved) && !record.isModified('value')) {
+            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
+                + Uni.I18n.translate('reading.validationResult.confirmed', 'MDC', 'Confirmed') + '"></span>';
         }
-        return value + icon;
+        if ((record.get('potentialSuspect') || record.get('bulkPotentialSuspect')) && validationRules.length) {
+            icon = this.addPotentialSuspectFlag(icon, record, validationRules);
+        }
+        return '<div style=" display:inline;">' + value + '</div>' + icon + '<span style=" display:inline;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    },
+
+    addPotentialSuspectFlag: function (icon, record, validationRules) {
+        var validationRulesToken = '',
+            tooltip;
+
+        if (validationRules.length === 1) {
+            validationRulesToken = validationRules[0].name;
+        } else {
+            validationRulesToken = validationRules.reduce(function(previousValue, currentValue) {
+                return (Ext.isObject(previousValue) ? previousValue.name : previousValue) + ', ' + currentValue.name;
+            });
+        }
+        tooltip = Uni.I18n.translate('general.potentialSuspect', 'MDC', 'Potential suspect') + '.<br>' + Uni.I18n.translate('general.validationRules', 'MDC', 'Validation rules') + ': ' + validationRulesToken;
+        icon += '<span class="icon-flag6" style="margin-left:27px; color: red; position:absolute;" data-qtip="' + tooltip + '"></span>';
+        return icon;
     }
 });

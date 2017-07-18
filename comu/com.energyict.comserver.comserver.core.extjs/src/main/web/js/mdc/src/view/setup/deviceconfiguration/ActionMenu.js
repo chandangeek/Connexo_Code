@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceconfiguration.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-logbook-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'btn-edit-device-config',

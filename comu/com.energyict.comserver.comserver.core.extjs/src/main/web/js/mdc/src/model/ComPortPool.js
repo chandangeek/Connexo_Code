@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.ComPortPool', {
     extend: 'Uni.model.Version',
     fields: [
@@ -12,6 +16,7 @@ Ext.define('Mdc.model.ComPortPool', {
         'discoveryProtocolPluggableClassId',
         'outboundComPorts',
         'inboundComPorts',
+        'properties',
         {
             name: 'comportslink',
             persist: false,
@@ -43,6 +48,16 @@ Ext.define('Mdc.model.ComPortPool', {
         {name: 'outboundComPorts',type: 'hasMany',model: 'Mdc.model.OutboundComPort',foreignKey: 'comPortPool_id',associationKey: 'outboundComPorts',
             getTypeDiscriminator:function(node){
                 return 'Mdc.model.OutboundComPort';
+            }
+        },
+        {
+            name: 'properties',
+            type: 'hasMany',
+            model: 'Uni.property.model.Property',
+            associationKey: 'properties',
+            foreignKey: 'properties',
+            getTypeDiscriminator: function (node) {
+                return 'Uni.property.model.Property';
             }
         }
     ],

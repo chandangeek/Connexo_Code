@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.store.OutboundComPortPools', {
     extend: 'Mdc.store.ComPortPools',
     storeId: 'outboundComPortPools',

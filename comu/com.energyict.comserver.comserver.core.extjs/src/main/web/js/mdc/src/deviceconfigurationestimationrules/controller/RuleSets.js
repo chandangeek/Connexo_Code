@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
     extend: 'Ext.app.Controller',
 
@@ -98,9 +102,8 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
             jsonData: {parent: view.deviceConfiguration.getRecordData(), ruleSets: ruleSets},
             backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/estimationrulesets').buildUrl(),
             success: function () {
-                var message = Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.orderSaved.success', 'MDC', 'Estimation rule sets order saved.');
                 router.getRoute('administration/devicetypes/view/deviceconfigurations/view/estimationrulesets').forward();
-                me.getApplication().fireEvent('acknowledge', message);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.orderSaved.success', 'MDC', 'Estimation rule sets order saved'));
             },
             callback: function () {
                 view.setLoading(false);
@@ -141,15 +144,16 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
 
             cfg.config.record.destroy({
                 success: function () {
-                    scope.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.success', 'MDC', 'Successfully removed.'));
+                    scope.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.estimationRuleSetRemoved', 'MDC', 'Estimation rule set removed'));
                     router.getRoute('administration/devicetypes/view/deviceconfigurations/view/estimationrulesets').forward();
                 },
                 failure: function (response) {
                     if (response.status === 400) {
                         var record = cfg.config.record,
                             result = Ext.decode(response.responseText, true),
-                            title = Uni.I18n.translate('general.failedToRemove', 'MDC', 'Failed to remove {0}', [record.data.name]),
-                            message = Uni.I18n.translate('general.serverError', 'MDC', 'Server error');
+                            title = Uni.I18n.translate('general.failedToRemoveTitle', 'MDC', 'Couldn\'t perform your action'),
+                            message = Uni.I18n.translate('general.failedToRemove', 'MDC', 'Failed to remove {0}', [record.data.name]) + '.' + Uni.I18n.translate('general.serverError', 'MDC', 'Server error'),
+                            code = '';
                         if (!Ext.isEmpty(response.statusText)) {
                             message = response.statusText;
                         }
@@ -158,7 +162,10 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
                         } else if (result && result.error) {
                             message = result.error;
                         }
-                        me.getApplication().getController('Uni.controller.Error').showError(title, message);
+                        if (result && result.errorCode) {
+                            message = result.errorCode;
+                        }
+                        me.getApplication().getController('Uni.controller.Error').showError(title, message, code);
                     }
                 },
                 callback: function () {
@@ -217,14 +224,13 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
 
         Ext.getStore('Mdc.deviceconfigurationestimationrules.store.EstimationRuleSets').getProxy().setUrl(router.arguments);
 
-        widget = Ext.widget('device-configuration-estimation-rule-sets-setup', { router: router });
+        widget = Ext.widget('device-configuration-estimation-rule-sets-setup', {router: router});
 
-        me.getApplication().fireEvent('changecontentevent', widget);
         widget.down('device-configuration-estimation-rule-sets-grid').getStore().load();
-        me.loadDeviceTypeAndConfiguration(deviceTypeId, deviceConfigurationId, widget);
+        me.loadDeviceTypeAndConfigurationAndShowWidget(deviceTypeId, deviceConfigurationId, widget);
     },
 
-    loadDeviceTypeAndConfiguration: function (deviceTypeId, deviceConfigurationId, widget) {
+    loadDeviceTypeAndConfigurationAndShowWidget: function (deviceTypeId, deviceConfigurationId, widget) {
         var me = this;
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
@@ -236,9 +242,10 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.deviceConfiguration = deviceConfig;
-                        if (widget.down('#stepsMenu #deviceConfigurationOverviewLink')) {
-                            widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
+                        if (widget.down('#stepsMenu')) {
+                            widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
                         }
+                        me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });
             }

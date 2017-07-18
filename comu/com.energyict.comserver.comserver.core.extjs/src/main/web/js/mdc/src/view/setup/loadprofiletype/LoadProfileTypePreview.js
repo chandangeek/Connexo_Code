@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.loadProfileTypePreview',
@@ -32,7 +36,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
             {
                 defaults: {
                     xtype: 'displayfield',
-                    labelWidth: 140
+                    labelWidth: 200
                 },
                 items: [
                     {
@@ -63,6 +67,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
             {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
+                labelWidth: 200,
                 itemId: 'registerTypesArea'
             }
 

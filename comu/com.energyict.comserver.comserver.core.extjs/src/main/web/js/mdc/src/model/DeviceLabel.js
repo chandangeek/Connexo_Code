@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.DeviceLabel', {
     extend: 'Ext.data.Model',
     fields: [
@@ -14,11 +18,15 @@ Ext.define('Mdc.model.DeviceLabel', {
 
     proxy: {
         type: 'rest',
+        urlTpl: '/api/ddr/devices/{deviceId}/devicelabels',
         url: '/api/ddr/devices/{deviceId}/devicelabels',
         reader: {
             type: 'json',
             root: 'deviceLabels',
             totalProperty: 'total'
+        },
+        setUrl: function (deviceId) {
+            this.url = this.urlTpl.replace('{deviceId}', deviceId);
         }
     }
 });

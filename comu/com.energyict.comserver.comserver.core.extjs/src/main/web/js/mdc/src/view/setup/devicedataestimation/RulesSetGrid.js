@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicedataestimation.RulesSetGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceDataEstimationRulesSetGrid',
@@ -44,6 +48,7 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'deviceDataEstimationRulesSetActionMenu'
                 },

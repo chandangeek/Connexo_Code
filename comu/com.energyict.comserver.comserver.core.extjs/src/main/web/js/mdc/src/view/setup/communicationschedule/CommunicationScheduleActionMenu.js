@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.communication-schedule-action-menu',
     itemId: 'communication-schedule-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),

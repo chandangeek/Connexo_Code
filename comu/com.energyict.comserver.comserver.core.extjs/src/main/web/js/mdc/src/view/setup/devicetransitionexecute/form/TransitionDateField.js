@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicetransitionexecute.form.TransitionDateField', {
     extend: 'Ext.form.FieldContainer',
     alias: 'widget.transition-date-field',
@@ -30,8 +34,19 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.form.TransitionDateField', {
                     submitValue: false
                 },
                 items: [
-                    { itemId: 'newTarget', boxLabel: Uni.I18n.translate('general.now', 'MDC', 'Now'), name: me.groupName, inputValue: true, checked: true },
-                    { itemId: 'oldTarget', name: me.groupName, inputValue: false}
+                    {
+                        itemId: 'newTarget',
+                        boxLabel: Uni.I18n.translate('general.now', 'MDC', 'Now'),
+                        name: me.groupName,
+                        inputValue: true,
+                        checked: true
+                    },
+                    {
+                        itemId: 'oldTarget',
+                        name: me.groupName,
+                        inputValue: false,
+                        margin: '7 0 0 0'
+                    }
                 ],
                 listeners: {
                     change: function (field, newValue) {

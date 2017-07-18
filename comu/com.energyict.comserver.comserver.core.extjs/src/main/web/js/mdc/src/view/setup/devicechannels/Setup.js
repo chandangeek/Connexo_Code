@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicechannels.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceLoadProfileChannelsSetup',
     itemId: 'deviceLoadProfileChannelsSetup',
-    deviceId: null,
     router: null,
     device: null,
 
@@ -25,8 +28,7 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
                         device: me.device,
-                        toggleId: 'channelsLink',
-                        deviceId: me.deviceId
+                        toggleId: 'channelsLink'
                     }
                 ]
             }
@@ -43,9 +45,8 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
                     itemId: 'device-load-profile-channels-preview-container',
                     grid: {
                         xtype: 'deviceLoadProfileChannelsGrid',
-                        deviceId: me.deviceId,
-                        router: me.router,
-                        showDataLoggerSlaveColumn: !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')
+                        device: me.device,
+                        router: me.router
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.loadProfileConfigurationForm',
@@ -37,7 +41,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                     {
                         xtype: 'displayfield',
                         required: true,
-                        fieldLabel: 'Load profile type',
+                        fieldLabel: Uni.I18n.translate('general.loadProfileType', 'MDC', 'Load profile type'),
                         name: 'name',
                         value: 'LoadProfileType',
                         hidden: !me.edit
@@ -47,9 +51,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                         itemId: 'load-profile-type-combo',
                         store: 'Mdc.store.LoadProfileConfigurationsOnDeviceConfigurationAvailable',
                         required: true,
-                        allowBlank: false,
                         forceSelection: !me.edit,
-                        //fieldLabel: 'Load profile type',
                         fieldLabel: Uni.I18n.translate('general.loadProfileType', 'MDC', 'Load profile type'),
                         emptyText: Uni.I18n.translate('loadprofileconfiguration.selectLoadProfileType','MDC','Select a load profile type'),
                         name: 'id',
@@ -86,7 +88,6 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                                 fieldLabel: '',
                                 required: false,
                                 afterSubTpl: null,
-                                allowBlank: false,
                                 width: 150
                             },
                             {

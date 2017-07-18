@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
     extend: 'Ext.form.Panel',
     requires: [
@@ -30,6 +34,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
             {
                 xtype: 'fieldcontainer',
                 itemId: 'obis-code-container',
+                msgTarget: 'under',
                 required: true,
                 layout: 'hbox',
                 margin: '20 0 0 0',

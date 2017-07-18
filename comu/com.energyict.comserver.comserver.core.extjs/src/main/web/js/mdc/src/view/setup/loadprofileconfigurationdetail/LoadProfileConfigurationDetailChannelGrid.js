@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailChannelGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.loadProfileConfigurationDetailChannelGrid',
@@ -31,11 +35,15 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 items: [
-
                     {
                         text: Uni.I18n.translate('general.edit','MDC','Edit'),
                         action: this.editActionName
+                    },
+                    {
+                        xtype: 'menuseparator',
+                        action:'none'
                     },
                     {
                         text: Uni.I18n.translate('general.remove','MDC','Remove'),

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     extend: 'Ext.app.Controller',
 
@@ -14,8 +18,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
 
     stores: [
         'CommunicationTasksOfDevice',
-        'ConnectionMethodsOfDevice',
-        'ProtocolDialectsOfDevice'
+        'ConnectionMethodsOfDevice'
     ],
 
     refs: [
@@ -42,9 +45,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 '#changeConnectionMethodOfDeviceComTask[action=changeConnectionMethodOfDeviceComTask]': {
                     click: this.showChangePopUp
                 },
-                '#changeProtocolDialectOfDeviceComTask[action=changeProtocolDialectOfDeviceComTask]': {
-                    click: this.showChangePopUp
-                },
                 '#changeUrgencyOfDeviceComTask[action=changeUrgencyOfDeviceComTask]': {
                     click: this.showChangePopUp
                 },
@@ -59,9 +59,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 },
                 '#changeButton[action=changeUrgencyOfDeviceComTask]': {
                     click: this.changeUrgency
-                },
-                '#changeButton[action=changeProtocolDialectOfDeviceComTask]': {
-                    click: this.changeProtocolDialect
                 },
                 '#changeButton[action=changeFrequencyOfDeviceComTask]': {
                     click: this.changeFrequency
@@ -117,29 +114,25 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         var selection = menu.record || this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0],
             isNotShared = selection.get('scheduleTypeKey') !== 'SHARED',
             isOnHold = selection.get('isOnHold'),
+            isSystemComtask = selection.get('comTask').isSystemComTask,
             connectionDefinedOnDevice = selection.get('connectionDefinedOnDevice'),
             isMinimizeConnections = !connectionDefinedOnDevice ? false : selection.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS';
 
         if(menu.down('#changeConnectionMethodOfDeviceComTask')) {
             menu.down('#changeConnectionMethodOfDeviceComTask').show();
         }
-        if(menu.down('#changeProtocolDialectOfDeviceComTask')) {
-            if (isNotShared) {
-                menu.down('#changeProtocolDialectOfDeviceComTask').show();
-            }
-        }
         if(menu.down('#changeUrgencyOfDeviceComTask')) {
             menu.down('#changeUrgencyOfDeviceComTask').show();
         }
         if(menu.down('#runDeviceComTaskNow')) {
-            if(connectionDefinedOnDevice && !isOnHold) {
+            if (connectionDefinedOnDevice && !isOnHold && !isSystemComtask) {
                 menu.down('#runDeviceComTaskNow').show();
             } else {
                 menu.down('#runDeviceComTaskNow').hide();
             }
         }
         if(menu.down('#runDeviceComTask')) {
-            if (connectionDefinedOnDevice && !isOnHold && isMinimizeConnections) {
+            if (connectionDefinedOnDevice && !isOnHold && isMinimizeConnections && !isSystemComtask) {
                 menu.down('#runDeviceComTask').show();
             } else {
                 menu.down('#runDeviceComTask').hide();
@@ -149,19 +142,20 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             menu.down('#viewHistoryOfDeviceComTask').show();
         }
         if(menu.down('#activateDeviceComTask')) {
-            if(isOnHold) {
+            if (isOnHold && !isSystemComtask) {
                 menu.down('#activateDeviceComTask').show();
             } else {
                 menu.down('#activateDeviceComTask').hide();
             }
         }
         if(menu.down('#deactivateDeviceComTask')) {
-            if(isOnHold) {
-                menu.down('#deactivateDeviceComTask').hide();
-            } else {
+            if (!isOnHold  && !isSystemComtask) {
                 menu.down('#deactivateDeviceComTask').show();
+            } else {
+                menu.down('#deactivateDeviceComTask').hide();
             }
         }
+        menu.reorderItems();
     },
 
     showDeviceCommunicationTaskPreview: function (selectionModel, record) {
@@ -182,13 +176,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     runDeviceComTask: function () {
         var request = {};
         this.comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
-        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.get('comTask').id + '/run',Uni.I18n.translate('deviceCommunicationTask.run', 'MDC', 'Run succeeded'));
+        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.get('comTask').id + '/run', Uni.I18n.translate('deviceCommunicationTask.run', 'MDC', 'Run succeeded'));
     },
 
     runDeviceComTaskNow: function () {
         var request = {};
         this.comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
-        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.get('comTask').id + '/runnow',Uni.I18n.translate('deviceCommunicationTask.runNow', 'MDC', 'Run now succeeded'));
+        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.get('comTask').id + '/runnow', Uni.I18n.translate('deviceCommunicationTask.runNow', 'MDC', 'Run now succeeded'));
     },
 
     showChangePopUp: function (menuItem) {
@@ -218,18 +212,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                             initialValue = comTask.get('connectionMethod');
                         }
                         me.showPopUp(menuItem.action, connectionMethodsOfDeviceStore, initialValue,comTask.get('scheduleName'));
-                    }
-                });
-                break;
-//            case 'changeFrequencyOfDeviceComTask':
-//                me.showPopUp(menuItem.action,null,comTask.get('temporalExpression'));
-//                break;
-            case 'changeProtocolDialectOfDeviceComTask':
-                var protocolDialectsOfDeviceStore = this.getProtocolDialectsOfDeviceStore();
-                protocolDialectsOfDeviceStore.getProxy().setExtraParam('deviceId', this.deviceId);
-                protocolDialectsOfDeviceStore.load({
-                    callback: function () {
-                        me.showPopUp(menuItem.action, protocolDialectsOfDeviceStore, comTask.get('protocolDialect'));
                     }
                 });
                 break;
@@ -276,14 +258,14 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             Uni.I18n.translate('deviceCommunicationTask.frequencyChanged', 'MDC', 'Frequency changed'));
     },
 
-    changeProtocolDialect: function () {
-        var request = {};
-        var values = this.getChangeConnectionItemForm().getForm().getValues();
-        request.protocolDialect = values.name;
-        this.sendToServer(request,
-            '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.id + '/protocoldialect',
-            Uni.I18n.translate('deviceCommunicationTask.protocolDialectChanged', 'MDC', 'Protocol dialect changed'));
-    },
+    //changeProtocolDialect: function () {
+    //    var request = {};
+    //    var values = this.getChangeConnectionItemForm().getForm().getValues();
+    //    request.protocolDialect = values.name;
+    //    this.sendToServer(request,
+    //        '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.id + '/protocoldialect',
+    //        Uni.I18n.translate('deviceCommunicationTask.protocolDialectChanged', 'MDC', 'Protocol dialect changed'));
+    //},
 
     activateDeviceComTask: function () {
         var request = {};

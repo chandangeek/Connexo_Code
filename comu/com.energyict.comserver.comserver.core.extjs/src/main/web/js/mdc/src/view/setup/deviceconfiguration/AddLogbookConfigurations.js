@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.add-logbook-configurations',
     requires: [
         'Uni.grid.column.Obis',
-        'Uni.util.FormEmptyMessage',
+        'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.store.LogbookConfigurations',
         'Mdc.view.setup.deviceconfiguration.AddLogbookConfigurationsGrid'
     ],
@@ -25,9 +29,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
                         itemId: 'add-logbook-configurations-grid'
                     },
                     emptyComponent: {
-                        xtype: 'uni-form-empty-message',
+                        xtype: 'no-items-found-panel',
                         itemId: 'add-logbook-configurations-empty-grid',
-                        text: Uni.I18n.translate('logbooktype.empty.list.item1', 'MDC', 'No logbook types have been defined yet.')
+                        title: Uni.I18n.translate('logbookconfigurations.empty.title', 'MDC', 'No logbook configurations found'),
+                        reasons: [
+                            Uni.I18n.translate('logbookconfigurations.empty.list.item1', 'MDC', 'No logbook configurations are defined yet'),
+                            Uni.I18n.translate('logbookconfigurations.empty.list.item2', 'MDC', 'All logbook configurations are already added to the device configuration')
+                        ]
                     }
                 },
                 {

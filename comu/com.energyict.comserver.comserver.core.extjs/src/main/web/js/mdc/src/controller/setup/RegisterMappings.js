@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.RegisterMappings', {
     extend: 'Ext.app.Controller',
 
@@ -62,6 +66,9 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             },
             '#register-mapping-edit-container-id #edit-register-type-form-panel': {
                 saverecord: this.saveRegisterMapping
+            },
+            'registerMappingAdd registerMappingAddGrid': {
+                selectionchange: this.enableAddBtn
             }
         });
     },
@@ -124,7 +131,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
     addRegisterMappings: function (id) {
         var me = this,
             store = Ext.data.StoreManager.lookup('AvailableRegisterTypes'),
-            widget = Ext.widget('registerMappingAdd', {deviceTypeId: id});
+            widget = Ext.widget('registerMappingAdd', {deviceTypeId: id}),
+            addBtn = widget.down('button[action=addRegisterMappingAction]');
 
         store.getProxy().setExtraParam('deviceType', id);
         store.getProxy().setExtraParam('filter', Ext.encode([
@@ -135,11 +143,13 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         ]));
         me.loadDeviceTypeModel(me, widget, id, false);
         me.getApplication().fireEvent('changecontentevent', widget);
-        store.load({
-            callback: function () {
-                me.deviceTypeId = id;
-                store.fireEvent('load', store);
+        addBtn.setVisible(false);
+        store.load(function(records, operation, success) {
+            if (success) {
+                addBtn.setVisible(records.length>0);
             }
+            me.deviceTypeId = id;
+            store.fireEvent('load', store);
         });
     },
 
@@ -197,14 +207,12 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
     },
 
     loadDeviceTypeModel: function (scope, widget, deviceTypeId, setSideMenu) {
-        var me = this;
-
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 widget.deviceType = deviceType;
                 scope.getApplication().fireEvent('loadDeviceType', deviceType);
                 if (widget.down('deviceTypeSideMenu') && setSideMenu) {
-                    widget.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
+                    widget.down('deviceTypeSideMenu').setDeviceTypeTitle(deviceType.get('name'));
                     widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
                 }
             }
@@ -269,5 +277,13 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
 
         formErrorsPanel.hide();
         errorPanel.hide();
+    },
+
+    enableAddBtn: function (selectionModel) {
+        var addBtn = Ext.ComponentQuery.query('registerMappingAdd button[action=addRegisterMappingAction]')[0];
+        if (addBtn) {
+            addBtn.setDisabled(selectionModel.getSelection().length === 0);
+        }
     }
+
 });

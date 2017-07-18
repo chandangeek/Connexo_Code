@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.tabbedDeviceChannelsView',
@@ -7,7 +11,8 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
         'Mdc.view.setup.devicechannels.GraphView',
         'Mdc.view.setup.devicechannels.DataPreview',
         'Mdc.view.setup.devicechannels.DataGrid',
-        'Uni.grid.FilterPanelTop'
+        'Uni.grid.FilterPanelTop',
+        'Cfg.configuration.view.RuleWithAttributesForm'
     ],
 
     store: 'Mdc.store.ChannelOfLoadProfileOfDeviceData',
@@ -30,9 +35,11 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     indexLocation: null,
     contentName: null,
     filterDefault: {},
-    mentionDataLoggerSlave: false,
     dataLoggerSlaveHistoryStore: null,
     idProperty: 'interval_end',
+    validationConfigurationStore: undefined,
+    estimationConfigurationStore: undefined,
+    application: null,
 
     initComponent: function () {
         var me = this;
@@ -90,7 +97,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                             },
                             {
                                 xtype: 'deviceLoadProfileChannelGraphView',
-                                mentionDataLoggerSlave: me.mentionDataLoggerSlave,
+                                linkPurpose: Mdc.util.LinkPurpose.forDevice(me.device),
                                 listeners: {
                                     barselect: Ext.bind(me.onBarSelect, me)
                                 }
@@ -117,16 +124,69 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                     xtype: 'deviceLoadProfileChannelDataPreview',
                                     channelRecord: me.channel,
                                     router: me.router,
-                                    mentionDataLoggerSlave: !Ext.isEmpty(me.device) && !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger'),
+                                    linkPurpose: Mdc.util.LinkPurpose.forDevice(me.device),
                                     hidden: true
                                 },
                                 emptyComponent: {
-                                    xtype: 'uni-form-empty-message',
+                                    xtype: 'no-items-found-panel',
                                     itemId: 'ctr-table-no-data',
-                                    text: Uni.I18n.translate('deviceloadprofiles.data.empty', 'MDC', 'No readings have been defined yet.')
+                                    title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'MDC', 'No readings found'),
+                                    reasons: [
+                                        Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'This channel has never been read.'),
+                                        Uni.I18n.translate('deviceloadprofiles.data.empty.list.item2', 'MDC', 'No readings have been provided for this channel.'),
+                                        Uni.I18n.translate('deviceloadprofiles.data.empty.list.item3', 'MDC', 'No readings comply with the filter.')
+                                    ],
+                                    stepItems: [
+                                        {
+                                            text: Uni.I18n.translate('deviceloadprofiles.data.empty.addReadings', 'MDC', 'Add readings'),
+                                            itemId: 'add-device-load-profile-btn',
+                                            handler: function () {
+                                                var me = this,
+                                                    preview = me.up('#channel-data-preview-container'),
+                                                    noItemFoundClass = Ext.getClass(preview);
+
+                                                arguments[0] = false;
+                                                noItemFoundClass.prototype.updateOnChange.apply(preview, arguments);
+                                            }
+                                        }
+                                    ]
                                 },
                                 listeners: {
                                     rowselect: Ext.bind(me.onRowSelect, me)
+                                },
+                                updateOnChange: function (isEmpty) {
+                                    var me = this,
+                                        noItemsFoundClass = Ext.getClass(me),
+                                        noItemsSteps = me.down('#no-items-found-panel-steps-label'),
+                                        addReadingsButton = me.down('#add-device-load-profile-btn'),
+                                        graphView = me.up('#deviceLoadProfileChannelData') ? me.up('#deviceLoadProfileChannelData').down('deviceLoadProfileChannelGraphView') : undefined;
+
+                                    if (isEmpty) {
+                                        noItemsFoundClass.prototype.updateOnChange.apply(me, arguments);
+                                        noItemsSteps && noItemsSteps.setVisible(false);
+                                        addReadingsButton && addReadingsButton.setVisible(false);
+                                    } else {
+                                        var store = me.grid.getStore(),
+                                            count = store.getCount();
+
+                                        for (var i = 0; i < count; i++) {
+                                            if (store.getAt(i).get('value') ||
+                                                store.getAt(i).get('validationResult').main === 'suspect' ||
+                                                store.getAt(i).get('validationResult').bulk === 'suspect')
+                                            {
+                                                noItemsSteps && noItemsSteps.setVisible(false);
+                                                addReadingsButton && addReadingsButton.setVisible(false);
+                                                graphView && graphView.setVisible(true);
+                                                noItemsFoundClass.prototype.updateOnChange.apply(me, arguments);
+                                                return;
+                                            }
+                                        }
+                                        arguments[0] = true;
+                                        noItemsFoundClass.prototype.updateOnChange.apply(me, arguments);
+                                        noItemsSteps && noItemsSteps.setVisible(true);
+                                        addReadingsButton && addReadingsButton.setVisible(true);
+                                        graphView && graphView.setVisible(false);
+                                    }
                                 }
                             }
                         ]
@@ -135,7 +195,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                 listeners: {
                     afterrender: function (panel) {
                         var bar = panel.tabBar;
-                        bar.insert(2, [
+                        bar.add([
                             {
                                 xtype: 'tbfill'
                             },
@@ -154,6 +214,14 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                 }
             }
         ];
+
+        if (Mdc.privileges.Device.canViewValidationConfiguration()) {
+            me.addValidationConfiguration();
+        }
+        if (Mdc.privileges.Device.canViewEstimationConfiguration()) {
+            me.addEstimationConfiguration();
+        }
+
         me.side = [
             {
                 xtype: 'panel',
@@ -182,6 +250,74 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
         me.callParent(arguments);
         me.bindStore(me.store || 'ext-empty-store', true);
         me.on('beforedestroy', me.onBeforeDestroy, me);
+    },
+
+    addValidationConfiguration: function () {
+        var me = this,
+            validationConfigurationRecord = me.validationConfigurationStore.first(),
+            valRulesForCollectedReadingTypeStore = validationConfigurationRecord.rulesForCollectedReadingType(),
+            valRulesForCalculatedReadingTypeStore = validationConfigurationRecord.rulesForCalculatedReadingType(),
+            validationRuleWithAttributesForms = [];
+
+        if (valRulesForCollectedReadingTypeStore.getCount()) {
+            validationRuleWithAttributesForms.push(me.prepareForm('validation', valRulesForCollectedReadingTypeStore, 'collected'));
+        }
+
+        if (valRulesForCalculatedReadingTypeStore.getCount()) {
+            validationRuleWithAttributesForms.push(me.prepareForm('validation', valRulesForCalculatedReadingTypeStore, 'calculated'));
+        }
+
+        if (validationRuleWithAttributesForms.length) {
+            me.content[0].items.push({
+                title: Uni.I18n.translate('general.validationConfiguration', 'MDC', 'Validation configuration'),
+                itemId: 'channel-validation-configuration',
+                items: validationRuleWithAttributesForms
+            });
+        }
+    },
+
+    addEstimationConfiguration: function () {
+        var me = this,
+            estimationConfigurationRecord = me.estimationConfigurationStore.first(),
+            estRulesForCollectedReadingTypeStore = estimationConfigurationRecord.rulesForCollectedReadingType(),
+            estRulesForCalculatedReadingTypeStore = estimationConfigurationRecord.rulesForCalculatedReadingType(),
+            estimationRuleWithAttributesForms = [];
+
+        if (estRulesForCollectedReadingTypeStore.getCount()) {
+            estimationRuleWithAttributesForms.push(me.prepareForm('estimation', estRulesForCollectedReadingTypeStore, 'collected'));
+        }
+
+        if (estRulesForCalculatedReadingTypeStore.getCount()) {
+            estimationRuleWithAttributesForms.push(me.prepareForm('estimation', estRulesForCalculatedReadingTypeStore, 'calculated'));
+        }
+
+        if (estimationRuleWithAttributesForms.length) {
+            me.content[0].items.push({
+                title: Uni.I18n.translate('general.estimationConfiguration', 'MDC', 'Estimation configuration'),
+                itemId: 'channel-estimation-configuration',
+                items: estimationRuleWithAttributesForms
+            });
+        }
+    },
+
+    prepareForm: function (type, store, kindOfReadingType) {
+        var me = this,
+            titleToken = type === 'validation' ? Uni.I18n.translate('general.validationConfigurationFor', 'MDC', 'Validation configuration for')
+                : Uni.I18n.translate('general.estimationConfigurationFor', 'MDC', 'Estimation configuration for'),
+            hasAdministerPrivileges = type === 'validation' ? Mdc.privileges.Device.canAdministerValidationConfiguration() : Mdc.privileges.Device.canAdministerEstimationConfiguration();
+
+        return {
+            xtype: 'rule-with-attributes-form',
+            itemId: 'rule-with-attributes-channel-' + type + '-form-' + kindOfReadingType,
+            kindOfReadingType: kindOfReadingType,
+            router: me.router,
+            records: store.getRange(),
+            type: type,
+            ui: 'medium',
+            title: Ext.String.format("{0} {1}", titleToken, store.first().get('readingType').fullAliasName),
+            application: me.application,
+            hasAdministerPrivileges: hasAdministerPrivileges
+        };
     },
 
     getStoreListeners: function () {
@@ -250,19 +386,20 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             point.tooltipColor = tooltipOkColor;
             point.multiplier = record.get('multiplier');
             point.showDeviceQualityIcon = !Ext.isEmpty(record.get('readingQualities'));
+            point.channelPeriodType = record.get('channelPeriodType');
 
             if (mainValidationInfo.valueModificationFlag == 'EDITED') {
                 point.edited = true;
             }
-            if (mainValidationInfo.estimatedByRule) {
+            if (properties.delta.suspect) {
+                point.color = suspectColor;
+                point.tooltipColor = tooltipSuspectColor
+            } else if (mainValidationInfo.estimatedByRule) {
                 point.color = estimatedColor;
                 point.tooltipColor = tooltipEstimatedColor;
             } else if (properties.delta.notValidated) {
                 point.color = notValidatedColor;
                 point.tooltipColor = tooltipNotValidatedColor
-            } else if (properties.delta.suspect) {
-                point.color = suspectColor;
-                point.tooltipColor = tooltipSuspectColor
             } else if (properties.delta.informative) {
                 point.color = informativeColor;
                 point.tooltipColor = tooltipInformativeColor;

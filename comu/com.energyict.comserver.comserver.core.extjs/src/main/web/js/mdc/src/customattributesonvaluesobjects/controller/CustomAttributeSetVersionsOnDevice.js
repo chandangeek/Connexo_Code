@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnDevice', {
     extend: 'Ext.app.Controller',
 
@@ -137,7 +141,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
         });
     },
 
-    loadDeviceModel: function(deviceId) {
+    loadDeviceModel: function (deviceId) {
         var me = this,
             deviceModel = Ext.ModelManager.getModel('Mdc.model.Device');
 
@@ -149,7 +153,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
 
     },
 
-    loadAttributeSetModel: function(deviceId, registerId, customAttributeSetId) {
+    loadAttributeSetModel: function (deviceId, registerId, customAttributeSetId) {
         var me = this,
             attributeSetModel = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetOnDevice');
 

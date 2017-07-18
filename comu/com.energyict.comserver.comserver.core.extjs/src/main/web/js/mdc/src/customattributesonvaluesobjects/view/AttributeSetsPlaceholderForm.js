@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm', {
     extend: 'Ext.container.Container',
     alias: 'widget.custom-attribute-sets-placeholder-form',

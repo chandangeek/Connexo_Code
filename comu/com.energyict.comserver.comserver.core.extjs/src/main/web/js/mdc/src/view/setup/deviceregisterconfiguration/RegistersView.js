@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersView', {
     extend: 'Ext.container.Container',
     alias: 'widget.deviceRegistersView',
@@ -33,8 +37,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersView', {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'deviceRegisterConfigurationGrid',
-                            deviceId: encodeURIComponent(me.device.get('name')),
-                            showDataLoggerSlaveColumn: !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger'),
+                            device: me.device,
                             router: me.router
                         },
                         emptyComponent: {

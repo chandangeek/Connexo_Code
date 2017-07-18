@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.RegisterConfigs', {
     extend: 'Ext.app.Controller',
 
@@ -98,7 +102,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             '#registerConfigEditForm #valueTypeRadioGroup': {
                 change: this.hideShowNumberFields
             },
-            '#registerConfigEditForm #multiplierRadioGroup': {
+            '#registerConfigEditForm #mdc-register-config-multiplier-checkbox': {
                 change: this.onMultiplierChange
             },
             '#registerConfigEditForm #editOverruledObisCodeField': {
@@ -200,7 +204,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     success: function (deviceConfig) {
                         if (mainView) mainView.setLoading(false);
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                        widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
+                        widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });
@@ -247,7 +251,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Add register configuration'));
                                 widget.down('#editNumberOfFractionDigitsField').setValue(0);
-                                me.getRegisterTypeCombo().on('change', me.onRegisterTypeChange, me);
+                                me.getRegisterTypeCombo().onComboEvent('change', me.onRegisterTypeChange, me);
                             }
                         });
                     }
@@ -261,16 +265,18 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             view = me.getRegisterConfigEditForm(),
             registerType = undefined,
             useMultiplier = undefined;
-
         if (field.name === 'registerType') {
-            view.down('#multiplierRadioGroup').setDisabled(false);
-            registerType = me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', value);
-            useMultiplier = view.down('#multiplierRadioGroup').getValue().useMultiplier;
-            me.updateReadingTypeFields(registerType, useMultiplier);
-            me.registerTypesObisCode = registerType.get('obisCode');
-            view.down('#editObisCodeField').setValue(me.registerTypesObisCode);
-            me.getOverruledObisCodeField().setValue(me.registerTypesObisCode);
-            me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.registerTypesObisCode);
+            view.down('#mdc-register-config-multiplier-checkbox').setDisabled(false);
+            var registerTypeId = me.getAvailableRegisterTypesForDeviceConfigurationStore().findExact('id', value);
+            if (registerTypeId != -1) {
+                registerType = me.getAvailableRegisterTypesForDeviceConfigurationStore().getAt(registerTypeId);
+                useMultiplier = view.down('#mdc-register-config-multiplier-checkbox').getValue();
+                me.updateReadingTypeFields(registerType, useMultiplier);
+                me.registerTypesObisCode = registerType.get('obisCode');
+                view.down('#editObisCodeField').setValue(me.registerTypesObisCode);
+                me.getOverruledObisCodeField().setValue(me.registerTypesObisCode);
+                me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.registerTypesObisCode);
+            }
         }
     },
 
@@ -284,7 +290,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             newObisCode = form.down('#editObisCodeField').getValue(),
             originalObisCode = form.down('#editOverruledObisCodeField').getValue(),
             asText = form.down('#valueTypeRadioGroup').getValue().asText,
-            useMultiplier = asText ? false : form.down('#multiplierRadioGroup').getValue().useMultiplier,
+            useMultiplier = asText ? false : form.down('#mdc-register-config-multiplier-checkbox').getValue(),
             calculatedReadingTypeField = form.down('#mdc-calculated-readingType-field'),
             calculatedReadingTypeCombo = form.down('#mdc-calculated-readingType-combo'),
             router = this.getController('Uni.controller.history.Router');
@@ -293,38 +299,39 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         baseForm.clearInvalid();
         errorMsgPnl.hide();
         Ext.resumeLayouts(true);
-        if (form.isValid()) {
-            if (record) {
-                record.set(values);
-                if (newObisCode === originalObisCode) {
-                    record.set('overruledObisCode', null);
+        if (record) {
+            record.set(values);
+            if (useMultiplier) {
+                if (calculatedReadingTypeField.isVisible()) {
+                    record.setCalculatedReadingType(calculatedReadingTypeField.getValue());
+                } else if (calculatedReadingTypeCombo.isVisible()) {
+                    record.setCalculatedReadingType(
+                        calculatedReadingTypeCombo.getStore().findRecord(calculatedReadingTypeCombo.valueField, calculatedReadingTypeCombo.getValue())
+                    );
                 }
-                if (useMultiplier) {
-                    if (calculatedReadingTypeField.isVisible()) {
-                        record.setCalculatedReadingType(calculatedReadingTypeField.getValue());
-                    } else if (calculatedReadingTypeCombo.isVisible()) {
-                        record.setCalculatedReadingType(
-                            calculatedReadingTypeCombo.getStore().findRecord(calculatedReadingTypeCombo.valueField, calculatedReadingTypeCombo.getValue())
-                        );
-                    }
-                } else {
-                    record.setCalculatedReadingType(null);
-                    if (asText) {
-                        record.set('multiplier', false);
-                    }
+            } else {
+                record.setCalculatedReadingType(null);
+                if (asText) {
+                    record.set('multiplier', false);
                 }
+            }
 
-                record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
-                form.setLoading();
-                record.save({
-                    success: function () {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowledgment.added', 'MDC', 'Register configuration added'));
-                        router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').forward();
-                    },
-                    failure: function (record, operation) {
-                        var json = Ext.decode(operation.response.responseText, true);
-
+            record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
+            form.setLoading();
+            record.save({
+                success: function () {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowledgment.added', 'MDC', 'Register configuration added'));
+                    router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').forward();
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText, true);
                     if (json && !Ext.isEmpty(json.errors)) {
+                        Ext.Array.each(json.errors, function (item) {
+                            if (item.id === 'overruledObisCode.obisCode' || item.id === 'overruledObisCode') {
+                                form.down('#obis-code-container').setActiveError(item.msg);
+                                form.down('#editOverruledObisCodeField').setActiveError(''); // to give the Obis code field a red border
+                            }
+                        });
                         Ext.suspendLayouts();
                         errorMsgPnl.show();
                         baseForm.markInvalid(json.errors);
@@ -334,15 +341,12 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                         }
                         Ext.resumeLayouts(true);
                     }
-                },
-                callback: function () {
-                    form.setLoading(false);
-                }
-            });
-
+            },
+            callback: function () {
+                form.setLoading(false);
             }
-        } else {
-            errorMsgPnl.show();
+        });
+
         }
     },
 
@@ -414,7 +418,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                         widget.down('form').loadRecord(registerConfiguration);
                                         // Don't know why these aren't set when loading the record:
                                         widget.down('#valueTypeRadioGroup').setValue({ asText : registerConfiguration.get('asText') });
-                                        widget.down('#multiplierRadioGroup').setValue({ useMultiplier : registerConfiguration.get('useMultiplier') });
 
                                         me.getApplication().fireEvent('loadRegisterConfiguration', registerConfiguration);
                                         me.getRegisterConfigEditForm().setTitle(
@@ -424,7 +427,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                         widget.down('#editObisCodeField').setValue(me.registerTypesObisCode);
                                         widget.down('#mdc-calculated-readingType-combo').setDisabled(deviceConfiguration.get('active'));
                                         widget.down('#valueTypeRadioGroup').setDisabled(deviceConfiguration.get('active'));
-                                        widget.down('#multiplierRadioGroup').setDisabled(
+                                        widget.down('#mdc-register-config-multiplier-checkbox').setDisabled(
                                             !me.registerConfigurationBeingEdited.get('possibleCalculatedReadingTypes') ||
                                             me.registerConfigurationBeingEdited.get('possibleCalculatedReadingTypes').length === 0 ||
                                             deviceConfiguration.get('active')
@@ -452,7 +455,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             router = me.getController('Uni.controller.history.Router'),
             newObisCode = form.down('#editObisCodeField').getValue(),
             originalObisCode = form.down('#editOverruledObisCodeField').getValue(),
-            useMultiplier = form.down('#multiplierRadioGroup').getValue().useMultiplier,
+            useMultiplier = form.down('#mdc-register-config-multiplier-checkbox').getValue(),
             calculatedReadingTypeField = form.down('#mdc-calculated-readingType-field'),
             calculatedReadingTypeCombo = form.down('#mdc-calculated-readingType-combo');
 
@@ -463,6 +466,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         if (form.isValid()) {
             if (record) {
                 record.set(values);
+                record.set('useMultiplier', useMultiplier);
                 if (newObisCode === originalObisCode) {
                     record.overruledObisCode = null;
                 }
@@ -491,6 +495,12 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                         errorMsgPnl.show();
                         var json = Ext.decode(operation.response.responseText);
                         if (json && json.errors) {
+                            Ext.Array.each(json.errors, function (item) {
+                                if (item.id === 'overruledObisCode.obisCode' || item.id === 'overruledObisCode') {
+                                    form.down('#obis-code-container').setActiveError(item.msg);
+                                    form.down('#editOverruledObisCodeField').setActiveError(''); // to give the Obis code field a red border
+                                }
+                            });
                             baseForm.markInvalid(json.errors);
                             var calculatedReadingTypeError = Ext.Array.findBy(json.errors, function (item) { return item.id == 'calculatedReadingType';});
                             if (calculatedReadingTypeError && form.down('[name=calculatedReadingType]').isHidden()) {
@@ -517,13 +527,13 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             asNumber = !(radioGroup.getValue().asText),
             overflowValueField = me.getRegisterConfigEditForm().down('#editOverflowValueField'),
             numberOfFractionDigitsField = me.getRegisterConfigEditForm().down('#editNumberOfFractionDigitsField'),
-            multiplierRadioGroup = me.getRegisterConfigEditForm().down('#multiplierRadioGroup'),
+            multiplierCheckBox = me.getRegisterConfigEditForm().down('#mdc-register-config-multiplier-checkbox'),
             dataContainer,
             useMultiplier;
 
         numberOfFractionDigitsField.setVisible(asNumber);
         overflowValueField.setVisible(asNumber);
-        multiplierRadioGroup.setVisible(asNumber);
+        multiplierCheckBox.setVisible(asNumber);
         if (asNumber) {
             var values = this.getRegisterConfigEditForm().getValues();
             if (values.numberOfFractionDigits === '') {
@@ -538,16 +548,13 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         } else { // Busy adding a register config
             dataContainer = me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', me.getRegisterTypeCombo().getValue());
         }
-        useMultiplier = !asNumber
-            ? false
-            : me.getRegisterConfigEditForm().down('#multiplierRadioGroup').getValue().useMultiplier;
+        useMultiplier = !asNumber ? false : me.getRegisterConfigEditForm().down('#mdc-register-config-multiplier-checkbox').getValue();
         me.updateReadingTypeFields(dataContainer, useMultiplier);
     },
 
-    onMultiplierChange: function(radioGroup) {
+    onMultiplierChange: function(checkBox, useMultiplier) {
         var me = this,
             contentContainer = this.getRegisterConfigEditForm().up('#registerConfigEdit'),
-            useMultiplier = radioGroup.getValue().useMultiplier,
             dataContainer;
 
         if (contentContainer.isEdit()) { // Busy editing a register config
@@ -562,7 +569,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     updateReadingTypeFields: function(dataContainer, useMultiplier) {
         var me = this,
             form = me.getRegisterConfigEditForm(),
-            multiplierRadioGroup = form.down('#multiplierRadioGroup'),
+            multiplierCheckBox = form.down('#mdc-register-config-multiplier-checkbox'),
             collectedReadingTypeField = form.down('#mdc-collected-readingType-field'),
             calculatedReadingTypeField = form.down('#mdc-calculated-readingType-field'),
             calculatedReadingTypeCombo = form.down('#mdc-calculated-readingType-combo'),
@@ -577,11 +584,11 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         }
         collectedReadingTypeField.setVisible(dataContainer);
         if (!possibleCalculatedReadingTypes || possibleCalculatedReadingTypes.length === 0) {
-            multiplierRadioGroup.setValue({ useMultiplier : false });
-            useMultiplier = multiplierRadioGroup.getValue().useMultiplier;
-            multiplierRadioGroup.setDisabled(true);
+            multiplierCheckBox.setValue(false);
+            useMultiplier = false;
+            multiplierCheckBox.setDisabled(true);
         } else {
-            multiplierRadioGroup.setDisabled(false);
+            multiplierCheckBox.setDisabled(false);
         }
 
         if (useMultiplier) {

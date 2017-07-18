@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.deviceconfigurationestimationrules.view.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.device-configuration-estimation-rules-preview-form',
@@ -38,7 +42,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.PreviewForm', {
             },
             {
                 fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
-                name: 'status',
+                name: 'active',
                 renderer: function(value) {
                     return value ? Uni.I18n.translate('general.active', 'MDC', 'Active') :  Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                 }

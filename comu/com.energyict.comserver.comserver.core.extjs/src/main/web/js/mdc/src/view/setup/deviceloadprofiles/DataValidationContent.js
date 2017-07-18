@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceloadprofiles.DataValidationContent', {
     extend: 'Ext.container.Container',
     defaults: {
@@ -30,7 +34,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataValidationContent', {
             },
             {
                 xtype: 'displayfield',
-                value: '',
+                value: ' ',
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.validateNow.item2', 'MDC', 'Note: The date displayed by default is the last checked (the moment when the last interval was checked in the validation process).'),
                 labelWidth: 500
             }

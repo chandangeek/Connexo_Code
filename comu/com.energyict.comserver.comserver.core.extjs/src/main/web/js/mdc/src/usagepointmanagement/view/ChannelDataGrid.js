@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.usagepointmanagement.view.ChannelDataGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.channel-data-grid',
@@ -22,9 +26,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGrid', {
                 dataIndex: 'interval',
                 renderer: function (interval) {
                     return interval.end
-                        ? Uni.I18n.translate(
-                        'general.dateAtTime', 'MDC', '{0} at {1}',
-                        [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))])
+                        ? Uni.DateTime.formatDateTimeShort(new Date(interval.end))
                         : '';
                 },
                 flex: 1
@@ -49,6 +51,14 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGrid', {
                     };
 
                     return validationMap[value];
+                }
+            },
+            {
+                header: Uni.I18n.translate('general.readingData.lastUpdate', 'MDC', 'Last update'),
+                dataIndex: 'readingTime',
+                flex: 1,
+                renderer: function(value){
+                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                 }
             }
         ];

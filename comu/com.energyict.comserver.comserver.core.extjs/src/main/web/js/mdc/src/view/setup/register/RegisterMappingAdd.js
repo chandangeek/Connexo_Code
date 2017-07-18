@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.registerMappingAdd',
@@ -64,7 +68,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                             xtype: 'button',
                             action: 'addRegisterMappingAction',
                             ui: 'action',
-                            itemId: 'addButton'
+                            itemId: 'addButton',
+                            disabled: true
                         },
                         {
                             text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),

@@ -1,14 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.reading-estimation-window',
     modal: true,
-    title: Uni.I18n.translate('general.selectEstimationRule', 'MDC', 'Select estimation rule'),
+    title: Uni.I18n.translate('general.editWithEstimator', 'MDC', 'Edit with estimator'),
     bothSuspected: false,
     record: null,
 
     requires: [
         'Uni.util.FormErrorMessage',
-        'Uni.property.form.Property'
+        'Uni.property.form.Property',
+        'Uni.view.readings.EstimationComment'
     ],
 
     initComponent: function () {
@@ -48,13 +53,13 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
                     items: [
                         {
                             itemId: 'rbtn-is-bulk-no',
-                            boxLabel: Uni.I18n.translate('general.valueWh', 'MDC', 'Value (Wh)'),
+                            boxLabel: Uni.I18n.translate('general.valueWithUnit', 'MDC', 'Value ({0})', me.currentChannel.get('readingType').names.unitOfMeasure),
                             inputValue: false,
                             checked: true
                         },
                         {
                             itemId: 'rbtn-is-bulk-yes',
-                            boxLabel: Uni.I18n.translate('general.bulkValueWh', 'MDC', 'Bulk value (Wh)'),
+                            boxLabel: Uni.I18n.translate('general.bulkValueWithUnit', 'MDC', 'Bulk value ({0})', me.currentChannel.get('calculatedReadingType') ? me.currentChannel.get('calculatedReadingType').names.unitOfMeasure : ''),
                             inputValue: true
                         }
                     ]
@@ -65,18 +70,21 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
                     name: 'estimatorImpl',
                     fieldLabel: Uni.I18n.translate('estimationDevice.estimator', 'MDC', 'Estimator'),
                     required: true,
-                    editable: 'false',
+                    editable: false,
                     store: 'Mdc.store.Estimators',
                     valueField: 'implementation',
                     displayField: 'displayName',
                     queryMode: 'local',
                     forceSelection: true,
-                    emptyText: Uni.I18n.translate('general.selectAnEstimationRule', 'MDC', 'Select an estimation rule...'),
+                    emptyText: Uni.I18n.translate('general.selectAnEstimator', 'MDC', 'Select an estimator...'),
                     listeners: {
                         change: {
                             fn: function (implementationCombo, newValue) {
                                 var estimator = implementationCombo.getStore().getById(newValue);
 
+                                if (newValue) {
+                                    this.nextSibling('estimation-comment').show();
+                                }
                                 estimator && me.down('property-form').loadRecord(estimator);
                                 me.updateLayout();
                                 me.center();
@@ -90,6 +98,11 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
                     defaults: {
                         labelWidth: 200
                     }
+                },
+                {
+                    xtype: 'estimation-comment',
+                    keepOriginal: true,
+                    hidden: true
                 },
                 {
                     xtype: 'fieldcontainer',

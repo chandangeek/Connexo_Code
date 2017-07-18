@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicechannels.GraphView', {
     extend: 'Uni.view.highstock.GraphView',
 
@@ -8,10 +12,10 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
         'Uni.view.highstock.GraphView'
     ],
 
-    mentionDataLoggerSlave: false,
+    linkPurpose: Mdc.util.LinkPurpose.properties[Mdc.util.LinkPurpose.NOT_APPLICABLE],
 
     mixins: {
-        bindable: 'Ext.util.Bindable'        
+        bindable: 'Ext.util.Bindable'
     },
 
     items: [
@@ -23,19 +27,24 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
             }
         }
     ],
-    
-    createTooltip: function (tooltip) {        
+
+    createTooltip: function (tooltip) {
         var me = this,
-            html = '<b>' + Uni.DateTime.formatDateLong(new Date(tooltip.x)),
+            html = '<b style=" color: #74af74; font-size: 14px; ">',
             point = tooltip.point,
+            isInterval = tooltip.point.channelPeriodType === 'interval',
+            isMonth = tooltip.point.channelPeriodType === 'monthly',
+            isYear = tooltip.point.channelPeriodType === 'yearly',
             deltaIcon = '',
             bulkIcon = '',
             deviceQualityIcon = '',
-            bgColor,
             editedIcon = '<span class="icon-pencil4" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>',
             calculatedValue,
             collectedValue;
 
+        if (isInterval) {
+            html += Uni.DateTime.formatDateLong(new Date(tooltip.x)) + '<br/>';
+        }
         if (point.delta && point.delta.suspect) {
             deltaIcon = '<span class="icon-flag5" style="margin-left:4px; display:inline-block; vertical-align:top; color:red"></span>';
         } else if (point.delta && point.delta.notValidated) {
@@ -66,28 +75,36 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                 : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
             calculatedValue = null;
         }
-        html += '<br/>' + Uni.I18n.translate('general.interval', 'MDC', 'Interval') + ' ' + Uni.DateTime.formatTimeShort(new Date(point.x));
-        html += ' - ' + Uni.DateTime.formatTimeShort(new Date(point.intervalEnd)) + deviceQualityIcon + '<br>';
-        html += '<table style="margin-top: 10px"><tbody>';
-        bgColor = point.tooltipColor;
-        if (me.mentionDataLoggerSlave) {
-            html += '<tr><td><b>' + Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave') + ':</b></td><td>'
+        if (isInterval) {
+            html += Uni.I18n.translate('general.interval', 'MDC', 'Interval') + ' ' + Uni.DateTime.formatTimeShort(new Date(point.x));
+            html += ' - ' + Uni.DateTime.formatTimeShort(new Date(point.intervalEnd));
+        } else if (isMonth) {
+            html += Ext.Date.format(new Date(point.x), 'M Y');
+        } else if (isYear) {
+            html += Ext.Date.format(new Date(point.x), 'Y');
+        } else {
+            html += Uni.DateTime.formatDateTime(new Date(point.x), Uni.DateTime.LONG, Uni.DateTime.SHORT);
+            html += ' - ' + Uni.DateTime.formatDateTime(new Date(point.intervalEnd), Uni.DateTime.LONG, Uni.DateTime.SHORT);
+        }
+        html += (deviceQualityIcon + '</b><br>');
+        html += '<table style="margin-top: 10px; color: #686868; font-size: 14px;"><tbody>';
+        if (me.linkPurpose.value !== Mdc.util.LinkPurpose.NOT_APPLICABLE) {
+            html += '<tr><td><b>' + me.linkPurpose.channelGridSlaveColumn + '</b></td><td>'
                 + (Ext.isEmpty(point.dataLoggerSlave) ? '-' : point.dataLoggerSlave) + '</td></tr>';
         }
         if (calculatedValue) {
-            html += '<tr><td><b>' + Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value') + ':</b></td><td>' + calculatedValue +
+            html += '<tr><td><b>' + Uni.I18n.translate('general.calculated.Value', 'MDC', 'Calculated value') + '</b></td><td style="font-weight: lighter">' + calculatedValue +
                 deltaIcon + (point.edited ? editedIcon : '') + '</td></tr>';
-            html += '<tr><td><b>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + ':</b></td><td>' + collectedValue +
+            html += '<tr><td><b>' + Uni.I18n.translate('general.collected.Value', 'MDC', 'Collected value') + '</b></td><td style="font-weight: lighter">' + collectedValue +
                 bulkIcon + (point.bulkEdited ? editedIcon : '') + '</td></tr>';
         } else {
-            html += '<tr><td><b>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + ':</b></td><td>' + collectedValue +
+            html += '<tr><td><b>' + Uni.I18n.translate('general.collected.Value', 'MDC', 'Collected value') + '</b></b></td><td style="font-weight: lighter">' + collectedValue +
                 deltaIcon + (point.edited ? editedIcon : '') + '</td></tr>';
         }
         if (point.multiplier) {
-            html += '<tr><td><b>' + Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier') + ':</b></td><td>' + point.multiplier + '</td></tr>';
+            html += '<tr><td><b>' + Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier') + '</b></td><td>' + point.multiplier + '</td></tr>';
         }
         html += '</tbody></table>';
-        html = '<div style="background-color: ' + bgColor + '; padding: 8px">' + html + '</div>';
         return html;
     }
 });

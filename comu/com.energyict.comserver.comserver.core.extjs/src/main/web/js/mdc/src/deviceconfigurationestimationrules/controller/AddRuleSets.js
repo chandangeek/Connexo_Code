@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.deviceconfigurationestimationrules.controller.AddRuleSets', {
     extend: 'Ext.app.Controller',
 
@@ -102,9 +106,8 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.AddRuleSets', {
                 all: !isSelected
             },
             success: function () {
-                var message = Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.add.success', 'MDC', 'Estimation rule sets added.');
                 router.getRoute('administration/devicetypes/view/deviceconfigurations/view/estimationrulesets').forward();
-                me.getApplication().fireEvent('acknowledge', message);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.add.success', 'MDC', 'Estimation rule sets added'));
             },
             callback: function () {
                 view.setLoading(false);
@@ -156,8 +159,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.AddRuleSets', {
             }
         });
 
-        me.getApplication().fireEvent('changecontentevent', widget);
-        me.getApplication().getController('Mdc.deviceconfigurationestimationrules.controller.RuleSets').loadDeviceTypeAndConfiguration(deviceTypeId, deviceConfigurationId, widget);
+        me.getApplication().getController('Mdc.deviceconfigurationestimationrules.controller.RuleSets').loadDeviceTypeAndConfigurationAndShowWidget(deviceTypeId, deviceConfigurationId, widget);
     }
 
 });

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceEvents', {
     extend: 'Ext.app.Controller',
 
@@ -90,8 +94,6 @@ Ext.define('Mdc.controller.setup.DeviceEvents', {
     },
 
     showPreview: function (selectionModel, record) {
-        var preview = this.getPage().down('#deviceLogbookDataPreview');
-        preview.setTitle(Uni.DateTime.formatDateTimeLong(record.get('eventDate')));
-        preview.down('#deviceLogbookDataPreviewForm').loadRecord(record);
+        this.getPage().down('#deviceLogbookDataPreview').loadData(record);
     }
 });

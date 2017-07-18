@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.registerGroupGrid',
@@ -23,8 +27,9 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.MasterData.admin,
-                menu: { xtype: 'register-group-action-menu' }
+                menu: {xtype: 'register-group-action-menu'}
             }
         ];
 

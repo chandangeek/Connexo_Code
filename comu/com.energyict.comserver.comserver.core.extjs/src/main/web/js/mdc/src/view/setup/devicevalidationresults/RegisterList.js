@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicevalidationresults.RegisterList', {
     extend: 'Ext.grid.Panel',
     border: true,
@@ -43,8 +47,8 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RegisterList', {
                         Ext.merge(me.router.arguments, {registerId: record.getId()}),
                         {
                             suspect: 'suspect',
-                            interval: Ext.String.format('{0}-{1}{2}',
-                                record.get('intervalStart'), 1, record.get('intervalRecord').get('all').timeUnit)
+                            interval: Ext.String.format('{0}-{1}',
+                                record.get('intervalStart'), me.router.getQueryStringValues().intervalStart)
                         });
                     return '<a href="' + href + '">' + value + '</a>'
                 }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     requires: [
@@ -6,7 +10,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsFilter', {
     store: 'ext-empty-store',
     alias: 'widget.mdc-device-validation-results-filter',
     duration: '1years',
-    todayMidnight: moment((new Date()).setHours(0, 0, 0, 0)).toDate(),
+    todayMidnight: moment((new Date()).setHours(0, 0, 0, 0)).add('d', 1).toDate(),
 
     initComponent: function () {
         var me = this;
@@ -17,6 +21,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsFilter', {
                 value: me.todayMidnight,
                 dataIndex: 'intervalStart',
                 name: 'intervalStart',
+                labelText: Uni.I18n.translate('deviceloadprofiles.filter.to', 'MDC', 'To'),
                 fireFilterUpdateEvent: function () {
                     // (CXO-2787) Don't fire, hence the new filter value won't be applied until you press the main "Apply" button
                 }
@@ -70,10 +75,11 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsFilter', {
             result = [];
 
         loadProfileStore.each(function (record) {
+            var all = zoomLevelsStore.getIntervalRecord(record.get('interval')).get('all');
             result.push({
                 id: record.getId(),
-                intervalStart: filterParams.intervalStart,
-                intervalEnd: filterParams.intervalStart + zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(record.get('interval')).get('all'))
+                intervalStart: moment(filterParams.intervalStart).add(all.timeUnit, -all.count).valueOf(),
+                intervalEnd: moment(filterParams.intervalStart).add('d', 1).valueOf()
             });
         });
 
@@ -89,8 +95,8 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsFilter', {
             duration = durationStore.getById(me.duration);
 
         return {
-            intervalRegisterStart: filterParams.intervalStart,
-            intervalRegisterEnd: moment(filterParams.intervalStart).add(duration.get('timeUnit'), duration.get('count')).valueOf()
+            intervalRegisterStart: moment(filterParams.intervalStart).add(duration.get('timeUnit'), -duration.get('count')).valueOf(),
+            intervalRegisterEnd: moment(filterParams.intervalStart).add('d', 1).valueOf()
         };
     },
 

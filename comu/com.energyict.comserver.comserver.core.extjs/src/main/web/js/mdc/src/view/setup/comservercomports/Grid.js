@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.comservercomports.Grid', {
     extend: 'Ext.grid.Panel',
     requires: [
@@ -43,6 +47,7 @@ Ext.define('Mdc.view.setup.comservercomports.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.Communication.admin,
                 menu: {
                     xtype: 'comServerComPortsActionMenu'

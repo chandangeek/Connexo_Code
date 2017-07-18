@@ -1,14 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicetype.SideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.deviceTypeSideMenu',
+    uniqueMenuId: 'device-type-side-menu',
     title: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
+    objectType: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
     deviceTypeId: null,
     isDataLoggerSlave: undefined,
+    isMultiElementSlave: undefined,
     initComponent: function () {
         var me = this;
 
         me.menuItems = [
             {
+                text: Uni.I18n.translate('general.details', 'MDC', 'Details'),
                 itemId: 'overviewLink',
                 href: '#/administration/devicetypes/' + me.deviceTypeId
             },
@@ -59,11 +67,12 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
             }
         ];
 
-        if (me.isDataLoggerSlave === undefined) {
+        if (me.isDataLoggerSlave === undefined && me.isMultiElementSlave === undefined) {
             Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
                 success: function (deviceType) {
-                    me.isDataLoggerSlave = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
-                    if (me.isDataLoggerSlave) {
+                    me.isDataLoggerSlave = deviceType.isDataLoggerSlave(); //deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
+                    me.isMultiElementSlave = deviceType.isMultiElementSlave();
+                    if (me.isDataLoggerSlave || me.isMultiElementSlave) {
                         me.down('#logbooksLink').hide();
                         me.down('#conflictingMappingLink').hide();
                     } else {
@@ -83,7 +92,7 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
 
     executeIfNoDataLoggerSlave: function () {
         var me = this;
-        if (!me.isDataLoggerSlave) {
+        if (!me.isDataLoggerSlave && !me.isMultiElementSlave) {
             me.addMenuWithFirmware();
         } else {
             me.addMenuWithoutFirmware();
@@ -110,6 +119,12 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/firmwareversions'
                 },
                 {
+                    text: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                    privileges: Mdc.privileges.DeviceType.view,
+                    itemId: 'securityAccessorsLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/securityaccessors'
+                },
+                {
                     text: Uni.I18n.translate('devicetypemenu.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
                     privileges: Mdc.privileges.DeviceType.view,
                     itemId: 'timeOfUseLink',
@@ -133,6 +148,12 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceTypeCapability.supportsFileManagement
                 },
                 {
+                    text: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                    privileges: Mdc.privileges.DeviceType.view,
+                    itemId: 'securityAccessorsLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/securityaccessors'
+                },
+                {
                     text: Uni.I18n.translate('devicetypemenu.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
                     privileges: Mdc.privileges.DeviceType.view,
                     itemId: 'timeOfUseLink',
@@ -142,10 +163,8 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
         }]);
     },
 
-    setDeviceTypeLink: function (name) {
-        if (this.down('#overviewLink')) {
-            this.down('#overviewLink').setText(name);
-        }
+    setDeviceTypeTitle: function (name) {
+        this.setHeader(name);
     }
 });
 

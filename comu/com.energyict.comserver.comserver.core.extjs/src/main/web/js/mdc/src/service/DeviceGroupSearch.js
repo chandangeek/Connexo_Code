@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.service.DeviceGroupSearch', {
     extend: 'Mdc.service.Search',
 
@@ -16,7 +20,8 @@ Ext.define('Mdc.service.DeviceGroupSearch', {
         }
 
         if (!Ext.Array.contains(excludedCriteria, property.get('name'))) {
-            this.callParent(arguments);
+            return this.callParent(arguments);
         }
+        return property;
     }
 });

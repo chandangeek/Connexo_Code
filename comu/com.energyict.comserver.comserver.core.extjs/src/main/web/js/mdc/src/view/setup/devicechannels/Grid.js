@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicechannels.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceLoadProfileChannelsGrid',
@@ -9,10 +13,11 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
         'Uni.grid.column.Obis',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.view.setup.devicechannels.ActionMenu'
+        'Mdc.view.setup.devicechannels.ActionMenu',
+        'Mdc.util.LinkPurpose'
     ],
 
-    deviceId: null,
+    device: null,
     router: null,
     showDataLoggerSlaveColumn: false,
 
@@ -26,7 +31,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                 showTimeAttribute: false,
                 makeLink: function (record) {
                     return me.router.getRoute('devices/device/channels/channeldata').buildUrl({
-                        deviceId: encodeURIComponent(me.deviceId),
+                        deviceId: encodeURIComponent(me.device.get('name')),
                         channelId: record.getId()
                     });
                 }
@@ -45,13 +50,13 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                 flex: 1
             }
         ];
-
-        if (me.showDataLoggerSlaveColumn) {
+        if ((!Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')) ||
+            (!Ext.isEmpty(me.device.get('isMultiElementDevice')) && me.device.get('isMultiElementDevice'))){
             me.columns.push(
                 {
                     dataIndex: 'dataloggerSlaveName',
                     flex: 1,
-                    header: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                    header: Mdc.util.LinkPurpose.forDevice(me.device).channelGridSlaveColumn,
                     renderer: function(value) {
                         if (Ext.isEmpty(value)) {
                             return '-';
@@ -66,6 +71,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
         me.columns.push(
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'deviceLoadProfileChannelsActionMenu',
                     itemId: 'channelActionMenu'

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.deviceProtocolDialectPreview',
@@ -68,7 +72,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectPreview', {
                     items: [
                         {
                             xtype: 'displayfield',
-                            name: 'name',
+                            name: 'displayName',
                             fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name')
                         }
                     ]

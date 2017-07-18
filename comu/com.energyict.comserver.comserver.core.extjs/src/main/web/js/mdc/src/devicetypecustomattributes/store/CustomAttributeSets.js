@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.devicetypecustomattributes.store.CustomAttributeSets', {
     extend: 'Ext.data.Store',
     model: 'Mdc.devicetypecustomattributes.model.CustomAttributeSet',

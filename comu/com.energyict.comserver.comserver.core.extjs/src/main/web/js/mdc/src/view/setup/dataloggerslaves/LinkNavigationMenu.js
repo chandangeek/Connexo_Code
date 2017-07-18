@@ -1,19 +1,21 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.dataloggerslaves.LinkNavigationMenu', {
     extend: 'Uni.view.menu.NavigationMenu',
-    alias: 'widget.dataloggerslave-link-navigation',
+    alias: 'widget.slave-link-navigation',
+    purpose: undefined,
     jumpForward: false,
     jumpBack: true,
     ui: 'medium',
     padding: '0 0 0 0',
-    title: Uni.I18n.translate('general.linkDataLoggerSlave', 'MDC', 'Link data logger slave'),
 
     initComponent: function () {
-        var me = this;
-
-        me.items = [
+        this.items = [
             {
                 itemId: 'mdc-select-slave',
-                text: Uni.I18n.translate('general.selectDataLoggerSlave', 'MDC', 'Select data logger slave')
+                text: this.purpose.menuWizardStep1
             },
             {
                 itemId: 'mdc-map-channels',
@@ -36,7 +38,6 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkNavigationMenu', {
                 text: Uni.I18n.translate('general.status', 'MDC', 'Status')
             }
         ];
-
-        me.callParent(arguments);
+        this.callParent(arguments);
     }
 });

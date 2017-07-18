@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.LogbookOfDeviceData', {
     extend: 'Ext.data.Model',
     idgen: 'sequential',
     fields: [
         {name: 'eventDate', dateFormat: 'time', type: 'date'},
         'eventType',
+        'eventData',
         'deviceCode',
         'eventLogId',
         {name: 'readingDate', dateFormat: 'time', type: 'date'},

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceLogBookTab', {
     extend: 'Ext.app.Controller',
     stores: [
@@ -20,7 +24,7 @@ Ext.define('Mdc.controller.setup.DeviceLogBookTab', {
         });
     },
 
-    showOverview: function(deviceId, logBookId){
+    showOverview: function (deviceId, logBookId) {
         this.deviceId = deviceId;
         this.logBookId = logBookId;
 
@@ -34,7 +38,7 @@ Ext.define('Mdc.controller.setup.DeviceLogBookTab', {
         if(this.veto===true)this.veto=false;
     },
 
-    showData: function(deviceId, logBookId) {
+    showData: function (deviceId, logBookId) {
         this.logBookId = logBookId;
         var c = this.getController('Mdc.controller.setup.DeviceLogbookData');
         this.veto = true;

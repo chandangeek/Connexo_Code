@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterconfiguration.GeneralPreview', {
     extend: 'Ext.panel.Panel',
     itemId: 'device-register-configuration-general-preview',
@@ -16,7 +20,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.GeneralPreview', {
                 xtype: 'deviceRegisterConfigurationActionMenu'
             }
         }
-    ]
+    ],
+    linkPurpose: Mdc.util.LinkPurpose.NOT_APPLICABLE
 });
 
 

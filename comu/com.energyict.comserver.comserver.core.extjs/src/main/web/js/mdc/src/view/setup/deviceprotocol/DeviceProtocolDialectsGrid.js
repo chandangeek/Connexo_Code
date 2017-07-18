@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceProtocolDialectsGrid',
@@ -21,13 +25,13 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectsGrid', {
         this.columns = [
             {
                 header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                dataIndex: 'name',
+                dataIndex: 'displayName',
                 flex: 1
             },
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                menu: { xtype: 'protocol-dialect-action-menu' },
+                menu: {xtype: 'protocol-dialect-action-menu'},
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.protocolDialectsActions
             }
 
@@ -45,7 +49,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectsGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 params: [
-                    {deviceId: Uni.util.Common.decodeURIArguments(this.deviceId)}
+                    {deviceId: this.deviceId}
                 ],
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('protocolDialects.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Protocol dialects per page')

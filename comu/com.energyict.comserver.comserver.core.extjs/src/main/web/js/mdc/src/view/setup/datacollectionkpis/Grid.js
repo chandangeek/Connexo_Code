@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.datacollectionkpis.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.dataCollectionKpisGrid',
@@ -68,6 +72,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DataCollectionKpi.admin,
                 menu: {
                     xtype: 'dataCollectionKpisActionMenu',

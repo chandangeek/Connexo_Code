@@ -1,18 +1,24 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
     extend: 'Uni.view.menu.SideMenu',
     xtype: 'device-configuration-menu',
+    uniqueMenuId: 'device-configuration-menu',
 
     deviceTypeId: null,
     deviceConfigurationId: null,
 
     title: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
+    objectType: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
 
     initComponent: function () {
         var me = this;
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+                text: Uni.I18n.translate('general.details', 'MDC', 'Details'),
                 itemId: 'deviceConfigurationOverviewLink',
                 href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId
             },
@@ -58,7 +64,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/connectionmethods'
                     },
                     {
-                        text: Uni.I18n.translate('devicesecuritysetting.securitySettings', 'MDC', 'Security settings'),
+                        text: Uni.I18n.translate('general.securitySets', 'MDC', 'Security sets'),
                         itemId: 'securitySettingsLink',
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/securitysettings'
                     },
@@ -99,7 +105,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
             success: function (deviceType) {
-                if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceType.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE') {
                     me.down('#logbooksLink').hide();
                     me.down('#mdc-deviceConfiguration-communication-menu').hide();
                 }

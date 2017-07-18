@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.metrologyconfiguration.view.MetrologyConfigurationsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.metrology-configurations-grid',
@@ -34,6 +38,7 @@ Ext.define('Mdc.metrologyconfiguration.view.MetrologyConfigurationsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.MetrologyConfiguration.canAdmin(),
                 menu: {
                     xtype: 'metrology-configuration-actions-menu',

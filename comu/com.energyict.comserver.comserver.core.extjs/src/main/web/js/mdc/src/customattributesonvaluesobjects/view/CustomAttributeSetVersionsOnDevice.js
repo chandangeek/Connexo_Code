@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionsOnDevice', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.device-history-custom-attribute-sets-versions',

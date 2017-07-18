@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.DeviceChannelDataEstimate', {
     extend: 'Ext.data.Model',
     requires: [
@@ -7,7 +11,8 @@ Ext.define('Mdc.model.DeviceChannelDataEstimate', {
     fields: [
         'estimatorImpl',
         'estimateBulk',
-        'intervals'
+        'intervals',
+        'editedReadings'
     ],
 
     associations: [

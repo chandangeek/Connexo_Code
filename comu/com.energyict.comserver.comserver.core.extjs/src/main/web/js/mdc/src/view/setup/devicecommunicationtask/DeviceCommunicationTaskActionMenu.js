@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-communication-task-action-menu',
     itemId: 'device-communication-task-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('deviceCommunicationTask.runComTask', 'MDC', 'Run'),
@@ -25,14 +29,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskAction
                 privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                 itemId: 'changeConnectionMethodOfDeviceComTask',
                 action: 'changeConnectionMethodOfDeviceComTask',
-                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions,
-                section: this.SECTION_EDIT
-            },
-            {
-                text: Uni.I18n.translate('deviceCommunicationTask.changeProtocolDialect', 'MDC', 'Change protocol dialect'),
-                privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                itemId: 'changeProtocolDialectOfDeviceComTask',
-                action: 'changeProtocolDialectOfDeviceComTask',
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions,
                 section: this.SECTION_EDIT
             },

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.connectionMethodsGrid',
@@ -38,13 +42,17 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
             {
                 header: Uni.I18n.translate('connectionmethod.connectionType', 'MDC', 'Connection type'),
                 dataIndex: 'connectionTypePluggableClass',
+                renderer: function (value) {
+                    return Ext.String.htmlEncode(value.name);
+                },
                 flex: 3
             },
 
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.DeviceType.admin,
-                menu: { xtype: 'connection-method-action-menu' }
+                menu: {xtype: 'connection-method-action-menu'}
             }
 
         ];

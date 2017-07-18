@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.Main', {
     extend: 'Ext.app.Controller',
 
@@ -48,6 +52,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceProtocolDialects',
         'Mdc.controller.setup.DeviceRegisterConfiguration',
         'Mdc.controller.setup.DeviceRegisterData',
+        'Mdc.controller.setup.DeviceRegisterHistoryData',
         'Mdc.controller.setup.DeviceRegisterDataEdit',
         'Mdc.controller.setup.Devices',
         'Mdc.controller.setup.DeviceSecuritySettings',
@@ -98,6 +103,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DataLoggerSlaves',
         'Mdc.usagepointmanagement.controller.UsagePoint',
         'Mdc.usagepointmanagement.controller.ViewChannelsList',
+        'Mdc.usagepointmanagement.controller.ViewRegistersList',
         'Mdc.controller.setup.DeviceConflictingMapping',
         'Mdc.devicetypecustomattributes.controller.AttributeSets',
         'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersions',
@@ -114,7 +120,11 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.metrologyconfiguration.controller.AddView',
         'Mdc.usagepointmanagement.controller.UsagePointHistory',
         'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities',
-        'Mdc.networkvisualiser.controller.NetworkVisualiser'
+        'Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualities',
+        'Mdc.controller.setup.CommandLimitationRules',
+        'Mdc.securityaccessors.controller.SecurityAccessors',
+        'Mdc.securityaccessors.controller.DeviceSecurityAccessors',
+        'Mdc.controller.setup.DeviceRegisterValidation'
     ],
 
     stores: [
@@ -160,11 +170,6 @@ Ext.define('Mdc.controller.Main', {
                         text: Uni.I18n.translate('general.deviceGroups', 'MDC', 'Device groups'),
                         href: '#/devices/devicegroups',
                         route: 'devicegroups'
-                    },
-                    {
-                        text: Uni.I18n.translate('general.visualiser', 'MDC', 'Network visualiser'),
-                        href: '#/visualiser',
-                        route: 'visualiser'
                     }
                 ]
             });
@@ -274,6 +279,12 @@ Ext.define('Mdc.controller.Main', {
                             href: '#/administration/datacollectionkpis',
                             privileges: Mdc.privileges.DataCollectionKpi.view,
                             route: 'datacollectionkpis'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.commandLimitationRules', 'MDC', 'Command limitation rules'),
+                            href: '#/administration/commandrules',
+                            privileges: Mdc.privileges.CommandLimitationRules.view,
+                            route: 'commandrules'
                         }
                     ]
                 });
@@ -288,7 +299,7 @@ Ext.define('Mdc.controller.Main', {
 
             if (Mdc.privileges.Device.canAddDevice()) {
                 var portalItem = Ext.create('Uni.model.PortalItem', {
-                    title: Uni.I18n.translate('general.deviceLifecycleManagement', 'MDC', 'Device lifecycle management'),
+                    title: Uni.I18n.translate('general.device.lifecycle.management', 'MDC', 'Device life cycle management'),
                     portal: 'devices',
                     route: 'devices',
                     items: [

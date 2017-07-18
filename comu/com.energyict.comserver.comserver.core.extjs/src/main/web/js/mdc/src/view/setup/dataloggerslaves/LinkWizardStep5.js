@@ -1,10 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep5', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.dataloggerslave-link-wizard-step5',
     ui: 'large',
-
-    requires: [
-    ],
+    purpose: undefined,
 
     initComponent: function () {
         var me = this;
@@ -22,7 +24,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep5', {
         me.callParent(arguments);
     },
 
-    initialize: function(dataLoggerId, slaveId) {
+    initialize: function (dataLoggerId, slaveId) {
         var me = this;
         if (me.rendered) {
             me.doInitialize(dataLoggerId, slaveId);
@@ -34,14 +36,14 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep5', {
     },
 
 
-    doInitialize: function(dataLoggerId, slaveId) {
+    doInitialize: function (dataLoggerId, slaveId) {
         var me = this,
             labelField = me.down('#mdc-step5-info-label');
 
         if (labelField) {
             labelField.setText(
                 Ext.String.format(
-                    Uni.I18n.translate('general.question.linkSlaveXToDataLoggerY', 'MDC', "Link slave '{0}' to data logger '{1}'?"),
+                    me.purpose.linkConfirmation,
                     slaveId,
                     dataLoggerId
                 )

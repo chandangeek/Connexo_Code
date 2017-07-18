@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.filemanagement.view.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.device-type-files-setup',
@@ -52,16 +56,18 @@ Ext.define('Mdc.filemanagement.view.Setup', {
                         {
                             title: Uni.I18n.translate('general.files', 'MDC', 'Files'),
                             itemId: 'grid-tab',
-                            //disabled: true,
                             items: [
                                 {
-
+                                    xtype: 'form',
+                                    hidden: !me.fileManagementEnabled,
+                                    items: [
+                                        {
                                             xtype: 'uni-form-empty-message',
                                             itemId: 'maxFileSizeMessage',
                                             margin: '5 0 5 0',
                                             text: Uni.I18n.translate('filemanagement.maxAllowedFileSize2MB', 'MDC', 'The maximum allowed file size is 2MB')
-
-
+                                        }
+                                    ]
                                 },
                                 {
                                     xtype: 'files-devicetype-preview-container',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.metrology-configurations-add-form',
@@ -56,8 +60,7 @@ Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
                 name: 'readingTypes',
                 itemId: 'mc-readingTypes-reading-types-field',
                 fieldLabel: Uni.I18n.translate('general.readingTypes', 'MDC', 'Reading types'),
-                required: true,
-                isEquidistant: true
+                required: true
             },
             {
                 xtype: 'fieldcontainer',

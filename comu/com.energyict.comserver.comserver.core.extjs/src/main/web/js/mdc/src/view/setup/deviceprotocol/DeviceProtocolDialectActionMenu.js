@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-protocol-dialect-action-menu',
     itemId: 'device-protocol-dialect-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),

@@ -1,8 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceevents.EventFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'mdc-view-setup-deviceevents-eventfilter',
 
     store: 'Mdc.store.LogbookOfDeviceData',
+
+    requires:[
+        'Mdc.store.Domains',
+        'Mdc.store.Subdomains',
+        'Mdc.store.EventsOrActions'
+    ],
 
     filters: [
         {

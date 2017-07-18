@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.searchitems.bulk.Step1', {
     extend: 'Ext.panel.Panel',
     xtype: 'searchitems-bulk-step1',

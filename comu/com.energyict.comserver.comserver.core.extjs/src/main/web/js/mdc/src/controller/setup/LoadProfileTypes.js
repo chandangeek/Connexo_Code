@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     extend: 'Ext.app.Controller',
 
@@ -90,6 +94,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             model.destroy({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type removed'));
+                    me.getController('Uni.controller.history.Router').getRoute('administration/loadprofiletypes').forward();
                 },
                 callback: function () {
                     widget.setLoading(false);
@@ -252,45 +257,47 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         me.getApplication().fireEvent('changecontentevent', widget);
         form = widget.down('#load-profile-type-edit-form');
         form.down('combobox[name=timeDuration]').bindStore(intervalsStore);
-        intervalsStore.load();
+        intervalsStore.load(function() {
+            if (loadProfileTypeId) {
+                widget.setLoading(true);
+                me.getModel('Mdc.model.LoadProfileType').load(loadProfileTypeId, {
+                    success: function (record) {
+                        me.getApplication().fireEvent('loadProfileType', record);
 
-        if (loadProfileTypeId) {
-            widget.setLoading(true);
-            me.getModel('Mdc.model.LoadProfileType').load(loadProfileTypeId, {
-                success: function (record) {
-                    me.getApplication().fireEvent('loadProfileType', record);
-
-                    if (intervalsStore.getCount()) {
-                        me.loadRecordOrClipboard(record)
-                    } else {
-                        intervalsStore.on('load', function () {
+                        if (intervalsStore.getCount()) {
                             me.loadRecordOrClipboard(record)
-                        }, me, {single: true});
-                    }
+                        } else {
+                            intervalsStore.on('load', function () {
+                                me.loadRecordOrClipboard(record)
+                            }, me, {single: true});
+                        }
 
-                    if (record.get('isLinkedToActiveDeviceConf')) {
-                        form.down('[name=timeDuration]').disable();
-                        form.down('[name=obisCode]').disable();
-                        form.down('#register-types-fieldcontainer').disable();
-                        form.down('#register-types-grid').disable();
+                        if (record.get('isLinkedToActiveDeviceConf')) {
+                            form.down('[name=timeDuration]').disable();
+                            form.down('[name=obisCode]').disable();
+                            form.down('#register-types-fieldcontainer').disable();
+                            form.down('#register-types-grid').disable();
+                        }
+                    },
+                    callback: function (record) {
+                        if (router.currentRoute !== 'administration/loadprofiletypes/edit/addregistertypes') {
+                            me.getEditPage().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name')));
+                        }
+                        widget.setLoading(false);
+                        form.setEdit(true, returnLink, addRegisterTypesLink);
+                        form.showGridOrMessage();
                     }
-                },
-                callback: function (record) {
-                    if (router.currentRoute !== 'administration/loadprofiletypes/edit/addregistertypes') {
-                        me.getEditPage().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name')));
-                    }
-                    widget.setLoading(false);
-                    form.setEdit(true, returnLink, addRegisterTypesLink);
-                    form.showGridOrMessage();
-                }
-            });
-        } else {
-            me.getEditPage().setTitle(Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'));
-            form.setEdit(false, returnLink, addRegisterTypesLink);
-            form.loadRecord(Ext.create('Mdc.model.LoadProfileType'));
-            form.down('[name=timeDuration]').select(0);
-            form.showGridOrMessage();
-        }
+                });
+            } else {
+                me.getEditPage().setTitle(Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'));
+                form.setEdit(false, returnLink, addRegisterTypesLink);
+                form.loadRecord(Ext.create('Mdc.model.LoadProfileType'));
+                var storeIndex = intervalsStore.findExact("asSeconds", 900);
+                var toSelect = storeIndex!=-1 ? intervalsStore.getAt(storeIndex) : 0;
+                form.down('[name=timeDuration]').select(toSelect);
+                form.showGridOrMessage();
+            }
+        });
     },
 
     loadRecordOrClipboard: function(record) {
@@ -298,11 +305,11 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             clipBoardRecord = me.getStore('Mdc.store.Clipboard').get('model');
 
         if(clipBoardRecord && (!clipBoardRecord.get('id') || clipBoardRecord.get('id') === record.get('id'))) {
-                record = me.getStore('Mdc.store.Clipboard').get('model');
+            record = me.getStore('Mdc.store.Clipboard').get('model');
         } else {
             me.getRegisterTypesGrid().getStore().loadData(record.get('registerTypes'), false);
-            me.getStore('Mdc.store.Clipboard').removeAll(true);
         }
+        me.getStore('Mdc.store.Clipboard').removeAll(true);
         me.getEditForm().loadRecord(record);
     },
 
@@ -318,17 +325,11 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             editPage = me.getEditPage();
 
         if (!editPage) {
-            me.showEdit(id);
-            editPage = me.getEditPage();
+            me.getController('Uni.controller.history.Router').getRoute('administration/loadprofiletypes/edit').forward({id:id});
+            return;
         }
-        if (editPage && id != null) {
-            var loadProfileModel = me.getModel('Mdc.model.LoadProfileType');
-            store.getProxy().url = loadProfileModel.getProxy().url + '/' + id + '/measurementtypes';
-        } else {
-            store.getProxy().url = store.getProxy().baseUrl;
-        }
-        me.storeCurrentValues();
 
+        me.storeCurrentValues();
         Ext.suspendLayouts();
         editPage.getLayout().setActiveItem(1);
         editPage.setTitle(Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddRegisterTypesView.title', 'MDC', 'Add register types'));
@@ -352,7 +353,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         var me = this,
             assignedRegisterTypesIds = [],
             grid = me.getAddRegisterTypesGrid(),
-            store = Ext.getStore('Mdc.store.RegisterTypesToAdd');
+            store = Ext.getStore('Mdc.store.RegisterTypesToAdd'),
+            cardContainer = me.getEditPage().down('#load-profile-type-edit-registerTypes');
 
         store.data.clear();
         store.clearFilter(true);
@@ -361,10 +363,15 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             assignedRegisterTypesIds.push(item.getId());
         });
 
-        store.on('load', function () {
-            if (assignedRegisterTypes && assignedRegisterTypes.length && me.getEditPage()) {
-                me.getEditPage().down('radiogroup').items.items[1].setValue(true);
-                grid.setGridVisible(true);
+        store.on('load', function(loadedStore, records) {
+            if (records.length===0) {
+                cardContainer.getLayout().setActiveItem(1);
+            } else {
+                cardContainer.getLayout().setActiveItem(0);
+                if (assignedRegisterTypes && assignedRegisterTypes.length && me.getEditPage()) {
+                    me.getEditPage().down('radiogroup').items.items[1].setValue(true);
+                    grid.setGridVisible(true);
+                }
             }
         }, me, {single: true});
 
@@ -451,6 +458,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                         Ext.Array.each(json.errors, function (item) {
                             if (item.id.indexOf("interval") !== -1) {
                                 me.getEditPage().down('#timeDuration').setActiveError(item.msg);
+                            }
+                            if (item.id.indexOf("obisCodeCached.obisCode") !== -1) {
+                                me.getEditPage().down('#txt-load-profile-type-obis-code').setActiveError(item.msg);
                             }
                         });
                         basicForm.markInvalid(json.errors);

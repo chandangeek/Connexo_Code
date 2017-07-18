@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.ComServerEdit', {
     extend: 'Ext.app.Controller',
 
@@ -57,7 +61,7 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
 
                 me.comServerModel = record;
 
-                me.getApplication().fireEvent('loadComServer', record);
+                me.getApplication().fireEvent('comServerOverviewLoad', record);
 
                 switch (comServerType) {
                     case 'Online':

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.device.DeviceAdd', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceAdd',
@@ -5,7 +9,8 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
     requires: [
         'Mdc.store.AvailableDeviceTypes',
         'Mdc.store.AvailableDeviceConfigurations',
-        'Uni.util.Hydrator'
+        'Uni.util.Hydrator',
+        'Mdc.widget.DeviceConfigurationField'
     ],
     labelWidth: 250,
     formWidth: 650,
@@ -74,99 +79,37 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                                 enforceMaxLength: true
                             },
                             {
-                                xtype: 'combobox',
-                                required: true,
-                                msgTarget: 'under',
-                                itemId: 'deviceAddType',
-                                name: 'deviceType',
+                                xtype: 'deviceConfigurationField',
+                                itemId: 'deviceConfiguration',
+                                deviceTypeStore: 'AvailableDeviceTypes',
                                 queryMode: 'local',
-                                typeAhead: true,
-                                autoSelect: true,
-                                labelAlign: 'right',
-                                fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
-                                emptyText: Uni.I18n.translate('deviceAdd.type.value', 'MDC', 'Select a device type...'),
-                                displayField: 'name',
-                                valueField: 'id',
-                                store: me.deviceTypeStore || 'AvailableDeviceTypes',
-                                validateOnBlur: false,
-                                validateOnChange: false,
-                                listConfig:
-                                {
-                                    loadMask: true,
-                                    maxHeight: 300
-                                },
-                                listeners: {
-                                    select: function (field, value) {
-                                        var configCombo = field.nextSibling(),
-                                            valueId;
-
-                                        if (Ext.isArray(value)) {
-                                            valueId = value[0].data.id;
-                                        } else {
-                                            valueId = value.data.id;
-                                        }
-                                        configCombo.getStore().getProxy().setExtraParam('deviceType', valueId);
-                                        if (configCombo.isDisabled()) {
-                                            configCombo.enable();
-                                        } else {
-                                            configCombo.reset();
-                                            configCombo.getStore().reload();
-                                        }
-
-                                        field.up('form').getRecord().set('deviceTypeId', valueId);
-                                    },
-                                    change: function (field, value) {
-                                        var configCombo = field.nextSibling();
-                                        if (value == '') {
-                                            configCombo.reset();
-                                            configCombo.disable();
-                                        }
-                                    },
-                                    blur: function (field) {
-                                        if (!field.getValue()) {
-                                            field.nextSibling().reset();
-                                            field.nextSibling().disable();
-                                        } else {
-                                            Ext.Array.each(field.getStore().getRange(), function (item) {
-                                                if (field.getValue() == item.get('name')) {
-                                                    field.fireEvent('select', field, item);
-                                                }
-                                            });
-                                        }
-                                    }
-                                }
+                                allowBlank: false
+                            },
+                        {
+                            xtype: 'textfield',
+                            name: 'manufacturer',
+                            itemId: 'deviceAddManufacturer',
+                            fieldLabel: Uni.I18n.translate('deviceAdd.manufacturer', 'MDC', 'Manufacturer'),
+                            maxLength: 80,
+                            enforceMaxLength: true
+                        },
+                            {
+                                xtype: 'textfield',
+                                name: 'modelNbr',
+                                itemId: 'deviceAddModelNumber',
+                                fieldLabel: Uni.I18n.translate('deviceAdd.modelNumber', 'MDC', 'Model number'),
+                                maxLength: 80,
+                                enforceMaxLength: true
                             },
                             {
-                                xtype: 'combobox',
-                                msgTarget: 'under',
-                                itemId: 'deviceAddConfig',
-                                name: 'deviceConfiguration',
-                                autoSelect: true,
-                                enabled: false,
-                                labelAlign: 'right',
-                                fieldLabel: '&nbsp',
-                                emptyText: Uni.I18n.translate('deviceAdd.config.value', 'MDC', 'Select a device configuration...'),
-                                afterSubTpl: '<div style="color: #686868; margin-top: 6px"><i>'
-                                + Uni.I18n.translate('deviceAdd.firstSelectDeviceType', 'MDC', 'First select a device type.')
-                                + '</i></div>',
-                                displayField: 'name',
-                                valueField: 'id',
-                                disabled: true,
-                                store: 'AvailableDeviceConfigurations',
-                                validateOnBlur: false,
-                                validateOnChange: false,
-                                listConfig:
-                                {
-                                    loadMask: true,
-                                    maxHeight: 300
-                                },
-                            listeners: {
-                                select: function (field, value) {
-                                    field.up('form').getRecord().set('deviceConfigurationId', value[0].data.id);
-                                }
-                            }
-                        },
-                        {
+                                xtype: 'textfield',
+                                name: 'modelVersion',
+                                itemId: 'deviceAddModelVersion',
+                                fieldLabel: Uni.I18n.translate('deviceAdd.modelVersion', 'MDC', 'Model version'),
+                                maxLength: 80,
+                                enforceMaxLength: true
+                            },
+                            {
                             xtype: 'datefield',
                             itemId: 'deviceAddShipmentDate',
                             allowBlank: false,

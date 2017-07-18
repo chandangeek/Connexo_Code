@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterdata.RegisterTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'mdc-registers-topfilter',
     hasDefaultFilters: true,
     filterDefault: {
-        from: moment().startOf('day').subtract(1,'years').toDate(),
+        from: moment().startOf('day').subtract(1, 'years').toDate(),
         to: moment().endOf('day').toDate()
     },
     initComponent: function () {

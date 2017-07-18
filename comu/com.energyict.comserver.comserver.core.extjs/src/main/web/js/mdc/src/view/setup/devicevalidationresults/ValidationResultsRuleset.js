@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
     extend: 'Ext.container.Container',
     alias: 'widget.mdc-device-validation-results-ruleset',

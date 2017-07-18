@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.model.DeviceRegisterForPreview', {
     extend: 'Uni.model.ParentVersion',
     requires: [
@@ -9,6 +13,7 @@ Ext.define('Mdc.model.DeviceRegisterForPreview', {
         {name: 'registerType', type:'number', useNull: true},
         {name: 'obisCode', type: 'string', useNull: true},
         {name: 'overruledObisCode', type: 'string', useNull: true},
+        {name: 'name', type: 'string', useNull: true},
         {name: 'type', type: 'string', useNull: true},
         {name: 'isCumulative', type: 'boolean'},
         {name: 'numberOfFractionDigits', type: 'number', useNull: true},
@@ -32,7 +37,7 @@ Ext.define('Mdc.model.DeviceRegisterForPreview', {
                         if(!Ext.isEmpty(record.get('lastReading').value)) {
                             return Uni.Number.formatNumber(record.get('lastReading').value, -1) + ' ' + record.get('lastReading').unit;
                         }
-                        if(!Ext.isEmpty(record.get('lastReading').calculatedValue)) {
+                        if (!Ext.isEmpty(record.get('lastReading').calculatedValue)) {
                             return Uni.Number.formatNumber(record.get('lastReading').calculatedValue, -1) + ' ' + record.get('lastReading').calculatedUnit;
                         }
                         return '-'

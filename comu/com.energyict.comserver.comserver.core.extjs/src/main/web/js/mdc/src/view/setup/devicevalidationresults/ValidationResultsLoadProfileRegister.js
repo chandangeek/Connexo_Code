@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileRegister', {
     extend: 'Ext.container.Container',
     alias: 'widget.mdc-device-validation-results-load-profile-register',
@@ -182,7 +186,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileR
             }
 
             if (dataViewValidateNowBtn) {
-                dataViewValidateNowBtn.setDisabled(!record.get('isActive') || record.get('allDataValidated'));
+                dataViewValidateNowBtn.setDisabled(!record.get('isActive'));
             }
 
             loadProfiles = record.get('detailedValidationLoadProfile');

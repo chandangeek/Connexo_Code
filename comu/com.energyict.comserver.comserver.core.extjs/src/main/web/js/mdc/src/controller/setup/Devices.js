@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.Devices', {
     extend: 'Ext.app.Controller',
 
     requires: [
         'Mdc.model.DeviceAttribute',
         'Mdc.model.Device',
-        'Cfg.privileges.Validation'
+        'Cfg.privileges.Validation',
+        'Mdc.widget.DeviceConfigurationField'
     ],
     views: [
         'Mdc.view.setup.device.DeviceSetup',
@@ -38,13 +43,15 @@ Ext.define('Mdc.controller.setup.Devices', {
         {ref: 'deviceGeneralInformationDeviceTypeLink', selector: '#deviceGeneralInformationDeviceTypeLink'},
         {ref: 'deviceGeneralInformationDeviceConfigurationLink', selector: '#deviceGeneralInformationDeviceConfigurationLink'},
         {ref: 'deviceGeneralInformationUsagePointLink', selector: '#deviceGeneralInformationUsagePointLink'},
+        {ref: 'deviceIconImage', selector: '#device-information-panel-device-icon'},
         {ref: 'dataCollectionIssuesLink', selector: '#dataCollectionIssuesLink'},
         {ref: 'deviceValidationResultFieldLink', selector: '#lnk-validation-result'},
         {ref: 'validationFromDate', selector: '#validationFromDate'},
         {ref: 'deviceActionsMenu', selector: 'deviceSetup #deviceActionMenu'},
         {ref: 'addDevicePage', selector: 'deviceAdd'},
         {ref: 'deviceConnectionsList', selector: 'device-connections-list'},
-        {ref: 'deviceCommunicationsList', selector: 'device-communications-list'}
+        {ref: 'deviceCommunicationsList', selector: 'device-communications-list'},
+        {ref: 'deviceGeneralInformationPanel', selector: 'deviceGeneralInformationPanel'}
     ],
 
     init: function () {
@@ -238,7 +245,20 @@ Ext.define('Mdc.controller.setup.Devices', {
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = this.getController('Uni.controller.history.Router'),
             attributesModel = Ext.ModelManager.getModel('Mdc.model.DeviceAttribute'),
-            transitionsStore = Ext.StoreManager.get('Mdc.store.DeviceTransitions');
+            transitionsStore = Ext.StoreManager.get('Mdc.store.DeviceTransitions'),
+            updateDeviceSummary = function (attributes) {
+                Ext.suspendLayouts();
+                me.getDeviceGeneralInformationForm().loadRecord(attributes);
+                if(!Ext.isEmpty(attributes.get('deviceIcon'))) {
+                    me.getDeviceIconImage().show();
+                    me.getDeviceIconImage().setSrc('data:image;base64,' + attributes.get('deviceIcon'));
+                } else {
+                    me.getDeviceIconImage().hide();
+                }
+                me.getDeviceSetup().down('#deviceSetupPanel #last-updated-field')
+                    .update(Uni.I18n.translate('general.lastRefreshedAt', 'MDC', 'Last refreshed at {0}', Uni.DateTime.formatTimeShort(new Date())));
+                Ext.resumeLayouts(true);
+            };
 
         viewport.setLoading();
         transitionsStore.getProxy().setExtraParam('deviceId', deviceId);
@@ -261,33 +281,36 @@ Ext.define('Mdc.controller.setup.Devices', {
                             widget.renderFlag(deviceLabelsStore);
                         });
 
+                        if (me.getDeviceGeneralInformationPanel().rendered) {
+                            attributesModel.load('attributes', { success: updateDeviceSummary });
+                        } else {
+                            me.getDeviceGeneralInformationPanel().on('afterrender', function () {
+                                attributesModel.load('attributes', { success: updateDeviceSummary });
+                            }, me, {single:true});
+                        }
+
                         me.getApplication().fireEvent('changecontentevent', widget);
 
                         me.doRefresh();
 
-                        attributesModel.load('attributes', {
-                            success: function (attributes) {
-                                me.getDeviceGeneralInformationForm().loadRecord(attributes);
-                                me.getDeviceSetup().down('#deviceSetupPanel #last-updated-field')
-                                    .update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', Uni.DateTime.formatTimeShort(new Date())));
-                            }
-                        });
                         if (!Ext.isEmpty(me.getDeviceCommunicationTopologyPanel())) {
-                            if (device.get('isDataLoggerSlave')) {
+                            if (device.get('isDataLoggerSlave') || device.get('isMultiElementSlave')) {
                                 me.getDeviceCommunicationTopologyPanel().hide();
                             } else {
                                 me.getDeviceCommunicationTopologyPanel().setRecord(device);
                             }
                         }
                         if (!Ext.isEmpty(me.getDataLoggerSlavesPanel())) {
-                            me.getDataLoggerSlavesPanel().setSlaveStore(me.createDataLoggerSlavesStore(device));
+                            var dataLoggerSlavesPanel = me.getDataLoggerSlavesPanel();
+                            dataLoggerSlavesPanel.setDevice(device);
+                            dataLoggerSlavesPanel.setSlaveStore(me.createDataLoggerSlavesStore(device));
                         }
                         if (!Ext.isEmpty(me.getDeviceOpenIssuesPanel())) {
                             me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
                         }
                         if ((device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
                             && Cfg.privileges.Validation.canUpdateDeviceValidation()) {
-                            me.updateDataValidationStatusSection(deviceId, widget);
+                            me.updateDataValidationStatusSection(deviceId, widget, device);
                         } else {
                             !Ext.isEmpty(widget.down('device-data-validation-panel')) && widget.down('device-data-validation-panel').hide();
                         }
@@ -328,6 +351,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 {name: 'name', type: 'string'},
                 {name: 'deviceTypeName', type: 'string'},
                 {name: 'deviceConfigurationName', type: 'string'},
+                {name: 'deviceTypePurpose', type: 'string'},
                 {name: 'linkingTimeStamp', type: 'number'}
             ]
         });
@@ -340,6 +364,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 name: slaveRecord.name,
                 deviceTypeName: slaveRecord.deviceTypeName,
                 deviceConfigurationName: slaveRecord.deviceConfigurationName,
+                deviceTypePurpose : slaveRecord.deviceTypePurpose,
                 linkingTimeStamp: slaveRecord.linkingTimeStamp
             });
         }, me);
@@ -368,7 +393,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         if (connectionsList) {
             connectionsList.bindStore(deviceConnectionsStore);
             deviceConnectionsStore.getProxy().setExtraParam('deviceId', device.get('name'));
-            lastUpdateField.update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
+            lastUpdateField.update(Uni.I18n.translate('general.lastRefreshedAt', 'MDC', 'Last refreshed at {0}', Uni.DateTime.formatTimeShort(new Date())));
             deviceConnectionsStore.load(function (records) {
                 if (!widget.isDestroyed) {
                     !!widget.down('#connectionslist') && widget.down('#connectionslist').setTitle(Uni.I18n.translate('device.connections.title', 'MDC', 'Connections ({0})', records.length));
@@ -387,7 +412,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         if (communicationsList) {
             communicationsList.bindStore(deviceCommunicationsStore);
             deviceCommunicationsStore.getProxy().setExtraParam('deviceId', device.get('name'));
-            lastUpdateField.update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', Uni.DateTime.formatTimeShort(new Date())));
+            lastUpdateField.update(Uni.I18n.translate('general.lastRefreshedAt', 'MDC', 'Last refreshed at {0}', Uni.DateTime.formatTimeShort(new Date())));
             deviceCommunicationsStore.load(function (records) {
                 if (!widget.isDestroyed && !Ext.isEmpty(widget.down('#communicationslist'))) {
                     widget.down('#communicationslist').setTitle(
@@ -403,7 +428,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         widget.down('form').loadRecord(Ext.create('Mdc.model.Device'));
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading();
-        widget.down('#deviceAddType').getStore().load(function () {
+        widget.down('#deviceConfiguration').getDeviceTypeStore().load(function () {
             widget.setLoading(false);
         });
     },
@@ -414,17 +439,20 @@ Ext.define('Mdc.controller.setup.Devices', {
 
         form.getForm().isValid();
         form.updateRecord();
-        if (!form.down('#deviceAddType').getValue()) {
+        var deviceType = form.down('#deviceConfiguration').getDeviceType();
+        var deviceConfig = form.down('#deviceConfiguration').getDeviceConfiguration();
+        if (!deviceConfig){
             form.getRecord().set('deviceTypeId', null);
-        }
-        if (!form.down('#deviceAddConfig').getValue()) {
             form.getRecord().set('deviceConfigurationId', null);
+        }else{
+            form.getRecord().set('deviceTypeId', deviceType.get('id'));
+            form.getRecord().set('deviceConfigurationId', deviceConfig.get('id'));
         }
         form.getRecord().set('shipmentDate', form.down('#deviceAddShipmentDate').getValue().getTime());
         me.getAddDevicePage().setLoading();
         form.getRecord().save({
             success: function (record) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAdd.added', 'MDC', "Device '{0}' added.", record.get('name'), false));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAdd.added', 'MDC', 'Device added'));
                 location.href = "#/devices/" + encodeURIComponent(record.get('name'));
             },
             failure: function (record, operation) {
@@ -436,8 +464,8 @@ Ext.define('Mdc.controller.setup.Devices', {
                             if (item.id != 'deviceType') { // JP-6865 #hide device type error returned from backend
                                 errorsToShow.push(item)
                             } else {
-                                if (!form.down('#deviceAddType').getValue()) {
-                                    errorsToShow.push(item)
+                                if (!deviceType) {
+                                    errorsToShow.push(item);
                                 }
                             }
                         });

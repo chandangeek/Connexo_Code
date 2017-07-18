@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceSecuritySettingSetup',
@@ -10,6 +14,9 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
         'Uni.view.container.PreviewContainer',
         'Uni.util.FormEmptyMessage'
     ],
+
+    deviceProtocolSupportSecuritySuites: undefined,
+    deviceProtocolSupportsClient: undefined,
 
     initComponent: function () {
         var me = this;
@@ -34,7 +41,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
                 ui: 'large',
                 xtype: 'panel',
                 itemId: 'deviceSecuritySettingSetupPanel',
-                title: Uni.I18n.translate('devicesecuritysetting.securitySettings', 'MDC', 'Security settings'),
+                title: Uni.I18n.translate('general.securitySets', 'MDC', 'Security sets'),
 
                 items: [
                     {
@@ -47,6 +54,17 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
                         emptyComponent: this.getEmptyComponent(),
                         previewComponent: {
                             xtype: 'deviceSecuritySettingPreview'
+                        },
+                        onLoad: function (store, records, successful) {
+                            var hasSecuritySuite = false,
+                                hasClient = false;
+                            if(store.count() > 0) {
+                                hasSecuritySuite = records[0].get('securitySuite')['id'] !== -1;
+                                hasClient = !Ext.isEmpty(records[0].getClient());
+                            }
+                            me.down('#deviceSecuritySettingSetupPanel preview-container deviceSecuritySettingGrid').updateColumns(hasSecuritySuite, hasClient);
+                            me.down('#deviceSecuritySettingSetupPanel preview-container deviceSecuritySettingPreview').updateColumns(hasSecuritySuite, hasClient);
+                            Uni.view.container.PreviewContainer.prototype.onLoad.call(this, store, records, successful);
                         }
                     }
                 ]

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.util.ScheduleToStringConverter', {
     singleton: true,
 
@@ -143,7 +147,7 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
         return result;
     },
 
-    formatClockTime: function(hours, minutes, seconds) {
+    formatClockTime: function (hours, minutes, seconds) {
         var result = '';
         result += ' ' + Uni.I18n.translate('general.lowercase.at', 'MDC', 'at') + ' ';
         if (Ext.isEmpty(hours)) {

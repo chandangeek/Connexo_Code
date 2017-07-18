@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.usagepointmanagement.view.ViewChannelsList', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.view-channels-list',
@@ -33,7 +37,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelsList', {
                         emptyComponent: {
                             xtype: 'uni-form-info-message',
                             itemId: 'usage-point-channels-empty-msg',
-                            text: Uni.I18n.translate('usagePointChannels.noItems', 'MDC', 'No available channels because no metrology configuration versions until current moment in time. See {0}versions{1} of metrology configurations',
+                            text: Uni.I18n.translate('usagePointChannels.noItems', 'MDC', 'No available channels because no metrology configuration versions until current moment in time. See {0}versions{1} of metrology configurations.',
                                 ['<a href="'
                                 + me.router.getRoute('usagepoints/usagepoint/history').buildUrl(null, Ext.apply({historyTab: 'metrologyconfigurationversion'}, me.router.queryParams))
                                 + '">', '</a>'],

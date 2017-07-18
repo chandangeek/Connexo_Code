@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceConnectionHistoryGrid',
@@ -23,7 +27,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 dataIndex: 'startedOn',
                 flex: 2,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                    return value ? Uni.DateTime.formatDateTime(value, Uni.DateTime.SHORT, Uni.DateTime.LONG) : '-';
                 }
             },
             {
@@ -40,7 +44,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 dataIndex: 'status',
                 flex: 1,
                 renderer: function(status,metadata,rowObject){
-                    return status!==''?'<a href="#/devices/'+ encodeURIComponent(this.deviceId) + '/connectionmethods/' + this.connectionId + '/history/' + rowObject.get('id') + '/viewlog?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D' + '">' + Ext.String.htmlEncode(status) + '</a>':'';
+                    return status !== '' ? '<a href="#/devices/' + encodeURIComponent(this.deviceId) + '/connectionmethods/' + this.connectionId + '/history/' + rowObject.get('id') + '/viewlog?logLevels=Debug&logTypes=Connections&logTypes=Communications">' + Ext.String.htmlEncode(status) + '</a>' : '';
                 }
             },
             {
@@ -59,10 +63,31 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 itemId: 'comTaskCount',
                 renderer: function (val,metaData) {
                     metaData.tdCls = 'communication-tasks-status';
-                    var template = '';                   
-                        template += '<tpl><span class="icon-checkmark"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '</tpl>';
-                        template += '<tpl><span class="icon-cross"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '</tpl>';
-                        template += '<tpl><span  class="icon-stop2"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</tpl>';
+                    var template = '',
+                        tooltipText = '';
+                    tooltipText += Uni.I18n.translatePlural(
+                        'device.connections.comTasksSuccessful', val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : 0, 'MDC',
+                        'No communication tasks successful', '1 communication task successful', '{0} communication tasks successful'
+                    );
+                    tooltipText += '<br>';
+                    tooltipText += Uni.I18n.translatePlural(
+                        'device.connections.comTasksFailed', val.numberOfFailedTasks ? val.numberOfFailedTasks : 0, 'MDC',
+                        'No communication tasks failed', '1 communication task failed', '{0} communication tasks failed'
+                    );
+                    tooltipText += '<br>';
+                    tooltipText += Uni.I18n.translatePlural(
+                        'device.connections.comTasksNotCompleted', val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : 0, 'MDC',
+                        'No communication tasks not completed', '1 communication task not completed', '{0} communication tasks not completed'
+                    );
+                    if (!Ext.isEmpty(tooltipText)) {
+                        metaData.tdAttr = 'data-qtip="' + tooltipText + '"';
+                    } else {
+                        metaData.tdAttr = 'data-qtip=""';
+                    }
+
+                    template += '<tpl><span class="icon-checkmark"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '</tpl>';
+                    template += '<tpl><span class="icon-cross"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '</tpl>';
+                    template += '<tpl><span  class="icon-stop2"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</tpl>';
                     return template;
                 },
                 header: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
@@ -71,6 +96,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
             {
                 itemId: 'action',
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'mdc-device-connection-history-grid-action-menu'
                 }

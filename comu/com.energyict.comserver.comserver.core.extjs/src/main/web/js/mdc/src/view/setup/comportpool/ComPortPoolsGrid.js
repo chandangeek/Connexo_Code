@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.comPortPoolsGrid',
@@ -61,6 +65,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
             {
                 itemId: 'actionColumn',
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 privileges: Mdc.privileges.Communication.admin,
                 menu: {
                     xtype: 'comportpool-actionmenu',

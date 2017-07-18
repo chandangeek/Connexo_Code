@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.CommunicationTasks', {
     extend: 'Ext.app.Controller',
     deviceTypeId: null,
@@ -19,7 +23,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         'ComTasks',
         'SecuritySettingsOfDeviceConfiguration',
         'ConnectionMethodsOfDeviceConfiguration',
-        'ProtocolDialectsOfDeviceConfiguration',
         'ConnectionMethodsOfDeviceConfigurationCombo'
     ],
 
@@ -136,8 +139,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
 
-        proxy.setExtraParam("deviceType",deviceTypeId);
-        proxy.setExtraParam("deviceConfig",deviceConfigurationId);
+        proxy.setExtraParam("deviceType", deviceTypeId);
+        proxy.setExtraParam("deviceConfig", deviceConfigurationId);
 
         me.getCommunicationTaskConfigsOfDeviceConfigurationStore().load({
             callback: function () {
@@ -154,7 +157,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                             success: function (deviceConfig) {
                                 if (mainView) mainView.setLoading(false);
                                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                                widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
+                                widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
                                 me.getApplication().fireEvent('changecontentevent', widget);
                             }
                         });
@@ -170,7 +173,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             comTasksStore = me.getComTasksStore(),
             securityPropertySetsStore = me.getSecuritySettingsOfDeviceConfigurationStore(),
             connectionMethodsStore = me.getConnectionMethodsOfDeviceConfigurationComboStore(),
-            protocolDialectsStore = me.getProtocolDialectsOfDeviceConfigurationStore(),
             defaultConnectionMethod;
 
         defaultConnectionMethod = Ext.create('Mdc.model.ConnectionMethod', {
@@ -185,8 +187,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             returnLink: '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements',
             comTasksStore: comTasksStore,
             securityPropertySetsStore: securityPropertySetsStore,
-            connectionMethodsStore: connectionMethodsStore,
-            protocolDialectsStore: protocolDialectsStore
+            connectionMethodsStore: connectionMethodsStore
         });
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
@@ -218,18 +219,10 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                         connectionMethodsStore.add(defaultConnectionMethod);
                                         securityPropertySetsStore.load({
                                             callback: function () {
-                                                protocolDialectsStore.getProxy().extraParams = ({
-                                                    deviceType: deviceTypeId,
-                                                    deviceConfig: deviceConfigurationId
-                                                });
-                                                protocolDialectsStore.load({
-                                                    callback: function () {
-                                                        var title = Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task configuration');
-                                                        widget.down('#communicationTaskEditForm').setTitle(title);
-                                                        widget.down('#partialConnectionTaskComboBox').setValue(-1);
-                                                        widget.setLoading(false);
-                                                    }
-                                                });
+                                                var title = Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task configuration');
+                                                widget.down('#communicationTaskEditForm').setTitle(title);
+                                                widget.down('#partialConnectionTaskComboBox').setValue(-1);
+                                                widget.setLoading(false);
                                             }
                                         });
                                     }
@@ -254,7 +247,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             comTasksStore = me.getComTasksStore(),
             securityPropertySetsStore = me.getSecuritySettingsOfDeviceConfigurationStore(),
             connectionMethodsStore = me.getConnectionMethodsOfDeviceConfigurationComboStore(),
-            protocolDialectsStore = me.getProtocolDialectsOfDeviceConfigurationStore(),
             model = Ext.ModelManager.getModel('Mdc.model.CommunicationTaskConfig');
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
@@ -268,8 +260,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                     returnLink: '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements',
                     comTasksStore: comTasksStore,
                     securityPropertySetsStore: securityPropertySetsStore,
-                    connectionMethodsStore: connectionMethodsStore,
-                    protocolDialectsStore: protocolDialectsStore
+                    connectionMethodsStore: connectionMethodsStore
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
                 widget.setLoading(true);
@@ -302,7 +293,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                 if (!Ext.isEmpty(communicationTask.get('comTask'))) {
                                                     comTaskName = communicationTask.get('comTask').name;
                                                 }
-                                                var title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[comTaskName]);
+                                                var title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [comTaskName]);
                                                 widget.down('#communicationTaskEditForm').setTitle(title);
                                                 widget.setValues(communicationTask);
                                                 widget.setLoading(false);
@@ -337,7 +328,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.message', 'MDC', "For this device configuration it won't be possible anymore to execute the corresponding communication task"),
-            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[lastSelected.get('comTask').name]),
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", [lastSelected.get('comTask').name]),
             config: {
                 communicationTaskToDelete: lastSelected,
                 me: me
@@ -372,7 +363,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 },
                 failure: function (response, request) {
                     if (response.status == 400) {
-                        var errorText = Uni.I18n.translate('general.error.unknown', 'MDC', 'Unknown error occurred');
+                        var errorText = Uni.I18n.translate('general.error.unknown', 'MDC', 'Unknown error occurred'),
+                            errorCode = '';
                         if (!Ext.isEmpty(response.statusText)) {
                             errorText = response.statusText;
                         }
@@ -382,12 +374,16 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                             if (json && json.error) {
                                 errorText = json.error;
                             }
+                            if (json && json.errorCode) {
+                                errorCode = json.errorCode;
+                            }
                         }
 
-                        var titleKey = ((suspended == true) ? 'communicationtasks.activate.operation.failed' : 'communicationtasks.deactivate.operation.failed'),
-                            titleValue = ((suspended == true) ? 'Activate operation failed' : 'Deactivate operation failed');
+                        var title = Uni.I18n.translate("communicationtasks.activation.failure.title", 'MDC', 'Couldn\'t perform your action'),
+                            msgKey = ((suspended == true) ? 'communicationtasks.activate.operation.failed' : 'communicationtasks.deactivate.operation.failed'),
+                            msgValue = ((suspended == true) ? 'Activate operation failed' : 'Deactivate operation failed');
 
-                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate(titleKey, 'MDC', titleValue), errorText);
+                        me.getApplication().getController('Uni.controller.Error').showError(title, Uni.I18n.translate(msgKey, 'MDC', msgValue) + "." + errorText, errorCode);
                     }
                 }
             });
@@ -401,7 +397,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             me.hideErrorPanel();
             me.getCommunicationTaskEditForm().down('#comTaskComboBox').clearInvalid();
             me.getCommunicationTaskEditForm().down('#securityPropertySetComboBox').clearInvalid();
-            me.getCommunicationTaskEditForm().down('#protocolDialectConfigurationPropertiesComboBox').clearInvalid();
         }
         me[operation + 'CommunicationTaskRecord'](form.getValues(), {operation: operation});
     },
@@ -454,7 +449,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 },
                 failure: function (record, operation) {
                     if (operation.response.status == 400) {
-                        var errorText = Uni.I18n.translate('general.error.unknown', 'MDC', 'Unknown error occurred');
+                        var errorText = Uni.I18n.translate('general.error.unknown', 'MDC', 'Unknown error occurred'),
+                            errorCode;
                         if (!Ext.isEmpty(operation.response.statusText)) {
                             errorText = operation.response.statusText;
                         }
@@ -466,18 +462,21 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                 Ext.Array.each(json.errors, function (item) {
                                     item.id.indexOf('comTask') !== -1 && me.getCommunicationTaskEditForm().down('#comTaskComboBox').markInvalid(item.msg);
                                     item.id.indexOf('securityPropertySet') !== -1 && me.getCommunicationTaskEditForm().down('#securityPropertySetComboBox').markInvalid(item.msg);
-                                    item.id.indexOf('protocolDialectConfigurationProperties') !== -1 && me.getCommunicationTaskEditForm().down('#protocolDialectConfigurationPropertiesComboBox').markInvalid(item.msg);
                                 });
                                 return;
                             }
                             if (json && json.error) {
                                 errorText = json.error;
                             }
+                            if (json && json.errorCode) {
+                                errorCode = json.errorCode;
+                            }
                         }
-                        var titleKey = ((cfg.operation == 'add') ? 'communicationtasks.add.operation.failed' : 'general.edit.operation.failed'),
-                            titleValue = ((cfg.operation == 'add') ? 'Add operation failed' : 'Update operation failed');
+                        var title = Uni.I18n.translate("communicationtasks.edit.failure.title", 'MDC', 'Couldn\'t perform your action'),
+                            msgKey = ((cfg.operation == 'add') ? 'communicationtasks.add.operation.failed' : 'general.edit.operation.failed'),
+                            msgValue = ((cfg.operation == 'add') ? 'Add operation failed' : 'Update operation failed');
 
-                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate(titleKey, 'MDC', titleValue), errorText);
+                        me.getApplication().getController('Uni.controller.Error').showError(title, Uni.I18n.translate(msgKey, 'MDC', msgValue) + "." + errorText, errorCode);
                     }
                 },
                 callback: function () {
@@ -495,9 +494,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         record.set("securityPropertySet", {id: values.securityPropertySetId});
         if (!Ext.isEmpty(values.partialConnectionTaskId)) {
             record.set("partialConnectionTask", {id: values.partialConnectionTaskId});
-        }
-        if (!Ext.isEmpty(values.protocolDialectConfigurationPropertiesId)) {
-            record.set("protocolDialectConfigurationProperties", {id: values.protocolDialectConfigurationPropertiesId});
         }
         record.set("priority", values.priority);
         record.set("ignoreNextExecutionSpecsForInbound", values.ignoreNextExecutionSpecsForInbound);
