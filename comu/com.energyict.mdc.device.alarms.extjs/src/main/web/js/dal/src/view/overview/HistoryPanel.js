@@ -2,7 +2,7 @@ Ext.define('Dal.view.overview.HistoryPanel', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.history-panel',
     requires: [
-        'Dal.view.overview.HistoryGraph',
+        'Uni.view.widget.HistoryGraph',
         'Dal.view.overview.HistoryFilter',
         'Dal.view.NoAlarmsFoundPanel'
     ],
@@ -36,6 +36,7 @@ Ext.define('Dal.view.overview.HistoryPanel', {
                         margin: '20 10 0 0',
                         showLegend: false,
                         tooltipAlarmMsg: Uni.I18n.translate('alarms.alarmsPerReason', 'DAL', '{0}: {1} alarms'),
+                        totalItemsRaisedMsg: Uni.I18n.translate('alarms.totalAlarmsRaised', 'DAL', 'Total alarms raised on this day: {0}'),
                         url: '/api/dal/history',
                         field: 'reasonsPerDay'
                     },
@@ -47,6 +48,7 @@ Ext.define('Dal.view.overview.HistoryPanel', {
                         defaultFields: ['open', 'closed'],
                         defaultFields2: [{name: 'open', type: 'int'}, {name: 'closed', type: 'int'}],
                         tooltipAlarmMsg: Uni.I18n.translate('alarms.alarmsPerReasonAndDay', 'DAL', '{0} of this day: {1} alarms'),
+                        totalItemsRaisedMsg: Uni.I18n.translate('alarms.totalAlarmsRaised', 'DAL', 'Total alarms raised on this day: {0}'),
                         url: '/api/dal/history',
                         field: 'openVsClose',
                         translationFields: [

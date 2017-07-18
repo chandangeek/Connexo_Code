@@ -1,7 +1,7 @@
 Ext.define('Dal.controller.Overview', {
     extend: 'Isu.controller.Overview',
     requires: [
-        'Dal.view.overview.HistoryGraph'
+        'Uni.view.widget.HistoryGraph'
     ],
     models: [
         'Dal.model.Group'
@@ -14,7 +14,7 @@ Ext.define('Dal.controller.Overview', {
 
     views: [
         'Dal.view.overview.Overview',
-        'Dal.view.overview.HistoryGraph'
+        'Uni.view.widget.HistoryGraph'
     ],
 
     sections: ['status', 'userAssignee', 'reason', 'workGroupAssignee'],
