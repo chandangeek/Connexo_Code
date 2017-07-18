@@ -12,8 +12,9 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             text: 'Navigate to device landing page',
             section: 3, /*SECTION_VIEW*/
             handler: function(menuItem) {
-                menuItem.visualiser.showNotYetImplementedMessage();
-                //menuItem.visualiser.showLinkQuality(menuItem.graphId);
+                menuItem.visualiser.router.getRoute('devices/device').forward({
+                    deviceId: menuItem.visualiser.chart.getItem(menuItem.graphId).d.name
+                });
             }
         },
         {
@@ -21,8 +22,9 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             text: 'Navigate to communication topology',
             section: 3, /*SECTION_VIEW*/
             handler: function(menuItem) {
-                menuItem.visualiser.showNotYetImplementedMessage();
-                //menuItem.visualiser.showLinkQuality(menuItem.graphId);
+                menuItem.visualiser.router.getRoute('devices/device/topology').forward({
+                    deviceId: menuItem.visualiser.chart.getItem(menuItem.graphId).d.name
+                });
             }
         }
     ],

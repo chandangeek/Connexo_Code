@@ -15,7 +15,7 @@ Ext.define('Mdc.networkvisualiser.store.NetworkNodes', {
         pageParam: false,
         startParam: false,
         limitParam: false,
-
+        timeout: 120000,
         setUrl: function (deviceId) {
             this.url = this.urlTpl.replace('{deviceId}', deviceId);
         }
