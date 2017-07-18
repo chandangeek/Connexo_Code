@@ -389,7 +389,12 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.getDeviceConnectionMethodEditView().down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
         this.getDeviceConnectionMethodEditView().down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategyInfo')['connectionStrategy']);
         this.getDeviceConnectionMethodEditView().down('form').down('#protocolDialectComboBox').setValue(connectionMethod.get('protocolDialectConfigurationProperties')['name']);
-        this.getDeviceConnectionMethodEditView().down('form').down('#ConnectionFunctionField').setValue(connectionMethod.get('connectionFunctionInfo')['localizedValue']);
+        if(!Ext.isEmpty(connectionMethod.get('connectionFunctionInfo'))) {
+            this.getDeviceConnectionMethodEditView().down('form').down('#ConnectionFunctionFieldContainer').show();
+            this.getDeviceConnectionMethodEditView().down('form').down('#ConnectionFunctionField').setValue(connectionMethod.get('connectionFunctionInfo')['localizedValue']);
+        } else {
+            this.getDeviceConnectionMethodEditView().down('form').down('#ConnectionFunctionFieldContainer').hide();
+        }
         this.showPropertiesAsInherited(connectionMethod);
     },
 

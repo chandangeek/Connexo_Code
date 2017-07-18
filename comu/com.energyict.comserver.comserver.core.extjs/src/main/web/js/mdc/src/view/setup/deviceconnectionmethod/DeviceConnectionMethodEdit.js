@@ -96,6 +96,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                 itemId: 'ConnectionFunctionFieldContainer',
                                 disabled: true,
                                 required: true,
+                                hidden: true,
                                 layout: {
                                     type: 'hbox',
                                     align: 'stretch'
