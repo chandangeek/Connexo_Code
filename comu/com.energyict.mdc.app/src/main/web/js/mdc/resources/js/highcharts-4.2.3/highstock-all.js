@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  Highstock JS v4.2.3 (2016-02-08)
 
  (c) 2009-2016 Torstein Honsi

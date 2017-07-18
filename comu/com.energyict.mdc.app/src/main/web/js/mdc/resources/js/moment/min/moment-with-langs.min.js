@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 //! moment.js
 //! version : 2.5.0
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors

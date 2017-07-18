@@ -9,6 +9,7 @@
         "com.elster.jupiter.time.extjs",
         "com.energyict.mdc.issue.datacollection.extjs",
         "com.energyict.mdc.issue.datavalidation.extjs",
+        "com.energyict.mdc.device.alarms.extjs",
         "com.energyict.comserver.comserver.core.extjs",
         "com.energyict.mdc.dashboard.extjs",
         "com.energyict.mdc.device.data.validation.extjs",

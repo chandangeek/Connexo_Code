@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 // moment.js language configuration
 // language : hindi (hi)
 // author : Mayank Singhal : https://github.com/mayanksinghal

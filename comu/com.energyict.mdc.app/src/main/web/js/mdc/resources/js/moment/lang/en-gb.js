@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 // moment.js language configuration
 // language : great britain english (en-gb)
 // author : Chris Gedrim : https://github.com/chrisgedrim

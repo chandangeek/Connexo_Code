@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 // moment.js language configuration
 // language : euskara (eu)
 // author : Eneko Illarramendi : https://github.com/eillarra

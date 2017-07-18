@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 // moment.js language configuration
 // language : tamil (ta)
 // author : Arjunkumar Krishnamoorthy : https://github.com/tk120404
