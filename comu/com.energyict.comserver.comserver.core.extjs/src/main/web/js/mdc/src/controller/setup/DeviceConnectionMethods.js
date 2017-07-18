@@ -699,7 +699,13 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                                         widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
                                                         widget.down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategyInfo')['connectionStrategy']);
                                                         widget.down('form').down('#protocolDialectComboBox').setValue(connectionMethod.get('protocolDialect'));
-                                                        widget.down('form').down('#ConnectionFunctionField').setValue(connectionMethod.get('connectionFunctionInfo')['localizedValue']);                                                        me.showProperties(connectionMethod);
+                                                        if(!Ext.isEmpty(connectionMethod.get('connectionFunctionInfo'))) {
+                                                            widget.down('form').down('#ConnectionFunctionFieldContainer').show();
+                                                            widget.down('form').down('#ConnectionFunctionField').setValue(connectionMethod.get('connectionFunctionInfo')['localizedValue']);
+                                                        } else {
+                                                            widget.down('form').down('#ConnectionFunctionFieldContainer').hide();
+                                                        }
+                                                        me.showProperties(connectionMethod);
                                                         widget.setLoading(false);
                                                     }
                                                 });
