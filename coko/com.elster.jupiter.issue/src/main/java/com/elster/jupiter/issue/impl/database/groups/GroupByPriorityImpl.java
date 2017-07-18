@@ -30,7 +30,7 @@ public class GroupByPriorityImpl extends IssuesGroupOperation {
         builder.append(" WHEN PRIORITYTOTAL <=80 THEN 'high' ");
         builder.append(" WHEN PRIORITYTOTAL <=100 THEN 'veryHigh' ");
         builder.append(" END issuePriority ");
-        builder.append(", ISU.CREATEDATETIME CREATETIME, ISU.ID ID from ISU_ISSUE_OPEN ISU");
+        builder.append(", ISU.CREATEDATETIME CREATETIME, ISU.ID ID from ISU_ISSUE_ALL ISU");
         builder.append(" LEFT JOIN " + TableSpecs.ISU_REASON.name() + " reason ");
         builder.append(" ON ISU.REASON_ID = reason.\"KEY\" WHERE 1=1 ");
         builder.append(getReasonCondition());
