@@ -1,11 +1,12 @@
 //
-//     React components KeyLines v3.3.1-2702
+//     React components KeyLines v3.5.3-3431
 //
-//     Copyright © 2011-2016 Cambridge Intelligence Limited.
+//     Copyright © 2011-2017 Cambridge Intelligence Limited.
 //     All rights reserved.
 //
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /*
   This is the lowest level wrapper of the KeyLines integration
@@ -19,7 +20,7 @@ function invoke (fn, ...args) {
 }
 
 function createKeyLinesComponent(type, onLoadFn, onResizeFn) {
-  const KlComponent = class extends React.Component {
+  class KlComponent extends React.Component {
     
     constructor(props) {
       super(props);
@@ -136,16 +137,15 @@ function createKeyLinesComponent(type, onLoadFn, onResizeFn) {
     selection: []
   };
   
-  // propTypes has to be a static property of the component class
   KlComponent.propTypes = {
-    id: React.PropTypes.string.isRequired, // this is the DOM ID of the KeyLines component element
-    data: React.PropTypes.object,      // this will be the component format
-    animateOnLoad: React.PropTypes.bool,  // this will set the animation flag of the layout on load
-    options: React.PropTypes.object,      // component options
-    selection: React.PropTypes.array,  // simple array of ids
-    ready: React.PropTypes.func,     // called when the component is fully loaded
-    style: React.PropTypes.object, // the component div style
-    containerClassName: React.PropTypes.string, // the component container CSS class name
+    id: PropTypes.string.isRequired, // this is the DOM ID of the KeyLines component element
+    data: PropTypes.object,      // this will be the component format
+    animateOnLoad: PropTypes.bool,  // this will set the animation flag of the layout on load
+    options: PropTypes.object,      // component options
+    selection: PropTypes.array,  // simple array of ids
+    ready: PropTypes.func,     // called when the component is fully loaded
+    style: PropTypes.object, // the component div style
+    containerClassName: PropTypes.string, // the component container CSS class name
     /*
       NOTE: you can add props at the level above this - e.g., 'click'
             i.e.,   <Chart click={this.clickHandler}/>

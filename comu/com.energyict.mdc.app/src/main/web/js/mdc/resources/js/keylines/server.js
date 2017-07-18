@@ -1,14 +1,20 @@
-//If you are using NodeJS as your server, just run this file 'node server.js'
-
-//It depends on the express module which can be installed (once node is installed) by running
-// >  npm install express
-
-// If you can't run Node or express just use a simple python server
-//    
-//   > python -m SimpleHTTPServer 8080
+// If you are using Node.js as your web server, you should first install Express by running:
 //
+// > npm install express
+//
+// You can then start your web server by running this file:
+//
+// > node server.js
+//
+// If you can't run Node or Express, just use a simple Python server
+//    
+//  > python -m SimpleHTTPServer 8080
+//
+// Then you can navigate to http://localhost:8080 in your web browser to see the demo running.
 
-// Helper to get the major version of ExpressJS
+var path = require('path');
+
+// Helper to get the major version of Express
 function getVersion(){
   // Since Express 3.3 version is not exposed any longer
   var version = (express.version || '4.').match(/^(\d)+\./)[1];
@@ -30,6 +36,10 @@ if(version === 2){
 
 app.use('/', express["static"].apply(null, [__dirname + '/']));
 
+app.get('/', function (req, res) {
+  res.sendFile(path.join(__dirname, 'index.htm'));
+});
+
 app.listen(8080);
 
-console.log('Server running. Browse to http://localhost:8080/index.htm');
+console.log('Server running. Browse to http://localhost:8080');

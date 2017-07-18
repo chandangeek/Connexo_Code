@@ -1,7 +1,7 @@
 //
-//     Angular directive for KeyLines v3.3.1-2702
+//     Angular directive for KeyLines v3.5.3-3431
 //
-//     Copyright © 2011-2016 Cambridge Intelligence Limited.
+//     Copyright © 2011-2017 Cambridge Intelligence Limited.
 //     All rights reserved.
 //
 
