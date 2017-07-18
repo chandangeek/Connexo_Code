@@ -1,5 +1,7 @@
 package com.elster.jupiter.demo.impl.commands;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -18,17 +20,21 @@ import java.util.Optional;
  */
 public class CreateNetworkTopologyCommand  extends CommandWithTransaction{
 
+    private final ThreadPrincipalService threadPrincipalService;
+    private final TransactionService transactionService;
     private final TopologyService topologyService;
     private final DeviceService deviceService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final Clock clock;
 
     String gatewayMrid;
-    int deviceCount;
-    int levelCount;
+    Integer deviceCount;
+    Integer levelCount;
 
     @Inject
-    public  CreateNetworkTopologyCommand(TopologyService topologyService, DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, Clock clock){
+    public  CreateNetworkTopologyCommand(ThreadPrincipalService threadPrincipalService, TransactionService transactionService, TopologyService topologyService, DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, Clock clock){
+        this.threadPrincipalService = threadPrincipalService;
+        this.transactionService = transactionService;
         this.topologyService = topologyService;
         this.deviceService = deviceService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -49,12 +55,18 @@ public class CreateNetworkTopologyCommand  extends CommandWithTransaction{
 
     @Override
     public void run() {
-        System.out.println(String.format("Building topology with %d1 nodes having %d2 levels", this.deviceCount, this.levelCount));
-        Optional<Device> gateway = deviceService.findDeviceByName(this.gatewayMrid);
-        if (!gateway.isPresent()){
-            throw new RuntimeException(String.format("No device with name %s", gatewayMrid));
+        if (this.gatewayMrid == null || this.deviceCount == null || this.levelCount == null){
+            System.out.println("createNetworkTopology <name of gateway> <number of childnodes> <number of levels>");
+        }else {
+            System.out.println(String.format("Building topology with %1d nodes having %2d levels", this.deviceCount, this.levelCount));
+            Optional<Device> gateway = deviceService.findDeviceByName(this.gatewayMrid);
+            if (!gateway.isPresent()) {
+                throw new RuntimeException(String.format("No device with name %s", gatewayMrid));
+            }
+            new NetworkTopologyBuilder(threadPrincipalService, transactionService, deviceService, topologyService, deviceConfigurationService, clock)
+                    .havingNodes(deviceCount)
+                    .havingLevels(levelCount)
+                    .buildTopology(gateway.get());
         }
-    //  Had to stop development on this branch: getting keylines license seems to be a problem
-    //    new NetworkTopologyBuilder(deviceService, topologyService, deviceConfigurationService, clock).havingNodes(deviceCount).havingLevels(levelCount).buildTopology(gateway.get());
     }
 }

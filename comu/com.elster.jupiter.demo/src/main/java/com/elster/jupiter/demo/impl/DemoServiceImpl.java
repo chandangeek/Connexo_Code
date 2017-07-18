@@ -45,6 +45,7 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -108,7 +109,8 @@ import java.time.Clock;
         "osgi.command.function=createAlarmCreationRule",
         "osgi.command.function=upgradeDemoData",
         "osgi.command.function=createPowerUser",
-        "osgi.command.function=createRegisterDevice"
+        "osgi.command.function=createRegisterDevice",
+        "osgi.command.function=createNetworkTopology"
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -157,6 +159,7 @@ public class DemoServiceImpl {
     private volatile DataQualityKpiService dataQualityKpiService;
     private volatile PkiService pkiService;
     private volatile PassphraseFactory passphraseFactory;
+    private volatile TopologyService topologyService;
 
     private Injector injector;
     private boolean reThrowEx = false;
@@ -209,7 +212,8 @@ public class DemoServiceImpl {
             com.elster.jupiter.tasks.TaskService platformTaskService,
             DataQualityKpiService dataQualityKpiService,
             PkiService pkiService,
-            PassphraseFactory passphraseFactory) {
+            PassphraseFactory passphraseFactory,
+            TopologyService topologyService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -256,6 +260,7 @@ public class DemoServiceImpl {
         setDataQualityKpiService(dataQualityKpiService);
         setPkiService(pkiService);
         setPassphraseFactory(passphraseFactory);
+        setTopologyService(topologyService);
         activate();
         reThrowEx = true;
     }
@@ -312,6 +317,7 @@ public class DemoServiceImpl {
                 bind(com.elster.jupiter.tasks.TaskService.class).toInstance(platformTaskService);
                 bind(DataQualityKpiService.class).toInstance(dataQualityKpiService);
                 bind(PkiService.class).toInstance(pkiService);
+                bind(TopologyService.class).toInstance(topologyService);
             }
         });
         Builders.initWith(this.injector);
@@ -583,6 +589,12 @@ public class DemoServiceImpl {
         this.passphraseFactory = passphraseFactory;
     }
 
+    @Reference
+    @SuppressWarnings("unused")
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
+    }
+
     private void executeTransaction(Runnable toRunInsideTransaction) {
         setPrincipal();
         try {
@@ -653,6 +665,16 @@ public class DemoServiceImpl {
         });
     }
 
+    @SuppressWarnings("unused")
+    public void createNetworkTopology(String rootDeviceName, int childcount, int levelcount) {
+        CreateNetworkTopologyCommand command = injector.getInstance(CreateNetworkTopologyCommand.class);
+        if (!Strings.isNullOrEmpty(rootDeviceName)) {
+            command.setGatewayMrid(rootDeviceName);
+        }
+        command.setDeviceCount(childcount);
+        command.setLevelCount(levelcount);
+        command.run();
+    }
 
     @SuppressWarnings("unused")
     public void createG3DemoBoardDevices() {
