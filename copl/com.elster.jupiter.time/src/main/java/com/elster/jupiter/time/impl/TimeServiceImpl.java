@@ -133,7 +133,7 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
 
     @Override
     public RelativePeriod updateRelativePeriod(Long id, String name, RelativeDate from, RelativeDate to, List<RelativePeriodCategory> categories) {
-        RelativePeriodImpl relativePeriod = RelativePeriodImpl.class.cast(findRelativePeriod(id));
+        RelativePeriodImpl relativePeriod = (RelativePeriodImpl) findRelativePeriod(id).orElseThrow(() -> new IllegalArgumentException("Relative period with given id does not exist"));
         relativePeriod.setName(name);
         relativePeriod.setRelativeDateFrom(from);
         relativePeriod.setRelativeDateTo(to);
