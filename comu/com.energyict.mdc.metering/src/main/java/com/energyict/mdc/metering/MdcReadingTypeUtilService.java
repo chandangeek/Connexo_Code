@@ -12,8 +12,6 @@ import aQute.bnd.annotation.ProviderType;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.util.Optional;
 
 @ProviderType
@@ -113,5 +111,13 @@ public interface MdcReadingTypeUtilService {
      * @return the readingTypeCodeBuilder
      */
     ReadingTypeCodeBuilder createReadingTypeCodeBuilderFrom(ReadingType readingType);
+
+    /**
+     * Returns the interval for the given readingType
+     *
+     * @param readingType the readingType from which you want to know the interval
+     * @return the interval timeduration of the readingType
+     */
+    Optional<TimeDuration> getReadingTypeInterval(String readingType);
 
     }
