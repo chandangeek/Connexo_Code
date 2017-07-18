@@ -17,6 +17,16 @@ Ext.define('Uni.view.form.field.Vtypes', {
         this.validateEan13String();
         this.validateEan18String();
         this.validateReadingtype();
+        this.validateImageFileExtension();
+    },
+
+    validateImageFileExtension: function() {
+        Ext.apply(Ext.form.field.VTypes, {
+            image:  function(v) {
+                return /^.*\.(jpg|JPG|png|PNG)$/.test(v);
+            },
+            imageText: Uni.I18n.translate('validation.invalidFileFormat', 'UNI', 'Invalid file format')
+        });
     },
 
 
