@@ -125,6 +125,7 @@ public class ComTaskExecutionOrganizerTest {
         final Device device = this.mockDevice();
         final DeviceType deviceType = mock(DeviceType.class);
         final DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getName()).thenReturn("default");
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceType.isLogicalSlave()).thenReturn(slave);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -745,18 +746,21 @@ public class ComTaskExecutionOrganizerTest {
         Device device = getMockedDevice(true);
         Device master = getMockedDevice(false);
         ComTaskEnablement masterComTaskEnablement = mock(ComTaskEnablement.class);
+        ComTaskEnablement slaveComTaskEnablement = mock(ComTaskEnablement.class);
         DeviceConfiguration masterDeviceConfiguration = master.getDeviceConfiguration();
+        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(masterComTaskEnablement.getDeviceConfiguration()).thenReturn(masterDeviceConfiguration);
         when(masterComTaskEnablement.getSecurityPropertySet()).thenReturn(this.securityPropertySet);
+        when(slaveComTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(slaveComTaskEnablement.getSecurityPropertySet()).thenReturn(this.securityPropertySet);
         when(this.securityPropertySet.getDeviceConfiguration()).thenReturn(masterDeviceConfiguration);
         when(this.topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(master));
 
         ComTaskExecution comTaskExecution1 = createMockedComTaskExecution(device, createMockedTopologyComTask());
         ComTaskExecution comTaskExecution2 = createMockedComTaskExecution(device, createMockedRegistersComTask());
         ComTaskExecution comTaskExecution3 = createMockedComTaskExecution(device, createMockedLoadProfilesComTask());
-        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-        when(deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(masterComTaskEnablement));
         when(masterDeviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(masterComTaskEnablement));
+        when(deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(slaveComTaskEnablement));
         when(masterDeviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(this.securityPropertySet));
 
         // business method
