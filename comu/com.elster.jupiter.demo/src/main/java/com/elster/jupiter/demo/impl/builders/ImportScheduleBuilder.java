@@ -32,6 +32,7 @@ public class ImportScheduleBuilder extends NamedBuilder<ImportSchedule, ImportSc
     private Path failureDirectory;
     private Path successDirectory;
     private Path inProcessDirectory;
+    private boolean isActiveOnUI;
     private Map<String,Object> importProperties = new HashMap<>();
 
     @Inject
@@ -76,6 +77,11 @@ public class ImportScheduleBuilder extends NamedBuilder<ImportSchedule, ImportSc
         return this;
     }
 
+    public ImportScheduleBuilder withActiveInUI(boolean activeInUI) {
+        this.isActiveOnUI = activeInUI;
+        return this;
+    }
+
     public ImportScheduleBuilder withProperties(Map<String, Object> importProperties){
         this.importProperties = importProperties;
         return this;
@@ -103,7 +109,8 @@ public class ImportScheduleBuilder extends NamedBuilder<ImportSchedule, ImportSc
                 .setFailureDirectory(failureDirectory)
                 .setSuccessDirectory(successDirectory)
                 .setProcessingDirectory(inProcessDirectory)
-                .setPathMatcher(pathMatcher);
+                .setPathMatcher(pathMatcher)
+                .setActiveInUI(isActiveOnUI);
 
         importProperties.keySet().stream().forEach(propName -> builder.addProperty(propName).withValue(importProperties.get(propName)));
         ImportSchedule importSchedule = builder.create();

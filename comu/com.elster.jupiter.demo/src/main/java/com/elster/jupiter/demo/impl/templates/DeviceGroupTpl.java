@@ -18,13 +18,17 @@ public enum DeviceGroupTpl implements Template<EndDeviceGroup, DeviceGroupBuilde
     SOUTH_REGION("South region", Constants.Device.STANDARD_PREFIX + "*",
             DeviceTypeTpl.Elster_A1800, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38
     ),
-    ALL_ELECTRICITY_DEVICES("All electricity devices", null,
-            DeviceTypeTpl.Elster_AS1440, DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000,
-            DeviceTypeTpl.Elster_A1800, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38
+    ALL_ELECTRICITY_DEVICES("Electricity devices", Constants.Device.STANDARD_PREFIX + "*",
+            DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000,
+            DeviceTypeTpl.Elster_A1800, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38,
+            DeviceTypeTpl.Elster_AS1440
     ),
-    A1800_DEVICES("Elster A1800 devices", null, DeviceTypeTpl.Elster_A1800),
-    DATA_LOGGERS("Data loggers", null, DeviceTypeTpl.WEBRTU_Z2),
-    DATA_LOGGER_SLAVES("Data logger slaves", null, DeviceTypeTpl.EIMETER_FLEX);
+    A1800_DEVICES("Elster A1800 devices", Constants.Device.STANDARD_PREFIX + "*", DeviceTypeTpl.Elster_A1800),
+    GAS_DEVICES("Gas devices", null,
+            DeviceTypeTpl.BK_GF),
+    WATER_DEVICES("Water devices", null,
+            DeviceTypeTpl.V200PR_6),
+    ;
 
     private String name;
     private String namePrefix;
@@ -43,7 +47,9 @@ public enum DeviceGroupTpl implements Template<EndDeviceGroup, DeviceGroupBuilde
 
     @Override
     public DeviceGroupBuilder get(DeviceGroupBuilder builder) {
-        return builder.withName(this.name).withNamePrefix(namePrefix).withDeviceTypes(Arrays.stream(this.deviceTypes).map(DeviceTypeTpl::getName).collect(Collectors.toList()));
+        return builder.withName(this.name)
+                .withNamePrefix(namePrefix)
+                .withDeviceTypes(Arrays.stream(this.deviceTypes).map(DeviceTypeTpl::getName).collect(Collectors.toList()));
     }
 
     public String getName() {

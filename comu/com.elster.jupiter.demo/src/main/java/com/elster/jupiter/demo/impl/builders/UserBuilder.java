@@ -5,7 +5,6 @@
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
-import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -100,10 +99,11 @@ public class UserBuilder extends NamedBuilder<User, UserBuilder> {
             Map<String, Group> allGroups = userService.getGroups().stream().collect(Collectors.toMap(Group::getName, g -> g));
             for (String role : roles) {
                 Group group = allGroups.get(role);
-                if (group == null){
-                    throw new UnableToCreate("Role '" + role + "' doesn't exist! Full list: " + allGroups.keySet());
+                if (group != null){
+                    user.join(group);
+                } else {
+                    System.out.println("Role '" + role + "' doesn't exist! Full list: " + allGroups.keySet());
                 }
-                user.join(group);
             }
         }
         user.update();

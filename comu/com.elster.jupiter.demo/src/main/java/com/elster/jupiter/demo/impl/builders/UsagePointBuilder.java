@@ -27,7 +27,7 @@ import java.util.Optional;
 public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilder>  {
 
     private MeteringService meteringService;
-    private ServiceKind serviceKind = ServiceKind.ELECTRICITY;
+    private ServiceKind serviceKind;
     private Instant installationTime;
     private Location location;
     private SpatialCoordinates geoCoordinates;
@@ -55,6 +55,11 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
 
     public UsagePointBuilder withGeoCoordinates(SpatialCoordinates geoCoordiantes) {
         this.geoCoordinates = geoCoordiantes;
+        return this;
+    }
+
+    public UsagePointBuilder serviceKind(ServiceKind serviceKind) {
+        this.serviceKind = serviceKind;
         return this;
     }
 

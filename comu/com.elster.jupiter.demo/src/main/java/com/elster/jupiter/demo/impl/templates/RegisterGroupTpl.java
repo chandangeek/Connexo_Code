@@ -10,6 +10,7 @@ import com.energyict.mdc.masterdata.RegisterGroup;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 public enum RegisterGroupTpl implements Template<RegisterGroup, RegisterGroupBuilder> {
@@ -20,7 +21,9 @@ public enum RegisterGroupTpl implements Template<RegisterGroup, RegisterGroupBui
             Arrays.asList(RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1)),
     TARIFF_2("Tariff 2",
             Arrays.asList(RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2)),
-    DATA_LOGGER_REGISTER_DATA("Data logger register data", RegisterTypeTpl.dataLoggerRegisterTypes())
+    DATA_LOGGER_REGISTER_DATA("Data logger register data", RegisterTypeTpl.dataLoggerRegisterTypes()),
+    DEVICE_GAS("Device gas", Collections.singletonList(RegisterTypeTpl.BULK_GAS_VOLUME)),
+    DEVICE_WATER("Device water", Collections.singletonList(RegisterTypeTpl.BULK_WATER_VOLUME))
     ;
 
     private String name;
