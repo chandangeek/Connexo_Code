@@ -126,4 +126,6 @@ public interface IssueService {
 
     Map<IssueTypes, Long> getWorkGroupWithoutUserOpenIssueCount(User user);
 
+    List<IssueGroup> getIssuesGroupList(IssueGroupFilter builder);
+
 }
