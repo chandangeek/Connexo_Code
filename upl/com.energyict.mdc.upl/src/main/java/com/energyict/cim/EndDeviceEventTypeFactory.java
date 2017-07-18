@@ -108,6 +108,10 @@ public class EndDeviceEventTypeFactory {
         return new EndDeviceEventType("0.12.43.257");
     }
 
+    public static EndDeviceEventType getTamperClearedEventType() {
+        return new EndDeviceEventType("0.12.43.291");
+    }
+
     public static EndDeviceEventType getCoverOpenedEventType() {
         return new EndDeviceEventType("0.12.29.39");
     }
