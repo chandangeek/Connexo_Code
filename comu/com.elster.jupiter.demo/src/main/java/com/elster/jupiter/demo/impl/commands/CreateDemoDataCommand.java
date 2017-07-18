@@ -73,18 +73,18 @@ public class CreateDemoDataCommand {
     }
 
     public void run() {
-        createUserManagementCommand();
-        createDemoUserCommand("DemoUser1", "DemoUser2", "DemoUser3", "DemoUser4", "DemoUser5");
-        createApplicationServerCommand();
-        createCollectRemoteDataSetupCommand();
-        setupFirmwareManagementCommand();
-        createImportersCommand();
-        createValidationSetupCommand();
+//        createUserManagementCommand();
+//        createDemoUserCommand("DemoUser1", "DemoUser2", "DemoUser3", "DemoUser4", "DemoUser5");
+//        createApplicationServerCommand();
+//        createCollectRemoteDataSetupCommand();
+//        setupFirmwareManagementCommand();
+//        createImportersCommand();
+//        createValidationSetupCommand();
         createEstimationSetupCommand();
-        createNtaConfigCommand();
-        createDeliverDataSetupCommand();
-        createDataLoggerSetupCommand();
-        createBelgianMarketTimeOfUseData();
+//        createNtaConfigCommand();
+//        createDeliverDataSetupCommand();
+//        createDataLoggerSetupCommand();
+//        createBelgianMarketTimeOfUseData();
         System.out.println("Command completed successfully");
     }
 
