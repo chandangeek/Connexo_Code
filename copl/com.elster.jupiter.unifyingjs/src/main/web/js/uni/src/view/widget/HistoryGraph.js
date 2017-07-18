@@ -43,6 +43,7 @@ Ext.define('Uni.view.widget.HistoryGraph', {
     },
 
     setTranslationReasons: function (translations) {
+        var me = this;
         me.translationFields = translations;
         me.constructTranslation();
     },
