@@ -1,0 +1,173 @@
+a, a.#{$prefix}btn {
+  color: $button-colexp-color;
+  &:hover {
+    color: $button-colexp-color-over
+  }
+}
+
+.a-underline{
+  text-decoration: underline;
+}
+
+@mixin uni-button-colexp($postfix: null) {
+  .#{$prefix}btn-colexp-#{$postfix} {
+    margin-right: 0px !important;
+    .#{$prefix}btn-inner {
+      text-decoration: none;
+    }
+  }
+
+  .#{$prefix}pressed.#{$prefix}btn-colexp-#{$postfix} {
+    .#{$prefix}btn-inner {
+      text-decoration: none;
+    }
+  }
+}
+
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+          $ui: 'colexp',
+          $background-color: $button-colexp-background-color,
+          $background-color-over: $button-colexp-background-color,
+          $border-color-over: $button-default-border-color,
+          $background-color-focus: $button-colexp-background-color,
+          $background-color-pressed: $button-colexp-background-color,
+          $border-color-pressed: $button-default-border-color,
+          $glyph-color: $button-colexp-glyph-color,
+          $color: $button-colexp-color,
+          $color-over: $button-colexp-color-over,
+          $color-focus: $button-colexp-color-focus,
+          $color-pressed: $button-colexp-color-pressed,
+          $color-disabled: $button-colexp-color-disabled,
+          $border-color-focus: $button-colexp-border-color-focus,
+          $include-ui-menu-arrows: false,
+          $include-ui-split-arrows: false
+  );
+
+  @include uni-button-colexp('small');
+}
+
+@if $include-button-default-medium-ui {
+  @include extjs-button-medium-ui(
+          $ui: 'colexp',
+          $background-color: $button-colexp-background-color,
+          $background-color-over: $button-colexp-background-color,
+          $border-color-over: $button-default-border-color,
+          $background-color-focus: $button-colexp-background-color,
+          $background-color-pressed: $button-colexp-background-color,
+          $border-color-pressed: $button-default-border-color,
+          $glyph-color: $button-colexp-glyph-color,
+          $color: $button-colexp-color,
+          $color-over: $button-colexp-color-over,
+          $color-focus: $button-colexp-color-focus,
+          $color-pressed: $button-colexp-color-pressed,
+          $color-disabled: $button-colexp-color-disabled,
+          $border-color-focus: $button-colexp-border-color-focus,
+          $include-ui-menu-arrows: false,
+          $include-ui-split-arrows: false
+  );
+  @include uni-button-colexp('medium');
+}
+
+@if $include-button-default-large-ui {
+  @include extjs-button-large-ui(
+          $ui: 'colexp',
+          $background-color: $button-colexp-background-color,
+          $background-color-over: $button-colexp-background-color,
+          $border-color-over: $button-default-border-color,
+          $background-color-focus: $button-colexp-background-color,
+          $background-color-pressed: $button-colexp-background-color,
+          $border-color-pressed: $button-default-border-color,
+          $glyph-color: $button-colexp-glyph-color,
+          $color: $button-colexp-color,
+          $color-over: $button-colexp-color-over,
+          $color-focus: $button-colexp-color-focus,
+          $color-pressed: $button-colexp-color-pressed,
+          $color-disabled: $button-colexp-color-disabled,
+          $border-color-focus: $button-colexp-border-color-focus,
+          $include-ui-menu-arrows: false,
+          $include-ui-split-arrows: false
+  );
+  @include uni-button-colexp('large');
+}
+
+@if $include-ext-toolbar-toolbar {
+  @if $include-button-default-toolbar-small-ui {
+    @include extjs-button-toolbar-small-ui(
+            $ui: 'colexp',
+            $background-color: $button-colexp-background-color,
+            $background-color-over: $button-colexp-background-color,
+            $border-color-over: $button-default-border-color,
+            $background-color-focus: $button-colexp-background-color,
+            $background-color-pressed: $button-colexp-background-color,
+            $border-color-pressed: $button-default-border-color,
+            $glyph-color: $button-colexp-glyph-color,
+            $color: $button-colexp-color,
+            $color-over: $button-colexp-color-over,
+            $color-focus: $button-colexp-color-focus,
+            $color-pressed: $button-colexp-color-pressed,
+            $color-disabled: $button-colexp-color-disabled,
+            $border-color-focus: $button-colexp-border-color-focus,
+            $include-ui-menu-arrows: false,
+            $include-ui-split-arrows: false
+    );
+    @include uni-button-colexp('toolbar-small');
+  }
+  @if $include-button-default-toolbar-medium-ui {
+    @include extjs-button-toolbar-medium-ui(
+            $ui: 'colexp',
+            $background-color: $button-colexp-background-color,
+            $background-color-over: $button-colexp-background-color,
+            $border-color-over: $button-default-border-color,
+            $background-color-focus: $button-colexp-background-color,
+            $background-color-pressed: $button-colexp-background-color,
+            $border-color-pressed: $button-default-border-color,
+            $glyph-color: $button-colexp-glyph-color,
+            $color: $button-colexp-color,
+            $color-over: $button-colexp-color-over,
+            $color-focus: $button-colexp-color-focus,
+            $color-pressed: $button-colexp-color-pressed,
+            $color-disabled: $button-colexp-color-disabled,
+            $border-color-focus: $button-colexp-border-color-focus,
+            $include-ui-menu-arrows: false,
+            $include-ui-split-arrows: false
+    );
+    @include uni-button-colexp('toolbar-medium');
+  }
+
+  @if $include-button-default-toolbar-large-ui {
+    @include extjs-button-toolbar-large-ui(
+            $ui: 'colexp',
+            $background-color: $button-colexp-background-color,
+            $background-color-over: $button-colexp-background-color,
+            $border-color-over: $button-default-border-color,
+            $background-color-focus: $button-colexp-background-color,
+            $background-color-pressed: $button-colexp-background-color,
+            $border-color-pressed: $button-default-border-color,
+            $glyph-color: $button-colexp-glyph-color,
+            $color: $button-colexp-color,
+            $color-over: $button-colexp-color-over,
+            $color-focus: $button-colexp-color-focus,
+            $color-pressed: $button-colexp-color-pressed,
+            $color-disabled: $button-colexp-color-disabled,
+            $border-color-focus: $button-colexp-border-color-focus,
+            $include-ui-menu-arrows: false,
+            $include-ui-split-arrows: false
+    );
+    @include uni-button-colexp('toolbar-large');
+  }
+}
+
+.#{$prefix}form-fieldcontainer {
+  *[class*='#{$prefix}btn-colexp-'] {
+    margin-top: 2px;
+    margin-left: -5px;
+  }
+}
+
+.#{$prefix}form-fieldcontainer.#{$prefix}container-actions {
+  *[class*='#{$prefix}btn-colexp-'] {
+    margin-top: 0;
+    margin-left: 0;
+  }
+}
