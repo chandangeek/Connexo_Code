@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /** @license
  * crossroads <http://millermedeiros.github.com/crossroads.js/>
  * Author: Miller Medeiros | MIT License
@@ -176,6 +180,13 @@ var factory = function (signals) {
                 cur;
 
             if (n) {
+                if(this._routes.length < 5 && request == '/error/notfound'){
+                    request = '/error/notvisible';
+                    routes = this._getMatchedRoutes(request),
+                        i = 0,
+                        n = routes.length,
+                        cur;
+                }
                 this._prevMatchedRequest = request;
 
                 this._notifyPrevRoutes(routes, request);

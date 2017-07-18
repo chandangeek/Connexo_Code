@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 // moment.js language configuration
 // language : macedonian (mk)
 // author : Borislav Mickov : https://github.com/B0k0

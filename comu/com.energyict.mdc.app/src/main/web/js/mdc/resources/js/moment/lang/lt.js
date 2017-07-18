@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 // moment.js language configuration
 // language : Lithuanian (lt)
 // author : Mindaugas Mozūras : https://github.com/mmozuras

@@ -1,10 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('MdcApp.Application', {
     extend: 'Ext.app.Application',
 
     requires:[
-        'Sam.privileges.DeploymentInfo',
-        'Sam.privileges.DataPurge',
-        'Sam.privileges.License',
         'Cfg.privileges.Validation',
         'Mdc.privileges.MasterData',
         'Mdc.privileges.DeviceGroup',
@@ -28,7 +29,9 @@ Ext.define('MdcApp.Application', {
         'Mdc.privileges.UsagePoint',
         'Scs.privileges.ServiceCall',
         'Mdc.privileges.Monitor',
-        'Mdc.privileges.MetrologyConfiguration'
+        'Mdc.privileges.MetrologyConfiguration',
+        'Mdc.privileges.CommandLimitationRules',
+        'Dal.privileges.Alarm'
     ],
     controllers: [
         'MdcApp.controller.Main'

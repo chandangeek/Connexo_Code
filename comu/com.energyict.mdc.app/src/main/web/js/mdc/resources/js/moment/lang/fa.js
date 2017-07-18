@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 // moment.js language configuration
 // language : Persian Language
 // author : Ebrahim Byagowi : https://github.com/ebraminio

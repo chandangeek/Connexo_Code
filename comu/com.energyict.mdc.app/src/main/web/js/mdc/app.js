@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.onReady(function () {
     var loader = Ext.create('Uni.Loader');
 
@@ -30,6 +34,10 @@ Ext.onReady(function () {
         {
             name: 'Idv',
             path: '../../apps/idv/src'
+        },
+        {
+            name: 'Dal',
+            path: '../../apps/dal/src'
         },
         {
             name: 'Ddv',

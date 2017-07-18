@@ -1,3 +1,7 @@
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
 <project name="refresh-impl">
     <!--
     This macrodef regenerates the bootstrap.js class system metadata, which includes

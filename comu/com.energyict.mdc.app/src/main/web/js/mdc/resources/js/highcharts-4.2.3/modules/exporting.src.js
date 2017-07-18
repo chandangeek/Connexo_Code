@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @license Highstock JS v4.2.3 (2016-02-08)
  * Exporting module

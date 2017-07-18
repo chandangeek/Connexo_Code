@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.app.impl;
 
 
@@ -25,6 +29,7 @@ class MdcAppPrivileges {
                 com.elster.jupiter.export.security.Privileges.Constants.UPDATE_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.RUN_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.Constants.VIEW_HISTORY,
 
                 //issue
                 com.elster.jupiter.issue.security.Privileges.Constants.ACTION_ISSUE,
@@ -37,6 +42,18 @@ class MdcAppPrivileges {
                 com.elster.jupiter.issue.security.Privileges.Constants.ADMINISTRATE_CREATION_RULE,
                 com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ASSIGNMENT_RULE,
                 com.elster.jupiter.issue.security.Privileges.Constants.VIEW_CREATION_RULE,
+
+                //alarm
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.ACTION_ALARM,
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.ASSIGN_ALARM,
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.CLOSE_ALARM,
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.COMMENT_ALARM,
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.VIEW_ALARM,
+
+                //alarm configuration
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE,
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.VIEW_ALARM_ASSIGNMENT_RULE,
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.VIEW_ALARM_CREATION_RULE,
 
                 //yellowfin reports
                 com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS,
@@ -51,7 +68,6 @@ class MdcAppPrivileges {
                 com.energyict.mdc.device.data.security.Privileges.Constants.REMOVE_DEVICE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS,
-
                 //mdc.device.data - Device communication
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION,
                 com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION,
@@ -73,6 +89,12 @@ class MdcAppPrivileges {
                 //mdc.device.data - Data collection kpi
                 com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DATA_COLLECTION_KPI,
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI,
+
+
+                //CommandRules
+                com.energyict.mdc.device.command.security.Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE,
+                com.energyict.mdc.device.command.security.Privileges.Constants.ADMINISTRATE_COMMAND_LIMITATION_RULE,
+                com.energyict.mdc.device.command.security.Privileges.Constants.APPROVE_COMMAND_LIMITATION_RULE,
 
                 //mdc.device.config
                 com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
@@ -109,10 +131,13 @@ class MdcAppPrivileges {
                 com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK,
                 com.elster.jupiter.estimation.security.Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE,
                 com.elster.jupiter.estimation.security.Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION,
+                com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE,
+                com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR,
 
                 //import
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
-
+                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_HISTORY,
+                com.elster.jupiter.fileimport.security.Privileges.Constants.IMPORT_FILE,
                 //mdc.firmware
                 com.energyict.mdc.firmware.security.Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN,
                 com.energyict.mdc.firmware.security.Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN,
@@ -172,6 +197,19 @@ class MdcAppPrivileges {
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION,
 
                 //service category
-                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY);
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
+
+                //data quality kpi
+                com.elster.jupiter.dataquality.security.Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION,
+                com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION,
+                com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS,
+
+                //device validation/estimation configuration
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION,
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION,
+
+                //calendars
+                com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS
+        );
     }
 }

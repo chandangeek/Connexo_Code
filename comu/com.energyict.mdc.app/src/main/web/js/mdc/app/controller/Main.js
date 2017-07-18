@@ -1,12 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class MdcApp.controller.Main
  */
 Ext.define('MdcApp.controller.Main', {
     extend: 'Uni.controller.AppController',
     requires:[
+        //for the ABOUT page
         'Sam.privileges.DeploymentInfo',
         'Sam.privileges.DataPurge',
         'Sam.privileges.License',
+
         'Cfg.privileges.Validation',
         'Yfn.privileges.Yellowfin',
         'Mdc.privileges.MasterData',
@@ -30,7 +36,9 @@ Ext.define('MdcApp.controller.Main', {
         'Mdc.privileges.UsagePoint',
         'Scs.privileges.ServiceCall',
         'Mdc.privileges.Monitor',
-        'Mdc.privileges.MetrologyConfiguration'
+        'Mdc.privileges.MetrologyConfiguration',
+        'Mdc.privileges.CommandLimitationRules',
+        'Dal.privileges.Alarm'
     ],
     applicationTitle: 'Connexo MultiSense',
     applicationKey: 'MDC',
@@ -38,9 +46,6 @@ Ext.define('MdcApp.controller.Main', {
     searchEnabled:  Mdc.privileges.Device.canSearchDevices(),
     onlineHelpEnabled: true,
     privileges: Ext.Array.merge(
-        Sam.privileges.DeploymentInfo.all(),
-        Sam.privileges.DataPurge.all(),
-        Sam.privileges.License.all(),
         Cfg.privileges.Validation.all(),
         Yfn.privileges.Yellowfin.all(),
         Mdc.privileges.MasterData.all(),
@@ -64,7 +69,9 @@ Ext.define('MdcApp.controller.Main', {
         Mdc.privileges.UsagePoint.all(),
         Scs.privileges.ServiceCall.all(),
         Mdc.privileges.Monitor.all(),
-        Mdc.privileges.MetrologyConfiguration.all()
+        Mdc.privileges.MetrologyConfiguration.all(),
+        Mdc.privileges.CommandLimitationRules.all(),
+        Dal.privileges.Alarm.all()
     ),
     controllers: [
         'Sam.controller.Main',
@@ -73,6 +80,8 @@ Ext.define('MdcApp.controller.Main', {
         'Isu.controller.Main',
         'Idc.controller.Main',
         'Idv.controller.Main',
+        'Idv.controller.Main',
+        'Dal.controller.Main',
         'Bpm.controller.Main',
         'Ddv.controller.Main',
         'Dsh.controller.Main',
@@ -83,7 +92,8 @@ Ext.define('MdcApp.controller.Main', {
         'Est.main.controller.Main',
         'Fim.controller.Main',
         'Dbp.controller.Main',
-        'Scs.controller.Main'
+        'Scs.controller.Main',
+        'Dal.controller.Main'
     ],
 
     init: function () {
