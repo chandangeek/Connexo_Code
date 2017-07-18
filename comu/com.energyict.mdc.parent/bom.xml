@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -175,7 +179,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.lifecycle.config.rest</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>3.0.0-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -270,6 +274,18 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.alarms</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.alarms.rest</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.issue.datavalidation</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
                 <scope>provided</scope>
@@ -313,7 +329,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.pluggable</artifactId>
-                <version>2.1.0-SNAPSHOT</version>
+                <version>3.0.0-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
