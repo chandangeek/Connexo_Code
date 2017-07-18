@@ -1,26 +1,49 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
+import com.energyict.cim.EndDeviceEventTypeMapping;
+import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -28,22 +51,31 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
 
     public static final String BASIC_DATA_COLLECTION_RULE_TEMPLATE = "BasicDataCollectionRuleTemplate";
     public static final String BASIC_DATA_VALIDATION_RULE_TEMPLATE = "DataValidationIssueCreationRuleTemplate";
+    public static final String BASIC_DEVICE_ALARM_RULE_TEMPLATE = "BasicDeviceAlarmRuleTemplate";
 
+    private static final String SEPARATOR = ":";
+    private static final String WILDCARD = "*";
     private final IssueCreationService issueCreationService;
     private final IssueService issueService;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final TimeService timeService;
 
     private String type;
     private String reason;
     private String ruleTemplate;
     private DueInType dueInType = null;
+    private Priority priority;
+    private boolean active;
 
     @Inject
-    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService) {
+    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService) {
         super(IssueRuleBuilder.class);
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.timeService = timeService;
     }
 
     public IssueRuleBuilder withType(String type) {
@@ -66,6 +98,16 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         return this;
     }
 
+    public IssueRuleBuilder withPriority(Priority priority) {
+        this.priority = priority;
+        return this;
+    }
+
+    public IssueRuleBuilder withStatus(boolean status) {
+        this.active = status;
+        return this;
+    }
+
     @Override
     public Optional<CreationRule> find() {
         return issueCreationService.getCreationRuleQuery().select(where("name").isEqualTo(getName())).stream().findFirst();
@@ -76,12 +118,21 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         Log.write(this);
         CreationRuleBuilder builder = issueCreationService.newCreationRule();
         builder.setName(getName());
+        builder = this.active ? builder.activate() : builder.deactivate();
         builder.setIssueType(getReasonForRule().getIssueType());
         builder.setReason(getReasonForRule());
+
         if (this.dueInType == null) {
             builder.setDueInTime(DueInType.WEEK, 1);
         } else {
+
+
             builder.setDueInTime(dueInType, 1);
+        }
+        if (this.priority == null) {
+            builder.setPriority(Priority.DEFAULT);
+        } else {
+            builder.setPriority(priority);
         }
 
         CreationRuleTemplate template = getCreationRuleTemplate();
@@ -91,11 +142,28 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     }
 
     private com.elster.jupiter.issue.share.entity.IssueReason getReasonForRule() {
-        Optional<com.elster.jupiter.issue.share.entity.IssueReason> reasonRef = issueService.findReason(this.reason);
-        if (!reasonRef.isPresent()) {
-            throw new UnableToCreate("Unable to find reason with key = " + this.reason);
-        }
-        return reasonRef.get();
+        return issueService.findReason(reason).isPresent() ? issueService.findReason(reason).get() :
+                issueService.createReason(reason, getCreationRuleTemplate().getIssueType(), new TranslationKey() {
+                    @Override
+                    public String getKey() {
+                        return reason;
+                    }
+
+                    @Override
+                    public String getDefaultFormat() {
+                        return "Alarm reason";
+                    }
+                }, new TranslationKey() {
+                    @Override
+                    public String getKey() {
+                        return reason;
+                    }
+
+                    @Override
+                    public String getDefaultFormat() {
+                        return "Alarm reason";
+                    }
+                });
     }
 
     private CreationRuleTemplate getCreationRuleTemplate() {
@@ -122,6 +190,15 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             if (!deviceConfigurations.isEmpty()) {
                 properties.put(BASIC_DATA_VALIDATION_RULE_TEMPLATE + ".deviceConfigurations", deviceConfigurations);
             }
+        } else if (template.getName().equals(BASIC_DEVICE_ALARM_RULE_TEMPLATE)) {
+            properties.put(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS, getRandomEventCodeList(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS));
+            properties.put(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getRandomEventCodeList(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS));
+            properties.put(
+                    BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS,
+                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS).get().getValueFactory().fromStringValue("0:0:0"));
+            properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, getAllDeviceStatesInAllDeviceTypes());
+            properties.put(
+                    BasicDeviceAlarmRuleTemplate.THRESHOLD, getRelativePeriodWithCount());
         }
         return properties;
     }
@@ -148,5 +225,142 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             }
         }
         return listValue;
+    }
+
+    private List<HasName> getRandomEventCodeList(String eventType) {
+        List<String> rawList;
+        List<HasName> listValue = new ArrayList<>();
+        if (eventType.equals(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS)) {
+            rawList = Stream.of(EndDeviceEventTypeMapping.values())
+                    .limit(30)
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+                        Collections.shuffle(collected);
+                        return collected.stream();
+                    }))
+                    .limit(10)
+                    .map((endDeviceEventTypeMapping) -> endDeviceEventTypeMapping.getEventType().getCode())
+                    .map(type -> {
+                        if (type.equals(EndDeviceEventTypeMapping.OTHER.getEventType().getCode())) {
+                            return type.concat(SEPARATOR).concat(String.valueOf(new Random().nextInt(65)));
+                        } else {
+                            return type.concat(SEPARATOR).concat(WILDCARD);
+                        }
+                    })
+                    .collect(Collectors.toList());
+            rawList.forEach(value ->
+                    listValue.add((new HasIdAndName() {
+                        @Override
+                        public Object getId() {
+                            return value;
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "end device event " + value;
+                        }
+                    })));
+
+        } else {
+            rawList = Stream.of(EndDeviceEventTypeMapping.values())
+                    .skip(30)
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+                        Collections.shuffle(collected);
+                        return collected.stream();
+                    }))
+                    .limit(10)
+                    .map((endDeviceEventTypeMapping) -> endDeviceEventTypeMapping.getEventType().getCode())
+                    .map(type -> {
+                        if (type.equals(EndDeviceEventTypeMapping.OTHER.getEventType().getCode())) {
+                            return type.concat(SEPARATOR).concat(String.valueOf(new Random().nextInt(65)));
+                        } else {
+                            return type.concat(SEPARATOR).concat(WILDCARD);
+                        }
+                    })
+                    .collect(Collectors.toList());
+            rawList.forEach(value ->
+                    listValue.add((new HasIdAndName() {
+                        @Override
+                        public Object getId() {
+                            return value;
+                        }
+
+                        @Override
+                        public String getName() {
+                            return "end device event " + value;
+                        }
+                    })));
+        }
+        return listValue;
+    }
+
+    private List<HasIdAndName> getAllDeviceStatesInAllDeviceTypes() {
+        List<HasIdAndName> list = new ArrayList<>();
+        deviceConfigurationService.findAllDeviceTypes()
+                .find().stream()
+                .sorted(Comparator.comparing(DeviceType::getId))
+                .forEach(deviceType ->
+                        list.add(new HasIdAndName() {
+                                     @Override
+                                     public String getId() {
+                                         return deviceType.getId() + SEPARATOR + deviceType.getDeviceLifeCycle().getId() + SEPARATOR + deviceType.getDeviceLifeCycle()
+                                                 .getFiniteStateMachine()
+                                                 .getStates()
+                                                 .stream()
+                                                 .sorted(Comparator.comparing(State::getId))
+                                                 .map(HasId::getId)
+                                                 .map(String::valueOf)
+                                                 .collect(Collectors.joining(","));
+                                     }
+
+                                     @Override
+                                     public String getName() {
+                                         try {
+                                             JSONObject jsonObj = new JSONObject();
+                                             jsonObj.put("deviceTypeName", deviceType.getName());
+                                             jsonObj.put("lifeCycleStateName", deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
+                                                     .sorted(Comparator.comparing(State::getId)).collect(Collectors.collectingAndThen(Collectors.toList(), Collection::stream))
+                                                     .map(state -> getStateName(state) + " (" + deviceType.getDeviceLifeCycle().getName() + ")").collect(Collectors.toList()));
+                                             return jsonObj.toString();
+                                         } catch (JSONException e) {
+                                             e.printStackTrace();
+                                         }
+                                         return "";
+                                     }
+                                 }
+                        ));
+        return list;
+    }
+
+    private HasIdAndName getRelativePeriodWithCount() {
+        RelativePeriod relativePeriod = timeService.findRelativePeriodByName("Last 7 days").isPresent() ? timeService.findRelativePeriodByName("Last 7 days")
+                .get() : timeService.getAllRelativePeriod();
+        int occurrenceCount = new Random().nextInt(5);
+
+        return new HasIdAndName() {
+            @Override
+            public String getId() {
+                return occurrenceCount + SEPARATOR + relativePeriod.getId();
+            }
+
+            @Override
+            public String getName() {
+                try {
+                    JSONObject jsonId = new JSONObject();
+                    jsonId.put("occurrenceCount", occurrenceCount);
+                    jsonId.put("relativePeriod", relativePeriod.getName());
+                    return jsonId.toString();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return "";
+            }
+        };
+    }
+
+    private String getStateName(State state) {
+        return DefaultState
+                .from(state)
+                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .orElseGet(state::getName);
     }
 }

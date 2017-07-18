@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.Builders;
@@ -30,7 +34,7 @@ public enum DeviceConfigurationTpl implements Template<DeviceConfiguration, Devi
             Arrays.<LogBookTypeTpl>asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG),
             Arrays.asList(ComTaskTpl.excludeTopologyTpls())),
     AM540("Default", GatewayType.HOME_AREA_NETWORK,
-            Collections.emptyList(),
+            Collections.singletonList(SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5),
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_BULK_A_MINUS, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2),
             Arrays.<LoadProfileTypeTpl>asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY, LoadProfileTypeTpl.DAILY_ELECTRICITY, LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
             Collections.singletonList(LogBookTypeTpl.GENERIC),
@@ -58,7 +62,20 @@ public enum DeviceConfigurationTpl implements Template<DeviceConfiguration, Devi
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.singletonList(LoadProfileTypeTpl._15_MIN_ELECTRICITY),
-            null, null);
+            null, null),
+    MULTI_ELEMENT_DEVICE("Default", GatewayType.HOME_AREA_NETWORK,
+            Arrays.asList(SecurityPropertySetTpl.NO_SECURITY, SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5),
+            Arrays.<RegisterTypeTpl>asList(com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_1, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_2, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_3, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_4, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_5,
+                    com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_6, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_7, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_8, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_9, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_10,
+                    com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_11, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_12, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_13, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_14, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_15,
+                    com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_16, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_17, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_18, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_19, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_20,
+                    com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_21, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_22, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_23, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_24, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_25,
+                    com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_26, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_27, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_28, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_29, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_30,
+                    com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_31, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.DATA_LOGGER_32
+            ),
+            Collections.singletonList(com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.DATA_LOGGER_32),
+            Collections.emptyList(),
+            Arrays.asList(ComTaskTpl.READ_DATA_LOGGER_REGISTER_DATA, ComTaskTpl.READ_DATA_LOGGER_LOAD_PROFILE_DATA));
 
     private String name;
     private GatewayType gatewayType;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands.devices;
 
 import com.elster.jupiter.demo.impl.Builders;
@@ -13,8 +17,7 @@ import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
-import com.energyict.mdc.common.Password;
-import com.energyict.mdc.common.TypedProperties;
+import com.elster.jupiter.pki.PkiService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -29,8 +32,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -51,10 +52,11 @@ public class CreateDataLoggerCommand {
 
     private final static String DATA_LOGGER_NAME = "DemoDataLogger";
     private final static String DATA_LOGGER_SERIAL = "660-05A043-1428";
-    private final static String CONNECTION_TASK_PLUGGABLE_CLASS_NAME = "OutboundTcpIp";
+    private final static String CONNECTION_TASK_PLUGGABLE_CLASS_NAME = "OutboundTcpIpConnectionType";
 
     private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
+    private final PkiService pkiService;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final ConnectionTaskService connectionTaskService;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
@@ -63,17 +65,20 @@ public class CreateDataLoggerCommand {
     private Map<ComTaskTpl, ComTask> comTasks;
     private String name = DATA_LOGGER_NAME;
     private String serialNumber = DATA_LOGGER_SERIAL;
+    private KeyAccessorValuePersister keyAccessorValuePersister;
 
     @Inject
     public CreateDataLoggerCommand(DeviceService deviceService,
                                    ProtocolPluggableService protocolPluggableService,
                                    ConnectionTaskService connectionTaskService,
+                                   PkiService pkiService,
                                    Provider<DeviceBuilder> deviceBuilderProvider,
                                    Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
                                    Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
         this.connectionTaskService = connectionTaskService;
+        this.pkiService = pkiService;
         this.deviceBuilderProvider = deviceBuilderProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
         this.lifecyclePostBuilder = lifecyclePostBuilder;
@@ -94,7 +99,7 @@ public class CreateDataLoggerCommand {
             System.out.println("Nothing was created since a device with name '" + this.name + "' already exists!");
             return;
         }
-        Optional<ConnectionTypePluggableClass> pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName(CONNECTION_TASK_PLUGGABLE_CLASS_NAME);
+        Optional<ConnectionTypePluggableClass> pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByNameTranslationKey(CONNECTION_TASK_PLUGGABLE_CLASS_NAME);
         if (!pluggableClass.isPresent()) {
             System.out.println("Nothing was created since the required pluggable class '" + CONNECTION_TASK_PLUGGABLE_CLASS_NAME + "' couldn't be found!");
             return;
@@ -172,8 +177,8 @@ public class CreateDataLoggerCommand {
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "localhost")
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), new BigDecimal(4059))
+                .setProperty("host", "localhost")
+                .setProperty("portNumber", new BigDecimal(4059))
                 .setNumberOfSimultaneousConnections(1)
                 .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
@@ -194,34 +199,31 @@ public class CreateDataLoggerCommand {
                         .filter(sps -> SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5.getName().equals(sps.getName()))
                         .findFirst()
                         .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5.getName() + "."));
-        TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
-        typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password("ntaSim"));
         securityPropertySetHigh
                 .getPropertySpecs()
                 .stream()
-                .filter(ps -> SecurityPropertySpecName.AUTHENTICATION_KEY.getKey().equals(ps.getName()))
+                .filter(ps -> "Password".equals(ps.getName()))
                 .findFirst()
-                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00112233445566778899AABBCCDDEEFF")));
+                .ifPresent(ps -> getKeyAccessorValuePersister().persistKeyAccessorValue(device, "Password", "ntaSim"));
         securityPropertySetHigh
                 .getPropertySpecs()
                 .stream()
-                .filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(ps.getName()))
+                .filter(ps -> "AuthenticationKey".equals(ps.getName()))
                 .findFirst()
-                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
-        device.setSecurityProperties(securityPropertySetHigh, typedProperties);
+                .ifPresent(ps -> getKeyAccessorValuePersister().persistKeyAccessorValue(device, "AuthenticationKey", "00112233445566778899AABBCCDDEEFF"));
+        securityPropertySetHigh
+                .getPropertySpecs()
+                .stream()
+                .filter(ps -> "EncryptionKey".equals(ps.getName()))
+                .findFirst()
+                .ifPresent(ps -> getKeyAccessorValuePersister().persistKeyAccessorValue(device, "EncryptionKey", "11223344556677889900AABBCCDDEEFF"));
+    }
 
-        SecurityPropertySet securityPropertySetNone =
-                configuration
-                        .getSecurityPropertySets()
-                        .stream()
-                        .filter(sps -> SecurityPropertySetTpl.NO_SECURITY.getName().equals(sps.getName()))
-                        .findFirst()
-                        .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SecurityPropertySetTpl.NO_SECURITY.getName() + "."));
-        TypedProperties typedPropertiesNone = TypedProperties.empty();
-        typedPropertiesNone.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
-        device.setSecurityProperties(securityPropertySetNone, typedProperties);
-        device.save();
+    private KeyAccessorValuePersister getKeyAccessorValuePersister() {
+        if (keyAccessorValuePersister == null) {
+            keyAccessorValuePersister = new KeyAccessorValuePersister(pkiService);
+        }
+        return keyAccessorValuePersister;
     }
 
 }

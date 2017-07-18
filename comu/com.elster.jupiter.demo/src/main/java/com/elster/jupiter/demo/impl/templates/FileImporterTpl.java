@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.builders.ImportScheduleBuilder;
@@ -13,11 +17,6 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/09/2015
- * Time: 11:04
- */
 public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBuilder> {
 
     DEVICE_INSTALLATION_IMPORTER("Installation", "DeviceInstallationImporterFactory", "devicelifecycle", "installation") {
@@ -89,6 +88,11 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
         protected Map<String, Object> getImporterProperties() {
             return Collections.emptyMap();
         }
+
+        @Override
+        protected String pathMatcher() {
+            return "*.xml";
+        }
     };
 
     public static final String DATE_AND_TIME_PATTERN = "yyyy-MM-dd HH:mm";
@@ -124,7 +128,7 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
     public ImportScheduleBuilder get(ImportScheduleBuilder builder) {
         builder.withName(importerName)
                .withFileImporterFactoryName(factoryName)
-               .withPathMatcher(DEFAULT_PATH_MATCHER)
+                .withPathMatcher(this.pathMatcher())
                .withScheduleExpression(DEFAULT_SCHEDULED_EXPRESSION)
                .withImportDirectory(importBasePath.toString())
                .withInProcessDirectory(importBasePath.resolve(DEFAULT_PROCESSING_DIRECTORY).toString())
@@ -132,6 +136,10 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
                .withFailureDirectory(importBasePath.resolve(DEFAULT_FAILURE_DIRECTORY).toString())
                .withProperties(getImporterProperties());
         return builder;
+    }
+
+    protected String pathMatcher() {
+        return DEFAULT_PATH_MATCHER;
     }
 
     private static String defaultTimeZoneNotation() {
@@ -154,6 +162,5 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
                         }
                     };
     }
-
 
 }

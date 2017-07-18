@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.Builders;
@@ -12,13 +16,9 @@ import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Password;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -35,8 +35,9 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
+import com.energyict.mdc.upl.TypedProperties;
+
+import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -153,17 +154,14 @@ public class CreateA3DeviceCommand {
         channels.put(RegisterTypeTpl.DELRA_REACTIVE_ENERGY_PLUS.getMrid(), "0.3.128.0.0.255");
         channels.put(RegisterTypeTpl.DELRA_REACTIVE_ENERGY_MINUS.getMrid(), "0.4.128.0.0.255");
         addChannelsOnLoadProfileToDeviceConfiguration(configuration, channels);
-        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp").get();
+        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByNameTranslationKey("OutboundTcpIpConnectionType").get();
         configuration
-                .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(5, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(5, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE, configuration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get())
                 .setNumberOfSimultaneousConnections(1)
                 .addProperty("portNumber", new BigDecimal(1153))
                 .asDefault(true).build();
         SecurityPropertySet securityPropertySet = configuration.createSecurityPropertySet(SECURITY_PROPERTY_NAME).authenticationLevel(2).encryptionLevel(2).build();
-        for (DeviceSecurityUserAction action : DeviceSecurityUserAction.values()) {
-            securityPropertySet.addUserAction(action);
-        }
         securityPropertySet.update();
         addComTasksToDeviceConfiguration(configuration,
                 ComTaskTpl.READ_LOAD_PROFILE_DATA,
@@ -203,7 +201,7 @@ public class CreateA3DeviceCommand {
     private void addComTasksToDeviceConfiguration(DeviceConfiguration configuration, ComTaskTpl... names) {
         if (names != null) {
             for (ComTaskTpl comTaskTpl : names) {
-                configuration.enableComTask(comTasks.get(comTaskTpl), configuration.getSecurityPropertySets().get(0), configuration.getProtocolDialectConfigurationPropertiesList().get(0))
+                configuration.enableComTask(comTasks.get(comTaskTpl), configuration.getSecurityPropertySets().get(0))
                         .setIgnoreNextExecutionSpecsForInbound(false)
                         .setPriority(100).add().save();
             }
@@ -220,7 +218,6 @@ public class CreateA3DeviceCommand {
         addConnectionTasksToDevice(device);
         addSecurityPropertiesToDevice(device);
         addComTasksToDevice(device);
-        addProtocolPropertiesToDevice(device);
         device.save();
     }
 
@@ -232,9 +229,9 @@ public class CreateA3DeviceCommand {
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "166.150.217.174")
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), new BigDecimal(1153))
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.propertySpecName(), TimeDuration.minutes(1))
+                .setProperty("host", "166.150.217.174")
+                .setProperty("portNumber", new BigDecimal(1153))
+                .setProperty("connectionTimeout", TimeDuration.minutes(1))
                 .setNumberOfSimultaneousConnections(1)
                 .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
@@ -256,19 +253,18 @@ public class CreateA3DeviceCommand {
         DeviceConfiguration configuration = device.getDeviceConfiguration();
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().stream().filter(sps -> SECURITY_PROPERTY_NAME.equals(sps.getName())).findFirst().orElseThrow(() -> new UnableToCreate(""));
         TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER_ID.getKey(), "0");
-        typedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER.getKey(), "          ");
-        securityPropertySet.getPropertySpecs().stream().filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(ps.getName())).findFirst().ifPresent(
+        typedProperties.setProperty("C12UserId", BigDecimal.ZERO);
+        typedProperties.setProperty("C12User", "          ");
+        securityPropertySet.getPropertySpecs().stream().filter(ps -> "EncryptionKey".equals(ps.getName())).findFirst().ifPresent(
                 ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("F2FE78E33DF19786BBD2E56F9E93BE88")));
-        typedProperties.setProperty(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.getKey(), "1.3.6.1.4.1.33507.1919.42327");
-        typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password("00000000000000000000"));
-        device.setSecurityProperties(securityPropertySet, typedProperties);
-    }
+        typedProperties.setProperty("CalledAPTitle", "1.3.6.1.4.1.33507.1919.42327");
 
-    private void addProtocolPropertiesToDevice(Device device) {
-        //device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "CalledAPTitle", "1.3.6.1.4.1.33507.1919.29674");
-        //device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "SecurityKey", "93B6F29D64C9AD7331DCCAABBB7D4680");
-        //device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "SecurityMode", "2");
-        //device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "SecurityLevel", "2");
+        securityPropertySet
+                .getPropertySpecs()
+                .stream()
+                .filter(ps -> "Password".equals(ps.getName()))
+                .findFirst()
+                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00000000000000000000")));
+//        device.setSecurityProperties(securityPropertySet, typedProperties);   //TODO: should be replaced KeyAccessorValuePersister#persistKeyAccessorValue
     }
 }

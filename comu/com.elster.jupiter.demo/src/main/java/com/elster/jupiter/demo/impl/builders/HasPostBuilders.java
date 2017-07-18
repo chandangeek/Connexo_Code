@@ -1,6 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.builders;
 
-import java.util.Collections;
 import java.util.function.Consumer;
 
 /**

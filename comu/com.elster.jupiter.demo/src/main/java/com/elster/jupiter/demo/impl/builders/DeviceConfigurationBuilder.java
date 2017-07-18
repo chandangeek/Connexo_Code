@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
@@ -24,6 +28,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
     private boolean canActAsGateway = false;
     private boolean directlyAddressable = true;
     private boolean dataLoggerEnabled = false;
+    private boolean multiElementEnabled = false;
     private List<RegisterType> registerTypes;
     private List<LoadProfileType> loadProfileTypes;
     private List<LogBookType> logBookTypes;
@@ -58,6 +63,11 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
 
     public DeviceConfigurationBuilder withDataLoggerEnabled(boolean dataLoggerEnabled) {
         this.dataLoggerEnabled = dataLoggerEnabled;
+        return this;
+    }
+
+    public DeviceConfigurationBuilder withMultiElementEnabled(boolean multiElementEnabled) {
+        this.multiElementEnabled = multiElementEnabled;
         return this;
     }
 
@@ -102,6 +112,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         configBuilder.gatewayType(this.gatewayType);
         configBuilder.isDirectlyAddressable(directlyAddressable);
         configBuilder.dataloggerEnabled(dataLoggerEnabled);
+        configBuilder.multiElementEnabled(multiElementEnabled);
         addRegisters(configBuilder);
         addLoadProfiles(configBuilder);
         addLogBooks(configBuilder);
@@ -166,7 +177,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
                     .filter(sps -> SecurityPropertySetTpl.NO_SECURITY.getName().equals(sps.getName()))
                     .findFirst()
                     .orElse(securityPropertySets.get(0));
-            deviceConfiguration.enableComTask(comTask, securityPropertySet, getProtocolDialectConfigurationProperties(deviceConfiguration))
+            deviceConfiguration.enableComTask(comTask, securityPropertySet)
                     .setIgnoreNextExecutionSpecsForInbound(false)
                     .setPriority(100).add().save();
         }

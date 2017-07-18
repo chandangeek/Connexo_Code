@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
@@ -93,10 +97,9 @@ public class MetrologyConfigurationBuilder extends NamedBuilder<UsagePointMetrol
                     metrologyConfiguration
                             .newReadingTypeRequirement(readingType.getFullAliasName(), meterRoleDefault)
                             .withReadingType(readingType);
-            ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
-            ReadingTypeDeliverable deliverable = builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
             MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(purpose);
-            metrologyContract.addDeliverable(deliverable);
+            ReadingTypeDeliverableBuilder builder = metrologyContract.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
+            builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
         });
     }
 }

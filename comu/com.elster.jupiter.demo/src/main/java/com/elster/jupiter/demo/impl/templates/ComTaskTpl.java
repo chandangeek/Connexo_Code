@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.Builders;
@@ -5,9 +9,9 @@ import com.elster.jupiter.demo.impl.builders.ComTaskBuilder;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.tasks.TopologyAction;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,17 +60,6 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
             null,
             Collections.singletonList(TopologyAction.UPDATE),
             null),
-    VERIFY_STATUS_INFO("Verify status information",
-            null,
-            null,
-            null,
-            null,
-            null) {
-        @Override
-        protected boolean isVerifyStatusInformationTask() {
-            return true;
-        }
-    },
     //System communication task, it should be available out of the box
     // We don't need to create it, just link to device configurations
     FIRMWARE_MANAGEMENT("Firmware management",
@@ -153,6 +146,6 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
     }
 
     static ComTaskTpl[] excludeTopologyTpls() {
-        return EnumSet.of(READ_REGISTER_DATA, READ_LOAD_PROFILE_DATA, READ_LOG_BOOK_DATA, VERIFY_STATUS_INFO, FIRMWARE_MANAGEMENT, COMMANDS).toArray(new ComTaskTpl[6]);
+        return EnumSet.of(READ_REGISTER_DATA, READ_LOAD_PROFILE_DATA, READ_LOG_BOOK_DATA, FIRMWARE_MANAGEMENT, COMMANDS).toArray(new ComTaskTpl[5]);
     }
 }

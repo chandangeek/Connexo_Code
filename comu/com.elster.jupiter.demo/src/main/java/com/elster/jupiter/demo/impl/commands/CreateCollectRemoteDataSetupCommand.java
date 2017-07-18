@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.Builders;
@@ -14,7 +18,7 @@ import com.elster.jupiter.demo.impl.templates.ComServerTpl;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.CreationRuleTpl;
 import com.elster.jupiter.demo.impl.templates.DataCollectionKpiTpl;
-import com.elster.jupiter.demo.impl.templates.DataValidationKpiTpl;
+import com.elster.jupiter.demo.impl.templates.DataQualityKpiTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
@@ -28,12 +32,12 @@ import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -115,25 +119,20 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
             createComSchedules();
             createCalendars();
         });
-        executeTransaction(() -> {
-            createMetrologyConfigurations();
-        });
+        executeTransaction(this::createMetrologyConfigurations);
         createDeviceStructure();
         executeTransaction(() -> {
             createCreationRules();
             createAssignmentRules();
         });
-        executeTransaction(() -> {
-            createDeviceGroups();
-        });
+        executeTransaction(this::createDeviceGroups);
         executeTransaction(() -> {
             createDataCollectionKpi();
             createDataValidationKpi();
         });
-        executeTransaction(() -> {
-            processDevices();
-            corruptDeviceSettingsForIssueManagement();
-        });
+        processDevices();
+        executeTransaction(this::addLocationAndUsagePoints);
+        executeTransaction(this::corruptDeviceSettingsForIssueManagement);
     }
 
     private void parametersCheck() {
@@ -184,10 +183,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
 
     private void createLogBookTypes() {
         EnumSet.of(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG)
-                .stream()
-                .forEach(
-                        tpl -> Builders.from(tpl).get()
-                );
+                .forEach(tpl -> Builders.from(tpl).get());
     }
 
     private void createLoadProfileTypes() {
@@ -243,15 +239,15 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     }
 
     private void createDevices(DeviceTypeTpl deviceTypeTpl){
-        Optional<DeviceType> deviceType = Builders.from(deviceTypeTpl).find();
+        DeviceType deviceType = Builders.from(deviceTypeTpl).get();
         int deviceCount = (this.devicesPerType == null ? deviceTypeTpl.getDeviceCount() : this.devicesPerType);
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
             int validationStrictDeviceCount = this.devicesPerType == null ? VALIDATION_STRICT_DEVICE_COUNT : this.devicesPerType / 3; // 3 device conf on this type
-            createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT).withDeviceType(deviceType.get()).find().get(), deviceTypeTpl,  validationStrictDeviceCount);
+            createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT).withDeviceType(deviceType).get(), deviceTypeTpl,  validationStrictDeviceCount);
             deviceCount = Math.max(0, deviceCount - validationStrictDeviceCount);
         }
-        createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS).withDeviceType(deviceType.get()).find().get(), deviceTypeTpl, deviceCount >> 1);
-        createDevices(Builders.from(DeviceConfigurationTpl.CONSUMERS).withDeviceType(deviceType.get()).find().get(), deviceTypeTpl, deviceCount >> 1);
+        createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount >> 1);
+        createDevices(Builders.from(DeviceConfigurationTpl.CONSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount >> 1);
     }
 
     private void createDevices(DeviceConfiguration configuration, DeviceTypeTpl deviceTypeTpl, int deviceCount){
@@ -289,6 +285,8 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         createDeviceCommand.setDeviceConfiguration(configuration);
         createDeviceCommand.setSerialNumber(serialNumber);
         createDeviceCommand.setHost(this.host);
+        createDeviceCommand.withLocation();
+        //createDeviceCommand.withUsagePoint();
         createDeviceCommand.run();
     }
 
@@ -304,7 +302,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     }
 
     private void createDataValidationKpi() {
-        Builders.from(DataValidationKpiTpl.ALL_ELECTRICITY_DEVICES).get();
+        Builders.from(DataQualityKpiTpl.ALL_ELECTRICITY_DEVICES).get();
     }
 
     private void processDevices() {
@@ -316,8 +314,15 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
             }
             return device.getId() % (deviceCount / (1 + (int) (deviceCount * 0.05))) != 0;
         };
-        this.activateDevicesCommandProvider.get().setDevices(devices).setDeviceTransitionFilter(skipActivationFilter).run();
-        devices = this.deviceService.deviceQuery().select(where("name").like(Constants.Device.STANDARD_PREFIX + "*"));
+        DecoratedStream.decorate(devices.stream()).partitionPer(100).forEach(
+
+                deviceList -> executeTransaction(() -> this.activateDevicesCommandProvider.get().setDevices(deviceList).setDeviceTransitionFilter(skipActivationFilter).run())
+        );
+
+    }
+
+    private void addLocationAndUsagePoints() {
+        List<Device> devices = this.deviceService.deviceQuery().select(where("name").like(Constants.Device.STANDARD_PREFIX + "*"));
         this.addLocationInfoToDevicesCommandProvider.get().setDevices(devices).run();
         this.createUsagePointsForDevicesCommandProvider.get().setDevices(devices).run();
     }
@@ -330,7 +335,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         for (int i = 0; i < 5; i++) {
             int devicePosition = (int) ((devices.size() - 1) * Math.random());
             devices.get(devicePosition).getScheduledConnectionTasks().forEach(connectionTask -> {
-                connectionTask.setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "UNKNOWN");
+                connectionTask.setProperty("host", "UNKNOWN");
                 connectionTask.saveAllProperties();
             });
             devicesWithCorruptedConnectionSettings.add(devices.get(devicePosition).getName());

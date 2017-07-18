@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -18,12 +22,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 1/10/2015
- * Time: 14:54
- */
 public class EstimationTaskBuilder extends NamedBuilder<EstimationTask, EstimationTaskBuilder> {
     private final EstimationService estimationService;
     private final TaskService taskService;
@@ -76,10 +76,12 @@ public class EstimationTaskBuilder extends NamedBuilder<EstimationTask, Estimati
         Log.write(this);
         com.elster.jupiter.estimation.EstimationTaskBuilder taskBuilder = estimationService.newBuilder();
         taskBuilder.setName(getName());
+        taskBuilder.setLogLevel(Level.WARNING.intValue());
         taskBuilder.setQualityCodeSystem(QualityCodeSystem.MDC);
         taskBuilder.setEndDeviceGroup(deviceGroup);
         taskBuilder.setScheduleExpression(scheduleExpression);
         taskBuilder.setNextExecution(nextExecution);
+        taskBuilder.setRevalidate(false);
 
         EstimationTask task = taskBuilder.create();
         applyPostBuilders(task);

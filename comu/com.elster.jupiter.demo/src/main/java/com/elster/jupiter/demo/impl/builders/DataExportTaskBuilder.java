@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -17,6 +22,7 @@ import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
+import java.util.logging.Level;
 
 public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTaskBuilder> {
     private final DataExportService dataExportService;
@@ -61,6 +67,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
         startOn = startOn.withSecond(0).withMinute(0).withHour(11);
         com.elster.jupiter.export.DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(getName())
+                .setLogLevel(Level.WARNING.intValue())
                 .setApplication("MultiSense")
                 .setDataFormatterFactoryName("standardCsvDataProcessorFactory")
                 .setScheduleExpression(new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(11)))
@@ -68,6 +75,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
                 .selectingMeterReadings()
                 .fromExportPeriod(yesterday.get())
                 .fromUpdatePeriod(yesterday.get())
+                .exportComplete(MissingDataOption.EXCLUDE_INTERVAL)
                 .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
                 .fromEndDeviceGroup(endDeviceGroup.get())
                 .continuousData(false)

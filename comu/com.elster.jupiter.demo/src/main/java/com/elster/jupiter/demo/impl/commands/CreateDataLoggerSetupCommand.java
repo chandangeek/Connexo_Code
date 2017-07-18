@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.Builders;
@@ -11,6 +15,7 @@ import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.pki.PkiService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceService;
@@ -21,17 +26,12 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.Optional;
 
-/**
- * Setup for a 'realistic' Data Logger/ Data Logger Slave
- * Copyrights EnergyICT
- * Date: 20/06/2016
- * Time: 9:13
- */
 public class CreateDataLoggerSetupCommand extends CommandWithTransaction {
 
     private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
     private final ConnectionTaskService connectionTaskService;
+    private final PkiService pkiService;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final Provider<ActivateDevicesCommand> activeLifeCyclestatePostBuilder;
@@ -44,6 +44,7 @@ public class CreateDataLoggerSetupCommand extends CommandWithTransaction {
     public CreateDataLoggerSetupCommand(DeviceService deviceService,
                                         ProtocolPluggableService protocolPluggableService,
                                         ConnectionTaskService connectionTaskService,
+                                        PkiService pkiService,
                                         Provider<DeviceBuilder> deviceBuilderProvider,
                                         Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
                                         Provider<ActivateDevicesCommand> activeLifeCyclestatePostBuilder) {
@@ -51,6 +52,7 @@ public class CreateDataLoggerSetupCommand extends CommandWithTransaction {
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
         this.connectionTaskService = connectionTaskService;
+        this.pkiService = pkiService;
         this.deviceBuilderProvider = deviceBuilderProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
         this.activeLifeCyclestatePostBuilder = activeLifeCyclestatePostBuilder;
@@ -73,6 +75,7 @@ public class CreateDataLoggerSetupCommand extends CommandWithTransaction {
                 deviceService,
                 protocolPluggableService,
                 connectionTaskService,
+                pkiService,
                 deviceBuilderProvider,
                 connectionMethodsProvider,
                 activeLifeCyclestatePostBuilder

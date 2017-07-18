@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands;
 
+import com.elster.jupiter.demo.impl.commands.tou.CreateBelgianMarketTimeOfUseDataCommand;
 import com.elster.jupiter.demo.impl.commands.upload.ValidateStartDateCommand;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
@@ -19,6 +24,7 @@ public class CreateDemoDataCommand {
     private final Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider;
     private final Provider<CreateImportersCommand> createImportersCommandProvider;
     private final Provider<CreateDataLoggerSetupCommand> createDataLoggerSetupCommandProvider;
+    private final Provider<CreateBelgianMarketTimeOfUseDataCommand> createBelgianMarketTimeOfUseDataCommandProvider;
 
     private String comServerName;
     private String host;
@@ -39,7 +45,8 @@ public class CreateDemoDataCommand {
             Provider<CreateDemoUserCommand> createDemoUserCommandProvider,
             Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider,
             Provider<CreateDataLoggerSetupCommand> createDataLoggerSetupCommandProvider,
-            Provider<CreateImportersCommand> createImportersCommandProvider) {
+            Provider<CreateImportersCommand> createImportersCommandProvider,
+            Provider<CreateBelgianMarketTimeOfUseDataCommand> createBelgianMarketTimeOfUseDataCommandProvider) {
         this.createCollectRemoteDataSetupCommandProvider = createCollectRemoteDataSetupCommandProvider;
         this.createUserManagementCommandProvider = createUserManagementCommandProvider;
         this.createApplicationServerCommandProvider = createApplicationServerCommandProvider;
@@ -52,6 +59,7 @@ public class CreateDemoDataCommand {
         this.setupFirmwareManagementCommandProvider = setupFirmwareManagementCommandProvider;
         this.createImportersCommandProvider = createImportersCommandProvider;
         this.createDataLoggerSetupCommandProvider = createDataLoggerSetupCommandProvider;
+        this.createBelgianMarketTimeOfUseDataCommandProvider = createBelgianMarketTimeOfUseDataCommandProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -86,6 +94,7 @@ public class CreateDemoDataCommand {
         createNtaConfigCommand();
         createDeliverDataSetupCommand();
         createDataLoggerSetupCommand();
+        createBelgianMarketTimeOfUseData();
         System.out.println("Command completed successfully");
     }
 
@@ -156,4 +165,9 @@ public class CreateDemoDataCommand {
         createDataLoggerSetupCommand.setNumberOfSlaves(1);
         createDataLoggerSetupCommand.runInTransaction();
     }
+
+    private void createBelgianMarketTimeOfUseData() {
+        this.createBelgianMarketTimeOfUseDataCommandProvider.get().runInTransaction();
+    }
+
 }

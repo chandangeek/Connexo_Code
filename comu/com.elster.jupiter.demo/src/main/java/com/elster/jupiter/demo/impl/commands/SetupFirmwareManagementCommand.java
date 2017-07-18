@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.UnableToCreate;
@@ -8,7 +12,7 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
+import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -16,14 +20,6 @@ import java.io.InputStream;
 import java.util.EnumSet;
 import java.util.Set;
 
-/**
- * Purpose for this command is to install 2 Firmware versions for each device type (Except 'Landis+Gyr ZMD')
- * the first in a 'Final' state, the second one in a 'Test' state.
- *
- * Copyrights EnergyICT
- * Date: 10/09/2015
- * Time: 14:28
- */
 public class SetupFirmwareManagementCommand extends CommandWithTransaction{
 
     private final static String FIRMWARE_VERSION_V1 = "NTA-Sim_V_1.0.0";

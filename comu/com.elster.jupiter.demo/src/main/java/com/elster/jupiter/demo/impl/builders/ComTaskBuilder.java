@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
@@ -7,10 +11,10 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.upl.tasks.TopologyAction;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -90,9 +94,7 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
             comTask.createRegistersTask().registerGroups(registerGroups).add();
         }
         if (topologyActions != null) {
-            for (TopologyAction topologyAction : topologyActions) {
-                comTask.createTopologyTask(topologyAction);
-            }
+            topologyActions.forEach(comTask::createTopologyTask);
         }
         if (clocks != null) {
             for (Clock clock : clocks) {

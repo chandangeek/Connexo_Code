@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.demo.impl.builders.Builder;
 import com.elster.jupiter.demo.impl.templates.Template;
+
 import com.google.inject.Injector;
 
 public class Builders {

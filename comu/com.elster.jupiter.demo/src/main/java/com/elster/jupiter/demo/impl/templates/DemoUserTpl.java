@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.builders.UserBuilder;
@@ -5,14 +9,6 @@ import com.elster.jupiter.users.User;
 
 import java.util.Locale;
 
-/**
- * {@link Template} for creating a 'DemoUser': a user with only 'view' privileges
- * Password is set to "D3mo"
- *
- * Copyrights EnergyICT
- * Date: 17/09/2015
- * Time: 9:56
- */
 public class DemoUserTpl implements Template<User, UserBuilder> {
 
     private String name;

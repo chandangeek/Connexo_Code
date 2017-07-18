@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.UnableToCreate;
@@ -23,14 +27,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Purpose for this command is to install the Default life cycle in the demo system.
- * All devicetypes should have this lifecycle and all devices should be in the 'Active' State.
- * <p>
- * Copyrights EnergyICT
- * Date: 8/09/2015
- * Time: 15:16
- */
 public class CreateDefaultDeviceLifeCycleCommand {
 
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
