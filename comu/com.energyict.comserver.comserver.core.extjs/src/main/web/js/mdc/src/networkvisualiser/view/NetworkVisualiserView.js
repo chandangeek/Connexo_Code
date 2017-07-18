@@ -12,7 +12,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             text: 'Navigate to device landing page',
             section: 3, /*SECTION_VIEW*/
             handler: function(menuItem) {
-                menuItem.visualiser.router.getRoute('devices/device').forward({
+                menuItem.visualiser.router.getRoute('devices/device').forwardInNewTab({
                     deviceId: menuItem.visualiser.chart.getItem(menuItem.graphId).d.name
                 });
             }
@@ -22,7 +22,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             text: 'Navigate to communication topology',
             section: 3, /*SECTION_VIEW*/
             handler: function(menuItem) {
-                menuItem.visualiser.router.getRoute('devices/device/topology').forward({
+                menuItem.visualiser.router.getRoute('devices/device/topology').forwardInNewTab({
                     deviceId: menuItem.visualiser.chart.getItem(menuItem.graphId).d.name
                 });
             }
