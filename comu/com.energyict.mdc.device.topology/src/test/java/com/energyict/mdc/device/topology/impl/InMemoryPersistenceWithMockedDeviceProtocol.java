@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -28,6 +33,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -41,11 +48,11 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
@@ -53,13 +60,13 @@ import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -68,12 +75,22 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.LicensedProtocol;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.LicensedProtocol;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
+import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
+import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
@@ -83,10 +100,21 @@ import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLRequestSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLResponseSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLSecuritySuiteLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageCategoryAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.mdc.upl.TypedProperties;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -156,12 +184,15 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new ThreadSecurityModule(this.principal),
                 new EventsModule(),
                 new PubSubModule(),
+                new PkiModule(),
                 new TransactionModule(showSqlLogging),
                 new NlsModule(),
                 new DomainUtilModule(),
                 new PartyModule(),
                 new UserModule(),
+                new BpmModule(),
                 new IdsModule(),
+                new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(
                          "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"
                         ,"0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"
@@ -214,7 +245,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new FiniteStateMachineModule(),
                 new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
-                new MdcIOModule(),
                 new SchedulingModule(),
                 new DeviceDataModule(),
                 new TopologyModule(),
@@ -228,6 +258,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommunicationTestServiceCallCustomPropertySet());
             injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
             injector.getInstance(NlsService.class);
@@ -301,25 +332,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         return eventService;
     }
 
-    private class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(DataVaultService.class).toInstance(dataVaultService);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(Clock.class).toInstance(clock);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(ProtocolPluggableService.class).to(MockProtocolPluggableService.class).in(Scopes.SINGLETON);
-            bind(LogService.class).toInstance(mock(LogService.class));
-            bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
-            bind(DataModel.class).toProvider(() -> dataModel);
-            bind(Thesaurus.class).toInstance(thesaurus);
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-        }
-
-    }
-
     public MockProtocolPluggableService getMockProtocolPluggableService() {
         return (MockProtocolPluggableService) protocolPluggableService;
     }
@@ -328,14 +340,14 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
         private final ProtocolPluggableService protocolPluggableService;
 
-        public ProtocolPluggableService getMockedProtocolPluggableService() {
-            return protocolPluggableService;
-        }
-
         @Inject
         private MockProtocolPluggableService() {
             super();
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
+        }
+
+        public ProtocolPluggableService getMockedProtocolPluggableService() {
+            return protocolPluggableService;
         }
 
         @Override
@@ -360,21 +372,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
-        public List<LicensedProtocol> getAllLicensedProtocols() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public boolean isLicensedProtocolClassName(String javaClassName) {
-            return false;
-        }
-
-        @Override
-        public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-            return null;
-        }
-
-        @Override
         public Object createProtocol(String className) {
             return protocolPluggableService.createProtocol(className);
         }
@@ -390,8 +387,23 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
+        public List<LicensedProtocol> getAllLicensedProtocols() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public boolean isLicensedProtocolClassName(String javaClassName) {
+            return false;
+        }
+
+        @Override
         public Finder<DeviceProtocolPluggableClass> findAllDeviceProtocolPluggableClasses() {
             return protocolPluggableService.findAllDeviceProtocolPluggableClasses();
+        }
+
+        @Override
+        public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+            return null;
         }
 
         @Override
@@ -470,8 +482,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
-        public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClassByName(String name) {
-            return protocolPluggableService.findConnectionTypePluggableClassByName(name);
+        public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClassByNameTranslationKey(String name) {
+            return protocolPluggableService.findConnectionTypePluggableClassByNameTranslationKey(name);
         }
 
         @Override
@@ -518,7 +530,74 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         public InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass) {
             return null;
         }
+        @Override
+        public PropertySpec adapt(com.energyict.mdc.upl.properties.PropertySpec uplPropertySpec) {
+            return new UPLToConnexoPropertySpecAdapter(uplPropertySpec);
+        }
+
+        @Override
+        public com.energyict.mdc.upl.properties.PropertySpec adapt(PropertySpec propertySpec) {
+            return new ConnexoToUPLPropertSpecAdapter(propertySpec);
+        }
+
+        @Override
+        public AuthenticationDeviceAccessLevel adapt(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel uplLevel) {
+            return new UPLAuthenticationLevelAdapter(uplLevel);
+        }
+
+        @Override
+        public EncryptionDeviceAccessLevel adapt(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel uplLevel) {
+            return new UPLEncryptionLevelAdapter(uplLevel);
+        }
+
+        @Override
+        public com.energyict.mdc.upl.messages.DeviceMessageCategory adapt(DeviceMessageCategory connexoCategory) {
+            return new ConnexoDeviceMessageCategoryAdapter(connexoCategory);
+        }
+
+        @Override
+        public com.energyict.mdc.upl.messages.DeviceMessageSpec adapt(DeviceMessageSpec connexoSpec) {
+            return new ConnexoDeviceMessageSpecAdapter(connexoSpec);
+        }
+
+        @Override
+        public OfflineDevice adapt(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice) {
+            return new UPLOfflineDeviceAdapter(offlineDevice);
+        }
+
+        public SecuritySuite adapt(com.energyict.mdc.upl.security.SecuritySuite uplLevel) {
+            return new UPLSecuritySuiteLevelAdapter(uplLevel);
+        }
+
+        @Override
+        public RequestSecurityLevel adapt(com.energyict.mdc.upl.security.RequestSecurityLevel uplLevel) {
+            return new UPLRequestSecurityLevelAdapter(uplLevel);
+        }
+
+        @Override
+        public ResponseSecurityLevel adapt(com.energyict.mdc.upl.security.ResponseSecurityLevel uplLevel) {
+            return new UPLResponseSecurityLevelAdapter(uplLevel);
+        }
 
     }
 
+    private class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(DataVaultService.class).toInstance(dataVaultService);
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(Clock.class).toInstance(clock);
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(ProtocolPluggableService.class).to(MockProtocolPluggableService.class).in(Scopes.SINGLETON);
+            bind(LogService.class).toInstance(mock(LogService.class));
+            bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
+            bind(DataModel.class).toProvider(() -> dataModel);
+            bind(Thesaurus.class).toInstance(thesaurus);
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+        }
+    }
 }

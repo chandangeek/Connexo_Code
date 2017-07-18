@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology;
 
 import com.elster.jupiter.nls.LocalizedException;
@@ -5,14 +9,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
 
-/**
- * Models the exceptional situation that occurs when an attempt is made to try and delete a Device
- * which is still used as some sort of gateway...
- * <p/>
- * Copyrights EnergyICT
- * Date: 3/17/14
- * Time: 1:26 PM
- */
 public class StillGatewayException extends LocalizedException {
 
     private StillGatewayException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {

@@ -1,8 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
@@ -16,9 +22,10 @@ import com.energyict.mdc.device.topology.PhaseInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-
 import com.google.common.collect.Range;
+import org.assertj.core.api.Condition;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -31,10 +38,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.assertj.core.api.Condition;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -200,7 +203,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
             @Override
             public boolean matches(List<? extends Device> value) {
                 boolean bothMatch = true;
-                for (BaseDevice baseDevice : value) {
+                for (Device baseDevice : value) {
                     bothMatch &= ((baseDevice.getId() == device1.getId()) || (baseDevice.getId() == device2.getId()));
                 }
                 return bothMatch;
@@ -1264,7 +1267,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         List<DataLoggerReferenceImpl> gatewayReferences = ((ServerTopologyService) this.getTopologyService()).dataModel().query(DataLoggerReferenceImpl.class).select(com.elster.jupiter.util.conditions.Condition.TRUE);
         assertThat(gatewayReferences).hasSize(1);
         assertThat(gatewayReferences.get(0)).isInstanceOf(DataLoggerReferenceImpl.class);
-        DataLoggerReferenceImpl dataLoggerReference = (DataLoggerReferenceImpl) gatewayReferences.get(0);
+        DataLoggerReferenceImpl dataLoggerReference = gatewayReferences.get(0);
         assertThat(dataLoggerReference.getOrigin().getId()).isEqualTo(slave.getId());
         assertThat(dataLoggerReference.getGateway().getId()).isEqualTo(dataLogger.getId());
         assertThat(dataLoggerReference.getRange().lowerEndpoint()).isEqualTo(now);
@@ -1344,7 +1347,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
             @Override
             public boolean matches(List<? extends Device> value) {
                 boolean bothMatch = true;
-                for (BaseDevice baseDevice : value) {
+                for (Device baseDevice : value) {
                     bothMatch &= ((baseDevice.getId() == slave1.getId()) || (baseDevice.getId() == slave2.getId()));
                 }
                 return bothMatch;
@@ -1462,6 +1465,34 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(dataLoggerRegisterTimeLine.get(3).getLast()).isEqualTo(Range.openClosed(linkDate1, unLinkDate1));
         assertThat(dataLoggerRegisterTimeLine.get(4).getFirst()).isEqualTo(dataLoggerRegister);
         assertThat(dataLoggerRegisterTimeLine.get(4).getLast()).isEqualTo(Range.openClosed(lower, linkDate1));
+    }
+
+    @Test
+    @Transactional
+    public void isLinkedToMasterTest() {
+        Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        Device slave = createSlaveDevice("Slave2");
+        Device dataLogger = createDataLoggerDevice("Data logger enabled");
+        // Business method
+        Map<Register, Register> slaveDataLoggerRegisterMap = new HashMap<>();
+        slaveDataLoggerRegisterMap.put(slave.getRegisters().get(0), dataLogger.getRegisters().get(0));
+        this.getTopologyService().setDataLogger(slave, dataLogger, now, Collections.emptyMap(), slaveDataLoggerRegisterMap);
+
+        Subquery subquery = this.getTopologyService().IsLinkedToMaster(slave);
+        com.elster.jupiter.util.conditions.Condition notLinkedToMasterDevices = ListOperator.IN.contains(subquery, "id");
+
+        assertThat(getDeviceService().findAllDevices(notLinkedToMasterDevices).stream().count()).isEqualTo(1);
+    }
+
+    @Test
+    @Transactional
+    public void isNotLinkedToMasterTest() {
+        Device slave = createSlaveDevice("Slave1");
+
+        Subquery subquery = this.getTopologyService().IsLinkedToMaster(slave);
+        com.elster.jupiter.util.conditions.Condition notLinkedToMasterDevices = ListOperator.NOT_IN.contains(subquery, "id");
+
+        assertThat(getDeviceService().findAllDevices(notLinkedToMasterDevices).stream().count()).isEqualTo(1);
     }
 
     private ServerDeviceService getDeviceService() {

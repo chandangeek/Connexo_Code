@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -8,17 +12,12 @@ import com.energyict.mdc.device.data.Device;
 
 import java.time.Instant;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/04/2016
- * Time: 15:29
- */
 public class DataLoggerLinkException extends LocalizedException {
 
     static final String NO_MAPPING_FOR_ALL_SLAVE_CHANNELS = "DataLoggerLinkException.allSlaveChannelsShouldBeIncludedInTheMapping";
     static final String NO_FREE_DATA_LOGGER_CHANNEL = "DataLoggerLinkException.noFreeDataLoggerChannel";
     static final String NO_DATA_LOGGER_CHANNEL_FOR_READING_TYPE_X = "DataLoggerLinkException.noDataLoggerChannelForReadingTypeX";
-    static final String NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X = "DataLoggerLinkException.noPhysicalSlaveChannelForReadingTypeX";
+    public static final String NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X = "DataLoggerLinkException.noPhysicalSlaveChannelForReadingTypeX";
     static final String DEVICE_NOT_LINKED = "DataLoggerLinkException.DeviceNotLinked";
 
     private DataLoggerLinkException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {

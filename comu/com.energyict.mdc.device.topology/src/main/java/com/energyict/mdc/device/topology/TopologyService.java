@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Channel;
@@ -233,7 +238,7 @@ public interface TopologyService {
      * {@link DeviceConfiguration} must be set as datalogger enabled.
      * The slave device's DeviceType must have the DATALOGGER_SLAVE {@link com.energyict.mdc.device.config.DeviceTypePurpose}
      * <p>
-     * Technically the link is persisted as a {@link com.energyict.mdc.device.topology.impl.PhysicalGatewayReference} object.
+     * Technically the link is persisted as a {@link PhysicalGatewayReference} object.
      * This PhysicalGateWayReference holds a List of DataLoggerChannelUsage linking the slave (pulse) channel to the datalogger (pulse) channel
      */
     void setDataLogger(Device slave, Device datalogger, Instant linkingDate, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap);
@@ -260,6 +265,15 @@ public interface TopologyService {
     boolean isDataLoggerSlaveCandidate(Device device);
 
     /**
+     * Returns the data logger device the slave is linked with at given time
+     * @param slave for which to retrieve its data logger
+     * @param when time at which the link is effective
+     * @return the data logger device
+     */
+    Optional<Device> getDataLogger(Device slave, Instant when);
+
+
+    /**
      * Finds the dataloggerReference which is effective at the given timestamp.
      * If no reference was active, an empty optional will be returned
      *
@@ -281,6 +295,13 @@ public interface TopologyService {
      * @return all data logger data slave devices which at this moment are effectively linked to a datalogger
      */
     Finder<? extends DataLoggerReference> findAllEffectiveDataLoggerSlaveDevices();
+
+    /**
+     * @param dataLoggerChannel the channel of the datalogger
+     * @return an Optional channel of the slave device to which the data logger channel is linked now. Optional<empty> if the $
+     * dataLogger channel is not linked
+     */
+    Optional<Channel> getSlaveChannel(Channel dataLoggerChannel);
 
     /**
      * @param dataLoggerChannel the channel of the datalogger
@@ -364,7 +385,7 @@ public interface TopologyService {
 
     List<Pair<Register, Range<Instant>>> getDataLoggerRegisterTimeLine(Register register, Range<Instant> intervalReg);
 
-    public interface G3CommunicationPathSegmentBuilder {
+    interface G3CommunicationPathSegmentBuilder {
 
         /**
          * Adds a {@link G3CommunicationPathSegment} from the source to the target
@@ -400,7 +421,7 @@ public interface TopologyService {
      * the {@link #addNeighbor(Device, ModulationScheme, Modulation, PhaseInfo)}
      * was not called will be deleted upon completion.
      */
-    public interface G3NeighborhoodBuilder {
+    interface G3NeighborhoodBuilder {
 
         /**
          * Adds the specified {@link Device} to the neighborhood
@@ -427,7 +448,9 @@ public interface TopologyService {
         List<G3Neighbor> complete();
     }
 
-    public interface G3NeighborBuilder {
+    Subquery IsLinkedToMaster(Device device);
+
+    interface G3NeighborBuilder {
         G3NeighborBuilder txGain(int txGain);
 
         G3NeighborBuilder txResolution(int txResolution);

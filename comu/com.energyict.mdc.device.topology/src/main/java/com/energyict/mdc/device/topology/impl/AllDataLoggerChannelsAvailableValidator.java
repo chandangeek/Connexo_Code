@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.metering.Channel;
@@ -11,13 +15,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Validates that the DataChannelUsage's data logger channel only is referred once.
- * <p>
- * Copyrights EnergyICT
- * Date: 3/14/14
- * Time: 3:57 PM
- */
 public class AllDataLoggerChannelsAvailableValidator implements ConstraintValidator<AllDataLoggerChannelsAvailable, DataLoggerReferenceImpl> {
 
     @Inject

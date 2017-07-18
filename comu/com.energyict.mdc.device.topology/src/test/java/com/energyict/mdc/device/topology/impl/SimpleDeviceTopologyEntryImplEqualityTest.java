@@ -1,16 +1,20 @@
-package com.energyict.mdc.device.topology.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.topology.TopologyTimeslice;
+package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.TopologyTimeslice;
+
 import org.joda.time.DateMidnight;
 
 import java.util.Arrays;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -31,13 +35,21 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import org.assertj.core.api.Condition;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -47,13 +59,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
-
-import org.assertj.core.api.Condition;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -83,7 +89,6 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
     private OnlineComServer otherOnlineComServer;
     private String COM_TASK_NAME = "TheNameOfMyComTask";
     private int maxNrOfTries = 5;
-    private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
 
     @BeforeClass
     public static void registerConnectionTypePluggableClasses() {
@@ -125,11 +130,6 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
     }
 
     @Before
-    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
-        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
-    }
-
-    @Before
     public void initializeMocks() {
         super.initializeMocks();
         this.device = createSimpleDevice(this.getClass().getSimpleName());
@@ -138,11 +138,11 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         ComTask comTaskWithLogBooks = createComTaskWithLogBooks();
         ComTask comTaskWithRegisters = createComTaskWithRegisters();
 
-        this.comTaskEnablement1 = enableComTask(true, configDialect, comTaskWithBasicCheck);
-        this.comTaskEnablement2 = enableComTask(true, configDialect, comTaskWithLogBooks);
-        this.comTaskEnablement3 = enableComTask(true, configDialect, comTaskWithRegisters);
+        this.comTaskEnablement1 = enableComTask(true, comTaskWithBasicCheck);
+        this.comTaskEnablement2 = enableComTask(true, comTaskWithLogBooks);
+        this.comTaskEnablement3 = enableComTask(true, comTaskWithRegisters);
 
-        partialScheduledConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+        partialScheduledConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE, configDialect).
                 comWindow(new ComWindow(0, 7200)).
                 build();
         deviceConfiguration.save();
@@ -214,13 +214,13 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         freezeClock(2013, Calendar.FEBRUARY, 17, 10, 53, 20, 0);    // anything, as long as it's different from comTaskNextExecutionTimeStamp
 
         ScheduledConnectionTaskImpl theOneThatMinimizesConnections = this.createMinimizeWithNoPropertiesWithoutViolations("updateToDefaultTestNextExecutionTimeStamp", new TemporalExpression(EVERY_HOUR));
-        Instant nextExecutionTimestamp = theOneThatMinimizesConnections.getNextExecutionTimestamp();
         ConnectionTaskService connectionTaskService = inMemoryPersistence.getConnectionTaskService();
 
         ComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(comTaskNextExecutionTimeStamp);
 
         // Business method
         connectionTaskService.setDefaultConnectionTask(theOneThatMinimizesConnections);
+        Instant nextExecutionTimestamp = theOneThatMinimizesConnections.getNextExecutionTimestamp();
         ScheduledConnectionTask reloaded = connectionTaskService.findScheduledConnectionTask(theOneThatMinimizesConnections.getId()).get();
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device, comTaskExecution);
 
@@ -407,7 +407,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
             }
         });
         // Reload comTaskExecution because entity was changed during ConnectionTask#trigger(...) method call
-        comTaskExecution = (ComTaskExecution) inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+        comTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
         ((ServerComTaskExecution) comTaskExecution).executionCompleted();
         comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).forceNextExecutionTimeStampAndPriority(futureDate, 100).update(); // waiting task
         assertThat(getReloadedComTaskExecution(device, comTaskExecution).getStatus()).isEqualTo(TaskStatus.Waiting);
@@ -436,7 +436,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
             }
         });
         setCurrentlyExecutionComServerOnConnectionTask(connectionTask, null);
-        comTaskExecution = (ComTaskExecution) inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+        comTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
         ((ServerComTaskExecution) comTaskExecution).setLockedComPort(null);
         comTaskExecution.putOnHold(); // on hold task
         assertThat(getReloadedComTaskExecution(device, comTaskExecution).getStatus()).isEqualTo(TaskStatus.OnHold);
@@ -451,7 +451,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
             }
         });
 
-        comTaskExecution = (ComTaskExecution) inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+        comTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
         comTaskExecution.resume();
         comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).forceNextExecutionTimeStampAndPriority(futureDate, 100).update();
         final Instant futureTrigger = freezeClock(2013, Calendar.AUGUST, 5); // pending task
@@ -466,7 +466,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
                 return futureTrigger.equals(comTaskExecution.getNextExecutionTimestamp());
             }
         });
-        comTaskExecution = (ComTaskExecution) inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+        comTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
         ((ServerComTaskExecution) comTaskExecution).executionFailed();  // make it retry
         assertThat(getReloadedComTaskExecution(device, comTaskExecution).getStatus()).isEqualTo(TaskStatus.Retrying);
         assertThat(comTaskExecutions).areExactly(1, new Condition<ComTaskExecution>() {
@@ -485,7 +485,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
                 return futureTrigger.equals(comTaskExecution.getNextExecutionTimestamp());
             }
         });
-        comTaskExecution = (ComTaskExecution) inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+        comTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
         comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).forceNextExecutionTimeStampAndPriority(futureDate, 100).update();
         ((ServerComTaskExecution) comTaskExecution).executionCompleted();   // Resets any failures/retries
 
@@ -657,8 +657,8 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         return inMemoryPersistence.getTaskService().findComTask(comTask.getId()).get(); // to make sure all elements in the composition are properly loaded
     }
 
-    private ComTaskEnablement enableComTask(boolean useDefault, ProtocolDialectConfigurationProperties configDialect, ComTask comTask) {
-        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTask, this.securityPropertySet, configDialect);
+    private ComTaskEnablement enableComTask(boolean useDefault, ComTask comTask) {
+        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTask, this.securityPropertySet);
         builder.useDefaultConnectionTask(useDefault);
         builder.setPriority(this.comTaskEnablementPriority);
         return builder.add();
@@ -668,11 +668,16 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
 
         @Override
         public String getDeviceProtocolDialectName() {
-            return DEVICE_PROTOCOL_DIALECT_NAME;
+            return Property.DEVICE_PROTOCOL_DIALECT.getName();
         }
 
         @Override
-        public String getDisplayName() {
+        public List<PropertySpec> getUPLPropertySpecs() {
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+        }
+
+        @Override
+        public String getDeviceProtocolDialectDisplayName() {
             return "It's a Dell Display";
         }
 

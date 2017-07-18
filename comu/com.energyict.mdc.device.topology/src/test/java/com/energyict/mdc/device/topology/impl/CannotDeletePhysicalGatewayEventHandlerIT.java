@@ -1,19 +1,23 @@
-package com.energyict.mdc.device.topology.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.ServerDeviceService;
-import com.energyict.mdc.device.topology.StillGatewayException;
-import com.energyict.mdc.device.topology.TopologyService;
+package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pubsub.Subscriber;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.topology.StillGatewayException;
+import com.energyict.mdc.device.topology.TopologyService;
 
 import java.time.Instant;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

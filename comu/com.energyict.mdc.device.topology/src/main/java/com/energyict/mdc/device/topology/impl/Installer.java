@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.orm.DataModel;
@@ -14,7 +18,7 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-08 (10:48)
  */
-class Installer implements FullInstaller {
+public class Installer implements FullInstaller {
 
     private final DataModel dataModel;
     private final Logger logger = Logger.getLogger(Installer.class.getName());
