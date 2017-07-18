@@ -5,6 +5,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     requires: [
         'Uni.graphvisualiser.VisualiserMenu',
         'Uni.graphvisualiser.VisualiserPropertyViewer',
+        'Uni.graphvisualiser.VisualiserLegendFloat',
         'Uni.view.menu.ActionsMenu'
     ],
     layout: {
@@ -15,20 +16,44 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             xtype: 'container',
             html: "<div id='graph-drawing-area' style='top: 0; bottom: 0; left: 0; right: 0; position: absolute;'></div>",
             region: 'center'
-        },
-        {
-            itemId: 'uni-visualiser-legend-table',
-            title: Uni.I18n.translate('general.legend', 'UNI', 'Legend'),
-            region: 'south',
-            //height: 120,
-            collapsible: true,
-            split: true,
-            splitterResize: false,
-            layout: {
-                type: 'table',
-                columns: 24 // legend icon = one column & legend text = another column
-            }
         }
+        //,
+        //{
+        //    itemId: 'uni-visualiser-legend-table',
+        //    title: Uni.I18n.translate('general.legend', 'UNI', 'Legend'),
+        //    region: 'south',
+        //    height: 120,
+            //collapsible: true,
+            //split: false,
+            //splitterResize: false,
+            //layout: {
+            //    type: 'table',
+            //    columns: 24 // legend icon = one column & legend text = another column
+            //},
+            //hideCollapseTool: true,
+            //tools: [
+            //    {
+            //        xtype: 'button',
+            //        ui: 'colexp',
+            //        tooltip: Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'),
+            //        iconCls: 'icon-circle-up2',
+            //        mystate: 'expanded',
+            //        handler: function(button) {
+            //            if (button.mystate==='expanded') {
+            //                button.up('#uni-visualiser-legend-table').collapse();
+            //                button.setIconCls('icon-circle-down2');
+            //                button.mystate = 'collapsed';
+            //                button.setTooltip(Uni.I18n.translate('general.expand', 'UNI', 'Expand'));
+            //            } else {
+            //                button.up('#uni-visualiser-legend-table').expand();
+            //                button.setIconCls('icon-circle-up2');
+            //                button.mystate = 'expanded';
+            //                button.setTooltip(Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'));
+            //            }
+            //        }
+            //    }
+            //]
+        //}
     ],
     padding: 10,
     device: null,
@@ -80,17 +105,16 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     listeners: {
         boxready: function (panel) {
             this.initCanvas(panel);
-            this.sideMenu = Ext.create(this.menu, {visualiser: this});
-            this.sideMenu.show().alignTo(Ext.get('graph-drawing-area'), 'tl-tl');
-            this.propertyViewer = Ext.create('Uni.graphvisualiser.VisualiserPropertyViewer', {
-                title: panel.propertyViewerTitle
-            });
-            this.propertyViewer.show().alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, 0]);
         },
         resize: function(panel,w,h){
-            KeyLines.setSize('graph-drawing-area',w-10,h);
-            this.sideMenu.alignTo(Ext.get('graph-drawing-area'), 'tl-tl');
-            this.propertyViewer.alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, 0]);
+            KeyLines.setSize('graph-drawing-area', w-10, h);
+            if(this.sideMenu && this.propertyViewer){
+                this.sideMenu.alignTo(Ext.get('graph-drawing-area'), 'tl-tl', [-5, -5]);
+                this.propertyViewer.alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, -5]);
+            }
+            if (this.legendPanel) {
+                this.legendPanel.show().alignTo(Ext.get('graph-drawing-area'), 'bl-bl', [-5, -15]);
+            }
             if(this.chart){
                 this.doLayout();
             }
@@ -98,6 +122,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         beforedestroy: function(){
             Ext.ComponentQuery.query('#uni-visualiser-menu')[0].destroy();
             Ext.ComponentQuery.query('#uni-property-viewer')[0].destroy();
+            Ext.ComponentQuery.query('#uni-legend-panel')[0].destroy();
         }
     },
 
@@ -105,23 +130,32 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         var me = this;
 
         KeyLines.paths({assets: 'resources/js/keylines/assets/'});
-        KeyLines.create({id: 'graph-drawing-area', options:{navigation: {p: 'se', y: -150},iconFontFamily: 'Icomoon'}},function(err, chart) {
-            me.chart = chart;
-
-            // Set the chart options
-            var options = {};
-            options.selectionColour = me.neutralColor;
-            me.chart.options(options);
-
-            me.chart.bind('click', me.highlightUpStreamFromNode, me);
-            me.chart.bind('dblclick', me.combine, me);
-            me.chart.bind('contextmenu', me.contextMenu, me);
-            me.chart.bind('delete', function() { return true; }); // prevent deleting nodes
-            me.chart.load({
-                type: 'LinkChart'
-            });
-            me.loadData();
-        });
+        KeyLines.create(
+            {
+                id: 'graph-drawing-area',
+                options: {
+                    navigation: {
+                        p: 'se'
+                    },
+                    iconFontFamily: 'Icomoon',
+                    overview: {
+                        icon:false
+                    },
+                    selectionColour: me.neutralColor
+                }
+            },
+            function(err, chart) {
+                me.chart = chart;
+                me.chart.bind('click', me.highlightUpStreamFromNode, me);
+                me.chart.bind('dblclick', me.combine, me);
+                me.chart.bind('contextmenu', me.contextMenu, me);
+                me.chart.bind('delete', function() { return true; }); // prevent deleting nodes
+                me.chart.load({
+                    type: 'LinkChart'
+                });
+                me.loadData();
+            }
+        );
     },
 
     contextMenu: function(id,x,y){
@@ -174,6 +208,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 }
             );
             var position = this.getPosition();
+            var width = this.getWidth();
             popupMenu.showAt([position[0]+x, position[1]+y]);
         }
         return false;
@@ -278,87 +313,108 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         Ext.ComponentQuery.query('#uni-property-viewer')[0].displayProperties(this.chart.getItem(id).d);
     },
 
+    addFloatingPanels: function(){
+        var me = this;
+        me.sideMenu = Ext.create(me.menu, {visualiser: me});
+        me.sideMenu.show().alignTo(Ext.get('graph-drawing-area'), 'tl-tl', [-5, -5]);
+        me.propertyViewer = Ext.create('Uni.graphvisualiser.VisualiserPropertyViewer', {
+            title: me.propertyViewerTitle
+        });
+        me.propertyViewer.show().alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, -5]);
+        me.legendPanel = Ext.create('Uni.graphvisualiser.VisualiserLegendFloat');
+        me.legendPanel.show().alignTo(Ext.get('graph-drawing-area'), 'bl-bl', [-5, -15]);
+    },
 
     loadData: function(){
         var me = this,
-            nodes = this.store.data.items[0].nodes(),
-            links = this.store.data.items[0].links(),
-            nodeStoreForComboBox = new Ext.data.SimpleStore({
-                fields: ['id', 'name']
-            }),
-            icon,
-            showGatewayLegend = false,
-            showDeviceLegend = false;
+            pageMainContent = Ext.ComponentQuery.query('viewport')[0];
+        pageMainContent.setLoading(true);
+        this.store.load(function(){
+            pageMainContent.setLoading(false);
 
-        me.top = [nodes.data.items[0].get('id')+'']; // Assumption: the first node is the top node
-        nodes.each(function(node){
-            nodeStoreForComboBox.add({
-                id: node.get('id'),
-                name: node.get('name')
-            });
-            if(!Ext.isEmpty(node.get('gateWay')) && node.get('gateWay')){
-                icon = KeyLines.getFontIcon(me.gatewayIcon);
-                showGatewayLegend = true;
-            } else {
-                icon = KeyLines.getFontIcon(me.deviceIcon);
-                showDeviceLegend = true;
-            }
-            me.chartData.items.push(
-                {
+            me.addFloatingPanels();
+
+
+            var nodes = me.store.data.items[0].nodes(),
+                links = me.store.data.items[0].links(),
+                nodeStoreForComboBox = new Ext.data.SimpleStore({
+                    fields: ['id', 'name']
+                }),
+                icon,
+                showGatewayLegend = false,
+                showDeviceLegend = false;
+
+            me.top = [nodes.data.items[0].get('id')+'']; // Assumption: the first node is the top node
+            nodes.each(function(node){
+                nodeStoreForComboBox.add({
                     id: node.get('id'),
-                    type: 'node',
-                    b: null, // no border (color)
-                    c: me.whiteColor, // fill color
-                    t: node.get('name'),
-                    fi: {
-                        c: me.neutralColor,
-                        t: icon
-                    },
-                    fb: true, // label in bold
-                    d: {
-                        name: node.get('name'),
-                        serialNumber: node.get('serialNumber'),
-                        deviceType: node.get('deviceType'),
-                        deviceConfiguration: node.get('deviceConfiguration'),
-                        gateway: Ext.isEmpty(node.get('gateWay')) ? false : node.get('gateWay'),
-                        alarms: node.get('alarms'),
-                        issues: node.get('issues'),
-                        failedComTasks: node.get('failedComTasks')
-                    },
-                    pos: {
-                        lat: 50.82979 + (Math.random() * 0.1 - 0.05),
-                        lng: 3.30008 + (Math.random() * 0.1 - 0.05)
-                    }
+                    name: node.get('name')
+                });
+                if(!Ext.isEmpty(node.get('gateWay')) && node.get('gateWay')){
+                    icon = KeyLines.getFontIcon(me.gatewayIcon);
+                    showGatewayLegend = true;
+                } else {
+                    icon = KeyLines.getFontIcon(me.deviceIcon);
+                    showDeviceLegend = true;
                 }
-            );
-        });
-        links.each(function(link){
-            me.chartData.items.push(
-                {
-                    id: link.get('source') + '-' + link.get('target'),
-                    type: 'link',
-                    id1: link.get('source'),
-                    id2: link.get('target'),
-                    w: 2,
-                    a2: true,
-                    d: {
-                        linkQuality: link.get('linkQuality')
+                me.chartData.items.push(
+                    {
+                        id: node.get('id'),
+                        type: 'node',
+                        b: null, // no border (color)
+                        c: me.whiteColor, // fill color
+                        t: node.get('name'),
+                        fi: {
+                            c: me.neutralColor,
+                            t: icon
+                        },
+                        fb: true, // label in bold
+                        d: {
+                            name: node.get('name'),
+                            serialNumber: node.get('serialNumber'),
+                            deviceType: node.get('deviceType'),
+                            deviceConfiguration: node.get('deviceConfiguration'),
+                            gateway: Ext.isEmpty(node.get('gateWay')) ? false : node.get('gateWay'),
+                            alarms: node.get('alarms'),
+                            issues: node.get('issues'),
+                            failedComTasks: node.get('failedComTasks')
+                        },
+                        pos: {
+                            lat: 50.82979 + (Math.random() * 0.1 - 0.05),
+                            lng: 3.30008 + (Math.random() * 0.1 - 0.05)
+                        }
                     }
+                );
+            });
+            links.each(function(link){
+                me.chartData.items.push(
+                    {
+                        id: link.get('source') + '-' + link.get('target'),
+                        type: 'link',
+                        id1: link.get('source'),
+                        id2: link.get('target'),
+                        w: 2,
+                        a2: true,
+                        d: {
+                            linkQuality: link.get('linkQuality')
+                        }
+                    }
+                );
+            });
+            me.chart.load(me.chartData, function () {
+                me.chart.layout();
+                if (showGatewayLegend) {
+                    icon = '<span class="' + me.gatewayIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
+                    me.addLegendItem(icon, Uni.I18n.translate('general.gateway', 'UNI', 'Gateway'));
                 }
-            );
+                if (showDeviceLegend) {
+                    icon = '<span class="' + me.deviceIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
+                    me.addLegendItem(icon, Uni.I18n.translate('general.device', 'UNI', 'Device'));
+                }
+            });
+            me.sideMenu.down('combobox').bindStore(nodeStoreForComboBox);
         });
-        me.chart.load(me.chartData, function () {
-            me.chart.layout();
-            if (showGatewayLegend) {
-                icon = '<span class="' + me.gatewayIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
-                me.addLegendItem(icon, Uni.I18n.translate('general.gateway', 'UNI', 'Gateway'));
-            }
-            if (showDeviceLegend) {
-                icon = '<span class="' + me.deviceIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
-                me.addLegendItem(icon, Uni.I18n.translate('general.device', 'UNI', 'Device'));
-            }
-        });
-        me.sideMenu.down('combobox').bindStore(nodeStoreForComboBox);
+
     },
 
     clearLayers: function(){
@@ -466,6 +522,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         Ext.each(me.activeLayers,function(filter){
             filter.call(me);
         });
+        me.legendPanel.show().alignTo(Ext.get('graph-drawing-area'), 'bl-bl', [-5, -15]);
     },
 
     doLayout: function(name){
@@ -505,14 +562,14 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
 
     addLegendItems: function(items) {
         var me = this,
-            legendTable = me.down('#uni-visualiser-legend-table');
+            legendTable = me.legendPanel.down('#uni-visualiser-legend-table');
         Ext.Array.each(items, function(item){
             legendTable.add(item);
         });
     },
 
     clearAllLegendItems: function() {
-        this.down('#uni-visualiser-legend-table').removeAll();
+        this.legendPanel.down('#uni-visualiser-legend-table').removeAll();
     },
 
     clearGraph: function() {

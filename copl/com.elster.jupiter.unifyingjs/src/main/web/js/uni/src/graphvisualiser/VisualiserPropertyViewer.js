@@ -1,14 +1,42 @@
 Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
     extend: 'Ext.form.Panel',
     minWidth: 400,
- //   height: 400,
- //   maxWidth: 500,
     itemId: 'uni-property-viewer',
     floating: true,
     collapsed: true,
     collapsible: true,
-  //  collapseMode: 'header',
-  //  collapseDirection: 'right',
+    animCollapse: false,
+    collapseDirection: 'top',
+    hideCollapseTool: true,
+    tools: [
+        {
+            xtype: 'button',
+            itemId: 'uni-property-viewer-collapse-expand-button',
+            ui: 'colexp',
+            tooltip: Uni.I18n.translate('general.expand', 'UNI', 'Expand'),
+            iconCls: 'icon-circle-down2',
+            handler: function(button) {
+                var propertyViewer = button.up('#uni-property-viewer');
+                if (propertyViewer.getCollapsed()) {
+                    propertyViewer.expand();
+                    button.setIconCls('icon-circle-up2');
+                } else {
+                    propertyViewer.collapse();
+                    button.setIconCls('icon-circle-down2');
+                }
+            }
+        }
+    ],
+    listeners: {
+        beforecollapse: function(panel) {
+            var collapseExpandButton = panel.down('#uni-property-viewer-collapse-expand-button');
+            collapseExpandButton.setIconCls('icon-circle-down2');
+        },
+        beforeexpand: function(panel) {
+            var collapseExpandButton = panel.down('#uni-property-viewer-collapse-expand-button');
+            collapseExpandButton.setIconCls('icon-circle-up2');
+        }
+    },
     title: Uni.I18n.translate('general.propertyViewer', 'UNI', 'Property viewer'),
     ui: 'small',
     layout: 'vbox',

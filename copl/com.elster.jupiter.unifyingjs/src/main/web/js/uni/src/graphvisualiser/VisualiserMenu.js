@@ -9,7 +9,6 @@ Ext.define('Uni.graphvisualiser.VisualiserMenu', {
         'background-color': 'white'
     },
 
-
     initComponent: function(){
         this.items = [
             {
@@ -39,13 +38,37 @@ Ext.define('Uni.graphvisualiser.VisualiserMenu', {
             {
                 xtype: 'panel',
                 ui: 'small',
+                width: 270,
+                itemId: 'uni-visualiser-menu-visulisation-panel',
                 title: Uni.I18n.translate('general.visualisation', 'UNI', 'Visualisation'),
                 collapsible: true,
-                width: 250,
+                animCollapse: false,
+                hideCollapseTool: true,
+                tools: [
+                    {
+                        xtype: 'button',
+                        ui: 'colexp',
+                        iconCls: 'icon-circle-up2',
+                        mystate: 'expanded',
+                        handler: function(button) {
+                            if (button.mystate==='expanded') {
+                                button.up('#uni-visualiser-menu-visulisation-panel').collapse();
+                                button.setIconCls('icon-circle-down2');
+                                button.mystate = 'collapsed';
+                            } else {
+                                button.up('#uni-visualiser-menu-visulisation-panel').expand();
+                                button.setIconCls('icon-circle-up2');
+                                button.mystate = 'expanded';
+                            }
+                        }
+                    }
+                ],
                 style: {
                     'background-color': 'white'
                 },
-                layout: 'vbox',
+                layout: {
+                    type: 'vbox'
+                },
                 items: [
                     {
                         xtype: 'form',
@@ -111,7 +134,7 @@ Ext.define('Uni.graphvisualiser.VisualiserMenu', {
                     }
                 ]
             }
-        ]
+        ];
         this.callParent(arguments);
     }
 });
