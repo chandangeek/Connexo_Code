@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.view.search.field.Obis', {
     extend: 'Uni.view.search.field.Simple',
     xtype: 'uni-search-criteria-obis',

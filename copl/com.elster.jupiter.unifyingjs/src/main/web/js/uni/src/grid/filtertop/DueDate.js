@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.grid.filtertop.DueDate', {
     extend: 'Uni.grid.filtertop.ComboBox',
     xtype: 'uni-grid-filtertop-dueDate',

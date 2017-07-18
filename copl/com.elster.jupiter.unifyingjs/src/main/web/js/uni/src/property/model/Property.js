@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.property.model.Property
  */
@@ -12,7 +16,9 @@ Ext.define('Uni.property.model.Property', {
         {name: 'hasDefault', persist: false},
         {name: 'hasValue', persist:false},
         {name: 'isReadOnly', type: 'boolean', persist: false},
-        {name: 'isInheritedOrDefaultValue', type: 'boolean', defaultValue: true, persist: false}
+        {name: 'isInheritedOrDefaultValue', type: 'boolean', defaultValue: true, persist: false},
+        {name: 'overridden', type: 'boolean', useNull: true, persist: false},
+        {name: 'canBeOverridden', type: 'boolean', useNull: true, persist: false}
     ],
     requires: [
         'Uni.property.model.PropertyValue',
@@ -133,6 +139,16 @@ Ext.define('Uni.property.model.Property', {
         return this.getPropertyType().get('simplePropertyType');
     },
 
+    getPropertyParams: function () {
+        var propertyType = this.getPropertyType();
+
+        if (propertyType.raw['params']) {
+            return propertyType.getPropertyParams();
+        } else {
+            return null;
+        }
+    },
+
     getValidationRule: function () {
         var propertyType = this.getPropertyType();
 
@@ -157,7 +173,7 @@ Ext.define('Uni.property.model.Property', {
         var values = this.getPredefinedPropertyValues();
         return values
             ? values.get('possibleValues')
-            : null
+            : []
             ;
     },
 

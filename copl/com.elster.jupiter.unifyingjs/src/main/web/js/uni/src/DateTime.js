@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.DateTime
  */
@@ -13,6 +17,7 @@ Ext.define('Uni.DateTime', {
 
     timeShortKey: 'format.time.short',
     timeLongKey: 'format.time.long',
+    timeLongWithMillisKey: 'format.time.long.millis',
 
     dateTimeSeparatorKey: 'format.datetime.separator',
     dateTimeOrderKey: 'format.datetime.order',
@@ -22,11 +27,13 @@ Ext.define('Uni.DateTime', {
 
     timeShortDefault: 'H:i',
     timeLongDefault: 'H:i:s',
+    timeLongWithMillisDefault: 'H:i:s.u',
 
-    dateTimeSeparatorDefault: '-',
+    dateTimeSeparatorDefault: 'at',
     dateTimeOrderDefault: 'DT',
 
     LONG: 'long',
+    LONGWITHMILLIS: 'longWithMillis',
     SHORT: 'short',
 
     formatDateShort: function (date) {
@@ -80,29 +87,29 @@ Ext.define('Uni.DateTime', {
                 ? Uni.util.Preferences.lookup(this.dateLongKey, this.dateLongDefault)
                 : Uni.util.Preferences.lookup(this.dateShortKey, this.dateShortDefault),
             this.LONG === timeLongOrShort
-                ? Uni.util.Preferences.lookup(this.timeLongKey, this.timeLongDefault)
-                : Uni.util.Preferences.lookup(this.timeShortKey, this.timeShortDefault)
+                ? Uni.util.Preferences.lookup(this.timeLongKey, this.timeLongDefault) :
+                this.LONGWITHMILLIS === timeLongOrShort
+                    ? Uni.util.Preferences.lookup(this.timeLongWithMillisKey, this.timeLongWithMillisDefault) :
+                        Uni.util.Preferences.lookup(this.timeShortKey, this.timeShortDefault)
         );
     },
 
     doFormat: function (date, dateFormat, timeFormat) {
         var me = this,
-            dateTimeFormat,
             orderFormat = Uni.util.Preferences.lookup(me.dateTimeOrderKey, me.dateTimeOrderDefault),
-            separatorFormat = Uni.util.Preferences.lookup(me.dateTimeSeparatorKey, me.dateTimeSeparatorDefault);
+            separatorFormat = Uni.util.Preferences.lookup(me.dateTimeSeparatorKey, me.dateTimeSeparatorDefault),
+            timeString,
+            dateString,
+            separator;
 
         date = date || new Date();
+        timeString = Ext.Date.format(Ext.isDate(date) ? date : new Date(date), timeFormat);
+        dateString = Ext.Date.format(Ext.isDate(date) ? date : new Date(date), dateFormat);
+        separator = ' ' + separatorFormat.trim() + ' ';
         if (Ext.String.startsWith(orderFormat, 'T'))  {
-            dateTimeFormat = timeFormat;
+           return timeString + separator + dateString;
         } else {
-            dateTimeFormat = dateFormat;
+            return dateString + separator + timeString;
         }
-        dateTimeFormat += (' ' + separatorFormat.trim() + ' ');
-        if (Ext.String.startsWith(orderFormat, 'T')) {
-            dateTimeFormat += dateFormat;
-        } else {
-            dateTimeFormat += timeFormat;
-        }
-        return Ext.Date.format(date, dateTimeFormat);
     }
 });

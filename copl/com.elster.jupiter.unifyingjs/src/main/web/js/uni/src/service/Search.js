@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.service.Search', {
 
     mixins: {
@@ -21,13 +25,16 @@ Ext.define('Uni.service.Search', {
 
     config: {
         router: null,
-        searchDomainsStore: 'Uni.store.search.Domains', //Ext.getStore('Uni.store.search.Domains'),
+        searchDomainsStore: 'Uni.store.search.Domains',
         searchResultsStore: 'Uni.store.search.Results',
         searchPropertiesStore: 'Uni.store.search.Properties',
         searchFieldsStore: 'Uni.store.search.Fields'
     },
 
     storeListeners: [],
+    changedFiltersNotYetApplied: false,
+    previouslyAppliedFiltersAsString: undefined,
+    previouslyAppliedState: undefined,
 
     constructor: function (config) {
         var me = this;
@@ -76,16 +83,16 @@ Ext.define('Uni.service.Search', {
     }),
 
     criteriaMap: {
-        'Boolean:com.elster.jupiter.properties.BooleanFactory':              'uni-search-criteria-boolean',
-        'Instant:com.elster.jupiter.properties.InstantFactory':              'uni-search-criteria-datetime',
+        'Boolean:com.elster.jupiter.properties.BooleanFactory': 'uni-search-criteria-boolean',
+        'Instant:com.elster.jupiter.properties.InstantFactory': 'uni-search-criteria-datetime',
         'TimeDuration:com.elster.jupiter.properties.StringReferenceFactory': 'uni-search-criteria-timeduration',
-        'TimeDuration:com.energyict.mdc.dynamic.TimeDurationValueFactory':   'uni-search-criteria-timeduration',
-        'BigDecimal:com.elster.jupiter.properties.BigDecimalFactory':        'uni-search-criteria-numeric',
-        'Long:com.elster.jupiter.properties.LongFactory':                    'uni-search-criteria-numeric',
-        'Date:com.energyict.mdc.dynamic.DateFactory':                        'uni-search-criteria-date',
-        'Date:com.energyict.mdc.dynamic.DateAndTimeFactory':                 'uni-search-criteria-clock',
-        'TimeOfDay:com.energyict.mdc.dynamic.TimeOfDayFactory':              'uni-search-criteria-timeofday',
-        'ObisCode:com.energyict.mdc.dynamic.ObisCodeValueFactory':           'uni-search-criteria-obis'
+        'TimeDuration:com.energyict.mdc.dynamic.TimeDurationValueFactory': 'uni-search-criteria-timeduration',
+        'BigDecimal:com.elster.jupiter.properties.BigDecimalFactory': 'uni-search-criteria-numeric',
+        'Long:com.elster.jupiter.properties.LongFactory': 'uni-search-criteria-numeric',
+        'Date:com.energyict.mdc.dynamic.DateFactory': 'uni-search-criteria-date',
+        'Date:com.energyict.mdc.dynamic.DateAndTimeFactory': 'uni-search-criteria-clock',
+        'TimeOfDay:com.energyict.mdc.dynamic.TimeOfDayFactory': 'uni-search-criteria-timeofday',
+        'ObisCode:com.energyict.mdc.dynamic.ObisCodeValueFactory': 'uni-search-criteria-obis'
     },
 
     fieldMap: {
@@ -105,16 +112,11 @@ Ext.define('Uni.service.Search', {
         'Quantity': 'uni-grid-column-search-quantity'
     },
 
-    /*defaultColumns: {
-        'com.energyict.mdc.device.data.Device': ['id', 'mRID', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state.name', 'location'],
-        'com.elster.jupiter.metering.UsagePoint': ['mRID', 'displayServiceCategory', 'displayMetrologyConfiguration']
-     },*/
-
-    getDomain: function() {
+    getDomain: function () {
         return this.searchDomain;
     },
 
-    initStoreListeners: function() {
+    initStoreListeners: function () {
         var me = this;
 
         me.unbind();
@@ -138,7 +140,7 @@ Ext.define('Uni.service.Search', {
         }));
     },
 
-    unbind: function() {
+    unbind: function () {
         this.storeListeners.map(function (listener) {
             listener.destroy();
         });
@@ -148,7 +150,7 @@ Ext.define('Uni.service.Search', {
      * @param domain string or Domain model
      * @param callback
      */
-    setDomain: function(domain, callback) {
+    setDomain: function (domain, callback) {
         var me = this,
             searchResults = me.getSearchResultsStore(),
             searchProperties = me.getSearchPropertiesStore(),
@@ -175,8 +177,8 @@ Ext.define('Uni.service.Search', {
             searchResults.removeAll(true);
 
             searchProperties.getProxy().url = domain.get('glossaryHref');
-            searchFields.getProxy().url     = domain.get('describedByHref');
-            searchResults.getProxy().url    = domain.get('selfHref');
+            searchFields.getProxy().url = domain.get('describedByHref');
+            searchResults.getProxy().url = domain.get('selfHref');
 
             if (!me.isStateLoad) {
                 searchFields.clearFilter(true);
@@ -184,17 +186,17 @@ Ext.define('Uni.service.Search', {
                 searchProperties.clearFilter(true);
             }
 
-            searchProperties.load(function(){
+            searchProperties.load(function () {
                 me.fireEvent('reset', me.filters);
                 me.init();
-                searchFields.load(function(){
+                searchFields.load(function () {
                     callback ? callback() : null;
                 });
             });
         }
     },
 
-    onSearchFieldsLoad: function(store, records, success) {
+    onSearchFieldsLoad: function (store, records, success) {
         var me = this,
             resultsStore = this.getSearchResultsStore();
 
@@ -210,7 +212,7 @@ Ext.define('Uni.service.Search', {
         Ext.resumeLayouts(true);
     },
 
-    onSearchResultsLoad: function(store, records, success) {
+    onSearchResultsLoad: function (store, records, success) {
         if (!success) {
             store.removeAll();
         }
@@ -221,7 +223,7 @@ Ext.define('Uni.service.Search', {
         me.fireEvent('searchResultsBeforeLoad');
     },
 
-    init: function() {
+    init: function () {
         var me = this;
 
         Ext.getStore('Uni.property.store.TimeUnits').load();
@@ -237,7 +239,7 @@ Ext.define('Uni.service.Search', {
     onSearchPropertiesLoad: function (store) {
         var me = this;
 
-        me.criteria.each(function(prop){
+        me.criteria.each(function (prop) {
             if (!store.getById(prop.getId())) {
                 me.removeProperty(prop);
             }
@@ -279,9 +281,14 @@ Ext.define('Uni.service.Search', {
     removeProperty: function (property) {
         var me = this,
             removed = me.criteria.remove(property),
-            filter =  me.filters.removeAtKey(property.getId());
+            filter = me.filters.removeAtKey(property.getId()),
+            dependentProperties;
 
         if (removed) {
+            dependentProperties = me.getDependentProperties(property);
+            for (var i = 0; i < dependentProperties.length; i++) {
+                me.removeProperty(dependentProperties.get(i));
+            }
             me.fireEvent('remove', me.criteria, property);
         }
 
@@ -299,11 +306,20 @@ Ext.define('Uni.service.Search', {
     applyFilters: function () {
         var me = this,
             searchResults = me.getSearchResultsStore(),
-            filters = me.getFilters();
+            filters = me.getFilters(),
+            router = this.router;
 
+        me.previouslyAppliedState = me.getState();
+        me.previouslyAppliedFiltersAsString = JSON.stringify(filters);
+        me.changedFiltersNotYetApplied = false;
         searchResults.clearFilter(true);
         if (filters && filters.length) {
-            if(searchResults.isLoading()){
+            if (router && router.currentRoute == 'search') {
+                Uni.util.History.setParsePath(false);
+                router.getRoute('search').forward(null, Ext.apply(router.queryParams, {restore: true}));
+            }
+
+            if (searchResults.isLoading()) {
                 Ext.Ajax.suspendEvent('requestexception');
                 Ext.Ajax.abort(searchResults.lastRequest);
                 Ext.Ajax.resumeEvent('requestexception');
@@ -318,43 +334,79 @@ Ext.define('Uni.service.Search', {
         }
     },
 
-    count: function(){
-        var me = this;
-        me.fireEvent('loadingcount');
-        Ext.Ajax.request({
-            url: this.getSearchResultsStore().getProxy().url + '/count',
-            timeout: 120000,
-            method: 'GET',
-            params: {
-                filter: JSON.stringify(this.getFilters())
-            },
-            success: function (response) {
-                me.fireEvent('count', JSON.parse(response.responseText));
-            }
-        });
+    count: function () {
+        var me = this,
+            performTheCount = function () {
+                me.fireEvent('loadingcount');
+                Ext.Ajax.request({
+                    url: me.getSearchResultsStore().getProxy().url + '/count',
+                    timeout: 120000,
+                    method: 'GET',
+                    params: {
+                        filter: me.previouslyAppliedFiltersAsString
+                    },
+                    success: function (response) {
+                        me.fireEvent('count', JSON.parse(response.responseText));
+                    }
+                });
+            };
+
+        if (me.changedFiltersNotYetApplied) {
+            var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('general.apply', 'UNI', 'Apply'),
+                secondConfirmText: Uni.I18n.translate('general.dontApply', 'UNI', "Don't apply"),
+                green: true,
+                confirmation: function (button) {
+                    confirmationWindow.close();
+                    if (button.action === 'confirm') { // (Re)apply the criteria first
+                        me.getSearchResultsStore().on('load', function () {
+                            performTheCount();
+                        }, me, {single: true});
+                        me.applyFilters();
+                    } else if (button.action === 'confirm2') { // Don't (re)apply the cirteria
+                        me.rollbackCriteriaChanges(performTheCount());
+                    }
+                }
+            });
+            confirmationWindow.show({
+                title: Uni.I18n.translate('general.performCount', 'UNI', 'Perform count?'),
+                msg: Uni.I18n.translate('general.unconfirmedSearchCriteria', 'UNI',
+                    "Some search criteria haven't been applied. Do you want to apply them?")
+            });
+        } else {
+            performTheCount();
+        }
     },
 
     clearFilters: function () {
         var me = this;
 
         me.getSearchResultsStore().removeAll();
-        me.setDomain(me.searchDomain, function() {
+        me.setDomain(me.searchDomain, function () {
             me.applyFilters();
         })
     },
 
     getFilters: function () {
-        return _.filter(this.filters.getRange(), function(f){
+        return _.filter(this.filters.getRange(), function (f) {
             return !!f.value
                 && Ext.isArray(f.value)
-                && !Ext.isEmpty(_.filter(f.value, function(v) { return !Ext.isEmpty(v.criteria);}))
+                && !Ext.isEmpty(
+                    _.filter(f.value, function(v) {
+                        return !Ext.isEmpty(v.criteria)
+                            || v.operator === 'ISDEFINED'
+                            || v.operator === 'ISNOTDEFINED';
+                    })
+                )
         });
     },
 
-    getState: function() {
+    getState: function () {
         return {
             domain: this.getDomain() ? this.getDomain().getId() : null,
-            filters: this.getFilters().map(function(item){return _.pick(item, 'property', 'value')})
+            filters: this.getFilters().map(function (item) {
+                return _.pick(item, 'property', 'value')
+            })
         }
     },
 
@@ -376,7 +428,7 @@ Ext.define('Uni.service.Search', {
         resultsStore.addFilter(filters, false);
         propertiesStore.addFilter(filters, false);
 
-        me.setDomain(state.domain, function() {
+        me.setDomain(state.domain, function () {
             if (filters && filters.length) {
                 me.setFilters(filters);
                 resultsStore.load();
@@ -453,10 +505,12 @@ Ext.define('Uni.service.Search', {
                 property: property,
                 listeners: {
                     change: {
-                        fn: function(widget, value) {
+                        fn: function (widget, value) {
                             me.setFilter(new Ext.util.Filter({
                                 property: widget.dataIndex,
-                                value: value && widget.isValid() ? value.map(function(v){return v.getData()}) : null,
+                                value: value && widget.isValid() ? value.map(function (v) {
+                                    return v.getData()
+                                }) : null,
                                 id: widget.dataIndex
                             }));
                         },
@@ -485,6 +539,12 @@ Ext.define('Uni.service.Search', {
         if (property.get('name') === 'location') {
             Ext.apply(config, {
                 xtype: 'uni-search-criteria-location'
+            });
+        }
+
+        if (property.get('name') === 'device.topology.master') {
+            Ext.apply(config, {
+                xtype: 'uni-search-criteria-has-string'
             });
         }
 
@@ -541,7 +601,7 @@ Ext.define('Uni.service.Search', {
         });
     },
 
-    setFilters: function(filters) {
+    setFilters: function (filters) {
         var me = this;
 
         Ext.suspendLayouts();
@@ -549,12 +609,12 @@ Ext.define('Uni.service.Search', {
         me.filters.add(filters);
         Ext.resumeLayouts(true);
 
-        filters.map(function(filter) {
+        filters.map(function (filter) {
             me.onFilterChange(filter);
         });
 
         me.saveState();
-
+        me.changedFiltersNotYetApplied = true;
     },
 
     setFilter: function (filter) {
@@ -564,22 +624,22 @@ Ext.define('Uni.service.Search', {
         me.filters.add(filter);
         me.onFilterChange(filter);
         me.saveState();
+        me.changedFiltersNotYetApplied = true;
         Ext.resumeLayouts(true);
     },
 
-    onFilterChange: function(filter) {
+    onFilterChange: function (filter) {
         var me = this,
             propertiesStore = me.getSearchPropertiesStore(),
             property = me.criteria.get(filter.id) || me.addProperty(propertiesStore.getById(filter.id)),
             deps = me.getDependentProperties(property);
 
-        if (property.get('affectsAvailableDomainProperties')
-            && !me.isStateLoad) {
+        if (property.get('affectsAvailableDomainProperties') && !me.isStateLoad) {
             me.storeReload(propertiesStore);
         }
 
         if (deps.length) {
-            deps.each(function(criteria) {
+            deps.each(function (criteria) {
                 criteria.beginEdit();
                 if (filter && !Ext.isEmpty(filter.value)) {
                     criteria.set('disabled', false);
@@ -598,24 +658,28 @@ Ext.define('Uni.service.Search', {
                 var f = me.filters.getByKey(criteria.getId());
                 if (f) {
                     criteria.refresh(function () {
-                        f.value = _.map(f.value, function(v) {
+                        f.value = _.map(f.value, function (v) {
                             return Ext.apply(v, {
-                                criteria: _.intersection(v.criteria, _.map(criteria.values().data.keys, function(v){return v.toString()}))
+                                criteria: _.intersection(v.criteria, _.map(criteria.values().data.keys, function (v) {
+                                    return v.toString()
+                                }))
                             })
                         });
                         me.fireEvent('change', me.filters, f);
                         me.fireEvent('criteriaChange', me.criteria, criteria);
                     });
-                } else {
+                } else if (criteria.get('exhaustive') && !Ext.isEmpty(filter.value)) {
                     criteria.refresh(function () {
                         me.fireEvent('criteriaChange', me.criteria, criteria);
                     });
+                } else {
+                    me.fireEvent('criteriaChange', me.criteria, criteria);
                 }
-                me.fireEvent('criteriaChange', me.criteria, criteria);
             });
-        }
 
+        }
         me.fireEvent('change', me.filters, filter);
+
     },
 
     /**
@@ -638,5 +702,12 @@ Ext.define('Uni.service.Search', {
             callback: callback
         });
         store.lastRequest = Ext.Ajax.getLatest();
+    },
+
+    rollbackCriteriaChanges: function (callback) {
+        var me = this;
+        if (!Ext.isEmpty(me.previouslyAppliedState)) {
+            this.applyState(me.previouslyAppliedState, callback);
+        }
     }
 });

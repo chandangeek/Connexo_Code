@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.view.search.field.internal.NumberField', {
     //TODO: replace with Ext.form.field.Number
     extend: 'Ext.panel.Panel',
@@ -55,7 +59,7 @@ Ext.define('Uni.view.search.field.internal.NumberField', {
                 maxValue: Number.MAX_SAFE_INTEGER,
                 minValue: 0,
                 maxLength: 15,
-                allowBlank: true,
+                allowBlank: !me.isFilterField,
                 allowExponential: false,
                 enforceMaxLength: true,
                 validateOnBlur: false,

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.view.grid.SelectionGrid
  */
@@ -130,7 +134,7 @@ Ext.define('Uni.view.grid.SelectionGrid', {
 
     onSelectionChange: function () {
         var me = this,
-            selection = me.view.getSelectionModel().getSelection();
+            selection = me.getSelectedItems();
 
         me.getSelectionCounter().setText(me.counterTextFn(selection.length));
         me.getUncheckAllButton().setDisabled(selection.length === 0);

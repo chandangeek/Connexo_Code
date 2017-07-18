@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.grid.column.Action
  */
@@ -27,6 +31,9 @@ Ext.define('Uni.grid.column.Action', {
             i = 0,
             item, ret, disabled, tooltip;
 
+        if (Ext.isFunction(me.showCondition) && !me.showCondition(record)) {
+            return ''
+        }
         // Allow a configured renderer to create initial value (And set the other values in the "metadata" argument!)
         // Assign a new variable here, since if we modify "v" it will also modify the arguments collection, meaning
         // we will pass an incorrect value to getClass/getTip

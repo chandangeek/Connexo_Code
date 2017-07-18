@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.property.store.PropertyReadingTypes', {
     extend: 'Ext.data.Store',
     requires: [
@@ -7,7 +11,7 @@ Ext.define('Uni.property.store.PropertyReadingTypes', {
     storeId: 'PropertyReadingTypes',
     proxy: {
         type: 'ajax',
-        url: '/api/mds/readingtypes',
+        url: '/api/mtr/readingtypes',
         reader: {
             type: 'json',
             root: 'readingTypes'

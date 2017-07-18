@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @since 2013-06-19 21:55
  * @author Éric Ortega <eric@planysphere.fr>

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.model.WhatsGoingOn', {
     extend: 'Ext.data.Model',
     idProperty: 'internalId',
@@ -11,10 +15,31 @@ Ext.define('Uni.model.WhatsGoingOn', {
             type: 'date'
         },
         'severity',
-        'assignee',
-        'assigneeIsCurrentUser',
+        'userAssignee',
+        'workGroupAssignee',
+        'isMyWorkGroup',
+        'userAssigneeIsCurrentUser',
         'reference',
-        'status',
+        {
+            name: 'status',
+            type: 'string',
+            convert: function (value, record) {
+                switch (value) {
+                    case '0':
+                        return Uni.I18n.translate('whatsGoingOn.status.pending', 'UNI', 'Pending');
+                    case '1':
+                        return Uni.I18n.translate('whatsGoingOn.status.active', 'UNI', 'Active');
+                    case '2':
+                        return Uni.I18n.translate('whatsGoingOn.status.completed', 'UNI', 'Completed');
+                    case '3':
+                        return Uni.I18n.translate('whatsGoingOn.status.cancelled', 'UNI', 'Cancelled');
+                    case '4':
+                        return Uni.I18n.translate('whatsGoingOn.status.ongoing', 'UNI', 'Ongoing');
+                    default :
+                        return value;
+                }
+            }
+        },
         {
             name: 'internalId',
             mapping: function(record){
@@ -32,9 +57,11 @@ Ext.define('Uni.model.WhatsGoingOn', {
                     description: record.description,
                     dueDate: record.dueDate,
                     severity: record.severity,
-                    assignee: record.assignee,
+                    userAssignee: record.userAssignee,
+                    isMyWorkGroup: record.isMyWorkGroup,
+                    workGroupAssignee: record.workGroupAssignee,
                     status: record.status,
-                    assigneeIsCurrentUser: record.assigneeIsCurrentUser
+                    userAssigneeIsCurrentUser: record.userAssigneeIsCurrentUser
                 }
             }
         }

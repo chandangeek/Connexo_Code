@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.form.RelativePeriod
  */
@@ -125,12 +129,17 @@ Ext.define('Uni.form.RelativePeriod', {
         var optionCurrentDisabled = frequency !== 'months' || useStartDate;
         var optionDayOfMonthDisabled = frequency !== 'months' || useStartDate;
         var optionDayOfWeekDisabled = frequency !== 'weeks' || useStartDate;
+        var optionCurrentDayOfYearDisabled = frequency !== 'years' || useStartDate;
+        var optionDayOfYearDisabled = frequency !== 'years' || useStartDate;
 
         onField.setOptionCurrentDisabled(optionCurrentDisabled);
         onField.setOptionDayOfMonthDisabled(optionDayOfMonthDisabled);
         onField.setOptionDayOfWeekDisabled(optionDayOfWeekDisabled);
+        onField.setOptionCurrentOfYearDisabled(optionCurrentDayOfYearDisabled);
+        onField.setOptionDayOfYearDisabled(optionDayOfYearDisabled);
 
-        onField.setVisible(!optionCurrentDisabled || !optionDayOfMonthDisabled || !optionDayOfWeekDisabled);
+        onField.setVisible(!optionCurrentDisabled || !optionDayOfMonthDisabled || !optionDayOfWeekDisabled || !optionCurrentDayOfYearDisabled || !optionDayOfYearDisabled);
+        onField.refreshControls();
 
         var hourfieldVisible = !(frequency === 'hours' || frequency === 'minutes');
         atHourField.setVisible(hourfieldVisible);

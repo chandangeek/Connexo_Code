@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * Created by dvy on 21/05/2015.
  */
 Ext.define('Uni.override.DisplayFieldOverride', {
     override: 'Ext.form.field.Display',
     emptyValueDisplay: '-',
+    labelWidth: 200,
 
     initComponent: function () {
         this.callParent(arguments);

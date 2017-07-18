@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 @import "resourcesdir";
 @import "component";
 @import "colors";
@@ -350,6 +354,10 @@ TODO Move this into a separate button UI.
 
 .uni-info-icon {
   float: right;
+}
+
+.uni-cb-item tr td {
+  padding: 0px !important
 }
 
 .uni-icon-info-small {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.view.form.CheckboxGroup
  * This is the checkboxgroup extension, which allows to auto-load checkboxes from bounded store/
@@ -38,6 +42,13 @@ Ext.define('Uni.view.form.CheckboxGroup', {
      */
     hydratable: true,
 
+
+    /**
+     * This field will define that a checkbox should be disabled because of a certain field on the record
+     * If not filled in, all checkboxes are enabled. If the field is true, the checkbox will be disabled
+     */
+    disableField: null,
+
     initComponent: function () {
         var me = this;
         me.bindStore(me.store || 'ext-empty-store', true);
@@ -59,6 +70,7 @@ Ext.define('Uni.view.form.CheckboxGroup', {
                 xtype: 'checkbox',
                 boxLabel: Ext.String.htmlEncode(record.get(me.displayField), false),
                 inputValue: record.get(me.valueField),
+                disabled: Ext.isEmpty(me.disableField) ? false : record.get(me.disableField),
                 name: me.name,
                 getModelData: function () {
                     return null;

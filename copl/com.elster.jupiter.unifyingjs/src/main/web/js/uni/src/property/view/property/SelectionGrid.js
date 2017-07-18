@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.property.view.property.SelectionGrid', {
     extend: 'Uni.property.view.property.Base',
     requires: [
@@ -7,17 +11,18 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
 
     ignoreFields: ['id', 'lifeCycleId'],
     availableFields: [
-        {id: 'deviceStates.lifeCycleName', value: Uni.I18n.translate('process.deviceCycleName', 'UNI', 'Device life cycle')},
-        {id: 'deviceStates.name', value: Uni.I18n.translate('process.deviceState', 'UNI', 'Device state')},
-        {id: 'issueReasons.name', value: Uni.I18n.translate('process.issueReasons', 'UNI', 'Issue reason')},
-        {id: 'metrologyConfigurations.name', value: Uni.I18n.translate('process.metrologyConfiguration', 'UNI', 'Metrology configuration')},
-        {id: 'connectionStates.name', value: Uni.I18n.translate('process.connectionState', 'UNI', 'Connection state')}
+        {id: 'deviceStates.lifeCycleName', value: Uni.I18n.translate('process.deviceCycleName', 'UNI', 'Device life cycle'), order: 2},
+        {id: 'deviceStates.name', value: Uni.I18n.translate('process.deviceState', 'UNI', 'Device state'), order: 1},
+        {id: 'issueReasons.name', value: Uni.I18n.translate('process.issueReasons', 'UNI', 'Issue reason'), order: 1},
+        {id: 'alarmReasons.name', value: Uni.I18n.translate('process.alarmReasons', 'UNI', 'Alarm reason'), order: 1},
+        {id: 'metrologyConfigurations.name', value: Uni.I18n.translate('process.metrologyConfiguration', 'UNI', 'Metrology configuration'), order: 1},
+        {id: 'connectionStates.name', value: Uni.I18n.translate('process.connectionState', 'UNI', 'Connection state'), order: 1}
     ],
 
     getEditCmp: function () {
         var me = this;
 
-        return  !me.getProperty().getPossibleValues() ?
+        return !me.getProperty().getPossibleValues() || (me.getProperty().getPossibleValues() && me.getProperty().getPossibleValues().length == 0) ?
         {
             xtype: 'displayfield',
             value: Uni.I18n.translate('Uni.property.selectionGrid.noItemsDefined', 'UNI', 'No items have been defined yet.'),
@@ -37,7 +42,7 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
                 align: 'stretch'
             },
             flex: 1,
-            hidden: !me.getProperty().getPossibleValues(),
+            hidden: Ext.isEmpty(me.getProperty().getPossibleValues()),
             items: [
                 {
                     xtype: 'selection-grid',
@@ -101,8 +106,7 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
                 }
             }
         }
-
-        return Ext.create('Ext.data.Store',{fields: fields});
+        return Ext.create('Ext.data.Store', {fields: fields});
     },
 
     getGridColumns: function() {
@@ -131,9 +135,13 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
                     columns.push({
                         header: obj.value,
                         dataIndex: dataIndex,
-                        flex: 1
+                        flex: 1,
+                        order: obj.order
                     });
                 }
+                columns.sort(function (a, b) {
+                    return a.order - b.order;
+                });
             }
         }
 

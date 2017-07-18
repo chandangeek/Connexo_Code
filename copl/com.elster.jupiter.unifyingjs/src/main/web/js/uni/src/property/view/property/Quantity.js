@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.property.view.property.Quantity', {
     extend: 'Uni.property.view.property.Base',
 
@@ -49,7 +53,7 @@ Ext.define('Uni.property.view.property.Quantity', {
             valueRegExp = /(-?\d*)\:-?\d*\:.*/,
             unitRegExp = /-?\d*(\:-?\d*\:.*)/;
 
-        if (Ext.isEmpty(value)) {
+        if (Ext.isEmpty(value) && me.down('numberfield')) {
             me.down('numberfield').setValue(null);
             return;
         }

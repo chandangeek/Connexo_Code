@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.property.model.PropertyType', {
     extend: 'Ext.data.Model',
     fields: [
@@ -5,7 +9,8 @@ Ext.define('Uni.property.model.PropertyType', {
     ],
     requires: [
         'Uni.property.model.PredefinedPropertyValue',
-        'Uni.property.model.PropertyValidationRule'
+        'Uni.property.model.PropertyValidationRule',
+        'Uni.property.model.PropertyParams'
     ],
     associations: [
         {
@@ -25,6 +30,15 @@ Ext.define('Uni.property.model.PropertyType', {
             getterName: 'getPropertyValidationRule',
             setterName: 'setPropertyValidationRule',
             foreignKey: 'propertyValidationRule'
+        },
+        {
+            name: 'params',
+            type: 'hasOne',
+            model: 'Uni.property.model.PropertyParams',
+            associationKey: 'params',
+            getterName: 'getPropertyParams',
+            setterName: 'setPropertyParams',
+            foreignKey: 'params'
         }
     ]
 });

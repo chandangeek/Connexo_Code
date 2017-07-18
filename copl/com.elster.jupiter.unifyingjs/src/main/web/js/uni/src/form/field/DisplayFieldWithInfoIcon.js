@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.form.field.DisplayFieldWithInfoIcon
  */
@@ -5,6 +9,12 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
     extend: 'Ext.form.field.Display',
     xtype: 'displayfield-with-info-icon',
     emptyText: '-',
+
+    /**
+     * @cfg {String} iconColor
+     * Info icon color.
+     */
+    iconColor: undefined, // as a string
 
     /**
      * @cfg {String} infoTooltip
@@ -17,12 +27,13 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
      * Should be used instead of the {@link Ext.form.field.Display.renderer} function.
      */
     beforeRenderer: null,
+    onlyIcon: false,
 
     renderer: function (value, field) {
         var me = this,
             icon = '';
 
-        if (Ext.isEmpty(value)) {
+        if (Ext.isEmpty(value) && !me.onlyIcon) {
             return me.emptyText;
         }
 
@@ -31,8 +42,11 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
         }
 
         if (me.infoTooltip) {
-            icon  = '<span class="uni-icon-info-small" style="width: 16px; height: 16px; display: inline-block;float: none;margin-left: 10px;vertical-align: top" data-qtip="' + me.infoTooltip + '"></span>'
+            icon = '<span class="icon-info" style="font-size: 16px;'
+                    + (!Ext.isEmpty(me.iconColor) ? 'color:' + me.iconColor + ';' : '')
+                    + ' width: 16px; height: 16px; display: inline-block;float: none;margin-left: 10px;vertical-align: top" data-qtip="' + me.infoTooltip + '"></span>'
         }
-        return Ext.String.htmlEncode(value) + icon;
+
+        return !me.onlyIcon ? Ext.String.htmlEncode(value) + icon : icon;
     }
 });

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.property.form.Property
  *
@@ -80,7 +84,8 @@ Ext.define('Uni.property.form.Property', {
             registry = Uni.property.controller.Registry,
             type,
             fieldType,
-            dependOnIsEdited;
+            dependOnIsEdited,
+            addPropertyToForm = true;
 
         Ext.suspendLayouts();
 
@@ -90,36 +95,42 @@ Ext.define('Uni.property.form.Property', {
                 throw '!(entry instanceof Uni.property.model.Property)';
             }
 
-            me.inheritedValues
-                ? property.initInheritedValues()
-                : property.initValues();
-
-            property.commit(true, []);
-
-            type = property.getType();
-            fieldType = registry.getProperty(type);
-            dependOnIsEdited = me.isMultiEdit && !me.isEdit;
-            if ((dependOnIsEdited && property.isEdited) || (!dependOnIsEdited && fieldType)) {
-                var field = Ext.create(fieldType, Ext.apply(me.defaults, {
-                    property: property,
-                    isEdit: me.isEdit,
-                    isReadOnly: me.isReadOnly,
-                    inputType: me.inputType,
-                    passwordAsTextComponent: me.passwordAsTextComponent,
-                    userHasEditPrivilege: me.userHasEditPrivilege,
-                    userHasViewPrivilege: me.userHasViewPrivilege,
-                    showEditButton: me.isMultiEdit,
-                    resetButtonHidden: me.defaults.resetButtonHidden || me.isMultiEdit,
-                    editButtonTooltip: me.editButtonTooltip,
-                    removeButtonTooltip: me.removeButtonTooltip,
-                    blankText: me.blankText
-                }));
-                me.add(field);
-                field.on('checkRestoreAll', function () {
-                    me.fireEvent('showRestoreAllBtn', me.checkAllIsDefault());
-                });
+            if (me.isEdit && property.get('canBeOverridden') !== null) {
+                addPropertyToForm = property.get('canBeOverridden');
             }
-            me.fireEvent('showRestoreAllBtn', me.checkAllIsDefault());
+            if (addPropertyToForm) {
+                me.inheritedValues
+                    ? property.initInheritedValues()
+                    : property.initValues();
+
+                property.commit(true, []);
+
+                type = property.getType();
+                fieldType = registry.getProperty(type);
+                dependOnIsEdited = me.isMultiEdit && !me.isEdit;
+                if ((dependOnIsEdited && property.isEdited) || (!dependOnIsEdited && fieldType)) {
+                    var field = Ext.create(fieldType, Ext.apply(me.defaults, {
+                        property: property,
+                        isEdit: me.isEdit,
+                        isReadOnly: me.isReadOnly,
+                        inputType: me.inputType,
+                        passwordAsTextComponent: me.passwordAsTextComponent,
+                        userHasEditPrivilege: me.userHasEditPrivilege,
+                        userHasViewPrivilege: me.userHasViewPrivilege,
+                        showEditButton: me.isMultiEdit,
+                        resetButtonHidden: me.defaults.resetButtonHidden || me.isMultiEdit,
+                        editButtonTooltip: me.editButtonTooltip,
+                        removeButtonTooltip: me.removeButtonTooltip,
+                        blankText: me.blankText,
+                        propertyParams : property.getPropertyParams()
+                    }));
+                    me.add(field);
+                    field.on('checkRestoreAll', function () {
+                        me.fireEvent('showRestoreAllBtn', me.checkAllIsDefault());
+                    });
+                }
+                me.fireEvent('showRestoreAllBtn', me.checkAllIsDefault());
+            }
         });
 
         Ext.resumeLayouts(true);
@@ -250,10 +261,8 @@ Ext.define('Uni.property.form.Property', {
 
     markInvalid: function (errors) {
         var me = this;
-
         Ext.each(errors, function (error) {
             if (!!me.getPropertyField(error.id)) {
-                console.log(me.getPropertyField(error.id));
                 me.getPropertyField(error.id).markInvalid(error.msg);
             }
         });

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.form.field.readingtypes.ReadingTypeTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'uni-add-reading-type-top-filter',
@@ -6,6 +10,12 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypeTopFilter', {
     selectedReadingTypes: null,
     isEquidistant: false,
     isActive: false,
+
+    requires: [
+        'Uni.store.UnitsOfMeasure',
+        'Uni.store.TimeOfUse',
+        'Uni.store.Intervals'
+    ],
 
     initComponent: function () {
         var me = this;

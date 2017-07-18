@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.form.field.Coordinates
  */
@@ -208,7 +212,6 @@ Ext.define('Uni.form.field.Coordinates', {
                     ? '-'
                     : Ext.String.format('{0} {1}', newValue, Uni.I18n.translate('coordinates.elevationUnit', 'UNI', 'm '))); // Intentionally added space in translation
             }                                                                                                                                     // as I18nAnalyzer has problems with single character translations
-            // defaultButton.setDisabled(me.getValue().spatialCoordinates == me.displayValue.usagePointSpatialCoordinates);
         }
         else {
             if (field.itemId == 'txt-coordinate-lat') {
@@ -221,7 +224,9 @@ Ext.define('Uni.form.field.Coordinates', {
                 elevField.setValue('');
             }
         }
-        defaultButton.setDisabled(me.displayValue.usagePointSpatialCoordinates == undefined);
+        if (me.displayResetButton) {
+            defaultButton.setDisabled(me.displayValue.usagePointSpatialCoordinates == undefined);
+        }
     },
 
     setValue: function (value) {

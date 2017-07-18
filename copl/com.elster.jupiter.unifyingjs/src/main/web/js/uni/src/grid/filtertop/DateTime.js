@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.grid.filtertop.Date
  */
@@ -13,6 +17,7 @@ Ext.define('Uni.grid.filtertop.DateTime', {
     value: undefined,
     emptyText: Uni.I18n.translate('grid.filter.date.label', 'UNI', 'Date'),
     format: Uni.util.Preferences.lookup(Uni.DateTime.dateLongKey, Uni.DateTime.dateLongDefault),
+    labelText: null,
     layout: {
         type: 'vbox',
         align: 'stretchmax'
@@ -32,7 +37,7 @@ Ext.define('Uni.grid.filtertop.DateTime', {
                 items: [
                     {
                         xtype: 'label',
-                        html: Uni.I18n.translate('general.from', 'UNI', 'From'),
+                        html: me.labelText || Uni.I18n.translate('general.from', 'UNI', 'From'),
                         width: 48,
                         style: 'font-weight: normal;'
                     },

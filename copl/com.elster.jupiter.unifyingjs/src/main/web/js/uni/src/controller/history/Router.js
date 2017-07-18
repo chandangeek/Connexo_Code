@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * The router component is responsible for gathering and handling route configuration
  *
@@ -275,7 +279,7 @@ Ext.define('Uni.controller.history.Router', {
 
                     var dispatch = function () {
                         if (!Uni.Auth.checkPrivileges(config.privileges)) {
-                            crossroads.parse("/error/notfound");
+                            crossroads.parse("/error/notvisible");
                         } else if(me.checkForDynamicPrivileges(config, applyAction)) {
                             //do nothing
                         } else {

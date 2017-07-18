@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     extend: 'Ext.button.Button',
     xtype: 'search-criteria-selector',
@@ -105,9 +109,13 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                 && item.criteria.get('constraints').indexOf(filter.id) >= 0);
             });
 
-        deps.map(function (item) {
-            item.setDisabled(!filter);
-        });
+        deps.map(me.checkConstraints());
+    },
+
+    checkConstraints: function() {
+        var me = this;
+
+        return function(item) {item.setDisabled(me.service.checkConstraints(item.criteria))}
     },
 
     createMenuItem: function (criteria) {

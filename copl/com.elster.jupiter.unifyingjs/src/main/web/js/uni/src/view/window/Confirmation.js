@@ -1,9 +1,31 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.view.window.Confirmation
  */
 Ext.define('Uni.view.window.Confirmation', {
     extend: 'Ext.window.MessageBox',
     xtype: 'confirmation-window',
+
+    /**
+     * @cfg {Boolean}
+     *
+     * Indicates if you want the icon, the title and the confirmation button in green.
+     * By default false.
+     */
+    green: false,
+
+    /**
+     * @cfg {Boolean}
+     *
+     * Indicates if you want the icon, the title and the confirmation button in orange.
+     * By default false.
+     */
+    orange: false,
+
+    noConfirmBtn: false,
     cls: Uni.About.baseCssPrefix + 'confirmation-window',
     confirmBtnUi: 'remove',
     /**
@@ -12,6 +34,13 @@ Ext.define('Uni.view.window.Confirmation', {
      * Text for the confirmation button. By default 'Remove'.
      */
     confirmText: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
+
+    /**
+     * @cfg {String}
+     *
+     * Text for a 2nd confirmation button. If defined, this indicates you want a 2nd confirm button
+     */
+    secondConfirmText: undefined,
 
     /**
      * @cfg {String}
@@ -46,42 +75,114 @@ Ext.define('Uni.view.window.Confirmation', {
     initComponent: function () {
         var me = this;
 
+        if (me.green) {
+            me.cls = Uni.About.baseCssPrefix + 'confirmation-window-green';
+            me.confirmBtnUi = 'action';
+        } else if (me.orange) {
+            me.cls = Uni.About.baseCssPrefix + 'confirmation-window-orange';
+            me.confirmBtnUi = 'confirm';
+        }
         me.callParent(arguments);
-        me.add(
-            {
-                xtype: 'container',
-                layout: {
-                    type: 'hbox'
-                },
-                items: [
-                    {
-                        xtype: 'button',
-                        action: 'confirm',
-                        name: 'confirm',
-                        scope: me,
-                        text: me.confirmText,
-                        ui: me.confirmBtnUi,
-                        handler: me.confirmation,
-                        margin: '0 0 0 ' + me.iconWidth
+
+        if (Ext.isDefined(me.secondConfirmText)) {
+            me.add(
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
                     },
-                    {
-                        xtype: 'button',
-                        action: 'cancel',
-                        name: 'cancel',
-                        scope: me,
-                        text: me.cancelText,
-                        ui: 'link',
-                        handler: me.cancellation
-                    }
-                ]
-            }
-        );
+                    items: [
+                        {
+                            xtype: 'button',
+                            action: 'confirm',
+                            name: 'confirm',
+                            scope: me,
+                            text: me.confirmText,
+                            ui: me.confirmBtnUi,
+                            handler: me.confirmation,
+                            margin: '0 0 0 ' + me.iconWidth
+                        },
+                        {
+                            xtype: 'button',
+                            action: 'confirm2',
+                            name: 'confirm2',
+                            scope: me,
+                            text: me.secondConfirmText,
+                            ui: me.confirmBtnUi,
+                            handler: me.confirmation,
+                            margin: '0 0 0 7'
+                        },
+                        {
+                            xtype: 'button',
+                            action: 'cancel',
+                            name: 'cancel',
+                            scope: me,
+                            text: me.cancelText,
+                            ui: 'link',
+                            handler: me.cancellation
+                        }
+                    ]
+                }
+            );
+        } else if (me.noConfirmBtn) {
+            me.add(
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    items: [
+                        {
+                            xtype: 'button',
+                            action: 'cancel',
+                            name: 'cancel',
+                            scope: me,
+                            text: me.cancelText,
+                            ui: 'link',
+                            margin: '0 0 0 ' + (me.iconWidth - 7),
+                            handler: me.cancellation
+                        }
+                    ]
+                }
+            );
+        } else {
+            me.add(
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    items: [
+                        {
+                            xtype: 'button',
+                            action: 'confirm',
+                            name: 'confirm',
+                            scope: me,
+                            text: me.confirmText,
+                            ui: me.confirmBtnUi,
+                            handler: me.confirmation,
+                            margin: '0 0 0 ' + me.iconWidth
+                        },
+                        {
+                            xtype: 'button',
+                            action: 'cancel',
+                            name: 'cancel',
+                            scope: me,
+                            text: me.cancelText,
+                            ui: 'link',
+                            handler: me.cancellation
+                        }
+                    ]
+                }
+            );
+        }
     },
 
     show: function (config) {
+        var me = this;
         if (!Ext.isDefined(config.icon)) {
             Ext.apply(config, {
-                icon: 'icon-warning'
+                icon: me.green ? 'icon-info' : (me.orange ? 'icon-question' : 'icon-warning')
             });
         }
         if (!Ext.isDefined(config.closable)) {

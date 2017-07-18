@@ -1,16 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.property.view.property.Reference', {
     extend: 'Uni.property.view.property.BaseCombo',
-
-    referencesStore: Ext.create('Ext.data.Store', {
-        fields: ['key', 'value']
-    }),
 
     getEditCmp: function () {
         var me = this;
 
+        me.referencesStore = Ext.create('Ext.data.Store', {
+            fields: ['key', 'value'],
+            storeId: me.key + 'store'
+        });
         // clear store
-        me.referencesStore.loadData([], false);
-        _.map(me.getProperty().getPossibleValues(), function (item) {
+        _.forEach(me.getProperty().getPossibleValues(), function (item) {
             me.referencesStore.add({key: item.id, value: item.name});
         });
 
@@ -38,14 +41,12 @@ Ext.define('Uni.property.view.property.Reference', {
             name: me.getName(),
             itemId: me.key + 'displayfield',
             renderer: function (value) {
-                var result;
-
+                var result,
+                    valueIsObject = Ext.isObject(value);
                 if (value) {
-                    if(me.getProperty().getPossibleValues()) {
-                        result = Ext.Array.findBy(me.getProperty().getPossibleValues(), function (item) {
-                            return value == item.id;
-                        });
-                    }
+                    result = Ext.Array.findBy(me.getProperty().getPossibleValues(), function (item) {
+                        return valueIsObject ? value.id === item.id : value === item.id;
+                    });
                     result = Ext.isObject(result) ? result.name : Ext.String.htmlEncode(value);
                 }
 

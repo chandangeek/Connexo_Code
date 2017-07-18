@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.view.toolbar.PagingBottom
  */
@@ -188,7 +192,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         var me = this;
 
         var obj = {};
-        obj[me.pageSizeParam] = undefined;
+        //obj[me.pageSizeParam] = undefined;
         obj[me.pageStartParam] = undefined;
 
         me.updateHrefIfNecessary(Uni.util.QueryString.buildHrefWithQueryString(obj, false));

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.property.view.property.Period', {
     extend: 'Uni.property.view.property.BaseCombo',
     requires: [
@@ -5,6 +9,13 @@ Ext.define('Uni.property.view.property.Period', {
     ],
     unitComboWidth: 128,
     gapWidth: 6,
+    listeners: {
+        afterrender: function () {
+            if (this.isEdit) {
+                this.getComboField().getStore().load();
+            }
+        }
+    },
 
     getNormalCmp: function () {
         var me = this;
@@ -42,6 +53,7 @@ Ext.define('Uni.property.view.property.Period', {
 
     getComboCmp: function () {
         var store = Ext.create('Ext.data.Store', {
+            storeId:  this.key,
             fields: [
                 {name: 'key', type: 'string'},
                 {name: 'value', type: 'string'}
@@ -95,7 +107,6 @@ Ext.define('Uni.property.view.property.Period', {
             } else {
                 this.getField().setValue(count);
                 this.getComboField().setValue(unit);
-                this.getComboField().setRawValue(localizedTimeUnit);
             }
         } else {
             this.callParent([timeDuration]);
@@ -107,15 +118,28 @@ Ext.define('Uni.property.view.property.Period', {
             resetButtonHidden = this.resetButtonHidden,
             button = me.getResetButton(),
             countValue,
-            timeUnitValue;
+            timeUnitValue,
+            rawValue = me.getProperty().raw['propertyValueInfo'],
+            initialValue = rawValue.value,
+            isChangedValue;
 
         if (me.isEdit) {
             button.setVisible(!resetButtonHidden);
             if (me.getField()) { countValue = me.getField().getValue(); }
             if (me.getComboField()) { timeUnitValue = me.getComboField().getValue(); }
+
+            if (countValue && timeUnitValue) {
+                if (initialValue && rawValue.inheritedValue) {
+                    isChangedValue = (initialValue.count !== countValue) || (initialValue.timeUnit !== timeUnitValue) || (initialValue.count !== rawValue.inheritedValue.count) || (initialValue.timeUnit !== rawValue.inheritedValue.timeUnit);
+                } else if (rawValue.inheritedValue) {
+                    isChangedValue = (rawValue.inheritedValue.count !== countValue) || (rawValue.inheritedValue.timeUnit !== timeUnitValue);
+                }
+            }
+
             if (!me.getProperty().get('isInheritedOrDefaultValue')
                 && typeof countValue !== 'undefined' && countValue !== null
                 && typeof timeUnitValue !== 'undefined' && timeUnitValue !== null
+                && isChangedValue
             ) {
                 if (Ext.isEmpty(me.getProperty().get('default'))) {
                     button.setTooltip(Uni.I18n.translate('general.restoreDefaultEmptyValue', 'UNI', 'Restore to default empty value'));
@@ -157,6 +181,14 @@ Ext.define('Uni.property.view.property.Period', {
         }
 
         return null;
+    },
+
+    markInvalid: function (error) {
+        this.down('numberfield').markInvalid(error);
+    },
+
+    clearInvalid: function () {
+        this.down('numberfield') && this.down('numberfield').clearInvalid();
     },
 
     getValueAsDisplayString: function (value) {

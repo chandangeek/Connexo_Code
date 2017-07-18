@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.property.view.property.Date', {
     extend: 'Uni.property.view.property.Base',
 
@@ -66,12 +70,13 @@ Ext.define('Uni.property.view.property.Date', {
                     this.callParent([value]);
                 }
             }
+        } else if (value === '') {
+            this.callParent([value]);
         }
-
     },
 
     getValue: function () {
-        if (this.getField().getValue() != null) {
+        if (!Ext.isEmpty(this.getField().getValue())) {
             return this.getField().getValue().getTime()
         } else {
             return null;
@@ -79,7 +84,7 @@ Ext.define('Uni.property.view.property.Date', {
     },
 
     getValueAsDisplayString: function (value /*Date as miliseconds*/) {
-        return !Ext.isEmpty(value) ? Uni.DateTime.formatDateTimeShort(new Date(value)) : value;
+        return !Ext.isEmpty(value) ? Uni.DateTime.formatDateShort(new Date(value)) : value;
     }
 
 });
