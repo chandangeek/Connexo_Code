@@ -15,6 +15,7 @@ Ext.define('Uni.form.field.OnPeriod', {
 
     baseRadioName: undefined,
     selectedValue: undefined,
+    dom: false,
 
     initComponent: function () {
         var me = this;
@@ -422,7 +423,6 @@ Ext.define('Uni.form.field.OnPeriod', {
         var me = this,
             radio = me.getOptionDayOfYearRadio(),
             combo = me.getOptionDayOfYearContainer();
-
         radio.setVisible(!disabled);
         radio.setDisabled(disabled);
         combo.setVisible(!disabled);
@@ -487,12 +487,14 @@ Ext.define('Uni.form.field.OnPeriod', {
             monthRadio = me.getOptionDayOfMonthRadio(),
             weekRadio = me.getOptionDayOfWeekRadio(),
             dayOfYearRadio = me.getOptionCurrentOfYearRadio(),
-            yearRadio = me.getOptionDayOfYearRadio();
+            yearRadio = me.getOptionDayOfYearRadio(),
+            control;
 
         if ((!monthRadio.getValue() || !dayRadio.getValue()) && (dayRadio.isVisible() || monthRadio.isVisible())) {
-            dayRadio.suspendEvents();
-            dayRadio.setValue(true);
-            dayRadio.resumeEvents();
+            control = me.dom ? monthRadio : dayRadio;
+            control.suspendEvents();
+            control.setValue(true);
+            control.resumeEvents();
         }
 
         if (!weekRadio.getValue() && weekRadio.isVisible()) {

@@ -189,6 +189,63 @@ Ext.define('Uni.form.RelativePeriod', {
         });
     },
 
+    setValues: function(relativePeriod) {
+        var me = this,
+            date = new Date();
+        if (!Ext.isEmpty(relativePeriod.startFixedYear)) {
+            date.setYear(relativePeriod.startFixedYear);
+            date.setMonth(relativePeriod.startFixedMonth);
+            date.setDate(relativePeriod.startFixedDay);
+            date.setHours(relativePeriod.atHour);
+            date.setMinutes(relativePeriod.atMinute);
+            me.down('uni-form-field-startperiod').down('#option-date').down('datefield').setValue(date);
+        } else if (!Ext.isEmpty(relativePeriod.startPeriodAgo)) {
+            me.down('uni-form-field-startperiod').down('#option-ago').down('radio').suspendEvents(false);
+            me.down('uni-form-field-startperiod').down('#option-ago').down('radio').setValue(true);
+            me.down('uni-form-field-startperiod').down('#option-ago').down('radio').resumeEvents();
+            me.down('uni-form-field-startperiod').down('#option-ago').down('numberfield').setValue(relativePeriod.startAmountAgo);
+            me.down('uni-form-field-startperiod').down('#option-ago').down('#period-interval').setValue(relativePeriod.startPeriodAgo);
+            me.down('uni-form-field-startperiod').down('#option-ago').down('#period-edge').suspendEvents(false);
+            me.down('uni-form-field-startperiod').down('#option-ago').down('#period-edge').setValue(relativePeriod.startTimeMode);
+            me.down('uni-form-field-startperiod').down('#option-ago').down('#period-edge').resumeEvents();
+
+            switch (relativePeriod.startPeriodAgo) {
+                case 'years':
+                    me.setHourAndMinutesField(relativePeriod);
+                    if (Ext.isEmpty(relativePeriod.onCurrentDayOfYear)) {
+                        me.down('#option-doy').down('radio').setValue(true);
+                        me.down('#option-doy').down('numberfield').setValue(relativePeriod.startFixedDay);
+                        me.down('#option-doy').down('combobox').setValue(relativePeriod.startFixedMonth);
+                    }
+                    break;
+                case 'months':
+                    me.setHourAndMinutesField(relativePeriod);
+                    if (Ext.isEmpty(relativePeriod.onCurrentDay)) {
+                        me.down('uni-form-field-onperiod').down('#option-dom').down('radio').setValue(true);
+                        me.down('uni-form-field-onperiod').dom = true;
+                        me.down('uni-form-field-onperiod').down('#option-dom').down('combobox').setValue(relativePeriod.onDayOfMonth);
+                    }
+                    break;
+                case 'weeks':
+                    me.setHourAndMinutesField(relativePeriod);
+                    me.down('uni-form-field-onperiod').down('#option-dow-combo').setValue(relativePeriod.onDayOfWeek);
+                    break;
+                case 'days':
+                    me.setHourAndMinutesField(relativePeriod);
+                    break;
+                case 'hours':
+                    me.down('uni-form-field-atperiod').down('#minute-field').setValue(relativePeriod.atMinute);
+                    break;
+            }
+        }
+    },
+
+    setHourAndMinutesField: function(relativePeriod) {
+        var me = this;
+        me.down('uni-form-field-atperiod').down('#hour-field').setValue(relativePeriod.atHour);
+        me.down('uni-form-field-atperiod').down('#minute-field').setValue(relativePeriod.atMinute);
+    },
+
     formatJsonPreviewRequest: function () {
         var me = this,
             date = new Date(),
