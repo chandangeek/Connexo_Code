@@ -39,6 +39,22 @@ Ext.define('Tme.controller.history.Time', {
                                     return true;
                                 }, {single: true});
                                 return this;
+                            },
+                            items: {
+                                edit: {
+                                    title: Uni.I18n.translate('relativeperiod.edit', 'TME', 'Edit relative period'),
+                                    route: 'edit',
+                                    controller: 'Tme.controller.RelativePeriods',
+                                    privileges: Tme.privileges.Period.admin,
+                                    action: 'showEditRelativePeriod'
+                                },
+                                callback: function (route) {
+                                    this.getApplication().on('relativeperiodload', function (record) {
+                                        route.setTitle(record.get('name'));
+                                        return true;
+                                    }, {single: true});
+                                    return this;
+                                }
                             }
                         }
                     }

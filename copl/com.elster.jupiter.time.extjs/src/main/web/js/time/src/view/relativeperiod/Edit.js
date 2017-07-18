@@ -19,10 +19,6 @@ Ext.define('Tme.view.relativeperiod.Edit', {
     categoryStore: undefined,
     firstDayOfWeekUrl: '/api/tmr/relativeperiods/weekstarts',
 
-    setEdit: function () {
-        this.down('#cancel-link').href = this.returnLink;
-    },
-
     initComponent: function () {
         var me = this;
 
@@ -31,7 +27,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
         me.content = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('relativeperiod.add', 'TME', 'Add relative period'),
+                title: Ext.isEmpty(me.record) ? Uni.I18n.translate('relativeperiod.add', 'TME', 'Add relative period'): Uni.I18n.translate('relativeperiod.editX', 'TME', "Edit '{0}'", me.record.get('name')),
                 ui: 'large',
                 margin: '0px 16px 16px 16px',
                 layout: {
@@ -173,7 +169,8 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                     {
                                         xtype: 'button',
                                         itemId: 'create-edit-button',
-                                        text: Uni.I18n.translate('general.add', 'TME', 'Add'),
+                                        text:  Ext.isEmpty(me.record) ? Uni.I18n.translate('general.add', 'TME', 'Add') : Uni.I18n.translate('general.save', 'TME', 'Save'),
+                                        action: Ext.isEmpty(me.record) ? 'addPeriod' : 'editPeriod',
                                         ui: 'action'
                                     },
                                     {
@@ -196,13 +193,33 @@ Ext.define('Tme.view.relativeperiod.Edit', {
         me.on('afterrender', me.onAfterRender, me);
     },
 
+    setEdit: function () {
+        this.down('#cancel-link').href = this.returnLink;
+    },
+
     onAfterRender: function () {
         var me = this;
 
         me.getFirstDayOfWeek();
+        if(!Ext.isEmpty(me.record)) {
+            me.setValues(me.record);
+        }
         me.getStartRelativePeriodField().on('periodchange', me.updatePreview, me);
         me.getEndRelativePeriodField().on('periodchange', me.updatePreview, me);
         me.updatePreview();
+    },
+
+    setValues: function(record) {
+        var me = this,
+            categories = [];
+        me.down('#relative-date-end').setValues(record.get('to'));
+        me.down('#relative-date-start').setValues(record.get('from'));
+        me.down('#edit-relative-period-name').setValue(record.get('name'));
+        record.get('categories').forEach(function (category) {
+            categories.push(category.id);
+        });
+        me.down('#categories-combo-box').setValue(categories);
+        me.down('form').record = record;
     },
 
     updatePreview: function () {

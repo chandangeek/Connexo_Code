@@ -8,10 +8,10 @@ Ext.define('Tme.view.relativeperiod.ActionMenu', {
     initComponent: function() {
         this.items = [
             {
-                itemId: 'view-details',
-                text: Uni.I18n.translate('general.viewDetails', 'TME', 'View details'),
-                action: 'viewDetails',
-                section: this.SECTION_VIEW
+                itemId: 'edit-period',
+                text: Uni.I18n.translate('general.edit', 'TME', 'Edit'),
+                action: 'editDetails',
+                section: this.SECTION_EDIT
             },
             {
                 itemId: 'remove-period',

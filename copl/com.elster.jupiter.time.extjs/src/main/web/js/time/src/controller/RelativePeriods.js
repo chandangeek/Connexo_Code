@@ -5,8 +5,7 @@
 Ext.define('Tme.controller.RelativePeriods', {
     extend: 'Ext.app.Controller',
 
-    requires: [
-    ],
+    requires: [],
 
     views: [
         'Tme.view.relativeperiod.Setup',
@@ -16,7 +15,9 @@ Ext.define('Tme.controller.RelativePeriods', {
 
     stores: [
         'Tme.store.RelativePeriods',
-        'Tme.store.RelativePeriodCategories'
+        'Tme.store.RelativePeriodCategories',
+        'Uni.store.Periods',
+        'Uni.store.DaysOfWeek'
     ],
 
     models: [
@@ -30,6 +31,8 @@ Ext.define('Tme.controller.RelativePeriods', {
         {ref: 'categoriesTextFields', selector: 'tme-relativeperiod-edit #categories-combo-box'},
         {ref: 'periodsPage', selector: 'relative-periods-setup'}
     ],
+
+    fromDetail: false,
 
     init: function () {
         this.control({
@@ -56,7 +59,12 @@ Ext.define('Tme.controller.RelativePeriods', {
             formErrorsPanel.hide();
         }
 
-        var record = Ext.create('Tme.model.RelativePeriod');
+        var record;
+        if (button.action === 'editPeriod') {
+            record = form.record;
+        } else {
+            record = Ext.create('Tme.model.RelativePeriod');
+        }
         var categories = this.getCategoriesTextFields();
 
         record.beginEdit();
@@ -82,7 +90,7 @@ Ext.define('Tme.controller.RelativePeriods', {
         record.save({
             success: function (record, operation) {
                 var messageText;
-                if (button.action === 'editRuleAction') {
+                if (button.action === 'editPeriod') {
                     messageText = Uni.I18n.translate('relativeperiod.editSuccess.msg', 'TME', 'Relative period saved');
                 } else {
                     messageText = Uni.I18n.translate('relativeperiod.addSuccess.msg', 'TME', 'Relative period added');
@@ -136,27 +144,53 @@ Ext.define('Tme.controller.RelativePeriods', {
         }
     },
 
-    showAddRelativePeriod: function () {
+    showAddRelativePeriod: function() {
+        this.showAddEditRelativePeriod();
+    },
+
+    showEditRelativePeriod: function(relativePeriodId) {
+        this.showAddEditRelativePeriod(relativePeriodId);
+    },
+
+    showAddEditRelativePeriod: function (relativePeriodId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             cancelLink,
-            view;
-        me.fromEditTask = router.queryParams.fromEdit === 'true';
-        me.fromAddTask = router.queryParams.fromEdit === 'false';
-        if (me.fromAddTask) {
-            cancelLink = '#/administration/dataexporttasks/add';
-        } else if (me.fromEditTask) {
-            me.taskId = router.queryParams.taskId;
-            cancelLink = '#/administration/dataexporttasks/' + me.taskId + '/edit';
+            view,
+            record;
+
+
+        if (me.fromDetail) {
+            cancelLink = '#/administration/relativeperiods/' + relativePeriodId;
         } else {
             cancelLink = '#/administration/relativeperiods';
         }
-        view = Ext.create('Tme.view.relativeperiod.Edit', {
-            returnLink: cancelLink
-        });
-        me.getApplication().fireEvent('changecontentevent', view);
-        var categoriesCombo = view.down('#categories-combo-box');
-        categoriesCombo.store.load();
+        if(!Ext.isEmpty(relativePeriodId)) {
+            record = Ext.ModelManager.getModel('Tme.model.RelativePeriod');
+            record.load(relativePeriodId, {
+                success: function (record) {
+                    view = Ext.create('Tme.view.relativeperiod.Edit', {
+                        returnLink: cancelLink,
+                        record: record
+                    });
+                    me.getApplication().fireEvent('relativeperiodload', record);
+                    me.getApplication().fireEvent('changecontentevent', view);
+                    view.setLoading(true);
+                    view.down('uni-form-relativeperiod:first').on('periodchange', function () {
+                        view.setLoading(false);
+                    });
+                    var categoriesCombo = view.down('#categories-combo-box');
+                    categoriesCombo.store.load();
+                }
+            })
+        } else {
+            view = Ext.create('Tme.view.relativeperiod.Edit', {
+                returnLink: cancelLink
+            });
+            me.getApplication().fireEvent('changecontentevent', view);
+            var categoriesCombo = view.down('#categories-combo-box');
+            categoriesCombo.store.load();
+        }
     },
 
     showRelativePeriods: function () {
@@ -165,6 +199,7 @@ Ext.define('Tme.controller.RelativePeriods', {
                 router: me.getController('Uni.controller.history.Router')
             });
 
+        me.fromDetail = false;
         me.getApplication().fireEvent('changecontentevent', view);
     },
 
@@ -193,8 +228,8 @@ Ext.define('Tme.controller.RelativePeriods', {
             case 'removePeriod':
                 me.removePeriod(menu.record);
                 break;
-            case 'viewDetails':
-                route = 'administration/relativeperiods/relativeperiod';
+            case 'editDetails':
+                route = 'administration/relativeperiods/relativeperiod/edit';
                 break;
         }
 
@@ -208,7 +243,7 @@ Ext.define('Tme.controller.RelativePeriods', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('relativeperiod.removeMsg', 'TME', 'This relative period will no longer be available.'),
-            title: Uni.I18n.translate('general.removex', 'TME', "Remove '{0}'?",[record.data.name]),
+            title: Uni.I18n.translate('general.removex', 'TME', "Remove '{0}'?", [record.data.name]),
             fn: function (state) {
                 if (state === 'confirm') {
                     record.destroy({
@@ -241,12 +276,12 @@ Ext.define('Tme.controller.RelativePeriods', {
             relativePeriodPreview = view.down('uni-form-relativeperiodpreview-basedOnId'),
             actionsMenu = view.down('relative-periods-action-menu');
 
+        me.fromDetail = true;
         me.getApplication().fireEvent('changecontentevent', view);
         taskModel.load(periodId, {
             success: function (record) {
                 var detailsForm = view.down('relative-periods-preview-form');
                 actionsMenu.record = record;
-                actionsMenu.down('#view-details').hide();
                 me.getApplication().fireEvent('relativeperiodload', record);
                 detailsForm.loadRecord(record);
                 view.down('relative-periods-menu').setHeader(record.get('name'));
