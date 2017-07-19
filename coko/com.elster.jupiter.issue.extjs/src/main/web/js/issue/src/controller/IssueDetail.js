@@ -80,6 +80,8 @@ Ext.define('Isu.controller.IssueDetail', {
                     me.getApplication().fireEvent('issueLoad', record);
                     Ext.suspendLayouts();
                     widget.down('#issue-detail-top-title').setTitle(record.get('title'));
+                    var subEl = new Ext.get('issue-status-field-sub-tpl');
+                    subEl.setHTML(record.get('statusDetail'));
                     if (issueType === 'datacollection') {
                         me.loadDataCollectionIssueDetails(widget, record);
                     } else {

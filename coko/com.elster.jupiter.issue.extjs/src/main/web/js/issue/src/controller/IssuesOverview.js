@@ -152,6 +152,8 @@ Ext.define('Isu.controller.IssuesOverview', {
         var me = this,
             preview = me.getPreview(),
             previewActionMenu = me.getPreviewActionMenu();
+        var subEl = new Ext.get('issue-status-field-sub-tpl');
+        subEl.setHTML(record.get('statusDetail'));
         Ext.getStore('Isu.store.Clipboard').set('issue', record);
         Ext.getStore('Isu.store.Clipboard').set('latest-issues-filter', Uni.util.QueryString.getQueryStringValues(false));
         Ext.suspendLayouts();

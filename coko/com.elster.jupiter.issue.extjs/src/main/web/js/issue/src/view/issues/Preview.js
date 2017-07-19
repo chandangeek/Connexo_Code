@@ -127,6 +127,7 @@ Ext.define('Isu.view.issues.Preview', {
                         itemId: 'issue-preview-status',
                         fieldLabel: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
                         name: 'status',
+                        afterSubTpl: '<span id="issue-status-field-sub-tpl" class="field-additional-info" style="color: #686868;"></span>',
                         renderer: function (value) {
                             return value.name ? value.name : '-';
                         }
