@@ -13,7 +13,7 @@ Ext.define('Isu.view.issues.SetPriorityForm', {
     returnLink: null,
     ui: 'large',
     defaults: {
-        labelWidth: 260
+        labelWidth: 60,
     },
     initComponent: function () {
         var me = this;
@@ -154,6 +154,6 @@ Ext.define('Isu.view.issues.SetPriorityForm', {
         if (value > field.maxValue) {
             field.setValue(field.maxValue);
         }
-    }
+    },
 
 });
