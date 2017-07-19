@@ -288,9 +288,9 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                         case 'setpriority':
                             if (successCount > 0) {
                                 if(record.get('allAlarms')){
-                                    successMessage = Uni.I18n.translatePlural('alarms.setpriority.success.result', successCount, 'DAL', '-', '<h3>Successfully set priority for all alarms</h3><br>', '<h3>Successfully set priority for all alarms</h3><br>');
+                                    successMessage = Uni.I18n.translatePlural('alarms.setpriority.successAllAlarms.result', successCount, 'DAL', '-', '<h3>Successfully set priority for all alarms</h3><br>', '<h3>Successfully set priority for all alarms</h3><br>');
                                 }else{
-                                    successMessage = Uni.I18n.translatePlural('alarms.setpriority.success.result', successCount, 'DAL', '-', '<h3>Successfully set priority for selected alarm(s)</h3><br>', '<h3>Successfully set priority for selected alarm(s)</h3><br>');
+                                    successMessage = Uni.I18n.translatePlural('alarms.setpriority.successSelectedAlarms.result', successCount, 'DAL', '-', '<h3>Successfully set priority for selected alarm(s)</h3><br>', '<h3>Successfully set priority for selected alarm(s)</h3><br>');
                                 }
 
                             }
