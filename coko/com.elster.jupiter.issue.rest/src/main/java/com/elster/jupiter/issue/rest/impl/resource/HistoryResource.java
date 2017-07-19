@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueGroup;
+import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 
 import net.minidev.json.JSONArray;
@@ -41,7 +42,8 @@ public class HistoryResource extends BaseResource {
         IssueGroupFilter groupFilter = getIssueService().newIssueGroupFilter();
         groupFilter.using(Issue.class)
                 .withReasons(filter.getStringList(IssueRestModuleConst.REASON))
-                .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE).isEmpty() ? null : filter.getStringList(IssueRestModuleConst.ISSUE_TYPE))
+                .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE).isEmpty() ? Stream.of(IssueTypes.DATA_COLLECTION.getName(), IssueTypes.DATA_VALIDATION.getName())
+                        .collect(Collectors.toList()) : filter.getStringList(IssueRestModuleConst.ISSUE_TYPE))
                 .groupBy(filter.getString(IssueRestModuleConst.FIELD))
                 .to(endCreateTime);
 
