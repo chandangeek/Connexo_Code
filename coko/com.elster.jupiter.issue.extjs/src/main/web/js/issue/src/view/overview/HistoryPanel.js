@@ -71,7 +71,7 @@ Ext.define('Isu.view.overview.HistoryPanel', {
                         title: Uni.I18n.translate('workspace.issuesPerPriority', 'ISU', 'Issues per priority'),
                         itemId: 'crt-issues-per-priority',
                         margin: '20 10 0 0',
-                        showLegend: false,
+                        showLegend: true,
                         tooltipAlarmMsg: Uni.I18n.translate('issues.issuesPerPriority', 'ISU', '{0}: {1} issues'),
                         totalItemsRaisedMsg: Uni.I18n.translate('alarms.totalIssuesRaised', 'ISU', 'Total issues raised on this day: {0}'),
                         url: '/api/isu/history',
@@ -82,7 +82,31 @@ Ext.define('Isu.view.overview.HistoryPanel', {
                             {reason: 'medium', translation: Uni.I18n.translate('issue.priority.medium', 'ISU', 'Medium')},
                             {reason: 'high', translation: Uni.I18n.translate('issue.priority.high', 'ISU', 'High')},
                             {reason: 'veryHigh', translation: Uni.I18n.translate('issue.priority.veryHigh', 'ISU', 'Very high')}
-                        ]
+                        ],
+                        legendTitle: [
+                            Uni.I18n.translate('issue.priority.veryLow', 'ISU', 'Very low'),
+                            Uni.I18n.translate('issue.priority.low', 'ISU', 'Low'),
+                            Uni.I18n.translate('issue.priority.medium', 'ISU', 'Medium'),
+                            Uni.I18n.translate('issue.priority.high', 'ISU', 'High'),
+                            Uni.I18n.translate('issue.priority.veryHigh', 'ISU', 'Very high')
+                        ],
+                        defaultColors: ['#70BB51', '#568343', '#71adc7', '#dedc49', '#eb0156'],
+                        colorPerReason: [
+                            {reason: 'veryLow', color: '#70BB51'},
+                            {reason: 'low', color: '#568343'},
+                            {reason: 'medium', color: '#71adc7'},
+                            {reason: 'high', color: '#dedc49'},
+                            {reason: 'veryHigh', color: '#eb0156'}
+                        ],
+                        sortGrophFields: function (fields) {
+                            var sortedFileds = [];
+                            Ext.Array.contains(fields, 'veryLow') && sortedFileds.push('veryLow');
+                            Ext.Array.contains(fields, 'low') && sortedFileds.push('low');
+                            Ext.Array.contains(fields, 'medium') && sortedFileds.push('medium');
+                            Ext.Array.contains(fields, 'high') && sortedFileds.push('high');
+                            Ext.Array.contains(fields, 'veryHigh') && sortedFileds.push('veryHigh');
+                            return sortedFileds;
+                        }
                     }
                 ]
             }
