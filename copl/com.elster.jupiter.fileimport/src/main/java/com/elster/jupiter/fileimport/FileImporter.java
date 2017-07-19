@@ -4,12 +4,12 @@
 
 package com.elster.jupiter.fileimport;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Interface to be implemented by classes that process file contents.
  */
-@ProviderType
+@ConsumerType
 public interface FileImporter {
 
     /**
