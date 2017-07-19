@@ -287,7 +287,12 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                             break;
                         case 'setpriority':
                             if (successCount > 0) {
-                                successMessage = Uni.I18n.translatePlural('alarms.setpriority.success.result', successCount, 'DAL', '-', '<h3>Successfully set priority for alarm(s)</h3><br>', '<h3>Successfully set priority for alarm(s)</h3><br>');
+                                if(record.get('allAlarms')){
+                                    successMessage = Uni.I18n.translatePlural('alarms.setpriority.success.result', successCount, 'DAL', '-', '<h3>Successfully set priority for all alarms</h3><br>', '<h3>Successfully set priority for all alarms</h3><br>');
+                                }else{
+                                    successMessage = Uni.I18n.translatePlural('alarms.setpriority.success.result', successCount, 'DAL', '-', '<h3>Successfully set priority for selected alarm(s)</h3><br>', '<h3>Successfully set priority for selected alarm(s)</h3><br>');
+                                }
+
                             }
                             break;
 
@@ -555,19 +560,28 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
         switch (operation) {
             case 'assign':
                 view = 'assign-issue';
+                widget = Ext.widget(view, {
+                    labelWidth: 120,
+                    controlsWidth: 500
+                });
                 break;
             case  'close':
                 view = 'issues-close-form';
+                widget = Ext.widget(view, {
+                    labelWidth: 120,
+                    controlsWidth: 500
+                });
                 break;
             case  'setpriority':
                 view = 'set-priority-form';
+                widget = Ext.widget(view, {
+                    labelWidth: 100,
+                    controlsWidth: 200
+                });
                 break;
         }
 
-        widget = Ext.widget(view, {
-            labelWidth: 120,
-            controlsWidth: 500
-        });
+
 
         if (operation == 'setpriority') {
             widget.down('#savePriority').setVisible(false);
@@ -577,8 +591,6 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
         }
 
         if (operation == 'assign') {
-            widget.down('#frm-assign-issue').setTitle('');
-
             widget.down('#issue-assign-action-apply').setVisible(false);
             widget.down('#issue-assign-action-cancel').setVisible(false);
             widget.down('#cbo-workgroup-issue-assignee').setValue(-1);
@@ -661,7 +673,7 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
 
             case 'setpriority':
                 record.set('priority', formPanel.down("#num-urgency").getValue() + ":" + formPanel.down("#num-impact").getValue());
-                if (!record.get('allAlarms')) {
+                if (record.get('allAlarms')) {
                     message = Uni.I18n.translatePlural('alarms.selectedAlarms.setPriority.withCount', record.get('alarms').length, 'DAL', '', '<h3>Set priority for one alarm?</h3><br>', '<h3>Set priority for {0} alarms?</h3><br>')
                         + Uni.I18n.translate('alarms.selectedAlarms.setPriority','DAL', 'The priority of all the alarms will be set to {0}', [formPanel.down("#priority-label").text]);
                 }else {
