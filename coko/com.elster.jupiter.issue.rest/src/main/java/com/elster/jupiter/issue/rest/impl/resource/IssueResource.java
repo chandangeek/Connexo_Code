@@ -116,9 +116,7 @@ public class IssueResource extends BaseResource {
         for (Issue baseIssue : issues) {
             for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
                 Optional<? extends Issue> issueRef = issueProvider.findIssue(baseIssue.getId());
-                if (issueRef.isPresent()) {
-                    issueInfos.add(IssueInfo.class.cast(issueInfoFactoryService.getInfoFactoryFor(issueRef.get()).from(issueRef.get())));
-                }
+                issueRef.ifPresent(issue -> issueInfos.add(IssueInfo.class.cast(issueInfoFactoryService.getInfoFactoryFor(issue).from(issue))));
             }
         }
         return PagedInfoList.fromPagedList("data", issueInfos, queryParams);
@@ -355,7 +353,7 @@ public class IssueResource extends BaseResource {
     }
 
     @PUT
-    @Path("/snooze/{id}")
+    @Path("/snooze")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
@@ -369,7 +367,7 @@ public class IssueResource extends BaseResource {
 
 
     @PUT
-    @Path("/snooze")
+    @Path("/bulksnooze")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ASSIGN_ISSUE)
@@ -445,7 +443,7 @@ public class IssueResource extends BaseResource {
         if (statuses.isEmpty()) {
             return Issue.class;
         }
-        if (statuses.stream().allMatch(status -> !status.isHistorical())) {
+        if (statuses.stream().noneMatch(IssueStatus::isHistorical)) {
             return OpenIssue.class;
         }
         if (statuses.stream().allMatch(IssueStatus::isHistorical)) {
