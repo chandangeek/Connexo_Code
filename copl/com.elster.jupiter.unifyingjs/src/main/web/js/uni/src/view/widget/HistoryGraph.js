@@ -106,6 +106,9 @@ Ext.define('Uni.view.widget.HistoryGraph', {
         var me = this, storeFields;
 
         if ((me.fields == null) || (me.fields.length == 0)) {
+            if (me.sortGrophFields) {
+                data.fields = me.sortGrophFields(data.fields);
+            }
             me.fields = data.fields;
             storeFields = data.fields.slice();
             storeFields.push('date');
