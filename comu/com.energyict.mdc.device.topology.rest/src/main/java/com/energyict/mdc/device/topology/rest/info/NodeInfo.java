@@ -24,7 +24,7 @@ import java.util.Optional;
  * Time: 16:57
  */
 @JsonIgnoreType
-@JsonPropertyOrder({ "id", "gateway"})
+@JsonPropertyOrder({ "id", "gateWay"})
 public abstract class NodeInfo<T extends HasId> {
 
     @JsonIgnore
@@ -35,6 +35,7 @@ public abstract class NodeInfo<T extends HasId> {
     private Optional<GraphLayer<T>> activeLayer = Optional.empty();
     @JsonIgnore
     private NodeInfo parent;
+    @JsonIgnore
     private List<NodeInfo<T>> children = new ArrayList<>();
 
     public NodeInfo(T nodeObject) {
@@ -95,9 +96,9 @@ public abstract class NodeInfo<T extends HasId> {
     public long getId() {
         return nodeObject.getId();
     }
-    @JsonGetter
+    @JsonGetter()
     public boolean isGateway(){
-        return getRoot() == null;
+        return parent == null;
     }
 
     @JsonAnyGetter
@@ -110,7 +111,7 @@ public abstract class NodeInfo<T extends HasId> {
         }
         return allProperties;
     }
-
+    @JsonIgnore
     public NodeInfo getParent() {
         return parent;
     }

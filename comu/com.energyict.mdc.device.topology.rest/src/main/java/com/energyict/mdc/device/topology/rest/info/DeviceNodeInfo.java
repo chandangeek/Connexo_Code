@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * NodeInfo for Device
@@ -36,6 +37,23 @@ public class DeviceNodeInfo extends NodeInfo<Device>{
     @JsonIgnore
     public Device getDevice(){
         return super.getNodeObject();
+    }
+
+    /**
+     * Returns the childNode holding the ginven device
+     */
+    public Optional<DeviceNodeInfo> findChildNode(Device device){
+        return getChildren().stream().map(DeviceNodeInfo.class::cast).filter((dn) -> dn.getDevice().getId() == device.getId()).findFirst();
+    }
+
+    @Override
+    public boolean equals(Object another){
+        return (another != null && another instanceof DeviceNodeInfo)&& (getDevice().getId() == ((DeviceNodeInfo)another).getDevice().getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (this.getDevice().getId() ^ (this.getDevice().getId() >>> 32));
     }
 
 }

@@ -8,6 +8,8 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
+import com.energyict.mdc.device.topology.G3Neighbor;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
@@ -17,7 +19,9 @@ import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 /**
@@ -97,7 +101,9 @@ public class NetworkTopologyBuilder {
     }
 
     private DeviceNodeInfo createNodeInfo() {
-        Device child = deviceService.newDevice(randomConfiguration(), createSerial(this.nodeNbr++), clock.instant());
+        String name = createSerial(this.nodeNbr++);
+        Device child = deviceService.findDeviceByName(name).orElseGet(() ->  deviceService.newDevice(randomConfiguration(), name, clock.instant()));
+        topologyService.clearPhysicalGateway(child); // reset parent
         topologyService.setPhysicalGateway(child, gateway);
         return new DeviceNodeInfo(child);
     }
@@ -115,26 +121,33 @@ public class NetworkTopologyBuilder {
     }
 
     private void addComPathSegmentsAndNeighbor(Device device, int levelNbr) {
-        if (levelNbr > 1) {
-
-            int cost = new Random().nextInt(100);
-            while (levelNbr > 1) {
-                final Device intermediateHop = randomDevice(--levelNbr);
-
-                TopologyService.G3CommunicationPathSegmentBuilder builder = topologyService.addCommunicationSegments(intermediateHop);
-                builder.add(device, null, Duration.ofDays(14), cost);
-                builder.complete();
-
-                TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(intermediateHop);
-                neighborhoodBuilder.addNeighbor(device, ModulationScheme.COHERENT, Modulation.fromOrdinal(0), PhaseInfo.NOPHASEINFO);
-                neighborhoodBuilder.complete();
-            }
-
+        LinkedList<Device> intermediateHops = new LinkedList<>();
+        int currentLevel = levelNbr;
+        while (currentLevel > 0) {
+            intermediateHop(--currentLevel).ifPresent(intermediateHops::add);
         }
+        TopologyService.G3CommunicationPathSegmentBuilder builder = topologyService.addCommunicationSegments(gateway);
+        for (int i = 0; i < intermediateHops.size(); i++){
+            Device hop = intermediateHops.get(i);
+            builder.add(device, hop, Duration.ofDays(14), new Random().nextInt(100));
+            builder.complete().forEach(this::addNeighbors);
+            builder = topologyService.addCommunicationSegments(hop);
+        }
+        builder.add(device, null, Duration.ofDays(14), new Random().nextInt(100));
+        builder.complete();
     }
 
-    private Device randomDevice(int level) {
-        return levels[level].devices.get(new Random().nextInt(levels[level].devices.size()));
+    private List<G3Neighbor> addNeighbors(G3CommunicationPathSegment segment){
+        TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(segment.getSource());
+        neighborhoodBuilder.addNeighbor(segment.getNextHopDevice().orElse(segment.getTarget()), ModulationScheme.COHERENT, Modulation.fromOrdinal(0), PhaseInfo.NOPHASEINFO);
+        return neighborhoodBuilder.complete();
+    }
+
+    private Optional<Device> intermediateHop(int level) {
+        if (level == 0){
+            return Optional.empty();
+        }
+        return Optional.of(levels[level].devices.get(new Random().nextInt(levels[level].devices.size())));
     }
 
     private class NodeLevel {

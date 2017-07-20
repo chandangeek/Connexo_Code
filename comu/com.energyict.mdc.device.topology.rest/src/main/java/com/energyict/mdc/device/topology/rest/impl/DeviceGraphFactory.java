@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.topology.rest.impl;
 
-import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.G3CommunicationPath;
@@ -10,7 +9,6 @@ import com.energyict.mdc.device.topology.rest.GraphLayerService;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.GraphInfo;
-import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
 import com.google.common.collect.Range;
 
@@ -54,9 +52,9 @@ public class DeviceGraphFactory implements GraphFactory {
         Instant now = clock.instant();
 
         final DeviceNodeInfo rootNode = newNode(deviceTopology.getRoot(), Optional.empty());
+        addChilds(rootNode, deviceTopology);
         GraphInfo<Device> graphInfo = new GraphInfo<>(this.graphLayerService);
         graphInfo.setRootNode(rootNode);
-        addChilds(rootNode, deviceTopology);
 //Todo: remove Test data
         graphInfo.setProperty("nodeCount", "" + nodeCount);
         graphInfo.setProperty("buildTime", "" + Duration.between(now, clock.instant()).toMillis());
@@ -64,9 +62,13 @@ public class DeviceGraphFactory implements GraphFactory {
     }
 
     private void addChilds(final DeviceNodeInfo nodeInfo, DeviceTopology deviceTopology) {
-        List<DeviceTopology> children = new ArrayList<>(deviceTopology.getChildren());
-        deviceTopology.getDevices().forEach(device -> this.addCommunicationPathNodes(nodeInfo, device));
-        children.stream().filter(Predicates.not(DeviceTopology::isLeaf)).forEach(child -> addChilds(nodeInfo, child));
+        List<Device> devicesInTopology = deviceTopology.getDevices();
+        devicesInTopology.sort((d1, d2) ->  -1 * (topologyService.getCommunicationPath(gateway,d1).getNumberOfHops() - topologyService.getCommunicationPath(gateway,d2).getNumberOfHops()));
+        devicesInTopology.forEach(device -> this.addCommunicationPathNodes(nodeInfo, device));
+    }
+
+    private boolean isChildOfRoot(Device device){
+        return topologyService.getCommunicationPath(gateway, device).getNumberOfHops() == 0;
     }
 
     private void addCommunicationPathNodes(DeviceNodeInfo nodeInfo, Device device) {
@@ -74,18 +76,21 @@ public class DeviceGraphFactory implements GraphFactory {
         G3CommunicationPath communicationPath = topologyService.getCommunicationPath(gateway, device);
         List<Device> intermediates = new ArrayList<>(communicationPath.getIntermediateDevices());
         while (!intermediates.isEmpty()) {
-            Optional<DeviceNodeInfo> existing = nodeInfo.getChildren().stream().map(di -> ((DeviceNodeInfo) di)).filter((dn) -> dn.getDevice().getId() == intermediates.get(0).getId()).findFirst();
+            Optional<DeviceNodeInfo> existing = root.findChildNode(intermediates.get(0));
             if (existing.isPresent()) {
                 root = existing.get();
             } else {
-                root = newNode(intermediates.get(0), Optional.of(root));
+                root = newNode(intermediates.get(0), root);
             }
             intermediates.remove(0);
         }
-        Optional<DeviceNodeInfo> existing = root.getChildren().stream().map(di -> ((DeviceNodeInfo) di)).filter((dn) -> dn.getDevice().getId() == device.getId()).findFirst();
-        if (!existing.isPresent()) {
-            newNode(device, Optional.of(root));
-        }
+    //    if (!root.findChildNode(device).isPresent()){
+            newNode(device, root);
+    //    }
+    }
+
+    private DeviceNodeInfo newNode(Device device, DeviceNodeInfo parent) {
+        return this.newNode(device, Optional.of(parent));
     }
 
     private DeviceNodeInfo newNode(Device device, Optional<DeviceNodeInfo> parent) {
