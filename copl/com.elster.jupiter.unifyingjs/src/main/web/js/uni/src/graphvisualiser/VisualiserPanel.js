@@ -350,7 +350,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                     id: node.get('id'),
                     name: node.get('name')
                 });
-                if(!Ext.isEmpty(node.get('gateWay')) && node.get('gateWay')){
+                if(!Ext.isEmpty(node.get('gateway')) && node.get('gateway')){
                     icon = KeyLines.getFontIcon(me.gatewayIcon);
                     showGatewayLegend = true;
                 } else {
@@ -374,7 +374,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                             serialNumber: node.get('serialNumber'),
                             deviceType: node.get('deviceType'),
                             deviceConfiguration: node.get('deviceConfiguration'),
-                            gateway: Ext.isEmpty(node.get('gateWay')) ? false : node.get('gateWay'),
+                            gateway: Ext.isEmpty(node.get('gateway')) ? false : node.get('gateway'),
                             alarms: node.get('alarms'),
                             issues: node.get('issues'),
                             failedComTasks: node.get('failedComTasks')
