@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
@@ -18,8 +19,8 @@ import java.util.Optional;
 public final class OpenIssueImpl extends IssueImpl implements OpenIssue {
 
     @Inject
-    public OpenIssueImpl(DataModel dataModel, IssueService issueService, Clock clock) {
-        super(dataModel, issueService, clock);
+    public OpenIssueImpl(DataModel dataModel, IssueService issueService, Clock clock, Thesaurus thesaurus) {
+        super(dataModel, issueService, clock, thesaurus);
     }
 
     @Override

@@ -14,12 +14,14 @@ import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueForAssign;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.UnsupportedStatusChangeException;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -56,15 +58,17 @@ public class IssueImpl extends EntityImpl implements Issue {
     private final Clock clock;
     private Instant createDateTime;
     private Instant snoozeDateTime;
+    private final Thesaurus thesaurus;
 
     private static final String DEFAULT_ISSUE_PREFIX = "ISU";
 
     @Inject
-    public IssueImpl(DataModel dataModel, IssueService issueService, Clock clock) {
+    public IssueImpl(DataModel dataModel, IssueService issueService, Clock clock, Thesaurus thesaurus) {
         super(dataModel);
         this.issueService = issueService;
         this.clock = clock;
         this.issueAssignmentService = issueService.getIssueAssignmentService();
+        this.thesaurus = thesaurus;
         setCreateDateTime(Instant.now(clock));
     }
 
@@ -268,7 +272,7 @@ public class IssueImpl extends EntityImpl implements Issue {
             this.snoozeDateTime = snoozeDateTime;
             this.setStatus(snoozedIssueStaus);
         } else {
-            throw new UnsupportedOperationException("Incorrect status");
+            throw new UnsupportedStatusChangeException(thesaurus, this.getStatus().getName());
         }
 
     }

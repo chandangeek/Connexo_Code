@@ -653,6 +653,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         SqlBuilder userWhereClause = new SqlBuilder();
         userWhereClause.append("WHERE " + TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_USER_ID + " = ");
         userWhereClause.addLong(user.getId());
+        userWhereClause.append(" AND ");
+        userWhereClause.append(getActiveIssueStatusCondition(Stream.of(IssueStatus.OPEN, IssueStatus.IN_PROGRESS).collect(Collectors.toList())));
         return userWhereClause;
     }
 
@@ -663,7 +665,19 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         workGroupWithoutUserWhereClause.append(TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_WORKGROUP_ID + " IN ( ");
         workGroupWithoutUserWhereClause.append(user.getWorkGroups().isEmpty() ? "NULL" : user.getWorkGroups().stream().map(WorkGroup::getId).map(String::valueOf).collect(Collectors.joining(", ")));
         workGroupWithoutUserWhereClause.append(" ) ");
+        workGroupWithoutUserWhereClause.append(" AND ");
+        workGroupWithoutUserWhereClause.append(getActiveIssueStatusCondition(Stream.of(IssueStatus.OPEN, IssueStatus.IN_PROGRESS).collect(Collectors.toList())));
         return workGroupWithoutUserWhereClause;
+    }
+
+    private String getActiveIssueStatusCondition(List<String> statuses) {
+        StringBuffer activeIssueStatusCondition = new StringBuffer();
+        activeIssueStatusCondition.append(TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_STATUS_ID + " IN (");
+        activeIssueStatusCondition.append(statuses.stream()
+                .map((status) -> "'" + status + "'")
+                .collect(Collectors.joining(", ")));
+        activeIssueStatusCondition.append(" ) ");
+        return activeIssueStatusCondition.toString();
     }
 
     private Map<IssueTypes, Long> count(SqlBuilder sqlBuilder) {
