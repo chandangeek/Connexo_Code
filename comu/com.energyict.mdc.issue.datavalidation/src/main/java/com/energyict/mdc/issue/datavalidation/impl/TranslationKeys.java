@@ -6,7 +6,9 @@ package com.energyict.mdc.issue.datavalidation.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.issue.datavalidation.impl.actions.CloseIssueAction;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
+
 
 public enum TranslationKeys implements TranslationKey {
 
@@ -19,7 +21,13 @@ public enum TranslationKeys implements TranslationKey {
     AQ_SUBSCRIBER(DataValidationEventHandlerFactory.AQ_DATA_VALIDATION_EVENT_SUBSCRIBER, "Create data validation issues"),
     ACTION_RETRY_ESTIMATION("ActionRetryEstimation", "Retry estimation"),
     ACTION_RETRY_ESTIMATION_SUCCESS("ActionRetryEstimationSuccess", "Estimation retry succeeded"),
-    ACTION_RETRY_ESTIMATION_FAIL("ActionRetryEstimationFailed", "Estimation retry failed")
+    ACTION_RETRY_ESTIMATION_FAIL("ActionRetryEstimationFailed", "Estimation retry failed"),
+    CLOSE_ACTION_PROPERTY_CLOSE_STATUS(CloseIssueAction.CLOSE_STATUS, "Close status"),
+    CLOSE_ACTION_PROPERTY_COMMENT(CloseIssueAction.COMMENT, "Comment"),
+    CLOSE_ACTION_WRONG_STATUS("action.wrong.status", "You are trying to apply the incorrect status"),
+    CLOSE_ACTION_ISSUE_CLOSED("action.issue.closed", "Issue closed"),
+    CLOSE_ACTION_ISSUE_ALREADY_CLOSED("action.issue.already.closed", "Issue already closed"),
+    CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
     ;
 
     private final String key;
