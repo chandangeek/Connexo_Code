@@ -180,8 +180,6 @@ Ext.define('Isu.view.issues.ActionMenu', {
     doOperation: function (confirmationWindow, successMessage, action) {
         var me = this,
             router = me.router,
-            errorsPanel = confirmationWindow.down('#snooze-now-window-errors'),
-            progressbar = confirmationWindow.down('progressbar'),
             updatedData;
 
         updatedData = {
@@ -203,15 +201,10 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 me.fireEvent('acknowledge', successMessage);
                 router.getRoute().forward(null, Ext.Object.fromQueryString(router.getQueryString()));
             },
-            failure: function (object, operation) {
-                if (errorsPanel) {
-                    var responseText = Ext.decode(response.responseText, true);
-                    Ext.suspendLayouts();
-                    formErrorsPanel.setText('<div style="color: #EB5642">' + responseText.errors[0].msg + '</div>', false);
-                    formErrorsPanel.show();
-                    progressbar.reset(true);
-                    Ext.resumeLayouts(true);
-                }
+            failure: function (response) {
+                Ext.suspendLayouts();
+                confirmationWindow.close();
+                Ext.resumeLayouts(true);
             }
         });
     },
