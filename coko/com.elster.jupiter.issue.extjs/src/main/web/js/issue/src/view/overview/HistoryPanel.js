@@ -90,21 +90,57 @@ Ext.define('Isu.view.overview.HistoryPanel', {
                             Uni.I18n.translate('issue.priority.high', 'ISU', 'High'),
                             Uni.I18n.translate('issue.priority.veryHigh', 'ISU', 'Very high')
                         ],
-                        defaultColors: ['#70BB51', '#568343', '#71adc7', '#dedc49', '#eb0156'],
+                        defaultColors: ['#70BB51', '#568343', '#71adc7', '#dedc49', '#eb5642'],
                         colorPerReason: [
                             {reason: 'veryLow', color: '#70BB51'},
                             {reason: 'low', color: '#568343'},
                             {reason: 'medium', color: '#71adc7'},
                             {reason: 'high', color: '#dedc49'},
-                            {reason: 'veryHigh', color: '#eb0156'}
+                            {reason: 'veryHigh', color: '#eb5642'}
                         ],
-                        sortGrophFields: function (fields) {
-                            var sortedFileds = [];
-                            Ext.Array.contains(fields, 'veryLow') && sortedFileds.push('veryLow');
-                            Ext.Array.contains(fields, 'low') && sortedFileds.push('low');
-                            Ext.Array.contains(fields, 'medium') && sortedFileds.push('medium');
-                            Ext.Array.contains(fields, 'high') && sortedFileds.push('high');
-                            Ext.Array.contains(fields, 'veryHigh') && sortedFileds.push('veryHigh');
+                        prepareColorsAndFields: function (fields) {
+                            var me = this, sortedFileds = [];
+
+                            me.translationFields = [];
+                            me.legendTitle = [];
+                            me.defaultColors = [];
+                            me.colorPerReason = [];
+
+                            Ext.Array.contains(fields, 'veryLow')
+                            && sortedFileds.push('veryLow')
+                            && me.colorPerReason.push({reason: 'veryLow', color: '#70BB51'})
+                            && me.legendTitle.push(Uni.I18n.translate('issue.priority.veryLow', 'ISU', 'Very low'))
+                            && me.translationFields.push({reason: 'veryLow', translation: Uni.I18n.translate('issue.priority.veryLow', 'ISU', 'Very low')})
+                            && me.defaultColors.push('#70BB51');
+
+                            Ext.Array.contains(fields, 'low')
+                            && sortedFileds.push('low')
+                            && me.colorPerReason.push({reason: 'low', color: '#568343'})
+                            && me.legendTitle.push(Uni.I18n.translate('issue.priority.low', 'ISU', 'Low'))
+                            && me.translationFields.push({reason: 'low', translation: Uni.I18n.translate('issue.priority.low', 'ISU', 'Low')})
+                            && me.defaultColors.push('#568343');
+
+                            Ext.Array.contains(fields, 'medium')
+                            && sortedFileds.push('medium')
+                            && me.colorPerReason.push({reason: 'medium', color: '#71adc7'})
+                            && me.legendTitle.push(Uni.I18n.translate('issue.priority.medium', 'ISU', 'Medium'))
+                            && me.translationFields.push({reason: 'medium', translation: Uni.I18n.translate('issue.priority.medium', 'ISU', 'Medium')})
+                            && me.defaultColors.push('#71adc7');
+
+                            Ext.Array.contains(fields, 'high')
+                            && sortedFileds.push('high')
+                            && me.colorPerReason.push({reason: 'high', color: '#dedc49'})
+                            && me.legendTitle.push(Uni.I18n.translate('issue.priority.high', 'ISU', 'High'))
+                            && me.translationFields.push({reason: 'high', translation: Uni.I18n.translate('issue.priority.high', 'ISU', 'High')})
+                            && me.defaultColors.push('#dedc49');
+
+                            Ext.Array.contains(fields, 'veryHigh')
+                            && sortedFileds.push('veryHigh')
+                            && me.colorPerReason.push({reason: 'veryHigh', color: '#eb5642'})
+                            && me.legendTitle.push(Uni.I18n.translate('issue.priority.veryHigh', 'ISU', 'Very high'))
+                            && me.translationFields.push({reason: 'veryHigh', translation: Uni.I18n.translate('issue.priority.veryHigh', 'ISU', 'Very high')})
+                            && me.defaultColors.push('#eb5642');
+
                             return sortedFileds;
                         }
                     }
