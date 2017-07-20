@@ -25,4 +25,8 @@ public final class RequestHelper {
     public static final String PHASE = "phase";
     public static final String CREATED_ACTIONS = "createdActions";
     public static final String FILTER = "filter";
+    public static final String WORKGROUP = "workGroup";
+    public static final String USER = "user";
+    public static final String DUEDATE = "dueDate";
+    public static final String PRIORITYTOTAL = "priorityTotal";
 }
