@@ -271,8 +271,8 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 hidden: true
             });
             confirmationWindow.show({
-                title: Uni.I18n.translate('issue.snoozeNow', 'ISU', "Snooze issue '{0}' until: ",
-                    this.record.getData().issueId, false)
+                title: Uni.I18n.translate('issue.snoozeNow', 'ISU', "Snooze '{0}'?",
+                    this.record.getData().title, false)
             });
 
             function getConfirmationWindow() {

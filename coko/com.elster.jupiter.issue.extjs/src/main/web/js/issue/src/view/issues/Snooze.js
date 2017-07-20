@@ -21,7 +21,7 @@ Ext.define('Isu.view.issues.Snooze', {
                     type: 'hbox',
                     align: 'stretch'
                 },
-                width: 350,
+                width: 380,
                 items: [
                     {
                         xtype: 'date-time',
@@ -29,6 +29,10 @@ Ext.define('Isu.view.issues.Snooze', {
                         layout: 'hbox',
                         name: 'until',
                         dateConfig: {
+                            fieldLabel: Uni.I18n.translate('general.until', 'ISU', 'Until'),
+                            labelWidth: 25,
+                            margin: '0 0 0 1',
+                            width: 140,
                             allowBlank: false,
                             value: me.defaultDate,
                             editable: false,
@@ -37,7 +41,7 @@ Ext.define('Isu.view.issues.Snooze', {
                         hoursConfig: {
                             fieldLabel: Uni.I18n.translate('general.at', 'ISU', 'at'),
                             labelWidth: 10,
-                            margin: '0 0 0 10',
+                            margin: '0 0 0 0',
                             value: me.defaultDate.getHours()
                         },
                         minutesConfig: {
