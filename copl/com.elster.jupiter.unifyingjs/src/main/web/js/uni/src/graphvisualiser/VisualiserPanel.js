@@ -150,6 +150,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 me.chart.bind('dblclick', me.combine, me);
                 me.chart.bind('contextmenu', me.contextMenu, me);
                 me.chart.bind('delete', function() { return true; }); // prevent deleting nodes
+                me.chart.bind('dragstart', me.preventDraggingNonNodes, me);
                 me.chart.load({
                     type: 'LinkChart'
                 });
@@ -579,6 +580,16 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         };
         if (this.chart) {
             this.chart.clear();
+        }
+    },
+
+    preventDraggingNonNodes: function(type, id){
+        var me = this;
+        if (id != null) {
+            var item = me.chart.getItem(id);
+            if (item && item.type != 'node') {
+                return true;
+            }
         }
     }
 
