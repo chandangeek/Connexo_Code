@@ -106,8 +106,8 @@ Ext.define('Uni.view.widget.HistoryGraph', {
         var me = this, storeFields;
 
         if ((me.fields == null) || (me.fields.length == 0)) {
-            if (me.prepareColorsAndFields) {
-                data.fields = me.prepareColorsAndFields(data.fields);
+            if (me.getFields) {
+                data.fields = me.getFields(data.fields);
             }
             me.fields = data.fields;
             storeFields = data.fields.slice();
