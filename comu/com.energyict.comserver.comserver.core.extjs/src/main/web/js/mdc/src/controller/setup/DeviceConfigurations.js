@@ -907,7 +907,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 deviceConfigurationsStore.clearFilter(false);
                 deviceConfigurationsStore.addFilter([
                     function(record) {
-                        return record.get('id')!==currentDeviceConfigurationId && !record.get('dataloggerEnabled');
+                        return record.get('id')!==currentDeviceConfigurationId;
                     }
                 ]);
                 deviceConfigurationsStore.getProxy().pageParam = undefined;
