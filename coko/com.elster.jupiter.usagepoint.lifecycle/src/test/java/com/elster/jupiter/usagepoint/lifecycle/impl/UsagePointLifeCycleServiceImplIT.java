@@ -32,6 +32,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
+import com.elster.jupiter.usagepoint.lifecycle.impl.actions.RemoveUsagePointFromStaticGroup;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.ResetValidationResultsAction;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectionStateAction;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MeterRolesAreSpecifiedCheck;
@@ -144,7 +145,8 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
                 .collect(Collectors.toList()))
                 .containsOnly(
                         SetConnectionStateAction.class.getSimpleName(),
-                        ResetValidationResultsAction.class.getSimpleName());
+                        ResetValidationResultsAction.class.getSimpleName(),
+                        RemoveUsagePointFromStaticGroup.class.getSimpleName());
     }
 
     @Test
@@ -380,12 +382,12 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         transition = findTransitionOrFail(lifeCycle,
                 com.elster.jupiter.usagepoint.lifecycle.config.impl.TranslationKeys.TRANSITION_DEMOLISH_FROM_ACTIVE.getDefaultFormat(),
                 active::equals);
-        assertContainsOnlyClasses(transition.getActions(), ResetValidationResultsAction.class);
+        assertContainsOnlyClasses(transition.getActions(), ResetValidationResultsAction.class, ResetValidationResultsAction.class);
         assertContainsOnlyClasses(transition.getChecks());
         transition = findTransitionOrFail(lifeCycle,
                 com.elster.jupiter.usagepoint.lifecycle.config.impl.TranslationKeys.TRANSITION_DEMOLISH_FROM_INACTIVE.getDefaultFormat(),
                 inactive::equals);
-        assertContainsOnlyClasses(transition.getActions(), ResetValidationResultsAction.class);
+        assertContainsOnlyClasses(transition.getActions(), ResetValidationResultsAction.class, ResetValidationResultsAction.class);
         assertContainsOnlyClasses(transition.getChecks());
         transition = findTransitionOrFail(lifeCycle, RESURRECTION);
         assertContainsOnlyClasses(transition.getActions());

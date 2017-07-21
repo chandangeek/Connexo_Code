@@ -9,7 +9,9 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum MicroCategoryTranslationKeys implements TranslationKey {
     CONNECTION_STATE_NAME(Keys.NAME_PREFIX + MicroCategory.CONNECTION_STATE.name(), "Connection state"),
     INSTALLATION_NAME(Keys.NAME_PREFIX + MicroCategory.INSTALLATION.name(), "Installation"),
-    VALIDATION_NAME(Keys.NAME_PREFIX + MicroCategory.VALIDATION.name(), "Validation");
+    VALIDATION_NAME(Keys.NAME_PREFIX + MicroCategory.VALIDATION.name(), "Validation"),
+    REMOVE_NAME(Keys.NAME_PREFIX + MicroCategory.REMOVE.name(), "Remove");
+
 
     private final String key;
     private final String defaultFormat;

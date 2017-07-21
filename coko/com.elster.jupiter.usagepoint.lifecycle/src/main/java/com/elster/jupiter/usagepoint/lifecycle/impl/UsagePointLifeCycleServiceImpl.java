@@ -7,6 +7,7 @@ package com.elster.jupiter.usagepoint.lifecycle.impl;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -36,10 +37,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
-import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
-import com.elster.jupiter.usagepoint.lifecycle.impl.actions.ResetValidationResultsAction;
-import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectionStateAction;
-import com.elster.jupiter.usagepoint.lifecycle.impl.actions.UsagePointMicroActionFactoryImpl;
+import com.elster.jupiter.usagepoint.lifecycle.impl.actions.*;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MeterRolesAreSpecifiedCheck;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MetrologyConfigurationIsDefinedCheck;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MicroCheckTranslationKeys;
@@ -88,6 +86,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     private UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private ThreadPrincipalService threadPrincipalService;
     private MeteringService meteringService; // table model ordering
+    private MeteringGroupsService meteringGroupsService;
     private Clock clock;
     private MessageService messageService;
     private TaskService taskService;
@@ -109,6 +108,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                                           UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
                                           ThreadPrincipalService threadPrincipalService,
                                           MeteringService meteringService,
+                                          MeteringGroupsService meteringGroupsService,
                                           Clock clock,
                                           MessageService messageService,
                                           TaskService taskService,
@@ -121,6 +121,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
         setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
         setThreadPrincipalService(threadPrincipalService);
         setMeteringService(meteringService);
+        setMeteringGroupsService(meteringGroupsService);
         setClock(clock);
         setMessageService(messageService);
         setTaskService(taskService);
@@ -161,6 +162,9 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService){this.meteringGroupsService = meteringGroupsService;}
 
     @Reference
     public void setClock(Clock clock) {
@@ -221,6 +225,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                 bind(TaskService.class).toInstance(taskService);
                 bind(UserService.class).toInstance(userService);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(UsagePointLifeCycleBuilder.class).toInstance(UsagePointLifeCycleServiceImpl.this);
                 bind(ValidationService.class).toInstance(validationService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
@@ -427,7 +432,14 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                             checks.add(MeterRolesAreSpecifiedCheck.class.getSimpleName());
                             actions.add(SetConnectionStateAction.class.getSimpleName());
                             break;
+                        case DEMOLISH_FROM_ACTIVE:
+                            actions.add(RemoveUsagePointFromStaticGroup.class.getSimpleName());
+                            break;
+                        case DEMOLISH_FROM_INACTIVE:
+                            actions.add(RemoveUsagePointFromStaticGroup.class.getSimpleName());
+                            break;
                     }
+
                     actions.add(ResetValidationResultsAction.class.getSimpleName());
                     transition.startUpdate()
                             .withChecks(checks)
