@@ -12,6 +12,7 @@ Ext.define('Isu.controller.Overview', {
     stores: [
         'Isu.store.Clipboard',
         'Isu.store.IssueStatuses',
+        'Isu.store.IssueReasons',
         'Isu.store.DueDate'
     ],
 
@@ -22,31 +23,55 @@ Ext.define('Isu.controller.Overview', {
     refs: [
         {
             ref: 'overview',
-            selector: 'overview-of-issues'
+            selector: 'overview-issues-panel'
         },
         {
             ref: 'filterToolbar',
-            selector: 'overview-of-issues isu-view-issues-issuefilter'
+            selector: 'overview-issues-panel isu-view-issues-issuefilter'
         },
         {
             ref: 'noPanelFound',
-            selector: 'overview-of-issues #overview-no-issues-found-panel'
+            selector: 'overview-issues-panel #overview-no-issues-found-panel'
+        },
+        {
+            ref: 'historyOverview',
+            selector: 'history-issues-panel'
+        },
+        {
+            ref: 'historyFilterToolbar',
+            selector: 'history-issues-panel #view-issue-history-filter'
+        },
+        {
+            ref: 'noHistoryItemsFoundPanel',
+            selector: 'history-issues-panel #overview-no-history-issues-found-panel'
+        },
+        {
+            ref: 'graphsPanel',
+            selector: 'history-issues-panel #overview-graphs-panel'
         }
     ],
 
     sections: ['issueType', 'status', 'userAssignee', 'reason', 'workGroupAssignee'],
-
+    historySections: ['crt-issues-per-reason', 'crt-issues-open-closed', 'crt-issues-per-priority'],
+    historyFilter: ['reason', 'issueType'],
     widgetType: 'overview-of-issues',
     model: 'Isu.model.Group',
 
     init: function () {
         this.control({
-            'overview-of-issues button[action=applyAll]': {
+            'overview-issues-panel button[action=applyAll]': {
                 click: this.updateSections
             },
-            'overview-of-issues button[action=clearAll]': {
+            'overview-issues-panel button[action=clearAll]': {
                 click: this.clearAllFilters
+            },
+            'history-issues-panel button[action=applyAll]': {
+                click: this.updateHistorySections
+            },
+            'history-issues-panel button[action=clearAll]': {
+                click: this.clearAllHistoryFilters
             }
+
         });
     },
 
@@ -63,6 +88,7 @@ Ext.define('Isu.controller.Overview', {
             }));
             me.getOverview().down('button[action=clearAll]').setDisabled(false);
             me.updateSections();
+            me.updateHistorySections();
         }
     },
 
@@ -123,6 +149,105 @@ Ext.define('Isu.controller.Overview', {
         return params;
     },
 
+    updateHistorySections: function (btn) {
+        var me = this,
+            historyOverview = me.getHistoryOverview(),
+            noHistoryItemsFoundPanel = me.getNoHistoryItemsFoundPanel(),
+            graphsPanel = me.getGraphsPanel();
+
+        noHistoryItemsFoundPanel.setVisible(false);
+        Ext.Array.each(me.historySections, function (historySection) {
+            var historySection = historyOverview.down('#' + historySection);
+            historySection.destroyControls();
+        });
+
+        graphsPanel.setVisible(true);
+
+        Ext.Array.each(me.historySections, function (historySection) {
+            var historySection = historyOverview.down('#' + historySection);
+            historySection.setLoading();
+
+            if (historySection.traslationStore) {
+                var translationReasons = [];
+                var issueStatusesStore = me.getStore(historySection.traslationStore);
+                issueStatusesStore.load(function (records) {
+                    Ext.Array.each(records, function (record) {
+                        translationReasons.push({
+                            reason: record.get('id'),
+                            translation: record.get('name')
+                        });
+                    });
+                    historySection.translationFields = translationReasons;
+                    historySection.setTranslationReasons(translationReasons);
+                });
+
+                Ext.Ajax.request({
+                    params: me.getHistoryGroupProxyParams(historySection),
+                    url: historySection.url,
+                    method: 'GET',
+                    success: function (response) {
+                        var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
+
+                        graphsPanel.setVisible(decoded.fields.length != 0);
+                        noHistoryItemsFoundPanel.setVisible(decoded.fields.length == 0);
+                        if (decoded.fields.length != 0) {
+                            historySection.refresh(decoded);
+                        }
+                        historySection.setLoading(false);
+                    }
+                });
+            }
+            else {
+                Ext.Ajax.request({
+                    params: me.getHistoryGroupProxyParams(historySection),
+                    url: historySection.url,
+                    method: 'GET',
+                    success: function (response) {
+                        var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
+
+                        graphsPanel.setVisible(decoded.fields.length != 0);
+                        noHistoryItemsFoundPanel.setVisible(decoded.fields.length == 0);
+                        if (decoded.fields.length != 0) {
+                            historySection.refresh(decoded);
+                        }
+                        historySection.setLoading(false);
+                    }
+                });
+            }
+        });
+
+        if (btn) {
+            historyOverview.down('button[action=clearAll]').enable();
+        }
+    },
+
+    getHistoryGroupProxyParams: function (historySection) {
+        var me = this,
+            filterToolbar = me.getHistoryFilterToolbar(),
+            filter = filterToolbar.getFilterParams(false, !filterToolbar.filterObjectEnabled),
+            params = {
+                filter: [
+                    {
+                        property: 'field',
+                        value: historySection.field
+                    }
+                ]
+            };
+
+        Ext.iterate(filter, function (key, value) {
+            if (!Ext.isEmpty(value)) {
+                params.filter.push({
+                    property: key,
+                    value: value
+                });
+            }
+        });
+
+        params.filter = Ext.encode(params.filter);
+
+        return params;
+    },
+
     clearAllFilters: function (btn) {
         var me = this;
 
@@ -132,5 +257,19 @@ Ext.define('Isu.controller.Overview', {
 
         btn.disable();
         me.updateSections();
+    },
+
+    clearAllHistoryFilters: function (btn) {
+        var me = this;
+
+        me.getHistoryFilterToolbar().filters.each(function (filter) {
+            if (me.historyFilter.indexOf(filter) > 0) {
+                filter.resetValue();
+            }
+        }, me);
+
+        btn.disable();
+        me.updateHistorySections();
     }
+
 });
