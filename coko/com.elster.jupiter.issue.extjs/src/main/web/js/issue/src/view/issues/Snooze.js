@@ -35,6 +35,7 @@ Ext.define('Isu.view.issues.Snooze', {
                             width: 140,
                             allowBlank: false,
                             value: me.defaultDate,
+                            minValue: moment().toDate(),
                             editable: false,
                             format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                         },
