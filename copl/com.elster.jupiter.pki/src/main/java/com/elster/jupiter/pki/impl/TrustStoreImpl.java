@@ -16,16 +16,35 @@ import com.elster.jupiter.pki.impl.wrappers.certificate.TrustedCertificateImpl;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CRL;
+import java.security.cert.CertPath;
+import java.security.cert.CertPathValidator;
+import java.security.cert.CertPathValidatorException;
+import java.security.cert.CertPathValidatorResult;
+import java.security.cert.CertStore;
+import java.security.cert.CertStoreParameters;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.CollectionCertStoreParameters;
+import java.security.cert.PKIXParameters;
+import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -161,6 +180,39 @@ public class TrustStoreImpl implements TrustStore {
         }
     }
 
+    @Override
+    public void validate(X509Certificate certificate) throws
+            InvalidAlgorithmParameterException,
+            NoSuchAlgorithmException, CertificateException {
+        Set<TrustAnchor> trustAnchors = trustedCertificates.stream()
+                .filter(cert -> cert.getCertificate().isPresent())
+                .map(cert -> cert.getCertificate().get())
+                .map(cert -> new TrustAnchor(cert, null))
+                .collect(Collectors.toSet());
+
+        Set<CRL> crls = trustedCertificates.stream()
+                .filter(cert -> cert.getCRL().isPresent())
+                .map(cert -> cert.getCRL().get())
+                .collect(Collectors.toSet());
+
+        PKIXParameters pkixParameters = new PKIXParameters(trustAnchors);
+        CertStoreParameters ccsp = new CollectionCertStoreParameters(crls);
+        CertStore store = CertStore.getInstance("Collection", ccsp);
+        pkixParameters.addCertStore(store);
+        pkixParameters.setRevocationEnabled(!crls.isEmpty());
+
+        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+        CertPath path = certFactory.generateCertPath(Collections.singletonList(certificate));
+
+        CertPathValidator validator = CertPathValidator.getInstance("PKIX");    //PKIX algorithm validates CertPath objects of type X.509
+        try {
+            CertPathValidatorResult validate = validator.validate(path, pkixParameters);
+        } catch (CertPathValidatorException e) {
+            throw new UntrustedCertificateException();
+        }
+
+    }
+
     public void save() {
         Save.action(id).save(dataModel, this);
     }
@@ -171,5 +223,8 @@ public class TrustStoreImpl implements TrustStore {
         dataModel.remove(this);
         this.eventService.postEvent(EventType.TRUSTSTORE_DELETED.topic(), this);
 
+    }
+
+    private class UntrustedCertificateException extends RuntimeException {
     }
 }

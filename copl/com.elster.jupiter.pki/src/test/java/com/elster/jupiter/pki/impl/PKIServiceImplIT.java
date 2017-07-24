@@ -1050,28 +1050,6 @@ public class PKIServiceImplIT {
         symmetricKeyWrapper.setProperties(map);
     }
 
-    private X509Certificate createSelfSignedCertificate(String myself) throws Exception {
-        // generate a key pair
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
-        keyPairGenerator.initialize(4096, new SecureRandom());
-        KeyPair keyPair = keyPairGenerator.generateKeyPair();
-
-        // build a certificate generator
-        X500Name dnName = new X500Name("cn=" + myself);
-        Date notBefore = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
-        Date notAfter = new Date(System.currentTimeMillis() + 2 * 365 * 24 * 60 * 60 * 1000);
-
-        SubjectPublicKeyInfo subjectPublicKeyInfo = new SubjectPublicKeyInfo(AlgorithmIdentifier.getInstance("SHA256WithRSA"), keyPair
-                .getPublic()
-                .getEncoded());
-        X509v3CertificateBuilder certificateBuilder = new X509v3CertificateBuilder(dnName, BigInteger.TEN, notBefore, notAfter, dnName, subjectPublicKeyInfo);
-        ContentSigner contentSigner = new JcaContentSignerBuilder("SHA256WithRSA").build(keyPair.getPrivate());
-        X509Certificate certificate = new JcaX509CertificateConverter()
-                .setProvider("BC")
-                .getCertificate(certificateBuilder.build(contentSigner));
-        return certificate;
-    }
-
     private X509Certificate loadCertificate(String name) throws IOException, CertificateException {
         return (X509Certificate) certificateFactory.generateCertificate(CertPathValidatorTest.class.getResourceAsStream(name));
     }
