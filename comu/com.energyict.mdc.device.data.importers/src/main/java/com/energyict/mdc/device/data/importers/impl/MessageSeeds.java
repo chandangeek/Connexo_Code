@@ -71,7 +71,14 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_SQL_EXCEPTION(504, "ProcessSqlException", "Can''t process line {0}.  There was a problem accessing the database", Level.SEVERE),
     NO_SUCH_KEY_ACCESSOR_TYPE(505, "NoSuchKeyAccessorType", "Can''t process line {0}.  The device type does not have a security accessor with name {1}", Level.SEVERE),
     UNKNOWN_KEY_WRAPPER(506, "UnknownKeyWrapperType", "Can''t process line {0}.  The importer doesn't know how to handle values of this type, only plaintext keys are supported", Level.SEVERE),
-    NO_VALUE_FOR_SECURITY_PROPERTY(507, "NoValueForSecurityProperty", "Can''t process line {0}.  No value was defined for property {1} so the importer doesn''t know where to store the value", Level.SEVERE);
+    NO_VALUE_FOR_SECURITY_PROPERTY(507, "NoValueForSecurityProperty", "Can''t process line {0}.  No value was defined for property {1} so the importer doesn''t know where to store the value", Level.SEVERE),
+    SCHEMA_FAILED(508, "SchemaFailedException", "XSD schema for secure device import could not be read.", Level.SEVERE),
+    VALIDATION_OF_FILE_FAILED(509, "XmlValidationfailed", "Validation failed, please check your file for invalid content.", Level.SEVERE),
+    VALIDATION_OF_FILE_FAILED_WITH_DETAIL(510, "XmlValidationFailedDetailed", "Validation failed: \"{0}\"", Level.SEVERE),
+    SECURE_DEVICE_IMPORT_FAILED(511, "SecureImportFailed", "Secure device importer failed", Level.SEVERE),
+    FAILED_TO_CREATE_CERTIFICATE_FACTORY(512, "FailedToCreateCertificateFactory", "Failed to create the certificate factory: {0}", Level.SEVERE),
+    NO_CERTIFICATE_FOUND_IN_SHIPMENT(513, "NoCertificateFoundInShipment", "Shipment file does not seem to contain certificate used to validate signature", Level.SEVERE),
+    FAILED_TO_CREATE_CERTIFICATE(514, "FailedToCreateCertificate", "Failed to extract certificate from shipment file: {0}", Level.SEVERE);
 
     private final int number;
     private final String key;

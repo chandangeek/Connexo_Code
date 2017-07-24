@@ -52,6 +52,8 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_DATA_IMPORTER_TIMEZONE_DESCRIPTION("timeZone.description", "The unique identifier of the Timezone in which date properties are specified"),
     DEVICE_DATA_IMPORTER_NUMBER_FORMAT("numberFormat", "Number format"),
     DEVICE_DATA_IMPORTER_NUMBER_FORMAT_DESCRIPTION("numberFormat.description", "The format that is used for numerical properties"),
+    DEVICE_DATA_IMPORTER_TRUSTSTORE("truststore", "Trust store"),
+    DEVICE_DATA_IMPORTER_TRUSTSTORE_DESCRIPTION("truststore.description", "The trust store used to build a chain of trust for the certificate in the shipment file"),
 
     MASTER_WILL_BE_OVERRIDDEN("MasterWillBeOverridden", "Note for line {0}: Master device (name: {1}) was overridden by new one (name: {2})"),
     NEW_USAGE_POINT_WILL_BE_CREATED("NewUsagePointWillBeCreated", "Note for line {0}: Usage point {1} is not found. New usage point was created based on Service Category value"),

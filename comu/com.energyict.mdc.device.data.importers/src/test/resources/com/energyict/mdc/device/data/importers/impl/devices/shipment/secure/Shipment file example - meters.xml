@@ -1,0 +1,472 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Shipment xmlns="http://customization.elster.com/shipment" xmlns:ns2="http://www.w3.org/2001/04/xmlenc#" xmlns:ns3="http://www.w3.org/2000/09/xmldsig#">
+  <Header>
+	<Manufacturer>ES</Manufacturer>
+    <Customer>EVN</Customer>
+    <DeviceType>AS3500/SM221</DeviceType>
+    <DeviceCount>5</DeviceCount>
+    <BatchID>EVN-TEST001</BatchID>
+    <DeliveryDate>2016-08-09</DeliveryDate>
+    <WrapKey Label="TransportationKey">
+      <SymmetricKey>
+        <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+          <KeyName>Aes_TransportationKey</KeyName>
+        </KeyInfo>
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>LH2900JQCtVL0sJ2AXD0kj0Jmd3+VXbLOsGbdBqq9SjScaVhcAvq6TmyKXCXISsjWT+eT3Il3gQMrjP8d8l8c7b+6JclEsC5FmE6FVS2cXKJClr+1WAHk4OkOFh2TtRvMxb22WzIyEfMnCLRemfHUT1jKMSrlcwyLfZjMws6vGxCbnf09jD8AObEeQO/uy0dE/Z3h/s4mWXrdJqZyYEdOBru0QVenemdtpN2pJ5i5e6wvqS939jbe03qNPRSPhpxcPRjgYzeV2queEumYA9cth6FzpKVcR4ZS3rRLq7mXOoW/eG2I5xKftU7rVoRqe29pCleqfOgrThUGoirynb+hQ==</CipherValue>
+        </CipherData>
+      </SymmetricKey>
+      <PublicKey>
+        <Modulus xmlns="http://www.w3.org/2000/09/xmldsig#">s6tYBhNC2MB4pwja0vNEhf6yp4fWVIBgMMLJttCvUvTFcDiDfmJMxru4c3G1fYEfO9Dqo4fv3jSIiulDKLy81PaDRH3yDbYHYQArRvgkqd/BZSXQJ9jRWhwN3XFZ/xgj55zs4wALvZKRXdNsx0iPmp1hJPTrUIsY2ZvsMZwql/+SjmpDtX2l0q6GxXHqIQYD5ZSy18p1TipRPXQJw4M52dakwbllfGlOX3FVUJxad2ScR4YzE+1h3loIxI5rNERO+V4K5greMttg5mXimUtaujDU7q2r0VN+RNJqZovVAn3/ZEuItQrm+6gttJ0UB0gr6o3/E6SsJCxedLIN2ALVsQ==</Modulus>
+        <Exponent xmlns="http://www.w3.org/2000/09/xmldsig#">AQAB</Exponent>
+      </PublicKey>
+    </WrapKey>
+    <WrapKey Label="Pub_KEK_SM">
+      <SymmetricKey>
+        <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+          <KeyName>Aes_Pub_KEK_SM</KeyName>
+        </KeyInfo>
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>iT6jlRLZRcKD5rZ6cFVxa4Cg/01+6s0dUK0qpRCCzjGDAdJ6qj7TxMZlnD4xwoz4KD1ZODI6ubvFLilZHhkZQmN0UWlsz+LdFsWDCCFNdVFCrwOFRKFTzBMiwXpIckDwlO2vxbMn1CWN8C34vPh3835gRK7kt39Yemz9JwElYf/QkAB087IR9n/DIPfHjm5eCUTnvSHGwuoGgfejO66M28pABC3P1K9k1Q5F9ICj6klPShLawuwQTIMnFhmSUqSW7wTi92pCLluo4EVPuRkfgply7KrEXidcwI8T8LQ5NW9cgkeHa9dnhpI5yS3suh6WS5C5bXI4FglBFymxplsJEw==</CipherValue>
+        </CipherData>
+      </SymmetricKey>
+      <PublicKey>
+        <Modulus xmlns="http://www.w3.org/2000/09/xmldsig#">rzi2MVqTCeTMJavvCdcHLzzOg+HT4RAaWBQzSADVLIzsz1Tu/r2OEJ6B3e8VdZ2dqnezZneDZlyd85m5ix0GGYC1HleTGAJq3hDiXnZif7elgRPEmYBBW+NI+Z+OM6fYMrERLHb+ji5ghMW9EPZGhFph5iSF6SB1rolEQ4Fql5wuQDltyUq5nFUsAajDmQLfbpx5iPd5wyDlxEcSUf9OOvj+rSwkcht6uHgDQXx/bU/su6AeqVZbONexmOisx0+tg+P058VmCFFaPCVkOGcF4PbDztjZLoYET2wCknV71XDI3WIx1MBhDegrNKlGlVuJR3sKRcyIQftO9Xf4+yYtBQ==</Modulus>
+        <Exponent xmlns="http://www.w3.org/2000/09/xmldsig#">AQAB</Exponent>
+      </PublicKey>
+    </WrapKey>
+    <WrapKey Label="Pub_WK_SM">
+      <SymmetricKey>
+        <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+          <KeyName>Aes_Pub_WK_SM</KeyName>
+        </KeyInfo>
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>WPIc+LuKRhJEtxDoMEXaV2YEUWx4EMH+2EG43FHuMO1OOfpEnJEa6jRKsmO+cpQ01VGP0Ny8UqfiuwpeFGqwHEbgHTB4ot9V+EW04t8NQ8A0Ctd5PJxYfMGMOO0D7tDFNPh90BKGztK5Upmgf7+/90UKqgxx34aOVGztZT7Xd7URU1TbE7f0RWTT+3/48yRry0zEikmnqElhA+4n3aOnHnilc1u34i9JzwWhPVwqyEza1myIOY/o+dsSgCMUdhOfG41ANOiLnF53vrrxbNscKpalAPJBJ4RHp8tIlnqU//nTE22W+f3Y1/fSZLxfUbd5hobSiS9gHtwSCZXCxRF5kQ==</CipherValue>
+        </CipherData>
+      </SymmetricKey>
+      <PublicKey>
+        <Modulus xmlns="http://www.w3.org/2000/09/xmldsig#">xiDqle2OccFXBXwuQ9KB6f1HNpwJos3Y2nvaGFceNVtNtpBjJUzUn2lh2trsCnyG6EWkNoOJq1Q3eYMzRqZ2ExlsBYQ4KG3O3NtaL3AGxvCWW7bvhuv6RFpviea0hpcYkfjD5VA3QZGF3V8ElABVRsQYEjt332cec2HTHSbdHoMaY71GHfpkV+nbG1s6UxEDm5Gpk5y/ZB5zb9VJCUCdvf6cg+62KFVG7PcDPOAizArLyzACv55KMxl91Sp3gmPBuYOT2r0vLhpehFFV7nz524mOfllk4n/83QE04KbVmGA7NrW1wt2lIwXVYuAg1LJ1l+IFdNneGKncaFYu3aT+yw==</Modulus>
+        <Exponent xmlns="http://www.w3.org/2000/09/xmldsig#">AQAB</Exponent>
+      </PublicKey>
+    </WrapKey>
+    <WrapKey Label="Pub_WK_DC_SM">
+      <SymmetricKey>
+        <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+          <KeyName>Aes_Pub_WK_DC_SM</KeyName>
+        </KeyInfo>
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>clUBcrBeG08ZGu5G/LUGzEjRGDm2bTC+0RG7yYnLaJcUgoMMlDWtxFGiWs1kzu79YEkqsSsP7UUF329tFI5F+jCtQeyx/904wqVBdjufl4hGTbE82RwFNsq/E9wRfuGIoUFd1OZjGVyy3YcACmybcjSI5jorE6OKrD/AubLxJ8oP7qE6/0KU89ceoE1x74UHgmbf2EVV+IqkFZQUTv9kZcdiBSTRt+rUP6Cv2E4Fr9XRP1w769REcCqrbZOkbJwZ3SVirZ31guBwXh6B5X8Otmjx7ldiOGfT5Zx0bjIUNDn/SRGq3HYMktdIpL1fS9/1FZCWOqCjedLuxFS0IAatuA==</CipherValue>
+        </CipherData>
+      </SymmetricKey>
+      <PublicKey>
+        <Modulus xmlns="http://www.w3.org/2000/09/xmldsig#">mRrHP5bahUfa8e0DO8MgyDuto3T8x3dUqsCrT7hbAIMlYsf6tZxRTo6diwgADaB1hFPfCjPzFwfbd+JAlLpUgZIZzBV6QrfM7HJoTiCJ+a4LCcovQXOsCuUNwvtho/88RO2sCWWH7GvYaUiIxun5GyZJx48HKdkYhxyIklJXW9aZvjEB37RtviPuFj8pnDG5GioDtd7+v3JSBOtTlQBhtwGLbc1gNahCEB9lvsg/d7z44ueb6lqD4UzqkYicFF/xRcDGWo4MeZTPljE4Fi382qquEGtjg43E/QLn2cM2iunMIjElwmnFcGicPXp4mayK1T4onX4God2JnPFhvs4y5w==</Modulus>
+        <Exponent xmlns="http://www.w3.org/2000/09/xmldsig#">AQAB</Exponent>
+      </PublicKey>
+    </WrapKey>
+    <WrapKey Label="Pub_WK_SM_EX">
+      <SymmetricKey>
+        <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+          <KeyName>Aes_Pub_WK_SM_EX</KeyName>
+        </KeyInfo>
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>LbZdzee/eGqUBeTtIyecukvK9efmUdatcwdBV1f4jY9E8qoDs8YpvNGJrZc9Bu1r4/FquTk++dCPIi0pgN7qQSi/iDiu84N9POIjETJiE67Hnysa/04qwazWmi6Oc0KAMoRw7wVyNOyMLT8/cNs3YbH0tD+VzjdR+ys0n1UQJOZZ5xAJDrEmHn4zJ6LbVbcgBxfK/qQr4UMMxpJ+5CiWxqF0d45wUlKdzscejJIjNM4ptnoKhetjRoNgxPYE7eGgbjnX+1/QSmPH5D23+93QJLYsCXAaW4zv7cG+6Kn7IGlNhWv1CD8yMsZozXQPQsrm1IFASVkJHweaEaqKZmFqcQ==</CipherValue>
+        </CipherData>
+      </SymmetricKey>
+      <PublicKey>
+        <Modulus xmlns="http://www.w3.org/2000/09/xmldsig#">lHSOIX0vgHJ07PDrl5fEpE/E25tUXT2m4/kLRPf5gn4fOCyvLs3rSOSETjU2mXOvL4qUQcFx8rn2pfy5yN/gTy9ALt7ts2GV0ba02nm0huvWQXoPOE5w8iIBWi3ChzOOI7PxAyk2BIBFTU8kazTfDbaE8gq4phNnn1dotK4OlABmRDTygVI0TJesqjzE+TVSg/Gxm5VAwf31Jz/3qavXL/H+hY7AugbgIU9fxoFvGVg+IXOmhWt/pn5ett7ackCaaVnmQo9FUHJpa1WU13RvK7iqTUxC8FOIL7kD/M4wFJWTZbrKVzw8uF/XyXWxKarKMNDkyIowxi/ISkZDG/BXLw==</Modulus>
+        <Exponent xmlns="http://www.w3.org/2000/09/xmldsig#">AQAB</Exponent>
+      </PublicKey>
+    </WrapKey>
+    <Attribute name="FunctionClass">SM221</Attribute>
+    <Attribute name="DeliveryNumber">EVN-TEST001</Attribute>
+    <Attribute name="ManufacturerId">ES</Attribute>
+    <Attribute name="ShipmentDeliveryDate">2016-08-09</Attribute>
+  </Header>
+  <Body>
+    <Device>
+      <SerialNumber>5207309</SerialNumber>
+      <UniqueIdentifier>5207309</UniqueIdentifier>
+      <MAC_Address>00237EFD7898</MAC_Address>
+      <Firmware name="Firmware">V10.02/STPO01</Firmware>
+      <Attribute name="CertificationYear">2016</Attribute>
+      <Attribute name="YearOfConstruction">2016</Attribute>
+      <Attribute name="FirmwareCertificate">V10.02/STPO01</Attribute>
+      <Key name="MK_SM" WrapKeyLabel="Pub_KEK_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>V+awIcgrmZz/tqIIVFTloBCwOTy4iL+whs7hfhEIBfZQ3RuBJL8zAksgEu3rhbKIuwqmivGY2PGHvqdI93fBaSJivoODp3EKdhfyJKFcyzN5ZlBeuyXyO06GIX6qr+NhWnQebl/jx3DWAFSODmWBxwvBCUiK98e7HrYsfrIFEJoGnBq/xxjgoaZ4xTVGv0N/Yz0YDlK54AqYSjPkXEwoJ0zUeMmdQXp84waoJUmlxWTkBq2g+0Nz7YYq8GXXCPSfAFxnokK/jCwUqgpKrPoTmDNQ/qHTaNvqbMR5g2RQXcmft0tFoYRY8WI9hJjMPhFl+5wg39XF/sFu3Q+SMnZP4g==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_MC" WrapKeyLabel="Pub_WK_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>EyoRoPqEdqlV6EwCKaPF9FxEPK7Fx0Tiu4dyGtY371FaXaHxSX4cOEyiARGacRNzPTnXxfoOyF/ITWVz/6OzNCyY0dukqphA1Nkx1xpd+cKUTqGHZskWVlBK2pIlox+hZJ3kLMdXmZY9Pkh7kYdjMJCLh/5RW3m872/GObL6RyvyWxY1kXowXMsHKaO0fSnmcLujoOSqpWoCzAmjJ6EUnls61W9FdTnmLWn16YdemyDBqgSk4wPAi4kkyV9moRXVtLtoEpYFlGO6WRKFyPG6QS9mtB6mJ+3KiBUjEvuReuUa7ha2R0d8cXHhmjSSAvTZPXtXbZ3maGm1sPYUrKgySw==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_MC" WrapKeyLabel="Pub_WK_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>Lpp8cSn3gG6pQu4KGJI+4s18US91oTQ2M9gYvv5vR6l9oqW2Hnw68UEiE3K++87IS5PKOnmA8YJzTBHCPIE1JKxkq1JZKvtb92u+vVlR9xQesQbyu0E1VMrrQGfSxXhXADzhBs55HYb6AnYZVYnQJy2D3Bgav+0yKVNvqx2WJr8VqYOgMoEn3Z622Bzu0k7cvDjLFOYoexOVgsPxubi7iSrcjpRBnBOgWkMWfRVjOPbKjcsMTovRqtNco/vhAvpWQhgJqwH5rcRVdoQoWBhvV3TyNvpyD065AFdDhCQC3tm5bT1gMUs1o80xMlX6WKj1FMmNY62/LjdcPeRdwBCiXQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_RC" WrapKeyLabel="Pub_WK_DC_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>TH//dAyQ3gwVng6wUyzN5qbROewYrrZAIGIy5SnM4rO9gKkdM7fdEnVriLePj2I8IMDGmLhhazX9ljz6M5zhcpdMKQmIVP2xH/NDQU+dsd7KAnbtBBinr6ES/lS9UnFGbMlPL/qhsPNfvTGwQlMpKkHCoi/nCRSa12w6h2UxCudfx/IRw+fPIWu83FUuHXEeUgup813i2zdUMmkfQ7BeqaZTkyCLiuK+Km/fQK3rfwRSTAShHknnMugbL+qJFMZ5LZRs/MMY4cuBmGHUlDVZbUsGTCnZ3iOMaFy2CBhnSGV/mFZU5cSsYT7HjreaSyVxxZYdPgt+33kIqIcD8rYrJQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_RC" WrapKeyLabel="Pub_WK_DC_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>Acj91ybhrmWxOBYfKC64/pU9/LgZGUyoYhKwMF6wnpC2ORNTLzuLrXMkB5bEN24yZ/W1tinWFrvj3wS9soU529k8maqeIdSy9hO+eyYK0zOvJ/o/6/Gac02UsH6CWrUzdQZYhL8B5NfEdTACXoJCPaj3I3XDxX8cxLdkR7rOzklMkAYNGs1v9PFTH9q2XZUso2rd2jHVJv6sesIjGy91JO8Jqqf5V6Cce0zApoozhCd6T7n1CrS3m9ASjGextcqbrIxHW1BhII285vRIgBaPvc6ZXt2EBQ14DGN0Sc9oKZwNG+riTptqJvG5WXF0hWsm/xqQxutedSvp1b5iLln3aA==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_IC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>o8VXJVCajluGgpGai2SBtDo1fdNsglOaNiJwiRa0/FfcSMPZmUTDhIOt7NO+B2C9AUgAupVTs20i+54hp5wgMWCzooT5a2eRdH1JfNWx/pKCWSFRDVi2FCZrq+DNTE8uumwg9CcQv91oYCCSVeYN9l/mvRSkF+0Mg3dHnqj70FXlqTMZXiHZY3j6L8fVQcqVNBNqJJuR2MFIr5Dn99q6BSN2s/PAhGAyJFroDn1jl/cw5DfdpBh/z6EWg4Wov2OM82rniJWQ19pw6p8cjp6hM7DnSkxpV/0i7MMwmwuA16TFwH8K+3UfSJpA+jFYBYD27wM0GbYHmHeYimJGs4jAeQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_IC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>jSRb9MFD4WG77h6FpZzX0pOrOdbAXBzQeIXIJuwdUGu79reZSNRk+EctOzgtu9mIj+0YON9+f2nvjRLgB+/uR1XC4xhcruzCbpP5Gx9XY/mETCoxivTdUe2ar1fafTG5KSY9Ex+ZA182PG19ZpPOuF+RNE2+iRCEp/ORUdRs3oXQW4TxZ5yaAUV6lJEJzbVhNJO/IafHdomKg83R/b3CJZdEAPipoTwkRK8iTQQfRcCqEHwv+f4BKlwJnsJv+Ghig2VcJ98GaPZvxp0/JsDW3elOTC5pDQq1+54/vQVVbgX+DqwxaEmVZFhbpFzXsPxT8QCwLLSdqyBiz2qszgY4nQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_MA" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>glVMK6K6zN6CdUwoGgtql+mb3nMTbrl3k7dXA1zUQ/ArppaDa1cR7mY2LvaVo0G6pRzJAPopsSYsnIEeWmrX0kUVlEXSsVIDz/m6zvDyS1Oh4M1Hq8HPSStAY4zRyTAVvqEmuy2yEnreUoSF1/ivvx9e705dThOcER5wGHyk9/OJWxI28gEeRv8UaTSLrGk4K57+7E25HoK0/yCVnaQ0tsxpk0liC+MVint8+rX/IFMLg6OZ8KSe7tZ4eEP1fwWrt+P+37FASU5GXCAfNrr4O5D50fFkZPS4cqhl3aK/q/5oeIiIbh2srMOYDSQobeZ+eUHEYhE8nyGXsRCtHIWUCA==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_MA" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>jI9ZKp5Xgl4jKMjm669jl2EaXSZ0KSLl8hc9u3qTmU38V5Ce2uazeWfmd+1maoZPkaeXAyEjeAvjIlIuLtSmUgUOAMYEIYjJbqyfElnR1SYR5ESMnafb7oDmFOexyWOg7zAmSZVawSKTuVOt/CcFq8/hunj+olDfrxSAl2J3hbu6N0Wb7LaPLff+knt5mdyJYlk9AkHjxdkyRS9iQRx2j2JglwQ7Ifo8ykSZFT2JBhDc9X20IJrATflLfIlUiJ9v1qDZdd1NW+qoiU19dfiuyLLhNAmpHi+uK4XdXHrQEbTOrO6qVkUrtiQ0tfAx4etUGQNp0JU5q6CXpz07GAzMcQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_CC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>Plz24YSKbj10T0jXblTZj45jnqQe299b/J4W0RYh7PINHNzeJw51unkX6m+Zoi0Uo2eRZW0n+CNPaXiPZHuBDjd6yoBNk2JzRhegKSCDCWFtxIchACQkO4RJmlc85ZJzv7/Hr2Y86iCawoqkYQj92Y9AeWFFwPIiUF/NXrnmIRzSZSzIcS8FHzyDJd9FAi5Qm9il7ril/6L0bxzFNfTVCKff2Xk0czWEN+8o5qCQ6XNSRogQKDH1Tv2AqC6HO/GR5tYNYfOf+tQjvYzYs5+PQRMnse5Qvkl4sTYsbo5h7rwH2VnEtJP/YP+IlmyVgX1Xz31Yicr4yBCXNDgtfJ7d1A==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_CC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>N64XB9JcJo7IARkgzyKhkJlxM6draq0L1cpVEZhsS+xsjSGLmAJNcGVy2Fqn3dJskqSwheR4bk60y0VZlP2Peiyq1/5rBxp+FZgvrWlSyHuKm00ujhLnVVglB0/FrwqpzXUQnRAq8O6bg1tHJjxchvqMFRmDgkQcjH8Q3Yp6UptaeqKljq3iwxgo9YoS5tBZJeIKi4K4gi4q1MMEeJlC1ttEj3KWspwHcBthIpytZSeLr72hkGKmaHN0wWPMIHgy83HDry/zHo37H82a1AOFfeNSCKGQ5HM+Gt2tdTsCsZ9LzbUfKr71s0i+6ZZbajklGGP9rN82jYDIOyApXeRKiQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_CI" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>eaFqNbB7Y5TCXllVheFnJbF2yrcqPfSjHta7LIRZKCD8UfONTV+sSOW08b7WJmQDcUhRXkzrTEy6X+StGkd1qfl2WAsgf0w3fVzFKMBtn/ubMBNsH+AWC2ZCZYRKWyYSlPYsEeRofz8mCeTbzEanKChfl8aCGPZgHToSiozTn5det58sjmH0IkA5dpZBJ8eNPX32saDURtnL7SG7brfeiO6KlJ2W+iPk4spaVDuvqj/FNGgKysOY9yJnI4zX2rQb4G2+xUhatCPt4gdgyr8c55OgCwrz4nR6Z2waycwaVMaJOW9BDIBToPsnnevp++eg2xgdQAM69TH4ClTL9ATFjQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="PSK" WrapKeyLabel="Pub_WK_DC_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>I1TrLUn2qPQpVc2Rlfygk6HtOUzNb4+YVI+n0q/TSf7/eUPnjqM2/1zxRPWI3gfoagTxYACO3ZGdCDKxY2ABx86F7i7TePtS6ngu6L02V+V3yMK5pYlMR1W+KK/ImAyrjGhII1F6P3MgYfhZxU69vjJq+kwp60/wTa2a9d5+5LtOnHm/LsWTC9JRITeA4yxrCFG93Q8swHVwzu7ePk/Ifp0GAfV2ENAjRzHXGP1/8ZzhfSR/UmwzRhFPZFZIk4IF2tkoP448WZPUArYb7xsv8mDb4NpQQgUpqNCBxFP3Liwe+5BrDdW6fQqnDzTEQPEEb5r6Cpp4EBUecck7/IiDvw==</CipherValue>
+        </CipherData>
+      </Key>
+    </Device>
+    <Device>
+      <SerialNumber>5207309</SerialNumber>
+      <UniqueIdentifier>5207309</UniqueIdentifier>
+      <MAC_Address>00237EFD7898</MAC_Address>
+      <Firmware name="Firmware">V10.02/STPO01</Firmware>
+      <Attribute name="CertificationYear">2016</Attribute>
+      <Attribute name="YearOfConstruction">2016</Attribute>
+      <Attribute name="FirmwareCertificate">V10.02/STPO01</Attribute>
+      <Key name="MK_SM" WrapKeyLabel="Pub_KEK_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>Oav7ghhbqWfOgz0IoHZr4kPHJJRGGcbPuBM4blIWv/t+L3YYGdsEOqWbr5bn/gTIthcGPj913OIxnayRAMWIMpz7C8eTPWGkwOV5bdVDP2GudMp1c1W/1w7kVXJTcZeH70QFuX1wuFJcgwoFK7zU8tW4D7dIEz9Ji5zHbWbCOMY4Cf2jjXB226YLzl7ijgi9Vn/9Iv2dBTL3AiKJrJU86bv2XgtOfPa9ZfY4H+LAtQz6SVeLUFAvBRyoRI8c6y3b5BFjewxni9N/4EvW3qfKDcCCdWA27L37yzQh06Kk9rDDa/udzaANkkwckF31GBupXkRx1dYVwFk+wdJ5DNXF4g==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_MC" WrapKeyLabel="Pub_WK_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>LEFa23qKw19+3FPOCWSZvNwxuK6IfuE56k+EVJD8kL94xdzK/dI4UgpLrd/YIUX1pNbz4Vnhki9xaGtgGdCnU/I+k5drL7CIzolZZbjMOrBCXqSfvyp2leLFqABLndB74Cu1yoSQjUF9ig8TIZO2o/d1DnF2+8Sdi7ibISQNWvVAXNhen5C6H4cDdEpsoX3FtUOMPK6jCNygyepc7hYMcMoXSutdRisqZ6DEdLTOaHPQqN2TyC2KmybocxD2Tb9G/+KAxVsuRZhRQ4Td0ORkHCor4XorHgyKrR1j30/8ucRl9GC2u4CwUBIRqL7s4JAWAYkSBkl8ZfT8VRazXujhPQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_MC" WrapKeyLabel="Pub_WK_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>xF5V0X9CjzgDEGVjG7hhBzKPnz1CYfJKuL+pWj3GIqhA42qVuZ05VL+fiq4Wgoo+9uNxHDuIuYwjdNMwQsnysApz/rahcjPq8TBHQ7lTM9gQ3Nn8+vSaVGHCgzIjQ9jn8tviXNiIYmcOeqTh+gb2LUxu2zFJe58dtz7F0WC/CX3uv5GPAmTp7NjtTy1qGk6JOZrp8unUTXFB9Fm1z0VwhSmWrnnrSQDXUtBeAzcliL9DW/0evWn/JAIC7eF0801kX04FKcG6WAGWAZQZc2mQ2UZ9fO1NVhPPVETq+Q1ohCnEU/2mNkT51GP3q/iLtziiqJN3t0MGoP+3FhDlNeU2QA==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_RC" WrapKeyLabel="Pub_WK_DC_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>ZXu40BoHwxgmujW21/pTd6TiT7omo9n6anW3bb8h0shAg/sEvvp4EzEmLXQAFuqsWdUI3FqJf34SH4iFX9CtL0o92hw/IpUJD5vxmUz/2Tv5oIMR1xtJpz8RI/BgQ+ePH7mMAlBc/lPyu8fS3WUKDT9WotaD1zrZ8cPGzusdbwrYd3f3W/Rln0M7L8yH03/YobxnBDI/g0co3ZSJ5t6WYVuGuru2aip5nkx9FzRr3iR5WatN0CvSs+e3fvgjtvnDH8uAdsGMzLIUTbCX6jQNILfGm3wdzjEyOFG8J2d+FTysyzy0jmjig4f+7yXf+W7Qnb/nFUM7Ksvqe01vs6OOEw==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_RC" WrapKeyLabel="Pub_WK_DC_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>bT3s0aNDlJRqY3DWy4ptnlaaezb0Wktmxmf0IgIIqILN8ZXKLs/9qzZ5IvJ1hldtoEIRCsq8k0q3uCJgzY11RljCLdL36EoOepeDdRsjqaVjo4/dw2HR9l159nqLuefsG8rVsE0HSngtuT2f/0BlSUVBSdHQ8gWkDGtGYOQAS/KW+TViEui7EOZq3AC9NfAuJ70b3aLyeVPVb/LnBcAZtbdyVv7H3fTpXxIvti0tJ7lfY5oV8ouy4z3VNbQhJWYtV1ODNRg/V7G9OJPEnl9HTHs9RO8zO9a/Brn7je+7EK5c8sONH35l7RtDzpLzwYdmbWPtPvwrNe2ScpyMKhlGug==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_IC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>e1kKsS7Z6rkR+Afqkxb4MOIlJ/7HVHRmkqEq56SdCdNSoJ5ml8fwMwtJ8moaGw4krVUKhUvEnkMXxHMMnk5sIcKbxMeM7ev3Vcv6xKbkGUBCWMVTNc24VcDzeJENRL4mqt2sQu5pR4zqWzL8UI1n2lyLRV4EHHwV/cfGSECIq+ahiVxAByriD358sQc8M/c4Q4fMpnTiRfu39uYt0ngefbgIa7Ruq3nSzDSwe/9lbxHLVxXOJ8Q5XRMO151FRjflxYnWBpngDWgifNTTBBD9kEQ3vk2VheNKugqHt0UNFz8Yzms7NQD/c/uUtdpoJAGMdy5BZhQT7ninRVBjKRGaBg==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_IC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>Xs9jcVoBlhY0xTw8uc5bF129xaTxnI+QjKVCnNyg1YpHwXf5UdFtgxb+Bse5dJ7qA9rZh/KBKcpkyuPKP3SYcw1dJudagJyOVy+JtNCWZGSqvjmAHhxuOsBtCLAWlAugjOEBh/1xLKb5w2ViGzhtAg0kQ44oHbBve9s2VtBef+hNx7L2k54nTxy26BkjeemFfnxxmAXnLB5N9lj53t9Y140pPIMz4HJ84oZUxCFIOyrIJAqoC1zjeW1g9+kiuqR8/iO+PVYVUcEfSiL4sJBLOanCVtKyUfAc1ExD9QaVuCxYYCHp4VKMa3/vQGvYn3t1oDwB0R1U0hdj8TijOjsAng==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_MA" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>XYFpqdpFHkn0VlQWJvRoa3xvCpJ3SyUYWus2vc2L25boV0QJBNAnzkMETkCprm2pqkKfdkPD01bqWze3MqVUj6Q/qSk43kf2opPLwlgCV2HpXdqJ6nDNh5Wj5HyS90VYVxyKFZpgECs8KZmblHYXNaEMgYkiBdnr7ZnTjKNliHbG2BGkSfphpVW5WYFeQDVsYsF0e5dVGMfkX5Mq7SW3PpSHe2gAnvn91M5lfuYicNprV9hMVDD2qSaP/AQfvWb6t8LGvFceRSok/iSi9ILK7j8ah4kUAD+1fasYcNXjMUQSS6fzCIpzKTqJNhHqRWTK4OILd4C1Az1JxnYRnQE0lw==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_MA" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>lkCvpRfZMAV7W5D0LpAib3Z6r2+ZqXSOfiDpqkgjJtVCtII0/VkiwACKipl07MosEsNlHDHwpqa8i5bWN0ZCLdvtpbtf7huZNffnmnDNiAYW8vzYdWR/YVE9nYpCL0gisoGPswkE8AumFh84R+Ttr+U8mq0+zg28+RPjI/mHTqw3860MWoWU+DEQhzBw0rc1K5an9BPxJ5s6BxKBeSgEfjrtDyM8/5ps+z4clwBwIm2raegLMjiPV9GibbaXXTD3hkN0wMZjuGUcHnaFsAjMxhUR/FstbjxanYihcSDv6r7WFYfz6jhDJ/tCxyX3rB3jZud0KojG91KPH+29FumrBA==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_CC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>Aks+NCUlSSKpI0szK+orAoDEYVm+o2yJwaj2oJ/t8U/bsS+KfK2i6kg7//Nd+aa9426bburEgRSrT7mEhDUmvCKdMmJGQvoMajnSz/6n16UXFdvyQ7WvxrCj/DbIf7w5AaisjJPVxODxfTm4VKMWWG9HcnJ9F/1ETk8uRXwesOnlGQztipLGfn9Wm6bEUQG9BT4MIByqKhRS+cRyYv1bQb8oX7IWTu6bE5N34kLnBNCkE4n10WoLHseFu3ptdyCd1LFqvCFU2gEDeSgODKFvdqbq56UhKqVwtX0jh8jxyva29XIuJF9PGSoDm+nP9G2dqjyHI6c1Ve7bfbILBVr9KQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_CC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>uaAlKOC4y1NL509oZqG6gZejAAkC+wv7FH7iWLLsLSETIIT9mTdBbhrIxo4w9ZX81dCgWGjzejRcx56kV8/Vw1M+0AE3M7AXJNg+u+Xkiu1p/XyKPwVKvvRXz53WoAWK/tDvXElGSIaj9WOIcaFg95pHdhkwyyZJFMJme3k6H+Pz1+Mlo7IYTeRHLr2p3LAHexPbds6jTQsISWaMlBcSF4UVzc7LveZHEvi6q/Ibi4D6VqDVka5yJKlwt1KfkBZ7h81Z9CmquIBwENOj2+XSW/05NR9Byo6/d3Srby339srxB4Xde6QzVUt1d52QS/CqW6GfTwt0k3OMs7shcP448A==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_CI" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>raFmyLn5XGbdbWO9yRTvL1wEAWqL5Hz+gBvGBmgYBAsRBx6gf7Efx4gjcfxCXgA90sXr3WhSe0Wbrj00OhYfQO7WkCLThY48RI2bde18hopXJaNLSZP3Sq47bfib07HkRBKeeNBr2Ufg6TIg/7Fo2wnZ8O/SrLdNq7BwAX17GpfkzmQQSBPTFQQZCv4CkXbuouSojqKgbuGuyuKrxW4qG0bcIw9NIchAJrUhjauip8gxhreLBj1xeNyLtKrPzIIVC69TukVhKetRCxkz2T31BvNJsUoKbIGoYYhHNCVJDmrOp2/Qw0EC5+cU2FuPEkVuVCeXAkkufp0IW4E+asjr6w==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="PSK" WrapKeyLabel="Pub_WK_DC_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>M7PVtD4h3aMepHFY3Rz/+kVYeujmDpYBJI2oHqcwuJB83uFc/ulWdkj9cjmuETrd3jEFmdgSesGAxtNWaX7W/goU+5gpPQ0+F0sR6viV0d3Y0YIDu3QXa8eYVovFjRCgQvMAIC81wkVnaDz6Lhks+312p6tC3EQc1IFpqEJEFNDqi5GWKqA3YEcFoTE0ZqFY63KafWOjunoLXQw+zjSzbFJAUcqYGKAGxyuLOOglORDO577jYYGCNrNxJghO8zAHrvfLmvpz7JV9MkcSTiVhHd0p4WziB/hCDY4vZowG1/Zs+hz4AefpsWe7f8FxSBqL/w/ND6+vDhfuaf2gA3Cnsw==</CipherValue>
+        </CipherData>
+      </Key>
+    </Device>
+    <Device>
+      <SerialNumber>5207309</SerialNumber>
+      <UniqueIdentifier>5207309</UniqueIdentifier>
+      <MAC_Address>00237EFD7898</MAC_Address>
+      <Firmware name="Firmware">V10.02/STPO01</Firmware>
+      <Attribute name="CertificationYear">2016</Attribute>
+      <Attribute name="YearOfConstruction">2016</Attribute>
+      <Attribute name="FirmwareCertificate">V10.02/STPO01</Attribute>
+      <Key name="MK_SM" WrapKeyLabel="Pub_KEK_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>ka7g80DrMgrMcO0z70zFSwAxjZ+i9msxlWkucdQ9BpMRBYbeW+c1laisFr1CTUYMAcsScAU+H13nQWCvCRz7JgwB8rSFwccwx7tRsKB3kubSGVZJHl+R+8V1qBD3XAm2TOR4kkiTGs8h4vod+Hq27iysstpdHGsnQ/gY7tGSt34D7jlPsWztNrf49EPpLvGWEAIwXgIYhY/KN0yr0wksT+K1aKvlvMVs0ortRErteEpGLYQf6gpPXxO1dwWwvz8x4VM6tLsJRlGFClskCL7iwkXdC1750r6p5OcfYfZ5P5dUvoMtJ+chn2WkCyzu51mMranZpTq9hPPswT1sjG47ZQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_MC" WrapKeyLabel="Pub_WK_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>HUw69vM1lZBNijo4BRcO0/4n1aKWfkPHzvudmeWh4Ykr3S3TlJ1fGmVDghdS3BlxtR3wms/U3f352qlBOEFl2Vaj1AaJy5GWq7PEFnpNsFBIO0uYQNBXJycyywOI2EyQ05p32DEFsGlJ2BeFTOiTsYljwawIUgxVuQXl5H6i+IbIZVFF6OQmrRUtKo/RKPKTA0muoMxEmiNFD8KZmUPiBuPTlmsicel1wahawIZ4b+auDxZw08W0cSDjhJcDLLop94AuEcineAoFEndikK8f2IEBNuWu69k0nczryPEQQlHoAIQ/GckUGm5H7boim1u9hYYv5Wys0RPBQO3cNi2qjA==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_MC" WrapKeyLabel="Pub_WK_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>mNxdbhA+EUEUQXvf3VthFdt2BXutqXlvgz2NtOwN8Q2okBi2gopCtStC7HRLZ2g5xJ8bWk0+YtZw+/JbBBBQXpksnj2PFr10j72mFbMMcBcpcI2L8wBHGh4HPGgmtg8yuewU7ocWmkeq6rESUSH1f2KEDRbr25VhRFtVn+8OjeZi5XjViKQC0QdA4zJ/3kWsTj6IlWv9xPDRz1cyHAXKLaGctLqzkanQwAirtnxQmCC8K++2cjU/mWo9yfUxyWzhx4fi3LY2jTxHfUIDwsM3f+eeEAsbf9mhBv2RuLv4hcMFgsT9xl+QBsahfbN5Mrn8xDL9hAJ1joAhMdobtAi20w==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_RC" WrapKeyLabel="Pub_WK_DC_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>NDAFz1Tt/7ah5QkKnjO9EOximxWawTIP+oXpwa6Im6dPKZjtjq5o9V1sw9LsZcjLoc4Hpsytbp4gH8PFJH2ssbc03NrvWf4BPbsAVSA59NZ6sWLpscmFA7phw3hAR+dtjWC8ugNwwBPQw6TsyMA2vIGBCrY9ypt9lJfx7ZRBKCAsgs/2/lL6CrGjMEdEjvliMak9ia/fYHucm9Db6jylfAv/3/gGLjwhM3XkWfeyRpUcHx/v4p0YiWHfSuKXWvh1LCU47c1BrfhwSEAIPxpPOe339+pyYFh49AjTWq+hx+X6TyAKJGA7eP71XDCa48R/wMPqllIm9o2s+TM1ZLBcjw==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_RC" WrapKeyLabel="Pub_WK_DC_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>pHQVnqYATXqAiknDpg/4kg0ukHx4+f5V9I4F+AXDTejPZH9g0LB7KL4c2A6x1UWTmmN6ldE+IXLxlnCYM4qTGS2zoyvv6QauFMWqkyA1eLZXkyqPXcCCIachHT3kUu0mk/SB7ADxi7FvY5ccCa/7ZfU4hhgTTJEqXouVSCsWNth7RuwSWCyELtIAewIQyqeYW9CUXfpPW+dXaynaEJWCcmYnVFKbYVnJH/hPbMrNifo44OGcc0SKP/ORO20bEPZd9NRrISEtaAsW30q9/m07aqizUjPiTJXy6ZtA+POo0yPK5JSRpV6mVfeI4Hnyy+4UuiJA8/8mNvJPylCEfi59Xg==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_IC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>d3KekhekDKGE9y9TYyVyK22ceMVWYa9Tw0hRsxpOAk6hwuozODv+KvTSj6MOF4xdqZ5pNqUqPmwR6LckLi5qis2bajTnFXn7uf6+DGOzY+iBnmrAW/Gp734UcNYHJmi9LANZ9h4nJwRCsqgmweo84WcKSJlxtm5wogbnfb3zY0yjSgQUQzcR4qrM8bTSFhuboFmN1/uNG6RwPvXPzCm/nBbhrPPe7CD4mw/9njs2+qXtKcecAOfYEZgGyfpRJJ47BOZWSzCxrORv0QWYcSWqzapuMk3QBKODWLyedHW99LvLQqpoTXx1Kr0Bsmxkh2qVWEfTyrh54ruF2/SHznuviw==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_IC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>K/0qeGf1ImILeBw5wrwOFh1ud8rz/8zsIATGU2NEsZAuPSDQbmemlQwXobRrpMNmS5mGKcSXZDNgRDqk0dxYbNs+/QKryEk4N9P6FsPa/ynNL5ptMj1vAO3OcSVytsKu1tLUnKxqPFv9Ds9yUnr5CS9R9c8p4UgGZvD28wgw+Pp2sHD6osbsLlbALMR0sb7KqLe+mrkKeWQ/OHCstUAEI+UfhdUvy/uFIksVVBmgOSJNPaHE+ErIw+hhOu+lPREx8PuMwW9bg6AbqPpPe+dEveicHurO/IZRd/a20QWVVOUexomBuuipEKuQ/QyqfDJo8W1Irejx/kwOCMRDy5/uPQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_MA" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>QmeMmOor+F9ryrIJJs2vDt7P026IznRKgd5lwr0FjOOXHgicZGwHGeYeRJeMDmGjEbKxOBamTgjFi3+S05xt51d2fvkTutK9XF/3hB5P3r7gcEkEz285bk937APh2bQonPAmC+SN9D/T0oZwWThDIrlqpYoRfskkEGL87wUTqPHDYL/ieKAx2vZlY+e42CYftUFHChQ8L275qXRxe4aefN9yfKNgWHVDJr5sDEq8MULohhLzWl2EF+FCs1EjndnII0lNBb3M31QckI7/W/UJG9yatAgmCC9/0qyBFWb4gPLwaX7Gi1AqNclXoDHWa5dMtlzzMeK5mG7dq27+mBCC+A==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_MA" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>N+YdeoA6cG/WdZM4r5uItGLzZkvbHRFDpvAA4IvJWWmi1BSsjFJvcj2COfds4AAoNpH90vEz42grdnzYeg4eucmPfvj9G9pBxeOIhEr69b3KMjV1JasaRdDyuTXxAxlRaRJO+OZnas/XOeRQRIfh+pgB0joHdENFgLZwInnqKST0rLCx8zqZZwPmI48te1764qVtJWcEKca8xCN//3/Yyp6L6LB6Tcaos69kx2ccChz3766nyFBviqYuuyz9mck3wuFK9m79xQ3GMYU21SXdE3ItfscMhdkaUrqH+sQustqAjjfWqls1B6Dr4JAV6IGcB6DIFm/NuT06akRfdXqnxw==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_CC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>xDok5g33Sd/5btxzMmTf2YR6E0Txt1gtbJ0x1E4PLs+NEbdyYNwAI1fNs4qcAZjd3zi9NBQC9iLCres5fRTS3yc7r8Fm/gjOUd/uvrv4Jrrznl+8UYpH2TlyYwijEb1pcjw0GB0hp9XsI330HNk5XktjgwBuqUeREh7AAY47a39OsF7fHcgmBwTmztj5wmIBqu/s+RR8eb35pVK94QOaz8KTziUYgit5N9bLfPDcs4ecQjUp67roNNdR9M403QSOLxwmVDYbDivjpP8M7weyrQWQOeXs7vnoWthaDHBtdMeh7X/okkDDAn2UL42/aikNWL/CMsWgUBOvfdAqs6d7wQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_CC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>KDoUG+E3SiGuEjpaF0F1lKKU7NeT93wKHTFMA+7S+PTrEC4Pbc976JgSAiWi7ezIH7bef5sugAGf4k64SL9H8CyCzp+nyfallDfbK4rDFp3INBrAm/dtvPSvci8fePUrmalaB0zVDPLmU+kk4QYDqENVV7ocGSBn4I9nHYHjHjz41ygQpMp1FxKi/p0UPpT095O9g9bYt1BNklKF6oAMs1iW1Rq4XGuIjXdjbE1PlqwCtp2VfCkNmpa3Ysjp56Tlh8qfuEORlzKpk7ezvDdyBwyfzTMDksaPxmSYA4jJ+EM1Yc9EnGKsr7bZM/M5mpsgibrScMLGcGrkSZsTHFl9ag==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_CI" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>QW1TF/v5dGfnXlZjngvRa5azCnmm+4A6mN4PddzmZnqRceLKwXhFBLjM6vCksIIBb5P7YhUUHSTx23YKwd0ul9Afv5PNFOH+0C5T3bR6nDzH8BNYaBkpJqTwQuNFA3A0dHJK3dQwhT7uNSObc6mTPMYwpm//yodffHNJ7WTo5gFde43iZAlA+v3b3lt21f6aJ08YZ2uCMQmZ+CGcHy2/+EpNNWhMwvwY6W9vQk/AllIttE50hPskgPjimIQHh1T0WjLv+S6uEbrYXoGJ6IbQyZ4Q7v07VzZqKRcdaBwWSaWvXVabTrfTYehh8/VhcQ8yPD+uOhT/QBfpuqCYc8iUUw==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="PSK" WrapKeyLabel="Pub_WK_DC_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>lspkE7PoDYHdbygcAtfOM2aAMfnFwvjAOfZPw3/UbldlbPlEP1lvqeXH9Y2gsTOyOrSnFn4FQDXRyuUJSU50PFxOI1Ol7/2qCenygXj+1EZXKwV9eOav6bwutUaZIUOv2t2KbGLcUj4TGaNrpIsSo5KjB+8K4DO8m1xII833Qp44D8zsax9KQVBI8n5LpLhBqHJUnYKYQ6dF5T3aHQpKOsUN6hhhiNQsF1p0B4aS8KdxOcbdkU48O6IVQVzgLhPndC1JqfrBCwW2czmRGiS2vz93fF0QUsXCeg5lwtx3CA4uSRBsPyDhARSisxsRinbTzLT6RpN56MvtijhJgUue0g==</CipherValue>
+        </CipherData>
+      </Key>
+    </Device>
+    <Device>
+      <SerialNumber>5207309</SerialNumber>
+      <UniqueIdentifier>5207309</UniqueIdentifier>
+      <MAC_Address>00237EFD7898</MAC_Address>
+      <Firmware name="Firmware">V10.02/STPO01</Firmware>
+      <Attribute name="CertificationYear">2016</Attribute>
+      <Attribute name="YearOfConstruction">2016</Attribute>
+      <Attribute name="FirmwareCertificate">V10.02/STPO01</Attribute>
+      <Key name="MK_SM" WrapKeyLabel="Pub_KEK_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>d2jquMZR0SxdvIMA6axpchQKvOHUJ6pQzkKzlUByOVxLjVDAsqgFX0z8nFpUztrjWvj+BX2zgXxJOBvoIdjy+YGl+DO8H4fvHZT5wYmxQEH/tIANxavQpZwu3gMAfnyW0Nj5JLS+5H7DnugtjVhSs/yiqynQgf8TrRA50prCI/mpWRQW0Txk6ToIdrvTvdhepdXQMBHMYrYEawfXX13I79Syruh25YEOLGlvhBRSD1q3xBppSLpB+iLrA9zK3fmGU+B8XEA+YxSTCOppXGUuq0CWPru/hu4WllBULEaPLGLIUMop1kUX9gfcaGtNLUAPsnMUxlAsVlANA0TOLlxMzA==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_MC" WrapKeyLabel="Pub_WK_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>ji4ypff4zbElO4Y7HHbFTdJ63+mVRFnX/kOdLdUgz6JTSLWXNA/qwl86ybKJkL5eaja8YWk49ELPt5aTmer7ZC3e0Vs0oN5Alx+T2BYGo6uMHYmvTNNaPeshrgsBqGXkl1EYCxn5v6NArFvX6rwK2mfb/gTaspBvUFGwcMPuuLuYfdKLVsaaI897jZyQ1aE3C+dfjVyohOv4R4pZmFZayobCLZBkzkh6X2Uypy1hFq395REb/j6gAxPanus5dfzW281SIxsNnPbKWyfowbXcmi5Gxn+q2R3+vKfJTHlmti5PtjeczRthsEmhROFOfOZ35J3oQWms765IHewJoikM4A==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_MC" WrapKeyLabel="Pub_WK_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>MvDPgbGwDS1QtPHrEVhOQbU1eKvXqmS2nYOuJ0+N+JmbXl/Ipe/aT5Zs63piBFOFMTflHI5wvpdaNOzbZqCCVfRYROg6kwkRNSpHcksVMq8hF1GMKejSLljuS5ef/jvoxQB0W8a/KPXXNprDafV5cuxC1V5NaSuwqDivawb7G4t3u+3/7uT+Cy6hUFjiwXBpQmO2EngXjEU0NVNn4v3vyR5skaCJu2HtzYW6rbZfsiI6sA1/IhIbwhUdojtfwcRXanNwCDapvPelKCGbXyidVzCI/xUPEDFvlSyE6nqky/cCsuvcb77gs9o+k7IQJB7t8NFtuyjCgmCZ+EFoO1uEig==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_RC" WrapKeyLabel="Pub_WK_DC_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>Yi1kwCds7+h5QMhoKY9O+N9xBqicPKug7rAhbxtmMvLSrs82vs1PghPeXLr1p9iiVzauWHyQ10oM0BRIeFjhvD5/7zUxvBGMhkshWsNhzcWVrdLvHFAYzVW9VDRcFBMiatIU0fg06EKKPX9806iyZDqFi7bUdlNgkkLxJTKd6RmZELUB19ASyPrqypb5k1HQZsieygZwCn0PPkXOGe+wYMZmGsfDicUgB9tzzGH+Ur1IaXJiDBXVrIewmAYBRmqmHfEBQ2iV38dcGTDsl3bkixrYro0BTwosIfNiTQv5Ecoc2oosN5R0fxwgXy1Uixu/IPZP5gwV8OH4GVrZTIX79A==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_RC" WrapKeyLabel="Pub_WK_DC_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>AcD7BzLV1fcO+YHxKiA4+x7WZf84yQ83D2Auq1eZdKoXYJO3aWwomgnCBbmilT2cA5b6jx1PiYM1ESkNVmXFs4ifTaw6OPWVJt89i2wWq+h0PAi2TvAT9zdZDcQQ9bCAjtwWcdTwkwQWFvt3tdYYwQD7k+vVAjqjtzPNBM6Gzdqjdba6YHPXfltYl/SqnFs2NZz+il0EiDmtELLd9HbQvajFRvTZxoMT3f4FsT3wZZyP50vYbmYQTxhbpYSl3edxUDkQYQuR0Ua9TbrgYGCvZ4fDaOhjes93j5rSNGKnflaFTviGveD06TIdXKU1J2O6zyuycwiYUit4uol70/SzkA==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_IC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>NSCjeMDd8B/PoZn8RdEpmi23wA5sDtDf0PYjIKDd8Oq4lY4jDYx135LnzKjTZiIEfr5PMqJ8jolr8hqyLGq7nRHktmBBEr0+/AkY9hJ9CE8Z90g0wBrF/2FRAJW2/wf9dDVInEGct5hV2qUa5YZ5pqwVzf0I8AKbtVM4JWFaczzz4PG3BiLwjOQwITPfxYBfI+xVrFHz6a7F1PuBYkJ5/OD6/MoYgfmdgAe/iviKhbBYVufZBb446wJMadPW0xgHO7PDJ5/AyoYlMRemgCtHLitH//mhpfyupjRk6k0hW/wENWP8+UX07TJk3/nPZUUUKuGHtTM1t9F+FXU2xqojBQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_IC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>abgYPPb3sFb35N98hs/kWjO6G5oG43LhaL/k5ckuFc8T3gNjHJWd5yHuDqSodAQ3uib1E/QOB2BQVydSQbpvaVa9DRDYUX/w0Um8qrsa6v121I8E/BPAQdDrvgdvgLN3sxBczFEt4liBLqfVAcHxT89U0rAIdIkc9ZhZVWeE6jqvTymS43VKkGHyFDbUuSw1SDMByXZsEZH0vJnxqDilKIqhQ/NJas5lyLdjFlApGs+UGSLDW+fkzgsUlDDLrsCGnriVl/m1AU4dbEbhxqXOdZoLuZDZSxpqmdiMFWxtv0BzsCQdnBIurwaqVQs1s/f5MVvPVypvlyoXMcriBxaQXg==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_MA" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>KZRn2zbBKDE9rbo3vShoaEMd9gd/uMYqI+ZgGRXXzSDZgxlsVFPKy9nS3ISZgZteajluMY/iGNcmKs1NwgNAivJlQiPk+yhNrm4XLkXOvLfMGGGATZ7nYcm8TV/0bz6T0DmIPU/9BLCpyS01eF7CReT/ES1QHLjCsbdWdmeJtvqWRom4Fr9HFg8D1fDvkf406xqpPQULmJYQlLCh67l4O6txik2NqpssuZrBf2aC4SLzi/2Lh0aSbyGJ6HR4f+9FCsMXYnITjk8CklztQmrm1UkXaCIXxxwHnlDe+wV59fIrUl+RBggEU99Nn3w90aIb3b6pwPpEVKwA9fl7+TV2Vg==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_MA" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>aJHTxiY4U8xtMOkuR00qeQ7egck1k40/hysLNpwjywdvQNP4X0cTlK2iOFQCTyuJvQnIeimcp2nW9bo5VjJLVxcBh2bcgtTL75YcDy/OVIuL5tA5i2uUMn02iixN/chhebTvLFQ1OjY2hb3sJq3MkCJNp+dVTeejswHy7C+x5iP6ZHKlSorkPPT7fewIkKVwozvm9FxnZoZdOTUVkWWEkNMIc/WwsWgkXpo9zZS2xp+y/rrUO6tl6tVY4Puy5RhuQTDO2DfPeCXQOqK9rbMfoMzN1nZq6ar2AdxjefQubEL+gzQ14GKNJBOI6fAWxOgznpi1k/dg38WazLvojKJtsw==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_CC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>Dd+5tOS0QO5oecbQaxA4HgKFa/JU9qIeIHUXe81eKVNJHT2DPmBYdhU7FWXOOAh1VHYapxaNqMiBkv85S9Jlcb/1a2lbI/VO5QXB7WAWuDObkNzVFbAu20tzYOSRKcBcZByeQpDbiEVvZtVhiW4uMFQltapyFPSrr/l5nW36kTQ+m9559jmf+ixX+BcNuqM9n3vuTbh1bWldPc3M4YW30aqZ1+ex4UI+z85bug1MlaaGMuABVfzw0fDrs03rGSF0GIpktZaDtDN6YsQUcx6V4OVFWuG/2zlU7HS9Xi0M2FmXpjWJFm5M4tGtvOYrlP13SSLD8JyMgIpuWE6YthdxYQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_CC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>VGQmsYDEStnKsVRU3BWMHKBhjWMISMLZ/hnj285h3LlyUVypogjoC751LUDeDyy16OSpzv2GMQYxrWHSlDnYhzYER3qjLZWmd4hBqkw1adml+cBNoChr0bwK4MEftOQWCNADCk1cQswq82qlcHfgEqQAmf+M6jn1CYLIKbsTPPddQLFgJGNSYaqv3z2/+rZVcGMFyuFUP5Yn8/lniExRwoPNdvT3nozuCL44NteGS8vu2WTng22gfJhXaaSNODAurIs8AQl/dSVY/EG6KLgNbHDTWSPRJGxtRrULPOhePUwk1hnOTiQY9OPeFvz8PtblMQjeG5yYduduCip9NV4kgg==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_CI" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>l3EYWQ/xFjmKhdkHLWM21HHo+X+7APub1MrCAc/VOXn+IK8/j3bA2+11nsEGwpVeEnHSqseBTYtViXSp0QIoYDVFu4bnXdJyNuvdhruAlJGCDxJQfPQeuAEY6dTZfUi5Kr+dQzdTFagg/FnQbFzgrZdc8HDFUDv4B7PzseOZQhmzWgaDGcLaA6LIgavyZM3HNI4wHFTg2yAmVDAhSNyOV9EJqoBbHex+ye3J/5PHX9NzM8VuMzM9aiJBTvQoSg1DprAtudZP9muad81kCWunnGowMFjG5rL4gFEv2FmW0Qba+gkzFDUomEJ5fIH+cU4kVBbvTGy0o3z7m8XlG4BtRQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="PSK" WrapKeyLabel="Pub_WK_DC_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>az/IqX5dFah5vcMp098bRpPWlDolw8X9bIXF8eZN9cQlWFv+lXO5w8NKIxmcRnSnQxZ4jObH4vjjMttXYdcRzjX0doekPNQ+0/opoWt57ncqoT/wM9b13i8Li71jRm+ByHWLar7YLdT32pkMTqHdYEu01NH5O8Z0uHl3OQKhusLorf5FPwDN8fdnCN/Ufr76MsGRevI505hqQc5/xFTh3z8yz3GICIuFuF1ZMy6RcwXA+0MsmJnmnYxn3p3Q8gMEo3MNotTcIynW7hYLtPkl2J3T8ntdWJ/D9PfPiDLL7VijIGOuk1W/g1AIvb4P0z3ALYqiJATrswttZ0E5SKADWQ==</CipherValue>
+        </CipherData>
+      </Key>
+    </Device>
+    <Device>
+      <SerialNumber>5207309</SerialNumber>
+      <UniqueIdentifier>5207309</UniqueIdentifier>
+      <MAC_Address>00237EFD7898</MAC_Address>
+      <Firmware name="Firmware">V10.02/STPO01</Firmware>
+      <Attribute name="CertificationYear">2016</Attribute>
+      <Attribute name="YearOfConstruction">2016</Attribute>
+      <Attribute name="FirmwareCertificate">V10.02/STPO01</Attribute>
+      <Key name="MK_SM" WrapKeyLabel="Pub_KEK_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>j+H4zouxELzoc4BxrSxLtuG5dD5YCSe4QM/XoVQVCN99B+yyu9NQkTh70wUf3J/nZ8wyDj0zVaI42iXeJAxTrxaaoEa6YmHVk6YBifjBSCpwwYDRP7/Vjnf/aI5Y3lsnZ1LSSR4820fQbocolcraFfdo7lZj1T4ZpfhqdMwpE8Jt0lOBVKRventigAeTLjPqipJ9bSqI72skD69fl2MMDqd3knnn+szBYQQwBma2m2pjKQWDV1zZsJ39WN7bVYDPz/EOOodyjxxwqbOJAPJHDhM2ZSo+DFRcyPiFANU7AYHpmwx6HgkA0PdeopXRxwKkYGE21fyqLyxYgAypY5qg8Q==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_MC" WrapKeyLabel="Pub_WK_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>CaHw44BslQIqAcAGGSmXWGofhDI3IsAF03MuEw2MjlZ/XwGKKkKyFAEW+HJENcdLXJYc5M/Rh+1/bZX+qp17QU82HQUgaStbLOJbsYGcs4ypsnBM2mbFl08CG4rAZnVCTLnHemyEcxKj/XCDaqs3V0cFh8XNaNho2MwKQhYO4tLAz5mJhlnf0jziJY2NH6h3OV9OxYDVrRb8AfPBQjoJL8Fy2stXlEEYsO/QdkqUwdZlsBhDIyXbHDfLNhpKKnUUuE3R7o64EPRSnJYrQ4D3jl9jan7mNzjXcJMW9Ajm0dxzR0HbytUf+Hhf8Smgs45fAfBBEEPhak7OPKfwNh7Hpg==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_MC" WrapKeyLabel="Pub_WK_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>HlylayKdZcN429MS0FvVzaJJsyCbwNfRnwPvuh4IJyG/6Rr9BSbuCQm3g6+z7O5G8XF2KWj8mPDYBiYHIZtos7oDrpQ2MTYyBz1kRMBIwSWsKIoR4uSWyn+PD5qURMbU0je05zhEs7O64TzJVzvDqkNgjY/t2svTUGlkT+8GgcatSvK4x2ADl/QzgsUNomDH+IwRSFHyMjS58H+Dr7jpqys1CCFUNTwy+Ei3rT1XK0w4+tlDhX6Fg0aQqQMY9EAmjnrxcTCw8/9BUM8MWErUQRvM0/sk7E4S+xv4QyqtB9qH9+b+vY2jBmutrQoWenDX1pyneHCVUQKCvwOFz0qvSw==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_RC" WrapKeyLabel="Pub_WK_DC_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>KfB9x6Yg1i4hHWiMJV+aAMVmmSpM601p9uQdMLYGAKrTYLOLcoQOeZGCQ1L2zgL7ieXnxY0t+/A2yPNzW5coqJblxin2/gibc0W60KM6u6k60PD7v4WuJVQ6lSfXa911DRKI1VXJDXngzLdhUsJq1XTh5ejvrxWdQ9ZQOLq3jGhSd6nzcT1OztPWjkzajPedu70M4yeIrNWHnDTD6zCHoMSgOZa6dWr3dnn2Cixaw4qBeyMO64OvcsEyzOWQn/4uFY6pYneh+LPFNdkIWVSeK9rErKjLbct/nO5zOfr3RszgpoWzxDr4JlAWxVgg8bA9lBEhLY2b9NTKyy0OkAknsg==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_RC" WrapKeyLabel="Pub_WK_DC_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>G02MBxhaCWjE/A5J6BYBUzN7Sv8G/i6hHEHzKo7dPdrEyb39Ibizt46c3F638XQnc+Nvz3atlvOQiBmGnmCa/yVYLYTqW3PK2AKQIqphL1ajnBDa5Im9Y/HBYszGr3B+BxocFermzlYBwZDFNITCOPOQJD8DPecjjxXIlfMrU07b/A36a5ZAYx+eYbmRqiowiiurpECy4wCsUYDTQkLZAB+qkRdFZ2C99UG0ctB5yWDXmg2WX+8RR70qBJCobF7jtrQAkpb/eVZOg+TRnrr2Dl7F/INbX5ZGXaTcGiUV1PfOBA80m4iMjYT6LYsIsd2K6dvjotlCrxCSglR0DRUbEg==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_IC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>LGmX8Y4pjCVfcnoJxcWEsLmXPOt5QBUpiWih/3SgxTIRLmJQgDYvLeLlzW+slUnC9ZPsDSNTghk09ZFWVgf+V74V52Q7E3+jT6Hfbz+gMKa+8ezt+NMlT52xHQiTDTaNb2+oT8dSESqnmU6J+Tmj8Up3S6Oh8sU5QskwG7hCLEy7pSNYKTnn6yKlBsXTU/ilIlaS44Hdhpcxm/ijwVjJfa1cdOxeRQyqFJOC2axOQPHmf+RrkAP09SxxCh5Y8CH7Jkgg/HnRgAPbCz6K+BGh0xrRhhlbt7b8Wu8cU8UnLIsrJX9AlcatPa+7h2YT2rWLoOM37gCH6pxmOkLg3213Ug==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_IC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>aVx0Kk90LiQXrhEsqA3aiNmWbR3+wCI7NbprXmMz6bzIBGFD1qIi0xzlLQhZ9KHcmDWXOno/p+SDgnsuTdohMRxA9SBjWoLy5jK73Ox9v7CniWWfhu6hDI0UWzMCLvBd5yIHEluzj4VokAH3pXtFpIcfUVsa8MHf00MXiNTWKpKpVQAIN8l8VW6X1CyPCZ2lTwFWCt34IOPrGRMmKjM0qaKfilMV/8WH5bpZzzI2Kc6iyrw2hVj2zjAUU74ZE/NciVc2wAsRNMrOpP5P8TQuoeLkjb2lHRRC+1sTyw6XaboFUIfLBU74XXc+jfFv6soeoD9qRuoh2/Qg12iiUWZwYQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_MA" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>RH+mCfO972PDsvPBO5EhXXoR14iT1Qzx6bevLBhkm/Wb2OFQ5tW65HmKTkuduUTn7qYCKhRpSMrbzqX4FsK7aXtyucibzkpt6tERoJF83RBjiQHmROFK7bfsquJ2ggkej893B50nekx+A0yT0ZqyAMILUkw8yULYOiwu04GQvChi8GuKooItvPuqDQQlutTsnNvr1PrTTyMJmQDfBhUaFLqNR4Tf7KlGAqCuDZNtbmw2yEg4OkxcL+A5KeBmR8Y8tAzNrGHwRlloQloGSBFakaGEQBvg1eB3uzWSwTz4na3aaSNZg3ZweptpVNTf7Rwt/TzIlaCMJ4fCcgGzyHtEkw==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_MA" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>An2PtT+Y6Zi0Hg2L3GDgXvmWQCp1iax4mIX1iUVfBNEUp4FqJqbzm40aFCJcHAg8tkL+TfLZYMMWw8OjnqmfiCFc8qvCYmAgJ2uSgAI1K3qqkFpP9E3gNXWI1dlVO27hNKk94ZqhOUXqbRtpqlW5GTRvdCugZXXOu9XxPWpRmb9YvO50+a2h2DBX0O8lWeY/AYe+lTE8sKaSADae1JzNVtLz1Q4MQx5jF/6y+7RicrznPGxqWm1agudCHpzFMZCcaemJuzLvDSJtd27Gpv35HVdpBYX/7tBApiUXPnevF+Rb2rFu7Ka0EYaRnb6MfzmKba85ZqyFrOZUG/Zy/yM7fw==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_CC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>PGqvVqGN/FC33yHS6EK5x9F5lAQ9LwtE7YAKW/ts8wygd2P13qDR1t+PZ2fOkSF56Dtk7qZUvnKWshVAoln3jDsWS3GuYMtLTPx99+akmDRse7zu72hpTUwI1m9eYhzIawmkqdoQzOaEqjtK2vLARG6ISQpzFvHf8IEETLDJD+I70c9/GH+h1JQeT29b6YyhiyzNAZd9mM99EKqEW2hSNhB595yjTdu5HCJAgEVWWYXRrq1KjebHc3D+XBXN3YEovcbCagGFvnx9x651ig+wKG15JH3VpeG17TBiJSM+uGPH8b5eV4HMvVHIGb8mOTj+wI29gvtPD5KoUM7einzRhA==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GAK_SM_CC" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>lxKcxadM844/OgY/lNMm1vJajmucZFDchDKwXD6dBsCZmpb1crksFvb5DnIhS+5H9ALhhONPO0mE2WKGZ+0Ijo59ZbenwSJzt3et0KpUNtyEF3slH0KTtGrsPFL8TmT6b1KT6aNNVeaKWRrNV+vh40AvC3+MG/WJXgw/0jkYJ7mNM4g9/GrVlaPHewp0MWCbL6JJRRMzVamEzaSmO9xLSxVySnf1OP85IFiFQNqiFppgkBTcbiUu1Rq58leG05HVlwUvsx7HfJLG5m4idR99lKQPOEBS2m3PW/xxqlfHSOGvgR7v5plVrRH9555soGgq8KyOsFFquyA3ub2hwkPJqg==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="GUEK_SM_CI" WrapKeyLabel="Pub_WK_SM_EX">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>GLOAqV2qznGYQfPUqkcmxzvutrlo2byuDWDDLWCfpr39VQ/i7k8MxpiD6hqqa2CjAX5/A2uoG/6tDMzcvdEb5juoPssu0KGF2m4qcoGCiiSX0QoNUzvrQGNw21y5KG6jsuQesP1OKE0mqUmnX2FsJzU6LBVIKdDPfJ+P15xsL0qX11EKiZBCoJT9EalUkc9qEBD1L9Wqrzd7spU/oT2uN7jNrwYh8elarP1wKqkpa+bhKam13uhjjk945XISyJkV50SHofn4hvH5gF6rZjBYomcCuKRDPI4J+oZACYoaPFYU65i5TP8/Y+IP09Wl3IroVI1eZReU9DdN4R0giLBQzQ==</CipherValue>
+        </CipherData>
+      </Key>
+      <Key name="PSK" WrapKeyLabel="Pub_WK_DC_SM">
+        <CipherData xmlns="http://www.w3.org/2001/04/xmlenc#">
+          <CipherValue>lb0AIQxNNqp3/y83VlvvyoinjnDRJRyjK+y59tYYLMan7okOXJf6baDUcAfU0mu7cwrXMOqCoKL2WESdzW+IFA2B2LDTjKgzgcMHMyiKxC3b37YLz+/MPGFz6kgoFL9i9wVa9NSFIisZMT8lsVdfH8oKyBQ5zVteF6MPKg9A/d7++PVeJDVZ93nCIJHFRfKnFO9VwRmFiCcOvZBvh2ZT7i6pEaCGwTezCa1wNhVFJ2/7FJ/DmFOfN8n+ajxUrHhxmSg/38c9sw235EWqmGG/8FJQ2SjAlwbsbU0nE8KSu1vfXjKDka2F7ACPvDtjIQvDnzt6CTEQ80S8QjXxWifauA==</CipherValue>
+        </CipherData>
+      </Key>
+    </Device>
+  </Body>
+  <Signature>
+    <SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+      <CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+      <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
+      <Reference URI="">
+        <Transforms>
+          <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+          <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+        </Transforms>
+        <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+        <DigestValue>3PIuw1St8Dh4KusMQGGfH+gqn+icBquq3I+cx2JTo4E=</DigestValue>
+      </Reference>
+    </SignedInfo>
+    <SignatureValue xmlns="http://www.w3.org/2000/09/xmldsig#">jmwFptRQ8luV9mQZ5R2/kYmjFzJ0HkqEGBVSphcdWF579oHdYCyKiTqOrYCGCdvO+HDcl3/HYzjRr/zB9W+zP7xToTC5AJSKBxOhiYmnI8i9ycXBMKkgMf0MNILlK9MNzyGxFbrVoTEAJjBc/S5avepuU5x06CAYED2EZUU3mkg=</SignatureValue>
+  </Signature>
+</Shipment>
