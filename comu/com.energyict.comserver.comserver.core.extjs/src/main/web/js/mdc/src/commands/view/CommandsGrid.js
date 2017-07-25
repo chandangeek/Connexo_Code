@@ -106,7 +106,7 @@ Ext.define('Mdc.commands.view.CommandsGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 dock: 'bottom',
-                defaultPageSize: 100,
+                defaultPageSize: 50,
                 itemsPerPageMsg: Uni.I18n.translate('commands.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Commands per page')
             }
         ];
