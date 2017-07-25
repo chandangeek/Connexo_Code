@@ -3,8 +3,10 @@ package com.energyict.mdc.device.data.importers.impl.devices.shipment.secure;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.TrustStore;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.Shipment;
+import com.energyict.mdc.upl.nls.MessageSeed;
 
 import org.w3._2000._09.xmldsig_.X509DataType;
 import org.xml.sax.SAXException;
@@ -19,6 +21,9 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -30,10 +35,12 @@ import java.util.logging.Logger;
  */
 public class SecureDeviceShipmentImporter implements FileImporter {
     private final Thesaurus thesaurus;
+    private final TrustStore trustStore;
     private CertificateFactory certificateFactory;
 
-    public SecureDeviceShipmentImporter(Thesaurus thesaurus) {
+    public SecureDeviceShipmentImporter(Thesaurus thesaurus, TrustStore trustStore) {
         this.thesaurus = thesaurus;
+        this.trustStore = trustStore;
     }
 
 
@@ -41,10 +48,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
     public void process(FileImportOccurrence fileImportOccurrence) {
         Logger logger = fileImportOccurrence.getLogger();
         try {
-            Shipment shipment = getShipmentFileFomQueueMessage(fileImportOccurrence);
-            certificateFactory = CertificateFactory.getInstance("X.509");
-            verifySignature(shipment, logger);
-
+            doProcess(fileImportOccurrence, logger);
         } catch (JAXBException e) {
             Throwable toLog = (e.getLinkedException() != null) ? e.getLinkedException() : e;
             String message = toLog.getLocalizedMessage();
@@ -60,8 +64,40 @@ public class SecureDeviceShipmentImporter implements FileImporter {
             throw new RuntimeException(thesaurus.getFormat(MessageSeeds.SECURE_DEVICE_IMPORT_FAILED).format());
         } catch (CertificateException e) {
             log(logger, MessageSeeds.FAILED_TO_CREATE_CERTIFICATE_FACTORY);
-            throw new RuntimeException(thesaurus.getFormat(MessageSeeds.FAILED_TO_CREATE_CERTIFICATE_FACTORY)
-                    .format(e.getMessage()));
+            throw new RuntimeException(thesaurus.getFormat(MessageSeeds.FAILED_TO_CREATE_CERTIFICATE_FACTORY).format(e.getMessage()));
+        } catch (CertPathValidatorException e) {
+            log(logger, MessageSeeds.SHIPMENT_CERTIFICATE_UNTRUSTED, e.getMessage());
+            throw new RuntimeException(thesaurus.getFormat(MessageSeeds.SHIPMENT_CERTIFICATE_UNTRUSTED).format(e.getMessage()));
+        } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException e) {
+            log(logger, MessageSeeds.FAILED_TO_VERIFY_CERTIFICATE);
+            throw new RuntimeException(thesaurus.getFormat(MessageSeeds.NO_CERTIFICATE_FOUND_IN_SHIPMENT).format());
+        }
+    }
+
+    private void doProcess(FileImportOccurrence fileImportOccurrence, Logger logger) throws
+            JAXBException,
+            CertificateException,
+            InvalidAlgorithmParameterException,
+            NoSuchAlgorithmException,
+            CertPathValidatorException
+    {
+        Shipment shipment = getShipmentFileFomQueueMessage(fileImportOccurrence);
+        certificateFactory = CertificateFactory.getInstance("X.509");
+        Optional<X509Certificate> certificate = findCertificate(shipment, logger);
+        verifyCertificate(logger, certificate);
+        verifySignature(shipment, logger);
+    }
+
+    private void verifyCertificate(Logger logger, Optional<X509Certificate> certificate) throws
+            InvalidAlgorithmParameterException,
+            NoSuchAlgorithmException,
+            CertificateException,
+            CertPathValidatorException {
+        if (certificate.isPresent()) {
+            trustStore.validate(certificate.get());
+        } else {
+            log(logger, MessageSeeds.NO_CERTIFICATE_FOUND_IN_SHIPMENT);
+            throw new RuntimeException(thesaurus.getFormat(MessageSeeds.NO_CERTIFICATE_FOUND_IN_SHIPMENT).format());
         }
     }
 
@@ -71,7 +107,6 @@ public class SecureDeviceShipmentImporter implements FileImporter {
 
     private void verifySignature(Shipment shipment, Logger logger) throws CertificateException {
         if (shipment.getSignature().getKeyInfo() != null) {
-            Optional<X509Certificate> certificate = findCertificate(shipment, logger);
             System.out.println("test");
 //            if(certificate != null) {
 //                List<X509Certificate> trustCertificates = getTrustCertificates();

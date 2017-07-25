@@ -78,7 +78,9 @@ public enum MessageSeeds implements MessageSeed {
     SECURE_DEVICE_IMPORT_FAILED(511, "SecureImportFailed", "Secure device importer failed", Level.SEVERE),
     FAILED_TO_CREATE_CERTIFICATE_FACTORY(512, "FailedToCreateCertificateFactory", "Failed to create the certificate factory: {0}", Level.SEVERE),
     NO_CERTIFICATE_FOUND_IN_SHIPMENT(513, "NoCertificateFoundInShipment", "Shipment file does not seem to contain certificate used to validate signature", Level.SEVERE),
-    FAILED_TO_CREATE_CERTIFICATE(514, "FailedToCreateCertificate", "Failed to extract certificate from shipment file: {0}", Level.SEVERE);
+    FAILED_TO_CREATE_CERTIFICATE(514, "FailedToCreateCertificate", "Failed to extract certificate from shipment file: {0}", Level.SEVERE),
+    SHIPMENT_CERTIFICATE_UNTRUSTED(515, "ShipmentCertificateUntrusted", "The certificate in the shipment file could not be trusted: {0}", Level.SEVERE),
+    FAILED_TO_VERIFY_CERTIFICATE(516, "FailedToValidateCertificate", "Failed to validate certificate", Level.SEVERE);
 
     private final int number;
     private final String key;

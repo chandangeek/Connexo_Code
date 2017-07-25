@@ -41,7 +41,8 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
 
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
-        return new SecureDeviceShipmentImporter(thesaurus);
+        TrustStore trustStore = (TrustStore) properties.get(SecureDeviceShipmentImporterProperty.TRUSTSTORE.getPropertyKey());
+        return new SecureDeviceShipmentImporter(thesaurus, trustStore);
     }
 
     @Override

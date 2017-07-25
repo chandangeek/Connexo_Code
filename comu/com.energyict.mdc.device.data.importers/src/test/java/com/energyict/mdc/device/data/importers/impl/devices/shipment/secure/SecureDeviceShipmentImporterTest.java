@@ -4,6 +4,7 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 
@@ -28,6 +29,8 @@ public class SecureDeviceShipmentImporterTest {
     Thesaurus thesaurus;
     @Mock
     FileImportOccurrence fileImportOccurrence;
+    @Mock
+    TrustStore trustStore;
 
     @Before
     public void setUp() throws Exception {
@@ -39,14 +42,14 @@ public class SecureDeviceShipmentImporterTest {
 
     @Test
     public void importBeaconShipmentFile() throws Exception {
-        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus);
+        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore);
         when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("shipment-file-beacon.xml"));
         secureDeviceShipmentImporter.process(fileImportOccurrence);
     }
 
     @Test
     public void importShipmentFileMeters() throws Exception {
-        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus);
+        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore);
         when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("Shipment file example - meters.xml"));
         secureDeviceShipmentImporter.process(fileImportOccurrence);
     }
