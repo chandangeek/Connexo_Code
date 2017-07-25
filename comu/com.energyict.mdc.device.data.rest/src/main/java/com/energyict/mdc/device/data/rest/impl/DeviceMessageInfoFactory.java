@@ -175,7 +175,11 @@ public class DeviceMessageInfoFactory {
                 info.willBePickedUpByComTask = this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
             }
         }
+        ComTask comTaskForDeviceMessage = deviceMessageService.getPreferredComTask(device, deviceMessage);
 
+        if (comTaskForDeviceMessage!=null) {
+            info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
+        }
         info.properties = new ArrayList<>();
 
         TypedProperties typedProperties = TypedProperties.empty();
