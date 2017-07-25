@@ -8,7 +8,6 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
@@ -53,16 +52,14 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
     private final ThreadPrincipalService threadPrincipalService;
     private final MeteringGroupsService meteringGroupsService;
     private final Clock clock;
-    private final Thesaurus thesaurus;
 
     @Inject
-    DeviceMessageServiceImpl(DeviceDataModelService deviceDataModelService, ThreadPrincipalService threadPrincipalService, MeteringGroupsService meteringGroupsService, Clock clock, Thesaurus thesaurus) {
+    DeviceMessageServiceImpl(DeviceDataModelService deviceDataModelService, ThreadPrincipalService threadPrincipalService, MeteringGroupsService meteringGroupsService, Clock clock) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.threadPrincipalService = threadPrincipalService;
         this.meteringGroupsService = meteringGroupsService;
         this.clock = clock;
-        this.thesaurus = thesaurus;
     }
 
     @Override
