@@ -65,7 +65,6 @@ public class DeviceMessageSearchResource {
         List<DeviceMessage> deviceMessages = deviceMessageService.findDeviceMessagesByFilter(deviceMessageQueryFilter)
                 .from(queryParameters)
                 .stream()
-                .sorted(Comparator.comparing(DeviceMessage::getReleaseDate).reversed())
                 .collect(toList());
 
         return PagedInfoList.fromPagedList("deviceMessages", deviceMessageInfoFactory.asInfo(deviceMessages, uriInfo), queryParameters);
