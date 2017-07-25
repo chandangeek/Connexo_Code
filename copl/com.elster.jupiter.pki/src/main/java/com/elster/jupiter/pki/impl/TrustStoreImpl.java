@@ -183,7 +183,7 @@ public class TrustStoreImpl implements TrustStore {
     @Override
     public void validate(X509Certificate certificate) throws
             InvalidAlgorithmParameterException,
-            NoSuchAlgorithmException, CertificateException {
+            NoSuchAlgorithmException, CertificateException, CertPathValidatorException {
         Set<TrustAnchor> trustAnchors = trustedCertificates.stream()
                 .filter(cert -> cert.getCertificate().isPresent())
                 .map(cert -> cert.getCertificate().get())
@@ -205,11 +205,7 @@ public class TrustStoreImpl implements TrustStore {
         CertPath path = certFactory.generateCertPath(Collections.singletonList(certificate));
 
         CertPathValidator validator = CertPathValidator.getInstance("PKIX");    //PKIX algorithm validates CertPath objects of type X.509
-        try {
-            CertPathValidatorResult validate = validator.validate(path, pkixParameters);
-        } catch (CertPathValidatorException e) {
-            throw new UntrustedCertificateException();
-        }
+        CertPathValidatorResult validate = validator.validate(path, pkixParameters);
 
     }
 

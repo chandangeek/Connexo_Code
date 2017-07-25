@@ -11,6 +11,7 @@ import com.elster.jupiter.util.HasName;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -90,5 +91,5 @@ public interface TrustStore extends HasId, HasName {
      */
     void validate(X509Certificate certificate) throws
             InvalidAlgorithmParameterException,
-            NoSuchAlgorithmException, CertificateException;
+            NoSuchAlgorithmException, CertificateException, CertPathValidatorException;
 }
