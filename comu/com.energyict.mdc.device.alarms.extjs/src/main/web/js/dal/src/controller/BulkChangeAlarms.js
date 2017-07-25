@@ -674,11 +674,11 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
             case 'setpriority':
                 record.set('priority', formPanel.down("#num-urgency").getValue() + ":" + formPanel.down("#num-impact").getValue());
                 if (record.get('allAlarms')) {
-                    message = Uni.I18n.translatePlural('alarms.selectedAlarms.setPriority.withCount', record.get('alarms').length, 'DAL', '', '<h3>Set priority for one alarm?</h3><br>', '<h3>Set priority for {0} alarms?</h3><br>')
-                        + Uni.I18n.translate('alarms.selectedAlarms.setPriority','DAL', 'The priority of all the alarms will be set to {0}', [formPanel.down("#priority-label").text]);
+                    message = Uni.I18n.translate('alarms.allAlarms.setPriority.title', 'DAL', '<h3>Set priority for all alarms?</h3><br>')
+                        + Uni.I18n.translate('alarms.allAlarms.setPriority', 'DAL', 'All alarms will have the priority set to "',[formPanel.down("#priority-label").text]);
                 }else {
-                    message = Uni.I18n.translatePlural('alarms.selectedAlarms.setPriority.withCount', record.get('alarms').length, 'DAL','', '<h3>Set priority for one alarm?</h3><br>', '<h3>Set priority for {0} alarms?</h3><br>')
-                        + Uni.I18n.translate('alarms.allAlarms.setPriority','DAL', 'The priority of the selected alarm(s) will be set to {0}', [formPanel.down("#priority-label").text]);
+                    message = Uni.I18n.translatePlural('alarms.selectedAlarms.setPriority.withCount', record.get('alarms').length, 'DAL', '-', '<h3>Set priority for one alarm?</h3><br>', '<h3>Set priority for {0} alarms?</h3><br>')
+                        + Uni.I18n.translate('alarms.selectedAlarms.setPriority','DAL', 'The priority of the selected alarm(s) will be set to {0}', [formPanel.down("#priority-label").text]);
                 }
 
         }
