@@ -58,7 +58,7 @@ public class DeviceMessageInfoFactory {
         Device device = (Device) deviceMessage.getDevice();
         DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo, device);
         info.userCanAdministrate = deviceMessageService.canUserAdministrateDeviceMessage(device.getDeviceConfiguration(), deviceMessage.getDeviceMessageId());
-        if (info.willBePickedUpByPlannedComTask==null) {
+        if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
             info.willBePickedUpByComTask = this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
         }
 
@@ -130,7 +130,7 @@ public class DeviceMessageInfoFactory {
             DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo, device);
             info.userCanAdministrate = getUserCanAdministrateFromCache(userCanAdministrateCache, deviceMessage, device);
             if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
-                info.willBePickedUpByComTask = getWillBePickedUpByComTaskCache(willBePickedUpByComTaskCache, deviceMessage, device);
+                info.willBePickedUpByComTask = getWillBePickedUpByComTaskFromCache(willBePickedUpByComTaskCache, deviceMessage, device);
             }
             infos.add(info);
         }
@@ -145,7 +145,7 @@ public class DeviceMessageInfoFactory {
         return deviceMessageCache.computeIfAbsent(deviceMessageId,
                 deviceMessageIdx -> deviceMessageService.canUserAdministrateDeviceMessage(deviceConfiguration, deviceMessageId));
     }
-    private Boolean getWillBePickedUpByComTaskCache(Map<Long, Map<Integer, Boolean>> willBePickedUpByComTaskCache, DeviceMessage deviceMessage, Device device) {
+    private Boolean getWillBePickedUpByComTaskFromCache(Map<Long, Map<Integer, Boolean>> willBePickedUpByComTaskCache, DeviceMessage deviceMessage, Device device) {
         Map<Integer, Boolean> deviceMessageCache = willBePickedUpByComTaskCache.computeIfAbsent(device.getDeviceConfiguration()
                 .getId(), x -> new HashMap<>());
         return deviceMessageCache.computeIfAbsent(deviceMessage.getSpecification().getCategory().getId(),
