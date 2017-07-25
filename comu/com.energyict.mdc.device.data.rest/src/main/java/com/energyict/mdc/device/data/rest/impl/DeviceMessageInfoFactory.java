@@ -54,6 +54,14 @@ public class DeviceMessageInfoFactory {
     }
 
     public DeviceMessageInfo asInfo(DeviceMessage deviceMessage, UriInfo uriInfo) {
+        Device device = (Device) deviceMessage.getDevice();
+        DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo, device);
+        info.userCanAdministrate = deviceMessageService.canUserAdministrateDeviceMessage(device.getDeviceConfiguration(), deviceMessage.getDeviceMessageId());
+
+        return info;
+    }
+
+    private DeviceMessageInfo getBaseInfo(DeviceMessage deviceMessage, UriInfo uriInfo, Device device) {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
         info.trackingIdAndName = new IdWithNameInfo(deviceMessage.getTrackingId(), "");
@@ -80,8 +88,6 @@ public class DeviceMessageInfoFactory {
         info.user = deviceMessage.getUser();
         info.errorMessage = deviceMessage.getProtocolInfo();
 
-        Device device = (Device) deviceMessage.getDevice();
-        info.userCanAdministrate = deviceMessageService.canUserAdministrateDeviceMessage(device.getDeviceConfiguration(), deviceMessage.getDeviceMessageId());
         if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus())) {
             info.willBePickedUpByPlannedComTask = this.deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
             if (info.willBePickedUpByPlannedComTask) {
@@ -139,61 +145,9 @@ public class DeviceMessageInfoFactory {
     }
 
     private DeviceMessageInfo asCachedInfo(DeviceMessage deviceMessage, UriInfo uriInfo, Boolean userCanAdministrate) {
-        DeviceMessageInfo info = new DeviceMessageInfo();
-        info.id = deviceMessage.getId();
-        info.trackingIdAndName = new IdWithNameInfo(deviceMessage.getTrackingId(), "");
-        if (deviceMessage.getTrackingCategory() != null) {
-            info.trackingCategory = new DeviceMessageInfo.TrackingCategoryInfo();
-            info.trackingCategory.id = deviceMessage.getTrackingCategory().getKey();
-            info.trackingCategory.name = thesaurus.getFormat(deviceMessage.getTrackingCategory()).format();
-            info.trackingCategory.activeLink = isActive(deviceMessage.getTrackingId(), deviceMessage.getTrackingCategory(), info);
-        }
-        info.deviceConfiguration = new IdWithNameInfo(((Device)deviceMessage.getDevice()).getDeviceConfiguration());
-        info.deviceType = new IdWithNameInfo(((Device)deviceMessage.getDevice()).getDeviceType());
-
-        info.messageSpecification = new DeviceMessageSpecInfo();
-        info.messageSpecification.id = deviceMessage.getSpecification().getId().name();
-        info.messageSpecification.name = deviceMessage.getSpecification().getName();
-
-        info.category = deviceMessage.getSpecification().getCategory().getName();
-        info.status = new DeviceMessageInfo.StatusInfo();
-        info.status.value = MESSAGE_STATUS_ADAPTER.marshal(deviceMessage.getStatus());
-        info.status.displayValue = DeviceMessageStatusTranslationKeys.translationFor(deviceMessage.getStatus(), thesaurus);
-        info.creationDate = deviceMessage.getCreationDate();
-        info.releaseDate = deviceMessage.getReleaseDate();
-        info.sentDate = deviceMessage.getSentDate().orElse(null);
-        info.user = deviceMessage.getUser();
-        info.errorMessage = deviceMessage.getProtocolInfo();
-
         Device device = (Device) deviceMessage.getDevice();
+        DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo, device);
         info.userCanAdministrate = userCanAdministrate;
-        if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus())) {
-            info.willBePickedUpByPlannedComTask = this.deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
-            if (info.willBePickedUpByPlannedComTask) {
-                info.willBePickedUpByComTask = true; // shortcut
-            } else {
-                info.willBePickedUpByComTask = this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
-            }
-        }
-        ComTask comTaskForDeviceMessage = deviceMessageService.getPreferredComTask(device, deviceMessage);
-
-        if (comTaskForDeviceMessage!=null) {
-            info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
-        }
-        info.properties = new ArrayList<>();
-
-        TypedProperties typedProperties = TypedProperties.empty();
-        deviceMessage.getAttributes().stream().forEach(attribute->typedProperties.setProperty(attribute.getName(), attribute.getValue()));
-        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo,
-                deviceMessage.getAttributes().stream()
-                        .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
-                        .map(DeviceMessageAttribute::getSpecification).collect(toList()),
-                typedProperties,
-                info.properties
-        );
-
-        info.version = deviceMessage.getVersion();
-        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return info;
     }
 
