@@ -178,7 +178,7 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
         }
         Condition condition = allFilterConditions.stream().reduce(Condition.TRUE, Condition::and);
         return DefaultFinder.of(DeviceMessage.class, condition, this.deviceDataModelService.dataModel())
-                .defaultSortColumn(DeviceMessageImpl.Fields.RELEASEDATE.fieldName());
+                .defaultSortColumn(DeviceMessageImpl.Fields.RELEASEDATE.fieldName(), false);
     }
 
     private List<Condition> getReleaseDateConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {
