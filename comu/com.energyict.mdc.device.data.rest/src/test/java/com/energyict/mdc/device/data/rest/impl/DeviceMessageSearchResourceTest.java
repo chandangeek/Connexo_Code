@@ -11,11 +11,9 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.meterdata.Device;
 
 import com.jayway.jsonpath.JsonModel;
 
-import javax.xml.ws.Response;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.Arrays;
@@ -24,7 +22,6 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.mockito.ArgumentCaptor;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
@@ -32,6 +29,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -90,6 +88,42 @@ public class DeviceMessageSearchResourceTest extends DeviceDataRestApplicationJe
         assertThat(jsonModel.<String>get("$.deviceMessages[0].deviceConfiguration.name")).isEqualTo("config");
         assertThat(jsonModel.<Integer>get("$.deviceMessages[0].deviceType.id")).isEqualTo(200);
         assertThat(jsonModel.<String>get("$.deviceMessages[0].deviceType.name")).isEqualTo("type");
+    }
+    @Test
+    public void searchDeviceMessagesCached() throws Exception {
+        DeviceMessage deviceMessage1 = mockDeviceMessage(1L, 100L, 200L, DeviceMessageId.ACTIVATE_CALENDAR_PASSIVE);
+        DeviceMessage deviceMessage2 = mockDeviceMessage(2L, 100L, 200L, DeviceMessageId.ACTIVATE_CALENDAR_PASSIVE);
+
+        Finder<DeviceMessage> finder = mockFinder(Arrays.asList(deviceMessage1, deviceMessage2));
+        when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
+        javax.ws.rs.core.Response response = target("/devicemessages").request().get();
+
+        verify(deviceMessageService, times(1)).canUserAdministrateDeviceMessage(any(DeviceConfiguration.class), any(DeviceMessageId.class));
+    }
+
+    private DeviceMessage mockDeviceMessage(long id, long deviceConfigId, long deviceTypeId, DeviceMessageId deviceMessageId) {
+        DeviceMessage deviceMessage1 = mock(DeviceMessage.class);
+        when(deviceMessage1.getId()).thenReturn(id);
+        com.energyict.mdc.device.data.Device device = mock(com.energyict.mdc.device.data.Device.class);
+        DeviceConfiguration configuration = mock(DeviceConfiguration.class);
+        when(configuration.getId()).thenReturn(deviceConfigId);
+        when(configuration.getName()).thenReturn("config");
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getId()).thenReturn(deviceTypeId);
+        when(deviceType.getName()).thenReturn("type");
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceConfiguration()).thenReturn(configuration);
+        when(deviceMessage1.getDevice()).thenReturn(device);
+        DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
+        when(deviceMessageSpec.getId()).thenReturn(deviceMessageId);
+        when(deviceMessageSpec.getName()).thenReturn("calendar");
+        DeviceMessageCategory category = mock(DeviceMessageCategory.class);
+        when(deviceMessageSpec.getCategory()).thenReturn(category);
+        when(deviceMessage1.getSpecification()).thenReturn(deviceMessageSpec);
+        when(deviceMessage1.getStatus()).thenReturn(DeviceMessageStatus.FAILED);
+        when(deviceMessage1.getSentDate()).thenReturn(Optional.empty());
+        when(deviceMessage1.getReleaseDate()).thenReturn(Instant.now());
+        return deviceMessage1;
     }
 
     @Test

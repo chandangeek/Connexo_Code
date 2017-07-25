@@ -10,6 +10,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -24,7 +25,11 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
@@ -91,6 +96,86 @@ public class DeviceMessageInfoFactory {
         if (comTaskForDeviceMessage!=null) {
             info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
         }
+        info.properties = new ArrayList<>();
+
+        TypedProperties typedProperties = TypedProperties.empty();
+        deviceMessage.getAttributes().stream().forEach(attribute->typedProperties.setProperty(attribute.getName(), attribute.getValue()));
+        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo,
+                deviceMessage.getAttributes().stream()
+                        .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
+                        .map(DeviceMessageAttribute::getSpecification).collect(toList()),
+                typedProperties,
+                info.properties
+        );
+
+        info.version = deviceMessage.getVersion();
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
+        return info;
+    }
+
+    public List<DeviceMessageInfo> asInfo(Collection<DeviceMessage> deviceMessages, UriInfo uriInfo) {
+        final Map<Long, Map<DeviceMessageId, Boolean>> userCanAdministrateCache = new HashMap<>();
+        final List<DeviceMessageInfo> infos = new ArrayList<>();
+        for (DeviceMessage deviceMessage : deviceMessages) {
+            Boolean userCanAdministrate = getUserCanAdministrateFromCache(userCanAdministrateCache, deviceMessage);
+
+            infos.add(asCachedInfo(deviceMessage, uriInfo, userCanAdministrate));
+        }
+        return infos;
+    }
+
+    /**
+     * The value for 'userCanAdministrate' is cached for performance reasons, cfr https://jira.eict.vpdc/browse/CXO-7605
+     * @param userCanAdministrateCache
+     * @param deviceMessage
+     * @return
+     */
+    private Boolean getUserCanAdministrateFromCache(Map<Long, Map<DeviceMessageId, Boolean>> userCanAdministrateCache, DeviceMessage deviceMessage) {
+        Device device = (Device) deviceMessage.getDevice();
+        Map<DeviceMessageId, Boolean> deviceMessageCache = userCanAdministrateCache.computeIfAbsent(device.getDeviceConfiguration()
+                .getId(), x -> new HashMap<>());
+        return deviceMessageCache.computeIfAbsent(deviceMessage.getDeviceMessageId(),
+                deviceMessageId -> deviceMessageService.canUserAdministrateDeviceMessage(device.getDeviceConfiguration(), deviceMessage.getDeviceMessageId()));
+    }
+
+    private DeviceMessageInfo asCachedInfo(DeviceMessage deviceMessage, UriInfo uriInfo, Boolean userCanAdministrate) {
+        DeviceMessageInfo info = new DeviceMessageInfo();
+        info.id = deviceMessage.getId();
+        info.trackingIdAndName = new IdWithNameInfo(deviceMessage.getTrackingId(), "");
+        if (deviceMessage.getTrackingCategory() != null) {
+            info.trackingCategory = new DeviceMessageInfo.TrackingCategoryInfo();
+            info.trackingCategory.id = deviceMessage.getTrackingCategory().getKey();
+            info.trackingCategory.name = thesaurus.getFormat(deviceMessage.getTrackingCategory()).format();
+            info.trackingCategory.activeLink = isActive(deviceMessage.getTrackingId(), deviceMessage.getTrackingCategory(), info);
+        }
+        info.deviceConfiguration = new IdWithNameInfo(((Device)deviceMessage.getDevice()).getDeviceConfiguration());
+        info.deviceType = new IdWithNameInfo(((Device)deviceMessage.getDevice()).getDeviceType());
+
+        info.messageSpecification = new DeviceMessageSpecInfo();
+        info.messageSpecification.id = deviceMessage.getSpecification().getId().name();
+        info.messageSpecification.name = deviceMessage.getSpecification().getName();
+
+        info.category = deviceMessage.getSpecification().getCategory().getName();
+        info.status = new DeviceMessageInfo.StatusInfo();
+        info.status.value = MESSAGE_STATUS_ADAPTER.marshal(deviceMessage.getStatus());
+        info.status.displayValue = DeviceMessageStatusTranslationKeys.translationFor(deviceMessage.getStatus(), thesaurus);
+        info.creationDate = deviceMessage.getCreationDate();
+        info.releaseDate = deviceMessage.getReleaseDate();
+        info.sentDate = deviceMessage.getSentDate().orElse(null);
+        info.user = deviceMessage.getUser();
+        info.errorMessage = deviceMessage.getProtocolInfo();
+
+        Device device = (Device) deviceMessage.getDevice();
+        info.userCanAdministrate = userCanAdministrate;
+        if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus())) {
+            info.willBePickedUpByPlannedComTask = this.deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
+            if (info.willBePickedUpByPlannedComTask) {
+                info.willBePickedUpByComTask = true; // shortcut
+            } else {
+                info.willBePickedUpByComTask = this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
+            }
+        }
+
         info.properties = new ArrayList<>();
 
         TypedProperties typedProperties = TypedProperties.empty();

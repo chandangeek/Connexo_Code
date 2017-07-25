@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * Resource to search for devices with a filter
  */
@@ -60,14 +62,13 @@ public class DeviceMessageSearchResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getDeviceMessages(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter, @Context UriInfo uriInfo) {
         DeviceMessageQueryFilterImpl deviceMessageQueryFilter = getDomainFilterFromExtjsQueryParams(jsonQueryFilter);
-        List<DeviceMessageInfo> deviceMessageInfos = deviceMessageService.findDeviceMessagesByFilter(deviceMessageQueryFilter)
+        List<DeviceMessage> deviceMessages = deviceMessageService.findDeviceMessagesByFilter(deviceMessageQueryFilter)
                 .from(queryParameters)
                 .stream()
                 .sorted(Comparator.comparing(DeviceMessage::getReleaseDate).reversed())
-                .map(dm -> deviceMessageInfoFactory.asInfo(dm, uriInfo))
-                .collect(Collectors.toList());
+                .collect(toList());
 
-        return PagedInfoList.fromPagedList("deviceMessages", deviceMessageInfos, queryParameters);
+        return PagedInfoList.fromPagedList("deviceMessages", deviceMessageInfoFactory.asInfo(deviceMessages, uriInfo), queryParameters);
     }
 
     private DeviceMessageQueryFilterImpl getDomainFilterFromExtjsQueryParams(@BeanParam JsonQueryFilter jsonQueryFilter) {
@@ -77,7 +78,7 @@ public class DeviceMessageSearchResource {
             List<EndDeviceGroup> endDeviceGroups = deviceGroupIds.stream()
                     .map(id -> meteringGroupService.findEndDeviceGroup(id)
                             .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_GROUP, id)))
-                    .collect(Collectors.toList());
+                    .collect(toList());
             deviceMessageQueryFilter.setDeviceGroups(endDeviceGroups);
         }
         List<Integer> messageCategories = jsonQueryFilter.getIntegerList("messageCategories");
@@ -85,21 +86,21 @@ public class DeviceMessageSearchResource {
             List<DeviceMessageCategory> deviceMessageCategories = messageCategories.stream()
                     .map(id -> deviceMessageSpecificationService.findCategoryById(id)
                             .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE_CATEGORY, id)))
-                    .collect(Collectors.toList());
+                    .collect(toList());
             deviceMessageQueryFilter.setMessageCategories(deviceMessageCategories);
         }
         List<String> deviceMessages = jsonQueryFilter.getStringList("deviceMessageIds");
         if (!deviceMessages.isEmpty()) {
             List<DeviceMessageId> deviceMessageIds = deviceMessages.stream()
                     .map(this::getDeviceMessageId)
-                    .collect(Collectors.toList());
+                    .collect(toList());
             deviceMessageQueryFilter.setDeviceMessages(deviceMessageIds);
         }
         List<String> statuses = jsonQueryFilter.getStringList("statuses");
         if (!statuses.isEmpty()) {
             List<DeviceMessageStatus> deviceMessageStatuses = statuses.stream()
                     .map(this::getDeviceMessageStatus)
-                    .collect(Collectors.toList());
+                    .collect(toList());
             deviceMessageQueryFilter.setDeviceMessagesStatuses(deviceMessageStatuses);
         }
         deviceMessageQueryFilter.setReleaseDateStart(jsonQueryFilter.getInstant("releaseDateStart"));
