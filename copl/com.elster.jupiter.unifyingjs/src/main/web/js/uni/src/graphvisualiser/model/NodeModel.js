@@ -9,7 +9,7 @@ Ext.define('Uni.graphvisualiser.model.NodeModel', {
         'serialNumber',
         'alarms',
         'issues',
-        'gateWay',
+        'gateway',
         'failedComTasks'
     ]
 });

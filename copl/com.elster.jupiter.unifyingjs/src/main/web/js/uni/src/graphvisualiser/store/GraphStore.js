@@ -45,7 +45,7 @@ Ext.define('Uni.graphvisualiser.store.GraphStore', {
                 //{id: 26,type: 'device',name: 'device-26'},
                 //{id: 27,type: 'device',name: 'device-27'},
                 //{id: 28,type: 'device',name: 'device-28'}
-                {id:'1', name:'device-1', serialNumber:'SN001',deviceType:'Actaris SL7000',deviceConfiguration:'Config 1',alarms: 0, gateWay:true},
+                {id:'1', name:'device-1', serialNumber:'SN001',deviceType:'Actaris SL7000',deviceConfiguration:'Config 1',alarms: 0, gateway:true},
                 {id:'2', name:'device-2', serialNumber:'SN002',deviceType:'Elster A1800',deviceConfiguration:'Default',alarms: 0, issues: 0},
                 {id:'3', name:'de<vi>ce-3', serialNumber:'SN003',deviceType:'Elster<AS1440>',deviceConfiguration:'Default',alarms: 0, issues: 2},
                 {id:'4', name:'device-4', serialNumber:'SN004',deviceType:'Elster AS1440',deviceConfiguration:'Default',alarms: 0, issues: 0},
