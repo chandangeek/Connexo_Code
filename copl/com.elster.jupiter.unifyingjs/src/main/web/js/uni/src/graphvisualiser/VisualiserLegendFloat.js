@@ -48,7 +48,7 @@ Ext.define('Uni.graphvisualiser.VisualiserLegendFloat', {
         'background-color': 'white'
     },
     layout: {
-        type: 'vbox'
+        type: 'fit'
     },
     items: [
         {

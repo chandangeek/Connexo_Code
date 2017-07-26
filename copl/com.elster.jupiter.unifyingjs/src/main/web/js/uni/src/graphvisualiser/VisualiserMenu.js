@@ -25,13 +25,13 @@ Ext.define('Uni.graphvisualiser.VisualiserMenu', {
                         if (this.value) {
                             var visualiser = Ext.ComponentQuery.query('visualiserpanel')[0];
                             visualiser.setSelection(this.value);
-                            visualiser.highlightUpStreamFromNode(this.value);
+                            visualiser.highlightUpStreamFromNode(this.value+'');
                         }
                     },
                     select: function (combo, records) {
                         var visualiser = Ext.ComponentQuery.query('visualiserpanel')[0];
                         visualiser.setSelection(records[0].get('id'));
-                        visualiser.highlightUpStreamFromNode(records[0].get('id'));
+                        visualiser.highlightUpStreamFromNode(records[0].get('id')+'');
                     }
                 }
             },
