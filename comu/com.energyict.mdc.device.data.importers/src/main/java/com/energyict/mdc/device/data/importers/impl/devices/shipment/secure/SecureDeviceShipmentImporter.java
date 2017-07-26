@@ -98,7 +98,10 @@ public class SecureDeviceShipmentImporter implements FileImporter {
         }
     }
 
-    private Provider<InputStream> saveAsInputStream(FileImportOccurrence fileImportOccurrence) throws IOException {
+    /**
+     * We'll need to read the input stream more than once.
+     */
+    private Provider<InputStream> asReusableInputStream(FileImportOccurrence fileImportOccurrence) throws IOException {
         InputStream inputStream = fileImportOccurrence.getContents();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(100);
         ByteStreams.copy(inputStream, byteArrayOutputStream);
@@ -112,7 +115,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
             InvalidAlgorithmParameterException,
             NoSuchAlgorithmException,
             CertPathValidatorException, IOException {
-        Provider<InputStream> inputStreamProvider = saveAsInputStream(fileImportOccurrence);
+        Provider<InputStream> inputStreamProvider = asReusableInputStream(fileImportOccurrence);
         Shipment shipment = getShipmentFileFomQueueMessage(inputStreamProvider.get());
         certificateFactory = CertificateFactory.getInstance("X.509");
         Optional<X509Certificate> certificate = findCertificate(shipment, logger);
@@ -150,13 +153,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
 
     private void verifySignature(InputStream inputStream, PublicKey publicKey, Logger logger) throws CertificateException {
         try {
-            DOMValidateContext valContext = new DOMValidateContext(new KeySelector() {
-                @Override
-                public KeySelectorResult select(KeyInfo keyInfo, Purpose purpose, AlgorithmMethod method, XMLCryptoContext context) throws
-                        KeySelectorException {
-                    return () -> publicKey;
-                }
-            }, getSignatureNode(inputStream));
+            DOMValidateContext valContext = new DOMValidateContext(publicKey, getSignatureNode(inputStream));
 
             XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
             XMLSignature signature = fac.unmarshalXMLSignature(valContext);
