@@ -75,12 +75,17 @@ public enum MessageSeeds implements MessageSeed {
     SCHEMA_FAILED(508, "SchemaFailedException", "XSD schema for secure device import could not be read.", Level.SEVERE),
     VALIDATION_OF_FILE_FAILED(509, "XmlValidationfailed", "Validation failed, please check your file for invalid content.", Level.SEVERE),
     VALIDATION_OF_FILE_FAILED_WITH_DETAIL(510, "XmlValidationFailedDetailed", "Validation failed: \"{0}\"", Level.SEVERE),
-    SECURE_DEVICE_IMPORT_FAILED(511, "SecureImportFailed", "Secure device importer failed", Level.SEVERE),
+    SECURE_DEVICE_IMPORT_FAILED(511, "SecureImportFailed", "Secure device importer failed: {0}", Level.SEVERE),
     FAILED_TO_CREATE_CERTIFICATE_FACTORY(512, "FailedToCreateCertificateFactory", "Failed to create the certificate factory: {0}", Level.SEVERE),
     NO_CERTIFICATE_FOUND_IN_SHIPMENT(513, "NoCertificateFoundInShipment", "Shipment file does not seem to contain certificate used to validate signature", Level.SEVERE),
     FAILED_TO_CREATE_CERTIFICATE(514, "FailedToCreateCertificate", "Failed to extract certificate from shipment file: {0}", Level.SEVERE),
     SHIPMENT_CERTIFICATE_UNTRUSTED(515, "ShipmentCertificateUntrusted", "The certificate in the shipment file could not be trusted: {0}", Level.SEVERE),
-    FAILED_TO_VERIFY_CERTIFICATE(516, "FailedToValidateCertificate", "Failed to validate certificate", Level.SEVERE);
+    FAILED_TO_VERIFY_CERTIFICATE(516, "FailedToValidateCertificate", "Failed to validate certificate", Level.SEVERE),
+    FAILED_TO_CREATE_PUBLIC_KEY(517, "FailedToExtractPublicKeyFromShipment", "Failed to extract the public key from the shipment file", Level.SEVERE),
+    INVALID_SIGNATURE(518, "InvalidSignatureOnShipment", "The signature on the shipment file is not valid", Level.SEVERE),
+    SIGNATURE_VALIDATION_FAILED(519, "FailedToValidateSignatureOnShipment", "The signature on the shipment file could not be validated: {0}", Level.SEVERE),
+    SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY(520, "ShipmentSignatureValid", "Signature of the shipment file verified successfully", Level.INFO),
+    NO_PUBLIC_KEY_FOUND_FOR_SIGNATURE_VALIDATION(521, "NoKeyInShipment", "The signature on the shipment file could not be validated: public key could not be found in the shipment file", Level.SEVERE);
 
     private final int number;
     private final String key;

@@ -10,6 +10,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.text.MessageFormat;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,12 +39,13 @@ public class SecureDeviceShipmentImporterTest {
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((com.elster.jupiter.util.exception.MessageSeed) invocation.getArguments()[0]));
         when(thesaurus.getSimpleFormat(any(MessageSeed.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((com.elster.jupiter.util.exception.MessageSeed) invocation.getArguments()[0]));
+        when(fileImportOccurrence.getLogger()).thenReturn(Logger.getLogger("tests"));
     }
 
     @Test
     public void importBeaconShipmentFile() throws Exception {
         SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore);
-        when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("shipment-file-beacon.xml"));
+        when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("example-shipment-file-v1.5.xml"));
         secureDeviceShipmentImporter.process(fileImportOccurrence);
     }
 
