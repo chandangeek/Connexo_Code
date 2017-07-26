@@ -9,7 +9,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
     contextMenuItems: [
         {
             xtype: 'menuitem',
-            text: 'Navigate to device landing page',
+            text: Uni.I18n.translate('general.navigateTo.deviceLandingPage', 'MDC', 'Navigate to device landing page'),
             section: 3, /*SECTION_VIEW*/
             handler: function(menuItem) {
                 menuItem.visualiser.router.getRoute('devices/device').forwardInNewTab({
@@ -19,10 +19,20 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         },
         {
             xtype: 'menuitem',
-            text: 'Navigate to communication topology',
+            text: Uni.I18n.translate('general.navigateTo.communicationTopology', 'MDC', 'Navigate to communication topology'),
             section: 3, /*SECTION_VIEW*/
             handler: function(menuItem) {
                 menuItem.visualiser.router.getRoute('devices/device/topology').forwardInNewTab({
+                    deviceId: menuItem.visualiser.chart.getItem(menuItem.graphId).d.name
+                });
+            }
+        },
+        {
+            xtype: 'menuitem',
+            text: Uni.I18n.translate('general.sendCommands', 'MDC', 'Send commands'),
+            section: 1, /*SECTION_ACTION*/
+            handler: function(menuItem) {
+                menuItem.visualiser.router.getRoute('devices/device/commands').forwardInNewTab({
                     deviceId: menuItem.visualiser.chart.getItem(menuItem.graphId).d.name
                 });
             }
