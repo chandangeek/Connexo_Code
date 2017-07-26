@@ -181,6 +181,11 @@
             <artifactId>mdc.protocol.pluggable</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.groups</artifactId>
+            <scope>test</scope>
+        </dependency>
 
 
         <dependency>
