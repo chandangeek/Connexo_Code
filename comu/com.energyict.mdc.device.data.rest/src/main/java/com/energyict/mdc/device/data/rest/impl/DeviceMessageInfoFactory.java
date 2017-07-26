@@ -54,15 +54,35 @@ public class DeviceMessageInfoFactory {
         this.deviceMessageService = deviceMessageService;
     }
 
-    public DeviceMessageInfo asInfo(DeviceMessage deviceMessage, UriInfo uriInfo) {
+    public DeviceMessageInfo asFullInfo(DeviceMessage deviceMessage, UriInfo uriInfo) {
         Device device = (Device) deviceMessage.getDevice();
         DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo, device);
+        ComTask comTaskForDeviceMessage = deviceMessageService.getPreferredComTask(device, deviceMessage);
+        if (comTaskForDeviceMessage!=null) {
+            info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
+        }
         info.userCanAdministrate = deviceMessageService.canUserAdministrateDeviceMessage(device.getDeviceConfiguration(), deviceMessage.getDeviceMessageId());
         if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
             info.willBePickedUpByComTask = this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
         }
 
         return info;
+    }
+
+    public List<DeviceMessageInfo> asFasterInfo(Collection<DeviceMessage> deviceMessages, UriInfo uriInfo) {
+        final Map<Long, Map<DeviceMessageId, Boolean>> userCanAdministrateCache = new HashMap<>();
+        final Map<Long, Map<Integer, Boolean>> willBePickedUpByComTaskCache = new HashMap<>();
+        final List<DeviceMessageInfo> infos = new ArrayList<>();
+        for (DeviceMessage deviceMessage : deviceMessages) {
+            Device device = (Device) deviceMessage.getDevice();
+            DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo, device);
+            info.userCanAdministrate = getUserCanAdministrateFromCache(userCanAdministrateCache, deviceMessage, device);
+            if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
+                info.willBePickedUpByComTask = getWillBePickedUpByComTaskFromCache(willBePickedUpByComTaskCache, deviceMessage, device);
+            }
+            infos.add(info);
+        }
+        return infos;
     }
 
     private DeviceMessageInfo getBaseInfo(DeviceMessage deviceMessage, UriInfo uriInfo, Device device) {
@@ -99,11 +119,6 @@ public class DeviceMessageInfoFactory {
             }
         }
 
-        ComTask comTaskForDeviceMessage = deviceMessageService.getPreferredComTask(device, deviceMessage);
-
-        if (comTaskForDeviceMessage!=null) {
-            info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
-        }
         info.properties = new ArrayList<>();
 
         TypedProperties typedProperties = TypedProperties.empty();
@@ -119,22 +134,6 @@ public class DeviceMessageInfoFactory {
         info.version = deviceMessage.getVersion();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return info;
-    }
-
-    public List<DeviceMessageInfo> asInfo(Collection<DeviceMessage> deviceMessages, UriInfo uriInfo) {
-        final Map<Long, Map<DeviceMessageId, Boolean>> userCanAdministrateCache = new HashMap<>();
-        final Map<Long, Map<Integer, Boolean>> willBePickedUpByComTaskCache = new HashMap<>();
-        final List<DeviceMessageInfo> infos = new ArrayList<>();
-        for (DeviceMessage deviceMessage : deviceMessages) {
-            Device device = (Device) deviceMessage.getDevice();
-            DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo, device);
-            info.userCanAdministrate = getUserCanAdministrateFromCache(userCanAdministrateCache, deviceMessage, device);
-            if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
-                info.willBePickedUpByComTask = getWillBePickedUpByComTaskFromCache(willBePickedUpByComTaskCache, deviceMessage, device);
-            }
-            infos.add(info);
-        }
-        return infos;
     }
 
     private Boolean getUserCanAdministrateFromCache(Map<Long, Map<DeviceMessageId, Boolean>> userCanAdministrateCache, DeviceMessage deviceMessage, Device device) {

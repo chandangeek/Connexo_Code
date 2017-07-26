@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -29,10 +30,8 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -67,7 +66,18 @@ public class DeviceMessageSearchResource {
                 .stream()
                 .collect(toList());
 
-        return PagedInfoList.fromPagedList("deviceMessages", deviceMessageInfoFactory.asInfo(deviceMessages, uriInfo), queryParameters);
+        return PagedInfoList.fromPagedList("deviceMessages", deviceMessageInfoFactory.asFasterInfo(deviceMessages, uriInfo), queryParameters);
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    @Path("/{id}")
+    public DeviceMessageInfo getDeviceMessage(@PathParam("id") long id, @Context UriInfo uriInfo) {
+        DeviceMessage deviceMessage = deviceMessageService.findDeviceMessageById(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_MESSAGE_WITH_ID, id));
+
+        return deviceMessageInfoFactory.asFullInfo(deviceMessage, uriInfo);
     }
 
     private DeviceMessageQueryFilterImpl getDomainFilterFromExtjsQueryParams(@BeanParam JsonQueryFilter jsonQueryFilter) {
