@@ -33,6 +33,7 @@ import javax.xml.crypto.dsig.dom.DOMValidateContext;
 import javax.xml.crypto.dsig.keyinfo.KeyInfo;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.URIResolver;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
@@ -153,11 +154,11 @@ public class SecureDeviceShipmentImporter implements FileImporter {
 
     private void verifySignature(InputStream inputStream, PublicKey publicKey, Logger logger) throws CertificateException {
         try {
-            DOMValidateContext valContext = new DOMValidateContext(publicKey, getSignatureNode(inputStream));
+            DOMValidateContext validateContext = new DOMValidateContext(publicKey, getSignatureNode(inputStream));
 
             XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
-            XMLSignature signature = fac.unmarshalXMLSignature(valContext);
-            if(!signature.validate(valContext)) {
+            XMLSignature signature = fac.unmarshalXMLSignature(validateContext);
+            if(!signature.validate(validateContext)) {
                 log(logger, MessageSeeds.INVALID_SIGNATURE);
                 throw new RuntimeException(thesaurus.getFormat(MessageSeeds.INVALID_SIGNATURE).format());
             } else {
