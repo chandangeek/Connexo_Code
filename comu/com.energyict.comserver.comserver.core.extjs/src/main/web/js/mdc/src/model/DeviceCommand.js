@@ -38,10 +38,13 @@ Ext.define('Mdc.model.DeviceCommand', {
         type: 'rest',
         pageParam: false,
         timeout: 60000,
+        urlTpl: '/api/ddr/devicemessages',
         reader: {
-            type: 'json',
-            root: 'deviceMessages',
-            totalProperty: 'total'
+            type: 'json'
+        },
+
+        setUrl: function (deviceId) {
+            this.url = this.urlTpl.replace('{deviceId}', deviceId);
         }
     }
 });

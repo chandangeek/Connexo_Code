@@ -163,9 +163,26 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     actionTriggerCommand: function (menu) {
         var me = this,
             record = menu.record,
-            comTaskId = record.get('preferredComTask').id;
+            comTaskId = Ext.isEmpty(record.get('preferredComTask')) ? undefined : record.get('preferredComTask').id;
 
-        me.showTriggerConfirmation(menu.deviceId, comTaskId, menu.device);
+        if (Ext.isEmpty(comTaskId)) { // True when the "Trigger now" action is triggered from the overview page containing ALL commands
+                                      // False when the "Trigger now" action is triggered from the commands page of ONE device
+            var viewport = Ext.ComponentQuery.query('viewport')[0],
+                deviceMessageModel = me.getModel('Mdc.model.DeviceCommand');
+            viewport.setLoading();
+            deviceMessageModel.getProxy().setUrl(menu.deviceId);
+            deviceMessageModel.load(record.get('id'), {
+                success: function(deviceMessage) {
+                    comTaskId = deviceMessage.get('preferredComTask').id;
+                    me.showTriggerConfirmation(menu.deviceId, comTaskId, menu.device);
+                },
+                callback: function () {
+                    viewport.setLoading(false);
+                }
+            });
+        } else {
+            me.showTriggerConfirmation(menu.deviceId, comTaskId, menu.device);
+        }
     },
 
     showTriggerConfirmation: function (deviceId, comTaskId, device) {
