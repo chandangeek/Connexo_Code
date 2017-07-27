@@ -233,6 +233,15 @@ Ext.define('Uni.controller.Error', {
                 code = 'CFT-1000'; // known code - to be extracted to a reference file
                 me.showError(title, message, code);
                 break;
+            case 550: // MAC error
+                if (decoded && decoded.message && decoded.errorCode) {
+                    me.showError(
+                        Uni.I18n.translate('error.requestFailedConnexoKnownError', 'UNI', 'Couldn\'t perform your action'),
+                        decoded.message,
+                        decoded.errorCode
+                    );
+                }
+                break;
             case 404: // Not found.
                 title = Uni.I18n.translate(
                     'error.requestFailed',
