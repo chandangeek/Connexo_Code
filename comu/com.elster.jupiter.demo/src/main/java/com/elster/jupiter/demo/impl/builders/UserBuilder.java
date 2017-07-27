@@ -89,9 +89,9 @@ public class UserBuilder extends NamedBuilder<User, UserBuilder> {
 
     @Override
     public User create() {
-        Log.write(this);
         User user = userService.findUser(getName()).orElse(null);
         if (user == null){
+            Log.write(this);
             user = userService.createUser(getName(), description);
         }
         user.setPassword(this.password);
