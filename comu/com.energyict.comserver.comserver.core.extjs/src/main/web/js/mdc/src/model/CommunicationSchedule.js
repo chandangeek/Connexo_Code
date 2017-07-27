@@ -11,7 +11,7 @@ Ext.define('Mdc.model.CommunicationSchedule',{
           {name: 'temporalExpression'},
           {name: 'plannedDate', dateFormat: 'time', type: 'date'},
           {name: 'isInUse',type: 'boolean'},
-          {name: 'startDate'},
+          {name: 'startDate', type: 'int'},
           {name: 'comTaskUsages'}
       ],
     associations: [

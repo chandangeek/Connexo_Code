@@ -6,9 +6,6 @@ Ext.define('Mdc.view.setup.comtasks.AddCommandCategoriesGrid', {
     extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.addCommandCategoriesGrid',
     checkAllButtonPresent: true,
-    //plugins: {
-    //    ptype: 'bufferedrenderer'
-    //},
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural('general.nrOfCommandCategories.selected', count, 'MDC',
@@ -19,7 +16,7 @@ Ext.define('Mdc.view.setup.comtasks.AddCommandCategoriesGrid', {
 
     columns: [
         {
-            text: Uni.I18n.translate('commands.category.name', 'MDC', 'Command category'),
+            text: Uni.I18n.translate('general.commandCategory', 'MDC', 'Command category'),
             dataIndex: 'name',
             flex: 1
         }

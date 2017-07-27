@@ -7,6 +7,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.EditWindow', {
     alias: 'widget.devicelogbook-edit-window',
     modal: true,
     closable: false,
+    shrinkWrapDock: true,
     title: Uni.I18n.translate('general.changeNextReadingBlockStart', 'MDC', 'Change next reading block start'),
     logbookRecord: null,
 

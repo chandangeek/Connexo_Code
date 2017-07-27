@@ -1,21 +1,32 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-
-Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
+Ext.define('Mdc.commands.view.CommandsGrid', {
     extend: 'Ext.grid.Panel',
+    alias: 'widget.commands-grid',
+    store: 'Mdc.commands.store.Commands',
     requires: [
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom',
         'Mdc.view.setup.devicecommand.widget.ActionMenu'
     ],
-    alias: 'widget.deviceCommandsGrid',
-    device: null,
+
     initComponent: function () {
         var me = this;
-        me.deviceId = me.device.get('name');
+
         me.columns = [
+            {
+                header: Uni.I18n.translate('general.deviceName', 'MDC', 'Device name'),
+                dataIndex: 'parent',
+                flex: 2,
+                renderer: function (value) {
+                    return Ext.isEmpty(value) ? '-' : '<a href="#/devices/'+value.id+'">' + Ext.String.htmlEncode(value.id);
+                }
+            },
             {
                 header: Uni.I18n.translate('general.commandName', 'MDC', 'Command name'),
                 dataIndex: 'command',
+                flex: 3,
                 renderer: function (val) {
                     var res = val.name;
                     if (val.status === 'WAITING' || val.status === 'PENDING') {
@@ -24,81 +35,70 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                             ? '<span class="icon-target" style="display:inline-block; color:rgba(255, 0, 0, 0.3);"></span><span style="position:relative; left:5px;">' + val.name + '</span>'
                             : val.name;
                     }
-                    return res
-                },
-                flex: 3
+                    return res;
+                }
             },
             {
                 header: Uni.I18n.translate('general.commandCategory', 'MDC', 'Command category'),
                 dataIndex: 'category',
-                renderer: function (val) {
-                    return val ? Ext.String.htmlEncode(val) : '-'
-                },
-                flex: 2
+                flex: 3
             },
             {
                 header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                 dataIndex: 'status',
-                renderer: function (val) {
-                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '-'
-                },
-                flex: 2
+                flex: 1,
+                renderer: function (value) {
+                    return Ext.isEmpty(value) ? '-' : value.displayValue;
+                }
             },
             {
-                text: Uni.I18n.translate('general.releaseDate', 'MDC', 'Release date'),
+                header: Uni.I18n.translate('general.releaseDate', 'MDC', 'Release date'),
                 dataIndex: 'releaseDate',
                 flex: 2,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
+                    return Ext.isEmpty(value) ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
                 }
             },
             {
-                text: Uni.I18n.translate('deviceCommands.view.sentDate', 'MDC', 'Sent date'),
+                header: Uni.I18n.translate('general.sentDate', 'MDC', 'Sent date'),
                 dataIndex: 'sentDate',
                 flex: 2,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
+                    return Ext.isEmpty(value) ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
                 }
             },
             {
-                header: Uni.I18n.translate('deviceCommands.view.cmdCreatedBy', 'MDC', 'Created by'),
+                header: Uni.I18n.translate('general.createdBy', 'MDC', 'Created by'),
                 dataIndex: 'user',
-                renderer: function (val) {
-                    return val ? Ext.String.htmlEncode(val) : '-'
-                },
-                flex: 2
+                flex: 1
             },
-
             {
                 xtype: 'uni-actioncolumn',
                 width: 120,
                 privileges: Mdc.privileges.DeviceCommands.executeCommands,
-                itemId: 'commands-action-column',
                 menu: {
                     xtype: 'device-command-action-menu',
-                    device: me.device,
-                    deviceId: me.device.get('name')
+                    itemId: 'mdc-commands-grid-action-menu'
                 },
-                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges,
                 isDisabled: me.fnIsDisabled
             }
         ];
+
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('deviceCommands.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} commands'),
-                displayMoreMsg: Uni.I18n.translate('deviceCommands.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} commands'),
-                emptyMsg: Uni.I18n.translate('deviceCommands.pagingtoolbartop.emptyMsg', 'MDC', 'There are no commands to display'),
+                displayMsg: Uni.I18n.translate('commands.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} commands'),
+                displayMoreMsg: Uni.I18n.translate('commands.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} commands'),
+                emptyMsg: Uni.I18n.translate('commands.pagingtoolbartop.emptyMsg', 'MDC', 'There are no commands'),
                 items: [
                     {
                         xtype: 'button',
                         privileges: Mdc.privileges.DeviceCommands.executeCommands,
-                        text: Uni.I18n.translate('devicecommands.addCommand','MDC','Add command'),
-                        itemId: 'deviceAddCommandButton',
-                        deviceId: me.deviceId,
-                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges
+                        action: 'bulk',
+                        itemId: 'mdc-commands-grid-add-command-btn',
+                        text: Uni.I18n.translate('general.addCommand', 'MDC', 'Add command')
                     }
                 ]
             },
@@ -106,9 +106,11 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('deviceCommands.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Commands per page')
+                defaultPageSize: 50,
+                itemsPerPageMsg: Uni.I18n.translate('commands.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Commands per page')
             }
         ];
+
         me.on('afterrender', me.addTooltip);
         me.callParent(arguments);
     },
@@ -139,6 +141,5 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
         var status = record.get('status').value;
         return (status !== 'WAITING' && status !== 'PENDING') || !record.get('userCanAdministrate')
     }
-})
-;
 
+});

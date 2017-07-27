@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
     edit: false,
     requires: [
         'Mdc.widget.ScheduleField',
-        'Mdc.widget.DateTimeField',
+        'Uni.form.field.DateTime',
         'Uni.util.FormInfoMessage',
         'Uni.util.FormErrorMessage',
         'Uni.grid.column.RemoveAction'
@@ -183,23 +183,26 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 ]
                             },
                             {
-                                xtype: 'dateTimeField',
+                                xtype: 'date-time',
+                                layout: 'hbox',
+                                valueInMilliseconds: true,
                                 name: 'startDate',
                                 itemId: 'startDate',
                                 required: true,
                                 fieldLabel: Uni.I18n.translate('communicationschedule.startFrom', 'MDC', 'Start from'),
-                                dateCfg: {
+                                dateConfig: {
                                     editable: false,
                                     format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                                 },
-                                hourCfg: {
+                                hoursConfig: {
                                     width: 60
                                 },
-                                minuteCfg: {
+                                minutesConfig: {
                                     width: 60
                                 },
-                                secondCfg: {
-                                    width: 60
+                                dateTimeSeparatorConfig: {
+                                    html: Uni.I18n.translate('general.lowercase.at', 'MDC', 'at'),
+                                    margin: '0 6 0 6'
                                 }
                             },
                             {

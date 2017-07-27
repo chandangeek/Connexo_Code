@@ -6,6 +6,7 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.reading-estimation-window',
     modal: true,
+    shrinkWrapDock: true,
     title: Uni.I18n.translate('general.editWithEstimator', 'MDC', 'Edit with estimator'),
     bothSuspected: false,
     record: null,

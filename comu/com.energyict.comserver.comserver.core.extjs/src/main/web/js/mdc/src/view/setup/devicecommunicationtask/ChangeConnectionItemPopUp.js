@@ -12,6 +12,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
     modal: true,
     floating: true,
     frame: true,
+    shrinkWrapDock: true,
     itemId: 'changeConnectionItemPopUp',
     items: [
         {

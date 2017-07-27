@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.messages.MessagesCategoriesGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('commands.category.name', 'MDC', 'Command category'),
+                header: Uni.I18n.translate('general.commandCategory', 'MDC', 'Command category'),
                 dataIndex: 'name',
                 flex: 1
             },
