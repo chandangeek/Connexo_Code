@@ -87,7 +87,7 @@ public enum AdvancedTestMessage implements DeviceMessageSpecSupplier {
     public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         return new DeviceMessageSpecImpl(
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
-                DeviceMessageCategories.ALARM_CONFIGURATION,
+                DeviceMessageCategories.ADVANCED_TEST,
                 this.getPropertySpecs(propertySpecService),
                 propertySpecService, nlsService, converter);
     }
