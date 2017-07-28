@@ -78,6 +78,13 @@ Ext.define('Isu.view.issues.bulk.Step2', {
                                 listeners: {
                                     afterrender: me.bindHandlerToInfoButton
                                 }
+                            },
+                            {
+                                itemId: 'SetPriority',
+                                boxLabel: Uni.I18n.translate('issue.setPriority','ISU','Set priority'),
+                                name: 'operation',
+                                inputValue: 'setpriority',
+                                privileges: Isu.privileges.Issue.action
                             }
                         ]
                     }
