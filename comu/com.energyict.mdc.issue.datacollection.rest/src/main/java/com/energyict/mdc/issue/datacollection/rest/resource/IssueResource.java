@@ -11,17 +11,14 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
+import com.elster.jupiter.issue.rest.request.SetPriorityIssueRequest;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -45,22 +42,13 @@ import com.energyict.mdc.issue.datacollection.rest.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.rest.i18n.DataCollectionIssueTranslationKeys;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -201,6 +189,22 @@ public class IssueResource extends BaseResource {
         return entity(doBulkClose(request, performer, issueProvider)).build();
     }
 
+    @PUT @Transactional
+    @Path("/setpriority")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
+    public Response setPriority(SetPriorityIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
+        Function<ActionInfo, List<? extends Issue>> alarmProvider;
+        if (request.allIssues) {
+            alarmProvider = bulkResults -> getIssuesForBulk(filter);
+        } else {
+            alarmProvider = bulkResult -> getUserSelectedIssues(request, bulkResult, false);
+        }
+        ActionInfo info = doBulkSetPriority(request, alarmProvider);
+        return Response.ok().entity(info).build();
+    }
+
     private Function<ActionInfo, List<? extends IssueDataCollection>> getIssueProvider(BulkIssueRequest request, JsonQueryFilter filter) {
         Function<ActionInfo, List<? extends IssueDataCollection>> issueProvider;
         if (request.allIssues) {
@@ -336,6 +340,21 @@ public class IssueResource extends BaseResource {
         } else {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
+        return response;
+    }
+
+    private ActionInfo doBulkSetPriority(SetPriorityIssueRequest request, Function<ActionInfo, List<? extends Issue>> issueProvider) {
+        ActionInfo response = new ActionInfo();
+        for (Issue issue : issueProvider.apply(response)) {
+            if (issue.getStatus().isHistorical()) {
+                response.addFail(getThesaurus().getFormat(DataCollectionIssueTranslationKeys.ISSUE_ALREADY_CLOSED).format(), issue.getId(), issue.getTitle());
+            } else {
+                issue.setPriority(Priority.fromStringValue(request.priority));
+                issue.update();
+                response.addSuccess(issue.getId());
+            }
+        }
+
         return response;
     }
 
