@@ -5,6 +5,7 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.AssignSingleIssueRequest;
@@ -12,6 +13,7 @@ import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
+import com.elster.jupiter.issue.rest.request.SetPriorityIssueRequest;
 import com.elster.jupiter.issue.rest.request.SingleIssueRequest;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.IssueRestModuleConst;
@@ -30,6 +32,7 @@ import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueGroup;
@@ -348,6 +351,22 @@ public class IssueResource extends BaseResource {
         return entity(info).build();
     }
 
+    @PUT @Transactional
+    @Path("/setpriority")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
+    public Response setPriority(SetPriorityIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
+        Function<ActionInfo, List<? extends Issue>> issueProvider;
+        if (request.allIssues) {
+            issueProvider = bulkResults -> getIssuesForBulk(filter);
+        } else {
+            issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
+        }
+        ActionInfo info = doBulkSetPriority(request, issueProvider);
+        return Response.ok().entity(info).build();
+    }
+
     private boolean isNumericValue(String id){
         try {
             long number = Long.parseLong(id);
@@ -424,4 +443,21 @@ public class IssueResource extends BaseResource {
         finder.sorted("id", false);
         return finder;
     }
+
+    private ActionInfo doBulkSetPriority(SetPriorityIssueRequest request, Function<ActionInfo, List<? extends Issue>> issueProvider) {
+        ActionInfo response = new ActionInfo();
+        for (Issue issue : issueProvider.apply(response)) {
+            if (issue.getStatus().isHistorical()) {
+                response.addFail(getThesaurus().getFormat(TranslationKeys.CLOSE_ACTION_CLOSE_ISSUE).format(), issue.getId(), issue.getTitle());
+            } else {
+                issue.setPriority(Priority.fromStringValue(request.priority));
+                issue.update();
+                response.addSuccess(issue.getId());
+            }
+        }
+
+        return response;
+    }
 }
+
+
