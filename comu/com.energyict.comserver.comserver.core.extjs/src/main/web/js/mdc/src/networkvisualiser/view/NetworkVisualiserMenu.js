@@ -59,19 +59,12 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                         scope: this.visualiser
                     }
                 }
-            },
-            //{
-            //    xtype: 'button',
-            //    text: 'clear',
-            //    handler: function(){
-            //        Ext.ComponentQuery.query('visualiserpanel')[0].clearLayers();
-            //    }
-            //}
-        ])
+            }
+        ]);
     },
 
     checkboxHandler: function(field, values){
-        var me = this,
+        var me = this, // = VisualiserPanel
             filters = [],
             deviceTypeCheckBox = field.down('#mdc-visualiser-layer-device-types'),
             issuesAlarmsCheckBox = field.down('#mdc-visualiser-layer-issues-alarms'),

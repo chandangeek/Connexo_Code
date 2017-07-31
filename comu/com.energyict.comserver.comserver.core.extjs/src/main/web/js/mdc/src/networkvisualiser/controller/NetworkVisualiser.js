@@ -1,10 +1,7 @@
 Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
     extend: 'Ext.app.Controller',
-    requires: [
-        //'Mdc.networkvisualiser.view.NetworkVisualiser'
-    ],
-    controllers: [
-
+    models: [
+        'Mdc.model.Device'
     ],
     stores: [
         'Uni.graphvisualiser.store.GraphStore',
@@ -29,12 +26,19 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
     showNetwork: function(deviceId) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            widget = Ext.create('Mdc.networkvisualiser.view.NetworkVisualiserView', {router: router});
+            widget = Ext.create('Mdc.networkvisualiser.view.NetworkVisualiserView', {router: router, yOffset: 45/*Due to the title*/}),
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
+        viewport.setLoading();
         widget.clearGraph();
         widget.store = Ext.getStore('Mdc.networkvisualiser.store.NetworkNodes');
         widget.store.getProxy().setUrl(deviceId);
-       // widget.store.load(function() {
-            me.getApplication().fireEvent('changecontentevent', widget);
-       // });
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
+            success: function (device) {
+                me.getApplication().fireEvent('changecontentevent', widget);
+                me.getApplication().fireEvent('loadDevice', device);
+                viewport.setLoading(false);
+            }
+        });
     }
 });

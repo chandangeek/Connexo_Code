@@ -5,7 +5,25 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         'Mdc.networkvisualiser.view.NetworkVisualiserMenu'
     ],
     itemId: 'visualiserpanel',
+    title: Uni.I18n.translate('general.networkVisualizer', 'MDC', 'Network visualizer'),
+    ui: 'large',
     menu: 'Mdc.networkvisualiser.view.NetworkVisualiserMenu',
+    header:{
+        titlePosition: 0,
+        style: {
+            paddingRight: '0px'
+        },
+        items:[
+            {
+                xtype: 'button',
+                iconCls: 'icon-spinner11',
+                text: Uni.I18n.translate('general.refresh', 'MDC', 'Refresh'),
+                handler: function(button) {
+                    button.up('visualiserpanel').refreshChart();
+                }
+            }
+        ]
+    },
     contextMenuItems: [
         {
             xtype: 'menuitem',
