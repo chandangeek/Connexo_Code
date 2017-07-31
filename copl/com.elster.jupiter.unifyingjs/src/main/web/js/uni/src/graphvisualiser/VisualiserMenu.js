@@ -83,8 +83,6 @@ Ext.define('Uni.graphvisualiser.VisualiserMenu', {
                             {
                                 xtype: 'radiogroup',
                                 margin: '0 0 0 0',
-                                //  fieldLabel: Uni.I18n.translate('general.layout', 'UNI', 'Layout'),
-                                //   labelWidth: 50,
                                 columns: 1,
                                 vertical: true,
                                 items: [

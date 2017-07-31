@@ -17,43 +17,6 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             html: "<div id='graph-drawing-area' style='top: 0; bottom: 0; left: 0; right: 0; position: absolute;'></div>",
             region: 'center'
         }
-        //,
-        //{
-        //    itemId: 'uni-visualiser-legend-table',
-        //    title: Uni.I18n.translate('general.legend', 'UNI', 'Legend'),
-        //    region: 'south',
-        //    height: 120,
-            //collapsible: true,
-            //split: false,
-            //splitterResize: false,
-            //layout: {
-            //    type: 'table',
-            //    columns: 24 // legend icon = one column & legend text = another column
-            //},
-            //hideCollapseTool: true,
-            //tools: [
-            //    {
-            //        xtype: 'button',
-            //        ui: 'colexp',
-            //        tooltip: Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'),
-            //        iconCls: 'icon-circle-up2',
-            //        mystate: 'expanded',
-            //        handler: function(button) {
-            //            if (button.mystate==='expanded') {
-            //                button.up('#uni-visualiser-legend-table').collapse();
-            //                button.setIconCls('icon-circle-down2');
-            //                button.mystate = 'collapsed';
-            //                button.setTooltip(Uni.I18n.translate('general.expand', 'UNI', 'Expand'));
-            //            } else {
-            //                button.up('#uni-visualiser-legend-table').expand();
-            //                button.setIconCls('icon-circle-up2');
-            //                button.mystate = 'expanded';
-            //                button.setTooltip(Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'));
-            //            }
-            //        }
-            //    }
-            //]
-        //}
     ],
     padding: 10,
     device: null,
@@ -65,6 +28,10 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     },
     activeLayers: [],
     propertyViewerTitle: Uni.I18n.translate('general.propertyViewer', 'UNI', 'Property viewer'),
+    yOffset: 0,
+    nodeStoreForComboBox: undefined,
+    showGatewayLegend: undefined,
+    showDeviceLegend: undefined,
 
     gatewayIcon: 'icon-diamond4',
     deviceIcon: 'icon-circle2',
@@ -107,7 +74,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             this.initCanvas(panel);
         },
         resize: function(panel,w,h){
-            KeyLines.setSize('graph-drawing-area', w-10, h);
+            KeyLines.setSize('graph-drawing-area', w-10, h-this.yOffset);
             if(this.sideMenu && this.propertyViewer){
                 this.sideMenu.alignTo(Ext.get('graph-drawing-area'), 'tl-tl', [-5, -5]);
                 this.propertyViewer.alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, -5]);
@@ -209,7 +176,6 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 }
             );
             var position = this.getPosition();
-            var width = this.getWidth();
             popupMenu.showAt([position[0]+x, position[1]+y]);
         }
         return false;
@@ -317,46 +283,73 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     addFloatingPanels: function(){
         var me = this;
         me.sideMenu = Ext.create(me.menu, {visualiser: me});
-        me.sideMenu.show().alignTo(Ext.get('graph-drawing-area'), 'tl-tl', [-5, -5]);
         me.propertyViewer = Ext.create('Uni.graphvisualiser.VisualiserPropertyViewer', {
             title: me.propertyViewerTitle
         });
-        me.propertyViewer.show().alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, -5]);
         me.legendPanel = Ext.create('Uni.graphvisualiser.VisualiserLegendFloat');
+        me.showFloatingPanels();
+    },
+
+    hideFloatingPanels: function() {
+        var me = this;
+        me.sideMenu.hide();
+        me.propertyViewer.hide();
+        me.legendPanel.hide();
+    },
+
+    showFloatingPanels: function() {
+        var me = this;
+        me.sideMenu.show().alignTo(Ext.get('graph-drawing-area'), 'tl-tl', [-5, -5]);
+        me.propertyViewer.show().alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, -5]);
         me.legendPanel.show().alignTo(Ext.get('graph-drawing-area'), 'bl-bl', [-5, -15]);
     },
 
     loadData: function(){
         var me = this,
+            performAfterTheQuery = function() {
+                me.addFloatingPanels();
+                me.chart.load(me.chartData, function () {
+                    me.chart.layout();
+                    if (me.showGatewayLegend) {
+                        icon = '<span class="' + me.gatewayIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
+                        me.addLegendItem(icon, Uni.I18n.translate('general.gateway', 'UNI', 'Gateway'));
+                    }
+                    if (me.showDeviceLegend) {
+                        icon = '<span class="' + me.deviceIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
+                        me.addLegendItem(icon, Uni.I18n.translate('general.device', 'UNI', 'Device'));
+                    }
+                });
+                me.sideMenu.down('combobox').bindStore(me.nodeStoreForComboBox);
+            };
+
+        me.queryChartData(performAfterTheQuery);
+    },
+
+    queryChartData: function(callback) {
+        var me = this,
             pageMainContent = Ext.ComponentQuery.query('viewport')[0];
+
         pageMainContent.setLoading(true);
-        this.store.load(function(){
-            pageMainContent.setLoading(false);
-
-            me.addFloatingPanels();
-
-
+        this.store.load(function() {
             var nodes = me.store.data.items[0].nodes(),
                 links = me.store.data.items[0].links(),
-                nodeStoreForComboBox = new Ext.data.SimpleStore({
-                    fields: ['id', 'name']
-                }),
-                icon,
-                showGatewayLegend = false,
-                showDeviceLegend = false;
+                icon;
 
-            me.top = [nodes.data.items[0].get('id')+'']; // Assumption: the first node is the top node
-            nodes.each(function(node){
-                nodeStoreForComboBox.add({
+            me.showGatewayLegend = false;
+            me.showDeviceLegend = false;
+            me.nodeStoreForComboBox = new Ext.data.SimpleStore({ fields: ['id', 'name'] });
+            me.top = [nodes.data.items[0].get('id') + '']; // Assumption: the first node is the top node
+            nodes.each(function (node) {
+                me.nodeStoreForComboBox.add({
                     id: node.get('id'),
                     name: node.get('name')
                 });
-                if(!Ext.isEmpty(node.get('gateway')) && node.get('gateway')){
+                if (!Ext.isEmpty(node.get('gateway')) && node.get('gateway')) {
                     icon = KeyLines.getFontIcon(me.gatewayIcon);
-                    showGatewayLegend = true;
+                    me.showGatewayLegend = true;
                 } else {
                     icon = KeyLines.getFontIcon(me.deviceIcon);
-                    showDeviceLegend = true;
+                    me.showDeviceLegend = true;
                 }
                 me.chartData.items.push(
                     {
@@ -387,7 +380,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                     }
                 );
             });
-            links.each(function(link){
+            links.each(function (link) {
                 me.chartData.items.push(
                     {
                         id: link.get('source') + '-' + link.get('target'),
@@ -402,20 +395,12 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                     }
                 );
             });
-            me.chart.load(me.chartData, function () {
-                me.chart.layout();
-                if (showGatewayLegend) {
-                    icon = '<span class="' + me.gatewayIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
-                    me.addLegendItem(icon, Uni.I18n.translate('general.gateway', 'UNI', 'Gateway'));
-                }
-                if (showDeviceLegend) {
-                    icon = '<span class="' + me.deviceIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
-                    me.addLegendItem(icon, Uni.I18n.translate('general.device', 'UNI', 'Device'));
-                }
-            });
-            me.sideMenu.down('combobox').bindStore(nodeStoreForComboBox);
-        });
 
+            pageMainContent.setLoading(false);
+            if (Ext.isFunction(callback)) {
+                callback();
+            }
+        });
     },
 
     clearLayers: function(){
@@ -591,6 +576,22 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 return true;
             }
         }
+    },
+
+    refreshChart: function() {
+        var me = this,
+            performAfterTheQuery = function() {
+                me.clearAllLegendItems();
+                me.setDefaultStyle();
+                me.showFloatingPanels();
+                me.chart.load(me.chartData, function () {
+                    me.doLayout();
+                    me.showLayers();
+                });
+            };
+
+        me.hideFloatingPanels();
+        me.queryChartData(performAfterTheQuery);
     }
 
 });
