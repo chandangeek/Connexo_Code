@@ -293,13 +293,19 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             jsonData: requestData,
             timeout: 120000,
             success: function (response) {
-                var obj = Ext.decode(response.responseText).data,
-                    successCount = obj.success.length,
+                  var obj;
+                   if(operation!='setpriority') {
+                     obj = Ext.decode(response.responseText).data;
+                   }
+                   else {
+                    obj = Ext.decode(response.responseText);
+                   }
+                    successCount = obj.success.length;
+                    successMessage='',
                     warnCount = 0,
                     failedCount = 0,
-                    successMessage,
-                    warnMessage,
-                    failedMessage,
+                    warnMessage='',
+                    failedMessage='',
                     warnList = '',
                     failList = '';
 
