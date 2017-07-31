@@ -18,7 +18,12 @@ import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.Priority;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -42,13 +47,22 @@ import com.energyict.mdc.issue.datacollection.rest.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.rest.i18n.DataCollectionIssueTranslationKeys;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -195,13 +209,13 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
     public Response setPriority(SetPriorityIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
-        Function<ActionInfo, List<? extends Issue>> alarmProvider;
+        Function<ActionInfo, List<? extends Issue>> issueProvider;
         if (request.allIssues) {
-            alarmProvider = bulkResults -> getIssuesForBulk(filter);
+            issueProvider = bulkResults -> getIssuesForBulk(filter);
         } else {
-            alarmProvider = bulkResult -> getUserSelectedIssues(request, bulkResult, false);
+            issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult, false);
         }
-        ActionInfo info = doBulkSetPriority(request, alarmProvider);
+        ActionInfo info = doBulkSetPriority(request, issueProvider);
         return Response.ok().entity(info).build();
     }
 
