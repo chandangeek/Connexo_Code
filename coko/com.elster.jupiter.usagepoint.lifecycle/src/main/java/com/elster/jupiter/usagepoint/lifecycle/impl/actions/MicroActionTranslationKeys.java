@@ -14,8 +14,12 @@ public enum MicroActionTranslationKeys implements TranslationKey {
     RESET_VALIDATION_RESULTS_NAME(Keys.NAME_PREFIX + ResetValidationResultsAction.class.getSimpleName(), "Reset validation results"),
     RESET_VALIDATION_RESULTS_DESCRIPTION(Keys.DESCRIPTION_PREFIX + ResetValidationResultsAction.class.getSimpleName(),
             "Shift last validation date on all the outputs of a usage point to the point in time equal to the transition date."),
-    REMOVE_USAGE_POINT_FROM_STATIC_GROUP_NAME(Keys.NAME_PREFIX + RemoveUsagePointFromStaticGroup.class.getSimpleName(), "Remove usage point"),
-    REMOVE_USAGE_POINT_FROM_STATIC_GROUP_DESCRIPTION(Keys.DESCRIPTION_PREFIX + RemoveUsagePointFromStaticGroup.class.getSimpleName(), "Remove usage point from static group");
+    REMOVE_USAGE_POINT_FROM_STATIC_GROUP_NAME(Keys.NAME_PREFIX + RemoveUsagePointFromStaticGroup.class.getSimpleName(), "Remove usage point from static group"),
+    REMOVE_USAGE_POINT_FROM_STATIC_GROUP_DESCRIPTION(Keys.DESCRIPTION_PREFIX + RemoveUsagePointFromStaticGroup.class.getSimpleName(), "Remove usage point from static group"),
+    CANCEL_ALL_SERVICE_CALLS_NAME(Keys.NAME_PREFIX + CancelAllServiceCalls.class.getSimpleName(), "Cancel all service calls"),
+    CANCEL_ALL_SERVICE_CALLS_DESCRIPTION(Keys.DESCRIPTION_PREFIX + CancelAllServiceCalls.class.getSimpleName(),
+            "Triggers a cancel request for all active service calls on the given usage point.");
+
 
     private final String key;
     private final String defaultFormat;

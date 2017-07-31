@@ -31,7 +31,8 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
     private Stream<Class<? extends ExecutableMicroAction>> streamMicroActionClasses() {
         return Stream.of(SetConnectionStateAction.class,
                 ResetValidationResultsAction.class,
-                RemoveUsagePointFromStaticGroup.class);
+                RemoveUsagePointFromStaticGroup.class,
+                CancelAllServiceCalls.class);
     }
 
     private void addMicroActionMapping(Class<? extends ExecutableMicroAction> clazz) {

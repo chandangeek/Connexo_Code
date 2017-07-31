@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
@@ -36,6 +37,7 @@ public class UsagePointLifeCycleModule extends AbstractModule {
         requireBinding(MessageService.class);
         requireBinding(TaskService.class);
         requireBinding(UserService.class);
+        requireBinding(ServiceCallService.class);
 
         bind(UsagePointLifeCycleServiceImpl.class).in(Scopes.SINGLETON);
         bind(ServerUsagePointLifeCycleService.class).toProvider(UsagePointLifeCycleServiceProvider.class);

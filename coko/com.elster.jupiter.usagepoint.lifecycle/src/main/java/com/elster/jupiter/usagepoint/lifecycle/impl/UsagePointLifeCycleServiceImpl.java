@@ -18,6 +18,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -37,7 +38,11 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
-import com.elster.jupiter.usagepoint.lifecycle.impl.actions.*;
+import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
+import com.elster.jupiter.usagepoint.lifecycle.impl.actions.RemoveUsagePointFromStaticGroup;
+import com.elster.jupiter.usagepoint.lifecycle.impl.actions.ResetValidationResultsAction;
+import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectionStateAction;
+import com.elster.jupiter.usagepoint.lifecycle.impl.actions.UsagePointMicroActionFactoryImpl;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MeterRolesAreSpecifiedCheck;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MetrologyConfigurationIsDefinedCheck;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MicroCheckTranslationKeys;
@@ -93,6 +98,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     private UserService userService;
     private ValidationService validationService;
     private PropertySpecService propertySpecService;
+    private ServiceCallService serviceCallService;
 
     private UsagePointMicroCheckFactory usagePointMicroCheckFactory;
     private UsagePointMicroActionFactory usagePointMicroActionFactory;
@@ -114,7 +120,8 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                                           TaskService taskService,
                                           UserService userService,
                                           ValidationService validationService,
-                                          PropertySpecService propertySpecService) {
+                                          PropertySpecService propertySpecService,
+                                          ServiceCallService serviceCallService) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
@@ -128,6 +135,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
         setUserService(userService);
         setValidationService(validationService);
         setPropertySpecService(propertySpecService);
+        setServiceCallService(serviceCallService);
         activate();
     }
 
@@ -196,6 +204,11 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
         this.propertySpecService = propertySpecService;
     }
 
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
+    }
+
     @Activate
     public void activate() {
         usagePointMicroCheckFactory = new UsagePointMicroCheckFactoryImpl(dataModel);
@@ -229,6 +242,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                 bind(UsagePointLifeCycleBuilder.class).toInstance(UsagePointLifeCycleServiceImpl.this);
                 bind(ValidationService.class).toInstance(validationService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(ServiceCallService.class).toInstance(serviceCallService);
             }
         };
     }

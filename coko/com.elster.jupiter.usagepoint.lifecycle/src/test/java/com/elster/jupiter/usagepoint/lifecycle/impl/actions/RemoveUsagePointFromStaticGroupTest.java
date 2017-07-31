@@ -1,37 +1,36 @@
 package com.elster.jupiter.usagepoint.lifecycle.impl.actions;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedGroup;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategory;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategoryTranslationKeys;
 import com.elster.jupiter.usagepoint.lifecycle.impl.UsagePointLifeCycleServiceImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by h165708 on 7/21/2017.
@@ -60,17 +59,21 @@ public class RemoveUsagePointFromStaticGroupTest {
     @Mock
     private ChannelsContainer container1, container2;
 
-    private TranslatableAction action;
+    private RemoveUsagePointFromStaticGroup action;
 
     @Before
     public void initializeMocks() {
         when(this.usagePoint.getId()).thenReturn(USAGE_POINT_ID);
+        when(this.usagePoint.getMRID()).thenReturn(String.valueOf(USAGE_POINT_ID));
         when(this.usagePoint.getId()).thenReturn(END_USAGE_POINT_ID);
+
+        action = new RemoveUsagePointFromStaticGroup(meteringService, meteringGroupsService);
+        action.setThesaurus(NlsModule.SimpleThesaurus.from(new UsagePointLifeCycleServiceImpl().getKeys()));
     }
 
     @Test
     public void testInfo() {
-        assertThat(action.getKey()).isEqualTo(ResetValidationResultsAction.class.getSimpleName());
+        assertThat(action.getKey()).isEqualTo(RemoveUsagePointFromStaticGroup.class.getSimpleName());
         assertThat(action.getName()).isEqualTo(MicroActionTranslationKeys.REMOVE_USAGE_POINT_FROM_STATIC_GROUP_NAME.getDefaultFormat());
         assertThat(action.getDescription()).isEqualTo(MicroActionTranslationKeys.REMOVE_USAGE_POINT_FROM_STATIC_GROUP_DESCRIPTION.getDefaultFormat());
     }
@@ -81,29 +84,7 @@ public class RemoveUsagePointFromStaticGroupTest {
         assertThat(action.getCategoryName()).isEqualTo(MicroCategoryTranslationKeys.REMOVE_NAME.getDefaultFormat());
     }
 
-    @Test
-    public void executeDoesNotFailWhenMDMSystemDoesNotExist() {
-        RemoveUsagePointFromStaticGroup microAction = this.getTestInstance();
-        when(this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.<AmrSystem>empty());
 
-        // Business method
-        microAction.execute(this.usagePoint, Instant.now(), Collections.emptyMap());
-
-        // Asserts
-        verifyZeroInteractions(this.meteringGroupsService);
-    }
-
-    @Test
-    public void executeDoesNotFailWhenUsagePointDoesNotExist() {
-        RemoveUsagePointFromStaticGroup microAction = this.getTestInstance();
-        when(this.meteringService.findUsagePointByMRID(String.valueOf(USAGE_POINT_ID))).thenReturn(Optional.of(this.usagePoint));
-
-        // Business method
-        microAction.execute(this.usagePoint, Instant.now(), Collections.emptyMap());
-
-        // Asserts
-        verifyZeroInteractions(this.meteringGroupsService);
-    }
 
     @Test
     public void executeWhenUsagePointNotUsedInStaticGroups() {
