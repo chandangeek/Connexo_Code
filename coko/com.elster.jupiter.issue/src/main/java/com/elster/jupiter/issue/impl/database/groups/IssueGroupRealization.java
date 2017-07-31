@@ -64,6 +64,40 @@ public enum IssueGroupRealization {
         IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
             return new GroupByIssueTypeImpl(dataModel, thesaurus);
         }
+    },
+
+    REASONPERDAY {
+        @Override
+        public String getKey() {
+            return "reasonsPerDay";
+        }
+
+        @Override
+        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
+            return new GroupByReasonPerDayImpl(dataModel, thesaurus);
+        }
+    },
+    OPENVSCLOSE {
+        @Override
+        public String getKey() {
+            return "openVsClose";
+        }
+
+        @Override
+        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
+            return new OpenVsCloseImpl(dataModel, thesaurus);
+        }
+    },
+    PRIORITYPERDAY {
+        @Override
+        public String getKey() {
+            return "priorityPerDay";
+        }
+
+        @Override
+        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
+            return new GroupByPriorityImpl(dataModel, thesaurus);
+        }
     };
 
     abstract String getKey();

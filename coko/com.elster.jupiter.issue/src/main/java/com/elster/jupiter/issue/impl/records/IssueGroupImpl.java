@@ -36,8 +36,10 @@ public class IssueGroupImpl implements IssueGroup {
     public String getGroupName() {
         if (this.groupKey.equals(this.groupName)) {
             return this.groupName;
-        } else {
+        } else if (this.groupName != null) {
             return thesaurus.getFormat(new SimpleTranslationKey(groupName, groupName)).format();
+        } else {
+            return this.groupName;
         }
     }
 

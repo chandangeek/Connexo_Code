@@ -638,6 +638,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         return this.count(getOpenIssueCountGenericQueryBuilder(getWorkGroupWithoutUserWhereClause(user)));
     }
 
+    @Override
+    public List<IssueGroup> getIssuesGroupList(IssueGroupFilter filter) {
+        return IssuesGroupOperation.from(filter, this.dataModel, thesaurus).execute();
+    }
+
     private SqlBuilder getOpenIssueCountGenericQueryBuilder(SqlBuilder whereClause) {
         SqlBuilder openIssueGenericQueryBuilder = new SqlBuilder("SELECT " + TableSpecs.ISU_REASON.name() + "." + DatabaseConst.ISSUE_REASON_COLUMN_TYPE + " " + DatabaseConst.ISSUE_REASON_COLUMN_TYPE
                 + " , COUNT(" + TableSpecs.ISU_ISSUE_OPEN.name() + ".ID) " + IssueService.COMPONENT_NAME + " FROM ");

@@ -241,6 +241,22 @@ public abstract class IssuesGroupOperation {
         return "";
     }
 
+    String getReasonCondition() {
+        StringBuilder builder = new StringBuilder();
+
+        for (String reason : getFilter().getReasons()) {
+            if (builder.length() != 0) {
+                builder.append(" OR ");
+            }
+            builder.append("isu." + DatabaseConst.ISSUE_COLUMN_REASON_ID).append(" = '").append(reason).append("'");
+        }
+        if (builder.length() != 0) {
+            builder.insert(0, " AND (").append(") ");
+            return builder.toString();
+        }
+        return "";
+    }
+
     protected DataModel getDataModel() {
         return dataModel;
     }
