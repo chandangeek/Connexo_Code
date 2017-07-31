@@ -291,6 +291,17 @@ Ext.define('Imt.usagepointlifecycletransitions.view.widget.StatePropertiesForm',
         return values;
     },
 
+    resetCheckBoxes: function(){
+        var me = this,
+            items = me.parseByGroups(me.propertiesStore).items;
+
+        for (var item in items) {
+            if (items.hasOwnProperty(item)) {
+                me.down('#' + items[item][0].key).setValue(false);
+            }
+        }
+    },
+
     initComponent: function () {
         var me = this,
             parsedProperties = me.parseByGroups(me.propertiesStore),
