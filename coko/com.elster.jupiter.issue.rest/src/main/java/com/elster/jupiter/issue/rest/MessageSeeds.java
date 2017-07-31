@@ -13,7 +13,8 @@ public enum MessageSeeds implements MessageSeed {
     ISSUE_DOES_NOT_EXIST (0001, "IssueDoesNotExist", "Issue doesn't exist", Level.SEVERE),
     ISSUE_ALREADY_CLOSED(0002, "IssueAlreadyClosed", "Issue already closed", Level.SEVERE),
     ISSUE_ACTION_CLASS_LOAD_FAIL(0003, "IssueActionClassLoadFail", "Unable to load Action class \"{0}\" for \"{1}\" action type", Level.SEVERE),
-    INVALID_VALUE(0004, "InvalidValue", "Invalid value", Level.SEVERE);
+    INVALID_VALUE(0004, "InvalidValue", "Invalid value", Level.SEVERE),
+    SNOOZE_TIME_BEFORE_CURRENT_TIME(0005, "InvalidTime", "Invalid snooze time", Level.WARNING);
 
     private final int number;
     private final String key;

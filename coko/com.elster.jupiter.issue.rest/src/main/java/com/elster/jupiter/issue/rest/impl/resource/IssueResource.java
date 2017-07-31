@@ -41,6 +41,7 @@ import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -361,8 +362,13 @@ public class IssueResource extends BaseResource {
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, Issue> issueProvider;
         issueProvider = result -> getIssue(request, result);
-        ActionInfo info = getTransactionService().execute(new SingleSnoozeTransaction(request, performer, issueProvider, getThesaurus()));
-        return entity(info).build();
+
+        if(Instant.ofEpochMilli(request.snoozeDateTime).isBefore(Instant.now())) {
+            throw new LocalizedFieldValidationException(MessageSeeds.SNOOZE_TIME_BEFORE_CURRENT_TIME, "until");
+        }else{
+            ActionInfo info = getTransactionService().execute(new SingleSnoozeTransaction(request, performer, issueProvider, getThesaurus()));
+            return entity(info).build();}
+
     }
 
 
