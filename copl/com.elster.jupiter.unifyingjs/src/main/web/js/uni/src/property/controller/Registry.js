@@ -121,7 +121,8 @@ Ext.define('Uni.property.controller.Registry', {
         IRREGULAR_READINGTYPE: 'Uni.property.view.property.ReadingType',
         REGULAR_READINGTYPE: 'Uni.property.view.property.ReadingType',
         ANY_READINGTYPE: 'Uni.property.view.property.ReadingType',
-        INTEGER: 'Uni.property.view.property.Number'
+        INTEGER: 'Uni.property.view.property.Number',
+        WEB_SERVICES_ENDPOINT: 'Uni.property.view.property.Reference'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)
