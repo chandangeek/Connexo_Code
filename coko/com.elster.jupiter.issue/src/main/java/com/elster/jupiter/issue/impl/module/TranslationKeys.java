@@ -31,8 +31,9 @@ public enum TranslationKeys implements TranslationKey {
     SUBSCRIBER_NAME(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER, IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DISPLAYNAME),
     ACTION_ISSUE_ASSIGNED("action.issue.assigned", "Issue assigned"),
     ACTION_ISSUE_COMMENTED("action.issue.commented", "Issue commented"),
-    ACTION_ISSUE_UNASSIGNED("action.issue.unassigned", "Issue unassigned");
-
+    ACTION_ISSUE_UNASSIGNED("action.issue.unassigned", "Issue unassigned"),
+    ACTION_WEBSERVICE_NOTIFICATION("issue.action.WebServiceNotification", "Web service notification"),
+    ACTION_WEBSERVICE_NOTIFICATION_CLOSE("issue.action.WebServiceNotification.close", "Close after notification");
 
     private final String key;
     private final String defaultFormat;

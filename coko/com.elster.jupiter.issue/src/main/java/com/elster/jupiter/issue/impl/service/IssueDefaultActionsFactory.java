@@ -6,6 +6,7 @@ package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
+import com.elster.jupiter.issue.impl.actions.WebServiceNotificationAction;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
@@ -17,6 +18,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.users.UserService;
 
 import com.google.inject.AbstractModule;
@@ -44,6 +46,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
     private volatile IssueService issueService;
+    private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile PropertySpecService propertySpecService;
     private volatile DataModel dataModel;
@@ -55,14 +58,14 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     }
 
     @Inject
-    public IssueDefaultActionsFactory(NlsService nlsService, UserService userService, IssueService issueService, ThreadPrincipalService threadPrincipalService, OrmService ormService, PropertySpecService propertySpecService) {
+    public IssueDefaultActionsFactory(NlsService nlsService, UserService userService, IssueService issueService, ThreadPrincipalService threadPrincipalService, OrmService ormService, PropertySpecService propertySpecService, EndPointConfigurationService endPointConfigurationService) {
         setThesaurus(nlsService);
         setUserService(userService);
         setIssueService(issueService);
         setThreadPrincipalService(threadPrincipalService);
         setOrmService(ormService);
         setPropertySpecService(propertySpecService);
-
+        setEndPointConfigurationService(endPointConfigurationService);
         activate();
     }
 
@@ -76,6 +79,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
+                bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
                 bind(IssueService.class).toInstance(issueService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
@@ -125,6 +129,11 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     }
 
     @Reference
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
+    }
+
+    @Reference
     public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.getDataModel(IssueService.COMPONENT_NAME).orElse(null);
     }
@@ -133,6 +142,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
         try {
             actionProviders.put(CommentIssueAction.class.getName(), injector.getProvider(CommentIssueAction.class));
             actionProviders.put(AssignIssueAction.class.getName(), injector.getProvider(AssignIssueAction.class));
+            actionProviders.put(WebServiceNotificationAction.class.getName(), injector.getProvider(WebServiceNotificationAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }

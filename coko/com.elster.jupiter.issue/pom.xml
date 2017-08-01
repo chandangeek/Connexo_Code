@@ -91,6 +91,10 @@
             <artifactId>drools-integration</artifactId>
             <type>pom</type>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>soap.whiteboard.cxf</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

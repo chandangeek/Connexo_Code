@@ -19,6 +19,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -43,15 +44,17 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final MessageService messageService;
     private final TaskService taskService;
     private final UserService userService;
+    private final EndPointConfigurationService endPointConfigurationService;
 
     @Inject
-    public Installer(DataModel dataModel, IssueService issueService, MessageService messageService, TaskService taskService, UserService userService) {
+    public Installer(DataModel dataModel, IssueService issueService, MessageService messageService, TaskService taskService, UserService userService, EndPointConfigurationService endPointConfigurationService) {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.userService = userService;
         this.issueActionService = issueService.getIssueActionService();
         this.messageService = messageService;
         this.taskService = taskService;
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     @Override
