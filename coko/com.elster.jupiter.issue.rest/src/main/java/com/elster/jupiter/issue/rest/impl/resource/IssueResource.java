@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.AssignSingleIssueRequest;
 import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
+import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
@@ -366,6 +367,27 @@ public class IssueResource extends BaseResource {
         return Response.ok().entity(info).build();
     }
 
+    @PUT
+    @Transactional
+    @Path("/close")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.CLOSE_ISSUE)
+    @Deprecated
+    public Response closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
+        /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
+        User performer = (User) securityContext.getUserPrincipal();
+        Function<ActionInfo, List<? extends Issue>> issueProvider;
+        if (request.allIssues) {
+            issueProvider = bulkResults -> getIssuesForBulk(filter);
+        } else {
+            issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
+        }
+        return entity(doBulkClose(request, performer, issueProvider)).build();
+    }
+
+
+
     private boolean isNumericValue(String id){
         try {
             long number = Long.parseLong(id);
@@ -456,6 +478,33 @@ public class IssueResource extends BaseResource {
             }
         }
 
+        return response;
+    }
+
+    private ActionInfo doBulkClose(CloseIssueRequest request, User performer, Function<ActionInfo, List<? extends Issue>> issueProvider) {
+        ActionInfo response = new ActionInfo();
+        Optional<IssueStatus> status = getIssueService().findStatus(request.status);
+        if (status.isPresent() && status.get().isHistorical()) {
+            for (Issue issue : issueProvider.apply(response)) {
+                if (issue.getStatus().isHistorical()) {
+                    response.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_ALREADY_CLOSED)
+                            .format(), issue.getId(), issue.getTitle());
+                } else {
+                    issue.addComment(request.comment, performer);
+                    if (issue instanceof OpenIssue) {
+                        ((OpenIssue) issue).close(status.get());
+                    } else {
+                        // user set both open and close statuses in filter
+                        getIssueService().findOpenIssue(issue.getId()).ifPresent(
+                                openIssue -> openIssue.close(status.get())
+                        );
+                    }
+                    response.addSuccess(issue.getId());
+                }
+            }
+        } else {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
         return response;
     }
 }
