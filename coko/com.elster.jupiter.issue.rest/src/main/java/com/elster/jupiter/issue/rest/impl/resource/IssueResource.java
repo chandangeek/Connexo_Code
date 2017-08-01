@@ -5,7 +5,6 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.AssignSingleIssueRequest;
@@ -448,7 +447,8 @@ public class IssueResource extends BaseResource {
         ActionInfo response = new ActionInfo();
         for (Issue issue : issueProvider.apply(response)) {
             if (issue.getStatus().isHistorical()) {
-                response.addFail(getThesaurus().getFormat(TranslationKeys.CLOSE_ACTION_CLOSE_ISSUE).format(), issue.getId(), issue.getTitle());
+                response.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_ALREADY_CLOSED)
+                        .format(), issue.getId(), issue.getTitle());
             } else {
                 issue.setPriority(Priority.fromStringValue(request.priority));
                 issue.update();
