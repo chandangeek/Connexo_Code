@@ -237,7 +237,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             requestData = me.getRequestData(record),
             operation = record.get('operation'),
             isRetry = (operation == 'retrycomm') || (operation == 'retrycommnow') || (operation == 'retryconn'),
-            requestUrl = operation == 'assign' || 'setpriority' ? '/api/isu/issues/' + operation : '/api/idc/issues/' + operation,
+            requestUrl = operation == 'assign' || 'setpriority' || 'close' ? '/api/isu/issues/' + operation : '/api/idc/issues/' + operation,
             warnIssues = [],
             failedIssues = [],
             params = [],
