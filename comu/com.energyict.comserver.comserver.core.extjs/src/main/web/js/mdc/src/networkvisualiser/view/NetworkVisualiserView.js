@@ -54,6 +54,14 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
                     deviceId: menuItem.visualiser.chart.getItem(menuItem.graphId).d.name
                 });
             }
+        },
+        {
+            xtype: 'menuitem',
+            text: Uni.I18n.translate('general.retriggerCommTasks', 'MDC', 'Retrigger communication tasks'),
+            section: 1, /*SECTION_ACTION*/
+            handler: function(menuItem) {
+                menuItem.visualiser.fireEvent('showretriggerwindow', menuItem.visualiser.chart.getItem(menuItem.graphId).d.name);
+            }
         }
     ],
     propertyViewerTitle: Uni.I18n.translate('general.deviceSummary', 'MDC', 'Device summary'),
