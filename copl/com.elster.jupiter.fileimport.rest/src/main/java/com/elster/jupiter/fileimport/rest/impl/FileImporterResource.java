@@ -18,6 +18,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -39,6 +40,11 @@ public class FileImporterResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
     public PagedInfoList getImporters(@BeanParam JsonQueryParameters queryParameters, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
         List<FileImporterFactory> importers = fileImportService.getAvailableImporters(applicationName);
-        return PagedInfoList.fromCompleteList("fileImporters", importers.stream().map(fileImporterInfoFactory::asInfo).collect(toList()), queryParameters);
+        return PagedInfoList.fromCompleteList("fileImporters",
+            importers.stream()
+                .sorted(Comparator.comparing(FileImporterFactory::getDisplayName))
+                .map(fileImporterInfoFactory::asInfo)
+                .collect(toList()),
+            queryParameters);
     }
 }
