@@ -108,9 +108,9 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     name: 'alwaysExecuteOnInbound',
                     renderer: function (val) {
                         if (!_.isUndefined(val)) {
-                            return val ? 'Yes' : 'No'
+                            return val ? Uni.I18n.translate('general.yes', 'DSH', 'Yes') : Uni.I18n.translate('general.no', 'DSH', 'No');
                         } else {
-                            return '-'
+                            return '-';
                         }
                     }
                 }
