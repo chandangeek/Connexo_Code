@@ -174,7 +174,7 @@ Ext.define('Mdc.model.ComServerComPort', {
         },
         {
             name: 'useHttps',
-            type: 'string'
+            type: 'boolean'
         },
         {
             name: 'addressSelector',

@@ -92,27 +92,10 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             name: 'contextPath'
         },
         {
-            xtype: 'fieldcontainer',
-            fieldLabel: 'Https',
-            name: 'https',
-            items: [
-                {
-                    xtype: 'container',
-                    margin: '0 0 8 0',
-                    layout: 'hbox',
-                    items: [
-                        {
-                            xtype: 'checkbox',
-                            name: 'useHttps',
-                            margin: '0 16 0 0'
-                        },
-                        {
-                            xtype: 'label',
-                            text: Uni.I18n.translate('comServerComPorts.form.https', 'MDC', 'Use https')
-                        }
-                    ]
-                }
-            ]
+            xtype: 'checkbox',
+            name: 'useHttps',
+            fieldLabel: ' ',
+            boxLabel: Uni.I18n.translate('comServerComPorts.form.https', 'MDC', 'Use https')
         },
         {
             xtype: 'textfield',

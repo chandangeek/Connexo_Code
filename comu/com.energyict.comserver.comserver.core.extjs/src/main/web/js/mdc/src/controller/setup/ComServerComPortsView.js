@@ -175,6 +175,12 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                                     form.down('displayfield[name=inboundComPortPools]').hide();
                                     break;
                             }
+                        } else {
+                            var useHttps = record.get('useHttps');
+                            form.down('displayfield[name=keyStoreFilePath]').setVisible(useHttps);
+                            form.down('#mdc-servlet-port-preview-keyStoreAccessPasswordContainer').setVisible(useHttps);
+                            form.down('displayfield[name=trustStoreFilePath]').setVisible(useHttps);
+                            form.down('#mdc-servlet-port-preview-trustStoreAccessPasswordContainer').setVisible(useHttps);
                         }
                         form.loadRecord(record);
                     }
