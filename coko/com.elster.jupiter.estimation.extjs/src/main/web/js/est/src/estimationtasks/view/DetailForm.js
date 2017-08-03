@@ -32,7 +32,7 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
                 name: 'revalidate',
                 labelWidth: 250,
                 renderer: function (value) {
-                    return value ? 'Yes' : 'No';
+                    return value ? Uni.I18n.translate('general.yes', 'EST', 'Yes') : Uni.I18n.translate('general.no', 'EST', 'No');
                 }
             },
             {
