@@ -13,10 +13,8 @@ import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingDataFormatter;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -71,9 +69,8 @@ class DefaultItemExporter implements ItemExporter {
         IReadingTypeDataExportItem item = (IReadingTypeDataExportItem) meterReadingData.getItem();
         dataFormatter.startItem(item);
         item.setLastRun(occurrence.getTriggerTime());
+        item.setLastExportedDate(occurrence.getTriggerTime());
         FormattedData formattedData = dataFormatter.processData(Stream.of(meterReadingData));
-        Optional<Instant> lastExported = formattedData.lastExported();
-        lastExported.ifPresent(item::setLastExportedDate);
         dataFormatter.endItem(item);
         exportItems.add(item);
         return formattedData.getData();
