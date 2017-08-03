@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
         {
             defaults: {
                 xtype: 'displayfield',
-                labelWidth: 250
+                labelWidth: 300
             },
             items: [
                 {
@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
         {
             defaults: {
                 xtype: 'displayfield',
-                labelWidth: 250
+                labelWidth: 300
             },
             items: [
                 {

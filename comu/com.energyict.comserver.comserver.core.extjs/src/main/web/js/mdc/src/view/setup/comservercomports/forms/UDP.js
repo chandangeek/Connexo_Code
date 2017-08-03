@@ -35,6 +35,10 @@ Ext.define('Mdc.view.setup.comservercomports.forms.UDP', {
                 {
                     fieldLabel: Uni.I18n.translate('comports.preview.simultaneousConnections', 'MDC', 'Simultaneous connections'),
                     name: 'numberOfSimultaneousConnections'
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('comports.preview.portNumber', 'MDC', 'Port number'),
+                    name: 'portNumber'
                 }
             ]
         },
