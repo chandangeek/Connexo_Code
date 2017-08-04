@@ -357,7 +357,7 @@ public class IssueResource extends BaseResource {
     @Path("/snooze")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
+    @RolesAllowed({Privileges.Constants.ACTION_ISSUE, Privileges.Constants.CLOSE_ISSUE})
     public Response snooze(@Context SecurityContext securityContext, SingleSnoozeRequest request) {
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, Issue> issueProvider;
@@ -376,7 +376,7 @@ public class IssueResource extends BaseResource {
     @Path("/bulksnooze")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ASSIGN_ISSUE)
+    @RolesAllowed({Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE})
     @Deprecated
     public Response assignIssues(BulkSnoozeRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
         User performer = (User) securityContext.getUserPrincipal();

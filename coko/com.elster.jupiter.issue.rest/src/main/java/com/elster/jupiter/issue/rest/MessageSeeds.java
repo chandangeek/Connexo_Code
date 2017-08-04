@@ -14,7 +14,7 @@ public enum MessageSeeds implements MessageSeed {
     ISSUE_ALREADY_CLOSED(0002, "IssueAlreadyClosed", "Issue already closed", Level.SEVERE),
     ISSUE_ACTION_CLASS_LOAD_FAIL(0003, "IssueActionClassLoadFail", "Unable to load Action class \"{0}\" for \"{1}\" action type", Level.SEVERE),
     INVALID_VALUE(0004, "InvalidValue", "Invalid value", Level.SEVERE),
-    SNOOZE_TIME_BEFORE_CURRENT_TIME(0005, "InvalidTime", "Invalid snooze time", Level.WARNING);
+    SNOOZE_TIME_BEFORE_CURRENT_TIME(0005, "InvalidTime", "Snooze date should be after current date.", Level.WARNING);
 
     private final int number;
     private final String key;
