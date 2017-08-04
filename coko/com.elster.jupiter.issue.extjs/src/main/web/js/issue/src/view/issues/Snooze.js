@@ -58,7 +58,8 @@ Ext.define('Isu.view.issues.Snooze', {
                         }
                     }
 
-                ]
+                ],
+                action: 'applyAction'
             }
         ];
 

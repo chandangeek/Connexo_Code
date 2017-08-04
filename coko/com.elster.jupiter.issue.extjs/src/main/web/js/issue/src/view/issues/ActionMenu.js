@@ -202,9 +202,12 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 router.getRoute().forward(null, Ext.Object.fromQueryString(router.getQueryString()));
             },
             failure: function (response) {
-                Ext.suspendLayouts();
-                confirmationWindow.close();
-                Ext.resumeLayouts(true);
+                var json = Ext.decode(response.responseText, true);
+                if (json && json.errors) {
+                    confirmationWindow.down('#snooze-progressbar').reset(true);
+                    confirmationWindow.down('#issue-snooze-until-date').markInvalid(json.errors[0].msg);
+
+                }
             }
         });
     },
