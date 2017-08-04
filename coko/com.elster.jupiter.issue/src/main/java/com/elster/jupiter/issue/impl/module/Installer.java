@@ -122,7 +122,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private void createStatuses() {
         issueService.createStatus(IssueStatus.OPEN, false, TranslationKeys.ISSUE_STATUS_OPEN);
         issueService.createStatus(IssueStatus.IN_PROGRESS, false, TranslationKeys.ISSUE_STATUS_IN_PROGRESS);
-        issueService.createStatus(IssueStatus.SNOOZED, true, TranslationKeys.ISSUE_STATUS_SNOOZED);
+        issueService.createStatus(IssueStatus.SNOOZED, false, TranslationKeys.ISSUE_STATUS_SNOOZED);
         issueService.createStatus(IssueStatus.RESOLVED, true, TranslationKeys.ISSUE_STATUS_RESOLVED);
         issueService.createStatus(IssueStatus.WONT_FIX, true, TranslationKeys.ISSUE_STATUS_WONT_FIX);
     }
