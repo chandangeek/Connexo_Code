@@ -304,10 +304,12 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     @Override
     public Optional<UsagePointStateChangeRequest> getLastUsagePointStateChangeRequest(UsagePoint usagePoint) {
         return this.dataModel.query(UsagePointStateChangeRequest.class, UsagePointStateChangePropertyImpl.class)
-                .select(where(UsagePointStateChangeRequestImpl.Fields.USAGE_POINT.fieldName()).isEqualTo(usagePoint),
+                .select(where(UsagePointStateChangeRequestImpl.Fields.USAGE_POINT.fieldName()).isEqualTo(usagePoint)
+                                .and(where(UsagePointStateChangeRequestImpl.Fields.STATUS.fieldName()).isEqualTo(UsagePointStateChangeRequest.Status.COMPLETED)),
                 new Order[]{Order.descending(UsagePointStateChangeRequestImpl.Fields.TRANSITION_TIME.fieldName())},
                 false, new String[0], 0, 1).stream().findFirst();
     }
+
 
     @Override
     public List<UsagePointTransition> getAvailableTransitions(UsagePoint usagePoint, String application) {
