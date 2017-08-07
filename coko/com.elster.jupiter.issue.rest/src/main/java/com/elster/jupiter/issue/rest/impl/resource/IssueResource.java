@@ -468,14 +468,9 @@ public class IssueResource extends BaseResource {
     private ActionInfo doBulkSetPriority(SetPriorityIssueRequest request, Function<ActionInfo, List<? extends Issue>> issueProvider) {
         ActionInfo response = new ActionInfo();
         for (Issue issue : issueProvider.apply(response)) {
-            if (issue.getStatus().isHistorical()) {
-                response.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_ALREADY_CLOSED)
-                        .format(), issue.getId(), issue.getTitle());
-            } else {
                 issue.setPriority(Priority.fromStringValue(request.priority));
                 issue.update();
                 response.addSuccess(issue.getId());
-            }
         }
 
         return response;
