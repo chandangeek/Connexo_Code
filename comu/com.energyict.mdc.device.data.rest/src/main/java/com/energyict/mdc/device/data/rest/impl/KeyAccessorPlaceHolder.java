@@ -64,11 +64,6 @@ public class KeyAccessorPlaceHolder implements KeyAccessor {
             }
 
             @Override
-            public void delete() {
-
-            }
-
-            @Override
             public void setProperties(Map<String, Object> properties) {
 
             }
