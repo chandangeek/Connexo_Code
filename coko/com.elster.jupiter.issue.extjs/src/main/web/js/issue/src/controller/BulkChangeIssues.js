@@ -698,7 +698,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         if (operation == 'setpriority') {
             widget.down('#savePriority').setVisible(false);
             widget.down('#cancel').setVisible(false);
-            widget.down('#num-urgency').setValue(30);
+            widget.down('#num-urgency').setValue(25);
             widget.down('#num-impact').setValue(5);
         }
 
@@ -710,7 +710,6 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             widget.down('#cbo-workgroup-issue-assignee').setValue(-1);
             widget.down('#cbo-user-issue-assignee').setValue(-1);
         }
-
         if (!Ext.isEmpty(widget.items.getAt(1))) {
             widget.items.getAt(1).margin = '0';
         }
