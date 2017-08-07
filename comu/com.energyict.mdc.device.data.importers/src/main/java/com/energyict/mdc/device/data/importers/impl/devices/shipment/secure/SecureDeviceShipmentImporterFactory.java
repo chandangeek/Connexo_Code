@@ -10,12 +10,15 @@ import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterMessageHandler;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.security.PublicKey;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -33,6 +36,8 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
     private volatile PkiService pkiService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile DeviceService deviceService;
 
     @Override
     public String getName() {
@@ -42,7 +47,8 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
         TrustStore trustStore = (TrustStore) properties.get(SecureDeviceShipmentImporterProperty.TRUSTSTORE.getPropertyKey());
-        return new SecureDeviceShipmentImporter(thesaurus, trustStore);
+        PublicKey publicKey = (PublicKey) properties.get(SecureDeviceShipmentImporterProperty.PUBLICKEY.getPropertyKey());
+        return new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, pkiService);
     }
 
     @Override
@@ -87,8 +93,32 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
         this.pkiService = pkiService;
     }
 
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
     static enum SecureDeviceShipmentImporterProperty {
         TRUSTSTORE(TranslationKeys.DEVICE_DATA_IMPORTER_TRUSTSTORE, TranslationKeys.DEVICE_DATA_IMPORTER_TRUSTSTORE_DESCRIPTION) {
+            @Override
+            public PropertySpec getPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, PkiService pkiService) {
+                return propertySpecService
+                        .referenceSpec(TrustStore.class)
+                        .named(this.getPropertyKey(), this.getNameTranslationKey())
+                        .describedAs(this.getDescriptionTranslationKey())
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .markExhaustive()
+                        .addValues(pkiService.getAllTrustStores())
+                        .finish();
+            }
+        },
+        PUBLICKEY(TranslationKeys.DEVICE_DATA_IMPORTER_PUBLICKEY, TranslationKeys.DEVICE_DATA_IMPORTER_PUBLICKEY_DESCRIPTION) {
             @Override
             public PropertySpec getPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, PkiService pkiService) {
                 return propertySpecService

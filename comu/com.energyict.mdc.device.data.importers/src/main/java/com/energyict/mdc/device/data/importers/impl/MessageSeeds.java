@@ -85,7 +85,19 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_SIGNATURE(518, "InvalidSignatureOnShipment", "The signature on the shipment file is not valid", Level.SEVERE),
     SIGNATURE_VALIDATION_FAILED(519, "FailedToValidateSignatureOnShipment", "The signature on the shipment file could not be validated: {0}", Level.SEVERE),
     SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY(520, "ShipmentSignatureValid", "Signature of the shipment file verified successfully", Level.INFO),
-    NO_PUBLIC_KEY_FOUND_FOR_SIGNATURE_VALIDATION(521, "NoKeyInShipment", "The signature on the shipment file could not be validated: public key could not be found in the shipment file", Level.SEVERE);
+    NO_PUBLIC_KEY_FOUND_FOR_SIGNATURE_VALIDATION(521, "NoKeyInShipment", "The signature on the shipment file could not be validated: public key could not be found in the shipment file", Level.SEVERE),
+    NO_SUCH_DEVICE_TYPE(522, "DeviceTypeNotFound", "The device type ''{0}'' required by the importer could not be found", Level.SEVERE),
+    NO_DEFAULT_DEVICE_CONFIG_FOUND(523, "NoDefaultDeviceConfigOnDeviceType", "No default device configuration could be found on the device type", Level.SEVERE),
+    DEFAULT_DEVICE_CONFIG_FOUND_NOT_ACTIVE(524, "DefaultConfigNotActive", "The default device configuration is not active", Level.SEVERE),
+    DEVICE_WITH_NAME_ALREADY_EXISTS(525, "NameAlreadyExists", "A device with name ''{0}'' already exists, skipped by importer", Level.WARNING),
+    IMPORT_FAILED_FOR_DEVICE(526, "ImportFailedForDevice", "Failed to import device with name ''{0}'': {1}", Level.SEVERE),
+    IMPORTING_DEVICE(527, "ImportingDevice", "Now importing device ''{0}''", Level.INFO),
+    FAILED_TO_STORE_MAC_ADDRESS(528, "FailedToStoreMacAddress", "MAC Address value could not be stored on device ''{0}''", Level.WARNING),
+    WRAP_KEY_NOT_FOUND(529, "NoSuchWrapKey", "Failed to import key for security accessor ''{0}'' on device ''{1}'': referenced wrap key ''{2}'' is not found in the shipment file", Level.SEVERE),
+    NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE(530, "NoSuchKeyAccessorTypeOnDeviceType", "Failed to import key for security accessor ''{0}'' on device ''{1}'': security accessor type not found on device type", Level.SEVERE),
+    INITIALIZATION_VECTOR_ERROR(531, "NoIV", "IV not found in encrypted key", Level.SEVERE);
+
+
 
     private final int number;
     private final String key;

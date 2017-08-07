@@ -3,9 +3,27 @@ package com.energyict.mdc.device.data.importers.impl.devices.shipment.secure;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.impl.DeviceKeyImporter;
+import com.elster.jupiter.pki.impl.KeyImportFailedException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
+import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.Body;
+import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.NamedEncryptedDataType;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.Shipment;
+import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.WrapKey;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import com.google.common.io.ByteStreams;
 import org.w3._2000._09.xmldsig_.KeyValueType;
@@ -22,18 +40,11 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.crypto.AlgorithmMethod;
-import javax.xml.crypto.KeySelector;
-import javax.xml.crypto.KeySelectorException;
-import javax.xml.crypto.KeySelectorResult;
-import javax.xml.crypto.XMLCryptoContext;
 import javax.xml.crypto.dsig.XMLSignature;
 import javax.xml.crypto.dsig.XMLSignatureFactory;
 import javax.xml.crypto.dsig.dom.DOMValidateContext;
-import javax.xml.crypto.dsig.keyinfo.KeyInfo;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.URIResolver;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
@@ -51,22 +62,34 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.logging.Logger;
+
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Created by bvn on 7/19/17.
  */
 public class SecureDeviceShipmentImporter implements FileImporter {
-    private static final String SIGNATURE_TAG = "Signature";
+    private static final String SIGNATURE_XML_TAG = "Signature";
+    private static final String DEFAULT_SYMMETRIC_ALGORITHM = "AES/CBC/PKCS5PADDING";
+    private static final String DEFAULT_ASYMMETRIC_ALGORITHM = "RSA/ECB/PKCS1Padding";
 
     private final Thesaurus thesaurus;
     private final TrustStore trustStore;
     private CertificateFactory certificateFactory;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceService deviceService;
+    private final PkiService pkiService;
 
-    public SecureDeviceShipmentImporter(Thesaurus thesaurus, TrustStore trustStore) {
+    public SecureDeviceShipmentImporter(Thesaurus thesaurus, TrustStore trustStore, DeviceConfigurationService deviceConfigurationService, DeviceService deviceService, PkiService pkiService) {
         this.thesaurus = thesaurus;
         this.trustStore = trustStore;
+        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceService = deviceService;
+        this.pkiService = pkiService;
     }
 
     @Override
@@ -96,6 +119,9 @@ public class SecureDeviceShipmentImporter implements FileImporter {
         } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException e) {
             log(logger, MessageSeeds.FAILED_TO_VERIFY_CERTIFICATE);
             throw new RuntimeException(thesaurus.getFormat(MessageSeeds.NO_CERTIFICATE_FOUND_IN_SHIPMENT).format());
+        } catch (ImportFailedException e) {
+            log(logger, e.getMessageSeed(), e.getMessageParameters());
+            throw new RuntimeException(thesaurus.getFormat(e.getMessageSeed()).format(e.getMessageParameters()));
         }
     }
 
@@ -124,16 +150,192 @@ public class SecureDeviceShipmentImporter implements FileImporter {
             trustStore.validate(certificate.get());
         }
 
-        Optional<PublicKey> publicKeyOptional = getPublicKeyFromShipmentFile(logger, shipment, certificate);
-        if (!publicKeyOptional.isPresent()) {
-            log(logger, MessageSeeds.NO_PUBLIC_KEY_FOUND_FOR_SIGNATURE_VALIDATION);
-            throw new RuntimeException(thesaurus.getFormat(MessageSeeds.NO_PUBLIC_KEY_FOUND_FOR_SIGNATURE_VALIDATION).format());
+        PublicKey publicKey = getPublicKeyFromShipmentFile(logger, shipment, certificate).orElseThrow(()->new ImportFailedException(MessageSeeds.NO_PUBLIC_KEY_FOUND_FOR_SIGNATURE_VALIDATION));
+
+        verifySignature(inputStreamProvider.get(), publicKey, logger);
+        DeviceCreator deviceCreator = getDeviceCreator(shipment);
+
+        importDevices(shipment, deviceCreator, logger);
+    }
+
+    private DeviceCreator getDeviceCreator(Shipment shipment) {
+        DeviceCreator deviceCreator = null;
+        if (Checks.is(shipment.getHeader().getBatchID()).emptyOrOnlyWhiteSpace()) {
+            deviceCreator = (deviceConfiguration, name) -> deviceService.newDevice(
+                    deviceConfiguration,
+                    name,
+                    shipment.getHeader().getBatchID(),
+                    shipment.getHeader().getDeliveryDate().toGregorianCalendar().toInstant());
+        } else {
+            deviceCreator = (deviceConfiguration, name) -> deviceService.newDevice(deviceConfiguration,
+                    name,
+                    shipment.getHeader().getDeliveryDate().toGregorianCalendar().toInstant());
         }
+        return deviceCreator;
+    }
 
-        verifySignature(inputStreamProvider.get(), publicKeyOptional.get(), logger);
+    private void importDevices(Shipment shipment, DeviceCreator deviceCreator, Logger logger) {
+        DeviceType deviceType = findDeviceType(shipment);
+        Map<String, WrapKey> wrapKeyMap = createWrapKeyMap(shipment);
 
+        DeviceConfiguration deviceConfiguration = findDefaultDeviceConfig(deviceType);
 
+        for (Body.Device xmlDevice : shipment.getBody().getDevice()) {
+            String deviceName = Checks.is(xmlDevice.getUniqueIdentifier())
+                    .emptyOrOnlyWhiteSpace() ? xmlDevice.getSerialNumber() : xmlDevice.getUniqueIdentifier();
+            log(logger, MessageSeeds.IMPORTING_DEVICE, deviceName);
+            try {
+                if (deviceService.findDeviceByName(deviceName).isPresent()) {
+                    log(logger, MessageSeeds.DEVICE_WITH_NAME_ALREADY_EXISTS, deviceName);
+                    continue;
+                }
+                Device device = deviceCreator.createDevice(deviceConfiguration, deviceName);
+                device.setManufacturer(shipment.getHeader().getManufacturer());
+                device.setSerialNumber(xmlDevice.getSerialNumber());
+                storeCertificationDate(device, shipment);
+                storeMacAddress(device, xmlDevice, logger);
+                device.save();
+                for (NamedEncryptedDataType deviceKey : xmlDevice.getKey()) {
+                    importKeys(device, deviceKey, wrapKeyMap);
+                }
 
+                postProcessDevice(device, xmlDevice, shipment, logger);
+            } catch (Exception e) {
+                log(logger, MessageSeeds.IMPORT_FAILED_FOR_DEVICE, deviceName, e);
+                throw e;
+            }
+        }
+    }
+
+    private void importKeys(Device device, NamedEncryptedDataType deviceKey, Map<String, WrapKey> wrapKeyMap) {
+        String securityAccessorName = deviceKey.getName();
+        KeyAccessorType keyAccessorType = device.getDeviceType()
+                .getKeyAccessorTypes()
+                .stream()
+                .filter(kat -> kat.getName().equals(securityAccessorName))
+                .findAny()
+                .orElseThrow(() -> new ImportFailedException(MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE, securityAccessorName, device
+                        .getName()));
+        WrapKey wrapKey = wrapKeyMap.get(deviceKey.getWrapKeyLabel());
+        if (wrapKey==null) {
+            throw new ImportFailedException(MessageSeeds.WRAP_KEY_NOT_FOUND, securityAccessorName, device.getName(), deviceKey.getWrapKeyLabel());
+        }
+        byte[] encryptedSymmetricKey = wrapKey.getSymmetricKey().getCipherData().getCipherValue();
+        byte[] encryptedDeviceKey = deviceKey.getCipherData().getCipherValue();
+        byte[] initializationVector = new byte[16];
+        if (encryptedDeviceKey.length <= 16) {
+            throw new ImportFailedException(MessageSeeds.INITIALIZATION_VECTOR_ERROR);
+        }
+        byte[] cipher = new byte[encryptedDeviceKey.length - 16];
+        String symmetricAlgorithm = this.getSymmetricAlgorithm(deviceKey);
+        String asymmetricAlgorithm = this.getAsymmetricAlgorithm(wrapKey);
+        System.arraycopy(encryptedDeviceKey, 0, initializationVector, 0, 16);
+        System.arraycopy(encryptedDeviceKey, 16, cipher, 0, encryptedDeviceKey.length - 16);
+
+        DeviceKeyImporter symmetricKeyImporter = pkiService.getSymmetricKeyImporter(keyAccessorType);
+        KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType).orElseGet(()->device.newKeyAccessor(keyAccessorType));
+//        SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessorType);
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("key", symmetricKey);
+//        symmetricKeyWrapper.setProperties(map);
+        Optional oldActualValue = keyAccessor.getActualValue();
+        keyAccessor.setActualValue(symmetricKeyImporter.importKey(encryptedDeviceKey, initializationVector, encryptedSymmetricKey, symmetricAlgorithm, asymmetricAlgorithm));
+        oldActualValue.ifPresent(svw -> ((SecurityValueWrapper)svw).delete());
+        keyAccessor.save();
+    }
+
+    /**
+     * Creates a map to quickly get a WrapKey from its label
+     */
+    private Map<String, WrapKey> createWrapKeyMap(Shipment shipment) {
+        return shipment.getHeader()
+                    .getWrapKey()
+                    .stream()
+                    .collect(toMap(WrapKey::getLabel, Function.identity()));
+    }
+
+    private String getSymmetricAlgorithm(NamedEncryptedDataType deviceKey) throws
+            KeyImportFailedException {
+        if (deviceKey.getEncryptionMethod() != null && deviceKey.getEncryptionMethod().getAlgorithm() != null) {
+            return deviceKey.getEncryptionMethod().getAlgorithm();
+        } else {
+            return DEFAULT_SYMMETRIC_ALGORITHM;
+        }
+    }
+
+    private String getAsymmetricAlgorithm(WrapKey wrapKey) {
+        if (wrapKey.getSymmetricKey().getEncryptionMethod()!=null && wrapKey.getSymmetricKey().getEncryptionMethod().getAlgorithm()!=null) {
+            return wrapKey.getSymmetricKey().getEncryptionMethod().getAlgorithm();
+        } else {
+            return DEFAULT_ASYMMETRIC_ALGORITHM;
+        }
+    }
+
+    private void storeCertificationDate(Device device, Shipment shipment) {
+        if (shipment.getHeader().getCertificationDate() != null) {
+            device.setYearOfCertification(shipment.getHeader().getCertificationDate().getYear());
+        }
+    }
+
+    private void storeMacAddress(Device device, Body.Device xmlDevice, Logger logger) {
+        if (!Checks.is(xmlDevice.getMACAddress()).emptyOrOnlyWhiteSpace()) {
+            Optional<DeviceProtocolPluggableClass> pluggableClassOptional = device.getDeviceType().getDeviceProtocolPluggableClass();
+            if (pluggableClassOptional.isPresent()) {
+                Optional<PropertySpec> mac_address = pluggableClassOptional.get()
+                        .getDeviceProtocol()
+                        .getPropertySpecs()
+                        .stream()
+                        .filter(spec -> spec.getName().equalsIgnoreCase("MAC_ADDRESS"))
+                        .findAny();
+                if (mac_address.isPresent()) {
+                    device.setProtocolProperty(mac_address.get().getName(), xmlDevice.getMACAddress());
+                } else {
+                    Optional<PropertySpec> callHomeId = pluggableClassOptional.get()
+                            .getDeviceProtocol()
+                            .getPropertySpecs()
+                            .stream()
+                            .filter(spec -> spec.getName().equalsIgnoreCase(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME))
+                            .findAny();
+                    if (callHomeId.isPresent()) {
+                        device.setProtocolProperty(callHomeId.get().getName(), xmlDevice.getMACAddress());
+                    } else {
+                        log(logger, MessageSeeds.FAILED_TO_STORE_MAC_ADDRESS, device.getName());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Hook to allow post processing on created devices by more specialized importers. XMl attributes can be obtained by calling xmlDevice.getAttribute().
+     * This method is called from within a transaction. Make sure to call Device.save() to apply changes.
+     *
+     *
+     * @param device The device that has just been created by the importer.
+     * @param xmlDevice The XML Node from the shipment file that was used to create the device.
+     * @param shipment The complete shipment file, in case any information is required from a larger scope.
+     * @param logger logger on which information can be logged while post processing a device, if required.
+     */
+    protected void postProcessDevice(Device device, Body.Device xmlDevice, Shipment shipment, Logger logger) {
+        // default importer has nothing to do here
+    }
+
+    private DeviceConfiguration findDefaultDeviceConfig(DeviceType deviceType) {
+        DeviceConfiguration defaultDeviceConfiguration = deviceType.getConfigurations()
+                .stream()
+                .filter(dc -> dc.getName().equals("Default"))
+                .findAny()
+                .orElseThrow(() -> new ImportFailedException(MessageSeeds.NO_DEFAULT_DEVICE_CONFIG_FOUND));
+        if (!defaultDeviceConfiguration.isActive()) {
+            throw new ImportFailedException(MessageSeeds.DEFAULT_DEVICE_CONFIG_FOUND_NOT_ACTIVE);
+        }
+        return defaultDeviceConfiguration;
+    }
+
+    private DeviceType findDeviceType(Shipment shipment) {
+        String deviceTypeName = shipment.getHeader().getDeviceType();
+        return deviceConfigurationService.findDeviceTypeByName(deviceTypeName)
+                .orElseThrow(() -> new ImportFailedException(MessageSeeds.NO_SUCH_DEVICE_TYPE, deviceTypeName));
     }
 
     private Optional<PublicKey> getPublicKeyFromShipmentFile(Logger logger, Shipment shipment, Optional<X509Certificate> certificate) {
@@ -159,14 +361,12 @@ public class SecureDeviceShipmentImporter implements FileImporter {
             XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
             XMLSignature signature = fac.unmarshalXMLSignature(validateContext);
             if(!signature.validate(validateContext)) {
-                log(logger, MessageSeeds.INVALID_SIGNATURE);
-                throw new RuntimeException(thesaurus.getFormat(MessageSeeds.INVALID_SIGNATURE).format());
+                throw new ImportFailedException(MessageSeeds.INVALID_SIGNATURE);
             } else {
                 log(logger, MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY);
             }
         } catch (Exception e) {
-            log(logger, MessageSeeds.SIGNATURE_VALIDATION_FAILED, e.getMessage());
-            throw new RuntimeException(thesaurus.getFormat(MessageSeeds.SIGNATURE_VALIDATION_FAILED).format(e.getMessage()));
+            throw new ImportFailedException(MessageSeeds.SIGNATURE_VALIDATION_FAILED);
         }
     }
 
@@ -174,7 +374,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
         DocumentBuilderFactory builder = DocumentBuilderFactory.newInstance();
         builder.setNamespaceAware(true);
         Document xmlInput = builder.newDocumentBuilder().parse(inputStream);
-        return xmlInput.getElementsByTagNameNS("*", SIGNATURE_TAG).item(0);
+        return xmlInput.getElementsByTagNameNS("*", SIGNATURE_XML_TAG).item(0);
     }
 
     private Optional<X509Certificate> findCertificate(Shipment shipment, Logger logger) throws CertificateException {
@@ -235,6 +435,28 @@ public class SecureDeviceShipmentImporter implements FileImporter {
         } catch (SAXException e) {
             throw new SchemaFailedException(thesaurus, e);
         }
+    }
+
+    private class ImportFailedException extends RuntimeException {
+        private final MessageSeeds messageSeeds;
+        private final Object[] objects;
+
+        public ImportFailedException(MessageSeeds messageSeeds, Object... objects) {
+            this.messageSeeds = messageSeeds;
+            this.objects = objects;
+        }
+
+        public MessageSeeds getMessageSeed() {
+            return messageSeeds;
+        }
+
+        public Object[] getMessageParameters() {
+            return objects;
+        }
+    }
+
+    private interface DeviceCreator {
+        Device createDevice(DeviceConfiguration deviceConfiguration, String name);
     }
 
 }

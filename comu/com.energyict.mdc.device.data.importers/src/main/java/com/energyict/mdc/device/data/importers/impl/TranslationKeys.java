@@ -54,6 +54,8 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_DATA_IMPORTER_NUMBER_FORMAT_DESCRIPTION("numberFormat.description", "The format that is used for numerical properties"),
     DEVICE_DATA_IMPORTER_TRUSTSTORE("truststore", "Trust store"),
     DEVICE_DATA_IMPORTER_TRUSTSTORE_DESCRIPTION("truststore.description", "The trust store used to build a chain of trust for the certificate in the shipment file"),
+    DEVICE_DATA_IMPORTER_PUBLICKEY("publickey", "Public key"),
+    DEVICE_DATA_IMPORTER_PUBLICKEY_DESCRIPTION("publickey.description", "The public key to be used to verify the shipment file's signature. Only to be filled in if the shipment file does not contain a certificate"),
 
     MASTER_WILL_BE_OVERRIDDEN("MasterWillBeOverridden", "Note for line {0}: Master device (name: {1}) was overridden by new one (name: {2})"),
     NEW_USAGE_POINT_WILL_BE_CREATED("NewUsagePointWillBeCreated", "Note for line {0}: Usage point {1} is not found. New usage point was created based on Service Category value"),
