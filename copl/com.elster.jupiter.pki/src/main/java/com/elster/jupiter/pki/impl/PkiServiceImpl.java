@@ -318,6 +318,11 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).newSymmetricKey(keyAccessorType);
     }
 
+    @Override
+    public DeviceKeyImporter getSymmetricKeyImporter(KeyAccessorType keyAccessorType) {
+        return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getDeviceKeyImporter(keyAccessorType);
+    }
+
     private SymmetricKeyFactory getSymmetricKeyFactoryOrThrowException(String keyEncryptionMethod) {
         if (!symmetricKeyFactories.containsKey(keyEncryptionMethod)) {
             throw new NoSuchKeyEncryptionMethod(thesaurus);

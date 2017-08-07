@@ -36,11 +36,9 @@ import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -176,7 +174,7 @@ public class TrustStoreImpl implements TrustStore {
                 }
             }
         } catch (KeyStoreException e) {
-            throw new KeyStoreImportFailed(thesaurus, MessageSeeds.GENERAL_KEYSTORE_FAILURE, e);
+            throw new KeyStoreImportFailedException(thesaurus, MessageSeeds.GENERAL_KEYSTORE_FAILURE, e);
         }
     }
 

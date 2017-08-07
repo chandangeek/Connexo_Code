@@ -9,10 +9,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
- * Throw whenever the import of a KeyStore failed. A more specific message is added as well.
+ * Throw whenever the import of a Key failed. A more specific message is added as well.
  */
-public class KeyStoreImportFailed extends LocalizedException {
-    protected KeyStoreImportFailed(Thesaurus thesaurus, MessageSeed messageSeed, Throwable cause) {
+public class KeyImportFailedException extends LocalizedException {
+    protected KeyImportFailedException(Thesaurus thesaurus, MessageSeed messageSeed, Throwable cause) {
         super(thesaurus, messageSeed, cause);
     }
 }

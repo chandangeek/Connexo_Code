@@ -17,4 +17,10 @@ public interface SecurityValueWrapper extends HasDynamicPropertiesWithUpdatableV
      * is not applicable, e.g. if no key or certificate is present in the wrapper.
      */
     Optional<Instant> getExpirationTime();
+
+    /**
+     * Deletes this wrapper and the contained attributes and values
+     */
+    void delete();
+
 }

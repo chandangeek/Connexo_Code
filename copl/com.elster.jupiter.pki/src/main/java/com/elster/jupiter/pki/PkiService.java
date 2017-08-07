@@ -1,6 +1,7 @@
 package com.elster.jupiter.pki;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.pki.impl.DeviceKeyImporter;
 import com.elster.jupiter.properties.PropertySpec;
 
 import aQute.bnd.annotation.ProviderType;
@@ -152,6 +153,8 @@ public interface PkiService {
      * @return a new symmetric key wrapper of the required type and encryption method, without value.
      */
     SymmetricKeyWrapper newSymmetricKeyWrapper(KeyAccessorType keyAccessorType);
+
+    DeviceKeyImporter getSymmetricKeyImporter(KeyAccessorType keyAccessorType);
 
     /**
      * Creates a new PassphraseWrapper. The PkiService will delegate the actual creation and storage to the appropriate
