@@ -15,14 +15,20 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.StreamHandler;
 import java.util.stream.Stream;
 
 import org.junit.Before;
@@ -32,10 +38,14 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -56,13 +66,19 @@ public class SecureDeviceShipmentImporterTest {
     @Mock
     PkiService pkiService;
 
+    private TestHandler testHandler;
+
     @Before
     public void setUp() throws Exception {
         when(thesaurus.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((com.elster.jupiter.util.exception.MessageSeed) invocation.getArguments()[0]));
         when(thesaurus.getSimpleFormat(any(MessageSeed.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((com.elster.jupiter.util.exception.MessageSeed) invocation.getArguments()[0]));
-        when(fileImportOccurrence.getLogger()).thenReturn(Logger.getLogger("tests"));
+        Logger logger = Logger.getLogger("tests");
+        logger.addHandler(new StreamHandler(System.out, new SimpleFormatter()));
+        testHandler = new TestHandler();
+        logger.addHandler(testHandler);
+        when(fileImportOccurrence.getLogger()).thenReturn(logger);
     }
 
     @Test
@@ -84,10 +100,7 @@ public class SecureDeviceShipmentImporterTest {
         KeyAccessor keyAccessor = mock(KeyAccessor.class);
         when(keyAccessor.getActualValue()).thenReturn(Optional.empty());
         when(keyAccessor.getTempValue()).thenReturn(Optional.empty());
-        DeviceKeyImporter deviceKeyImporter = (ek, iv, wk, sa, aa) -> {
-            System.out.println(":"+sa + "\t" +aa);
-            return null;
-        };
+        DeviceKeyImporter deviceKeyImporter = mock(DeviceKeyImporter.class);
         List<KeyAccessorType> keyAccessorTypes = Stream.of("NTP_HASH", "MK_DC", "EAP_PSK_DC", "WEB_PORTAL_LOGIN_RO", "WEB_PORTAL_LOGIN_RW",
                 "WEB_PORTAL_LOGIN_ADMIN", "Priv_DC_SSH_cl", "Pub_DC_SSH_sv", "DLMS_WAN_DMGMT_MC_GUEK", "DLMS_WAN_DBROAD_MC_GUEK",
                 "DLMS_WAN_DMGMT_RW_GUEK", "DLMS_WAN_DBROAD_RW_GUEK", "DLMS_WAN_DMGMT_FU_GUEK", "DLMS_WAN_DBROAD_FU_GUEK",
@@ -106,7 +119,43 @@ public class SecureDeviceShipmentImporterTest {
 
         SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, pkiService);
         when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("example-shipment-file-v1.5.xml"));
+
         secureDeviceShipmentImporter.process(fileImportOccurrence);
+
+        verify(deviceKeyImporter, times(160)).importKey(any(byte[].class), any(byte[].class), any(byte[].class), anyString(), anyString());
+        List<String> logMessages = testHandler.getLogMessages();
+        assertThat(logMessages).contains(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
+        assertThat(logMessages).contains("Now importing device '00376280'");
+        assertThat(logMessages).contains("Device '00376280' imported successfully");
+        assertThat(logMessages).contains("Now importing device '00376281'");
+        assertThat(logMessages).contains("Device '00376281' imported successfully");
+        assertThat(logMessages).contains("Now importing device '00376282'");
+        assertThat(logMessages).contains("Device '00376282' imported successfully");
+        assertThat(logMessages).contains("Now importing device '00376283'");
+        assertThat(logMessages).contains("Device '00376283' imported successfully");
+        assertThat(logMessages).contains("Now importing device '00376284'");
+        assertThat(logMessages).contains("Device '00376284' imported successfully");
+    }
+
+    @Test
+    public void importBeaconShipmentFileWithUnknownDeviceType() throws Exception {
+        DeviceType deviceType = mock(DeviceType.class);
+
+        when(deviceConfigurationService.findDeviceTypeByName("Beacon-3100/SM765")).thenReturn(Optional.empty());
+
+        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, pkiService);
+        when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("example-shipment-file-v1.5.xml"));
+
+        try {
+            secureDeviceShipmentImporter.process(fileImportOccurrence);
+            fail("Importer should have failed for unknown device type");
+        } catch (Exception e) {
+            assertThat(e.getLocalizedMessage()).isEqualTo("The device type 'Beacon-3100/SM765' required by the importer could not be found");
+        }
+
+        List<String> logMessages = testHandler.getLogMessages();
+        assertThat(logMessages).contains(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
+        assertThat(logMessages).contains("The device type 'Beacon-3100/SM765' required by the importer could not be found");
     }
 
     @Test
@@ -139,4 +188,29 @@ public class SecureDeviceShipmentImporterTest {
         }
 
     }
+
+    private class TestHandler extends Handler {
+
+        private List<LogRecord> records = new ArrayList<>();
+
+        @Override
+        public void publish(LogRecord record) {
+            records.add(record);
+        }
+
+        @Override
+        public void flush() {
+
+        }
+
+        @Override
+        public void close() throws SecurityException {
+
+        }
+
+        public List<String> getLogMessages() {
+            return records.stream().map(rec->rec.getMessage()).collect(toList());
+        }
+    }
+
 }

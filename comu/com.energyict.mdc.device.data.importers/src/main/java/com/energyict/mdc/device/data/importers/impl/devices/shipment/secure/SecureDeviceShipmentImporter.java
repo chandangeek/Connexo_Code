@@ -196,10 +196,11 @@ public class SecureDeviceShipmentImporter implements FileImporter {
                 storeMacAddress(device, xmlDevice, logger);
                 device.save();
                 for (NamedEncryptedDataType deviceKey : xmlDevice.getKey()) {
-                    importKeys(device, deviceKey, wrapKeyMap);
+                    importDeviceKey(device, deviceKey, wrapKeyMap);
                 }
 
                 postProcessDevice(device, xmlDevice, shipment, logger);
+                log(logger, MessageSeeds.IMPORTED_DEVICE, deviceName);
             } catch (Exception e) {
                 log(logger, MessageSeeds.IMPORT_FAILED_FOR_DEVICE, deviceName, e);
                 throw e;
@@ -207,7 +208,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
         }
     }
 
-    private void importKeys(Device device, NamedEncryptedDataType deviceKey, Map<String, WrapKey> wrapKeyMap) {
+    private void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, Map<String, WrapKey> wrapKeyMap) {
         String securityAccessorName = deviceKey.getName();
         KeyAccessorType keyAccessorType = device.getDeviceType()
                 .getKeyAccessorTypes()
