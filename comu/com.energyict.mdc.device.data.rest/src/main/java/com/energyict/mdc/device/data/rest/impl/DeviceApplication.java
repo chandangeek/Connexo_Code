@@ -198,7 +198,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 EstimationErrorExceptionMapper.class,
                 EstimatorPropertiesExceptionMapper.class,
                 ChannelValidationResource.class,
-                ChannelEstimationResource.class
+                ChannelEstimationResource.class,
+                DeviceMessageSearchResource.class
         );
     }
 
@@ -635,6 +636,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(KeyAccessorPlaceHolder.class).to(KeyAccessorPlaceHolder.class);
             bind(ExecutionLevelInfoFactory.class).to(ExecutionLevelInfoFactory.class);
             bind(ChannelReferenceDataCopier.class).to(ChannelReferenceDataCopier.class);
+            bind(CommandInfoFactory.class).to(CommandInfoFactory.class);
         }
     }
 }

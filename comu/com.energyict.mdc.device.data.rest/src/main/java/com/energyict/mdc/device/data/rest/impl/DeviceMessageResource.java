@@ -85,7 +85,7 @@ public class DeviceMessageResource {
                 // we do the explicit filtering because some categories should be hidden for the user
                         filter(deviceMessage -> deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition().contains(deviceMessage.getSpecification().getCategory())).
                 sorted(comparing(DeviceMessage::getReleaseDate, nullsLast(Comparator.<Instant>naturalOrder().reversed()))).
-                        map(deviceMessage -> deviceMessageInfoFactory.asInfo(deviceMessage, uriInfo)).
+                        map(deviceMessage -> deviceMessageInfoFactory.asFullInfo(deviceMessage, uriInfo)).
                 collect(toList());
         List<DeviceMessageInfo> infosInPage = ListPager.of(infos).from(queryParameters).find();
         return Response.ok(PagedInfoList.fromPagedList("deviceMessages", infosInPage, queryParameters)).build();
@@ -134,7 +134,7 @@ public class DeviceMessageResource {
             }
         }
 
-        return Response.status(Response.Status.CREATED).entity(deviceMessageInfoFactory.asInfo(deviceMessageBuilder.add(), uriInfo)).build();
+        return Response.status(Response.Status.CREATED).entity(deviceMessageInfoFactory.asFullInfo(deviceMessageBuilder.add(), uriInfo)).build();
     }
 
     @PUT @Transactional
@@ -156,7 +156,7 @@ public class DeviceMessageResource {
             deviceMessage.save();
         }
         DeviceMessage reloaded = resourceHelper.findDeviceMessageOrThrowException(deviceMessageId);
-        return deviceMessageInfoFactory.asInfo(reloaded, uriInfo);
+        return deviceMessageInfoFactory.asFullInfo(reloaded, uriInfo);
     }
 
     private boolean hasCommandsWithPrivileges (Device device) {
