@@ -7,6 +7,7 @@ package com.energyict.mdc.issue.datavalidation.impl;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.issue.impl.records.HistoricalIssueImpl;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.impl.entity.HistoricalIssueDataValidationImpl;
@@ -30,6 +31,8 @@ public class HistoricalIssueEqualsContractTest extends EqualsContractTest {
     IssueService issueService;
     @Mock
     IssueDataValidationService issueDataValidationService;
+    @Mock
+    Thesaurus thesaurus;
 
     HistoricalIssueImpl baseIssue;
     HistoricalIssueDataValidationImpl issueDataValidation;
@@ -37,7 +40,7 @@ public class HistoricalIssueEqualsContractTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (issueDataValidation == null) {
-            baseIssue = new HistoricalIssueImpl(dataModel, issueService, Clock.systemDefaultZone());
+            baseIssue = new HistoricalIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
             baseIssue.setId(ID);
             issueDataValidation = new HistoricalIssueDataValidationImpl(dataModel, issueDataValidationService);
             issueDataValidation.setIssue(baseIssue);
@@ -47,7 +50,7 @@ public class HistoricalIssueEqualsContractTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        HistoricalIssueImpl baseIssue = new HistoricalIssueImpl(dataModel, issueService, Clock.systemDefaultZone());
+        HistoricalIssueImpl baseIssue = new HistoricalIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
         baseIssue.setId(ID);
         HistoricalIssueDataValidationImpl issueDataValidation = new HistoricalIssueDataValidationImpl(dataModel, issueDataValidationService);
         issueDataValidation.setIssue(baseIssue);
@@ -56,7 +59,7 @@ public class HistoricalIssueEqualsContractTest extends EqualsContractTest {
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        HistoricalIssueImpl baseIssue = new HistoricalIssueImpl(dataModel, issueService, Clock.systemDefaultZone());
+        HistoricalIssueImpl baseIssue = new HistoricalIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
         baseIssue.setId(OTHER_ID);
         HistoricalIssueDataValidationImpl issueDataValidation = new HistoricalIssueDataValidationImpl(dataModel, issueDataValidationService);
         issueDataValidation.setIssue(baseIssue);
