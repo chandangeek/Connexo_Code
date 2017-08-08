@@ -81,7 +81,7 @@ class DataExportStrategyImpl implements DataExportStrategy, EventDataExportStrat
             Range<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
                 Range<Instant> readingsContainerInterval = item.getReadingContainer() instanceof Effectivity ? ((Effectivity)item.getReadingContainer()).getRange() : Range.all();
                 Range<Instant> exportedDataInterval = ((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
-                if(exportedDataInterval.contains(item.getLastExportedDate().get())){
+                if(item.getLastExportedDate().isPresent() && exportedDataInterval.contains(item.getLastExportedDate().get())){
                     return item.getLastExportedDate()
                             .map(lastExport -> getRangeSinceLastExport(exportedDataInterval, lastExport))
                             .filter(interval -> Ranges.does(interval).overlap(readingsContainerInterval) || interval.isEmpty())
