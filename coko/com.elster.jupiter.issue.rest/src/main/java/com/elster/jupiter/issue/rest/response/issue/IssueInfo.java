@@ -31,12 +31,13 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
     public long creationDate;
     public long modTime;
     public long version;
+    public long snoozedDateTime;
 
-    public IssueInfo(I issue){
+    public IssueInfo(I issue) {
         init(issue, DeviceShortInfo.class);
     }
 
-    public IssueInfo(I issue, Class<T> deviceType){
+    public IssueInfo(I issue, Class<T> deviceType) {
         init(issue, deviceType);
     }
 
@@ -48,6 +49,7 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
             this.priority = new PriorityInfo(issue.getPriority());
             this.priorityValue = issue.getPriority().getImpact() + issue.getPriority().getUrgency();
             this.status = new IssueStatusInfo(issue.getStatus());
+            this.snoozedDateTime = issue.getSnoozeDateTime().isPresent() ? issue.getSnoozeDateTime().get().toEpochMilli() : 0;
             this.dueDate = issue.getDueDate() != null ? issue.getDueDate().toEpochMilli() : 0;
             this.assignee = (issue.getAssignee() != null ? new IssueAssigneeInfo(issue.getAssignee()) : null);
             this.workGroupAssignee = (issue.getAssignee() != null ? new IssueAssigneeInfo("WORKGROUP", issue.getAssignee()) : null);
