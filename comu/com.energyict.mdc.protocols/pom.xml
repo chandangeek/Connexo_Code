@@ -217,6 +217,11 @@
             <artifactId>estimation</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.groups</artifactId>
+            <scope>test</scope>
+        </dependency>
 
 
         <!--The 9.1 protocol code, to be included in this jar-->
