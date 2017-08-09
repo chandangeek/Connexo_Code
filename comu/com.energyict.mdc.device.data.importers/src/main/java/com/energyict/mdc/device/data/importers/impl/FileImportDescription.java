@@ -4,15 +4,6 @@
 
 package com.energyict.mdc.device.data.importers.impl;
 
-import com.elster.jupiter.fileimport.csvimport.FieldParser;
-import com.elster.jupiter.fileimport.csvimport.fields.FileImportField;
-
-import java.util.Map;
-
-public interface FileImportDescription<T extends FileImportRecord> {
-    T getFileImportRecord();
-
-    Map<String, FileImportField<?>> getFields(T record);
-
-    Map<Class, FieldParser> getParsers();
+public interface FileImportDescription<T extends FileImportRecord>
+        extends com.elster.jupiter.fileimport.csvimport.FileImportDescription<T> {
 }
