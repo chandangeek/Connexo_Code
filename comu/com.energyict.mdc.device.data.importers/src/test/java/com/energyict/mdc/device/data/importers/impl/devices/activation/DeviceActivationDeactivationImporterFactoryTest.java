@@ -11,15 +11,13 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
@@ -56,10 +54,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceActivationDeactivationImporterFactoryTest {
-
-    @Mock
-    private Thesaurus thesaurus;
-
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     private DeviceDataImporterContext context;
     @Mock
     private DeviceService deviceService;
@@ -80,7 +75,7 @@ public class DeviceActivationDeactivationImporterFactoryTest {
 
     @Before
     public void beforeTest() {
-        reset(logger, thesaurus, deviceService, topologyService, meteringService, deviceLifeCycleService, finiteStateMachineService);
+        reset(logger, deviceService, topologyService, meteringService, deviceLifeCycleService, finiteStateMachineService);
         this.setupTranslations();
         context = spy(new DeviceDataImporterContext());
         context.setDeviceService(deviceService);
@@ -95,10 +90,6 @@ public class DeviceActivationDeactivationImporterFactoryTest {
     }
 
     private void setupTranslations() {
-        when(thesaurus.getFormat(any(TranslationKey.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
-        when(thesaurus.getFormat(any(MessageSeed.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
         when(this.deviceLifeCycleConfigurationService.getDisplayName(any(DefaultState.class)))
                 .thenAnswer(invocationOnMock -> {
                     DefaultState state = (DefaultState) invocationOnMock.getArguments()[0];

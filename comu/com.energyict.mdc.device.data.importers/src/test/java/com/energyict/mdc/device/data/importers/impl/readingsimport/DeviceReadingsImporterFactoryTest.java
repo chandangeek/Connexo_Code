@@ -19,24 +19,53 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.*;
-import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.users.PreferenceType;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserPreference;
+import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.data.*;
-import com.energyict.mdc.device.data.importers.impl.*;
+import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.*;
+import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
+import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.SupportedNumberFormatInfo;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+
 import com.google.common.collect.Range;
+
+import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TimeZone;
+import java.util.UUID;
+import java.util.logging.Logger;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,29 +74,30 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.ByteArrayInputStream;
-import java.math.BigDecimal;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.logging.Logger;
-
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
-import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.*;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.NUMBER_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT1;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT2;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT3;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT4;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceReadingsImporterFactoryTest {
-
     private DeviceDataImporterContext context;
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
@@ -89,11 +119,7 @@ public class DeviceReadingsImporterFactoryTest {
 
     @Before
     public void beforeTest() {
-        reset(logger, thesaurus, deviceConfigurationService, deviceService, batchService);
-        when(thesaurus.getFormat(any(TranslationKey.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
-        when(thesaurus.getFormat(any(MessageSeed.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
+        reset(logger, deviceConfigurationService, deviceService, batchService);
         context = spy(new DeviceDataImporterContext());
         context.setDeviceService(deviceService);
         context.setDeviceConfigurationService(deviceConfigurationService);
@@ -254,7 +280,7 @@ public class DeviceReadingsImporterFactoryTest {
     @Test
     public void testNoSuchDevice() {
         String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
-                "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;1005003";
+                "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.empty());
 
@@ -268,7 +294,7 @@ public class DeviceReadingsImporterFactoryTest {
 
     @Test
     public void testDeviceInDecommissionedState() {
-        String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value;Reading type MRID2;Reading Value2;Reading type MRID3;Reading Value3\n" +
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;1005003";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
 
@@ -286,7 +312,7 @@ public class DeviceReadingsImporterFactoryTest {
 
     @Test
     public void testDeviceInInStockState() {
-        String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value;Reading type MRID2;Reading Value2;Reading type MRID3;Reading Value3\n" +
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;1005003";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
 
@@ -382,7 +408,7 @@ public class DeviceReadingsImporterFactoryTest {
 
     @Test
     public void testReadingTypeNotFound() {
-        String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value;Reading type MRID2;Reading Value2\n" +
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         mockDevice("VPB0001");
@@ -399,7 +425,7 @@ public class DeviceReadingsImporterFactoryTest {
 
     @Test
     public void testReadingTypeIsNotSupported() {
-        String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value;Reading type MRID2;Reading Value2\n" +
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         mockDevice("VPB0001");
@@ -475,7 +501,7 @@ public class DeviceReadingsImporterFactoryTest {
 
     @Test
     public void testDeviceDoesNotSupportReadingType() {
-        String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value;Reading type MRID2;Reading Value2\n" +
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         mockDevice("VPB0001");
@@ -492,7 +518,7 @@ public class DeviceReadingsImporterFactoryTest {
 
     @Test
     public void testTextualReadingTypesNotSupported() {
-        String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value;Reading type MRID2;Reading Value2\n" +
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2;100502\n" +
                 "VPB0001;02/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;100502";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -561,7 +587,7 @@ public class DeviceReadingsImporterFactoryTest {
         ZonedDateTime readingDate2 = ZonedDateTime.of(2015, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC);
         ZonedDateTime readingDate3 = ZonedDateTime.of(2015, 8, 3, 0, 0, 0, 0, ZoneOffset.UTC);
 
-        String csv = "Device name;Reading date;Reading type MRID;Reading Value;;\n" +
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value;Reading type MRID2;Reading Value2\n" +
                 "VPB0001;01/08/2015 00:00;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;107\n" +
                 "VPB0002;02/08/2015 00:00;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;100;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;107\n" +
                 "VPB0003;03/08/2015 00:00;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2;100;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2;107";
@@ -616,7 +642,7 @@ public class DeviceReadingsImporterFactoryTest {
 
     @Test
     public void testSuccessImportForDecommissionedDevice() {
-        String csv = "Device name;Reading date;Reading type MRID;Reading Value;\n" +
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
                 "VPB0001;01/08/2015 00:00;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         Device device = mockDeviceInState("VPB0001", DefaultState.DECOMMISSIONED);
@@ -635,10 +661,10 @@ public class DeviceReadingsImporterFactoryTest {
 
     @Test
     public void testImportReadingsLinesDifferentLength() {
-        String csv = "Device name;Reading date;Reading type MRID;Reading Value;;\n" +
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value;Reading type MRID2;Reading Value2\n" +
                 "VPB0001;01/08/2015 00:00;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100\n" +
-                "VPB0001;02/08/2015 00:00;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100;;;;\n" +
-                "VPB0001;03/08/2015 00:00;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100;;1001;;;;\n";
+                "VPB0001;02/08/2015 00:00;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100;;\n" +
+                "VPB0001;03/08/2015 00:00;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100;;1001\n";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         Device device = mockDevice("VPB0001");
         mockChannel(device, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
@@ -646,7 +672,7 @@ public class DeviceReadingsImporterFactoryTest {
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
-        verify(logger).warning(thesaurus.getFormat(MessageSeeds.LINE_MISSING_VALUE_ERROR).format(4, "#5"));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.LINE_MISSING_VALUE_ERROR).format(4, "Reading type MRID2"));
         verifyNoMoreInteractions(logger);
         verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS).format(3, 1));
     }

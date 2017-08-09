@@ -7,11 +7,12 @@ package com.energyict.mdc.device.data.importers.impl.attributes;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.DurationValueFactory;
 import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.TemporalAmountValueFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.TimeZoneFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.parsers.BigDecimalParser;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
@@ -23,11 +24,13 @@ import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.LargeStringFactory;
 import com.energyict.mdc.dynamic.LocalTimeFactory;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
+
 import org.joda.time.DateTimeConstants;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -100,7 +103,19 @@ public enum DynamicPropertyConverter {
             return thesaurus.getFormat(TranslationKeys.OBIS_CODE_FORMAT).format();
         }
     },
-    TIME_DURATION(TemporalAmountValueFactory.class) {
+    TIME_DURATION(DurationValueFactory.class) {
+        @Override
+        public String convert(String stringValue) {
+            String[] valueAndUnit = stringValue.split(" ");
+            if (valueAndUnit.length > 1) {
+                String unit = valueAndUnit[1];
+                return valueAndUnit[0] + ":" + Stream.of(TimeDuration.TimeUnit.values())
+                        .filter(timeUnit -> timeUnit.getDescription().equals(unit)).map(TimeDuration.TimeUnit::getCode).map(String::valueOf).findFirst().orElse(unit);
+            } else {
+                return stringValue;
+            }
+        }
+
         @Override
         public String getExpectedFormat(Thesaurus thesaurus) {
             return thesaurus.getFormat(TranslationKeys.INTEGER_FORMAT).format();

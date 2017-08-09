@@ -6,6 +6,8 @@ package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.importers.impl.attributes.connection.ConnectionAttributesImportFactory;
+import com.energyict.mdc.device.data.importers.impl.attributes.protocoldialects.ProtocolDialectAttributesImportFactory;
+import com.energyict.mdc.device.data.importers.impl.attributes.protocols.ProtocolAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.attributes.security.SecurityAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.activation.DeviceActivationDeactivationImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.commission.DeviceCommissioningImportFactory;
@@ -25,7 +27,7 @@ public enum TranslationKeys implements TranslationKey {
     IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS("ImportResultFailWithWarnAndErrors", "Failed to complete. {0} devices processed successfully of which {1} devices contain a note, {2} devices skipped due to errors."),
     IMPORT_RESULT_FAIL_WITH_WARN("ImportResultFailWithWarn", "Failed to complete. {0} devices processed successfully of which {1} devices contain a note."),
     IMPORT_RESULT_SUCCESS("ImportResultSuccess", "Finished successfully. {0} device(s) processed successfully."),
-    IMPORT_RESULT_SUCCESS_WITH_ERRORS("ImportResultSuccessWithErrors", "Finished successfully with (some) failures. {0} devices processed successfully, {1} devices skipped due to errors. "),
+    IMPORT_RESULT_SUCCESS_WITH_ERRORS("ImportResultSuccessWithErrors", "Finished successfully with (some) failures. {0} devices processed successfully, {1} devices skipped due to errors."),
     IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS("ImportResultSuccessWithWarnAndErrors", "Finished successfully with (some) failures and notes. {0} devices processed successfully of which {1} devices contain a note, {2} devices skipped due to errors."),
     IMPORT_RESULT_SUCCESS_WITH_WARN("ImportResultSuccessWithWarn", "Finished successfully with (some) note. {0} devices processed successfully of which {1} devices contain a note."),
     IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE("ImportDefaultProcessorErrorPrefix", "Can''t process line {0}: The device {1} can''t be processed: {2}"),
@@ -44,7 +46,7 @@ public enum TranslationKeys implements TranslationKey {
 
     // Properties translations
     DEVICE_DATA_IMPORTER_DELIMITER("delimiter", "Delimiter"),
-    DEVICE_DATA_IMPORTER_DELIMITER_DESCRIPTION("delimiter", "The character that delimits the values for the different properties to import"),
+    DEVICE_DATA_IMPORTER_DELIMITER_DESCRIPTION("delimiter.description", "The character that delimits the values for the different properties to import"),
     DEVICE_DATA_IMPORTER_DATE_FORMAT("dateFormat", "Date format"),
     DEVICE_DATA_IMPORTER_DATE_FORMAT_DESCRIPTION("dateFormat.description", "The format that is used for date properties"),
     DEVICE_DATA_IMPORTER_TIMEZONE("timeZone", "Time zone"),
@@ -65,6 +67,8 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_REMOVE_IMPORTER(DeviceRemoveImportFactory.NAME, "Devices remove importer [STD]"),
     DEVICE_CONNECTION_ATTRIBUTES_IMPORTER(ConnectionAttributesImportFactory.NAME, "Device connection attributes importer [STD]"),
     DEVICE_SECURITY_ATTRIBUTES_IMPORTER(SecurityAttributesImportFactory.NAME, "Device security attributes importer [STD]"),
+    DEVICE_PROTOCOL_ATTRIBUTES_IMPORTER(ProtocolAttributesImportFactory.NAME, "Device protocol attributes importer [STD]"),
+    DEVICE_PROTOCOL_DIALECT_ATTRIBUTES_IMPORTER(ProtocolDialectAttributesImportFactory.NAME, "Device protocol dialect attributes importer [STD]"),
 
     STRING_FORMAT("StringFormat", "string"),
     NUMBER_FORMAT("NumberFormat", "number"),

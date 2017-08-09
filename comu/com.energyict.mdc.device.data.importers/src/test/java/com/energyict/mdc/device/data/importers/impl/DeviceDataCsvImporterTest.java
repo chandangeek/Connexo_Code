@@ -8,8 +8,7 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.csvimport.exceptions.FileImportParserException;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.nls.impl.NlsModule;
 
 import org.apache.commons.csv.CSVRecord;
 
@@ -26,7 +25,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -75,8 +73,7 @@ public class DeviceDataCsvImporterTest {
         }
     }
 
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private DeviceDataImporterContext context;
     @Mock
@@ -84,11 +81,7 @@ public class DeviceDataCsvImporterTest {
 
     @Before
     public void beforeTest() {
-        reset(logger, context, thesaurus);
-        when(thesaurus.getFormat(any(TranslationKey.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
-        when(thesaurus.getFormat(any(MessageSeed.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
+        reset(logger, context);
         when(context.getThesaurus()).thenReturn(thesaurus);
     }
 

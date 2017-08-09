@@ -16,7 +16,9 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,9 +38,12 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
 
     @Override
     public T parse(CSVRecord csvRecord) throws FileImportParserException {
+        if (!csvRecord.isConsistent()) {
+            throw new FileImportLineException(csvRecord.getRecordNumber(), MessageSeeds.WRONG_LINE_SIZE, csvRecord.getRecordNumber());
+        }
         T record = this.descriptor.getFileImportRecord();
         record.setLineNumber(csvRecord.getRecordNumber());
-        List<FileImportField<?>> fields = this.descriptor.getFields(record);
+        List<FileImportField<?>> fields = new ArrayList<>(this.descriptor.getFields(record).values());
         List<String> rawValues = getRawValuesSkipTrailingNulls(csvRecord);
         if (rawValues.size() < getNumberOfMandatoryColumns(fields)) {
             throw new FileImportLineException(csvRecord.getRecordNumber(), MessageSeeds.FILE_FORMAT_ERROR, csvRecord.getRecordNumber(),
@@ -53,14 +58,14 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                 repetitiveColumnCount++;
             }
             if (currentField.isMandatory() && Checks.is(rawValue).emptyOrOnlyWhiteSpace()) {
-                throw new FileImportLineException(csvRecord.getRecordNumber(), MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), getHeaderColumn(i));
+                throw new FileImportLineException(csvRecord.getRecordNumber(), MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), getHeader(i));
             }
             try {
                 FieldSetter fieldSetter = currentField.getSetter();
                 FieldParser parser = currentField.getParser();
-                fieldSetter.setFieldWithHeader(getHeaderColumn(i), parser.parse(rawValue));
+                fieldSetter.setFieldWithHeader(getHeader(i), parser.parse(rawValue));
             } catch (ValueParserException ex) {
-                throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR, csvRecord.getRecordNumber(), getHeaderColumn(i), ex.getExpected());
+                throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR, csvRecord.getRecordNumber(), getHeader(i), ex.getExpected());
             }
         }
         return record;
@@ -70,7 +75,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         headers = parser.getHeaderMap().entrySet()
                 .stream()
                 .filter(entry -> entry.getKey() != null && !entry.getKey().isEmpty() && entry.getValue() != null)
-                .sorted((e1, e2) -> e1.getValue().compareTo(e2.getValue()))
+                .sorted(Comparator.comparing(Map.Entry::getValue))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
         long numberOfMandatoryColumns = getNumberOfMandatoryColumns();
@@ -80,20 +85,24 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
     }
 
     private long getNumberOfMandatoryColumns() {
-        return getNumberOfMandatoryColumns(this.descriptor.getFields(this.descriptor.getFileImportRecord()));
+        return getNumberOfMandatoryColumns(this.descriptor.getFields(this.descriptor.getFileImportRecord()).values());
     }
 
-    private long getNumberOfMandatoryColumns(List<FileImportField<?>> fields) {
+    private long getNumberOfMandatoryColumns(Collection<FileImportField<?>> fields) {
         return fields
                 .stream()
                 .filter(FileImportField::isMandatory)
                 .count();
     }
 
-    private String getHeaderColumn(int position) {
+    private String getHeader(int position) {
         if (position >= 0 && position < this.headers.size()) {
             return this.headers.get(position);
         }
+        return getColumnIdentifier(position);
+    }
+
+    private String getColumnIdentifier(int position) {
         return "#" + (position + 1);
     }
 

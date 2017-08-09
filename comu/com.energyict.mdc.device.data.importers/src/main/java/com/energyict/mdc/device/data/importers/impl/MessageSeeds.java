@@ -18,6 +18,7 @@ public enum MessageSeeds implements MessageSeed {
     FILE_FORMAT_ERROR(5, "FileFormatError", "File format error: wrong number of columns in the line {0}. Importer service expects {1} but was {2}.", Level.SEVERE),
     LINE_MISSING_VALUE_ERROR(6, "LineMissingValueError", "Format error for line {0}: missing value for column ''{1}''.", Level.SEVERE),
     LINE_FORMAT_ERROR(7, "LineFormatError", "Format error for line {0}: wrong value format for column ''{1}'' (expected format = ''{2}'')", Level.SEVERE),
+    WRONG_LINE_SIZE(8, "HeaderSizeDoesNotMatchLineSize", "Format error for line {0}: header size doesn''t match line size", Level.SEVERE),
 
     NO_DEVICE_TYPE(101, "ImportProcessorNoDeviceType", "Can''t process line {0}: No device type found with name: {1}.", Level.WARNING),
     NO_DEVICE_CONFIGURATION(102, "ImportProcessorNoDeviceConfiguration", "Can''t process line {0}: No device configuration found with name: {1}.", Level.WARNING),
@@ -71,7 +72,13 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_SQL_EXCEPTION(504, "ProcessSqlException", "Can''t process line {0}.  There was a problem accessing the database", Level.SEVERE),
     NO_SUCH_KEY_ACCESSOR_TYPE(505, "NoSuchKeyAccessorType", "Can''t process line {0}.  The device type does not have a security accessor with name {1}", Level.SEVERE),
     UNKNOWN_KEY_WRAPPER(506, "UnknownKeyWrapperType", "Can''t process line {0}.  The importer doesn't know how to handle values of this type, only plaintext keys are supported", Level.SEVERE),
-    NO_VALUE_FOR_SECURITY_PROPERTY(507, "NoValueForSecurityProperty", "Can''t process line {0}.  No value was defined for property {1} so the importer doesn''t know where to store the value", Level.SEVERE);
+    NO_VALUE_FOR_SECURITY_PROPERTY(507, "NoValueForSecurityProperty", "Can''t process line {0}.  No value was defined for property {1} so the importer doesn''t know where to store the value", Level.SEVERE),
+
+    ATTRIBUTE_INVALID_VALUE(601, "AttributeInvalidValue", "Can''t process line {0}: Value ''{1}'' is invalid for attribute ''{2}''", Level.WARNING),
+    NO_DEVICE_PROTOCOL_DIALECT_ON_DEVICE(602, "NoSuchProtocolDialectOnDevice", "Can''t process line {0}: Protocol dialect ''{1}'' is not supported on the device.", Level.WARNING),
+    PROTOCOL_DIALECT_ATTRIBUTE_INVALID_VALUE(603, "ProtocolDialectAttributeInvalidValue", "Can''t process line {0}: Protocol dialect value ''{1}'' is invalid for attribute ''{2}''", Level.WARNING),
+    UNKNOWN_PROTOCOL_DIALECT_ATTRIBUTE(604, "UnknownProtocolDialectAttribute", "Note for file: Protocol dialect ''{0}'' doesn''t have following attribute(s): {1}", Level.INFO),
+    UNKNOWN_PROTOCOL_ATTRIBUTE(605, "UnknownProtocolAttribute", "Note for file: Device ''{0}'' doesn''t have following attribute(s): {1}", Level.INFO);
 
     private final int number;
     private final String key;
