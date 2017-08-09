@@ -1,17 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.usagepoint.lifecycle.impl.actions;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
+import com.elster.jupiter.usagepoint.lifecycle.config.DefaultTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategory;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 
-/**
- * Created by H241414 on 7/21/2017.
- */
 public class CancelAllServiceCalls extends TranslatableAction {
    private final ServiceCallService serviceCallService;
 
@@ -28,6 +33,20 @@ public class CancelAllServiceCalls extends TranslatableAction {
     @Override
     protected void doExecute(UsagePoint usagePoint, Instant transitionTime, Map<String, Object> properties) {
         serviceCallService.cancelServiceCallsFor(usagePoint);
+    }
+
+    @Override
+    protected Set<DefaultTransition> getTransitionCandidates() {
+        return EnumSet.of( DefaultTransition.ACTIVATE, DefaultTransition.DEACTIVATE, DefaultTransition.INSTALL_ACTIVE, DefaultTransition.INSTALL_INACTIVE);
+    }
+
+    @Override
+    public boolean isVisibleByDefault(State fromState, State toState) {
+        if((fromState.getName().equals(DefaultState.ACTIVE) && toState.getName().equals(DefaultState.DEMOLISHED)) ||
+                (fromState.getName().equals(DefaultState.INACTIVE) && toState.getName().equals(DefaultState.DEMOLISHED)))
+            return true;
+        else
+            return false;
     }
 
     @Override

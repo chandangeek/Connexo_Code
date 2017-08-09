@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.usagepoint.lifecycle.impl.actions;
 
 import com.elster.jupiter.fsm.State;
@@ -6,17 +10,15 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategory;
-
+import com.elster.jupiter.usagepoint.lifecycle.impl.actions.TranslatableAction;
 
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.*;
 
-/**
- * Created by h165708 on 7/17/2017.
- */
 public class RemoveUsagePointFromStaticGroup extends TranslatableAction {
 
     private final MeteringService meteringService;
@@ -64,13 +66,17 @@ public class RemoveUsagePointFromStaticGroup extends TranslatableAction {
     }
 
     @Override
-    public boolean isCheckedByDefault(State fromState, State toState) {
-        return DefaultTransition.getDefaultTransition(fromState, toState).isPresent();
+    public boolean isVisibleByDefault(State fromState, State toState) {
+        if((fromState.getName().equals(DefaultState.ACTIVE) && toState.getName().equals(DefaultState.DEMOLISHED)) ||
+                (fromState.getName().equals(DefaultState.INACTIVE) && toState.getName().equals(DefaultState.DEMOLISHED)))
+            return true;
+        else
+            return false;
     }
 
     @Override
     protected Set<DefaultTransition> getTransitionCandidates() {
-        return EnumSet.of(DefaultTransition.INSTALL_ACTIVE, DefaultTransition.INSTALL_INACTIVE, DefaultTransition.ACTIVATE, DefaultTransition.DEACTIVATE);
+        return EnumSet.of( DefaultTransition.ACTIVATE, DefaultTransition.DEACTIVATE, DefaultTransition.INSTALL_ACTIVE, DefaultTransition.INSTALL_INACTIVE);
     }
 
 }

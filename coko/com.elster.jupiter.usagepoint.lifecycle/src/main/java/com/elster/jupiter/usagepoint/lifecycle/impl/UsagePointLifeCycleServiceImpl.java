@@ -446,12 +446,7 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                             checks.add(MeterRolesAreSpecifiedCheck.class.getSimpleName());
                             actions.add(SetConnectionStateAction.class.getSimpleName());
                             break;
-                        case DEMOLISH_FROM_ACTIVE:
-                            actions.add(RemoveUsagePointFromStaticGroup.class.getSimpleName());
-                            break;
-                        case DEMOLISH_FROM_INACTIVE:
-                            actions.add(RemoveUsagePointFromStaticGroup.class.getSimpleName());
-                            break;
+
                     }
 
                     actions.add(ResetValidationResultsAction.class.getSimpleName());
