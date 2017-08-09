@@ -9,6 +9,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -360,5 +361,10 @@ public interface DeviceConfigurationService {
 
     Optional<KeyAccessorType> findKeyAccessorTypeById(long id);
 
-
+    /**
+     * Return a list of all device configurations from whom devices are present in an EndDeviceGroup
+     * @param endDeviceGroup
+     * @return
+     */
+    List<DeviceConfiguration> getDeviceConfigsByDeviceGroup(EndDeviceGroup endDeviceGroup);
 }
