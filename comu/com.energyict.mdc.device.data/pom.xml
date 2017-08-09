@@ -212,7 +212,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>dataquality</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.upl</artifactId>

@@ -93,12 +93,14 @@ public class ConnectionTaskUpdatePropertiesMessageHandler implements MessageHand
         this.jsonService = jsonService;
         return this;
     }
-}
 
-class TimeDurationJson {
-    public String timeUnit;
-    public int count;
+    class TimeDurationJson {
+        public String timeUnit;
+        public int count;
 
-    public TimeDurationJson() {
+        public TimeDurationJson() {
+        }
     }
+
 }
+

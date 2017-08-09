@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -19,9 +18,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
-import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
-import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementChangeMessageHandler;
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
@@ -31,7 +28,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
 import javax.inject.Inject;
-import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -141,6 +137,8 @@ public class Installer implements FullInstaller {
         this.createMessageHandler(defaultQueueTableSpec, SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SubscriberTranslationKeys.COMSCHEDULE);
         this.createMessageHandler(defaultQueueTableSpec, ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION, SubscriberTranslationKeys.CHANGE_DEVICE_CONFIGURATION);
         this.createMessageHandler(defaultQueueTableSpec, ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_QUEUE_DESTINATION, SubscriberTranslationKeys.COMTASK_ENABLEMENT);
+        this.createMessageHandler(defaultQueueTableSpec, DeviceMessageService.BULK_DEVICE_MESSAGE_QUEUE_DESTINATION, SubscriberTranslationKeys.BULK_DEVICE_MESSAGES);
+        this.createMessageHandler(defaultQueueTableSpec, DeviceMessageService.DEVICE_MESSAGE_QUEUE_DESTINATION, SubscriberTranslationKeys.DEVICE_MESSAGES);
     }
 
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, TranslationKey nameKey) {

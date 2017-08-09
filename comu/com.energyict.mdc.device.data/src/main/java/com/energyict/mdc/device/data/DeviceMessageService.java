@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -16,6 +17,12 @@ import java.util.Optional;
 
 @ProviderType
 public interface DeviceMessageService {
+    String BULK_DEVICE_MESSAGE_QUEUE_DESTINATION = "BulkDevMsgQD";
+    String BULK_DEVICE_MESSAGE_QUEUE_SUBSCRIBER = "BulkDevMsgQS";
+    String BULK_DEVICE_MESSAGE_QUEUE_DISPLAYNAME = "Handle creation of device messages on a device group in bulk";
+    String DEVICE_MESSAGE_QUEUE_DESTINATION = "DevMsgQD";
+    String DEVICE_MESSAGE_QUEUE_SUBSCRIBER = "DevMsgQS";
+    String DEVICE_MESSAGE_QUEUE_DISPLAYNAME = "Create a device message for a single device";
 
     Optional<DeviceMessage> findDeviceMessageById(long id);
 
@@ -58,4 +65,10 @@ public interface DeviceMessageService {
      * @return
      */
     boolean canUserAdministrateDeviceMessage(DeviceConfiguration deviceConfiguration, DeviceMessageId deviceMessageId);
+
+    /**
+     * Perform a search for device messages by respecting filter parameters
+     * @return Found DeviceMessages
+     */
+    Finder<DeviceMessage> findDeviceMessagesByFilter(DeviceMessageQueryFilter deviceMessageQueryFilter);
 }

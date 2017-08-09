@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -73,8 +74,10 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
     ThreadPrincipalService threadPrincipalService;
     @Mock
     Clock clock;
+    @Mock
+    MeteringGroupsService meteringGroupsService;
 
-    DeviceMessageService deviceMessageService = new DeviceMessageServiceImpl(new DeviceDataModelServiceImpl(), threadPrincipalService);
+    DeviceMessageService deviceMessageService = new DeviceMessageServiceImpl(new DeviceDataModelServiceImpl(), threadPrincipalService, meteringGroupsService, clock);
     DeviceMessage command1;
     private Device device;
     private DeviceConfiguration deviceConfiguration;
