@@ -226,7 +226,10 @@ public class UsagePointLifeCycleResource {
                         ? this.microActionAndCheckInfoFactory.optionalAndChecked(action)
                         : action.isMandatoryForTransition(fromState, toState)
                         ? this.microActionAndCheckInfoFactory.required(action)
-                        : this.microActionAndCheckInfoFactory.optional(action))
+                        : action.isVisibleByDefault(fromState, toState)
+                        ? this.microActionAndCheckInfoFactory.optionalAndVisible(action)
+                        :this.microActionAndCheckInfoFactory.optional(action)
+                        )
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("microActions", privileges, queryParams);
     }

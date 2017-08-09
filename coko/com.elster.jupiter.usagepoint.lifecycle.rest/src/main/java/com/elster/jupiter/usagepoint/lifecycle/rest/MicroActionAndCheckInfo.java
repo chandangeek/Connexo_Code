@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 public class MicroActionAndCheckInfo {
@@ -14,6 +15,8 @@ public class MicroActionAndCheckInfo {
     public IdWithNameInfo category;
     public Boolean isRequired;
     public Boolean checked;
+    public Boolean isVisible;
+
 
     @Override
     public boolean equals(Object o) {
