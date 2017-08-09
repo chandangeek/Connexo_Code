@@ -10,6 +10,8 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -24,7 +26,11 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
@@ -48,7 +54,38 @@ public class DeviceMessageInfoFactory {
         this.deviceMessageService = deviceMessageService;
     }
 
-    public DeviceMessageInfo asInfo(DeviceMessage deviceMessage, UriInfo uriInfo) {
+    public DeviceMessageInfo asFullInfo(DeviceMessage deviceMessage, UriInfo uriInfo) {
+        Device device = (Device) deviceMessage.getDevice();
+        DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo, device);
+        ComTask comTaskForDeviceMessage = deviceMessageService.getPreferredComTask(device, deviceMessage);
+        if (comTaskForDeviceMessage!=null) {
+            info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
+        }
+        info.userCanAdministrate = deviceMessageService.canUserAdministrateDeviceMessage(device.getDeviceConfiguration(), deviceMessage.getDeviceMessageId());
+        if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
+            info.willBePickedUpByComTask = this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
+        }
+
+        return info;
+    }
+
+    public List<DeviceMessageInfo> asFasterInfo(Collection<DeviceMessage> deviceMessages, UriInfo uriInfo) {
+        final Map<Long, Map<DeviceMessageId, Boolean>> userCanAdministrateCache = new HashMap<>();
+        final Map<Long, Map<Integer, Boolean>> willBePickedUpByComTaskCache = new HashMap<>();
+        final List<DeviceMessageInfo> infos = new ArrayList<>();
+        for (DeviceMessage deviceMessage : deviceMessages) {
+            Device device = (Device) deviceMessage.getDevice();
+            DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo, device);
+            info.userCanAdministrate = getUserCanAdministrateFromCache(userCanAdministrateCache, deviceMessage, device);
+            if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
+                info.willBePickedUpByComTask = getWillBePickedUpByComTaskFromCache(willBePickedUpByComTaskCache, deviceMessage, device);
+            }
+            infos.add(info);
+        }
+        return infos;
+    }
+
+    private DeviceMessageInfo getBaseInfo(DeviceMessage deviceMessage, UriInfo uriInfo, Device device) {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
         info.trackingIdAndName = new IdWithNameInfo(deviceMessage.getTrackingId(), "");
@@ -58,6 +95,9 @@ public class DeviceMessageInfoFactory {
             info.trackingCategory.name = thesaurus.getFormat(deviceMessage.getTrackingCategory()).format();
             info.trackingCategory.activeLink = isActive(deviceMessage.getTrackingId(), deviceMessage.getTrackingCategory(), info);
         }
+        info.deviceConfiguration = new IdWithNameInfo(((Device)deviceMessage.getDevice()).getDeviceConfiguration());
+        info.deviceType = new IdWithNameInfo(((Device)deviceMessage.getDevice()).getDeviceType());
+
         info.messageSpecification = new DeviceMessageSpecInfo();
         info.messageSpecification.id = deviceMessage.getSpecification().getId().name();
         info.messageSpecification.name = deviceMessage.getSpecification().getName();
@@ -72,22 +112,13 @@ public class DeviceMessageInfoFactory {
         info.user = deviceMessage.getUser();
         info.errorMessage = deviceMessage.getProtocolInfo();
 
-        Device device = (Device) deviceMessage.getDevice();
-        info.userCanAdministrate = deviceMessageService.canUserAdministrateDeviceMessage(device.getDeviceConfiguration(), deviceMessage.getDeviceMessageId());
         if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus())) {
             info.willBePickedUpByPlannedComTask = this.deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
             if (info.willBePickedUpByPlannedComTask) {
                 info.willBePickedUpByComTask = true; // shortcut
-            } else {
-                info.willBePickedUpByComTask = this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
             }
         }
 
-        ComTask comTaskForDeviceMessage = deviceMessageService.getPreferredComTask(device, deviceMessage);
-
-        if (comTaskForDeviceMessage!=null) {
-            info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
-        }
         info.properties = new ArrayList<>();
 
         TypedProperties typedProperties = TypedProperties.empty();
@@ -103,6 +134,21 @@ public class DeviceMessageInfoFactory {
         info.version = deviceMessage.getVersion();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return info;
+    }
+
+    private Boolean getUserCanAdministrateFromCache(Map<Long, Map<DeviceMessageId, Boolean>> userCanAdministrateCache, DeviceMessage deviceMessage, Device device) {
+        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
+        Map<DeviceMessageId, Boolean> deviceMessageCache = userCanAdministrateCache.computeIfAbsent(deviceConfiguration
+                .getId(), x -> new HashMap<>());
+        DeviceMessageId deviceMessageId = deviceMessage.getDeviceMessageId();
+        return deviceMessageCache.computeIfAbsent(deviceMessageId,
+                deviceMessageIdx -> deviceMessageService.canUserAdministrateDeviceMessage(deviceConfiguration, deviceMessageId));
+    }
+    private Boolean getWillBePickedUpByComTaskFromCache(Map<Long, Map<Integer, Boolean>> willBePickedUpByComTaskCache, DeviceMessage deviceMessage, Device device) {
+        Map<Integer, Boolean> deviceMessageCache = willBePickedUpByComTaskCache.computeIfAbsent(device.getDeviceConfiguration()
+                .getId(), x -> new HashMap<>());
+        return deviceMessageCache.computeIfAbsent(deviceMessage.getSpecification().getCategory().getId(),
+                deviceMessageId -> this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage));
     }
 
     private boolean isActive(String trackingId, TrackingCategory trackingCategory, DeviceMessageInfo info) {

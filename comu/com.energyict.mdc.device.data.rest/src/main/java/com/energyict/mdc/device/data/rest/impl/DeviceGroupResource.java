@@ -6,6 +6,8 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -18,6 +20,9 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -29,12 +34,23 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.BulkDeviceMessageQueueMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.google.common.collect.Range;
 
@@ -60,6 +76,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -78,9 +96,23 @@ public class DeviceGroupResource {
     private final ExceptionFactory exceptionFactory;
     private final DeviceGroupInfoFactory deviceGroupInfoFactory;
     private final ResourceHelper resourceHelper;
+    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final JsonService jsonService;
+    private final MessageService messageService;
+    private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
+    private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
+    private final PropertyValueInfoService propertyValueInfoService;
+    private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
-    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, MeteringService meteringService, DeviceService deviceService, SearchService searchService, ExceptionFactory exceptionFactory, DeviceGroupInfoFactory deviceGroupInfoFactory, ResourceHelper resourceHelper) {
+    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, MeteringService meteringService,
+                               DeviceService deviceService, SearchService searchService, ExceptionFactory exceptionFactory,
+                               DeviceGroupInfoFactory deviceGroupInfoFactory, ResourceHelper resourceHelper,
+                               DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceConfigurationService deviceConfigurationService,
+                               JsonService jsonService, MessageService messageService,
+                               DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory, DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory,
+                               PropertyValueInfoService propertyValueInfoService, ThreadPrincipalService threadPrincipalService) {
         this.meteringGroupsService = meteringGroupsService;
         this.meteringService = meteringService;
         this.deviceService = deviceService;
@@ -88,6 +120,14 @@ public class DeviceGroupResource {
         this.exceptionFactory = exceptionFactory;
         this.deviceGroupInfoFactory = deviceGroupInfoFactory;
         this.resourceHelper = resourceHelper;
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.deviceConfigurationService = deviceConfigurationService;
+        this.jsonService = jsonService;
+        this.messageService = messageService;
+        this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
+        this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
+        this.propertyValueInfoService = propertyValueInfoService;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @GET
@@ -246,6 +286,132 @@ public class DeviceGroupResource {
         Map<String, Object> jsonResponse = new HashMap<>();
         jsonResponse.put("numberOfSearchResults", numberOfSearchResults);
         return Response.ok().entity(jsonResponse).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/{id}/commands")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
+    public List<DeviceMessageCategoryInfo> getAvailableCommandsForDeviceGroup(@PathParam("id") long deviceGroupId) {
+        EndDeviceGroup endDeviceGroup = resourceHelper.findEndDeviceGroupOrThrowException(deviceGroupId);
+        List<DeviceConfiguration> allCommonDeviceConfigurations = deviceConfigurationService.getDeviceConfigsByDeviceGroup(endDeviceGroup);
+        List<DeviceMessageCategoryInfo> categoryInfos = new ArrayList<>();
+        if (!allCommonDeviceConfigurations.isEmpty()) {
+            List<DeviceMessageCategory> deviceMessageCategories = deviceMessageSpecificationService.filteredCategoriesForUserSelection();
+            List<DeviceMessageSpecWrapper> allExistingDeviceMessageSpecs = deviceMessageCategories.stream()
+                    .flatMap(cat -> cat.getMessageSpecifications().stream())
+                    .map(DeviceMessageSpecWrapper::new)
+                    .collect(toList());
+
+            for (DeviceMessageCategory deviceMessageCategory : deviceMessageCategories) {
+                List<DeviceMessageSpecWrapper> commonDeviceMessageSpecs = new ArrayList<>(allExistingDeviceMessageSpecs);
+                for (DeviceConfiguration deviceConfiguration : allCommonDeviceConfigurations) {
+                    List<DeviceMessageSpecWrapper> deviceMessageSpecWrappersInCategory = deviceConfiguration.getEnabledAndAuthorizedDeviceMessageSpecsIn(deviceMessageCategory)
+                            .stream()
+                            .map(DeviceMessageSpecWrapper::new)
+                            .collect(toList());
+                    commonDeviceMessageSpecs.retainAll(deviceMessageSpecWrappersInCategory);
+                }
+                if (!commonDeviceMessageSpecs.isEmpty()) {
+                    DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(deviceMessageCategory);
+                    info.deviceMessageSpecs = commonDeviceMessageSpecs.stream()
+                            .map(DeviceMessageSpecWrapper::getDeviceMessageSpec)
+                            .map(deviceMessageSpecInfoFactory::asInfoWithMessagePropertySpecs)
+                            .collect(toList());
+                    categoryInfos.add(info);
+                }
+            }
+        }
+        return categoryInfos;
+
+    }
+
+    @POST
+    @Transactional
+    @Path("/{id}/commands")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
+    public Response createCommandForAllDevicesInDeviceGroup(@PathParam("id") long deviceGroupId, DeviceMessageInfo deviceMessageInfo) {
+        Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(DeviceMessageService.BULK_DEVICE_MESSAGE_QUEUE_DESTINATION);
+        if (destinationSpec.isPresent()) {
+            DeviceMessageId deviceMessageId = DeviceMessageId.valueOf(deviceMessageInfo.messageSpecification.id);
+            EndDeviceGroup endDeviceGroup = resourceHelper.findEndDeviceGroupOrThrowException(deviceGroupId);
+            Map<String, String> properties = convertPropertyInfosToMap(deviceMessageInfo.properties);
+            BulkDeviceMessageQueueMessage message = new BulkDeviceMessageQueueMessage(endDeviceGroup.getId(), deviceMessageId, deviceMessageInfo.releaseDate.getEpochSecond(), properties, threadPrincipalService.getPrincipal().getName());
+            return processMessagePost(message, destinationSpec.get());
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
+        }
+    }
+
+    private Map<String, String> convertPropertyInfosToMap(List<PropertyInfo> propertyInfos) {
+        Map<String, String> properties = new HashMap<>();
+        propertyInfos.stream().forEach(info -> {
+            Object value = info.getPropertyValueInfo().getValue();
+            properties.put(info.key, value==null?null:jsonService.serialize(value));
+        });
+        return properties;
+    }
+
+    private Map<String, Object> getPropertiesFromInfo(DeviceMessageInfo deviceMessageInfo, DeviceMessageId deviceMessageId) {
+        DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue())
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_SPEC));
+        Map<String, Object> properties = new HashMap<>();
+        if (deviceMessageInfo.properties != null) {
+            try {
+                for (PropertySpec propertySpec : deviceMessageSpec.getPropertySpecs()) {
+                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, deviceMessageInfo.properties);
+                    if (propertyValue != null) {
+                        properties.put(propertySpec.getName(), propertyValue);
+                    }
+                }
+            } catch (LocalizedFieldValidationException e) {
+                throw new LocalizedFieldValidationException(e.getMessageSeed(), "properties."+e.getViolatingProperty());
+            }
+        }
+        return properties;
+    }
+
+    /**
+     * Provides hashcode and equals
+     */
+    class DeviceMessageSpecWrapper {
+        private final DeviceMessageSpec deviceMessageSpec;
+
+        DeviceMessageSpecWrapper(DeviceMessageSpec deviceMessageSpec) {
+            this.deviceMessageSpec = deviceMessageSpec;
+        }
+
+        public DeviceMessageSpec getDeviceMessageSpec() {
+            return deviceMessageSpec;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            DeviceMessageSpecWrapper that = (DeviceMessageSpecWrapper) o;
+            return Objects.equals(deviceMessageSpec.getCategory().getName(), that.deviceMessageSpec.getCategory().getName())
+                    && Objects.equals(deviceMessageSpec.getName(), that.deviceMessageSpec.getName());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(deviceMessageSpec.getName());
+        }
+    }
+
+    private Response processMessagePost(QueueMessage message, DestinationSpec destinationSpec) {
+        String json = jsonService.serialize(message);
+        destinationSpec.message(json).send();
+        return Response.accepted().entity("{\"success\":\"true\"}").build();
     }
 
     private List<Device> fetchDevicesOfEnumEndDeviceGroup(EnumeratedEndDeviceGroup endDeviceGroup, JsonQueryParameters queryParameters) {

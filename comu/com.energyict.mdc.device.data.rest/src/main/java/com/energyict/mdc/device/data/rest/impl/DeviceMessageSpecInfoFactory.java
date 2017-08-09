@@ -30,10 +30,15 @@ public class DeviceMessageSpecInfoFactory {
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
-    public DeviceMessageSpecInfo asInfo(DeviceMessageSpec deviceMessageSpec, Device device) {
+    public DeviceMessageSpecInfo asInfo(DeviceMessageSpec deviceMessageSpec) {
         DeviceMessageSpecInfo info = new DeviceMessageSpecInfo();
         info.id=deviceMessageSpec.getId().name();
         info.name=deviceMessageSpec.getName();
+        return info;
+    }
+
+    public DeviceMessageSpecInfo asInfo(DeviceMessageSpec deviceMessageSpec, Device device) {
+        DeviceMessageSpecInfo info = asInfo(deviceMessageSpec);
         info.willBePickedUpByPlannedComTask = device.getComTaskExecutions()
                 .stream()
                 .filter(not(ComTaskExecution::isOnHold))
@@ -60,6 +65,12 @@ public class DeviceMessageSpecInfoFactory {
     public DeviceMessageSpecInfo asInfoWithMessagePropertySpecs(DeviceMessageSpec deviceMessageSpec, Device device) {
         DeviceMessageSpecInfo info = asInfo(deviceMessageSpec, device);
         info.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceMessageSpec.getPropertySpecs(), TypedProperties.empty(), device);
+        return info;
+    }
+
+    public DeviceMessageSpecInfo asInfoWithMessagePropertySpecs(DeviceMessageSpec deviceMessageSpec) {
+        DeviceMessageSpecInfo info = asInfo(deviceMessageSpec);
+        info.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceMessageSpec.getPropertySpecs(), TypedProperties.empty());
         return info;
     }
 
