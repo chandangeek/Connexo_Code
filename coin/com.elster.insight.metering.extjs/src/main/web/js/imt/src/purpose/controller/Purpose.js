@@ -255,7 +255,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
             validationConfigurationStore = me.getStore('Imt.purpose.store.OutputValidationConfiguration'),
             estimationConfigurationStore = me.getStore('Imt.purpose.store.OutputEstimationConfiguration');
 
-        if (!tab || (tab === 'validation' && !Imt.privileges.UsagePoint.canViewValidationConfiguration()) || (tab === 'estimation' && !Imt.privileges.UsagePoint.canViewEstimationConfiguration())) {
+        if (!tab || (tab === 'validation' && !Imt.privileges.UsagePoint.canViewValidationConfiguration()) ||
+                    (tab === 'estimation' && !Imt.privileges.UsagePoint.canViewEstimationConfiguration())) {
             window.location.replace(router.getRoute('usagepoints/view/purpose/output').buildUrl({tab: 'readings'}));
         } else {
             validationConfigurationStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId};
