@@ -40,6 +40,14 @@ Ext.define('Mdc.privileges.Device', {
                     'privilege.execute.processes.lvl.3',
                     'privilege.execute.processes.lvl.4'],
     adminTimeSlicedCps: ['privilege.administer.device.time.sliced.cps'],
+    viewCommands: [
+        'privilege.operate.deviceCommunication',
+        'privilege.administrate.deviceCommunication',
+        'execute.device.message.level1',
+        'execute.device.message.level2',
+        'execute.device.message.level3',
+        'execute.device.message.level4'
+    ],
 
     all: function() {
         return Ext.Array.merge(Mdc.privileges.Device.viewDevice,
@@ -115,5 +123,8 @@ Ext.define('Mdc.privileges.Device', {
     },
     canAdministerEstimationConfiguration: function () {
         return Uni.Auth.checkPrivileges(Mdc.privileges.Device.administerEstimationConfiguration);
+    },
+    canViewCommands: function() {
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewCommands);
     }
 });

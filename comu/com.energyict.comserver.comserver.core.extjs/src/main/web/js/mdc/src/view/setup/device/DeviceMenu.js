@@ -218,7 +218,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
     },
 
     preProcessFullTokenForSelection: function(fullToken) {
-        if (fullToken.endsWith('/certificates')) {
+        if (Ext.String.endsWith(fullToken, '/certificates')) {
             fullToken = fullToken.replace('/certificates', '/keys');
         }
         return fullToken;

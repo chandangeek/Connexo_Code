@@ -24,6 +24,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     ],
 
     models: [
+        'Mdc.model.Device',
         'Mdc.model.DeviceMessageSpec',
         'Mdc.model.DeviceCommand',
         'Mdc.model.DeviceMessageCategory'
@@ -81,6 +82,10 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         {
             ref: 'deviceCommandsGrid',
             selector: '#deviceCommandsGrid'
+        },
+        {
+            ref: 'commandsGrid',
+            selector: 'commands-grid'
         }
     ],
 
@@ -112,6 +117,12 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             },
             '#device-command-action-menu': {
                 click: this.selectAction
+            },
+            '#mdc-commands-grid-action-menu': {
+                click: this.selectCommandsAction
+            },
+            '#mdc-command-preview-action-menu': {
+                click: this.selectCommandsAction
             }
         })
     },
@@ -131,12 +142,47 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         }
     },
 
+    selectCommandsAction: function (menu, item) {
+        var me = this,
+            deviceName = menu.record.get('parent').id,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
+        viewport.setLoading();
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceName, {
+            success: function (device) {
+                menu.device = device;
+                menu.deviceId = deviceName;
+                me.selectAction(menu, item);
+            },
+            callback: function () {
+                viewport.setLoading(false);
+            }
+        });
+    },
+
     actionTriggerCommand: function (menu) {
         var me = this,
             record = menu.record,
-            comTaskId = record.get('preferredComTask').id;
+            comTaskId = Ext.isEmpty(record.get('preferredComTask')) ? undefined : record.get('preferredComTask').id;
 
-        me.showTriggerConfirmation(menu.deviceId, comTaskId, menu.device);
+        if (Ext.isEmpty(comTaskId)) { // True when the "Trigger now" action is triggered from the overview page containing ALL commands
+                                      // False when the "Trigger now" action is triggered from the commands page of ONE device
+            var viewport = Ext.ComponentQuery.query('viewport')[0],
+                deviceMessageModel = me.getModel('Mdc.model.DeviceCommand');
+            viewport.setLoading();
+            deviceMessageModel.getProxy().setUrl(menu.deviceId);
+            deviceMessageModel.load(record.get('id'), {
+                success: function(deviceMessage) {
+                    comTaskId = deviceMessage.get('preferredComTask').id;
+                    me.showTriggerConfirmation(menu.deviceId, comTaskId, menu.device);
+                },
+                callback: function () {
+                    viewport.setLoading(false);
+                }
+            });
+        } else {
+            me.showTriggerConfirmation(menu.deviceId, comTaskId, menu.device);
+        }
     },
 
     showTriggerConfirmation: function (deviceId, comTaskId, device) {
@@ -149,7 +195,6 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             closable: false,
             fn: function (btnId) {
                 if (btnId == 'confirm') {
-                    var store = me.getStore('Mdc.store.DeviceCommands');
                     me.triggerCommand(deviceId, comTaskId, device);
                 }
             },
@@ -177,20 +222,24 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             method: 'PUT',
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.triggerSuccess', 'MDC', 'Command triggered'));
-                me.getDeviceCommandsGrid().getStore().load()
+                if (Ext.isDefined(me.getDeviceCommandsGrid())) {
+                    me.getDeviceCommandsGrid().getStore().load();
+                } else if (Ext.isDefined(me.getCommandsGrid())) {
+                    me.getCommandsGrid().getStore().load();
+                }
             }
         })
     },
 
-    revokeCommand: function (record) {
+    revokeCommand: function (record, device) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            deviceId = router.arguments.deviceId,
-            title = Uni.I18n.translate('deviceCommand.overview.revokex', 'MDC', "Revoke '{0}'?", [record.get('command').name]);
+            deviceId = device.get('name'),
+            title = Uni.I18n.translate('deviceCommand.overview.revokex', 'MDC', "Revoke '{0}'?", record.get('command').name);
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('deviceCommand.overview.revoke', 'MDC', 'Revoke')
         }).show({
-            msg: Uni.I18n.translate('deviceCommand.overview.revokeMsg', 'MDC', 'This command will no longer be able to send'),
+            msg: Uni.I18n.translate('deviceCommand.overview.revokeMsg', 'MDC', 'It will no longer be possible to send this command'),
             title: title,
             fn: function (btnId) {
                 if (btnId == 'confirm') {
@@ -218,7 +267,11 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                             if (json && json.errorCode) {
                                 code = json.errorCode;
                             }
-                            me.getApplication().getController('Uni.controller.Error').showError(title, Uni.I18n.translate('devicemessages.revoke.failurex', 'MDC', "Failed to revoke '{0}'", [record.get('command').name]) + '.' + message, code);
+                            me.getApplication().getController('Uni.controller.Error').showError(
+                                title,
+                                Uni.I18n.translate('devicemessages.revoke.failurex', 'MDC', "Failed to revoke '{0}'", record.get('command').name) + '. ' + message,
+                                code
+                            );
                         }
                     });
                 }
@@ -228,10 +281,11 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
 
     changeReleaseDate: function (record, device) {
         var me = this,
-            title = Uni.I18n.translate('deviceCommand.overview.changeReleaseDateHeader', 'MDC', "Change release date of command '{0}'", [record.get('command').name]),
+            title = Uni.I18n.translate('deviceCommand.overview.changeReleaseDateHeader', 'MDC', "Change release date of command '{0}'", record.get('command').name),
             router = me.getController('Uni.controller.history.Router'),
             responseText,
-            store = me.getStore('Mdc.store.DeviceCommands');
+            store = me.getStore('Mdc.store.DeviceCommands'),
+            window;
 
         store.getProxy().setExtraParam('deviceId', device.get('name'));
         Ext.widget('device-command-change-release-date', {
@@ -307,7 +361,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         router.getRoute('devices/device/commands').forward({deviceId: encodeURIComponent(btn.deviceId)});
     },
 
-    selectCommand: function (grid, selected) {
+    selectCommand: function (selectionModel, selected) {
         var me = this,
             record = selected[0],
             previewForm = me.getPreviewCommandForm(),
@@ -316,49 +370,51 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             previewPropertiesForm = me.getPreviewPropertiesForm(),
             previewPropertiesHeader = me.getPreviewPropertiesHeader(),
             device = me.getDeviceCommandsGrid().device;
-        if (record) {
-            var status = record.get('status').value,
-                title = record.get('command').name,
-                actionClmn = me.getDeviceCommandsGrid().down('uni-actioncolumn');
 
-            previewPanel.setTitle(title);
-            if (record.get('trackingCategory').id === 'trackingCategory.serviceCall') {
-                previewForm.down('#tracking').setFieldLabel(Uni.I18n.translate('deviceCommands.view.serviceCall', 'MDC', 'Service call'));
-                previewForm.down('#tracking').renderer = function (val) {
-                    if (record.get('trackingCategory').activeLink != undefined && record.get('trackingCategory').activeLink) {
-                        return '<a style="text-decoration: underline" href="' +
-                            me.getController('Uni.controller.history.Router').getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: val.id})
-                            + '">' + val.name + '</a>';
-                    } else {
-                        return val.id ? Ext.String.htmlEncode(val.id) : '-';
-                    }
-                }
-            } else {
-                previewForm.down('#tracking').setFieldLabel(Uni.I18n.translate('deviceCommands.view.trackingSource', 'MDC', 'Tracking source'));
-                previewForm.down('#tracking').renderer = function (val) {
-                    return !Ext.isEmpty(val) && !Ext.isEmpty(val.name) ? Ext.String.htmlEncode(val.name) : '-';
+        if (Ext.isEmpty(record)) return;
+        Ext.suspendLayouts();
+        var status = record.get('status').value,
+            title = record.get('command').name,
+            actionsColumn = me.getDeviceCommandsGrid().down('uni-actioncolumn');
+
+        previewPanel.setTitle(title);
+        if (record.get('trackingCategory').id === 'trackingCategory.serviceCall') {
+            previewForm.down('#tracking').setFieldLabel(Uni.I18n.translate('general.serviceCall', 'MDC', 'Service call'));
+            previewForm.down('#tracking').renderer = function (val) {
+                if (record.get('trackingCategory').activeLink != undefined && record.get('trackingCategory').activeLink) {
+                    return '<a style="text-decoration: underline" href="' +
+                        me.getController('Uni.controller.history.Router').getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: val.id})
+                        + '">' + val.name + '</a>';
+                } else {
+                    return val.id ? Ext.String.htmlEncode(val.id) : '-';
                 }
             }
-            previewForm.loadRecord(record);
-            previewPropertiesForm.loadRecord(record);
-            if (status == 'CommandWaiting' || status == 'CommandPending') {
-                actionsButton.show();
-                actionsButton.menu.device = device;
-                actionsButton.menu.record = record;
-                if (!!actionClmn) {
-                    actionClmn.menu.device = device;
-                    actionClmn.menu.deviceId = device.get('name');
-                }
-            } else {
-                actionsButton.hide();
-            }
-            if (!Ext.isEmpty(record.get('properties'))) {
-                previewPropertiesHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}', [title]) + '</h3>');
-                previewPropertiesHeader.show();
-            } else {
-                previewPropertiesHeader.hide();
+        } else {
+            previewForm.down('#tracking').setFieldLabel(Uni.I18n.translate('general.trackingSource', 'MDC', 'Tracking source'));
+            previewForm.down('#tracking').renderer = function (val) {
+                return !Ext.isEmpty(val) && !Ext.isEmpty(val.name) ? Ext.String.htmlEncode(val.name) : '-';
             }
         }
+        previewForm.loadRecord(record);
+        previewPropertiesForm.loadRecord(record);
+        if (status === 'WAITING' || status === 'PENDING') {
+            actionsButton.show();
+            actionsButton.menu.device = device;
+            actionsButton.menu.record = record;
+            if (Ext.isDefined(actionsColumn)) {
+                actionsColumn.menu.device = device;
+                actionsColumn.menu.deviceId = device.get('name');
+            }
+        } else {
+            actionsButton.hide();
+        }
+        if (!Ext.isEmpty(record.get('properties'))) {
+            previewPropertiesHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}', title) + '</h3>');
+            previewPropertiesHeader.show();
+        } else {
+            previewPropertiesHeader.hide();
+        }
+        Ext.resumeLayouts(true);
     },
 
     configureMenu: function (menu) {
@@ -370,13 +426,21 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
 
     msgCategoryChange: function (combo, records) {
         var me = this,
-            cat = records[0];
+            cat = records[0],
+            commandCombo = me.getCommandCombo();
+
         me.getAddPropertyForm().hide();
         me.getAddPropertyHeader().hide();
         if (Ext.isDefined(cat)) {
-            me.getCommandCombo().enable();
-            me.getCommandCombo().reset();
-            me.getCommandCombo().bindStore(cat.deviceMessageSpecs(), true);
+            commandCombo.enable();
+            commandCombo.reset();
+            commandCombo.bindStore(cat.deviceMessageSpecs(), true);
+            if (cat.deviceMessageSpecs().getCount()===1) {
+                commandCombo.setValue( cat.deviceMessageSpecs().getAt(0).get('name') );
+                var recordsArray = [];
+                recordsArray.push(cat.deviceMessageSpecs().getAt(0));
+                me.commandChange(commandCombo, recordsArray);
+            }
         }
     },
 
@@ -391,7 +455,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             me.getAddPropertyForm().loadRecord(command);
             if (command.properties() && (command.properties().getCount() > 0)) {
                 propertyHeader.show();
-                propertyHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}', [command.get('name')]) + '</h3>');
+                propertyHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}', command.get('name')) + '</h3>');
                 me.getAddPropertyForm().show();
             } else {
                 me.getAddPropertyForm().hide();

@@ -60,7 +60,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         {ref: 'step2FormErrorMessage', selector: '#mdc-dataloggerslave-link-wizard-step2-errors'},
         {ref: 'step3FormErrorMessage', selector: '#mdc-dataloggerslave-link-wizard-step3-errors'},
         {ref: 'step4FormErrorMessage', selector: '#mdc-dataloggerslave-link-wizard-step4-errors'},
-        {ref: 'unlinkWindow', selector: 'dataloggerslave-unlink-window'},
+        {ref: 'unlinkWindow', selector: 'dataloggerslave-unlink-window'}
     ],
 
     init: function () {

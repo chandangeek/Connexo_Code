@@ -6,8 +6,8 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.device-command-add-form',
     requires: [
-        'Mdc.widget.DateTimeField',
-        'Uni.form.field.DateTime'
+        'Uni.form.field.DateTime',
+        'Mdc.store.DeviceMessageCategories'
     ],
     layout: {
         type: 'vbox',
@@ -27,10 +27,11 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
 
         this.items =  [
             {
-                fieldLabel: Uni.I18n.translate('deviceCommand.add.commandCategorys', 'MDC', 'Command categories'),
+                fieldLabel: Uni.I18n.translate('general.commandCategory', 'MDC', 'Command category'),
                 name: 'commandCategory',
                 itemId: 'mdc-addCommand-categories-combo',
                 store: 'Mdc.store.DeviceMessageCategories',
+                emptyText: Uni.I18n.translate('general.selectACommandCategory', 'MDC', 'Select a command category...'),
                 displayField: 'name',
                 valueField: 'id',
                 editable: false,
@@ -40,6 +41,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
                 fieldLabel: Uni.I18n.translate('deviceCommand.add.command', 'MDC', 'Command'),
                 name: 'command',
                 itemId: 'mdc-addCommand-commands-combo',
+                emptyText: Uni.I18n.translate('general.selectACommand', 'MDC', 'Select a command...'),
                 displayField: 'name',
                 valueField: 'id',
                 editable: false,
@@ -53,8 +55,9 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
                 itemId: 'releaseDate',
                 layout: 'hbox',
                 required: true,
-                fieldLabel: Uni.I18n.translate('deviceCommand.add.releaseDate', 'MDC', 'Release date'),
+                fieldLabel: Uni.I18n.translate('general.releaseDate', 'MDC', 'Release date'),
                 dateConfig: {
+                    format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault),
                     width: 128,
                     flex: 2,
                     minValue: new Date()

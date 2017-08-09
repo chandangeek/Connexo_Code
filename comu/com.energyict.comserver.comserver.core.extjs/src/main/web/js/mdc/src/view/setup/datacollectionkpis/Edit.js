@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
                 {
                     xtype: 'combobox',
                     name: 'deviceGroup',
-                    emptyText: Uni.I18n.translate('datacollectionkpis.selectDeviceGroup', 'MDC', 'Select a device group...'),
+                    emptyText: Uni.I18n.translate('general.selectADeviceGroup', 'MDC', 'Select a device group...'),
                     itemId: 'cmb-device-group',
                     fieldLabel: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group'),
                     store: 'Mdc.store.MeterExportGroups',
