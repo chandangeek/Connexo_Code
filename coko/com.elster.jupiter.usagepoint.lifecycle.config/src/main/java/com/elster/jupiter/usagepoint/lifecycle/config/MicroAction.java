@@ -55,4 +55,13 @@ public interface MicroAction extends HasName {
     default boolean isCheckedByDefault(State fromState, State toState) {
         return false;
     }
+
+
+    /**
+     * Makes the micro action as unavailable
+     *
+     * @return true if micro action is available
+     */
+    default boolean isVisibleByDefault(State fromState, State toState) {return false;}
+
 }
