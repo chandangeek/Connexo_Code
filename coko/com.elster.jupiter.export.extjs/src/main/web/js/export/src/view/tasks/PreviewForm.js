@@ -129,8 +129,8 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         hidden: true,
                         itemId: 'data-selector-usage-point-group-preview',
                         renderer: function (value) {
-                            if (value) {
-                                return Ext.String.htmlEncode(value);
+                           if (value) {
+                                return '<a href="' + me.router.getRoute('usagepoints/usagepointgroups/view').buildUrl({usagePointGroupId: me.getRecord().get('usagePointGroupId')}) + '">' + Ext.String.htmlEncode(value) + '</a>';
                             }
                         }
                     },

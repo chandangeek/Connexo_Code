@@ -318,6 +318,7 @@ Ext.define('Dxp.controller.Tasks', {
                 Ext.suspendLayouts();
                 view.down('#tasks-view-menu').setHeader(record.get('name'));
                 me.getApplication().fireEvent('dataexporttaskload', record);
+                detailsForm.router = me.getController('Uni.controller.history.Router');
                 detailsForm.loadRecord(record);
                 if (record.get('status') !== 'Busy') {
                     if (record.get('status') === 'Failed') {
@@ -458,6 +459,7 @@ Ext.define('Dxp.controller.Tasks', {
             preview.setTitle(record.get('startedOn_formatted'));
             previewForm.down('displayfield[name=startedOn_formatted]').setVisible(true);
             previewForm.down('displayfield[name=finishedOn_formatted]').setVisible(true);
+            previewForm.router = this.getController('Uni.controller.history.Router');
             previewForm.loadRecord(record);
             // preview.down('tasks-history-action-menu').record = record;
 
@@ -1236,6 +1238,7 @@ Ext.define('Dxp.controller.Tasks', {
         }
 
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
+        previewForm.router = me.getController('Uni.controller.history.Router');
         previewForm.loadRecord(record);
         preview.down('dxp-tasks-action-menu').record = record;
 
