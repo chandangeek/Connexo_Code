@@ -62,6 +62,8 @@ public interface MicroAction extends HasName {
      *
      * @return true if micro action is available
      */
-    default boolean isVisibleByDefault(State fromState, State toState) {return false;}
+    default boolean isAvailableByDefault(State fromState, State toState) {
+        return false;
+    }
 
 }
