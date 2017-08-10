@@ -81,22 +81,12 @@ class DataExportStrategyImpl implements DataExportStrategy, EventDataExportStrat
             Range<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
                 Range<Instant> readingsContainerInterval = item.getReadingContainer() instanceof Effectivity ? ((Effectivity)item.getReadingContainer()).getRange() : Range.all();
                 Range<Instant> exportedDataInterval = ((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
-                if(item.getLastExportedDate().isPresent() && exportedDataInterval.contains(item.getLastExportedDate().get())){
-                    return item.getLastExportedDate()
-                            .map(lastExport -> getRangeSinceLastExport(exportedDataInterval, lastExport))
-                            .filter(interval -> Ranges.does(interval).overlap(readingsContainerInterval) || interval.isEmpty())
-                            .map(interval -> interval.intersection(readingsContainerInterval))
-                            .map(intersection -> Ranges.copy(intersection).asOpenClosed())
-                            .orElse(exportedDataInterval);
-                }else{
-                    return occurrence.getDefaultSelectorOccurrence()
-                            .map(DefaultSelectorOccurrence::getExportedDataInterval)
-                            .filter(interval -> Ranges.does(interval).overlap(readingsContainerInterval))
-                            .map(interval -> interval.intersection(readingsContainerInterval))
-                            .map(intersection -> Ranges.copy(intersection).asOpenClosed())
-                            .orElse(Range.all());
-                }
-
+                return item.getLastExportedDate()
+                        .map(lastExport -> getRangeSinceLastExport(exportedDataInterval, lastExport))
+                        .filter(interval -> Ranges.does(interval).overlap(readingsContainerInterval) || interval.isEmpty())
+                        .map(interval -> interval.intersection(readingsContainerInterval))
+                        .map(intersection -> Ranges.copy(intersection).asOpenClosed())
+                        .orElse(exportedDataInterval);
             }
 
             private Range<Instant> getRangeSinceLastExport(Range<Instant> exportedDataInterval, Instant lastExport) {
