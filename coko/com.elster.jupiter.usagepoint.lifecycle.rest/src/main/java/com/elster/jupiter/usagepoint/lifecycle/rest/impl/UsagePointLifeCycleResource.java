@@ -222,14 +222,12 @@ public class UsagePointLifeCycleResource {
         State toState = this.resourceHelper.getStateByIdOrThrowException(toStateId);
         List<MicroActionAndCheckInfo> privileges = this.usagePointLifeCycleConfigurationService.getMicroActions()
                 .stream()
-                .map(action ->action.isCheckedByDefault(fromState, toState)
+                .filter(action -> action.isAvailableByDefault(fromState, toState))
+                .map(action -> action.isCheckedByDefault(fromState, toState)
                         ? this.microActionAndCheckInfoFactory.optionalAndChecked(action)
                         : action.isMandatoryForTransition(fromState, toState)
                         ? this.microActionAndCheckInfoFactory.required(action)
-                        : action.isVisibleByDefault(fromState, toState)
-                        ? this.microActionAndCheckInfoFactory.optionalAndVisible(action)
-                        :this.microActionAndCheckInfoFactory.optional(action)
-                        )
+                        : this.microActionAndCheckInfoFactory.optional(action))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("microActions", privileges, queryParams);
     }
