@@ -21,7 +21,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.upl</artifactId>
-            <version>1.0.1${revision}</version>
         </dependency>
     </dependencies>
 
