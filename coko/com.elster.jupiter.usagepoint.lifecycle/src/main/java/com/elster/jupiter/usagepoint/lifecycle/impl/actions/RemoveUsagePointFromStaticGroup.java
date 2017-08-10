@@ -11,13 +11,14 @@ import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
-import com.elster.jupiter.usagepoint.lifecycle.config.DefaultTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategory;
-import com.elster.jupiter.usagepoint.lifecycle.impl.actions.TranslatableAction;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class RemoveUsagePointFromStaticGroup extends TranslatableAction {
 
@@ -66,17 +67,15 @@ public class RemoveUsagePointFromStaticGroup extends TranslatableAction {
     }
 
     @Override
-    public boolean isVisibleByDefault(State fromState, State toState) {
-        if((fromState.getName().equals(DefaultState.ACTIVE) && toState.getName().equals(DefaultState.DEMOLISHED)) ||
-                (fromState.getName().equals(DefaultState.INACTIVE) && toState.getName().equals(DefaultState.DEMOLISHED)))
+    public boolean isAvailableByDefault(State fromState, State toState) {
+        if ((fromState.getName().equals(DefaultState.ACTIVE.getTranslation().getKey()) && toState.getName()
+                .equals(DefaultState.DEMOLISHED.getTranslation().getKey())) ||
+                (fromState.getName().equals(DefaultState.INACTIVE.getTranslation().getKey()) && toState.getName()
+                        .equals(DefaultState.DEMOLISHED.getTranslation().getKey())))
             return true;
         else
             return false;
     }
 
-    @Override
-    protected Set<DefaultTransition> getTransitionCandidates() {
-        return EnumSet.of( DefaultTransition.ACTIVATE, DefaultTransition.DEACTIVATE, DefaultTransition.INSTALL_ACTIVE, DefaultTransition.INSTALL_INACTIVE);
-    }
 
 }

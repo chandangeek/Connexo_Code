@@ -15,10 +15,8 @@ import com.elster.jupiter.validation.ValidationService;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class ResetValidationResultsAction extends TranslatableAction {
     private final ValidationService validationService;
@@ -56,5 +54,10 @@ public class ResetValidationResultsAction extends TranslatableAction {
                         .map(effectiveMC::getChannelsContainer)
                         .flatMap(Functions.asStream())
                         .forEach(container -> validationService.moveLastCheckedBefore(container, rightAfterTransition)));
+    }
+
+    @Override
+    public boolean isAvailableByDefault(State fromState, State toState) {
+        return true;
     }
 }

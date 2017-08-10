@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.impl.actions;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.HasIdAndName;
@@ -76,5 +77,10 @@ public class SetConnectionStateAction extends TranslatableAction {
             throw new IllegalArgumentException(getThesaurus().getFormat(MicroActionTranslationKeys.SET_CONNECTION_STATE_PROPERTY_MESSAGE).format());
         }
         usagePoint.setConnectionState(this.connectionStateFactory.unwrap((HasIdAndName) wrappedConnectionState), transitionTime);
+    }
+
+    @Override
+    public boolean isAvailableByDefault(State fromState, State toState) {
+        return true;
     }
 }

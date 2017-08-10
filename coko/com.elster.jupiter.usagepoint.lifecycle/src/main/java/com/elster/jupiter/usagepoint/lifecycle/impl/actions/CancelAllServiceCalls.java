@@ -8,14 +8,11 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
-import com.elster.jupiter.usagepoint.lifecycle.config.DefaultTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategory;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.EnumSet;
 import java.util.Map;
-import java.util.Set;
 
 public class CancelAllServiceCalls extends TranslatableAction {
    private final ServiceCallService serviceCallService;
@@ -36,14 +33,11 @@ public class CancelAllServiceCalls extends TranslatableAction {
     }
 
     @Override
-    protected Set<DefaultTransition> getTransitionCandidates() {
-        return EnumSet.of( DefaultTransition.ACTIVATE, DefaultTransition.DEACTIVATE, DefaultTransition.INSTALL_ACTIVE, DefaultTransition.INSTALL_INACTIVE);
-    }
-
-    @Override
-    public boolean isVisibleByDefault(State fromState, State toState) {
-        if((fromState.getName().equals(DefaultState.ACTIVE) && toState.getName().equals(DefaultState.DEMOLISHED)) ||
-                (fromState.getName().equals(DefaultState.INACTIVE) && toState.getName().equals(DefaultState.DEMOLISHED)))
+    public boolean isAvailableByDefault(State fromState, State toState) {
+        if ((fromState.getName().equals(DefaultState.ACTIVE.getTranslation().getKey()) && toState.getName()
+                .equals(DefaultState.DEMOLISHED.getTranslation().getKey())) ||
+                (fromState.getName().equals(DefaultState.INACTIVE.getTranslation().getKey()) && toState.getName()
+                        .equals(DefaultState.DEMOLISHED.getTranslation().getKey())))
             return true;
         else
             return false;
