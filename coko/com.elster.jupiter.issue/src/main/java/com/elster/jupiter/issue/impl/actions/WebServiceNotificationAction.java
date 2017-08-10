@@ -78,8 +78,13 @@ public class WebServiceNotificationAction extends AbstractIssueAction {
         endPointConfiguration.ifPresent(endPointConfig -> ((IssueServiceImpl) issueService).getIssueWebServiceClients()
                 .stream().filter(issueWebServiceClient -> issueWebServiceClient.getWebServiceName().equals(endPointConfig.getWebServiceName()))
                 .findFirst().ifPresent(issueWebServiceClient1 -> {
-                    issueWebServiceClient1.call(issue, endPointConfig);
-                    closeIssue.ifPresent(close -> ((OpenIssue) issue).close(issueService.findStatus(IssueStatus.RESOLVED).get()));
+                    if (issueWebServiceClient1.call(issue, endPointConfig)) {
+                        closeIssue.ifPresent(close -> {
+                            if (close == true) {
+                                ((OpenIssue) issue).close(issueService.findStatus(IssueStatus.WONT_FIX).get());
+                            }
+                        });
+                    }
                 }));
         //result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ISSUE_ASSIGNED).format());
         return result;
@@ -114,8 +119,8 @@ public class WebServiceNotificationAction extends AbstractIssueAction {
         builder.add(
                 getPropertySpecService()
                         .specForValuesOf(new EndPointConfigurationFactory())
-                        .named(WEBSERVICE, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION)
-                        .describedAs(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION)
+                        .named(WEBSERVICE, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_END_POINT)
+                        .describedAs(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_END_POINT)
                         .fromThesaurus(getThesaurus())
                         .markRequired()
                         .setDefaultValue(possibleValues.length == 1 ? possibleValues[0] : null)
@@ -125,8 +130,8 @@ public class WebServiceNotificationAction extends AbstractIssueAction {
 
         builder.add(getPropertySpecService()
                 .specForValuesOf(new BooleanFactory())
-                .named(CLOSE, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE)
-                .describedAs(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE)
+                .named(CLOSE, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE)
+                .describedAs(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE)
                 .fromThesaurus(getThesaurus())
                 .finish());
         return builder.build();
@@ -140,12 +145,17 @@ public class WebServiceNotificationAction extends AbstractIssueAction {
 
     @Override
     public String getDisplayName() {
-        return getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION).format();
+        return getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_END_POINT).format();
     }
 
     @Override
     public boolean isApplicableForUser(User user) {
         return super.isApplicableForUser(user) && user.getPrivileges().stream().anyMatch(p -> Privileges.Constants.ACTION_ISSUE.equals(p.getName()));
+    }
+
+    @Override
+    public boolean isApplicable(Issue issue) {
+        return issue == null;
     }
 
     private class EndPoint extends HasIdAndName {

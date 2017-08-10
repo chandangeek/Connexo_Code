@@ -80,7 +80,9 @@ public class CreationRuleActionImpl extends EntityImpl implements CreationRuleAc
 
     @Override
     public Map<String, Object> getProperties() {
-        return this.properties.stream().collect(Collectors.toMap(CreationRuleActionProperty::getName, CreationRuleActionProperty::getValue));
+        return this.properties.stream()
+                .filter(creationRuleActionProperty -> creationRuleActionProperty.getValue() != null)
+                .collect(Collectors.toMap(CreationRuleActionProperty::getName, CreationRuleActionProperty::getValue));
     }
     
     @Override

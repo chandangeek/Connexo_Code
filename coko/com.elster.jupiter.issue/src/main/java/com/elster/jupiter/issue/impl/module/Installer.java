@@ -5,10 +5,12 @@
 package com.elster.jupiter.issue.impl.module;
 
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
+import com.elster.jupiter.issue.impl.actions.WebServiceNotificationAction;
 import com.elster.jupiter.issue.impl.database.CreateIssueViewOperation;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
 import com.elster.jupiter.issue.security.Privileges;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
@@ -136,6 +138,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private void createActionTypes() {
         IssueType type = null;
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignIssueAction.class.getName(), type);
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, WebServiceNotificationAction.class.getName(), type, CreationRuleActionPhase.CREATE);
     }
 
 }
