@@ -245,9 +245,18 @@ Ext.define('Isu.view.issues.ActionMenu', {
             var me = this,
                 issueId = me.record.getId(),
                 issueType = me.record.get('issueType').uid,
-                router = this.router
-            tomorrowMidnight = new Date();
-            tomorrowMidnight.setHours(24, 0, 0, 1);
+                router = this.router,
+                snoozedDateTime;
+
+            if (me.record.get('status').id == 'status.snoozed') {
+                snoozedDateTime = new Date(me.record.get('snoozedDateTime'));
+            }
+            else {
+                var tomorrowMidnight = new Date();
+                tomorrowMidnight.setHours(24, 0, 0, 1);
+                snoozedDateTime = tomorrowMidnight;
+            }
+
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'snooze-snoozeConfirmationWindow',
                 confirmText: Uni.I18n.translate('issue.snooze', 'ISU', 'Snooze'),
@@ -260,7 +269,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
             confirmationWindow.insert(1, {
                 xtype: 'snooze-date',
                 itemId: 'issue-sel-snooze-run',
-                defaultDate: tomorrowMidnight,
+                defaultDate: snoozedDateTime,
                 padding: '-10 0 0 45'
             });
             confirmationWindow.insert(1, {

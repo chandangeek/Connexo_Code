@@ -1,19 +1,24 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+/**
+ * Created by H251853 on 8/10/2017.
  */
 
-Ext.define('Isu.view.issues.Snooze', {
-    extend: 'Ext.form.RadioGroup',
-    alias: 'widget.snooze-date',
-    columns: 1,
-    defaults: {
-        name: 'setSnooze'
-    },
+Ext.define('Isu.view.issues.SnoozeBulkForm', {
+    extend: 'Ext.form.Panel',
+    requires: [
+        'Uni.util.FormErrorMessage',
+        'Isu.model.Issue'
+    ],
+
     defaultDate: null,
+    alias: 'widget.snooze-bulk-form',
+    returnLink: null,
+    ui: 'large',
 
     initComponent: function () {
-        var me = this;
-
+        var me = this,
+            tomorrowMidnight = new Date();
+        tomorrowMidnight.setHours(24, 0, 0, 1);
+        me.defaultDate = tomorrowMidnight;
         me.items = [
             {
                 xtype: 'container',
@@ -21,7 +26,8 @@ Ext.define('Isu.view.issues.Snooze', {
                     type: 'hbox',
                     align: 'stretch'
                 },
-                width: 380,
+                width: 400,
+                height: 48,
                 items: [
                     {
                         xtype: 'date-time',
