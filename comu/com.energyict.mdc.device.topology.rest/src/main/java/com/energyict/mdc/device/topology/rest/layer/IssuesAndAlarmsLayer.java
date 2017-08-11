@@ -2,7 +2,10 @@ package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
@@ -31,6 +34,7 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
 
     private IssueService issueService;
     private IssueDataCollectionService issueDataCollectionService;
+    private DeviceAlarmService deviceAlarmService;
 
     private final static String NAME = "topology.GraphLayer.IssuesAndAlarms";
 
@@ -82,16 +86,26 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
         this.issueDataCollectionService = issueDataCollectionService;
     }
 
+    @Reference
+    public void setDeviceAlarmService(DeviceAlarmService deviceAlarmService) {
+        this.deviceAlarmService = deviceAlarmService;
+    }
+
     private void countIssuesAndAlarms(DeviceNodeInfo info) {
         Device device = info.getDevice();
-//        IssueDataCollectionFilter filter = new IssueDataCollectionFilter();
-//        filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
-//        filter.addDevice(device.getCurrentMeterActivation().get().getMeter().get());
-//        Finder<? extends IssueDataCollection> finder = issueDataCollectionService.findIssues(filter);
-//        setIssues(finder.stream().count());
-//            //Todo
-//            setAlarms(-1);
+        EndDevice meter = device.getCurrentMeterActivation().get().getMeter().get();
+        IssueStatus openStatus = issueService.findStatus(IssueStatus.OPEN).get();
 
+        IssueDataCollectionFilter filter = new IssueDataCollectionFilter();
+        filter.addStatus(openStatus);
+        filter.addDevice(meter);
+        Finder<? extends IssueDataCollection> finder = issueDataCollectionService.findIssues(filter);
+        setIssues(finder.stream().count());
+
+        DeviceAlarmFilter alarmFilter = new DeviceAlarmFilter();
+        alarmFilter.setDevice(meter);
+        alarmFilter.setStatus(openStatus);
+        setAlarms(deviceAlarmService.findAlarms(alarmFilter).stream().count());
     }
 
     @Override
@@ -101,11 +115,11 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
     }
 
     private void setIssues(long count) {
-        this.setProperty(PropertyNames.ISSUE_COUNT.getPropertyName(), "" + count);
+        this.setProperty(PropertyNames.ISSUE_COUNT.getPropertyName(), count);
     }
 
     private void setAlarms(long count) {
-        this.setProperty(PropertyNames.ALARM_COUNT.getPropertyName(), "" + count);
+        this.setProperty(PropertyNames.ALARM_COUNT.getPropertyName(), count);
     }
 
     @Override

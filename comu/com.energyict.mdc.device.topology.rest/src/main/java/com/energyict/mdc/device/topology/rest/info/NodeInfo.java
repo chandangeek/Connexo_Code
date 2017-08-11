@@ -73,10 +73,12 @@ public abstract class NodeInfo<T extends HasId> {
         return Collections.unmodifiableList(children);
     }
 
-    public void addChild(NodeInfo<T> info) {
-        if (children.add(info)) {
+    public boolean addChild(NodeInfo<T> info) {
+        if (!children.stream().filter(node -> node.getId()==info.getId()).findFirst().isPresent() && children.add(info)) {
             info.setParent(this);
+            return true;
         }
+        return false;
     }
 
     public LinkInfo asLinkInfo(){

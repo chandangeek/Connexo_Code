@@ -76,8 +76,6 @@ public class LinkQualityLayer extends AbstractGraphLayer<Device> {
     }
 
     public void calculateLinkQuality(NodeInfo<Device> info){
-//        Random random = new Random();
-//        this.setLinkQuality(random.nextInt(100));
         getNeighbor((DeviceNodeInfo) info).ifPresent((x) -> setLinkQuality(x.getLinkQualityIndicator()));
     }
 

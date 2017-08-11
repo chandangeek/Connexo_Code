@@ -139,7 +139,8 @@ public class NetworkTopologyBuilder {
 
     private List<G3Neighbor> addNeighbors(G3CommunicationPathSegment segment){
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(segment.getSource());
-        neighborhoodBuilder.addNeighbor(segment.getNextHopDevice().orElse(segment.getTarget()), ModulationScheme.COHERENT, Modulation.fromOrdinal(0), PhaseInfo.NOPHASEINFO);
+        neighborhoodBuilder.addNeighbor(segment.getNextHopDevice().orElse(segment.getTarget()), ModulationScheme.COHERENT, Modulation.fromOrdinal(0), PhaseInfo.NOPHASEINFO)
+                           .linkQualityIndicator(segment.getCost()) ;
         return neighborhoodBuilder.complete();
     }
 

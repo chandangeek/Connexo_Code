@@ -7,6 +7,7 @@ import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.impl.TopologyGraphApplication;
 
 
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -27,8 +28,9 @@ public abstract class AbstractGraphLayer<T extends HasId> implements GraphLayer<
         }
     }
 
-    public void getProperty(String propertyName){
-        this.properties.getProperty(propertyName);
+    @Override
+    public Object getProperty(String propertyName){
+        return this.properties.get(propertyName);
     }
 
     @Override
@@ -53,7 +55,10 @@ public abstract class AbstractGraphLayer<T extends HasId> implements GraphLayer<
 
     protected HashMap<String, Object> propertyMap(){
         HashMap<String, Object> result = new HashMap<>();
-        properties.keySet().stream().forEach(key -> result.put((String) key, properties.getProperty((String) key)));
+        for (Enumeration<?> e = properties.keys(); e.hasMoreElements() ;) {
+            String key = (String)e.nextElement();
+            result.put(key, properties.get(key));
+        }
         return result;
     }
 

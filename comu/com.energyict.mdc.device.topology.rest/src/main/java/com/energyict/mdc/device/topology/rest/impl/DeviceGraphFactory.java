@@ -84,9 +84,7 @@ public class DeviceGraphFactory implements GraphFactory {
             }
             intermediates.remove(0);
         }
-    //    if (!root.findChildNode(device).isPresent()){
-            newNode(device, root);
-    //    }
+        newNode(device, root);
     }
 
     private DeviceNodeInfo newNode(Device device, DeviceNodeInfo parent) {
@@ -95,10 +93,13 @@ public class DeviceGraphFactory implements GraphFactory {
 
     private DeviceNodeInfo newNode(Device device, Optional<DeviceNodeInfo> parent) {
         final DeviceNodeInfo node = new DeviceNodeInfo(device);
-        nodeCount++;
         graphLayerService.getGraphLayers().stream().filter((layer) -> layer.getType() == GraphLayerType.NODE).forEach(node::addLayer);
         if (parent.isPresent()) {
-            parent.get().addChild(node);
+            if (parent.get().addChild(node)){
+                nodeCount++;
+            }
+        }else{
+            nodeCount++;
         }
         return node;
     }

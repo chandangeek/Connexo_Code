@@ -93,7 +93,7 @@ public class CommunicationStatusLayer extends AbstractGraphLayer<Device> {
     }
 
     private void setFailedCommunications(int errors){
-        this.setProperty(PropertyNames.COMMUNICATION_STATUS.getPropertyName(), ""+errors);
+       this.setProperty(PropertyNames.COMMUNICATION_STATUS.getPropertyName(), errors);
     }
 
     @Override

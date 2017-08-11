@@ -33,7 +33,7 @@ public interface GraphLayer<T extends HasId> {
      */
     Map<String, Object> getProperties(NodeInfo<T> info);
 
-    void getProperty(String propertyName);
+    Object getProperty(String propertyName);
     void setProperty(String propertyName, Object propertyValue);
 
 }
