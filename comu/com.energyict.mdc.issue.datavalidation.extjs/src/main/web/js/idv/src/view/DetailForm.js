@@ -67,6 +67,7 @@ Ext.define('Idv.view.DetailForm', {
                         itemId: 'data-validation-issue-detail-status',
                         fieldLabel: Uni.I18n.translate('general.title.status', 'IDV', 'Status'),
                         name: 'status',
+                        afterSubTpl: '<span id="issue-status-field-sub-tpl" class="field-additional-info" style="color: #686868;"></span>',
                         renderer: function (value) {
                             return value.name ? value.name : '';
                         }
