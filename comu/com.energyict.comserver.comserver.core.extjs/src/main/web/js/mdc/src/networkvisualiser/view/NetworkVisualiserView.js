@@ -204,6 +204,37 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         }
     },
 
+    showDeviceLifeCycleStatus: function(){
+        var me = this,
+            deviceTypeColors = {},
+            icon,
+            colorIndex = 0;
+
+        me.forEachNode(function(node){
+            if(node.d && !Ext.isEmpty(node.d.gateway) && node.d.gateway){
+                icon = KeyLines.getFontIcon(me.gatewayIcon);
+            } else {
+                icon = KeyLines.getFontIcon(me.deviceIcon);
+            }
+            if (Ext.isEmpty(deviceTypeColors[node.d.deviceLifecycleStatus])) {
+                deviceTypeColors[node.d.deviceLifecycleStatus] = me.colors[colorIndex++];
+            }
+            return {
+                id: node.id,
+                b: null,
+                fi: {
+                    c: deviceTypeColors[node.d.deviceLifecycleStatus],
+                    t: icon
+                }
+            }
+        });
+
+        for (var type in deviceTypeColors) {
+            icon = '<span class="'+me.deviceIcon+'" style="display:inline-block; font-size:16px; color:'+deviceTypeColors[type]+'"></span>';
+            me.addLegendItem(icon, type);
+        }
+    },
+
     showCommunicationStatus: function() {
         var me = this;
 

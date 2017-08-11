@@ -108,6 +108,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                 case "5":
                     deviceTypeCheckBox.setDisabled(true);
                     hopsCheckBox.setDisabled(true);
+                    me.addLayer(me.showDeviceLifeCycleStatus());
                     break;
                 case "6":
                     me.addLayer(me.showCommunicationStatus);
