@@ -74,7 +74,9 @@ public class GraphInfo<T extends HasId> {
         LinkInfo linkInfo = nodeInfo.asLinkInfo();
         if (linkInfo != null) {
             linksLayer.ifPresent(linkInfo::addLayer);
-            linkInfos.add(linkInfo);
+            if (!linkInfos.stream().filter(li -> li.getSource() == linkInfo.getSource() && li.getTarget() == linkInfo.getSource()).findFirst().isPresent()) {
+                linkInfos.add(linkInfo);
+            }
         }
         nodeInfo.getChildren().forEach(child -> addLinkInfos(linkInfos, child, linksLayer));
         return linkInfos;

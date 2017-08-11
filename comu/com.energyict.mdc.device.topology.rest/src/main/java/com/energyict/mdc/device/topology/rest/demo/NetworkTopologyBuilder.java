@@ -19,7 +19,6 @@ import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -121,10 +120,11 @@ public class NetworkTopologyBuilder {
     }
 
     private void addComPathSegmentsAndNeighbor(Device device, int levelNbr) {
-        LinkedList<Device> intermediateHops = new LinkedList<>();
-        int currentLevel = levelNbr;
-        while (currentLevel > 0) {
-            intermediateHop(--currentLevel).ifPresent(intermediateHops::add);
+        List<Device> intermediateHops = new ArrayList<>();
+        Optional<Device> deviceOnPreviousLevel = intermediateHop(levelNbr - 1);// random device on previous level
+        if (deviceOnPreviousLevel.isPresent()) {
+            intermediateHops.addAll(topologyService.getCommunicationPath(gateway, deviceOnPreviousLevel.get()).getIntermediateDevices());
+            intermediateHops.add(deviceOnPreviousLevel.get());
         }
         TopologyService.G3CommunicationPathSegmentBuilder builder = topologyService.addCommunicationSegments(gateway);
         for (int i = 0; i < intermediateHops.size(); i++){
@@ -144,7 +144,7 @@ public class NetworkTopologyBuilder {
     }
 
     private Optional<Device> intermediateHop(int level) {
-        if (level == 0){
+        if (level <= 0){
             return Optional.empty();
         }
         return Optional.of(levels[level].devices.get(new Random().nextInt(levels[level].devices.size())));
