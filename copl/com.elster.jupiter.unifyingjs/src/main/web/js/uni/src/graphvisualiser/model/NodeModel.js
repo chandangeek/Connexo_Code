@@ -10,6 +10,7 @@ Ext.define('Uni.graphvisualiser.model.NodeModel', {
         'alarms',
         'issues',
         'gateway',
+        'failedCommunications',
         'failedComTasks'
     ]
 });

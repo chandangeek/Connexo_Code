@@ -371,6 +371,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                             gateway: Ext.isEmpty(node.get('gateway')) ? false : node.get('gateway'),
                             alarms: node.get('alarms'),
                             issues: node.get('issues'),
+                            failedCommunications: node.get('failedCommunications'),
                             failedComTasks: node.get('failedComTasks')
                         },
                         pos: {
