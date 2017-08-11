@@ -6,7 +6,6 @@ package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.rest.MessageSeeds;
-import com.elster.jupiter.issue.rest.TranslationKeys;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.AssignSingleIssueRequest;
 import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
@@ -384,12 +383,13 @@ public class IssueResource extends BaseResource {
     public Response assignIssues(BulkSnoozeRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, List<? extends Issue>> issueProvider;
+
         if (request.allIssues) {
             issueProvider = bulkResults -> getIssuesForBulk(filter);
         } else {
             issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
         }
-        ActionInfo info = getTransactionService().execute(new BulkSnoozeTransaction(request, performer, issueProvider));
+        ActionInfo info = doBulkSnooze(request, issueProvider, performer);
         return entity(info).build();
     }
 
@@ -510,11 +510,44 @@ public class IssueResource extends BaseResource {
     private ActionInfo doBulkSetPriority(SetPriorityIssueRequest request, Function<ActionInfo, List<? extends Issue>> issueProvider) {
         ActionInfo response = new ActionInfo();
         for (Issue issue : issueProvider.apply(response)) {
-                issue.setPriority(Priority.fromStringValue(request.priority));
-                issue.update();
-                response.addSuccess(issue.getId());
+            issue.setPriority(Priority.fromStringValue(request.priority));
+            issue.update();
+            response.addSuccess(issue.getId());
         }
 
+        return response;
+    }
+
+    private ActionInfo doBulkSnooze(BulkSnoozeRequest request, Function<ActionInfo, List<? extends Issue>> issueProvider, User performer) {
+        ActionInfo response = new ActionInfo();
+        ActionInfo responseSuccess = new ActionInfo();
+        for (Issue issue : issueProvider.apply(response)) {
+            if (issue.getStatus().isHistorical()) {
+                response.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_ALREADY_CLOSED)
+                        .format(), issue.getId(), issue.getTitle());
+                EntityReference removedIssue = null;
+                for (EntityReference issueRef : request.issues) {
+                    if (issueRef.getId() == issue.getId()) {
+                        removedIssue = issueRef;
+                    }
+                }
+                if (removedIssue != null) {
+                    request.issues.remove(removedIssue);
+                }
+            } else {
+                if (Instant.ofEpochMilli(request.snoozeDateTime).isBefore(Instant.now())) {
+                    response.addFail(getThesaurus().getFormat(MessageSeeds.SNOOZE_TIME_BEFORE_CURRENT_TIME)
+                            .format(), issue.getId(), issue.getTitle());
+                } else {
+                    responseSuccess = getTransactionService().execute(new BulkSnoozeTransaction(request, performer, issueProvider));
+                    for (Issue iss : issueProvider.apply(responseSuccess)) {
+                        response.addSuccess(iss.getId());
+                    }
+
+                }
+
+            }
+        }
         return response;
     }
 
