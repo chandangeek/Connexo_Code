@@ -208,7 +208,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         var me = this;
 
         me.forEachNode(function(node){
-            if (!Ext.isEmpty(node.d.failedComTasks)) {
+            if (node.d.failedCommunications > 0) {
                 return {
                     id: node.id,
                     ha0: {
