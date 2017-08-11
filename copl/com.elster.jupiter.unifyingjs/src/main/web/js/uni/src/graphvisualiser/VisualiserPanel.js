@@ -367,6 +367,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                             name: node.get('name'),
                             serialNumber: node.get('serialNumber'),
                             deviceType: node.get('deviceType'),
+                            deviceLifecycleStatus: node.get('deviceLifecycleStatus'),
                             deviceConfiguration: node.get('deviceConfiguration'),
                             gateway: Ext.isEmpty(node.get('gateway')) ? false : node.get('gateway'),
                             alarms: node.get('alarms'),

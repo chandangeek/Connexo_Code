@@ -5,6 +5,7 @@ Ext.define('Uni.graphvisualiser.model.NodeModel', {
         'multiplier',
         'unit',
         'deviceType',
+        'deviceLifecycleStatus',
         'deviceConfiguration',
         'serialNumber',
         'alarms',
