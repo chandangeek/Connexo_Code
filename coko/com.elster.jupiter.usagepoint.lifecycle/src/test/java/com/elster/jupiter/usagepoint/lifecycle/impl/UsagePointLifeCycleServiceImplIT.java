@@ -384,12 +384,12 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         transition = findTransitionOrFail(lifeCycle,
                 com.elster.jupiter.usagepoint.lifecycle.config.impl.TranslationKeys.TRANSITION_DEMOLISH_FROM_ACTIVE.getDefaultFormat(),
                 active::equals);
-        assertContainsOnlyClasses(transition.getActions(), RemoveUsagePointFromStaticGroup.class, ResetValidationResultsAction.class);
+        assertContainsOnlyClasses(transition.getActions(), ResetValidationResultsAction.class);
         assertContainsOnlyClasses(transition.getChecks());
         transition = findTransitionOrFail(lifeCycle,
                 com.elster.jupiter.usagepoint.lifecycle.config.impl.TranslationKeys.TRANSITION_DEMOLISH_FROM_INACTIVE.getDefaultFormat(),
                 inactive::equals);
-        assertContainsOnlyClasses(transition.getActions(), RemoveUsagePointFromStaticGroup.class, ResetValidationResultsAction.class);
+        assertContainsOnlyClasses(transition.getActions(), ResetValidationResultsAction.class);
         assertContainsOnlyClasses(transition.getChecks());
         transition = findTransitionOrFail(lifeCycle, RESURRECTION);
         assertContainsOnlyClasses(transition.getActions());
