@@ -22,6 +22,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.usagepointmanagement.store.UsagePointTypes',
         'Imt.purpose.store.ValidationTasks',
         'Imt.purpose.store.EstimationTasks',
+        'Imt.purpose.store.ExportTasks',
         'Imt.usagepointmanagement.store.Periods',
         'Imt.purpose.store.EstimationRules',
         'Imt.purpose.store.OutputValidationConfiguration',
@@ -119,6 +120,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
             me.getStore('Imt.purpose.store.ValidationTasks').getProxy().extraParams = extraParams;
             me.getStore('Imt.purpose.store.EstimationTasks').getProxy().extraParams = extraParams;
+            me.getStore('Imt.purpose.store.ExportTasks').getProxy().extraParams = extraParams;
             me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(onDependenciesLoad);
             var filteredOutputsStore = me.getStore('Imt.purpose.store.FilteredOutputs');
             filteredOutputsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
