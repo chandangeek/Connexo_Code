@@ -14,6 +14,8 @@ import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleRemoveException;
+
+import com.google.inject.matcher.Matchers;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -31,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -342,6 +345,7 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
         State usagePointState = mock(State.class);
         when(usagePointLifeCycleConfigurationService.findUsagePointState(23L)).thenReturn(Optional.of(usagePointState));
         MicroAction microAction = mock(MicroAction.class);
+        when(microAction.isAvailableByDefault(any(), any())).thenReturn(true);
         when(usagePointLifeCycleConfigurationService.getMicroActions()).thenReturn(Collections.singleton(microAction));
         when(microAction.getKey()).thenReturn("actionKey");
         when(microAction.getName()).thenReturn("actionName");
