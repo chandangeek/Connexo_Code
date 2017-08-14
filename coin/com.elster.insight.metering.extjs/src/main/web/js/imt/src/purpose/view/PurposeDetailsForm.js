@@ -98,7 +98,7 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                         fieldLabel: Uni.I18n.translate('general.exportSchedule', 'IMT', 'Export schedule'),
                         store: 'Imt.purpose.store.ExportTasks',
                         buttonItemId: 'view-export-button',
-                        route: me.router.getRoute('administration/dataexporttasks/exporttask'),
+                        route: me.router.getRoute('administration/dataexporttasks/dataexporttask'),
                         emptyText: Uni.I18n.translate('usagepoint.purpose.export.task.noTasks.on.usagePoint', 'IMT', 'No export tasks has been configured for this usage point yet ({0}manage export tasks{1})',
                             [
                                 '<a href="'
