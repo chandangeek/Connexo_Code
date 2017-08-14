@@ -35,6 +35,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -155,7 +156,8 @@ public class InMemoryPersistence {
                 new DeviceLifeCycleConfigurationModule(),
                 new DeviceLifeCycleModule(),
                 new UsagePointLifeCycleConfigurationModule(),
-                new UsagePointLifeCycleModule()
+                new UsagePointLifeCycleModule(),
+                new ServiceCallModule()
         );
     }
 
