@@ -72,7 +72,7 @@ Ext.define('Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTra
         usagePointLifeCycleModel.load(usagePointLifeCycleId, {
             success: function (usagePointLifeCycleRecord) {
                 me.getApplication().fireEvent('usagepointlifecycleload', usagePointLifeCycleRecord);
-                view.down('#usagepoint-life-cycle-overview-side-menu').setHeader(usagePointLifeCycleRecord.get('name'));
+                view.down('#usagepoint-life-cycle-overview-side-menu') && view.down('#usagepoint-life-cycle-overview-side-menu').setHeader(usagePointLifeCycleRecord.get('name'));
             }
         });
     },
@@ -208,9 +208,11 @@ Ext.define('Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTra
                                 fromCombo.setValue(fromValue);
                                 toCombo.setValue(toValue);
                                 autoActionsContainer.on('rendered', function (container) {
+                                    container.down('#actions-property-form').resetCheckBoxes();
                                     container.down('#actions-property-form').setValue(transition.get('microActions'))
                                 }, me, {single: true});
                                 pretransitionChecksContainer.on('rendered', function (container) {
+                                    container.down('#checks-property-form').resetCheckBoxes();
                                     container.down('#checks-property-form').setValue(transition.get('microChecks'))
                                 }, me, {single: true});
                                 view.fillActionsAndChecks();
