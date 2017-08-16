@@ -333,8 +333,8 @@ Ext.define('Dxp.model.DataExportTask', {
             nextRun = me.get('nextRun');
 
         return Ext.isEmpty(me.get('schedule'))
-            ? Uni.I18n.translate('estimation.schedule.manual', 'EST', 'On request')
-            : Uni.I18n.translate('estimation.schedule.scheduled', 'EST', '{0}. Next run {1}', [
+            ? Uni.I18n.translate('export.schedule.manual', 'DES', 'On request')
+            : Uni.I18n.translate('export.schedule.scheduled', 'DES', '{0}. Next run {1}', [
             me.get('recurrence'),
             nextRun ? Uni.DateTime.formatDateTimeLong(Ext.isDate(nextRun) ? nextRun : new Date(nextRun)) : '-'
         ]);
