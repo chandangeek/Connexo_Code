@@ -13,11 +13,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.exceptions.CannotRevokeDeviceMessageException;
 import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
 import com.energyict.mdc.device.data.exceptions.IllegalDeviceMessageIdException;
 import com.energyict.mdc.device.data.exceptions.InvalidDeviceMessageStatusMove;
 import com.energyict.mdc.device.data.impl.constraintvalidators.HasValidDeviceMessageAttributes;
-import com.energyict.mdc.device.data.impl.constraintvalidators.IsRevokeAllowed;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UserHasTheMessagePrivilege;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidReleaseDateUpdate;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidTrackingInformation;
@@ -89,7 +89,6 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     private long deviceMessageId;
     private DeviceMessageStatus deviceMessageStatus;
     private int oldDeviceMessageStatus;
-    @IsRevokeAllowed(groups = {Revoke.class})
     private RevokeChecker revokeChecker;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED + "}")
     private Instant releaseDate;
@@ -259,10 +258,19 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         this.oldReleaseDate = releaseDate.toEpochMilli();
         this.oldDeviceMessageStatus = getStatus().dbValue();
         this.deviceMessageStatus = DeviceMessageStatus.CANCELED;
-        Save.UPDATE.validate(this.getDataModel(), this, Revoke.class);
+        checkRevokeAllowed();
+        Save.UPDATE.validate(this.getDataModel(), this, Save.Update.class);
         this.update("deviceMessageStatus");
         this.notifyUpdated();
         this.revokeChecker = null;
+    }
+
+    private void checkRevokeAllowed() {
+        if (!revokeChecker.isRevokeStatusChangeAllowed()) {
+            throw new CannotRevokeDeviceMessageException(getThesaurus(), MessageSeeds.DEVICE_MESSAGE_INVALID_REVOKE);
+        } else if (revokeChecker.comServerHasPickedUpDeviceMessage()) {
+            throw new CannotRevokeDeviceMessageException(getThesaurus(), MessageSeeds.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER);
+        }
     }
 
     void addProperty(String key, Object value) {
@@ -406,10 +414,8 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
                                     filter(task -> task instanceof MessagesTask).
                                     flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
                                     flatMap(category -> category.getMessageSpecifications().stream()).
-                                    filter(dms -> dms.getId().dbValue() == deviceMessageId).
-                                    findFirst().
-                                    isPresent())
-                            .anyMatch(cte -> cte.getConnectionTask().isPresent() && executingConnectionTasks.contains(cte.getConnectionTask().get().getId()));
+                                    anyMatch(dms -> dms.getId().dbValue() == deviceMessageId))
+                            .anyMatch(cte -> cte.isExecuting() && cte.getConnectionTask().isPresent() && executingConnectionTasks.contains(cte.getConnectionTask().get().getId()));
         }
     }
 

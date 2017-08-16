@@ -705,6 +705,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         when(connectionTask.isExecuting()).thenReturn(true);
         when(mockedDevice.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        when(comTaskExecution.isExecuting()).thenReturn(true);
         MessagesTask messagesTask = mock(MessagesTask.class);
         DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
         DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
