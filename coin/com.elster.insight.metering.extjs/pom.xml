@@ -70,6 +70,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>estimation.extjs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>export.extjs</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
