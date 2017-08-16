@@ -36,20 +36,19 @@ Ext.define('Imt.usagepointmanagement.view.forms.CalendarInfo', {
     },
 
 
-
     getRecord: function () {
         var me = this,
             combos = me.query('combobox'),
             calendars = [];
-        Ext.each(combos,function(combobox){
-            var activateField = me.down('#activate-calendar-'+ combobox.calendarType);
-            if(combobox.getValue()){
+        Ext.each(combos, function (combobox) {
+            var activateField = me.down('#activate-calendar-' + combobox.calendarType);
+            if (combobox.getValue()) {
                 calendars.push({
                     calendar: {
                         id: combobox.getValue()
                     },
                     immediately: activateField.down('radiogroup').getValue()['activateCalendar' + combobox.calendarType] === 'immediate-activation',
-                    fromTime: activateField.down('radiogroup').getValue()['activateCalendar' + combobox.calendarType] === 'on-date-activation'?activateField.down('date-time').getValue().getTime():null
+                    fromTime: activateField.down('radiogroup').getValue()['activateCalendar' + combobox.calendarType] === 'on-date-activation' ? activateField.down('date-time').getValue().getTime() : null
                 });
             }
         });
@@ -62,7 +61,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.CalendarInfo', {
 
         Ext.suspendLayouts();
         me.getForm().markInvalid(me.mapErrors(errors));
-        me.down('#calendar-date-field-errors').show();
+        if (me.down('#calendar-date-field-errors')) {
+            me.down('#calendar-date-field-errors').show();
+        }
         Ext.resumeLayouts(true);
     },
 
@@ -71,7 +72,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.CalendarInfo', {
 
         Ext.suspendLayouts();
         me.getForm().clearInvalid();
-        me.down('#calendar-date-field-errors').hide();
+        if (me.down('#calendar-date-field-errors')) {
+            me.down('#calendar-date-field-errors').hide();
+        }
         Ext.resumeLayouts(true);
     },
 
@@ -102,12 +105,12 @@ Ext.define('Imt.usagepointmanagement.view.forms.CalendarInfo', {
                 if (!map[error.id]) {
                     map[error.id] = {
                         id: error.id,
-                        msg: [' '+error.msg]
+                        msg: [' ' + error.msg]
                     };
                 }
             }
             errorsField.show();
-            errorsField.update(' '+errMsg.join('<br> '));
+            errorsField.update(' ' + errMsg.join('<br> '));
 
         });
 
