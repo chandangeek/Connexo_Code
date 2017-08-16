@@ -9,7 +9,7 @@ import java.util.Optional;
  * Date: 3/01/2017
  * Time: 16:03
  */
-
+@SuppressWarnings("unused")
 public interface GraphLayerService {
 
     String COMPONENT_NAME = "Topology Graph Layers Service";
