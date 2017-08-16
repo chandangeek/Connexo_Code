@@ -191,11 +191,23 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public void setOrUpdateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(Device device, ConnectionTask connectionTask) {
-        ConnectionFunction connectionFunction = connectionTask.getPartialConnectionTask().getConnectionFunction().get();
+        if (connectionTask.getPartialConnectionTask().getConnectionFunction().isPresent()) {
+            ConnectionFunction connectionFunction = connectionTask.getPartialConnectionTask().getConnectionFunction().get();
+            List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithConnectionFunctionForCompleteTopology(device, connectionFunction);
+            for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+                ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
+                comTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction(connectionTask);
+                comTaskExecutionUpdater.update();
+            }
+        }
+    }
+
+    @Override
+    public void clearConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(Device device, ConnectionFunction connectionFunction) {
         List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithConnectionFunctionForCompleteTopology(device, connectionFunction);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
-            comTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction(connectionTask);
+            comTaskExecutionUpdater.setConnectionFunction(connectionFunction); // Set to use a ConnectionFunction not used on any ConnectionTask (note this is opposite of ComTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction)
             comTaskExecutionUpdater.update();
         }
     }
@@ -218,9 +230,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     public List<ConnectionTask<?, ?>> findAllConnectionTasksForTopology(Device device) {
         List<ConnectionTask<?, ?>> allConnectionTasks = new ArrayList<>(device.getConnectionTasks()); // Should be a mutable list
         Optional<Device> physicalGateway = this.getPhysicalGateway(device);
-        if (physicalGateway.isPresent()) {
-            allConnectionTasks.addAll(this.findAllConnectionTasksForTopology(physicalGateway.get()));
-        }
+        physicalGateway.ifPresent(gateway -> allConnectionTasks.addAll(this.findAllConnectionTasksForTopology(gateway)));
 
         return allConnectionTasks;
     }

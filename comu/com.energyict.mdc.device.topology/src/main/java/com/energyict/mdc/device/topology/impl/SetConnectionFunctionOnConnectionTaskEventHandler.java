@@ -26,21 +26,21 @@ import java.util.logging.Logger;
  * @author Stijn Vanhoorelbeke
  * @since 2017-07-07 (14:28)
  */
-@Component(name="com.energyict.mdc.device.topology.set.connectiontask.with.connection.function", service = TopicHandler.class, immediate = true)
+@Component(name="com.energyict.mdc.device.topology.set.connectionfunction.on.connectiontask", service = TopicHandler.class, immediate = true)
 @SuppressWarnings("unused")
-public class SetConnectionTaskWithConnectionFunctionEventHandler implements TopicHandler {
+public class SetConnectionFunctionOnConnectionTaskEventHandler implements TopicHandler {
 
-    public static final Logger LOGGER = Logger.getLogger(SetConnectionTaskWithConnectionFunctionEventHandler.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(SetConnectionFunctionOnConnectionTaskEventHandler.class.getName());
 
     private volatile ServerTopologyService topologyService;
 
     // For OSGi purposes
-    public SetConnectionTaskWithConnectionFunctionEventHandler() {
+    public SetConnectionFunctionOnConnectionTaskEventHandler() {
         super();
     }
 
     // For unit testing purposes
-    SetConnectionTaskWithConnectionFunctionEventHandler(ServerTopologyService topologyService) {
+    SetConnectionFunctionOnConnectionTaskEventHandler(ServerTopologyService topologyService) {
         this();
         this.setTopologyService(topologyService);
     }
@@ -57,7 +57,7 @@ public class SetConnectionTaskWithConnectionFunctionEventHandler implements Topi
     }
 
     private void handle(ConnectionTask connectionTask) {
-        if (!connectionTask.isDefault() && connectionTask.getPartialConnectionTask().getConnectionFunction().isPresent()) {
+        if (connectionTask.getPartialConnectionTask().getConnectionFunction().isPresent()) {
             this.topologyService.setOrUpdateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(connectionTask.getDevice(), connectionTask);
         } else {
             LOGGER.fine("Ignoring update event since the ConnectionTask does not use a connection function");

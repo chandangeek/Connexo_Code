@@ -1552,6 +1552,35 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    public void clearConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopologyTest() {
+        Device device = createSimpleDevice();
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
+        ConnectionFunction connectionFunction = mock(ConnectionFunction.class);
+        when(partialConnectionTask.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
+        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
+        ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
+        ComTaskExecutionUpdater comTaskExecutionUpdater = mock(ComTaskExecutionUpdater.class);
+        when(comTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction(connectionTask)).thenReturn(comTaskExecutionUpdater);
+        when(comTaskExecution1.getUpdater()).thenReturn(comTaskExecutionUpdater);
+        when(comTaskExecution2.getUpdater()).thenReturn(comTaskExecutionUpdater);
+        CommunicationTaskService communicationTaskService = mock(CommunicationTaskService.class);
+        when(communicationTaskService.findComTaskExecutionsWithConnectionFunction(device, connectionFunction)).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
+
+        TopologyService topologyService = this.getTopologyService();
+        ((TopologyServiceImpl) topologyService).setCommunicationTaskService(communicationTaskService);
+
+        // Business method
+        ((TopologyServiceImpl) topologyService).clearConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(device, connectionFunction);
+
+        // Asserts
+        verify(comTaskExecutionUpdater, times(2)).setConnectionFunction(connectionFunction);
+        verify(comTaskExecutionUpdater, times(2)).update();
+    }
+
+    @Test
+    @Transactional
     public void slaveTopologyChangedToNonExistingMaster() {
         Device device = createSimpleDevice();
         ConnectionTask connectionTask = mock(ConnectionTask.class);
