@@ -168,10 +168,22 @@ public interface ConnectionTaskService {
     void clearDefaultConnectionTask(Device device);
 
     /**
-     * Sets the specified {@link ConnectionTask} as the one
-     * @param task
+     * Sets the specified {@link ConnectionTask} as the one having a certain {@link ConnectionFunction}
+     * for the Device against which the ConnectionTask was created. If present, the old ConnectionFunction
+     * is first cleared.
+     *
+     * @param connectionTask The ConnectionTask that will become the one having a certain {@link ConnectionFunction}
+     * @param oldConnectionFunction An optional containing the old ConnectionFunction (which should be cleared first), or else an empty optional.
      */
-    void setConnectionTaskHavingConnectionFunction(ConnectionTask<?, ?> task);
+    void setConnectionTaskHavingConnectionFunction(ConnectionTask<?, ?> connectionTask, Optional<ConnectionFunction> oldConnectionFunction);
+
+    /**
+     * Clears the {@link ConnectionFunction} for the specified Device.
+     *
+     * @param connectionTask the ConnectionTask
+     * @param oldConnectionFunction An optional containing the old ConnectionFunction (which should be cleared), or else an empty optional
+     */
+    void clearConnectionTaskConnectionFunction(ConnectionTask<?, ?> connectionTask, Optional<ConnectionFunction> oldConnectionFunction);
 
     /**
      * Attempts to lock the {@link ConnectionTask} that is about to be executed

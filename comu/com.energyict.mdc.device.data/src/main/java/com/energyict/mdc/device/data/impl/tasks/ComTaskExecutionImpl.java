@@ -342,7 +342,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
     }
 
-    void doSetUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
+    private void doSetUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
         this.useDefaultConnectionTask = useDefaultConnectionTask;
     }
 
@@ -353,7 +353,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.doSetUseDefaultConnectionTask(connectionFunction == null);
     }
 
-    public void doSetConnectionFunction(ConnectionFunction connectionFunction) {
+    private void doSetConnectionFunction(ConnectionFunction connectionFunction) {
         this.connectionFunction = Optional.ofNullable(connectionFunction);
         this.connectionFunctionDbValue = connectionFunction != null ? connectionFunction.getId() : 0;
     }
@@ -363,7 +363,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         setConnectionTask(defaultConnectionTask);
     }
 
-    void setConnectionTaskBasedOnConnectionFunction(ConnectionTask<?, ?> connectionTask) {
+    private void setConnectionTaskBasedOnConnectionFunction(ConnectionTask<?, ?> connectionTask) {
         doSetConnectionFunction(connectionTask.getPartialConnectionTask().getConnectionFunction().get());
         setConnectionTask(connectionTask);
     }

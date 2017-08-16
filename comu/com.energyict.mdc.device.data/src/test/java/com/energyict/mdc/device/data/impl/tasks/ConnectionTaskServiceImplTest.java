@@ -7,9 +7,11 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -22,13 +24,17 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 /**
  * @author Stijn Vanhoorelbeke
@@ -48,7 +54,7 @@ public class ConnectionTaskServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
-        connectionTaskService =  new ConnectionTaskServiceImpl(deviceDataModelService, eventService, protocolPluggableService);
+        connectionTaskService = new ConnectionTaskServiceImpl(deviceDataModelService, eventService, protocolPluggableService);
     }
 
     @Test
@@ -84,5 +90,66 @@ public class ConnectionTaskServiceImplTest {
         assertTrue(connectionTask.isPresent());
         assertTrue(connectionTask.get().getPartialConnectionTask().getConnectionFunction().isPresent());
         assertEquals(connectionTask.get().getPartialConnectionTask().getConnectionFunction().get(), connectionFunction_2);
+    }
+
+    @Test
+    public void clearConnectionTaskConnectionFunctionTest() throws Exception {
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        ConnectionFunction connectionFunction = mock(ConnectionFunction.class);
+
+        // Business method
+        connectionTaskService.clearConnectionTaskConnectionFunction(connectionTask, Optional.of(connectionFunction));
+
+        // Asserts
+        ArgumentCaptor<String> topicArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Pair> sourceArgumentCaptor = ArgumentCaptor.forClass(Pair.class);
+        verify(eventService).postEvent(topicArgumentCaptor.capture(), sourceArgumentCaptor.capture());
+
+        assertThat(topicArgumentCaptor.getAllValues().size()).isEqualTo(1);
+        assertThat(sourceArgumentCaptor.getAllValues().size()).isEqualTo(1);
+        assertThat(topicArgumentCaptor.getValue()).isEqualTo(EventType.CONNECTIONTASK_CLEARCONNECTIONFUNCTION.topic());
+        assertThat(sourceArgumentCaptor.getValue().getFirst()).isEqualTo(connectionTask);
+        assertThat(sourceArgumentCaptor.getValue().getLast()).isEqualTo(connectionFunction);
+    }
+
+    @Test
+    public void setConnectionTaskHavingConnectionFunctionWithoutPreviousFunctionTest() throws Exception {
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+
+        // Business method
+        connectionTaskService.setConnectionTaskHavingConnectionFunction(connectionTask, Optional.empty());
+
+        // Asserts
+        ArgumentCaptor<String> topicArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<ConnectionTask> sourceArgumentCaptor = ArgumentCaptor.forClass(ConnectionTask.class);
+        verify(eventService).postEvent(topicArgumentCaptor.capture(), sourceArgumentCaptor.capture());
+
+        assertThat(topicArgumentCaptor.getAllValues().size()).isEqualTo(1);
+        assertThat(sourceArgumentCaptor.getAllValues().size()).isEqualTo(1);
+        assertThat(topicArgumentCaptor.getValue()).isEqualTo(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION.topic());
+        assertThat(sourceArgumentCaptor.getValue()).isEqualTo(connectionTask);
+    }
+
+    @Test
+    public void setConnectionTaskHavingConnectionFunctionWithPreviousFunctionTest() throws Exception {
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        ConnectionFunction connectionFunction = mock(ConnectionFunction.class);
+
+        // Business method
+        connectionTaskService.setConnectionTaskHavingConnectionFunction(connectionTask, Optional.of(connectionFunction));
+
+        // Asserts
+        ArgumentCaptor<String> topicArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Object> sourceArgumentCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(eventService, times(2)).postEvent(topicArgumentCaptor.capture(), sourceArgumentCaptor.capture());
+
+        assertThat(topicArgumentCaptor.getAllValues().size()).isEqualTo(2);
+        assertThat(sourceArgumentCaptor.getAllValues().size()).isEqualTo(2);
+        assertThat(topicArgumentCaptor.getAllValues().get(0)).isEqualTo(EventType.CONNECTIONTASK_CLEARCONNECTIONFUNCTION.topic());
+        assertThat(((Pair) sourceArgumentCaptor.getAllValues().get(0)).getFirst()).isEqualTo(connectionTask);
+        assertThat(((Pair) sourceArgumentCaptor.getAllValues().get(0)).getLast()).isEqualTo(connectionFunction);
+
+        assertThat(topicArgumentCaptor.getAllValues().get(1)).isEqualTo(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION.topic());
+        assertThat(sourceArgumentCaptor.getAllValues().get(1)).isEqualTo(connectionTask);
     }
 }

@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
@@ -323,14 +324,14 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     @Override
-    public void setConnectionTaskHavingConnectionFunction(ConnectionTask<?, ?> task) {
-        this.doSetConnectionTaskHavingConnectionFunction((ConnectionTaskImpl) task);
+    public void setConnectionTaskHavingConnectionFunction(ConnectionTask<?, ?> connectionTask, Optional<ConnectionFunction> oldConnectionFunction) {
+        clearConnectionTaskConnectionFunction(connectionTask, oldConnectionFunction);
+        this.eventService.postEvent(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION.topic(), connectionTask);
     }
 
-    public void doSetConnectionTaskHavingConnectionFunction(final ConnectionTaskImpl newConnectionTask) {
-        if (newConnectionTask != null) {
-            newConnectionTask.setAsConnectionFunction();
-        }
+    @Override
+    public void clearConnectionTaskConnectionFunction(ConnectionTask<?, ?> connectionTask, Optional<ConnectionFunction> oldConnectionFunction) {
+        oldConnectionFunction.ifPresent(connectionFunction -> this.eventService.postEvent(EventType.CONNECTIONTASK_CLEARCONNECTIONFUNCTION.topic(), Pair.of(connectionTask, connectionFunction)));
     }
 
     @Override

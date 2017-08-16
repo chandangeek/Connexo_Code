@@ -31,6 +31,6 @@ class UpgraderV10_4 implements Upgrader {
     }
 
     private void installNewEventTypes() {
-        EnumSet.of(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION).forEach(eventType -> eventType.install(eventService));
+        EnumSet.of(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION, EventType.CONNECTIONTASK_CLEARCONNECTIONFUNCTION).forEach(eventType -> eventType.install(eventService));
     }
 }
