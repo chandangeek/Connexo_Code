@@ -314,7 +314,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
         var snoozeVisible = predefinedItems.filter(function (menu) {
             return menu.action === 'snooze';
         })[0];
-        snoozeVisible.hidden = (me.record.getData().status.id == 'status.resolved' || 'status.wont.fix');
+        snoozeVisible.hidden = ((me.record.getData().status.id == 'status.resolved') || (me.record.getData().status.id == 'status.wont.fix'));
         snoozeVisible.record = me.record;
 
         // add predefined actions
