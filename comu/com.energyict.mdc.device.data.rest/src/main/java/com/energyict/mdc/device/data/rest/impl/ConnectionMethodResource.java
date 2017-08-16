@@ -92,7 +92,7 @@ public class ConnectionMethodResource {
         if (connectionMethodInfo.isDefault) {
             connectionTaskService.setDefaultConnectionTask(task);
         } else if (task.getPartialConnectionTask().getConnectionFunction().isPresent()) {
-            connectionTaskService.setConnectionTaskHavingConnectionFunction(task);
+            connectionTaskService.setConnectionTaskHavingConnectionFunction(task, Optional.empty());
         }
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(task, uriInfo)).build();
     }
