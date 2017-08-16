@@ -304,11 +304,18 @@ Ext.define('Isu.view.issues.ActionMenu', {
         assignIssueToMe.hidden = (me.record.get('userId') == me.currentUserId);
         assignIssueToMe.record = me.record;
 
+
         var unassign = predefinedItems.filter(function (menu) {
             return menu.action === 'unassign';
         })[0];
         unassign.hidden = (me.record.get('userId') != me.currentUserId);
         unassign.record = me.record;
+
+        var snoozeVisible = predefinedItems.filter(function (menu) {
+            return menu.action === 'snooze';
+        })[0];
+        snoozeVisible.hidden = (me.record.getData().status.id == 'status.resolved' || 'status.wont.fix');
+        snoozeVisible.record = me.record;
 
         // add predefined actions
         if (predefinedItems && predefinedItems.length) {
