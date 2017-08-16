@@ -71,6 +71,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -93,14 +94,16 @@ public class IssueResource extends BaseResource {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final IssueInfoFactoryService issueInfoFactoryService;
     private final TransactionService transactionService;
+    private final Clock clock;
 
     @Inject
-    public IssueResource(IssueResourceHelper issueResourceHelper, IssueInfoFactory issueInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, IssueInfoFactoryService issueInfoFactoryService, TransactionService transactionService) {
+    public IssueResource(IssueResourceHelper issueResourceHelper, IssueInfoFactory issueInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, IssueInfoFactoryService issueInfoFactoryService, TransactionService transactionService, Clock clock) {
         this.issueResourceHelper = issueResourceHelper;
         this.issueInfoFactory = issueInfoFactory;
         this.conflictFactory = conflictFactory;
         this.issueInfoFactoryService = issueInfoFactoryService;
         this.transactionService = transactionService;
+        this.clock = clock;
     }
 
     @GET
@@ -365,7 +368,7 @@ public class IssueResource extends BaseResource {
         Function<ActionInfo, Issue> issueProvider;
         issueProvider = result -> getIssue(request, result);
 
-        if(Instant.ofEpochMilli(request.snoozeDateTime).isBefore(Instant.now())) {
+        if (Instant.ofEpochMilli(request.snoozeDateTime).isBefore(Instant.now(clock))) {
             throw new LocalizedFieldValidationException(MessageSeeds.SNOOZE_TIME_BEFORE_CURRENT_TIME, "until");
         }else{
             ActionInfo info = getTransactionService().execute(new SingleSnoozeTransaction(request, performer, issueProvider, getThesaurus()));
@@ -389,7 +392,7 @@ public class IssueResource extends BaseResource {
         } else {
             issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
         }
-        ActionInfo info = doBulkSnooze(request, issueProvider, performer);
+        ActionInfo info = getTransactionService().execute(new BulkSnoozeTransaction(request, performer, issueProvider, getThesaurus(), clock));
         return entity(info).build();
     }
 
@@ -515,39 +518,6 @@ public class IssueResource extends BaseResource {
             response.addSuccess(issue.getId());
         }
 
-        return response;
-    }
-
-    private ActionInfo doBulkSnooze(BulkSnoozeRequest request, Function<ActionInfo, List<? extends Issue>> issueProvider, User performer) {
-        ActionInfo response = new ActionInfo();
-        ActionInfo responseSuccess = new ActionInfo();
-        for (Issue issue : issueProvider.apply(response)) {
-            if (issue.getStatus().isHistorical()) {
-                response.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_ALREADY_CLOSED)
-                        .format(), issue.getId(), issue.getTitle());
-                EntityReference removedIssue = null;
-                for (EntityReference issueRef : request.issues) {
-                    if (issueRef.getId() == issue.getId()) {
-                        removedIssue = issueRef;
-                    }
-                }
-                if (removedIssue != null) {
-                    request.issues.remove(removedIssue);
-                }
-            } else {
-                if (Instant.ofEpochMilli(request.snoozeDateTime).isBefore(Instant.now())) {
-                    response.addFail(getThesaurus().getFormat(MessageSeeds.SNOOZE_TIME_BEFORE_CURRENT_TIME)
-                            .format(), issue.getId(), issue.getTitle());
-                } else {
-                    responseSuccess = getTransactionService().execute(new BulkSnoozeTransaction(request, performer, issueProvider));
-                    for (Issue iss : issueProvider.apply(responseSuccess)) {
-                        response.addSuccess(iss.getId());
-                    }
-
-                }
-
-            }
-        }
         return response;
     }
 

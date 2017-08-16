@@ -51,6 +51,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -76,6 +77,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     private volatile Thesaurus thesaurus;
     private volatile IssueInfoFactoryService issueInfoFactoryService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile Clock clock;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -147,6 +149,11 @@ public class IssueApplication extends Application implements TranslationKeyProvi
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @Override
     public String getComponentName() {
         return ISSUE_REST_COMPONENT;
@@ -190,6 +197,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(IssueInfoFactory.class).to(IssueInfoFactory.class);
             bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
             bind(issueInfoFactoryService).to(IssueInfoFactoryService.class);
+            bind(clock).to(Clock.class);
         }
     }
 

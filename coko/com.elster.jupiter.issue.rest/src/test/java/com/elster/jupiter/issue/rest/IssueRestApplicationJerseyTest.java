@@ -49,6 +49,7 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
@@ -90,6 +91,8 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     IssueInfoFactoryService issueInfoFactoryService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    Clock clock;
 
 
     @Provider
@@ -127,6 +130,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         application.setUserService(userService);
         application.setIssueInfoFactoryService(issueInfoFactoryService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setClock(clock);
         return application;
     }
 
