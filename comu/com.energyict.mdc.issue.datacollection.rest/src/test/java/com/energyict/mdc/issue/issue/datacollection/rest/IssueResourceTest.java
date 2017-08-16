@@ -135,25 +135,6 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         assertThat(issueProcessInfos.processes.get(2).openTasks.get(0).createdOn).isEqualTo("1456821941001");
     }
 
-    @Test
-    public void testCloseAction() {
-        CloseIssueRequest request = new CloseIssueRequest();
-        EntityReference issueRef = new EntityReference();
-        issueRef.setId(1L);
-        request.issues = Arrays.asList(issueRef);
-        request.status = "resolved";
-        IssueStatus status = mockStatus("resolved", "Resolved", true);
-        when(issueService.findStatus("resolved")).thenReturn(Optional.of(status));
-        OpenIssueDataCollection issueDataCollection = mock(OpenIssueDataCollection.class);
-        when(issueDataCollectionService.findOpenIssue(1L)).thenReturn(Optional.of(issueDataCollection));
-        when(issueDataCollection.getStatus()).thenReturn(status);
-        
-
-        Entity<CloseIssueRequest> json = Entity.json(request);
-        Response response = target("issues/close").request().put(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-    }
-
     private void assertDefaultIssueMap(Map<?, ?> issueMap) {
         assertThat(issueMap.get("id")).isEqualTo(1);
         assertThat(issueMap.get("version")).isEqualTo(1);
