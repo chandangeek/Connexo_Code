@@ -4,7 +4,7 @@
 
 Ext.define('Imt.purpose.store.ExportTasks', {
     extend: 'Ext.data.Store',
-    model: 'Dxp.model.DataExportTask',
+    model: 'Imt.purpose.model.DataExportTask',
 
     proxy: {
         type: 'rest',
