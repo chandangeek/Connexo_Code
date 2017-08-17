@@ -339,17 +339,6 @@ Ext.define('Dxp.model.DataExportTask', {
 
 
     ],
-    getTriggerText: function () {
-        var me = this,
-            nextRun = me.get('nextRun');
-
-        return Ext.isEmpty(me.get('schedule'))
-            ? Uni.I18n.translate('export.schedule.manual', 'DES', 'On request')
-            : Uni.I18n.translate('export.schedule.scheduled', 'DES', '{0}. Next run {1}', [
-            me.get('recurrence'),
-            nextRun ? Uni.DateTime.formatDateTimeLong(Ext.isDate(nextRun) ? nextRun : new Date(nextRun)) : '-'
-        ]);
-    },
     proxy: {
         type: 'rest',
         url: '/api/export/dataexporttask',
