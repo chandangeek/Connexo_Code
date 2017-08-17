@@ -1,14 +1,17 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
+import com.energyict.mdc.device.topology.rest.GraphLayerCalculationMode;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
 import org.osgi.service.component.annotations.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -23,13 +26,12 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class DeviceInfoLayer extends AbstractGraphLayer<Device> {
 
-    private final static String NAME = "topology.graphLayer.deviceInfo";
+    private final static String NAME = "topology.GraphLayer.DeviceInfo";
+    private final static String DEFAULT_FORMAT = "Device Identifiers";
 
     public enum PropertyNames implements TranslationKey {
         DEVICE_NAME("name", "Name"),
-        DEVICE_SERIAL("serialNumber", "Serial number"),
-        DEVICE_TYPE("deviceType", "Device type"),
-        DEVICE_CONFIGURATION("deviceConfiguration", "Device configuration");
+        DEVICE_SERIAL("serialNumber", "Serial number");
 
         private String propertyName;
         private String defaultFormat;
@@ -64,34 +66,49 @@ public class DeviceInfoLayer extends AbstractGraphLayer<Device> {
         return NAME;
     }
 
-    public void setDeviceName(String name){
-        setProperty(PropertyNames.DEVICE_NAME.getPropertyName(), name);
+    public String getDisplayName(Thesaurus thesaurus){
+        return thesaurus.getFormat(getTranslatedName()).format();
     }
 
-    public void setDeviceType(String deviceTypeName){
-        setProperty(PropertyNames.DEVICE_TYPE.getPropertyName(), deviceTypeName);
+    private TranslationKey getTranslatedName(){
+        return new TranslationKey() {
+                    @Override
+                    public String getKey() {
+                        return NAME;
+                    }
+
+                    @Override
+                    public String getDefaultFormat() {
+                        return DEFAULT_FORMAT;
+                    }
+                };
+    }
+
+    @Override
+    public GraphLayerCalculationMode getCalculationMode() {
+        return GraphLayerCalculationMode.IMMEDIATE;
+    }
+
+    public void setDeviceName(String name){
+        setProperty(PropertyNames.DEVICE_NAME.getPropertyName(), name);
     }
 
     public void setSerialNumber(String serialNumber){
         setProperty(PropertyNames.DEVICE_SERIAL.getPropertyName(), serialNumber);
     }
 
-    public void setDeviceConfiguration(String deviceConfigurationName){
-        setProperty(PropertyNames.DEVICE_CONFIGURATION.getPropertyName(), deviceConfigurationName);
-    }
-
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(PropertyNames.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.add(getTranslatedName());
+        keys.addAll(Arrays.asList(PropertyNames.values()));
+        return keys;
     }
 
     public Map<String, Object> getProperties(NodeInfo<Device> nodeInfo) {
         Device device = ((DeviceNodeInfo) nodeInfo).getDevice();
         this.setDeviceName(device.getName());
         this.setSerialNumber(device.getSerialNumber());
-        this.setDeviceType(device.getDeviceType().getName());
-        this.setDeviceConfiguration(device.getDeviceConfiguration().getName());
-
         return propertyMap();
     }
 

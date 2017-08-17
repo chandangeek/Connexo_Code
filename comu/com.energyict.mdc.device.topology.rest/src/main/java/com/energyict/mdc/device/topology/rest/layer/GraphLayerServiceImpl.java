@@ -42,8 +42,8 @@ public class GraphLayerServiceImpl implements GraphLayerService  {
     }
 
     @Override
-    public Optional<GraphLayer> getGraphLayer(GraphLayerType type, String name) {
-        return this.getGraphLayers().stream().filter(each -> each.getType() == type && each.getName().equals(name)).findFirst();
+    public Optional<GraphLayer> getGraphLayer(String name) {
+        return this.getGraphLayers().stream().filter(each -> each.getName().equals(name)).findFirst();
     }
 
 }

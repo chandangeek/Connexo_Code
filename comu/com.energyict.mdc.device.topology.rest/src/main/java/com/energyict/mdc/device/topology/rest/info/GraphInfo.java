@@ -25,7 +25,7 @@ import java.util.Set;
  * Date: 20/12/2016
  * Time: 17:02
  */
-@JsonRootName(value = "graph")
+@JsonRootName("graph")
 @JsonPropertyOrder({"nodes", "links", "nodeCount", "buildTime"})
 public class GraphInfo<T extends HasId> {
 
@@ -71,12 +71,10 @@ public class GraphInfo<T extends HasId> {
     }
 
     private List<LinkInfo> addLinkInfos(List<LinkInfo> linkInfos, NodeInfo<T> nodeInfo, Optional<GraphLayer> linksLayer) {
-        LinkInfo linkInfo = nodeInfo.asLinkInfo();
+        LinkInfo<T> linkInfo = nodeInfo.asLinkInfo();
         if (linkInfo != null) {
             linksLayer.ifPresent(linkInfo::addLayer);
-            if (!linkInfos.stream().filter(li -> li.getSource() == linkInfo.getSource() && li.getTarget() == linkInfo.getSource()).findFirst().isPresent()) {
-                linkInfos.add(linkInfo);
-            }
+            linkInfos.add(linkInfo);
         }
         nodeInfo.getChildren().forEach(child -> addLinkInfos(linkInfos, child, linksLayer));
         return linkInfos;

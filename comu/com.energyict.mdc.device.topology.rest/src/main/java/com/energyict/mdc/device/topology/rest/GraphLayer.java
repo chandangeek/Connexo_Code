@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.topology.rest;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
@@ -26,6 +27,25 @@ public interface GraphLayer<T extends HasId> {
      * @return the name of the layer
      */
     String getName();
+
+    /**
+     * The name that can be used by the UI
+     * @return the display name of the layer
+     */
+    default String getDisplayName(Thesaurus thesaurus){
+          return getName();
+    }
+
+    /**
+     * When the layer's calculation mode is {link GraphLayerCalculationMode.ON_DEMAND} the layer
+     * needs to be activated for calculation
+     */
+    void activate();
+    void deActivate();
+    boolean isActive();
+    default GraphLayerCalculationMode getCalculationMode(){
+       return GraphLayerCalculationMode.ON_DEMAND;
+    }
 
     /**
      *

@@ -2,9 +2,9 @@ package com.energyict.mdc.device.topology.rest.info;
 
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
+import com.energyict.mdc.device.topology.rest.GraphLayerCalculationMode;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
@@ -24,15 +24,13 @@ import java.util.Optional;
  * Time: 16:57
  */
 @JsonIgnoreType
-@JsonPropertyOrder({ "id", "gateWay"})
+@JsonPropertyOrder({ "id", "gateway"})
 public abstract class NodeInfo<T extends HasId> {
 
     @JsonIgnore
     private T nodeObject;
     @JsonIgnore
     private List<GraphLayer<T>> layers = new ArrayList<>();
-    @JsonIgnore
-    private Optional<GraphLayer<T>> activeLayer = Optional.empty();
     @JsonIgnore
     private NodeInfo parent;
     @JsonIgnore
@@ -51,13 +49,6 @@ public abstract class NodeInfo<T extends HasId> {
 
     public boolean addLayer(GraphLayer<T> graphLayer){
         return this.layers.add(graphLayer);
-    }
-
-    public void setActiveLayer(GraphLayer<T> graphLayer ){
-        if (!layers.contains(graphLayer)) {
-            throw new IllegalArgumentException("GraphLayer not added to List of layers");
-        }
-        activeLayer = Optional.of(graphLayer);
     }
 
     @JsonIgnore
@@ -81,9 +72,9 @@ public abstract class NodeInfo<T extends HasId> {
         return false;
     }
 
-    public LinkInfo asLinkInfo(){
+    public LinkInfo<T> asLinkInfo(){
         if (!isRoot()) {
-            return new LinkInfo(this);
+            return new LinkInfo<>(this);
         }
         return null;
     }
@@ -94,11 +85,11 @@ public abstract class NodeInfo<T extends HasId> {
         }
         return parent.getRoot();
     }
-    @JsonGetter
+    @JsonGetter("id")
     public long getId() {
         return nodeObject.getId();
     }
-    @JsonGetter()
+    @JsonGetter("gateway")
     public boolean isGateway(){
         return parent == null;
     }
@@ -106,11 +97,7 @@ public abstract class NodeInfo<T extends HasId> {
     @JsonAnyGetter
     public Map<String, Object> getProperties(){
         Map<String, Object> allProperties =  new HashMap<>();
-        if (activeLayer.isPresent()){
-            return activeLayer.get().getProperties(this);
-        }else{
-            layers.stream().forEach(layer -> allProperties.putAll(layer.getProperties(this)));
-        }
+        layers.stream().filter(GraphLayer::isActive).forEach(layer -> allProperties.putAll(layer.getProperties(this)));
         return allProperties;
     }
     @JsonIgnore

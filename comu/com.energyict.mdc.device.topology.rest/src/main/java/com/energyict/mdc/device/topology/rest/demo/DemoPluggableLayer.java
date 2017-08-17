@@ -1,10 +1,13 @@
-package com.energyict.mdc.device.topology.rest.layer;
+package com.energyict.mdc.device.topology.rest.demo;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
+import com.energyict.mdc.device.topology.rest.GraphLayerCalculationMode;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
+import com.energyict.mdc.device.topology.rest.layer.AbstractGraphLayer;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -22,7 +25,7 @@ import java.util.Map;
 public class DemoPluggableLayer extends AbstractGraphLayer<Device> {
 
     private final static String NAME = "Demo Pluggable";
-
+    private final static String DEFAULT_FORMAT = "Demo pluggability of 'Graph layers'";
 
     public DemoPluggableLayer(){
         super();
@@ -37,6 +40,10 @@ public class DemoPluggableLayer extends AbstractGraphLayer<Device> {
     @Override
     public String getName() {
         return NAME ;
+    }
+
+    public String getDisplayName(Thesaurus thesaurus){
+        return thesaurus.getString(NAME,DEFAULT_FORMAT);
     }
 
     @Override

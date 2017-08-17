@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.topology.rest.info;
 
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
+import com.energyict.mdc.device.topology.rest.GraphLayerCalculationMode;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -22,18 +24,16 @@ import java.util.Optional;
  */
 @JsonIgnoreType
 @JsonPropertyOrder({ "source", "target" })
-public class LinkInfo {
+public class LinkInfo<T extends HasId> {
 
     @JsonIgnore
-    private NodeInfo nodeInfo;
+    private NodeInfo<T> nodeInfo;
     private long source;
     private long target;
     @JsonIgnore
-    private List<GraphLayer> layers = new ArrayList<>();
-    @JsonIgnore
-    private Optional<GraphLayer> activeLayer = Optional.empty();
+    private List<GraphLayer<T>> layers = new ArrayList<>();
 
-    LinkInfo(NodeInfo nodeInfo){
+    LinkInfo(NodeInfo<T> nodeInfo){
         this(nodeInfo.getParent().getId(), nodeInfo.getId());
         this.nodeInfo = nodeInfo;
     }
@@ -43,43 +43,24 @@ public class LinkInfo {
        this.target = target;
     }
 
-    public boolean addLayer(GraphLayer graphLayer){
+    public boolean addLayer(GraphLayer<T> graphLayer){
         return this.layers.add(graphLayer);
     }
 
-    public void setActiveLayer(GraphLayer graphLayer ){
-        if (!layers.contains(graphLayer)) {
-            throw new IllegalArgumentException("GraphLayer not added to List of layers");
-        }
-        activeLayer = Optional.of(graphLayer);
-    }
-
-    @JsonGetter
+    @JsonGetter("source")
     public long getSource() {
         return source;
     }
 
-    public void setSource(long source) {
-        this.source = source;
-    }
-    @JsonGetter
+    @JsonGetter("target")
     public long getTarget() {
         return target;
-    }
-
-    public void setTarget(long target) {
-        this.target = target;
     }
 
     @JsonAnyGetter
     public Map<String, Object> getProperties(){
         Map<String, Object> allProperties =  new HashMap<>();
-        if (activeLayer.isPresent()){
-            return activeLayer.get().getProperties(nodeInfo);
-        }
-        else{
-            layers.stream().forEach(layer -> allProperties.putAll(layer.getProperties(nodeInfo)));
-        }
+        layers.stream().filter(layer -> layer.getCalculationMode() == GraphLayerCalculationMode.IMMEDIATE).forEach(layer -> allProperties.putAll(layer.getProperties(nodeInfo)));
         return allProperties;
     }
 

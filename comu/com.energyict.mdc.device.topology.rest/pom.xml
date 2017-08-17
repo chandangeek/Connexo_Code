@@ -80,10 +80,6 @@
             <artifactId>mdc.device.topology</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.alarms</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
         </dependency>
@@ -183,6 +179,16 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pki</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

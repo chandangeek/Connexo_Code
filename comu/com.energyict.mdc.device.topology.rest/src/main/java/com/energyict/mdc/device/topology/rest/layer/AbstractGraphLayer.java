@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
+import com.energyict.mdc.device.topology.rest.GraphLayerCalculationMode;
 import com.energyict.mdc.device.topology.rest.impl.TopologyGraphApplication;
 
 
@@ -19,6 +21,7 @@ import java.util.Properties;
 public abstract class AbstractGraphLayer<T extends HasId> implements GraphLayer<T>, TranslationKeyProvider {
 
     private Properties properties = new Properties();
+    private boolean active ;
 
     public void setProperty(String propertyName, Object propertyValue){
         if (propertyValue == null){
@@ -29,10 +32,24 @@ public abstract class AbstractGraphLayer<T extends HasId> implements GraphLayer<
     }
 
     @Override
+    public void activate() {
+        this.active = true;
+    }
+    @Override
+    public void deActivate() {
+        this.active = false;
+    }
+    @Override
+    public boolean isActive(){
+        return this.getCalculationMode() == GraphLayerCalculationMode.IMMEDIATE || this.active;
+    }
+
+    @Override
     public Object getProperty(String propertyName){
         return this.properties.get(propertyName);
     }
 
+    // TranslationKeyProvider
     @Override
     public String getComponentName() {
         return TopologyGraphApplication.COMPONENT_NAME;

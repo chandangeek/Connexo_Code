@@ -2,42 +2,36 @@ package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
-import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerCalculationMode;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
-import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 /**
+ * GraphLayer - Device Info
  * Copyrights EnergyICT
- * Date: 5/01/2017
- * Time: 10:44
+ * Date: 3/01/2017
+ * Time: 14:34
  */
-@Component(name = "com.energyict.mdc.device.topology.CommunicationStatusLayer", service = GraphLayer.class, immediate = true)
+@Component(name = "com.energyict.mdc.device.topology.DeviceType", service = GraphLayer.class, immediate = true)
 @SuppressWarnings("unused")
-public class CommunicationStatusLayer extends AbstractGraphLayer<Device> {
+public class DeviceTypeLayer extends AbstractGraphLayer<Device> {
 
-    private Clock clock;
-    private TopologyService topologyService;
+    private final static String NAME = "topology.GraphLayer.DeviceType";
+    private final static String DEFAULT_FORMAT = "Device types";
 
-    private final static String NAME = "topology.GraphLayer.CommunicationStatus";
-    private final static String DEFAULT_FORMAT = "Communication Status";
     public enum PropertyNames implements TranslationKey {
-        COMMUNICATION_STATUS("failedCommunications", "Failed communications");
+        DEVICE_TYPE("deviceType", "Device type"),
+        DEVICE_CONFIGURATION("deviceConfiguration", "Device configuration");
 
         private String propertyName;
         private String defaultFormat;
@@ -60,7 +54,6 @@ public class CommunicationStatusLayer extends AbstractGraphLayer<Device> {
         public String getDefaultFormat() {
             return defaultFormat;
         }
-
     }
 
     @Override
@@ -91,30 +84,12 @@ public class CommunicationStatusLayer extends AbstractGraphLayer<Device> {
                 };
     }
 
-    @Reference
-    public void setTopologyService(TopologyService topologyService) {
-        this.topologyService = topologyService;
+    public void setDeviceType(String deviceTypeName){
+        setProperty(PropertyNames.DEVICE_TYPE.getPropertyName(), deviceTypeName);
     }
 
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
-    }
-
-    private void checkCommunicationStatus(DeviceNodeInfo info){
-        Device device = info.getDevice();
-        setFailedCommunications(this.topologyService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.COMMUNICATION_FAILURE, device,
-                Interval.of(Range.lessThan(clock.instant()))));
-    }
-
-    @Override
-    public Map<String, Object> getProperties(NodeInfo<Device> info) {
-        checkCommunicationStatus((DeviceNodeInfo) info);
-        return propertyMap();
-    }
-
-    private void setFailedCommunications(int errors){
-       this.setProperty(PropertyNames.COMMUNICATION_STATUS.getPropertyName(), errors);
+    public void setDeviceConfiguration(String deviceConfigurationName){
+        setProperty(PropertyNames.DEVICE_CONFIGURATION.getPropertyName(), deviceConfigurationName);
     }
 
     @Override
@@ -123,6 +98,14 @@ public class CommunicationStatusLayer extends AbstractGraphLayer<Device> {
         keys.add(getTranslatedName());
         keys.addAll(Arrays.asList(PropertyNames.values()));
         return keys;
+    }
+
+    public Map<String, Object> getProperties(NodeInfo<Device> nodeInfo) {
+        Device device = ((DeviceNodeInfo) nodeInfo).getDevice();
+        this.setDeviceType(device.getDeviceType().getName());
+        this.setDeviceConfiguration(device.getDeviceConfiguration().getName());
+
+        return propertyMap();
     }
 
 }

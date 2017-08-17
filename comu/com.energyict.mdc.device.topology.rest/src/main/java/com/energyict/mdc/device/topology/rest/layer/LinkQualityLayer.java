@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.G3Neighbor;
@@ -12,6 +13,7 @@ import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,7 @@ public class LinkQualityLayer extends AbstractGraphLayer<Device> {
     private TopologyService topologyService;
 
     private final static String NAME = "topology.GraphLayer.linkQuality";
+    private final static String DEFAULT_FORMAT = "Network Link quality";
 
     public enum PropertyNames implements TranslationKey{
         LINK_QUALITY("linkQuality", "Link quality");
@@ -69,6 +72,24 @@ public class LinkQualityLayer extends AbstractGraphLayer<Device> {
         return NAME;
     }
 
+    public String getDisplayName(Thesaurus thesaurus){
+        return thesaurus.getFormat(getTranslatedName()).format();
+    }
+
+    private TranslationKey getTranslatedName(){
+        return new TranslationKey() {
+                    @Override
+                    public String getKey() {
+                        return NAME;
+                    }
+
+                    @Override
+                    public String getDefaultFormat() {
+                        return DEFAULT_FORMAT;
+                    }
+                };
+    }
+
     @Reference
     @SuppressWarnings("unused")
     public void setTopologyService(TopologyService topologyService){
@@ -91,7 +112,10 @@ public class LinkQualityLayer extends AbstractGraphLayer<Device> {
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(PropertyNames.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.add(getTranslatedName());
+        keys.addAll(Arrays.asList(PropertyNames.values()));
+        return keys;
     }
 
     private Optional<G3Neighbor> getNeighbor(DeviceNodeInfo info){

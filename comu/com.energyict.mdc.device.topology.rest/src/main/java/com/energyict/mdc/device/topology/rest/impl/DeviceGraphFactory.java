@@ -43,7 +43,15 @@ public class DeviceGraphFactory implements GraphFactory {
 
     public GraphInfo from(Device device) {
         this.gateway = this.topologyService.getPhysicalGateway(device).orElse(device);
-        return from(this.topologyService.getPhysicalTopology(gateway, Range.atLeast(clock.instant())));
+        if (gateway.getId() == device.getId()) {
+            return from(this.topologyService.getPhysicalTopology(gateway, Range.atLeast(clock.instant())));
+        } else {
+            Instant now = clock.instant();
+            // Seems this takes a lot of time
+            GraphInfo<Device> graphInfo = from(this.topologyService.getCommunicationPath(gateway, device));
+            graphInfo.setProperty("buildTime", "" + Duration.between(now, clock.instant()).toMillis());
+            return graphInfo;
+        }
     }
 
     public GraphInfo from(DeviceTopology deviceTopology) {
@@ -61,14 +69,32 @@ public class DeviceGraphFactory implements GraphFactory {
         return graphInfo;
     }
 
-    private void addChilds(final DeviceNodeInfo nodeInfo, DeviceTopology deviceTopology) {
-        List<Device> devicesInTopology = deviceTopology.getDevices();
-        devicesInTopology.sort((d1, d2) ->  -1 * (topologyService.getCommunicationPath(gateway,d1).getNumberOfHops() - topologyService.getCommunicationPath(gateway,d2).getNumberOfHops()));
-        devicesInTopology.forEach(device -> this.addCommunicationPathNodes(nodeInfo, device));
+    public GraphInfo from(G3CommunicationPath communicationPath) {
+        nodeCount = 0;
+        DeviceNodeInfo rootNode = newNode(communicationPath.getSource(), Optional.empty());
+        final List<Device> devicesInCommunicationPath = new ArrayList<>();
+        devicesInCommunicationPath.add(rootNode.getDevice());
+        devicesInCommunicationPath.addAll(communicationPath.getIntermediateDevices());
+        devicesInCommunicationPath.add(communicationPath.getTarget());
+
+        GraphInfo<Device> graphInfo = new GraphInfo<>(this.graphLayerService);
+        graphInfo.setRootNode(rootNode);
+        for (int i = 1; i < devicesInCommunicationPath.size(); i++) {
+            rootNode = newNode(devicesInCommunicationPath.get(i), rootNode);
+        }
+        graphInfo.setProperty("levelCount", "" + (devicesInCommunicationPath.size() - 1));
+        graphInfo.setProperty("nodeCount", "" + nodeCount);
+
+        return graphInfo;
     }
 
-    private boolean isChildOfRoot(Device device){
-        return topologyService.getCommunicationPath(gateway, device).getNumberOfHops() == 0;
+
+    private void addChilds(final DeviceNodeInfo nodeInfo, DeviceTopology deviceTopology) {
+        this.addChilds(nodeInfo, deviceTopology.getDevices());
+    }
+
+    private void addChilds(final DeviceNodeInfo nodeInfo, List<Device> devicesInTopology) {
+        devicesInTopology.forEach(device -> this.addCommunicationPathNodes(nodeInfo, device));
     }
 
     private void addCommunicationPathNodes(DeviceNodeInfo nodeInfo, Device device) {
@@ -95,10 +121,10 @@ public class DeviceGraphFactory implements GraphFactory {
         final DeviceNodeInfo node = new DeviceNodeInfo(device);
         graphLayerService.getGraphLayers().stream().filter((layer) -> layer.getType() == GraphLayerType.NODE).forEach(node::addLayer);
         if (parent.isPresent()) {
-            if (parent.get().addChild(node)){
+            if (parent.get().addChild(node)) {
                 nodeCount++;
             }
-        }else{
+        } else {
             nodeCount++;
         }
         return node;

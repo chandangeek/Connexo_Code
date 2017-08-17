@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.topology.rest;
 
+import com.energyict.mdc.device.topology.rest.info.NodeInfo;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +30,6 @@ public interface GraphLayerService {
 
     List<GraphLayer> getGraphLayers();
 
-    Optional<GraphLayer> getGraphLayer(GraphLayerType type, String name);
+    Optional<GraphLayer> getGraphLayer(String name);
 
 }

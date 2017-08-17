@@ -3,11 +3,13 @@ package com.energyict.mdc.device.topology.rest.layer;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
+import com.energyict.mdc.device.topology.rest.GraphLayerCalculationMode;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
@@ -19,6 +21,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +40,7 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
     private DeviceAlarmService deviceAlarmService;
 
     private final static String NAME = "topology.GraphLayer.IssuesAndAlarms";
+    private final static String DEFAULT_FORMAT = "Issues/Alarms";
 
     public enum PropertyNames implements TranslationKey {
         ISSUE_COUNT("issues", "Issues"),
@@ -74,6 +78,24 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
     @Override
     public String getName() {
         return NAME;
+    }
+
+    public String getDisplayName(Thesaurus thesaurus){
+        return thesaurus.getFormat(getTranslatedName()).format();
+    }
+
+    private TranslationKey getTranslatedName(){
+        return new TranslationKey() {
+                    @Override
+                    public String getKey() {
+                        return NAME;
+                    }
+
+                    @Override
+                    public String getDefaultFormat() {
+                        return DEFAULT_FORMAT;
+                    }
+                };
     }
 
     @Reference
@@ -124,6 +146,9 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(PropertyNames.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.add(getTranslatedName());
+        keys.addAll(Arrays.asList(PropertyNames.values()));
+        return keys;
     }
 }
