@@ -95,6 +95,9 @@ public class ConnectionTaskInfoFactory {
         info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());
         if (connectionTask.isDefault()) {
             info.connectionMethod.name += " (" + thesaurus.getFormat(TranslationKeys.DEFAULT).format() + ")";
+        } else if (connectionTask.getPartialConnectionTask().getConnectionFunction().isPresent()) {
+            String connectionFunction = connectionTask.getPartialConnectionTask().getConnectionFunction().get().getConnectionFunctionDisplayName();
+            info.connectionMethod.name += " (" + thesaurus.getFormat(TranslationKeys.CONNECTION_FUNCTION).format(connectionFunction)  + ")";
         }
         info.version = connectionTask.getVersion();
         return info;

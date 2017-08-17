@@ -18,7 +18,6 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -42,15 +41,15 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.TypedProperties;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -65,6 +64,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNull;
@@ -385,6 +388,97 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionType")).isEqualTo(CONNECTION_TYPE_PLUGGABLE_CLASS_NAME);
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].connectionMethod.id")).isEqualTo(991);
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionMethod.name")).isEqualTo("partial connection task name (default)");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategyInfo.connectionStrategy")).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name());
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategyInfo.localizedValue")).isEqualTo(ConnectionStrategyTranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].window")).isEqualTo("09:00 - 17:00");
+        assertThat(jsonModel.<Long>get("$.connectionTasks[0].nextExecution")).isEqualTo(plannedNext.toEpochMilli());
+    }
+
+    @Test
+    public void testAnotherConnectionTaskJsonBinding() throws Exception {
+        Instant startDate = Instant.ofEpochMilli(1412771995988L);
+        Instant endDate = startDate.plus(1, ChronoUnit.HOURS);
+        LocalDateTime now = LocalDateTime.now();
+        Instant plannedNext = now.plusHours(2).toInstant(ZoneOffset.UTC);
+
+        DeviceType deviceType = mockDeviceType();
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceType);
+        ComSchedule comSchedule = mockComSchedule();
+        PartialScheduledConnectionTask partialConnectionTask = mockPartialScheduledConnectionTask();
+        ConnectionFunction connectionFunction = mock(ConnectionFunction.class);
+        when(connectionFunction.getConnectionFunctionDisplayName()).thenReturn("Mirror");
+        when(partialConnectionTask.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
+        ComServer comServer = mockComServer();
+        ComPort comPort = mockComPort(comServer);
+        OutboundComPortPool comPortPool = mockComPortPool();
+        Device device = mockDevice(deviceType, deviceConfiguration);
+        ComWindow window = mockWindow(PartialTime.fromHours(9), PartialTime.fromHours(17));
+
+        ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
+        when(connectionTaskService.findConnectionTasksByFilter(Matchers.<ConnectionTaskFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Arrays.<ConnectionTask>asList(connectionTask));
+        ComSession comSession = mockComSession(startDate, endDate);
+        when(connectionTask.getId()).thenReturn(1234L);
+        when(connectionTask.getName()).thenReturn("fancy name");
+        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        when(connectionTask.isDefault()).thenReturn(false);
+        when(connectionTask.getDevice()).thenReturn(device);
+        ComTaskExecution comTaskExecution1 = mockScheduledComTaskExecution(comSchedule, connectionTask, device);
+        when(device.getComTaskExecutions()).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
+        when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
+        when(connectionTask.getSuccessIndicator()).thenReturn(ConnectionTask.SuccessIndicator.SUCCESS);
+        when(connectionTask.getTaskStatus()).thenReturn(TaskStatus.OnHold);
+        when(connectionTask.getCurrentRetryCount()).thenReturn(7);
+        when(connectionTask.getExecutingComServer()).thenReturn(comServer);
+        ConnectionType connectionType = mock(ConnectionType.class);
+        when(connectionType.getDirection()).thenReturn(ConnectionType.ConnectionTypeDirection.OUTBOUND);
+        when(connectionTask.getConnectionType()).thenReturn(connectionType);
+        when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        when(comSession.getComPort()).thenReturn(comPort);
+        when(connectionTask.getComPortPool()).thenReturn(comPortPool);
+        when(connectionTask.getLastComSession()).thenReturn(Optional.of(comSession));
+        when(connectionTask.getNextExecutionTimestamp()).thenReturn(plannedNext);
+        when(connectionTask.getCommunicationWindow()).thenReturn(window);
+        ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
+        when(connectionTypePluggableClass.getName()).thenReturn(CONNECTION_TYPE_PLUGGABLE_CLASS_NAME);
+        when(connectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass);
+        ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
+        when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
+        when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comTaskExecutionSession));
+        String response = target("/connections").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.model(response);
+
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List>get("$.connectionTasks")).hasSize(1);
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].id")).isEqualTo(1234);
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].device.id")).isEqualTo(13);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].device.name")).isEqualTo("some device");
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].deviceType.id")).isEqualTo(1010);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].deviceType.name")).isEqualTo("device type");
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].deviceConfiguration.id")).isEqualTo(123123);
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].deviceConfiguration.deviceTypeId")).isEqualTo(1010);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].deviceConfiguration.name")).isEqualTo("123123");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].currentState.id")).isEqualTo("OnHold");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].currentState.displayValue")).isEqualTo("Inactive");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].latestResult.id")).isEqualTo("Success");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].latestResult.displayValue")).isEqualTo("Successful");
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfSuccessfulTasks")).isEqualTo(12);
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfFailedTasks")).isEqualTo(401);
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfIncompleteTasks")).isEqualTo(3);
+        assertThat(jsonModel.<Long>get("$.connectionTasks[0].startDateTime")).isEqualTo(1412771995000L);
+        assertThat(jsonModel.<Long>get("$.connectionTasks[0].endDateTime")).isEqualTo(endDate.with(ChronoField.MILLI_OF_SECOND, 0).toEpochMilli());
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].duration.count")).isEqualTo(3600);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].duration.timeUnit")).isEqualTo("seconds");
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].comServer.id")).isEqualTo(1212);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].comServer.name")).isEqualTo("com server");
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].comPort.id")).isEqualTo(99);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].comPort.name")).isEqualTo("com port");
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].comPortPool.id")).isEqualTo(1234321);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].comPortPool.name")).isEqualTo("Com port pool");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].direction")).isEqualTo("Outbound");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionType")).isEqualTo(CONNECTION_TYPE_PLUGGABLE_CLASS_NAME);
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].connectionMethod.id")).isEqualTo(991);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionMethod.name")).isEqualTo("partial connection task name ('Mirror' function)");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategyInfo.connectionStrategy")).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name());
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategyInfo.localizedValue")).isEqualTo(ConnectionStrategyTranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
         assertThat(jsonModel.<String>get("$.connectionTasks[0].window")).isEqualTo("09:00 - 17:00");
