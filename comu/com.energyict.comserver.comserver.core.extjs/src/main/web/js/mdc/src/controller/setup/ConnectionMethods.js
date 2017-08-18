@@ -286,8 +286,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                 connectionFunctionsStore.getProxy().setExtraParam('connectionFunctionType', 0); // 0 = the provided connection functions
                                 connectionFunctionsStore.getProxy().setExtraParam('deviceConfigurationForFilter', deviceConfigId); // If set, filters out all connection functions which are already used on other connection methods of the same device configuration
                                 connectionFunctionsStore.load({
-                                    callback: function () {
-                                        me.supportsConnectionFunctions = connectionFunctionsStore.count() > 0;
+                                    callback: function (records) {
+                                        me.supportsConnectionFunctions = records.length > 0;
                                         connectionFunctionsStore.add(noConnectionFunction);
                                         connectionFunctionsStore.filter('alreadyUsed', false); // Or in other words: filter out the already used ones
                                         me.loadProtocolDialectStore(deviceTypeId, deviceConfigId);
@@ -592,8 +592,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                     connectionFunctionsStore.getProxy().setExtraParam('connectionFunctionType', 0); // 0 = the provided connection functions
                                                     connectionFunctionsStore.getProxy().setExtraParam('deviceConfigurationForFilter', deviceConfigId); // If set, filters out all connection functions which are already used on other connection methods of the same device configuration
                                                     connectionFunctionsStore.load({
-                                                        callback: function () {
-                                                            me.supportsConnectionFunctions = connectionFunctionsStore.count() > 0;
+                                                        callback: function (records) {
+                                                            me.supportsConnectionFunctions = records.length > 0;
                                                             connectionFunctionsStore.add(noConnectionFunction);
                                                             connectionFunctionsStore.filter('alreadyUsed', false); // Or in other words: filter out the already used ones
                                                             me.applyConnectionMethodToEditForm(connectionMethod, widget, me);
