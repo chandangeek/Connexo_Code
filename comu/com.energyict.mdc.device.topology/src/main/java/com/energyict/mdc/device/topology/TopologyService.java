@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Provides services that relate to the topology of {@link Device}s.
@@ -108,6 +109,8 @@ public interface TopologyService {
      * @return The G3CommunicationPath
      */
     G3CommunicationPath getCommunicationPath(Device source, Device target);
+
+    Stream<G3CommunicationPathSegment> getUniqueG3CommunicationPathSegments(List<Device> slaves);
 
     /**
      * Starts the process to add {@link G3CommunicationPathSegment}s

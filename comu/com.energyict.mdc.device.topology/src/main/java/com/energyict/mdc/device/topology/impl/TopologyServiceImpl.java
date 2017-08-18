@@ -21,6 +21,8 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.conditions.Effective;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
@@ -807,6 +809,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             fetcher.forEach(communicationPath::addSegment);
         }
         return communicationPath;
+    }
+
+    @Override
+    public Stream<G3CommunicationPathSegment> getUniqueG3CommunicationPathSegments(List<Device> slaves) {
+        return this.dataModel.query(G3CommunicationPathSegment.class).select(where("nextHop").isNull().and(where("target").in(slaves).and(where("interval").isEffective()))).stream();
     }
 
     @Override
