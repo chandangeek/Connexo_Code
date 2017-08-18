@@ -101,6 +101,12 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
     private long connectionFunctionDbValue;
     private Optional<ConnectionFunction> connectionFunction = Optional.empty();
+    /**
+     * Holds the previous connection function in case the connection function was edited
+     * during an edit session, so it can be published as part of the update event.
+     */
+    private Optional<ConnectionFunction> previousConnectionFunction = Optional.empty();
+
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -307,6 +313,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
 
     @Override
     public void setConnectionFunction(ConnectionFunction connectionFunction) {
+        this.previousConnectionFunction = getConnectionFunction();
         this.connectionFunction = Optional.ofNullable(connectionFunction);
         this.connectionFunctionDbValue = connectionFunction != null ? connectionFunction.getId() : 0;
     }
@@ -332,12 +339,13 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     public void save() {
         super.save();
         this.addedOrRemovedRequiredProperties.clear();
+        this.previousConnectionFunction = Optional.empty();
         getDataModel().touch(configuration.get());
     }
 
     @Override
     protected Object toUpdateEventSource() {
-        return new PartialConnectionTaskUpdateDetailsImpl(this, this.addedOrRemovedRequiredProperties);
+        return new PartialConnectionTaskUpdateDetailsImpl(this, this.addedOrRemovedRequiredProperties, this.previousConnectionFunction);
     }
 
     public PartialConnectionTaskBuilder cloneForDeviceConfig(PartialConnectionTaskBuilder builder) {
