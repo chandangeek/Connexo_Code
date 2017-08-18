@@ -43,13 +43,14 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
         widget.clearGraph();
         widget.store = Ext.getStore('Mdc.networkvisualiser.store.NetworkNodes');
         widget.store.getProxy().setUrl(deviceName);
-        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceName, {
-            success: function (device) {
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.getApplication().fireEvent('loadDevice', device);
-                viewport.setLoading(false);
-            }
-        });
+        me.getApplication().fireEvent('changecontentevent', widget);
+        //Ext.ModelManager.getModel('Mdc.model.Device').load(deviceName, {
+        //    success: function (device) {
+        //        me.getApplication().fireEvent('changecontentevent', widget);
+        //        me.getApplication().fireEvent('loadDevice', device);
+        //        viewport.setLoading(false);
+        //    }
+        //});
     },
 
     showRetriggerWindow: function(deviceName) {
