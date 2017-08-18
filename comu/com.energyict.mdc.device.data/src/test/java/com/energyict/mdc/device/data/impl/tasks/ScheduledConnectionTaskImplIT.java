@@ -9,6 +9,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
@@ -26,6 +27,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
+import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -38,6 +40,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.upl.TypedProperties;
 
@@ -50,14 +53,20 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 
 import org.junit.After;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -427,7 +436,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         device.save();
     }
 
-    @Test(expected= NoSuchPropertyOnDialectException.class)
+    @Test(expected = NoSuchPropertyOnDialectException.class)
     @Transactional
     public void testUpdateBadDialectProperties() {
         this.grantAllViewAndEditPrivilegesToPrincipal();
@@ -660,10 +669,10 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void createWithOffsetWithinDayButOutsideCommunicationWindow() {
         ScheduledConnectionTaskImpl connectionTask =
                 this.createMinimizeWithNoPropertiesWithoutViolations("createWithOffsetWithinDayButOutsideCommunicationWindow",
-                                new TemporalExpression(
-                                        EVERY_DAY,
-                                        new TimeDuration(12, TimeDuration.TimeUnit.HOURS))
-                        );
+                        new TemporalExpression(
+                                EVERY_DAY,
+                                new TimeDuration(12, TimeDuration.TimeUnit.HOURS))
+                );
         connectionTask.setCommunicationWindow(FROM_ONE_AM_TO_TWO_AM);
 
         // Business method
@@ -696,7 +705,11 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void createWithOffset() {
         String name = "createWithOffset";
-        PartialScheduledConnectionTask partial = deviceConfiguration.newPartialScheduledConnectionTask(name, outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.MINIMIZE_CONNECTIONS, createDialectConfigProperties()).nextExecutionSpec().temporalExpression(TimeDuration.days(1)).set().build();
+        PartialScheduledConnectionTask partial = deviceConfiguration.newPartialScheduledConnectionTask(name, outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.MINIMIZE_CONNECTIONS, createDialectConfigProperties())
+                .nextExecutionSpec()
+                .temporalExpression(TimeDuration.days(1))
+                .set()
+                .build();
         partial.save();
         // Set it to execute every week, at 01:30 (am) of the second day of the week
         TimeDuration frequency = new TimeDuration(1, TimeDuration.TimeUnit.MONTHS);
@@ -1642,6 +1655,56 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.getName().equals(myDefaultConnectionTaskName)).findFirst().get().isDefault()).isTrue();
         assertThat(device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.getName().equals(myNotDefaultConnectionTaskName)).findFirst().get().isDefault()).isFalse();
     }
+
+    @Test
+    @Transactional
+    public void testNotifyConnectionFunctionUpdateWhenConnectionFunctionAdded() {
+        String name = "testNotifyConnectionFunctionUpdate";
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        EventService eventServiceSpy = spy(inMemoryPersistence.getEventService());
+        connectionTask.injectEventService(eventServiceSpy);
+
+        connectionTask.notifyConnectionFunctionUpdate(Optional.empty(), Optional.of(mock(ConnectionFunction.class)));
+
+        // Asserts
+        ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
+        verify(eventServiceSpy).postEvent(topicCaptor.capture(), any());
+        assertThat(topicCaptor.getValue()).isEqualTo(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION.topic());
+    }
+
+    @Test
+    @Transactional
+    public void testNotifyConnectionFunctionUpdateWhenConnectionFunctionRemoved() {
+        String name = "testNotifyConnectionFunctionUpdate";
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        EventService eventServiceSpy = spy(inMemoryPersistence.getEventService());
+        connectionTask.injectEventService(eventServiceSpy);
+
+        connectionTask.notifyConnectionFunctionUpdate(Optional.of(mock(ConnectionFunction.class)), Optional.empty());
+
+        // Asserts
+        ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
+        verify(eventServiceSpy).postEvent(topicCaptor.capture(), any());
+        assertThat(topicCaptor.getValue()).isEqualTo(EventType.CONNECTIONTASK_CLEARCONNECTIONFUNCTION.topic());
+    }
+
+    @Test
+    @Transactional
+    public void testNotifyConnectionFunctionUpdateWhenConnectionFunctionUpdated() {
+        String name = "testNotifyConnectionFunctionUpdate";
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        EventService eventServiceSpy = spy(inMemoryPersistence.getEventService());
+        connectionTask.injectEventService(eventServiceSpy);
+
+        connectionTask.notifyConnectionFunctionUpdate(Optional.of(mock(ConnectionFunction.class)), Optional.of(mock(ConnectionFunction.class)));
+
+        // Asserts
+        ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
+        verify(eventServiceSpy, times(2)).postEvent(topicCaptor.capture(), any());
+        assertThat(topicCaptor.getAllValues().get(0)).isEqualTo(EventType.CONNECTIONTASK_CLEARCONNECTIONFUNCTION.topic());
+        assertThat(topicCaptor.getAllValues().get(1)).isEqualTo(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION.topic());
+    }
+
 
     private void assertConnectionTask(List<ConnectionTask> outboundConnectionTasks, ScheduledConnectionTaskImpl... tasks) {
         assertThat(outboundConnectionTasks).isNotNull();

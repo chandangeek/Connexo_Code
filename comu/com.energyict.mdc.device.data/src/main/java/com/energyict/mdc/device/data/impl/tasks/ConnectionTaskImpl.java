@@ -47,6 +47,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -170,6 +171,16 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             this.isDefault = partialConnectionTask.isDefault();
         }
         this.protocolDialectConfigurationProperties.set(partialConnectionTask.getProtocolDialectConfigurationProperties());
+    }
+
+    /**
+     * Inject a custom {@link EventService}<br/>
+     * Note: this method should only be used in unit tests
+     *
+     * @param eventService the new event service
+     */
+    protected  void injectEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Override
@@ -821,21 +832,18 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public void setNewPartialConnectionTask(PCTT partialConnectionTask) {
-        PCTT oldPartialConnectionTask = getPartialConnectionTask();
+        Optional<ConnectionFunction> previousConnectionFunction = getPartialConnectionTask().getConnectionFunction();
         this.partialConnectionTask.set(partialConnectionTask);
         this.pluggableClass = partialConnectionTask.getPluggableClass();
         this.pluggableClassId = this.pluggableClass.getId();
         getDataModel().update(this, "partialConnectionTask", "pluggableClassId");
-        propagateConnectionFunctionChangesToComTasks(oldPartialConnectionTask, partialConnectionTask);
+        notifyConnectionFunctionUpdate(previousConnectionFunction, partialConnectionTask.getConnectionFunction());
     }
 
-    private void propagateConnectionFunctionChangesToComTasks(PCTT oldPartialConnectionTask, PCTT partialConnectionTask) {
-        if (oldPartialConnectionTask.getConnectionFunction().isPresent()) {
-            this.postEvent(EventType.CONNECTIONTASK_CLEARCONNECTIONFUNCTION, Pair.of(this, oldPartialConnectionTask.getConnectionFunction().get()));
-        }
-        if (partialConnectionTask.getConnectionFunction().isPresent()) {
-            this.postEvent(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION);
-        }
+    @Override
+    public void notifyConnectionFunctionUpdate(Optional<ConnectionFunction> previousConnectionFunction, Optional<ConnectionFunction> newConnectionFunction) {
+        previousConnectionFunction.ifPresent(connectionFunction -> this.postEvent(EventType.CONNECTIONTASK_CLEARCONNECTIONFUNCTION, Pair.of(this, connectionFunction)));
+        newConnectionFunction.ifPresent(connectionFunction -> this.postEvent(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION));
     }
 
     /**
