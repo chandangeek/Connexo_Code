@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * Date: 20/12/2016
  * Time: 17:02
  */
-@JsonIgnoreType
+@JsonRootName("graph")
 @JsonPropertyOrder({"nodes", "links"})
 public class GraphInfo<T extends HasId> {
 

@@ -42,7 +42,7 @@ public class DeviceGraphFactory implements GraphFactory {
 
     public GraphInfo from(Device device) {
         //set all layers active in test mode
-      //  graphLayerService.getGraphLayers().forEach(GraphLayer::activate);
+        graphLayerService.getGraphLayers().forEach(GraphLayer::activate);
         this.gateway = this.topologyService.getPhysicalGateway(device).orElse(device);
         if (gateway.getId() == device.getId()) {
             return from(this.topologyService.getPhysicalTopology(gateway, Range.atLeast(clock.instant())));
