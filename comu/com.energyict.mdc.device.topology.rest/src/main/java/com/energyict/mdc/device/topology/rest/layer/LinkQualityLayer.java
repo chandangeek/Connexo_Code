@@ -120,6 +120,6 @@ public class LinkQualityLayer extends AbstractGraphLayer<Device> {
 
     private Optional<G3Neighbor> getNeighbor(DeviceNodeInfo info){
         // downstream link
-        return topologyService.findG3Neighbors(((DeviceNodeInfo)info.getParent()).getDevice()).stream().filter((n) -> n.getNeighbor().getId() == info.getId()).findFirst();
+        return topologyService.findG3Neighbors(info.getDevice()).stream().filter((n) -> n.getNeighbor().getId() == info.getId()).findFirst();
     }
 }

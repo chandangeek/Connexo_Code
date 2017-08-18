@@ -25,8 +25,11 @@ import java.util.Optional;
 @JsonPropertyOrder({ "id", "gateway"})
 public class DeviceNodeInfo extends NodeInfo<Device>{
 
-    public DeviceNodeInfo(Device device) {
+    public DeviceNodeInfo(Device device, Optional<Device> parent) {
         super(device);
+        if (parent.isPresent()) {
+            setParent(parent.get());
+        }
     }
 
     @Override

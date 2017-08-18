@@ -7,6 +7,8 @@ import com.energyict.mdc.device.topology.rest.GraphLayerType;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
@@ -18,6 +20,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @param <T> type of nodeObject
@@ -25,38 +29,31 @@ import java.util.Set;
  * Date: 20/12/2016
  * Time: 17:02
  */
-@JsonRootName("graph")
-@JsonPropertyOrder({"nodes", "links", "nodeCount", "buildTime"})
+@JsonIgnoreType
+@JsonPropertyOrder({"nodes", "links"})
 public class GraphInfo<T extends HasId> {
 
     private Properties properties = new Properties();
     private final GraphLayerService graphLayerService;
-    private NodeInfo<T> rootNode;
+    @JsonProperty()
+    private Set<NodeInfo<T>> nodes = new HashSet<>();
 
     public GraphInfo(GraphLayerService graphLayerService) {
         this.graphLayerService = graphLayerService;
     }
 
-    public void setRootNode(NodeInfo<T> info) {
-        this.rootNode = info;
+    public int size(){
+        return nodes.size();
     }
 
-    @JsonGetter("nodes")
-    @SuppressWarnings("unused")
-    public Set<NodeInfo<T>> getAllNodeInfos() {
-        return this.addNodeInfos(new HashSet<>(), this.rootNode);
-    }
-
-    private Set<NodeInfo<T>> addNodeInfos(Set<NodeInfo<T>> nodeInfos, NodeInfo<T> nodeInfo) {
-        nodeInfos.add(nodeInfo);
-        nodeInfo.getChildren().forEach(child -> addNodeInfos(nodeInfos, child));
-        return nodeInfos;
+    public boolean addNode(NodeInfo<T> node){
+        return this.nodes.add(node);
     }
 
     @JsonGetter("links")
     @SuppressWarnings("unused")
-    public List<LinkInfo> getLinkInfos() {
-        return this.addLinkInfos(new ArrayList<>(), this.rootNode,  graphLayerService.getGraphLayers().stream().filter((layer) -> layer.getType() == GraphLayerType.LINK).findFirst());
+    private List<LinkInfo> getLinkInfos() {
+        return this.nodes.stream().filter((node) -> !node.isRoot()).map(this::asLinkInfo).collect(Collectors.toList());
     }
 
     public void setProperty(String name, Object value) {
@@ -70,14 +67,12 @@ public class GraphInfo<T extends HasId> {
         return result;
     }
 
-    private List<LinkInfo> addLinkInfos(List<LinkInfo> linkInfos, NodeInfo<T> nodeInfo, Optional<GraphLayer> linksLayer) {
+    private LinkInfo<T> asLinkInfo(NodeInfo<T> nodeInfo){
         LinkInfo<T> linkInfo = nodeInfo.asLinkInfo();
         if (linkInfo != null) {
-            linksLayer.ifPresent(linkInfo::addLayer);
-            linkInfos.add(linkInfo);
+            graphLayerService.getGraphLayers().stream().filter((layer) -> layer.getType() == GraphLayerType.LINK).forEach(linkInfo::addLayer);
         }
-        nodeInfo.getChildren().forEach(child -> addLinkInfos(linkInfos, child, linksLayer));
-        return linkInfos;
+        return linkInfo;
     }
 
 }

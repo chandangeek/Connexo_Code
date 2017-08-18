@@ -23,24 +23,16 @@ import java.util.Optional;
  * Time: 16:57
  */
 @JsonIgnoreType
-@JsonPropertyOrder({ "source", "target" })
+@JsonPropertyOrder({"source", "target"})
 public class LinkInfo<T extends HasId> {
 
     @JsonIgnore
     private NodeInfo<T> nodeInfo;
-    private long source;
-    private long target;
     @JsonIgnore
     private List<GraphLayer<T>> layers = new ArrayList<>();
 
     LinkInfo(NodeInfo<T> nodeInfo){
-        this(nodeInfo.getParent().getId(), nodeInfo.getId());
         this.nodeInfo = nodeInfo;
-    }
-
-    private LinkInfo(long source, long target){
-       this.source = source;
-       this.target = target;
     }
 
     public boolean addLayer(GraphLayer<T> graphLayer){
@@ -49,18 +41,18 @@ public class LinkInfo<T extends HasId> {
 
     @JsonGetter("source")
     public long getSource() {
-        return source;
+        return nodeInfo.getParent().getId();
     }
 
     @JsonGetter("target")
     public long getTarget() {
-        return target;
+        return nodeInfo.getId();
     }
 
     @JsonAnyGetter
     public Map<String, Object> getProperties(){
         Map<String, Object> allProperties =  new HashMap<>();
-        layers.stream().filter(layer -> layer.getCalculationMode() == GraphLayerCalculationMode.IMMEDIATE).forEach(layer -> allProperties.putAll(layer.getProperties(nodeInfo)));
+        layers.stream().filter(GraphLayer::isActive).forEach(layer -> allProperties.putAll(layer.getProperties(nodeInfo)));
         return allProperties;
     }
 

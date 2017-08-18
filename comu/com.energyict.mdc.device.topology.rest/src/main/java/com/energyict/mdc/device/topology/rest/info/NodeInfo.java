@@ -32,7 +32,7 @@ public abstract class NodeInfo<T extends HasId> {
     @JsonIgnore
     private List<GraphLayer<T>> layers = new ArrayList<>();
     @JsonIgnore
-    private NodeInfo parent;
+    private T parent;
     @JsonIgnore
     private List<NodeInfo<T>> children = new ArrayList<>();
 
@@ -64,27 +64,13 @@ public abstract class NodeInfo<T extends HasId> {
         return Collections.unmodifiableList(children);
     }
 
-    public boolean addChild(NodeInfo<T> info) {
-        if (!children.stream().filter(node -> node.getId()==info.getId()).findFirst().isPresent() && children.add(info)) {
-            info.setParent(this);
-            return true;
-        }
-        return false;
-    }
-
     public LinkInfo<T> asLinkInfo(){
         if (!isRoot()) {
             return new LinkInfo<>(this);
         }
         return null;
     }
-    @JsonIgnore
-    public NodeInfo getRoot() {
-        if (parent == null) {
-            return this;
-        }
-        return parent.getRoot();
-    }
+
     @JsonGetter("id")
     public long getId() {
         return nodeObject.getId();
@@ -101,11 +87,11 @@ public abstract class NodeInfo<T extends HasId> {
         return allProperties;
     }
     @JsonIgnore
-    public NodeInfo getParent() {
+    public T getParent() {
         return parent;
     }
 
-    public void setParent(NodeInfo parent) {
+    public void setParent(T parent) {
         this.parent = parent;
     }
 }

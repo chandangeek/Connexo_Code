@@ -14,7 +14,6 @@ import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -89,7 +88,7 @@ public class NetworkTopologyBuilder {
                 }
 
                 for (int nodesOnLevelCount = 0; nodesOnLevelCount < nodesPerLevel; nodesOnLevelCount++) {
-                    Device child = createNodeInfo().getDevice();
+                    Device child = createNode();
                     currentNodeLevel.add(child);
 
                     addComPathSegmentsAndNeighbor(child, currentLevel);
@@ -99,12 +98,12 @@ public class NetworkTopologyBuilder {
         }
     }
 
-    private DeviceNodeInfo createNodeInfo() {
+    private Device createNode() {
         String name = createSerial(this.nodeNbr++);
         Device child = deviceService.findDeviceByName(name).orElseGet(() ->  deviceService.newDevice(randomConfiguration(), name, clock.instant()));
         topologyService.clearPhysicalGateway(child); // reset parent
         topologyService.setPhysicalGateway(child, gateway);
-        return new DeviceNodeInfo(child);
+        return child;
     }
 
     private void initAvailableConfigurations(DeviceConfigurationService deviceConfigurationService, List<DeviceConfiguration> toInitiate) {
