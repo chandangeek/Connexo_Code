@@ -65,7 +65,6 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -796,15 +795,23 @@ public class DeviceTypeResource {
     public Response getConnectionFunctions(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
         List<ConnectionFunctionInfo> infos;
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        Optional<DeviceConfiguration> deviceConfigurationForFilter = getDeviceConfigurationForFilterFromUriParams(uriInfo); // If present, then mark all ConnectionFunctions which are used on any of the existing PartialConnectionTasks of the config as already used
+        List<ConnectionFunction> usedConnectionFunctions = new ArrayList<>();                                               // If not present, then marking is off-course not done
+        deviceConfigurationForFilter.ifPresent(configuration -> configuration.getPartialConnectionTasks().forEach(pct -> pct.getConnectionFunction().ifPresent(usedConnectionFunctions::add)));
+
         infos = deviceType.getDeviceProtocolPluggableClass().isPresent()
-                ? getInvolvedConnectionFunctions(deviceType, getConnectionFunctionParameterFromUriParams(uriInfo, "connectionFunctionType").orElse(ConnectionFunctionType.PROVIDED))
+                ? getInvolvedConnectionFunctions(deviceType, getConnectionFunctionParameterFromUriParams(uriInfo).orElse(ConnectionFunctionType.PROVIDED))
                 .stream()
                 .sorted(Comparator.comparing(ConnectionFunction::getConnectionFunctionDisplayName))
-                .map(ConnectionFunctionInfo::new)
+                .map(cf -> new ConnectionFunctionInfo(cf, alreadyUsed(cf, usedConnectionFunctions)))
                 .collect(Collectors.toList())
                 : Collections.emptyList();
 
         return Response.ok(infos).build();
+    }
+
+    private boolean alreadyUsed(ConnectionFunction connectionFunction, List<ConnectionFunction> usedConnectionFunctions) {
+        return usedConnectionFunctions.stream().anyMatch(cf -> cf.getId() == connectionFunction.getId());
     }
 
     private List<ConnectionFunction> getInvolvedConnectionFunctions(DeviceType deviceType, ConnectionFunctionType connectionFunctionType) {
@@ -812,10 +819,20 @@ public class DeviceTypeResource {
         return connectionFunctionType.equals(ConnectionFunctionType.PROVIDED) ? deviceProtocolPluggableClass.getProvidedConnectionFunctions() : deviceProtocolPluggableClass.getConsumableConnectionFunctions();
     }
 
-    private Optional<ConnectionFunctionType> getConnectionFunctionParameterFromUriParams(UriInfo uriInfo, String parameter) {
+    private Optional<DeviceConfiguration> getDeviceConfigurationForFilterFromUriParams(UriInfo uriInfo) {
         MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
-        if (uriParams.containsKey(parameter) && !uriParams.getFirst(parameter).isEmpty()) {
-            String parameterString = uriParams.getFirst(parameter);
+        if (uriParams.containsKey("deviceConfigurationForFilter") && !uriParams.getFirst("deviceConfigurationForFilter").isEmpty()) {
+            String parameterString = uriParams.getFirst("deviceConfigurationForFilter");
+            return Optional.of(resourceHelper.findDeviceConfigurationByIdOrThrowException(Long.parseLong(parameterString)));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<ConnectionFunctionType> getConnectionFunctionParameterFromUriParams(UriInfo uriInfo) {
+        MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
+        if (uriParams.containsKey("connectionFunctionType") && !uriParams.getFirst("connectionFunctionType").isEmpty()) {
+            String parameterString = uriParams.getFirst("connectionFunctionType");
             return Optional.of(ConnectionFunctionType.fromOrdinal(Integer.parseInt(parameterString)));
         } else {
             return Optional.empty();

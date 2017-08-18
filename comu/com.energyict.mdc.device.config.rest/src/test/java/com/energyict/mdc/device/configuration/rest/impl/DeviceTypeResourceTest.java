@@ -98,6 +98,8 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -1757,11 +1759,48 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
                 .get();
         assertThat(providedConnectionFunctionsResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) providedConnectionFunctionsResponse.getEntity());
-        ((JSONArray) jsonModel.getJsonObject()).size();
+        assertThat(((JSONArray) jsonModel.getJsonObject()).size()).isEqualTo(2);
         assertThat(jsonModel.<Integer>get("[0].id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("[0].localizedValue")).isEqualTo("CF 1");
         assertThat(jsonModel.<Integer>get("[1].id")).isEqualTo(2);
         assertThat(jsonModel.<String>get("[1].localizedValue")).isEqualTo("CF 2");
+    }
+
+    @Test
+    public void getProvidedConnectionFunctionsWhenFilterIsApplied() throws Exception {
+        DeviceProtocolPluggableClass protocol = mock(DeviceProtocolPluggableClass.class);
+        ConnectionFunction connectionFunction_1 = mockConnectionFunction(1, "CF_1", "CF 1");
+        ConnectionFunction connectionFunction_2 = mockConnectionFunction(2, "CF_2", "CF 2");
+        ConnectionFunction connectionFunction_3 = mockConnectionFunction(3, "CF_3", "CF 3");
+        when(protocol.getProvidedConnectionFunctions()).thenReturn(Arrays.asList(connectionFunction_2, connectionFunction_1));
+        when(protocol.getConsumableConnectionFunctions()).thenReturn(Arrays.asList(connectionFunction_3, connectionFunction_2));
+
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = Optional.of(protocol);
+        when(protocolPluggableService.findDeviceProtocolPluggableClassByName("theProtocol")).thenReturn(deviceProtocolPluggableClass);
+
+        DeviceType deviceType = mockDeviceType("mRID", 1L);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("deviceConfig", 123L);
+        PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
+        when(partialConnectionTask.getConnectionFunction()).thenReturn(Optional.of(connectionFunction_1));
+        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask));
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        when(deviceConfigurationService.findDeviceType(1L)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findDeviceConfiguration(123L)).thenReturn(Optional.of(deviceConfiguration));
+
+        Response providedConnectionFunctionsResponse = target("/devicetypes/1/connectionFunctions")
+                .queryParam("connectionFunctionType", DeviceTypeResource.ConnectionFunctionType.PROVIDED.ordinal())
+                .queryParam("deviceConfigurationForFilter", 123L)
+                .request()
+                .get();
+        assertThat(providedConnectionFunctionsResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model((InputStream) providedConnectionFunctionsResponse.getEntity());
+        assertThat(((JSONArray) jsonModel.getJsonObject()).size()).isEqualTo(2);
+        assertThat(jsonModel.<Integer>get("[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("[0].localizedValue")).isEqualTo("CF 1");
+        assertTrue(jsonModel.<Boolean>get("[0].alreadyUsed"));
+        assertThat(jsonModel.<Integer>get("[1].id")).isEqualTo(2);
+        assertThat(jsonModel.<String>get("[1].localizedValue")).isEqualTo("CF 2");
+        assertFalse(jsonModel.<Boolean>get("[1].alreadyUsed"));
     }
 
     @Test
@@ -1785,7 +1824,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
                 .get();
         assertThat(providedConnectionFunctionsResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) providedConnectionFunctionsResponse.getEntity());
-        ((JSONArray) jsonModel.getJsonObject()).size();
+        assertThat(((JSONArray) jsonModel.getJsonObject()).size()).isEqualTo(2);
         assertThat(jsonModel.<Integer>get("[0].id")).isEqualTo(2);
         assertThat(jsonModel.<String>get("[0].localizedValue")).isEqualTo("CF 2");
         assertThat(jsonModel.<Integer>get("[1].id")).isEqualTo(3);

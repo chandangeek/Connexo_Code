@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.api.ConnectionFunction;
 public class ConnectionFunctionInfo {
     public long id;
     public String localizedValue;
+    public boolean alreadyUsed;
 
     public ConnectionFunctionInfo() {
     }
@@ -20,5 +21,13 @@ public class ConnectionFunctionInfo {
     public ConnectionFunctionInfo(ConnectionFunction connectionFunction) {
         this.id = connectionFunction.getId();
         this.localizedValue = connectionFunction.getConnectionFunctionDisplayName();
+        this.alreadyUsed = false;
+    }
+
+    public ConnectionFunctionInfo(ConnectionFunction connectionFunction, boolean alreadyUsed) {
+        this.id = connectionFunction.getId();
+        this.localizedValue = connectionFunction.getConnectionFunctionDisplayName();
+        this.alreadyUsed = false;
+        this.alreadyUsed = alreadyUsed;
     }
 }
