@@ -6,16 +6,16 @@ import com.elster.jupiter.pki.SecurityValueWrapper;
  * Capable of importing a specific key into connexo, into a form understood by either Connexo (DataVault key) or an
  * external party (HSM)
  */
-public interface DeviceKeyImporter {
+public interface DeviceSecretImporter {
     /**
-     * Import the encrypted data into Connexo. As connexo can not know how a key should be stored (which columns are required)
-     * the task is delegated to the appropriate DeviceKeyImporter. DeviceKeyImporters are provided by a
+     * Import the encrypted secrets (keys, passphrases) into Connexo. As Connexo can not know how a secret should be stored (which columns are required)
+     * the task is delegated to the appropriate {@link DeviceSecretImporter}. {@link DeviceSecretImporter}s are provided by a
      * KeyFactory ({@link com.elster.jupiter.pki.PrivateKeyFactory}, {@link com.elster.jupiter.pki.SymmetricKeyFactory},
      * {@link com.elster.jupiter.pki.PassphraseFactory}). Which factory is asked for a DeviceKeyImporter depends on the KeyEncryptionMethod
      * as defined on the SecurityAccessor.
      *
-     * @param encryptedDeviceKey This is the encrypted version of the (symmetric) device key. The device key is (symmetrically)
-     * encrypted with a wrap key (KEK), also contained in the shipment file
+     * @param encryptedDeviceSecret This is the encrypted version of the (symmetric) device secret (could be a key, passphrase, ssl key).
+     * The device secret is (symmetrically) encrypted with a wrap key (KEK), also contained in the shipment file
      * @param initializationVector The IV to use when decrypting the device key
      * @param encryptedSymmetricWrapKey The (asymmetrically) encrypted wrap key(KEK) used to encrypt the device key.
      * @param symmetricAlgorithm The algorithm used to encrypt the device key with the wrap key
@@ -24,8 +24,8 @@ public interface DeviceKeyImporter {
      * @return A SecurityValueWrapper.
      * @throws KeyImportFailedException
      */
-    SecurityValueWrapper importKey(byte[] encryptedDeviceKey, byte[] initializationVector, byte[] encryptedSymmetricWrapKey,
-                                   String symmetricAlgorithm, String asymmetricAlgorithm)
+    SecurityValueWrapper importSecret(byte[] encryptedDeviceSecret, byte[] initializationVector, byte[] encryptedSymmetricWrapKey,
+                                      String symmetricAlgorithm, String asymmetricAlgorithm)
             throws KeyImportFailedException;
 
 }

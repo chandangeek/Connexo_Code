@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
-import com.elster.jupiter.pki.impl.DeviceKeyImporter;
+import com.elster.jupiter.pki.impl.DeviceSecretImporter;
 import com.elster.jupiter.pki.impl.wrappers.SoftwareSecurityDataModel;
 import com.elster.jupiter.properties.PropertySpec;
 
@@ -58,7 +58,7 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory {
     }
 
     @Override
-    public DeviceKeyImporter getDeviceKeyImporter(KeyAccessorType keyAccessorType) {
+    public DeviceSecretImporter getDeviceKeyImporter(KeyAccessorType keyAccessorType) {
         return null;
     }
 }

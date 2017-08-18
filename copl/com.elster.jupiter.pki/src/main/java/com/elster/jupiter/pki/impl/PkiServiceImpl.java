@@ -319,8 +319,15 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public DeviceKeyImporter getSymmetricKeyImporter(KeyAccessorType keyAccessorType) {
-        return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getDeviceKeyImporter(keyAccessorType);
+    public DeviceSecretImporter getDeviceSecretImporter(KeyAccessorType keyAccessorType) {
+        switch (keyAccessorType.getKeyType().getCryptographicType()) {
+            case SymmetricKey:
+                return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getDeviceKeyImporter(keyAccessorType);
+            case Passphrase:
+                return getPassphraseFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getDevicePassphraseImporter(keyAccessorType);
+            default:
+                throw new UnsupportedImportOperation(thesaurus, keyAccessorType);
+        }
     }
 
     private SymmetricKeyFactory getSymmetricKeyFactoryOrThrowException(String keyEncryptionMethod) {

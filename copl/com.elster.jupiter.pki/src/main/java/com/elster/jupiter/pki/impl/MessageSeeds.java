@@ -16,7 +16,7 @@ public enum MessageSeeds implements MessageSeed {
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "Name must be unique"),
     FIELD_TOO_LONG(1002, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
     FIELD_IS_REQUIRED(1003, Keys.FIELD_IS_REQUIRED, "This field is required"),
-    NO_SUCH_ENCRYPTION_METHOD(1004, Keys.NO_SUCH_ENCRYPTION_METHOD, "Storage method is unknown or not registered yet"),
+    NO_SUCH_ENCRYPTION_METHOD(1004, Keys.NO_SUCH_ENCRYPTION_METHOD, "Storage method for a secret value is unknown or not registered yet"),
     DUPLICATE_KEY_ENCRYPTION_REGISTRATION(1005, Keys.DUPLICATE_KEY_ENCRYPTION_REGISTRATION, "A key storage method with the same name for this type of elements has already been registered"),
     ALGORITHM_NOT_SUPPORTED(1006, "NoSuchAlgorithm", "The required algorithm is not supported in the environment at this time"),
     INVALID_KEY(1007, "InvalidKeyException", "The key could not be recreated due to erroneous encoding"),
@@ -43,7 +43,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_POSSIBLE_CHARS_IN_PASSWORD(1027, Keys.NOVALIDCHARACTERS, "The passphrase type has no characters sets to choose from"),
     INVALID_PASSWORD_LENGTH(1028, Keys.INVALIDPASSPHRASELENGTH, "Invalid passphrase length"),
     INVALID_KEY_SIZE(1029, Keys.INVALID_KEY_SIZE, "Invalid key size"),
-    INVALID_HEX_VALUE(1030,Keys.INVALID_HEX_VALUE, "Not a properly hex encoded key");
+    INVALID_HEX_VALUE(1030,Keys.INVALID_HEX_VALUE, "Not a properly hex encoded key"),
+    UNSUPPORTED_IMPORT_TYPE(1031, "UnsupportedImportType", "Connexo can currently not import device secrets of type ''{0}'' (security accessor ''{1}'')");
 
     private final int number;
     private final String key;

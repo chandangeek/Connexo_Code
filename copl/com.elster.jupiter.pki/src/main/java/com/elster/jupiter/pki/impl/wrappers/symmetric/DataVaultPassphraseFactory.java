@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PassphraseFactory;
 import com.elster.jupiter.pki.PassphraseWrapper;
+import com.elster.jupiter.pki.impl.DeviceSecretImporter;
 import com.elster.jupiter.pki.impl.wrappers.SoftwareSecurityDataModel;
 import com.elster.jupiter.properties.PropertySpec;
 
@@ -56,4 +57,8 @@ public class DataVaultPassphraseFactory implements PassphraseFactory {
         return dataModel.getInstance(PlaintextPassphraseImpl.class).getPropertySpecs();
     }
 
+    @Override
+    public DeviceSecretImporter getDevicePassphraseImporter(KeyAccessorType keyAccessorType) {
+        return null; // TODO implement
+    }
 }

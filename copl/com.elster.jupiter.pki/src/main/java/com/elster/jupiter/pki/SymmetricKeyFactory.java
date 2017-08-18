@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.pki;
 
-import com.elster.jupiter.pki.impl.DeviceKeyImporter;
+import com.elster.jupiter.pki.impl.DeviceSecretImporter;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.List;
@@ -34,10 +34,10 @@ public interface SymmetricKeyFactory {
     List<PropertySpec> getPropertySpecs();
 
     /**
-     * Returns a DeviceKeyImporter. The importer will know which SecurityValueWrapper to create, more specifically, which
+     * Returns a {@link DeviceSecretImporter}. The importer will know which SecurityValueWrapper to create, more specifically, which
      * properties it should contain, and how to create it.
-     * @param keyAccessorType Informational for the importer, might not be needed
-     * @return The DeviceKeyImporter
+     * @param keyAccessorType Information for the importer, might not be needed
+     * @return The {@link DeviceSecretImporter}
      */
-    DeviceKeyImporter getDeviceKeyImporter(KeyAccessorType keyAccessorType);
+    DeviceSecretImporter getDeviceKeyImporter(KeyAccessorType keyAccessorType);
 }
