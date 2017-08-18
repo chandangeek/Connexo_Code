@@ -13,6 +13,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     connectionStoreLoaded: 0,
     inboundVisible: false,
     outboundVisible: false,
+    supportsConnectionFunctions: false,
 
     requires: [
         'Mdc.store.ConnectionMethodsOfDeviceConfiguration',
@@ -235,7 +236,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
         noConnectionFunction = Ext.create('Mdc.model.ConnectionFunction', {
             id: -1,
-            localizedValue: Uni.I18n.translate('ConnectionFunction.none', 'MDC', 'None')
+            localizedValue: Uni.I18n.translate('ConnectionFunction.none', 'MDC', 'None'),
+            alreadyUsed: false
         });
 
         this.deviceTypeId = deviceTypeId;
@@ -260,7 +262,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 var title = direction === 'Outbound'
                     ? Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method')
                     : Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method');
-                widget.down('form').down('#connectionFunctionComboBox').setVisible(connectionFunctionsStore.getCount() > 1); // If size is 1, then only 'None' is available
+                widget.down('form').down('#connectionFunctionComboBox').setVisible(me.supportsConnectionFunctions);
                 widget.down('#connectionMethodEditAddTitle').setTitle(title);
                 widget.setLoading(false);
             };
@@ -282,9 +284,12 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                 var connectionFunctionsStore = me.getConnectionFunctionsStore();
                                 connectionFunctionsStore.getProxy().extraParams = ({deviceType: deviceTypeId});
                                 connectionFunctionsStore.getProxy().setExtraParam('connectionFunctionType', 0); // 0 = the provided connection functions
+                                connectionFunctionsStore.getProxy().setExtraParam('deviceConfigurationForFilter', deviceConfigId); // If set, filters out all connection functions which are already used on other connection methods of the same device configuration
                                 connectionFunctionsStore.load({
                                     callback: function () {
+                                        me.supportsConnectionFunctions = connectionFunctionsStore.count() > 0;
                                         connectionFunctionsStore.add(noConnectionFunction);
+                                        connectionFunctionsStore.filter('alreadyUsed', false); // Or in other words: filter out the already used ones
                                         me.loadProtocolDialectStore(deviceTypeId, deviceConfigId);
                                         if (storeStill2Load) {
                                             me.loadConnectionTypesStore(connectionTypesStore, deviceType, direction, endFunction2Perform);
@@ -377,7 +382,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             connectionFunctionsStore = me.getConnectionFunctionsStore();
 
         me.getConnectionMethodEditForm().down('#connectionStrategyComboBox').allowBlank = (values.direction === 'Inbound');
-        me.getConnectionMethodEditForm().down('#connectionFunctionComboBox').allowBlank = (connectionFunctionsStore.getCount() === 1); // If size is 1, then only 'None' is available
+        me.getConnectionMethodEditForm().down('#connectionFunctionComboBox').allowBlank = (!me.supportsConnectionFunctions);
 
         if (me.getConnectionMethodEditForm().isValid()) {
             me.getConnectionMethodEditForm().getForm().clearInvalid();
@@ -526,7 +531,8 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
         noConnectionFunction = Ext.create('Mdc.model.ConnectionFunction', {
             id: -1,
-            localizedValue: Uni.I18n.translate('ConnectionFunction.none', 'MDC', 'None')
+            localizedValue: Uni.I18n.translate('ConnectionFunction.none', 'MDC', 'None'),
+            alreadyUsed: false
         });
 
         if (this.deviceTypeId === null || this.deviceTypeId != deviceTypeId) {
@@ -584,9 +590,12 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                     var connectionFunctionsStore = me.getConnectionFunctionsStore();
                                                     connectionFunctionsStore.getProxy().extraParams = ({deviceType: deviceTypeId});
                                                     connectionFunctionsStore.getProxy().setExtraParam('connectionFunctionType', 0); // 0 = the provided connection functions
+                                                    connectionFunctionsStore.getProxy().setExtraParam('deviceConfigurationForFilter', deviceConfigId); // If set, filters out all connection functions which are already used on other connection methods of the same device configuration
                                                     connectionFunctionsStore.load({
                                                         callback: function () {
+                                                            me.supportsConnectionFunctions = connectionFunctionsStore.count() > 0;
                                                             connectionFunctionsStore.add(noConnectionFunction);
+                                                            connectionFunctionsStore.filter('alreadyUsed', false); // Or in other words: filter out the already used ones
                                                             me.applyConnectionMethodToEditForm(connectionMethod, widget, me);
                                                         }
                                                     });
@@ -625,8 +634,11 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         widget.down('form').down('#protocolDialectConfigurationPropertiesComboBox').setValue(connectionMethod.get('protocolDialectConfigurationProperties')['id']);
         widget.down('form').down('#connectionStrategyComboBox').setValue(connectionStrategy);
         widget.down('form').down('#numberOfSimultaneousConnections').setVisible(connectionStrategy === 'AS_SOON_AS_POSSIBLE');
+        if (!Ext.isEmpty(connectionMethod.get('connectionFunctionInfo'))) {
+            connectionFunctionsStore.add(connectionMethod.get('connectionFunctionInfo')); // Re-add the current connection function (if used), cause store filtering kicked that one out as well (it is already used)
+        }
         widget.down('form').down('#connectionFunctionComboBox').setValue(connectionFunction);
-        widget.down('form').down('#connectionFunctionComboBox').setVisible(connectionFunctionsStore.getCount() > 1); // If size is 1, then only 'None' is available
+        widget.down('form').down('#connectionFunctionComboBox').setVisible(me.supportsConnectionFunctions);
         if (connectionMethod.get('comWindowStart') || connectionMethod.get('comWindowEnd')) {
             widget.down('form').down('#activateConnWindowRadiogroup').items.items[1].setValue(true);
         } else {
