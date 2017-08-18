@@ -7,7 +7,7 @@ import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.impl.DeviceKeyImporter;
+import com.elster.jupiter.pki.impl.DeviceSecretImporter;
 import com.elster.jupiter.pki.impl.KeyImportFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
@@ -196,7 +196,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
                 storeMacAddress(device, xmlDevice, logger);
                 device.save();
                 for (NamedEncryptedDataType deviceKey : xmlDevice.getKey()) {
-                    importDeviceKey(device, deviceKey, wrapKeyMap);
+                    importDeviceKey(device, deviceKey, wrapKeyMap, logger);
                 }
 
                 postProcessDevice(device, xmlDevice, shipment, logger);
@@ -208,41 +208,47 @@ public class SecureDeviceShipmentImporter implements FileImporter {
         }
     }
 
-    private void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, Map<String, WrapKey> wrapKeyMap) {
+    private void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, Map<String, WrapKey> wrapKeyMap, Logger logger) {
         String securityAccessorName = deviceKey.getName();
-        KeyAccessorType keyAccessorType = device.getDeviceType()
+        Optional<KeyAccessorType> keyAccessorTypeOptional = device.getDeviceType()
                 .getKeyAccessorTypes()
                 .stream()
                 .filter(kat -> kat.getName().equals(securityAccessorName))
-                .findAny()
-                .orElseThrow(() -> new ImportFailedException(MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE, securityAccessorName, device
-                        .getName()));
-        WrapKey wrapKey = wrapKeyMap.get(deviceKey.getWrapKeyLabel());
-        if (wrapKey==null) {
-            throw new ImportFailedException(MessageSeeds.WRAP_KEY_NOT_FOUND, securityAccessorName, device.getName(), deviceKey.getWrapKeyLabel());
-        }
-        byte[] encryptedSymmetricKey = wrapKey.getSymmetricKey().getCipherData().getCipherValue();
-        byte[] encryptedDeviceKey = deviceKey.getCipherData().getCipherValue();
-        byte[] initializationVector = new byte[16];
-        if (encryptedDeviceKey.length <= 16) {
-            throw new ImportFailedException(MessageSeeds.INITIALIZATION_VECTOR_ERROR);
-        }
-        byte[] cipher = new byte[encryptedDeviceKey.length - 16];
-        String symmetricAlgorithm = this.getSymmetricAlgorithm(deviceKey);
-        String asymmetricAlgorithm = this.getAsymmetricAlgorithm(wrapKey);
-        System.arraycopy(encryptedDeviceKey, 0, initializationVector, 0, 16);
-        System.arraycopy(encryptedDeviceKey, 16, cipher, 0, encryptedDeviceKey.length - 16);
+                .findAny();
+        if (!keyAccessorTypeOptional.isPresent()) {
+            log(logger, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE, device.getName(), securityAccessorName);
+        } else {
+            final KeyAccessorType keyAccessorType = keyAccessorTypeOptional.get();
+            final WrapKey wrapKey = wrapKeyMap.get(deviceKey.getWrapKeyLabel());
+            if (wrapKey==null) {
+                throw new ImportFailedException(MessageSeeds.WRAP_KEY_NOT_FOUND, securityAccessorName, device.getName(), deviceKey.getWrapKeyLabel());
+            }
+            byte[] encryptedSymmetricKey = wrapKey.getSymmetricKey().getCipherData().getCipherValue();
+            byte[] encryptedDeviceKey = deviceKey.getCipherData().getCipherValue();
+            byte[] initializationVector = new byte[16];
+            if (encryptedDeviceKey.length <= 16) {
+                throw new ImportFailedException(MessageSeeds.INITIALIZATION_VECTOR_ERROR);
+            }
+            byte[] cipher = new byte[encryptedDeviceKey.length - 16];
+            String symmetricAlgorithm = this.getSymmetricAlgorithm(deviceKey);
+            String asymmetricAlgorithm = this.getAsymmetricAlgorithm(wrapKey);
+            System.arraycopy(encryptedDeviceKey, 0, initializationVector, 0, 16);
+            System.arraycopy(encryptedDeviceKey, 16, cipher, 0, encryptedDeviceKey.length - 16);
 
-        DeviceKeyImporter symmetricKeyImporter = pkiService.getSymmetricKeyImporter(keyAccessorType);
-        KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType).orElseGet(()->device.newKeyAccessor(keyAccessorType));
+            DeviceSecretImporter deviceSecretImporter = pkiService.getDeviceSecretImporter(keyAccessorType);
 //        SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessorType);
 //        Map<String, Object> map = new HashMap<>();
 //        map.put("key", symmetricKey);
 //        symmetricKeyWrapper.setProperties(map);
-        Optional oldActualValue = keyAccessor.getActualValue();
-        keyAccessor.setActualValue(symmetricKeyImporter.importKey(encryptedDeviceKey, initializationVector, encryptedSymmetricKey, symmetricAlgorithm, asymmetricAlgorithm));
-        oldActualValue.ifPresent(svw -> ((SecurityValueWrapper)svw).delete());
-        keyAccessor.save();
+            if (device.getKeyAccessor(keyAccessorType).isPresent() && device.getKeyAccessor(keyAccessorType).get().getActualValue().isPresent()) {
+                log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
+            } else {
+                KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType).orElseGet(()->device.newKeyAccessor(keyAccessorType));
+                SecurityValueWrapper newWrapperValue = deviceSecretImporter.importSecret(encryptedDeviceKey, initializationVector, encryptedSymmetricKey, symmetricAlgorithm, asymmetricAlgorithm);
+                keyAccessor.setActualValue(newWrapperValue);
+                keyAccessor.save();
+            }
+        }
     }
 
     /**

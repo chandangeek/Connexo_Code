@@ -7,7 +7,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.impl.DeviceKeyImporter;
+import com.elster.jupiter.pki.impl.DeviceSecretImporter;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -100,7 +100,7 @@ public class SecureDeviceShipmentImporterTest {
         KeyAccessor keyAccessor = mock(KeyAccessor.class);
         when(keyAccessor.getActualValue()).thenReturn(Optional.empty());
         when(keyAccessor.getTempValue()).thenReturn(Optional.empty());
-        DeviceKeyImporter deviceKeyImporter = mock(DeviceKeyImporter.class);
+        DeviceSecretImporter deviceSecretImporter = mock(DeviceSecretImporter.class);
         List<KeyAccessorType> keyAccessorTypes = Stream.of("NTP_HASH", "MK_DC", "EAP_PSK_DC", "WEB_PORTAL_LOGIN_RO", "WEB_PORTAL_LOGIN_RW",
                 "WEB_PORTAL_LOGIN_ADMIN", "Priv_DC_SSH_cl", "Pub_DC_SSH_sv", "DLMS_WAN_DMGMT_MC_GUEK", "DLMS_WAN_DBROAD_MC_GUEK",
                 "DLMS_WAN_DMGMT_RW_GUEK", "DLMS_WAN_DBROAD_RW_GUEK", "DLMS_WAN_DMGMT_FU_GUEK", "DLMS_WAN_DBROAD_FU_GUEK",
@@ -112,7 +112,7 @@ public class SecureDeviceShipmentImporterTest {
             KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
             when(keyAccessorType.getName()).thenReturn(name);
             when(newDevice.getKeyAccessor(keyAccessorType)).thenReturn(Optional.of(keyAccessor));
-            when(pkiService.getSymmetricKeyImporter(keyAccessorType)).thenReturn(deviceKeyImporter);
+            when(pkiService.getDeviceSecretImporter(keyAccessorType)).thenReturn(deviceSecretImporter);
             return keyAccessorType;
         }).collect(toList());
         when(deviceType.getKeyAccessorTypes()).thenReturn(keyAccessorTypes);
@@ -122,7 +122,7 @@ public class SecureDeviceShipmentImporterTest {
 
         secureDeviceShipmentImporter.process(fileImportOccurrence);
 
-        verify(deviceKeyImporter, times(160)).importKey(any(byte[].class), any(byte[].class), any(byte[].class), anyString(), anyString());
+        verify(deviceSecretImporter, times(160)).importSecret(any(byte[].class), any(byte[].class), any(byte[].class), anyString(), anyString());
         List<String> logMessages = testHandler.getLogMessages();
         assertThat(logMessages).contains(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
         assertThat(logMessages).contains("Now importing device '00376280'");

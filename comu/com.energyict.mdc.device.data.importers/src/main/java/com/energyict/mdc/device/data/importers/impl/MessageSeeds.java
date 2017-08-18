@@ -93,10 +93,12 @@ public enum MessageSeeds implements MessageSeed {
     IMPORT_FAILED_FOR_DEVICE(526, "ImportFailedForDevice", "Failed to import device with name ''{0}'': {1}", Level.SEVERE),
     IMPORTING_DEVICE(527, "ImportingDevice", "Now importing device ''{0}''", Level.INFO),
     FAILED_TO_STORE_MAC_ADDRESS(528, "FailedToStoreMacAddress", "MAC Address value could not be stored on device ''{0}''", Level.WARNING),
-    WRAP_KEY_NOT_FOUND(529, "NoSuchWrapKey", "Failed to import key for security accessor ''{0}'' on device ''{1}'': referenced wrap key ''{2}'' is not found in the shipment file", Level.SEVERE),
-    NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE(530, "NoSuchKeyAccessorTypeOnDeviceType", "Failed to import key for security accessor ''{0}'' on device ''{1}'': security accessor type not found on device type", Level.SEVERE),
+    WRAP_KEY_NOT_FOUND(529, "NoSuchWrapKey", "Can't process device ''{1}'': Failed to import secret for security accessor ''{0}'': referenced wrap key ''{2}'' is not found in the shipment file", Level.SEVERE),
+    NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE(530, "NoSuchKeyAccessorTypeOnDeviceType", "Can't process device ''{0}'': Security accessor ''{1}'' is not available on the device type.", Level.WARNING),
     INITIALIZATION_VECTOR_ERROR(531, "NoIV", "IV not found in encrypted key", Level.SEVERE),
-    IMPORTED_DEVICE(532, "ImportedDevice", "Device ''{0}'' imported successfully", Level.INFO);
+    IMPORTED_DEVICE(532, "ImportedDevice", "Device ''{0}'' imported successfully", Level.INFO),
+    ACTUAL_VALUE_ALREADY_EXISTS(533, "ActualValueAlreadyExists", "Can't process device ''{1}'': security accessor ''{0}'' already as an 'active' value.", Level.WARNING),
+    ;
 
 
 
