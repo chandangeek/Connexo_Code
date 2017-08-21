@@ -26,8 +26,8 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class DeviceInfoLayer extends AbstractGraphLayer<Device> {
 
-    private final static String NAME = "topology.GraphLayer.DeviceInfo";
-    private final static String DEFAULT_FORMAT = "Device Identifiers";
+    public final static String NAME = "topology.GraphLayer.DeviceInfo";
+    public final static String DEFAULT_FORMAT = "Device Identifiers";
 
     public enum PropertyNames implements TranslationKey {
         DEVICE_NAME("name", "Name"),

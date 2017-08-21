@@ -7,7 +7,6 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
 import com.energyict.mdc.device.topology.rest.info.GraphInfo;
 
@@ -18,11 +17,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 

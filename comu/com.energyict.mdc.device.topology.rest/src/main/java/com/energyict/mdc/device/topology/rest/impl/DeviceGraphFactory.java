@@ -5,11 +5,13 @@ import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.G3CommunicationPath;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.GraphFactory;
-import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.GraphInfo;
+import com.energyict.mdc.device.topology.rest.layer.DeviceInfoLayer;
+import com.energyict.mdc.device.topology.rest.layer.DeviceTypeLayer;
+import com.energyict.mdc.device.topology.rest.layer.LinkQualityLayer;
 
 import com.google.common.collect.Range;
 
@@ -32,8 +34,6 @@ public class DeviceGraphFactory implements GraphFactory {
     private final GraphLayerService graphLayerService;
     private final Clock clock;
 
-    private Device gateway;
-
     public DeviceGraphFactory(TopologyService topologyService, GraphLayerService graphLayerService, Clock clock) {
         this.topologyService = topologyService;
         this.graphLayerService = graphLayerService;
@@ -41,9 +41,12 @@ public class DeviceGraphFactory implements GraphFactory {
     }
 
     public GraphInfo from(Device device) {
-        //set all layers active in test mode
-        graphLayerService.getGraphLayers().forEach(GraphLayer::activate);
-        this.gateway = this.topologyService.getPhysicalGateway(device).orElse(device);
+        //Only activate some layers
+        graphLayerService.getGraphLayer(DeviceInfoLayer.NAME).get().activate();
+        graphLayerService.getGraphLayer(DeviceTypeLayer.NAME).get().activate();
+        graphLayerService.getGraphLayer(LinkQualityLayer.NAME).get().activate();
+    //    graphLayerService.getGraphLayer(DeviceLifeCycleStatusLayer.NAME).get().activate();
+        Device gateway = this.topologyService.getPhysicalGateway(device).orElse(device);
         if (gateway.getId() == device.getId()) {
             return from(this.topologyService.getPhysicalTopology(gateway, Range.atLeast(clock.instant())));
         } else {
@@ -60,16 +63,16 @@ public class DeviceGraphFactory implements GraphFactory {
         final DeviceNodeInfo rootNode = newNode(deviceTopology.getRoot(), Optional.empty());
         GraphInfo<Device> graphInfo = new GraphInfo<>(this.graphLayerService);
         graphInfo.addNode(rootNode);
-        topologyService.getUniqueG3CommunicationPathSegments(deviceTopology.getDevices()).forEach(s -> {
-                graphInfo.addNode(newNode(s.getTarget(), Optional.of(s.getSource())));
-        });
+        topologyService.getUniqueG3CommunicationPathSegments(deviceTopology.getDevices()).forEach(s ->
+                graphInfo.addNode(newNode(s.getTarget(), Optional.of(s.getSource())))
+        );
 //Todo: remove Test data
         graphInfo.setProperty("nodeCount", "" + graphInfo.size());
         graphInfo.setProperty("buildTime", "" + Duration.between(now, clock.instant()).toMillis());
         return graphInfo;
     }
 
-    public GraphInfo from(G3CommunicationPath communicationPath) {
+    public GraphInfo<Device> from(G3CommunicationPath communicationPath) {
         Instant now = clock.instant();
         DeviceNodeInfo rootNode = newNode(communicationPath.getSource(), Optional.empty());
         final List<Device> devicesInCommunicationPath = new ArrayList<>();

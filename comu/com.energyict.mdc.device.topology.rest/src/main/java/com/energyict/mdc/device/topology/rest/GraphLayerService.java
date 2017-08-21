@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.topology.rest;
 
-import com.energyict.mdc.device.topology.rest.info.NodeInfo;
-
 import java.util.List;
 import java.util.Optional;
 

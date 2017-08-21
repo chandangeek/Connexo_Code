@@ -4,7 +4,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
-import com.energyict.mdc.device.topology.rest.GraphLayerCalculationMode;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
@@ -26,8 +25,8 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class DeviceTypeLayer extends AbstractGraphLayer<Device> {
 
-    private final static String NAME = "topology.GraphLayer.DeviceType";
-    private final static String DEFAULT_FORMAT = "Device types";
+    public final static String NAME = "topology.GraphLayer.DeviceType";
+    public final static String DEFAULT_FORMAT = "Device types";
 
     public enum PropertyNames implements TranslationKey {
         DEVICE_TYPE("deviceType", "Device type"),

@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.topology.rest.GraphLayer;

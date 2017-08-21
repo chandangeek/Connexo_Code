@@ -2,17 +2,10 @@ package com.energyict.mdc.device.topology.rest.info;
 
 import com.energyict.mdc.device.data.Device;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonValue;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -40,13 +33,6 @@ public class DeviceNodeInfo extends NodeInfo<Device>{
     @JsonIgnore
     public Device getDevice(){
         return super.getNodeObject();
-    }
-
-    /**
-     * Returns the childNode holding the ginven device
-     */
-    public Optional<DeviceNodeInfo> findChildNode(Device device){
-        return getChildren().stream().map(DeviceNodeInfo.class::cast).filter((dn) -> dn.getDevice().getId() == device.getId()).findFirst();
     }
 
     @Override

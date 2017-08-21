@@ -4,7 +4,6 @@ import com.elster.jupiter.util.concurrent.CopyOnWriteServiceContainer;
 import com.elster.jupiter.util.concurrent.OptionalServiceContainer;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
-import com.energyict.mdc.device.topology.rest.GraphLayerType;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

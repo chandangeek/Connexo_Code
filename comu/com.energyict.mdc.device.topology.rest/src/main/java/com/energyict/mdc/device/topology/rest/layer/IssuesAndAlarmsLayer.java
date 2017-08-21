@@ -9,7 +9,6 @@ import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
-import com.energyict.mdc.device.topology.rest.GraphLayerCalculationMode;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;

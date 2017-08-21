@@ -7,7 +7,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
-import com.energyict.mdc.device.topology.rest.GraphLayerCalculationMode;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
@@ -31,8 +30,8 @@ public class DeviceLifeCycleStatusLayer extends AbstractGraphLayer<Device> {
 
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
-    private final static String NAME = "topology.GraphLayer.DeviceLifeCycleStatus";
-    private final static String DEFAULT_FORMAT = "Status of device life cycle";
+    public final static String NAME = "topology.GraphLayer.DeviceLifeCycleStatus";
+    public final static String DEFAULT_FORMAT = "Status of device life cycle";
 
     public enum PropertyNames implements TranslationKey {
         LIFECYCLE_STATUS("deviceLifecycleStatus", "Device life cycle status");

@@ -2,7 +2,6 @@ package com.energyict.mdc.device.topology.rest.info;
 
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
-import com.energyict.mdc.device.topology.rest.GraphLayerCalculationMode;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 
 /**
@@ -39,6 +37,7 @@ public class LinkInfo<T extends HasId> {
         return this.layers.add(graphLayer);
     }
 
+    @SuppressWarnings("unused")
     @JsonGetter("source")
     public long getSource() {
         return nodeInfo.getParent().getId();
@@ -49,6 +48,7 @@ public class LinkInfo<T extends HasId> {
         return nodeInfo.getId();
     }
 
+    @SuppressWarnings("unused")
     @JsonAnyGetter
     public Map<String, Object> getProperties(){
         Map<String, Object> allProperties =  new HashMap<>();

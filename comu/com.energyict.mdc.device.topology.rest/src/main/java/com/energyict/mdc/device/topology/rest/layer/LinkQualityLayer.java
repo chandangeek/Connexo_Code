@@ -32,8 +32,8 @@ public class LinkQualityLayer extends AbstractGraphLayer<Device> {
 
     private TopologyService topologyService;
 
-    private final static String NAME = "topology.GraphLayer.linkQuality";
-    private final static String DEFAULT_FORMAT = "Network Link quality";
+    public final static String NAME = "topology.GraphLayer.linkQuality";
+    public final static String DEFAULT_FORMAT = "Network Link quality";
 
     public enum PropertyNames implements TranslationKey{
         LINK_QUALITY("linkQuality", "Link quality");

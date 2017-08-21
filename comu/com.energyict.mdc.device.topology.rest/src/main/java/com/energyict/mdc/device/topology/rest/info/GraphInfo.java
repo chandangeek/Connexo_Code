@@ -1,26 +1,21 @@
 package com.energyict.mdc.device.topology.rest.info;
 
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**

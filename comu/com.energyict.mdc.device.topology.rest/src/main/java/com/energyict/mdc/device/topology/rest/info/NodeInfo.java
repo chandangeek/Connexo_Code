@@ -2,7 +2,6 @@ package com.energyict.mdc.device.topology.rest.info;
 
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
-import com.energyict.mdc.device.topology.rest.GraphLayerCalculationMode;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -11,11 +10,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Represents a (T) node in a network.
@@ -33,8 +30,6 @@ public abstract class NodeInfo<T extends HasId> {
     private List<GraphLayer<T>> layers = new ArrayList<>();
     @JsonIgnore
     private T parent;
-    @JsonIgnore
-    private List<NodeInfo<T>> children = new ArrayList<>();
 
     public NodeInfo(T nodeObject) {
         this.nodeObject = nodeObject;
@@ -55,14 +50,6 @@ public abstract class NodeInfo<T extends HasId> {
     public boolean isRoot(){
         return this.parent == null;
     }
-    @JsonIgnore
-    public boolean isLeaf(){
-        return children.isEmpty();
-    }
-    @JsonIgnore
-    public List<NodeInfo<T>> getChildren(){
-        return Collections.unmodifiableList(children);
-    }
 
     public LinkInfo<T> asLinkInfo(){
         if (!isRoot()) {
@@ -75,6 +62,7 @@ public abstract class NodeInfo<T extends HasId> {
     public long getId() {
         return nodeObject.getId();
     }
+    @SuppressWarnings("unused")
     @JsonGetter("gateway")
     public boolean isGateway(){
         return parent == null;
