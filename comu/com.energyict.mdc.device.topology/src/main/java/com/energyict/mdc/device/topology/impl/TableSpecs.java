@@ -92,6 +92,7 @@ public enum TableSpecs {
                     onDelete(CASCADE).
                     map(CommunicationPathSegmentImpl.Field.NEXT_HOP.fieldName()).
                     add();
+            table.index("IX_DTL_COMPATHSEGMENT_TARGET").on(target, intervalColumns.get(0)).add().since(version(10, 4));
         }
     },
 

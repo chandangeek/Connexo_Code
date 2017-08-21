@@ -813,7 +813,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public Stream<G3CommunicationPathSegment> getUniqueG3CommunicationPathSegments(List<Device> slaves) {
-        return this.dataModel.query(G3CommunicationPathSegment.class).select(where("nextHop").isNull().and(where("target").in(slaves).and(where("interval").isEffective()))).stream();
+        return this.dataModel.query(G3CommunicationPathSegment.class)
+                .select(where("target").in(slaves).and(where("interval").isEffective()).and(where("nextHop").isNull())).stream();
     }
 
     @Override
