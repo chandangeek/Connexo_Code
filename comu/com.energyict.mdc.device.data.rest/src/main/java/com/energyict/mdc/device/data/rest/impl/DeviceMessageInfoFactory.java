@@ -11,6 +11,7 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.data.Device;
@@ -25,6 +26,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -75,7 +77,7 @@ public class DeviceMessageInfoFactory {
         final List<DeviceMessageInfo> infos = new ArrayList<>();
         for (DeviceMessage deviceMessage : deviceMessages) {
             Device device = (Device) deviceMessage.getDevice();
-            DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo, device);
+            DeviceMessageInfo info = getSimpleInfo(deviceMessage, uriInfo, device);
             info.userCanAdministrate = getUserCanAdministrateFromCache(userCanAdministrateCache, deviceMessage, device);
             if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
                 info.willBePickedUpByComTask = getWillBePickedUpByComTaskFromCache(willBePickedUpByComTaskCache, deviceMessage, device);
@@ -85,9 +87,34 @@ public class DeviceMessageInfoFactory {
         return infos;
     }
 
-    private DeviceMessageInfo getBaseInfo(DeviceMessage deviceMessage, UriInfo uriInfo, Device device) {
+    public DeviceMessageInfo getSimpleInfo(DeviceMessage deviceMessage, UriInfo uriInfo, Device device) {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
+
+        DeviceMessageSpec specification = deviceMessage.getSpecification();
+
+        info.status = new DeviceMessageInfo.StatusInfo();
+        info.status.value = MESSAGE_STATUS_ADAPTER.marshal(deviceMessage.getStatus());
+        info.status.displayValue = DeviceMessageStatusTranslationKeys.translationFor(deviceMessage.getStatus(), thesaurus);
+
+        info.category = specification.getCategory().getName();
+
+        info.releaseDate = deviceMessage.getReleaseDate();
+        info.sentDate = deviceMessage.getSentDate().orElse(null);
+
+        info.messageSpecification = new DeviceMessageSpecInfo();
+        info.messageSpecification.id = specification.getId().name();
+        info.messageSpecification.name = specification.getName();
+
+        info.user = deviceMessage.getUser();
+
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
+        info.version = deviceMessage.getVersion();
+        return info;
+    }
+
+    private DeviceMessageInfo getBaseInfo(DeviceMessage deviceMessage, UriInfo uriInfo, Device device) {
+        DeviceMessageInfo info = getSimpleInfo(deviceMessage, uriInfo, device);
         info.trackingIdAndName = new IdWithNameInfo(deviceMessage.getTrackingId(), "");
         if (deviceMessage.getTrackingCategory() != null) {
             info.trackingCategory = new DeviceMessageInfo.TrackingCategoryInfo();
@@ -98,18 +125,7 @@ public class DeviceMessageInfoFactory {
         info.deviceConfiguration = new IdWithNameInfo(((Device)deviceMessage.getDevice()).getDeviceConfiguration());
         info.deviceType = new IdWithNameInfo(((Device)deviceMessage.getDevice()).getDeviceType());
 
-        info.messageSpecification = new DeviceMessageSpecInfo();
-        info.messageSpecification.id = deviceMessage.getSpecification().getId().name();
-        info.messageSpecification.name = deviceMessage.getSpecification().getName();
-
-        info.category = deviceMessage.getSpecification().getCategory().getName();
-        info.status = new DeviceMessageInfo.StatusInfo();
-        info.status.value = MESSAGE_STATUS_ADAPTER.marshal(deviceMessage.getStatus());
-        info.status.displayValue = DeviceMessageStatusTranslationKeys.translationFor(deviceMessage.getStatus(), thesaurus);
         info.creationDate = deviceMessage.getCreationDate();
-        info.releaseDate = deviceMessage.getReleaseDate();
-        info.sentDate = deviceMessage.getSentDate().orElse(null);
-        info.user = deviceMessage.getUser();
         info.errorMessage = deviceMessage.getProtocolInfo();
 
         if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus())) {
@@ -131,8 +147,6 @@ public class DeviceMessageInfoFactory {
                 info.properties
         );
 
-        info.version = deviceMessage.getVersion();
-        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         return info;
     }
 
