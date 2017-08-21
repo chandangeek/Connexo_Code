@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -16,6 +17,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
@@ -55,9 +57,11 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.device.topology.impl.utils.ChannelDataTransferor;
+import com.energyict.mdc.device.topology.impl.utils.DeviceEventInfo;
 import com.energyict.mdc.device.topology.impl.utils.MeteringChannelProvider;
 import com.energyict.mdc.device.topology.impl.utils.Utils;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -100,6 +104,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private volatile CommunicationTaskService communicationTaskService;
     private volatile UpgradeService upgradeService;
     private volatile QueryService queryService;
+    private volatile EventService eventService;
     private MeteringChannelProvider meteringChannelProvider;
 
     // For OSGi framework only
@@ -109,7 +114,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     // For unit testing purposes only
     @Inject
-    public TopologyServiceImpl(OrmService ormService, NlsService nlsService, Clock clock, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, UpgradeService upgradeService, QueryService queryService) {
+    public TopologyServiceImpl(OrmService ormService, NlsService nlsService, Clock clock, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, UpgradeService upgradeService, QueryService queryService, EventService eventService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -118,6 +123,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         setCommunicationTaskService(communicationTaskService);
         setUpgradeService(upgradeService);
         setQueryService(queryService);
+        setEventService(eventService);
         meteringChannelProvider = new MeteringChannelProvider(thesaurus);
         activate();
     }
@@ -135,7 +141,9 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
+                        Version.version(10, 2), V10_2SimpleUpgrader.class,
+                        Version.version(10, 4), UpgraderV10_4.class));
     }
 
     private Module getModule() {
@@ -146,6 +154,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
+                bind(EventService.class).toInstance(eventService);
                 bind(TopologyService.class).toInstance(TopologyServiceImpl.this);
                 bind(ServerTopologyService.class).toInstance(TopologyServiceImpl.this);
             }
@@ -359,6 +368,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         Instant now = this.clock.instant();
         this.getPhysicalGatewayReference(slave, now).ifPresent(r -> terminateTemporal(r, now));
         this.newPhysicalGatewayReference(slave, gateway, now);
+        eventService.postEvent(EventType.REGISTERED_TO_GATEWAY.topic(), new DeviceEventInfo(slave.getId()));
         this.slaveTopologyChanged(slave, Optional.of(gateway));
     }
 
@@ -786,6 +796,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     private void clearPhysicalGateway(Device slave, Instant when) {
         this.getPhysicalGatewayReference(slave, when).ifPresent(r -> terminateTemporal(r, when));
+        eventService.postEvent(EventType.UNREGISTERED_FROM_GATEWAY.topic(), new DeviceEventInfo(slave.getId()));
         this.slaveTopologyChanged(slave, Optional.empty());
     }
 
@@ -1078,6 +1089,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     @Reference
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
 
