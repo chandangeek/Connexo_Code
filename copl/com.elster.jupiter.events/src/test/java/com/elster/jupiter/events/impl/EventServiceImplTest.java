@@ -141,7 +141,7 @@ public class EventServiceImplTest {
     public void testDoesNotPublishToDestinationIfShouldNotPublish() {
         eventService.postEvent(TOPIC, "");
 
-        verify(localEvent, never()).publish();
+        verify(localEvent, never()).publish(0);
     }
 
     /**

@@ -125,7 +125,7 @@ public class LocalEventImplTest {
     public void testPublish() {
         LocalEventImpl localEvent = new LocalEventImpl(NOW, jsonService, eventConfiguration, messageService, beanService, eventType, source, thesaurus);
 
-        localEvent.publish();
+        localEvent.publish(0);
 
         verify(destination).message(SERIALIZED);
         verify(destination.message(SERIALIZED)).withCorrelationId(TOPIC);

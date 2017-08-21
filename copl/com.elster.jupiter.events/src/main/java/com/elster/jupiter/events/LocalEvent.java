@@ -16,7 +16,7 @@ public interface LocalEvent {
 
     Event toOsgiEvent();
 
-    void publish();
+    void publish(int delay);
 
     Object getSource();
 }

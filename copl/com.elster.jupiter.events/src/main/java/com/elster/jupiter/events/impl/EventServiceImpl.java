@@ -162,6 +162,11 @@ public class EventServiceImpl implements EventService, MessageSeedProvider {
 
     @Override
     public void postEvent(String topic, Object source) {
+        postEvent(topic, source, 0);
+    }
+
+    @Override
+    public void postEvent(String topic, Object source, long delay) {
         Optional<EventType> found = dataModel.mapper(EventType.class).getOptional(topic);
         if (!found.isPresent()) {
             throw new NoSuchTopicException(thesaurus, topic);
@@ -170,7 +175,7 @@ public class EventServiceImpl implements EventService, MessageSeedProvider {
         LocalEvent localEvent = eventType.create(source);
         publisher.publish(localEvent); // synchronous call, may throw an exception to prevent transaction commit should be prior to further propagating the event.
         if (eventType.shouldPublish()) {
-            localEvent.publish();
+            localEvent.publish((int) delay);
         }
     }
 
