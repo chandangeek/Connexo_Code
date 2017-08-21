@@ -842,6 +842,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public void notifyConnectionFunctionUpdate(Optional<ConnectionFunction> previousConnectionFunction, Optional<ConnectionFunction> newConnectionFunction) {
+        if (previousConnectionFunction.isPresent() && newConnectionFunction.isPresent() && previousConnectionFunction.get().getId()== newConnectionFunction.get().getId()) {
+            return; // In case the connection function has not changed, then there is no reason to notify someone
+        }
+
         previousConnectionFunction.ifPresent(connectionFunction -> this.postEvent(EventType.CONNECTIONTASK_CLEARCONNECTIONFUNCTION, Pair.of(this, connectionFunction)));
         newConnectionFunction.ifPresent(connectionFunction -> this.postEvent(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION));
     }

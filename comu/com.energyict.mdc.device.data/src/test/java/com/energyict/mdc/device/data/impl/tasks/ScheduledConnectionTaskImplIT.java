@@ -64,6 +64,7 @@ import org.mockito.ArgumentCaptor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -1705,6 +1706,20 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(topicCaptor.getAllValues().get(1)).isEqualTo(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION.topic());
     }
 
+    @Test
+    @Transactional
+    public void testNotifyConnectionFunctionUpdateNotCalledWhenConnectionFunctionRemainedTheSame() {
+        String name = "testNotifyConnectionFunctionUpdate";
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        EventService eventServiceSpy = spy(inMemoryPersistence.getEventService());
+        connectionTask.injectEventService(eventServiceSpy);
+
+        ConnectionFunction connectionFunction = mock(ConnectionFunction.class);
+        connectionTask.notifyConnectionFunctionUpdate(Optional.of(connectionFunction), Optional.of(connectionFunction));
+
+        // Asserts
+        verify(eventServiceSpy, never()).postEvent(any(String.class), any());
+    }
 
     private void assertConnectionTask(List<ConnectionTask> outboundConnectionTasks, ScheduledConnectionTaskImpl... tasks) {
         assertThat(outboundConnectionTasks).isNotNull();
