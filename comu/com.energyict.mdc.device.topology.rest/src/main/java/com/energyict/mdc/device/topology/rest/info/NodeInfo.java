@@ -82,4 +82,17 @@ public abstract class NodeInfo<T extends HasId> {
     public void setParent(T parent) {
         this.parent = parent;
     }
+
+    @Override
+    public boolean equals(Object another){
+        if (another == null || !(another instanceof NodeInfo) || ((NodeInfo) another).getObjectClass() != this.getObjectClass()){
+            return false;
+        }
+        return (this.nodeObject.getId() == ((NodeInfo) another).nodeObject.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (this.nodeObject.getId() ^ (this.nodeObject.getId() >>> 32));
+    }
 }

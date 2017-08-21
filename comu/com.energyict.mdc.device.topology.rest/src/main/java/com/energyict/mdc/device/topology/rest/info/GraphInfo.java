@@ -5,18 +5,22 @@ import com.energyict.mdc.device.topology.rest.GraphLayerService;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @param <T> type of nodeObject
@@ -26,12 +30,14 @@ import java.util.stream.Collectors;
  */
 @JsonRootName("graph")
 @JsonPropertyOrder({"nodes", "links"})
-public class GraphInfo<T extends HasId> {
+public class GraphInfo<T extends HasId> implements StreamingOutput {
 
     private Properties properties = new Properties();
     private final GraphLayerService graphLayerService;
     @JsonProperty()
     private Set<NodeInfo<T>> nodes = new HashSet<>();
+    @JsonProperty()
+    private List<LinkInfo<T>> links = new ArrayList<>();
 
     public GraphInfo(GraphLayerService graphLayerService) {
         this.graphLayerService = graphLayerService;
@@ -42,13 +48,20 @@ public class GraphInfo<T extends HasId> {
     }
 
     public boolean addNode(NodeInfo<T> node){
-        return this.nodes.add(node);
+      LinkInfo<T> linkInfo = asLinkInfo(node);
+      return nodes.add(node) && (linkInfo == null || links.add(linkInfo));
     }
 
-    @JsonGetter("links")
-    @SuppressWarnings("unused")
-    private List<LinkInfo> getLinkInfos() {
-        return this.nodes.stream().filter((node) -> !node.isRoot()).map(this::asLinkInfo).collect(Collectors.toList());
+//    public void removeNode(NodeInfo<T> node){
+//        links.stream().filter(l -> l.nodeInfo == node).findFirst().ifPresent(links::remove);
+//        nodes.stream().filter(n -> n == node).findFirst().ifPresent(nodes::remove);
+//    }
+
+    @Override
+    public void write(OutputStream outputStream) throws IOException, WebApplicationException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writer().writeValue(outputStream, this);
+        outputStream.flush();
     }
 
     public void setProperty(String name, Object value) {

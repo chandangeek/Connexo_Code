@@ -35,14 +35,4 @@ public class DeviceNodeInfo extends NodeInfo<Device>{
         return super.getNodeObject();
     }
 
-    @Override
-    public boolean equals(Object another){
-        return (another != null && another instanceof DeviceNodeInfo)&& (getDevice().getId() == ((DeviceNodeInfo)another).getDevice().getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return (int) (this.getDevice().getId() ^ (this.getDevice().getId() >>> 32));
-    }
-
 }

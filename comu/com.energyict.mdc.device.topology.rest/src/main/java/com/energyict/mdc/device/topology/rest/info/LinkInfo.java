@@ -25,7 +25,7 @@ import java.util.Map;
 public class LinkInfo<T extends HasId> {
 
     @JsonIgnore
-    private NodeInfo<T> nodeInfo;
+    NodeInfo<T> nodeInfo;
     @JsonIgnore
     private List<GraphLayer<T>> layers = new ArrayList<>();
 
@@ -43,6 +43,7 @@ public class LinkInfo<T extends HasId> {
         return nodeInfo.getParent().getId();
     }
 
+    @SuppressWarnings("unused")
     @JsonGetter("target")
     public long getTarget() {
         return nodeInfo.getId();
