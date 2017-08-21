@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  * to use either the default {@link ConnectionTask} or either the {@link ConnectionTask}
  * corresponding to a certain {@link ConnectionFunction} of the related
  * {@link com.energyict.mdc.device.data.Device}
- * but are not linked to the default connection task.
+ * but are not linked to the correct default/connection function based connection task.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-05 (14:28)

@@ -48,17 +48,24 @@ public interface ServerTopologyService extends TopologyService {
     void setOrUpdateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(Device device, ConnectionTask connectionTask);
 
     /**
-     * Clears the {@link ConnectionTask} from all {@link ComTaskExecution}s that have the given
+     * Recalculate the {@link ConnectionTask} from all {@link ComTaskExecution}s that have the given
      * {@link ConnectionFunction} set and that relate to all {@link Device}s in the topology that starts
      * at the specified master Device. <br/>
-     * This method should be used when the connection task no longer uses a certain connection function. By using this method,
-     * this change will be propagated to the necessary ComTaskExecutions.
+     * This method could be called after a connection task no longer uses a certain connection function.
+     * Notes:
+     * <ul>
+     *     <li>By using this method, this change will be propagated to the necessary ComTaskExecutions.</li>
+     *     <li>Most likely the recalculation will not find another ConnectionTask for the ConnectionFunction,
+     *     it is only during 'Change device configuration' action on a device the recalculation can potentially
+     *     find another matching connection function.</li>
+     * </ul>
+     *
      *
      *
      * @param device The master device
      * @param connectionFunction The {@link ConnectionFunction} to search for
      */
-    void clearConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(Device device, ConnectionFunction connectionFunction);
+    void recalculateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(Device device, ConnectionFunction connectionFunction);
 
     Optional<PhysicalGatewayReference> getPhysicalGatewayReference(Device slave, Instant when);
 

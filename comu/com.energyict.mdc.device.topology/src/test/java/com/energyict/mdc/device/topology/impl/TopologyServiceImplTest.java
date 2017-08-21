@@ -1572,7 +1572,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         ((TopologyServiceImpl) topologyService).setCommunicationTaskService(communicationTaskService);
 
         // Business method
-        ((TopologyServiceImpl) topologyService).clearConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(device, connectionFunction);
+        ((TopologyServiceImpl) topologyService).recalculateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(device, connectionFunction);
 
         // Asserts
         verify(comTaskExecutionUpdater, times(2)).setConnectionFunction(connectionFunction);

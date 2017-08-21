@@ -203,11 +203,17 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
-    public void clearConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(Device device, ConnectionFunction connectionFunction) {
+    public void recalculateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(Device device, ConnectionFunction connectionFunction) {
         List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithConnectionFunctionForCompleteTopology(device, connectionFunction);
+        Optional<ConnectionTask> connectionTaskOptional = this.findConnectionTaskWithConnectionFunctionForTopology(device, connectionFunction);
+
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
-            comTaskExecutionUpdater.setConnectionFunction(connectionFunction); // Set to use a ConnectionFunction not used on any ConnectionTask (note this is opposite of ComTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction)
+            if (connectionTaskOptional.isPresent()) {
+                comTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction(connectionTaskOptional.get());
+            } else {
+                comTaskExecutionUpdater.setConnectionFunction(connectionFunction); // Set to use a ConnectionFunction not used on any ConnectionTask
+            }
             comTaskExecutionUpdater.update();
         }
     }

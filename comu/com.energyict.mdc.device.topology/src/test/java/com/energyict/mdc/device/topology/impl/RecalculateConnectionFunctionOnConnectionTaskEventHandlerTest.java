@@ -20,20 +20,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link ClearConnectionFunctionOnConnectionTaskEventHandler} event handler
+ * Tests the {@link RecalculateConnectionFunctionOnConnectionTaskEventHandler} event handler
  *
  * @author Stijn Vanhoorelbeke
  * @since 16.08.17 - 13:57
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ClearConnectionFunctionOnConnectionTaskEventHandlerTest {
+public class RecalculateConnectionFunctionOnConnectionTaskEventHandlerTest {
 
     @Mock
     private ServerTopologyService topologyService;
 
     @Test
     public void handle() throws Exception {
-        ClearConnectionFunctionOnConnectionTaskEventHandler handler = new ClearConnectionFunctionOnConnectionTaskEventHandler(topologyService);
+        RecalculateConnectionFunctionOnConnectionTaskEventHandler handler = new RecalculateConnectionFunctionOnConnectionTaskEventHandler(topologyService);
 
         LocalEvent event = mock(LocalEvent.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
@@ -46,7 +46,7 @@ public class ClearConnectionFunctionOnConnectionTaskEventHandlerTest {
         handler.handle(event);
 
         // Asserts
-        verify(topologyService).clearConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(device, connectionFunction);
+        verify(topologyService).recalculateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(device, connectionFunction);
     }
 
 }
