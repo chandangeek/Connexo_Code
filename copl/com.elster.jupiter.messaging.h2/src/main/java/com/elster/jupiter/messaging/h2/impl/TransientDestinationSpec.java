@@ -231,5 +231,10 @@ class TransientDestinationSpec implements DestinationSpec {
             this.correlationId = correlationId;
             return this;
         }
+
+        @Override
+        public MessageBuilder withDelay(int delay) {
+            return this;
+        }
     }
 }
