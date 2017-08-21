@@ -50,7 +50,7 @@ public class DeviceComTaskInfoFactory {
         if (!compatibleComTaskExecutions.isEmpty()) {
             return this.fromCompatibleComTaskExecutions(comTaskEnablement, compatibleComTaskExecutions);
         } else {
-            return this.fromForEnablementWhichIsNotOnDeviceYet(comTaskEnablement, device);
+            return this.setFieldsForEnablementWhichIsNotOnDeviceYet(comTaskEnablement, device);
         }
     }
 
@@ -126,7 +126,7 @@ public class DeviceComTaskInfoFactory {
         setConnectionStrategy(deviceComTasksInfo, comTaskExecution, comTaskEnablement);
     }
 
-    private DeviceComTaskInfo fromForEnablementWhichIsNotOnDeviceYet(ComTaskEnablement comTaskEnablement, Device device) {
+    private DeviceComTaskInfo setFieldsForEnablementWhichIsNotOnDeviceYet(ComTaskEnablement comTaskEnablement, Device device) {
         DeviceComTaskInfo deviceComTasksInfo = new DeviceComTaskInfo();
         deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.ON_REQUEST).format();
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.ON_REQUEST.name();
@@ -168,10 +168,8 @@ public class DeviceComTaskInfoFactory {
         } else if (comTaskExecution.getConnectionFunction().isPresent()) {
             ConnectionFunction connectionFunction = comTaskExecution.getConnectionFunction().get();
             String connectionFunctionDisplayName = connectionFunction.getConnectionFunctionDisplayName();
-            Optional<ConnectionTask> deviceConnectionTaskOptional = findConnectionTaskWithConnectionFunctionInCompleteTopology(comTaskExecution.getDevice(), connectionFunction);
-            deviceComTasksInfo.connectionDefinedOnDevice = deviceConnectionTaskOptional.isPresent();
-            deviceComTasksInfo.connectionMethod = deviceConnectionTaskOptional.isPresent()
-                    ? thesaurus.getFormat(DefaultTranslationKey.CONNECTION_FUNCTION).format(connectionFunctionDisplayName) + " (" + deviceConnectionTaskOptional.get().getName() + ")"
+            deviceComTasksInfo.connectionMethod = comTaskExecution.getConnectionTask().isPresent()
+                    ? thesaurus.getFormat(DefaultTranslationKey.CONNECTION_FUNCTION).format(connectionFunctionDisplayName) + " (" + comTaskExecution.getConnectionTask().get().getName() + ")"
                     : thesaurus.getFormat(DefaultTranslationKey.CONNECTION_FUNCTION).format(connectionFunctionDisplayName);
         } else {
             deviceComTasksInfo.connectionMethod = comTaskExecution.getConnectionTask().isPresent()
