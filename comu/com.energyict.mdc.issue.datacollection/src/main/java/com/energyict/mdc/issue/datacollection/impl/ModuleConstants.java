@@ -18,6 +18,8 @@ public final class ModuleConstants {
 
     public static final String AQ_DATA_COLLECTION_EVENT_SUBSC = "IssueCreationDC";
     public static final String AQ_DATA_COLLECTION_EVENT_DISPLAYNAME = "Create data collection issues";
+    public static final String AQ_DELAYED_ISSUE_SUBSC = "DelayedIssueDC";
+    public static final String AQ_DELAYED_ISSUE_DISPLAYNAME = "Create data collection issues with a delay";
 
     public static final String DEVICE_IDENTIFIER = "deviceIdentifier";
     public static final String MASTER_DEVICE_IDENTIFIER = "masterDeviceId";

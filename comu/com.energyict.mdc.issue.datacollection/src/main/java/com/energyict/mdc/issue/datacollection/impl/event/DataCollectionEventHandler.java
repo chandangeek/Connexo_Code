@@ -64,15 +64,16 @@ public class DataCollectionEventHandler implements MessageHandler {
                     .collect(Collectors.toList());
             if(eventsWithEndDevice.isEmpty()) {
                 getIssueCreationService().dispatchCreationEvent(events);
-            }
-            List<IssueEvent> filteredEvents = eventsWithEndDevice.stream()
-                    .filter(e -> e.getEndDevice().get().getState().isPresent())
-                    .filter(e -> e.getEndDevice().get().getState().get().getStage().isPresent())
-                    .filter(e -> e.getEndDevice().get().getState().get().getStage().get().getName().equals(EndDeviceStage.OPERATIONAL.getKey()))
-                    .collect(Collectors.toList());
+            } else {
+                List<IssueEvent> filteredEvents = eventsWithEndDevice.stream()
+                        .filter(e -> e.getEndDevice().get().getState().isPresent())
+                        .filter(e -> e.getEndDevice().get().getState().get().getStage().isPresent())
+                        .filter(e -> e.getEndDevice().get().getState().get().getStage().get().getName().equals(EndDeviceStage.OPERATIONAL.getKey()))
+                        .collect(Collectors.toList());
 
-            if(!filteredEvents.isEmpty()) {
-                getIssueCreationService().dispatchCreationEvent(filteredEvents);
+                if(!filteredEvents.isEmpty()) {
+                    getIssueCreationService().dispatchCreationEvent(filteredEvents);
+                }
             }
         }
     }

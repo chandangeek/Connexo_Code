@@ -66,7 +66,7 @@ public class Installer implements FullInstaller {
             setDataCollectionReasons(issueType);
         }, "issue reasons and action types", logger);
         run(this::publishEvents, "event publishing", logger);
-
+        run(this::createEventTypes, "create event types", logger);
     }
 
     private void publishEvents() {
@@ -100,9 +100,22 @@ public class Installer implements FullInstaller {
                             .like("com/energyict/mdc/connectiontask/%")
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/data/device/CREATED")
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE"))
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/topology/UNREGISTEREDFROMGATEWAY"))
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/topology/REGISTEREDTOGATEWAY"))
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE"))));
+            destinationSpec.subscribe(
+                    TranslationKeys.AQ_DELAYED_ISSUE_SUBSC,
+                    IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN,
+                    whereCorrelationId().isEqualTo("com/energyict/mdc/issue/datacollection/UNREGISTEREDFROMGATEWAYDELAYED"));
         } catch (DuplicateSubscriberNameException e) {
             // subscriber already exists, ignoring
+        }
+    }
+
+
+    private void createEventTypes() {
+        for (com.energyict.mdc.issue.datacollection.impl.event.EventType eventType : com.energyict.mdc.issue.datacollection.impl.event.EventType.values()) {
+            eventType.createIfNotExists(eventService);
         }
     }
 

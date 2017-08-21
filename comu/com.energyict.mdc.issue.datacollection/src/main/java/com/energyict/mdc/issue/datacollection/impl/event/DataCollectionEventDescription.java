@@ -9,9 +9,11 @@ import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.issue.datacollection.event.ConnectionLostEvent;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureEvent;
+import com.energyict.mdc.issue.datacollection.event.RegisteredToGatewayEvent;
 import com.energyict.mdc.issue.datacollection.event.UnableToConnectEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownInboundDeviceEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
+import com.energyict.mdc.issue.datacollection.event.UnregisteredFromGatewayEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 
@@ -74,14 +76,26 @@ public enum DataCollectionEventDescription implements EventDescription {
             "com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE",
             null,
             UnknownSlaveDeviceEvent.class,
-            TranslationKeys.EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE);
+            TranslationKeys.EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE),
+    UNREGISTERED_FROM_GATEWAY(
+            "com/energyict/mdc/topology/UNREGISTEREDFROMGATEWAY",
+            null,
+            UnregisteredFromGatewayEvent.class,
+            TranslationKeys.EVENT_TITLE_UNREGISTERED_FROM_GATEWAY
+    ),
+    REGISTERED_TO_GATEWAY(
+            "com/energyict/mdc/topology/REGISTEREDTOGATEWAY",
+            null,
+            RegisteredToGatewayEvent.class,
+            TranslationKeys.EVENT_TITLE_REGISTERED_FROM_GATEWAY
+    );
 
     private String topic;
     private CommunicationErrorType errorType;
     private TranslationKeys title;
     private Class<? extends DataCollectionEvent> eventClass;
 
-    private DataCollectionEventDescription(String topic, CommunicationErrorType errorType, Class<? extends DataCollectionEvent> eventClass, TranslationKeys title) {
+    DataCollectionEventDescription(String topic, CommunicationErrorType errorType, Class<? extends DataCollectionEvent> eventClass, TranslationKeys title) {
         this.topic = topic;
         this.errorType = errorType;
         this.eventClass = eventClass;

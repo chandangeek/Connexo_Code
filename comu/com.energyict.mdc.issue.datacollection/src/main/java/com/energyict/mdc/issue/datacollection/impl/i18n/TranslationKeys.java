@@ -9,17 +9,22 @@ import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.actions.CloseIssueAction;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.issue.datacollection.impl.templates.EventAggregationRuleTemplate;
+import com.energyict.mdc.issue.datacollection.impl.templates.MeterRegistrationRuleTemplate;
 
 public enum TranslationKeys implements TranslationKey {
     AQ_DATA_COLLECTION_EVENT_SUBSC(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC, ModuleConstants.AQ_DATA_COLLECTION_EVENT_DISPLAYNAME),
+    AQ_DELAYED_ISSUE_SUBSC(ModuleConstants.AQ_DELAYED_ISSUE_SUBSC, ModuleConstants.AQ_DELAYED_ISSUE_DISPLAYNAME),
     BASIC_TEMPLATE_DATACOLLECTION_NAME("TemplateBasicDataCollectionName", "Create issue when specific event occurs"),
     BASIC_TEMPLATE_DATACOLLECTION_DESCRIPTION("TemplateBasicDataCollectionDescription", "Create issue when specific event occurs"),
     TEMPLATE_EVT_AGGREGATION_NAME("TemplateEvtAggregationName", "Events from meters of concentrator"),
     TEMPLATE_EVT_AGGREGATION_DESCRIPTION("TemplateEvtAggregationDescription", "Create an issue based on multiple events that are related"),
+    TEMPLATE_UNREGISTERED_FROM_GATEWAY_NAME("TemplateUnregisteredFromGatewayName", "Unregistered from gateway"),
+    TEMPLATE_UNREGISTERED_FROM_GATEWAY_DESCRIPTION("TemplateUnregisteredFromGatewayDescription", "Create an issue when a slave is unregistered from a gateway for some time"),
 
     PARAMETER_NAME_EVENT_TYPE(BasicDataCollectionRuleTemplate.EVENTTYPE, "Event"),
     PARAMETER_AUTO_RESOLUTION(BasicDataCollectionRuleTemplate.AUTORESOLUTION, "Auto resolution"),
     PARAMETER_NAME_THRESHOLD(EventAggregationRuleTemplate.THRESHOLD, "Threshold (%)"),
+    PARAMETER_NAME_DELAY_IN_HOURS(MeterRegistrationRuleTemplate.DELAY, "Delay (in hours)"),
     PARAMETER_NAME_EVENT_TYPE_FOR_AGGREGATION(EventAggregationRuleTemplate.EVENTTYPE, "Event"),
 
     ISSUE_TYPE_DATA_COLLECTION("IssueTypeDataCollection", "Data collection"),
@@ -51,6 +56,8 @@ public enum TranslationKeys implements TranslationKey {
 
     EVENT_TITLE_UNKNOWN_INBOUND_DEVICE("EventTitleUnknownInboundDevice", "Unknown inbound device"),
     EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE("EventTitleUnknownOutboundDevice", "Unknown outbound device"),
+    EVENT_TITLE_UNREGISTERED_FROM_GATEWAY("EventTitleUnregisteredFromGateway", "Unregistered from gateway"),
+    EVENT_TITLE_REGISTERED_FROM_GATEWAY("EventTitleRegisteredFromGateway", "Registered from gateway"),
     EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE("EventTitleDeviceCommunicationFailure", "Device communication failure"),
     EVENT_TITLE_UNABLE_TO_CONNECT("EventTitleUnableToConnect", "Unable to connect"),
     EVENT_TITLE_CONNECTION_LOST("EventTitleConnectionLost", "Connection lost")
