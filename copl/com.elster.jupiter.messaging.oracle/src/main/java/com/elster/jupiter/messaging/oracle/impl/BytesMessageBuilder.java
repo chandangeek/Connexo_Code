@@ -66,6 +66,16 @@ class BytesMessageBuilder implements MessageBuilder {
     }
 
     @Override
+    public MessageBuilder withDelay(int delay) {
+        try {
+            getMessageProperties().setDelay(delay);
+            return this;
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    @Override
     public void send() {
         try {
             trySend(bytes);
