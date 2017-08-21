@@ -17,5 +17,14 @@ Ext.define('Mdc.commands.model.Command', {
                 return res;
             }
         }
-    ]
+    ],
+
+    proxy: {
+        type: 'rest',
+        url: '/api/ddr/devicemessages',
+
+        reader: {
+            type: 'json'
+        }
+    }
 });

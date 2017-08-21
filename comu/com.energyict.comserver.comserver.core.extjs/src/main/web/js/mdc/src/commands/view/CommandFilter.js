@@ -7,7 +7,7 @@ Ext.define('Mdc.commands.view.CommandFilter', {
     store: undefined,
 
     requires:[
-        'Mdc.store.DeviceGroups',
+        'Mdc.store.DeviceGroupsNoPaging',
         'Mdc.store.CommandCategories',
         'Mdc.store.Commands',
         'Mdc.commands.store.CommandStatuses'
@@ -24,7 +24,7 @@ Ext.define('Mdc.commands.view.CommandFilter', {
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'id',
-                store: 'Mdc.store.DeviceGroups'
+                store: 'Mdc.store.DeviceGroupsNoPaging'
             },
             {
                 type: 'combobox',

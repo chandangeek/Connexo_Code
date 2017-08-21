@@ -11,12 +11,15 @@ Ext.define('Mdc.commands.controller.Commands', {
     ],
 
     models: [
-        'Mdc.model.DeviceCommand'
+        'Mdc.model.DeviceCommand',
+        'Mdc.commands.model.Command'
     ],
 
     stores: [
         'Mdc.commands.store.Commands',
+        'Mdc.store.DeviceGroupsNoPaging',
         'Mdc.store.DeviceGroups',
+        'Mdc.store.DeviceGroupsNoPaging',
         'Mdc.commands.store.CommandCategoriesForDeviceGroup'
     ],
 
@@ -116,7 +119,7 @@ Ext.define('Mdc.commands.controller.Commands', {
         this.getController('Uni.controller.history.Router').getRoute('workspace/commands/add').forward();
     },
 
-    showCommandsOverview: function() {
+    showCommandsOverview: function () {
         var me = this,
             widget = Ext.widget('commands-overview');
 
@@ -125,45 +128,53 @@ Ext.define('Mdc.commands.controller.Commands', {
 
     loadCommandDetail: function (selectionModel, selectedRecords) {
         var me = this,
-            record = selectedRecords[0],
+            simpleRecord = selectedRecords[0],
             preview = me.getCommandPreview(),
             previewForm = me.getCommandPreviewForm(),
             trackingField = previewForm.down('#mdc-command-preview-tracking-field'),
             previewActionsButton = me.getPreviewActionsBtn(),
-            previewActionsMenu = preview.down('menu');
-
-        if (Ext.isEmpty(record)) return;
-        Ext.suspendLayouts();
-        if (record.get('trackingCategory').id === 'trackingCategory.serviceCall') {
-            trackingField.setFieldLabel(Uni.I18n.translate('general.serviceCall', 'MDC', 'Service call'));
-            trackingField.renderer = function(val) {
-                if (record.get('trackingCategory').activeLink != undefined && record.get('trackingCategory').activeLink) {
-                    return '<a style="text-decoration: underline" href="' +
-                        me.getController('Uni.controller.history.Router').getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: val.id})
-                        + '">' + val.name + '</a>';
+            previewActionsMenu = preview.down('menu'),
+            model = Ext.ModelManager.getModel('Mdc.commands.model.Command');
+        if (Ext.isEmpty(simpleRecord)) return;
+        previewForm.setLoading(true);
+        model.load(simpleRecord.get('id'), {
+            success: function (record) {
+                Ext.suspendLayouts();
+                if (record.get('trackingCategory').id === 'trackingCategory.serviceCall') {
+                    trackingField.setFieldLabel(Uni.I18n.translate('general.serviceCall', 'MDC', 'Service call'));
+                    trackingField.renderer = function (val) {
+                        if (record.get('trackingCategory').activeLink != undefined && record.get('trackingCategory').activeLink) {
+                            return '<a style="text-decoration: underline" href="' +
+                                me.getController('Uni.controller.history.Router').getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: val.id})
+                                + '">' + val.name + '</a>';
+                        } else {
+                            return Ext.isEmpty(val.id) ? '-' : Ext.String.htmlEncode(val.id);
+                        }
+                    }
                 } else {
-                    return Ext.isEmpty(val.id) ? '-'  : Ext.String.htmlEncode(val.id);
+                    trackingField.setFieldLabel(Uni.I18n.translate('general.trackingSource', 'MDC', 'Tracking source'));
+                    trackingField.renderer = function (val) {
+                        return !Ext.isEmpty(val) && !Ext.isEmpty(val.name) ? Ext.String.htmlEncode(val.name) : '-';
+                    }
                 }
-            }
-        } else {
-            trackingField.setFieldLabel(Uni.I18n.translate('general.trackingSource', 'MDC', 'Tracking source'));
-            trackingField.renderer = function (val) {
-                return !Ext.isEmpty(val) && !Ext.isEmpty(val.name) ? Ext.String.htmlEncode(val.name) : '-';
-            }
-        }
-        previewForm.loadRecord(record);
-        preview.setTitle(Ext.String.htmlEncode(record.get('messageSpecification').name));
-        if (previewActionsMenu) {
-            previewActionsMenu.record = record;
-        }
+                previewForm.loadRecord(record);
+                preview.setTitle(Ext.String.htmlEncode(record.get('messageSpecification').name));
+                if (previewActionsMenu) {
+                    previewActionsMenu.record = record;
+                }
 
-        var status = record.get('status').value;
-        previewActionsButton.setVisible( (status === 'WAITING' || status === 'PENDING') );
-        Ext.resumeLayouts(true);
+                var status = record.get('status').value;
+                previewActionsButton.setVisible((status === 'WAITING' || status === 'PENDING'));
+                Ext.resumeLayouts(true);
+            },
+            callback: function() {
+                previewForm.setLoading(false);
+            }
+        });
     },
 
 
-    showAddCommandWizard: function() {
+    showAddCommandWizard: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
@@ -283,7 +294,7 @@ Ext.define('Mdc.commands.controller.Commands', {
 
         switch (stepNumber) {
             case 1:
-                me.validateStep1(function() {
+                me.validateStep1(function () {
                     doCallback();
                     me.prepareStep2();
                 });
@@ -331,7 +342,7 @@ Ext.define('Mdc.commands.controller.Commands', {
         step2ErrorMsg.hide();
         step2Form.clearInvalid();
         me.categoriesStore.getProxy().setUrl(me.wizardInformation.deviceGroupId);
-        me.categoriesStore.load(function(records, operation, success) {
+        me.categoriesStore.load(function (records, operation, success) {
             if (records.length === 0) {
                 me.getStep2CategoryCombo().reset();
                 me.getStep2CommandCombo().reset();
@@ -343,7 +354,7 @@ Ext.define('Mdc.commands.controller.Commands', {
         });
     },
 
-    validateStep2: function() {
+    validateStep2: function () {
         var me = this,
             wizard = me.getAddCommandWizard(),
             addCommandForm = wizard.down('#mdc-add-command-step2'),
@@ -380,7 +391,7 @@ Ext.define('Mdc.commands.controller.Commands', {
         step4.update(statusMessage);
     },
 
-    onCategoryChange: function(combo, categoryId) {
+    onCategoryChange: function (combo, categoryId) {
         var me = this,
             step2ErrorMsg = me.getStep2FormErrorMessage(),
             commandCombo = me.getStep2CommandCombo(),
@@ -394,8 +405,8 @@ Ext.define('Mdc.commands.controller.Commands', {
         if (!Ext.isEmpty(category)) {
             commandCombo.enable();
             commandCombo.bindStore(category.deviceMessageSpecs(), true);
-            if (category.deviceMessageSpecs().getCount()===1) {
-                commandCombo.setValue( category.deviceMessageSpecs().getAt(0) );
+            if (category.deviceMessageSpecs().getCount() === 1) {
+                commandCombo.setValue(category.deviceMessageSpecs().getAt(0));
                 var records = [];
                 records.push(category.deviceMessageSpecs().getAt(0));
                 me.onCommandSelect(commandCombo, records);
@@ -427,7 +438,7 @@ Ext.define('Mdc.commands.controller.Commands', {
         }
     },
 
-    addCommandToDeviceGroup: function() {
+    addCommandToDeviceGroup: function () {
         var me = this,
             wizard = me.getAddCommandWizard(),
             propertyForm = me.getAddPropertyForm();
