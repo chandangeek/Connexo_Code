@@ -99,10 +99,12 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         List<IssueProvider> issueProviders = Arrays.asList(issueProvider);
         doReturn(issueProviders).when(issueService).getIssueProviders();
         Optional<? extends Issue> issueRef = Optional.of(issues.get(0));
+        when(issueRef.get().getSnoozeDateTime()).thenReturn(Optional.empty());
         doReturn(issueRef).when(issueProvider).findIssue(1L);
         IssueInfo issueInfo = new IssueInfo<>(issues.get(0), DeviceInfo.class);
         when(infoFactory.from(issues.get(0))).thenReturn(issueInfo);
         when(issueInfoFactoryService.getInfoFactoryFor(issues.get(0))).thenReturn(infoFactory);
+
 
         String filter = URLEncoder.encode("[{\"property\":\"status\",\"value\":[\"open\"]}]");
         Map<?, ?> map = target("/issues").queryParam(FILTER, filter).queryParam(START, "0").queryParam(LIMIT, "1").request().get(Map.class);

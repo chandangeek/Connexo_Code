@@ -8,7 +8,6 @@ package com.elster.jupiter.issue.rest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueFilter;
-import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
@@ -26,7 +25,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -113,20 +111,24 @@ public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest {
                 .select(any(Condition.class), anyInt(), anyInt(), any(Order.class));
         when(issueService.query(IssueReason.class)).thenReturn(issueReasonQuery);
         when(issueService.findIssueType(anyString())).thenReturn(Optional.of(issueType));
-        when(issueService.getUserOpenIssueCount(user)).thenReturn(new HashMap<IssueTypes, Long>(){{put(IssueTypes.DATA_COLLECTION,1L);}});
-        when(issueService.getWorkGroupWithoutUserOpenIssueCount(user)).thenReturn(new HashMap<IssueTypes, Long>(){{put(IssueTypes.DATA_COLLECTION,0L);}});
-        doReturn(Collections.singletonList(issue)).when(issueReasonQuery).select(where(ISSUE_TYPE).isNotEqual(anyObject()));
+        when(issueService.getUserOpenIssueCount(user)).thenReturn(new HashMap<IssueTypes, Long>() {{
+            put(IssueTypes.DATA_COLLECTION, 1L);
+        }});
+        when(issueService.getWorkGroupWithoutUserOpenIssueCount(user)).thenReturn(new HashMap<IssueTypes, Long>() {{
+            put(IssueTypes.DATA_COLLECTION, 0L);
+        }});
+        doReturn(Collections.singletonList(issue)).when(issueReasonQuery)
+                .select(where(ISSUE_TYPE).isNotEqual(anyObject()));
     }
 
     @Test
     public void getTopIssues() {
         Finder<? extends Issue> issueFinder = mock(Finder.class);
         doReturn(issueFinder).when(issueService).findIssues(any(IssueFilter.class), anyVararg());
+        when(issueService.findStatus(anyString())).thenReturn(Optional.empty());
+        when(issue.getSnoozeDateTime()).thenReturn(Optional.empty());
         List<? extends Issue> issues = Collections.singletonList(issue);
         doReturn(issues).when(issueFinder).find();
-
-
-
         Map response = target("/topissues/issues").request().get(Map.class);
         defaultTopTaskAsserts(response);
     }
