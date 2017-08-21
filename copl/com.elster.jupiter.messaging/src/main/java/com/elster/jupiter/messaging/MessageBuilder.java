@@ -28,4 +28,6 @@ public interface MessageBuilder {
 
     MessageBuilder withCorrelationId(String correlationId);
 
+    MessageBuilder withDelay(int delay);
+
 }
