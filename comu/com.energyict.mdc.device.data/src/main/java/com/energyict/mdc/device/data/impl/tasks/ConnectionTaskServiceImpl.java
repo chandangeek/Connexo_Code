@@ -301,7 +301,10 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     private void clearOldDefault(Device device, ConnectionTaskImpl newDefaultConnectionTask) {
-        List<ConnectionTask> connectionTasks = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).find(ConnectionTaskFields.DEVICE.fieldName(), device);
+        Condition condition = where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
+                          and(where("isDefault").isEqualTo(true)).
+                          and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
+        List<ConnectionTask> connectionTasks = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
         connectionTasks
                 .stream()
                 .filter(connectionTask -> isPreviousDefault(newDefaultConnectionTask, connectionTask))
