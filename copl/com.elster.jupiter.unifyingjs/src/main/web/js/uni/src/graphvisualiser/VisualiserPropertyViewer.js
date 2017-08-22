@@ -37,19 +37,25 @@ Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
             collapseExpandButton.setIconCls('icon-circle-up2');
         }
     },
-    title: Uni.I18n.translate('general.propertyViewer', 'UNI', 'Property viewer'),
+    propertyViewerTitle: Uni.I18n.translate('general.propertyViewer', 'UNI', 'Property viewer'),
     ui: 'small',
     layout: 'vbox',
     style: {
         'background-color': 'white'
     },
 
+    initComponent: function () {
+        this.setTitle(this.propertyViewerTitle);
+        this.callParent();
+    },
+
     displayProperties: function(properties){
         var itemsToAdd = [];
+        this.setTitle(this.propertyViewerTitle);
         if(properties){
             for (var property in properties) {
                 if (property === 'Name') {
-                    this.setTitle(Uni.I18n.translate('general.deviceSummary', 'MDC', 'Device summary') + ': ' + properties[property].value);
+                    this.setTitle(this.propertyViewerTitle + ': ' + properties[property].value);
                 }
                 if (properties.hasOwnProperty(property)) {
                     itemsToAdd.push({

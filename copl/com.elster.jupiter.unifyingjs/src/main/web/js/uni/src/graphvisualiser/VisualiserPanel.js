@@ -275,7 +275,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         var me = this;
         me.sideMenu = Ext.create(me.menu, {visualiser: me});
         me.propertyViewer = Ext.create('Uni.graphvisualiser.VisualiserPropertyViewer', {
-            title: me.propertyViewerTitle
+            propertyViewerTitle: me.propertyViewerTitle
         });
         me.legendPanel = Ext.create('Uni.graphvisualiser.VisualiserLegendFloat');
         me.showFloatingPanels();
