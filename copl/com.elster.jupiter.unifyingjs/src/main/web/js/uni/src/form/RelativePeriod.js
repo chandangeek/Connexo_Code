@@ -30,6 +30,7 @@ Ext.define('Uni.form.RelativePeriod', {
     noPreviewDateErrorMsg: Uni.I18n.translate('form.relativePeriod.errorMsg', 'UNI', 'It was not possible to calculate the preview date.'),
 
     previewUrl: '/api/tmr/relativeperiods/preview',
+    suspend: false,
 
     formatPreviewTextFn: function (dateString) {
         return Uni.I18n.translate(
@@ -149,7 +150,7 @@ Ext.define('Uni.form.RelativePeriod', {
         atMinuteField.setVisible(minutefieldVisible);
         atMinuteField.setDisabled(!minutefieldVisible);
         me.getMinutesUnitField().setVisible(!hourfieldVisible && minutefieldVisible);
-        var atVisible = hourfieldVisible||minutefieldVisible ? (startField.showOptionNow ? !startField.getOptionNowRadio().getValue() : true) : false;
+        var atVisible = hourfieldVisible || minutefieldVisible ? (startField.showOptionNow ? !startField.getOptionNowRadio().getValue() : true) : false;
         atField.setVisible(atVisible);
 
     },
@@ -159,71 +160,72 @@ Ext.define('Uni.form.RelativePeriod', {
             label = me.down('#preview-label'),
             dateString = me.noPreviewDateErrorMsg;
 
-        me.fireEvent('periodchange', me.getValue());
-        label.mask();
+        if (!me.suspend) {
+            me.fireEvent('periodchange', me.getValue());
+            label.mask();
 
-        Ext.Ajax.request({
-            url: me.previewUrl,
-            method: 'PUT',
-            jsonData: me.formatJsonPreviewRequest(),
-            success: function (response, data) {
-                var json = Ext.decode(response.responseText, true);
-                var dateLong = json.date;
-                var zoneOffset = json.zoneOffset;
-                if (typeof dateLong !== 'undefined') {
-                    var startDate = new Date(dateLong);
-                    var startDateUtc = startDate.getTime() + (startDate.getTimezoneOffset() * 60000);
-                    var zonedDate = new Date(startDateUtc - (60000 * zoneOffset));
-                    zonedDate.setSeconds(0);
-                    dateString = Uni.DateTime.formatDateTimeLong(new Date(zonedDate));
-                    dateString = me.formatPreviewTextFn(dateString);
+            Ext.Ajax.request({
+                url: me.previewUrl,
+                method: 'PUT',
+                jsonData: me.formatJsonPreviewRequest(),
+                success: function (response, data) {
+                    var json = Ext.decode(response.responseText, true);
+                    var dateLong = json.date;
+                    var zoneOffset = json.zoneOffset;
+                    if (typeof dateLong !== 'undefined') {
+                        var startDate = new Date(dateLong);
+                        var startDateUtc = startDate.getTime() + (startDate.getTimezoneOffset() * 60000);
+                        var zonedDate = new Date(startDateUtc - (60000 * zoneOffset));
+                        zonedDate.setSeconds(0);
+                        dateString = Uni.DateTime.formatDateTimeLong(new Date(zonedDate));
+                        dateString = me.formatPreviewTextFn(dateString);
+                    }
+                },
+                failure: function (response) {
+                    // Already caught be the default value of the date string.
+                },
+                callback: function () {
+                    label.update(dateString);
+                    label.unmask();
                 }
-            },
-            failure: function (response) {
-                // Already caught be the default value of the date string.
-            },
-            callback: function () {
-                label.update(dateString);
-                label.unmask();
-            }
-        });
+            });
+        }
     },
 
-    setValues: function(relativePeriod) {
+    setValues: function (relativePeriod) {
         var me = this,
-            date = new Date();
+            date = new Date(),
+            onField = me.down('uni-form-field-onperiod');
+        me.suspend = true;
         if (!Ext.isEmpty(relativePeriod.startFixedYear)) {
             date.setYear(relativePeriod.startFixedYear);
-            date.setMonth(relativePeriod.startFixedMonth);
+            date.setMonth(relativePeriod.startFixedMonth - 1);
             date.setDate(relativePeriod.startFixedDay);
             date.setHours(relativePeriod.atHour);
             date.setMinutes(relativePeriod.atMinute);
             me.down('uni-form-field-startperiod').down('#option-date').down('datefield').setValue(date);
         } else if (!Ext.isEmpty(relativePeriod.startPeriodAgo)) {
-            me.down('uni-form-field-startperiod').down('#option-ago').down('radio').suspendEvents(false);
-            me.down('uni-form-field-startperiod').down('#option-ago').down('radio').setValue(true);
-            me.down('uni-form-field-startperiod').down('#option-ago').down('radio').resumeEvents();
             me.down('uni-form-field-startperiod').down('#option-ago').down('numberfield').setValue(relativePeriod.startAmountAgo);
             me.down('uni-form-field-startperiod').down('#option-ago').down('#period-interval').setValue(relativePeriod.startPeriodAgo);
-            me.down('uni-form-field-startperiod').down('#option-ago').down('#period-edge').suspendEvents(false);
             me.down('uni-form-field-startperiod').down('#option-ago').down('#period-edge').setValue(relativePeriod.startTimeMode);
-            me.down('uni-form-field-startperiod').down('#option-ago').down('#period-edge').resumeEvents();
+            me.down('uni-form-field-startperiod').down('#option-ago').down('radio').setValue(true);
 
             switch (relativePeriod.startPeriodAgo) {
                 case 'years':
                     me.setHourAndMinutesField(relativePeriod);
                     if (Ext.isEmpty(relativePeriod.onCurrentDayOfYear)) {
-                        me.down('#option-doy').down('radio').setValue(true);
-                        me.down('#option-doy').down('numberfield').setValue(relativePeriod.startFixedDay);
-                        me.down('#option-doy').down('combobox').setValue(relativePeriod.startFixedMonth);
+                        onField.down('#option-doy').down('numberfield').setValue(relativePeriod.startFixedDay);
+                        onField.down('#option-doy').down('combobox').setValue(relativePeriod.startFixedMonth);
+                        onField.selectOptionDayOfYear(false);
                     }
                     break;
                 case 'months':
                     me.setHourAndMinutesField(relativePeriod);
                     if (Ext.isEmpty(relativePeriod.onCurrentDay)) {
-                        me.down('uni-form-field-onperiod').down('#option-dom').down('radio').setValue(true);
-                        me.down('uni-form-field-onperiod').dom = true;
-                        me.down('uni-form-field-onperiod').down('#option-dom').down('combobox').setValue(relativePeriod.onDayOfMonth);
+                        onField.selectedValue = 'dayofmonth';
+                        onField.dom = true;
+                        onField.down('#option-dom').down('combobox').setValue(relativePeriod.onDayOfMonth);
+                        onField.selectOptionDayOfMonth(true);
                     }
                     break;
                 case 'weeks':
@@ -238,9 +240,11 @@ Ext.define('Uni.form.RelativePeriod', {
                     break;
             }
         }
+        me.suspend = false;
+        me.updatePreview();
     },
 
-    setHourAndMinutesField: function(relativePeriod) {
+    setHourAndMinutesField: function (relativePeriod) {
         var me = this;
         me.down('uni-form-field-atperiod').down('#hour-field').setValue(relativePeriod.atHour);
         me.down('uni-form-field-atperiod').down('#minute-field').setValue(relativePeriod.atMinute);
@@ -270,11 +274,11 @@ Ext.define('Uni.form.RelativePeriod', {
         return this.down('uni-form-field-atperiod');
     },
 
-    getSeparatorField: function() {
+    getSeparatorField: function () {
         return this.down('uni-form-field-atperiod').down('#separator-field');
     },
 
-    getMinutesUnitField: function() {
+    getMinutesUnitField: function () {
         return this.down('uni-form-field-atperiod').down('#minutes-unit-field');
     },
 
