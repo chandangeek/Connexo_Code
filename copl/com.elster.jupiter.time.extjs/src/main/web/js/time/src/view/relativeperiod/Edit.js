@@ -27,7 +27,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
         me.content = [
             {
                 xtype: 'panel',
-                title: Ext.isEmpty(me.record) ? Uni.I18n.translate('relativeperiod.add', 'TME', 'Add relative period'): Uni.I18n.translate('relativeperiod.editX', 'TME', "Edit '{0}'", me.record.get('name')),
+                title: Ext.isEmpty(me.record) ? Uni.I18n.translate('relativeperiod.add', 'TME', 'Add relative period') : Uni.I18n.translate('relativeperiod.editX', 'TME', "Edit '{0}'", me.record.get('name')),
                 ui: 'large',
                 margin: '0px 16px 16px 16px',
                 layout: {
@@ -98,6 +98,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                             },
                             {
                                 xtype: 'uni-form-relativeperiod',
+                                suspend: !Ext.isEmpty(me.record),
                                 itemId: 'relative-date-start',
                                 startPeriodCfg: {
                                     fieldLabel: Uni.I18n.translate('general.start', 'TME', 'Start'),
@@ -125,6 +126,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                             {
                                 xtype: 'uni-form-relativeperiod',
                                 itemId: 'relative-date-end',
+                                suspend: !Ext.isEmpty(me.record),
                                 startPeriodCfg: {
                                     fieldLabel: Uni.I18n.translate('general.end', 'TME', 'End'),
                                     showOptionDate: false,
@@ -169,7 +171,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                     {
                                         xtype: 'button',
                                         itemId: 'create-edit-button',
-                                        text:  Ext.isEmpty(me.record) ? Uni.I18n.translate('general.add', 'TME', 'Add') : Uni.I18n.translate('general.save', 'TME', 'Save'),
+                                        text: Ext.isEmpty(me.record) ? Uni.I18n.translate('general.add', 'TME', 'Add') : Uni.I18n.translate('general.save', 'TME', 'Save'),
                                         action: Ext.isEmpty(me.record) ? 'addPeriod' : 'editPeriod',
                                         ui: 'action'
                                     },
@@ -199,9 +201,12 @@ Ext.define('Tme.view.relativeperiod.Edit', {
 
     onAfterRender: function () {
         var me = this;
-
         me.getFirstDayOfWeek();
-        if(!Ext.isEmpty(me.record)) {
+    },
+
+    continueAfterRender: function () {
+        var me = this;
+        if (!Ext.isEmpty(me.record)) {
             me.setValues(me.record);
         }
         me.getStartRelativePeriodField().on('periodchange', me.updatePreview, me);
@@ -209,17 +214,17 @@ Ext.define('Tme.view.relativeperiod.Edit', {
         me.updatePreview();
     },
 
-    setValues: function(record) {
+    setValues: function (record) {
         var me = this,
             categories = [];
-        me.down('#relative-date-end').setValues(record.get('to'));
-        me.down('#relative-date-start').setValues(record.get('from'));
         me.down('#edit-relative-period-name').setValue(record.get('name'));
         record.get('categories').forEach(function (category) {
             categories.push(category.id);
         });
         me.down('#categories-combo-box').setValue(categories);
         me.down('form').record = record;
+        me.down('#relative-date-end').setValues(record.get('to'));
+        me.down('#relative-date-start').setValues(record.get('from'));
     },
 
     updatePreview: function () {
@@ -285,6 +290,9 @@ Ext.define('Tme.view.relativeperiod.Edit', {
             },
             failure: function (response) {
                 // Already caught be the default value of the date string.
+            },
+            callback: function () {
+                me.continueAfterRender();
             }
         });
     }

@@ -69,7 +69,7 @@ Ext.define('Tme.view.relativeperiod.PreviewForm', {
         }
         if (!Ext.isEmpty(relativePeriod.startFixedYear)) {
             date.setYear(relativePeriod.startFixedYear);
-            date.setMonth(relativePeriod.startFixedMonth);
+            date.setMonth(relativePeriod.startFixedMonth - 1);
             date.setDate(relativePeriod.startFixedDay);
             date.setHours(relativePeriod.atHour);
             date.setMinutes(relativePeriod.atMinute);
