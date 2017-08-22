@@ -99,7 +99,7 @@ public class NetworkTopologyBuilder {
     }
 
     private Device createNode() {
-        String name = createSerial(this.nodeNbr++);
+        String name = createSerial(++this.nodeNbr);
         Device child = deviceService.findDeviceByName(name).orElseGet(() ->  deviceService.newDevice(randomConfiguration(), name, clock.instant()));
         topologyService.clearPhysicalGateway(child); // reset parent
         topologyService.setPhysicalGateway(child, gateway);
@@ -115,7 +115,7 @@ public class NetworkTopologyBuilder {
     }
 
     private String createSerial(long id) {
-        return String.format("Node_%1s_of_%2s", id, gateway.getId());
+        return String.format("Node_%1s_of_%2s", id, gateway.getName());
     }
 
     private void addComPathSegmentsAndNeighbor(Device device, int levelNbr) {
