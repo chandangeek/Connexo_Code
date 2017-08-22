@@ -48,25 +48,13 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     goodLinkQualityColor: '#70BB51',
     badLinkQualityColor: '#EB5642',
     colors: [
-            "#BEE64B",
-            "#33CC99",
-            "#00CCCC",
-            "#2887C8",
-            "#C3CDE6",
-            "#7070CC",
-            "#C9A0DC",
-            "#733380",
-            "#2D383A",
-            "#C5E17A",
-            "#5E8C31",
-            "#7BA05B",
-            "#7BA05B",
-            "#63B76C",
-            "#4D8C57",
-            "#3AA655",
-            "#6CA67C",
-            "#5FA777",
-            "#93DFB8"
+        '#BEE64B', '#33CC99', '#00CCCC', '#7ED4E6', '#2887C8', '#C3CDE6', '#7070CC', '#C9A0DC', '#733380', '#2D383A',
+        '#5E8C31', '#7BA05B', '#4D8C57', '#3AA655', '#93DFB8', '#1AB385', '#29AB87', '#00CC99', '#00755E',
+        '#8DD9CC', '#01786F', '#30BFBF', '#008080', '#8FD8D8',
+        '#95E0E8', '#6CDAE7', '#76D7EA', '#0095B7', '#009DC4', '#02A4D3', '#47ABCC', '#4997D0', '#339ACC',
+        '#93CCEA', '#00468C', '#0066CC', '#1560BD', '#0066FF', '#A9B2C3', '#4570E6', '#7A89B8', '#4F69C6',
+        '#8D90A1', '#8C90C8', '#9999CC', '#ACACE6', '#766EC8', '#6456B7', '#3F26BF', '#8B72BE', '#652DC1', '#6B3FA0',
+        '#8359A3', '#8F47B3', '#BF8FCC', '#803790', '#D6AEDD', '#C154C1', '#FC74FD', '#C5E17A', '#9DE093', '#63B76C', '#6CA67C', '#5FA777'
     ],
 
     listeners: {
@@ -87,9 +75,15 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             }
         },
         beforedestroy: function(){
-            Ext.ComponentQuery.query('#uni-visualiser-menu')[0].destroy();
-            Ext.ComponentQuery.query('#uni-property-viewer')[0].destroy();
-            Ext.ComponentQuery.query('#uni-legend-panel')[0].destroy();
+            if (this.sideMenu) {
+                this.sideMenu.destroy();
+            }
+            if (this.propertyViewer) {
+                this.propertyViewer.destroy();
+            }
+            if (this.legendPanel) {
+                this.legendPanel.destroy();
+            }
         }
     },
 
@@ -198,7 +192,6 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
 
         if(id === null) {
             me.chart.foreground(function(){ return true; }, {type: 'all'});
-            me.collapsePropertyViewer();
         } else {
             var item = me.chart.getItem(id);
             if (item && item.type === 'node') {
@@ -209,8 +202,6 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 neighbours[id] = true;
                 me.chart.foreground(areNeighboursOf, {type: 'all'});
                 me.displayNodeProperties(id);
-            } else {
-                me.collapsePropertyViewer();
             }
         }
     },
@@ -357,7 +348,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                         type: 'node',
                         b: null, // no border (color)
                         c: me.whiteColor, // fill color
-                        t: node.get('name'),
+                        // t: node.get('name'), // No name/label in the graph
                         fi: {
                             c: me.neutralColor,
                             t: icon

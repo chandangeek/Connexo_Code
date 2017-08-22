@@ -48,6 +48,9 @@ Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
         var itemsToAdd = [];
         if(properties){
             for (var property in properties) {
+                if (property === 'Name') {
+                    this.setTitle(Uni.I18n.translate('general.deviceSummary', 'MDC', 'Device summary') + ': ' + properties[property].value);
+                }
                 if (properties.hasOwnProperty(property)) {
                     itemsToAdd.push({
                         xtype: 'displayfield',
@@ -68,6 +71,5 @@ Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
         this.removeAll();
         this.add(itemsToAdd);
         this.doLayout();
-        this.expand();
     }
 });
