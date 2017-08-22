@@ -185,6 +185,7 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         when(issue.getModTime()).thenReturn(Instant.EPOCH);
         when(issue.getVersion()).thenReturn(1L);
         when(issue.getPriority()).thenReturn(Priority.DEFAULT);
+        when(issue.getSnoozeDateTime()).thenReturn(Optional.empty());
         return issue;
     }
  }
