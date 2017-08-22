@@ -151,7 +151,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
 
         Entity<CloseIssueRequest> json = Entity.json(request);
         Response response = target("issues/close").request().put(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.METHOD_NOT_ALLOWED.getStatusCode());
     }
 
     private void assertDefaultIssueMap(Map<?, ?> issueMap) {
