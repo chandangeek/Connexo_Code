@@ -50,8 +50,8 @@ public class DeviceGraphFactory implements GraphFactory {
             topologyService.getUniqueG3CommunicationPathSegments(Collections.singletonList(device)).forEach(s ->
                     graphInfo.addNode(newNode(s.getTarget(), Optional.of(s.getSource()))));
 //Todo: remove Test data
-            graphInfo.setProperty("nodeCount", "" + graphInfo.size());
-            graphInfo.setProperty("buildTime", "" + Duration.between(now, clock.instant()).toMillis());
+            graphInfo.setProperty("nodeCount", graphInfo.size());
+            graphInfo.setProperty("buildTime", Duration.between(now, clock.instant()).toMillis());
             return graphInfo;
         }
     }
@@ -73,7 +73,7 @@ public class DeviceGraphFactory implements GraphFactory {
         );
 //Todo: remove Test data
         graphInfo.setProperty("nodeCount", graphInfo.size());
-        graphInfo.setProperty("buildTime", "" + Duration.between(now, clock.instant()).toMillis());
+        graphInfo.setProperty("buildTime", Duration.between(now, clock.instant()).toMillis());
         cachedGraphs.add(graphInfo);
         return graphInfo;
     }
