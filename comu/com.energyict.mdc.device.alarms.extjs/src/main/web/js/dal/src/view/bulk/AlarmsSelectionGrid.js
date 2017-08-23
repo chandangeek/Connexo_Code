@@ -65,6 +65,7 @@ Ext.define('Dal.view.bulk.AlarmsSelectionGrid', {
         ]
     },
 
+
     initComponent: function () {
         this.callParent(arguments);
         this.getBottomToolbar().setVisible(false);
