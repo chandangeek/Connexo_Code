@@ -122,7 +122,8 @@ public class IssueResource extends BaseResource {
         for (Issue baseIssue : issues) {
             for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
                 Optional<? extends Issue> issueRef = issueProvider.findIssue(baseIssue.getId());
-                issueRef.ifPresent(issue -> issueInfos.add(IssueInfo.class.cast(issueInfoFactoryService.getInfoFactoryFor(issue).from(issue))));
+                issueRef.ifPresent(issue -> issueInfos.add(IssueInfo.class.cast(issueInfoFactoryService.getInfoFactoryFor(issue)
+                        .from(issue))));
             }
         }
         return PagedInfoList.fromPagedList("data", issueInfos, queryParams);
@@ -134,7 +135,8 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getComments(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
-        Issue issue = getIssueService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        Issue issue = getIssueService().findIssue(id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return PagedInfoList.fromCompleteList("comments", issueResourceHelper.getIssueComments(issue), queryParameters);
     }
 
@@ -145,8 +147,11 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
     public Response postComment(@PathParam("id") long id, CreateCommentRequest request, @Context SecurityContext securityContext) {
-        Issue issue = getIssueService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return Response.ok(issueResourceHelper.postComment(issue, request, securityContext)).status(Response.Status.CREATED).build();
+        Issue issue = getIssueService().findIssue(id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return Response.ok(issueResourceHelper.postComment(issue, request, securityContext))
+                .status(Response.Status.CREATED)
+                .build();
     }
 
     @DELETE
@@ -155,7 +160,8 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
     public Response removeComment(@PathParam("id") long id, @PathParam("commentId") long commentId, CreateCommentRequest request, @Context SecurityContext securityContext) {
-        Issue issue = getIssueService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        Issue issue = getIssueService().findIssue(id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         try (TransactionContext context = transactionService.getContext()) {
             issueResourceHelper.removeComment(issue, commentId, request, securityContext);
             context.commit();
@@ -169,7 +175,8 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
     public Response editComment(@PathParam("id") long id, @PathParam("commentId") long commentId, CreateCommentRequest request, @Context SecurityContext securityContext) {
-        Issue issue = getIssueService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        Issue issue = getIssueService().findIssue(id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         try (TransactionContext context = transactionService.getContext()) {
             issueResourceHelper.editComment(issue, commentId, request, securityContext);
             context.commit();
@@ -221,7 +228,8 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getActions(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
-        Issue issue = getIssueService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        Issue issue = getIssueService().findIssue(id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         List<IssueActionTypeInfo> issueActions = new ArrayList<>();
         for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
             Optional<? extends Issue> issueRef = issue.getStatus().isHistorical() ?
@@ -239,7 +247,8 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public Response getActionTypeById(@PathParam(ID) long id, @PathParam(KEY) long actionId) {
-        Issue issue = getIssueService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        Issue issue = getIssueService().findIssue(id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         getIssueService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return Response.ok(issueResourceHelper.getIssueActionById(issue, actionId)).build();
     }
@@ -301,7 +310,7 @@ public class IssueResource extends BaseResource {
         List<String> issueTypesKeys = issueTypes.stream()
                 .map(IssueType::getKey)
                 .collect(Collectors.toList());
-        if(filter.getString(IssueRestModuleConst.ID) != null) {
+        if (filter.getString(IssueRestModuleConst.ID) != null) {
             String[] issueIdPart = filter.getString(IssueRestModuleConst.ID).split("-");
             if (issueIdPart.length == 2) {
                 if (isNumericValue(issueIdPart[1])) {
@@ -312,28 +321,37 @@ public class IssueResource extends BaseResource {
                                 .map(IssueType::getKey)
                                 .collect(Collectors.toList());
                         id = issueIdPart[1];
-                    } else{
+                    } else {
                         id = "-1";
                     }
-                } else{
+                } else {
                     id = "-1";
                 }
-            } else{
+            } else {
                 id = "-1";
             }
         }
         groupFilter.using(getQueryApiClass(filter)) // Issues, Historical Issues or Both
                 .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))  // Reason id
                 .withId(id)
-                .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE).isEmpty() ? issueTypesKeys : filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)) // Reasons only with specific issue type
+                .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)
+                        .isEmpty() ? issueTypesKeys : filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)) // Reasons only with specific issue type
                 .withStatuses(filter.getStringList(IssueRestModuleConst.STATUS)) // All selected statuses
                 .withMeterName(filter.getString(IssueRestModuleConst.METER)) // Filter by meter MRID
                 .groupBy(filter.getString(IssueRestModuleConst.FIELD)) // Main grouping column
                 .setAscOrder(false) // Sorting (descending direction)
                 .from(params.getFrom()).to(params.getTo()); // Pagination
-        filter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().filter(el -> el != null).forEach(groupFilter::withUserAssignee);
-        filter.getLongList(IssueRestModuleConst.WORKGROUP).stream().filter(el -> el != null).forEach(groupFilter::withWorkGroupAssignee);
-        issueResourceHelper.getDueDates(filter).stream().forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
+        filter.getLongList(IssueRestModuleConst.ASSIGNEE)
+                .stream()
+                .filter(el -> el != null)
+                .forEach(groupFilter::withUserAssignee);
+        filter.getLongList(IssueRestModuleConst.WORKGROUP)
+                .stream()
+                .filter(el -> el != null)
+                .forEach(groupFilter::withWorkGroupAssignee);
+        issueResourceHelper.getDueDates(filter)
+                .stream()
+                .forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
         List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
         List<IssueGroupInfo> infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("issueGroups", infos, queryParameters);
@@ -370,9 +388,10 @@ public class IssueResource extends BaseResource {
 
         if (Instant.ofEpochMilli(request.snoozeDateTime).isBefore(Instant.now(clock))) {
             throw new LocalizedFieldValidationException(MessageSeeds.SNOOZE_TIME_BEFORE_CURRENT_TIME, "until");
-        }else{
+        } else {
             ActionInfo info = getTransactionService().execute(new SingleSnoozeTransaction(request, performer, issueProvider, getThesaurus()));
-            return entity(info).build();}
+            return entity(info).build();
+        }
 
     }
 
@@ -396,10 +415,11 @@ public class IssueResource extends BaseResource {
         return entity(info).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/setpriority")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
     public Response setPriority(SetPriorityIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
         Function<ActionInfo, List<? extends Issue>> issueProvider;
@@ -432,8 +452,7 @@ public class IssueResource extends BaseResource {
     }
 
 
-
-    private boolean isNumericValue(String id){
+    private boolean isNumericValue(String id) {
         try {
             long number = Long.parseLong(id);
             return true;
@@ -463,7 +482,8 @@ public class IssueResource extends BaseResource {
             if (issue.isPresent()) {
                 issuesForBulk.add(issue.get());
             } else {
-                bulkResult.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_DOES_NOT_EXIST).format(), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
+                bulkResult.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_DOES_NOT_EXIST)
+                        .format(), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
             }
         }
         return issuesForBulk;
@@ -472,7 +492,8 @@ public class IssueResource extends BaseResource {
     private Issue getIssue(SingleIssueRequest request, ActionInfo result) {
         Issue issue = getIssueService().findIssue(request.issue.getId()).orElse(null);
         if (issue == null) {
-            result.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_DOES_NOT_EXIST).format(), request.issue.getId(), "Issue (id = " + request.issue.getId() + ")");
+            result.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_DOES_NOT_EXIST)
+                    .format(), request.issue.getId(), "Issue (id = " + request.issue.getId() + ")");
         }
         return issue;
     }
@@ -480,14 +501,18 @@ public class IssueResource extends BaseResource {
     private Issue getIssue(Long id, ActionInfo result) {
         Issue issue = getIssueService().findIssue(id).orElse(null);
         if (issue == null) {
-            result.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_DOES_NOT_EXIST).format(), id, "Issue (id = " + id + ")");
+            result.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_DOES_NOT_EXIST)
+                    .format(), id, "Issue (id = " + id + ")");
         }
         return issue;
     }
 
     private Class<? extends Issue> getQueryApiClass(JsonQueryFilter filter) {
         List<IssueStatus> statuses = filter.hasProperty(IssueRestModuleConst.STATUS)
-                ? filter.getStringList(IssueRestModuleConst.STATUS).stream().map(s -> getIssueService().findStatus(s).get()).collect(Collectors.toList())
+                ? filter.getStringList(IssueRestModuleConst.STATUS)
+                .stream()
+                .map(s -> getIssueService().findStatus(s).get())
+                .collect(Collectors.toList())
                 : Collections.EMPTY_LIST;
         if (statuses.isEmpty()) {
             return Issue.class;

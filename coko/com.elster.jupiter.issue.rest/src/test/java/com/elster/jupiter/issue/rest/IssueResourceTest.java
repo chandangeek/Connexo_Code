@@ -7,6 +7,8 @@ package com.elster.jupiter.issue.rest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.request.AssignSingleIssueRequest;
+import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
+import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
@@ -352,6 +354,26 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         Response response = target("issues/1/actions/1").request().put(Entity.json(request));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
+
+    @Test
+    public void testCloseAction() {
+        CloseIssueRequest request = new CloseIssueRequest();
+        EntityReference issueRef = new EntityReference();
+        issueRef.setId(1L);
+        request.issues = Arrays.asList(issueRef);
+        request.status = "resolved";
+        IssueStatus status = mockStatus("resolved", "Resolved", true);
+        when(issueService.findStatus("resolved")).thenReturn(Optional.of(status));
+        OpenIssue openIssue = mock(OpenIssue.class);
+        when(issueService.findIssue(1L)).thenReturn(Optional.empty());
+        when(openIssue.getStatus()).thenReturn(status);
+        when(securityContext.getUserPrincipal()).thenReturn(mock(User.class));
+
+        Entity<CloseIssueRequest> json = Entity.json(request);
+        Response response = target("issues/close").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
 
     @Test
     public void testPerformActionOnUnexistingIssue() {
