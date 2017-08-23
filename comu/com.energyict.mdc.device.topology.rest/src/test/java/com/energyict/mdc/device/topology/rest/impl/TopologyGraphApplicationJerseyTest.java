@@ -24,8 +24,6 @@ public class TopologyGraphApplicationJerseyTest extends FelixRestApplicationJers
     DeviceService deviceService;
     @Mock
     GraphLayerService graphLayerService;
-    @Mock
-    Clock clock;
 
     @Override
     protected Application getApplication() {
@@ -33,7 +31,7 @@ public class TopologyGraphApplicationJerseyTest extends FelixRestApplicationJers
         application.setDeviceService(deviceService);
         application.setTopologyService(topologyService);
         application.setGraphLayerService(graphLayerService);
-        application.setClock(clock);
+        application.setClock(Clock.systemDefaultZone());
         application.setNlsService(nlsService);
         return application;
     }
