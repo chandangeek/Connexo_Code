@@ -521,6 +521,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                     me.getWizard().down('calendar-info-form').add(
                         {
                             xtype: 'combobox',
+                            itemId: 'cbo-calendar-time-of-use',
                             calendarType: category.get('name'),
                             fieldLabel: category.get('displayName'),
                             store: calendarStore,
