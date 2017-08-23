@@ -50,7 +50,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             text: Uni.I18n.translate('general.sendCommands', 'MDC', 'Send commands'),
             section: 1, /*SECTION_ACTION*/
             handler: function(menuItem) {
-                menuItem.visualiser.router.getRoute('devices/device/commands').forwardInNewTab({
+                menuItem.visualiser.router.getRoute('devices/device/commands/add').forwardInNewTab({
                     deviceId: menuItem.visualiser.chart.getItem(menuItem.graphId).d.name
                 });
             }
