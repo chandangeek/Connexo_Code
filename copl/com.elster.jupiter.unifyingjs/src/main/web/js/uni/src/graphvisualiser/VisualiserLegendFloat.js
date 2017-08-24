@@ -43,7 +43,8 @@ Ext.define('Uni.graphvisualiser.VisualiserLegendFloat', {
         }
     },
     title: Uni.I18n.translate('general.legend', 'UNI', 'Legend'),
-    ui: 'small',
+    ui: 'visualiser',
+    shadow: false,
     style: {
         'background-color': 'white'
     },

@@ -38,7 +38,8 @@ Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
         }
     },
     propertyViewerTitle: Uni.I18n.translate('general.propertyViewer', 'UNI', 'Property viewer'),
-    ui: 'small',
+    ui: 'visualiser',
+    shadow: false,
     layout: 'vbox',
     style: {
         'background-color': 'white'

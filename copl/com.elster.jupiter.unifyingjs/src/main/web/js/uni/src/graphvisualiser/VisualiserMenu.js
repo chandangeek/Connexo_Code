@@ -3,10 +3,15 @@ Ext.define('Uni.graphvisualiser.VisualiserMenu', {
     alias: 'widget.visualisermenu',
     itemId: 'uni-visualiser-menu',
     floating: true,
-    border: false,
+    ui: 'visualiser',
+    shadow: false,
+    border: 1,
     objectType: Uni.I18n.translate('general.visulisation.search.objectType', 'UNI', 'device'),
     style: {
-        'background-color': 'white'
+        'background-color': 'white',
+        'border-color': '#cbcbcb',
+        'border-radius': '10px',
+        'border-style': 'solid'
     },
 
     initComponent: function(){
@@ -82,7 +87,7 @@ Ext.define('Uni.graphvisualiser.VisualiserMenu', {
                         items: [
                             {
                                 xtype: 'radiogroup',
-                                margin: '0 0 0 0',
+                                margin: '-8 0 0 0',
                                 columns: 1,
                                 vertical: true,
                                 items: [
