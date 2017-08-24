@@ -120,10 +120,47 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         );
     },
 
-    contextMenu: function(id,x,y){
-        if(id) {
-            var visualiser = Ext.ComponentQuery.query('visualiserpanel')[0];
-            var items = [
+    contextMenu: function(id, x, y) {
+        var me = this,
+            singleSelection = this.chart.selection().length === 1;
+        if (singleSelection) {
+            this.doShowSingleSelectionContextMenu(id, x, y);
+        } else { // multiple selection
+            var singleNode = undefined,
+                multipleNodes = false,
+                singleSelectedNodeId = undefined,
+                item = undefined;
+            Ext.Array.forEach(me.chart.selection(), function(selectedItem) {
+                item = me.chart.getItem(selectedItem);
+                if (item && item.type === 'node') {
+                    if (!Ext.isDefined(singleNode)) {
+                        singleNode = true;
+                        singleSelectedNodeId = selectedItem;
+                    } else if (singleNode) {
+                        singleNode = false;
+                        multipleNodes = true;
+                    }
+                }
+            });
+            if (!Ext.isDefined(singleNode)) { // No node(s) selected (only links)
+                return;
+            } else if (singleNode) {
+                this.doShowSingleSelectionContextMenu(singleSelectedNodeId, x, y);
+            } else {
+                this.doShowMultiSelectionContextMenu(x, y);
+            }
+        }
+        return false;
+    },
+
+    doShowSingleSelectionContextMenu: function(id, x, y) {
+        var item = this.chart.getItem(id);
+        if (Ext.isEmpty(item) || item.type != 'node') {
+            return;
+        }
+
+        var visualiser = Ext.ComponentQuery.query('visualiserpanel')[0],
+            items = [
                 {
                     xtype: 'menuitem',
                     text: Uni.I18n.translate('general.highlight.upstream', 'UNI', 'Highlight upstream'),
@@ -139,7 +176,11 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                     handler: function () {
                         visualiser.highlightDownStreamFromNode(id);
                     }
-                },
+                }
+            ];
+
+        if (visualiser.chart.combo().isCombo(id) /*=collapsed node*/ || this.hasChildren(id)) {
+            items.push(
                 {
                     xtype: 'menuitem',
                     text: visualiser.chart.combo().isCombo(id)
@@ -150,16 +191,17 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                         visualiser.combine(id);
                     }
                 }
-            ];
-            if(this.contextMenuItems){
-                Ext.each(this.contextMenuItems, function(item){
-                    item.graphId = id;
-                    item.visualiser = visualiser;
-                });
-                items = items.concat(this.contextMenuItems);
-            }
+            );
+        }
+        if (this.contextMenuItems) {
+            Ext.each(this.contextMenuItems, function (item) {
+                item.graphId = id;
+                item.visualiser = visualiser;
+            });
+            items = items.concat(this.contextMenuItems);
+        }
 
-            var popupMenu = Ext.create('Uni.view.menu.ActionsMenu',
+        var popupMenu = Ext.create('Uni.view.menu.ActionsMenu',
                 {
                     items: items,
                     listeners: {
@@ -168,11 +210,104 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                         }
                     }
                 }
-            );
-            var position = this.getPosition();
-            popupMenu.showAt([position[0]+x, position[1]+y]);
-        }
-        return false;
+            ),
+            position = this.getPosition();
+
+        popupMenu.showAt([position[0] + x, position[1] + y]);
+    },
+
+    doShowMultiSelectionContextMenu: function(x, y) {
+        var me = this,
+            item = undefined,
+            visualiser = Ext.ComponentQuery.query('visualiserpanel')[0],
+            items = [
+                {
+                    xtype: 'menuitem',
+                    text: Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'),
+                    section: 1, /*SECTION_ACTION*/
+                    handler: function () {
+                        var selectedNodes = [],
+                            currentSelection = [],
+                            hopLevelsByNodeIds = me.chart.graph().distances(me.top),
+                            hopLevel = undefined,
+                            minHopLevel = 1000;
+
+                        Ext.Array.forEach(me.chart.selection(), function(itemId) {
+                            item = me.chart.getItem(itemId);
+                            if (item && item.type === 'node'
+                                && !visualiser.chart.combo().isCombo(itemId) /* the node is not already collapsed */
+                                && me.hasChildren(itemId) /* if not, there's nothing to combine */ ) {
+                                selectedNodes.push(itemId);
+                            }
+                        });
+                        while (selectedNodes.length > 0) {
+                            minHopLevel = 1000;
+                            currentSelection = [];
+                            Ext.Array.forEach(selectedNodes, function (nodeId) {
+                                hopLevel = hopLevelsByNodeIds[nodeId];
+                                minHopLevel = hopLevel < minHopLevel ? hopLevel : minHopLevel;
+                            });
+                            Ext.Array.forEach(selectedNodes, function (nodeId) {
+                                hopLevel = hopLevelsByNodeIds[nodeId];
+                                if (hopLevel === minHopLevel) {
+                                    currentSelection.push(nodeId);
+                                }
+                            });
+
+                            Ext.Array.forEach(currentSelection, function (selectedItem) {
+                                if (!visualiser.chart.combo().isCombo(selectedItem)) {
+                                    var result = me.getDownStreamNodesLinks(selectedItem);
+                                    result.nodes.push(selectedItem);
+                                    selectedNodes = Ext.Array.difference(selectedNodes, result.nodes);
+                                    me.chart.combo().combine({
+                                        ids: result.nodes,
+                                        glyph: null,
+                                        style: {
+                                            c: null,
+                                            fi: {
+                                                c: me.collapsedColor,
+                                                t: KeyLines.getFontIcon('icon-plus')
+                                            }
+                                        }
+                                    }, null, function () {
+                                        if (selectedNodes.length === 0) {
+                                            me.doLayout();
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+                },
+                {
+                    xtype: 'menuitem',
+                    text: Uni.I18n.translate('general.expand', 'UNI', 'Expand'),
+                    section: 1, /*SECTION_ACTION*/
+                    handler: function () {
+                        Ext.Array.forEach(me.chart.selection(), function(selectedItem) {
+                            item = me.chart.getItem(selectedItem);
+                            if (item && item.type === 'node') {
+                                if (visualiser.chart.combo().isCombo(selectedItem)) {
+                                    visualiser.combine(selectedItem);
+                                }
+                            }
+                        });
+                    }
+                }
+            ],
+            popupMenu = Ext.create('Uni.view.menu.ActionsMenu',
+                {
+                    items: items,
+                    listeners: {
+                        render: function (menu) {
+                            menu.getEl().on('contextmenu', Ext.emptyFn, null, {preventDefault: true});
+                        }
+                    }
+                }
+            ),
+            position = this.getPosition();
+
+        popupMenu.showAt([position[0] + x, position[1] + y]);
     },
 
     collapsePropertyViewer: function(){
@@ -222,7 +357,6 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             result.nodes.push(id);
             me.chart.combo().combine({
                 ids: result.nodes,
-                label: Uni.I18n.translate('general.collapsed', 'UNI', 'Collapsed'),
                 glyph: null,
                 style: {
                     c: null,
@@ -265,6 +399,10 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
 
     getDownStreamNodesLinks: function(id){
         return this.chart.graph().neighbours(id, {direction: 'from', hops: 1000});
+    },
+
+    hasChildren: function(id) {
+        return this.chart.graph().neighbours(id, {direction: 'from', hops: 1}).nodes.length > 0;
     },
 
     displayNodeProperties: function(id){
