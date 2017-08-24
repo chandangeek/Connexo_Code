@@ -122,16 +122,54 @@ Ext.define('Dal.view.creationrules.EditForm', {
             },
             {
                 xtype: 'fieldcontainer',
-                itemId: 'alarms-creation-rules-edit-field-increase-urgency',
-                fieldLabel: Uni.I18n.translate('general.title.increaseUrgency', 'DAL', 'Increase urgency'),
+                itemId: 'alarms-creation-rules-edit-field-dont-increase-urgency',
+                fieldLabel: Uni.I18n.translate('general.title.dontIncreaseUrgency', 'DAL', 'Increase urgency'),
                 layout: 'hbox',
                 items: [
                     {
-                        itemId: 'dueDateTrigger',
+                        itemId: 'dontIncreaseUrgencyTrigger',
                         xtype: 'radiogroup',
-                        name: 'dueDateTrigger',
+                        name: 'dontIncreaseUrgencyTrigger',
                         formBind: false,
                         columns: 1,
+                        vertical: true,
+                        defaults: {
+                            name: 'dontIncreaseUrgency',
+                            formBind: false,
+                            submitValue: false
+                        },
+                        items: [
+                            {
+                                itemId: 'dontIncreaseUrgency',
+                                boxLabel: Uni.I18n.translate('alarmCreationRules.dontIncreaseUrgency', 'DAL', 'Don\'t increase urgency when issue reoccurs'),
+                                value: true,
+                                inputValue: false
+                            }
+                        ],
+                        listeners: {
+                            change: {
+                                fn: Ext.bind(me.dontIncreasePrioTrigger, me)
+                            }
+                        }
+                    }
+                ]
+            },
+
+
+
+            {
+                xtype: 'fieldcontainer',
+                itemId: 'alarms-creation-rules-edit-field-increase-urgency',
+                fieldLabel: Uni.I18n.translate('general.title.increaseUrgency', 'DAL', '              '),
+                layout: 'hbox',
+                items: [
+                    {
+                        itemId: 'increaseUrgencyTrigger',
+                        xtype: 'radiogroup',
+                        name: 'increaseUrgencyTrigger',
+                        formBind: false,
+                        columns: 2,
+                        width: 300,
                         vertical: true,
                         defaults: {
                             name: 'increaseUrgency',
@@ -140,38 +178,18 @@ Ext.define('Dal.view.creationrules.EditForm', {
                         },
                         items: [
                             {
-                                itemId: 'dontIncreaseUrgency',
-                                boxLabel: Uni.I18n.translate('alarmCreationRules.dontIncreaseUrgency', 'DAL', 'Don\'t increase urgency when issue reoccurs'),
-                                inputValue: false
-                            },
-                            {
                                 itemId: 'increaseUrgency',
-                                boxLabel: Uni.I18n.translate('alarmCreationRules.dontIncreaseUrgency', 'DAL', 'Increase urgency with'),
+                                boxLabel: Uni.I18n.translate('alarmCreationRules.increaseUrgency', 'DAL', 'Increase urgency with'),
                                 inputValue: true
-                            }
-                        ],
-                        listeners: {
-                            change: {
-                                fn: Ext.bind(me.dueDateTrigger, me)
-                            }
-                        }
-                    },
-                    {
-                        itemId: 'increaseUrgencyValues',
-                        xtype: 'container',
-                        name: 'increaseUrgencyValues',
-                        margin: '30 0 10 0',
-                        layout: {
-                            type: 'hbox'
-                        },
-                        items: [
+                            },
                             {
                                 itemId: 'increaseUrgency.number',
                                 xtype: 'numberfield',
                                 name: 'increaseUrgency.number',
+                                value: 2,
                                 minValue: 1,
                                 width: 60,
-                                margin: '0 5 0 0',
+                                margin: '0 0 0 0',
                                 listeners: {
                                     focus: {
                                         fn: Ext.bind(me.chooseDueInRadio, me)
@@ -187,7 +205,12 @@ Ext.define('Dal.view.creationrules.EditForm', {
                                     }
                                 }
                             }
-                        ]
+                        ],
+                        listeners: {
+                            change: {
+                                fn: Ext.bind(me.increaseUrgencyTrigger, me)
+                            }
+                        }
                     }
                 ]
             },
