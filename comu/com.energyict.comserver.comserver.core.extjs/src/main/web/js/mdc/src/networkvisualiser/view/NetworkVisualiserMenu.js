@@ -8,6 +8,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
         me.down('#uni-layer-section').add([
             {
                 xtype: 'checkboxgroup',
+                margin: '-7 0 0 0',
                 columns: 1,
                 items: [
                     {
