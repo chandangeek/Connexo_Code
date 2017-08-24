@@ -30,7 +30,7 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
             return Collections.singletonList(this.dateTimeSpec(service, DeviceMessageConstants.meterTimeAttributeName, DeviceMessageConstants.meterTimeAttributeDefaultTranslation));
         }
     },
-    SET_TIMEZONE(15002, "Set time zone GMT offset") {
+    SET_TIMEZONE_OFFSET(15002, "Set time zone GMT offset") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.TimeZoneOffsetInHoursAttributeName, DeviceMessageConstants.TimeZoneOffsetInHoursAttributeDefaultTranslation));
