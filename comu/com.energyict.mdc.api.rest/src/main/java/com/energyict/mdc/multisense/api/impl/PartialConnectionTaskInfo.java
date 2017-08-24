@@ -18,6 +18,7 @@ public class PartialConnectionTaskInfo extends LinkInfo<Long> {
     public String connectionType;
     public LinkInfo comPortPool;
     public Boolean isDefault;
+    public LinkInfo connectionFunction;
     public List<PropertyInfo> properties;
     public ComWindowInfo comWindow;
     @XmlJavaTypeAdapter(ConnectionStrategyAdapter.class)

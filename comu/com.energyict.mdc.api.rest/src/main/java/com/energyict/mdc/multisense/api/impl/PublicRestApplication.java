@@ -143,7 +143,8 @@ public class PublicRestApplication extends Application implements TranslationKey
                 KeyAccessorTypeResource.class,
                 ConfigurationKeyAccessorTypeResource.class,
                 RestExceptionMapper.class,
-                DeviceLifeCycleActionViolationExceptionMapper.class
+                DeviceLifeCycleActionViolationExceptionMapper.class,
+                ConnectionFunctionResource.class
         );
     }
 
@@ -402,6 +403,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(UsagePointShortInfoFactory.class).to(UsagePointShortInfoFactory.class);
             bind(LocationShortInfoFactory.class).to(LocationShortInfoFactory.class);
             bind(DeviceAlarmShortInfoFactory.class).to(DeviceAlarmShortInfoFactory.class);
+            bind(ConnectionFunctionInfoFactory.class).to(ConnectionFunctionInfoFactory.class);
         }
     }
 

@@ -26,6 +26,7 @@ public class ConnectionTaskInfo extends LinkInfo<Long> {
     public LinkInfo<Long> comPortPool;
     public LinkInfo<Long> device;
     public Boolean isDefault;
+    public LinkInfo connectionFunction;
 
     // Scheduled
     public List<PropertyInfo> properties;

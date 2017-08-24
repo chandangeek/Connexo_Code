@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -20,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -28,26 +30,27 @@ public class ComTaskEnablementInfoFactory extends SelectableFieldFactory<ComTask
     private final Provider<PartialConnectionTaskInfoFactory> partialConnectionTaskInfoFactoryProvider;
     private final Provider<ComTaskInfoFactory> comTaskInfoFactoryProvider;
     private final Provider<ConfigurationSecurityPropertySetInfoFactory> configurationSecurityPropertySetInfoFactoryProvider;
-//    private final Provider<ProtocolDialectConfigurationPropertiesInfoFactory> protocolDialectConfigurationPropertiesInfoFactoryProvider;
+    private final Provider<ConnectionFunctionInfoFactory> connectionFunctionInfoFactoryProvider;
 
     @Inject
     public ComTaskEnablementInfoFactory(Provider<PartialConnectionTaskInfoFactory> partialConnectionTaskInfoFactoryProvider,
                                         Provider<ComTaskInfoFactory> comTaskInfoFactoryProvider,
-                                        Provider<ConfigurationSecurityPropertySetInfoFactory> configurationSecurityPropertySetInfoFactoryProvider) {
+                                        Provider<ConfigurationSecurityPropertySetInfoFactory> configurationSecurityPropertySetInfoFactoryProvider, Provider<ConnectionFunctionInfoFactory> connectionFunctionInfoFactoryProvider) {
         this.partialConnectionTaskInfoFactoryProvider = partialConnectionTaskInfoFactoryProvider;
         this.comTaskInfoFactoryProvider = comTaskInfoFactoryProvider;
         this.configurationSecurityPropertySetInfoFactoryProvider = configurationSecurityPropertySetInfoFactoryProvider;
+        this.connectionFunctionInfoFactoryProvider = connectionFunctionInfoFactoryProvider;
     }
 
     public LinkInfo asLink(ComTaskEnablement comTaskEnablement, Relation relation, UriInfo uriInfo) {
         ComTaskEnablementInfo info = new ComTaskEnablementInfo();
         copySelectedFields(info, comTaskEnablement, uriInfo, Arrays.asList("id", "version"));
-        info.link = link(comTaskEnablement,relation,uriInfo);
+        info.link = link(comTaskEnablement, relation, uriInfo);
         return info;
     }
 
     public List<LinkInfo> asLink(Collection<ComTaskEnablement> comTaskEnablements, Relation relation, UriInfo uriInfo) {
-        return comTaskEnablements.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
+        return comTaskEnablements.stream().map(i -> asLink(i, relation, uriInfo)).collect(toList());
     }
 
     private Link link(ComTaskEnablement comTaskEnablement, Relation relation, UriInfo uriInfo) {
@@ -79,17 +82,32 @@ public class ComTaskEnablementInfoFactory extends SelectableFieldFactory<ComTask
         map.put("version", (comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.version = comTaskEnablement.getVersion());
         map.put("priority", (comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.priority = comTaskEnablement.getPriority());
         map.put("suspended", (comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.suspended = comTaskEnablement.isSuspended());
-        map.put("link", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.link = link(comTaskEnablement, Relation.REF_SELF,uriInfo)));
+        map.put("link", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.link = link(comTaskEnablement, Relation.REF_SELF, uriInfo)));
         map.put("partialConnectionTask", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) -> {
-                    if (comTaskEnablement.hasPartialConnectionTask()) {
-                        comTaskEnablementInfo.partialConnectionTask = partialConnectionTaskInfoFactoryProvider.get().asLink(comTaskEnablement.getPartialConnectionTask().get(), Relation.REF_RELATION, uriInfo);
-                    }
-                }));
-        map.put("comTask", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.comTask = comTaskInfoFactoryProvider.get().asLink(comTaskEnablement.getComTask(), Relation.REF_RELATION, uriInfo)));
+            if (comTaskEnablement.getPartialConnectionTask().isPresent()) {
+                comTaskEnablementInfo.partialConnectionTask = partialConnectionTaskInfoFactoryProvider.get().asLink(comTaskEnablement.getPartialConnectionTask().get(), Relation.REF_RELATION, uriInfo);
+            }
+        }));
+        map.put("useDefaultConnectionTask", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) -> {
+            if (comTaskEnablement.usesDefaultConnectionTask()) {
+                comTaskEnablementInfo.useDefaultConnectionTask = comTaskEnablement.usesDefaultConnectionTask();
+            }
+        }));
+        map.put("useConnectionTaskWithConnectionFunction", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) -> {
+            Optional<DeviceProtocolPluggableClass> protocolPluggableClassOptional = comTaskEnablement.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
+            if (comTaskEnablement.getConnectionFunction().isPresent() && protocolPluggableClassOptional.isPresent()) {
+                comTaskEnablementInfo.useConnectionTaskWithConnectionFunction = connectionFunctionInfoFactoryProvider.get().asLink(
+                        protocolPluggableClassOptional.get(),
+                        comTaskEnablement.getConnectionFunction().get(),
+                        Relation.REF_RELATION,
+                        uriInfo);
+            }
+        }));
+        map.put("comTask", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.comTask = comTaskInfoFactoryProvider.get()
+                .asLink(comTaskEnablement.getComTask(), Relation.REF_RELATION, uriInfo)));
         map.put("securityPropertySet", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) ->
-            comTaskEnablementInfo.securityPropertySet = configurationSecurityPropertySetInfoFactoryProvider.get().asLink(comTaskEnablement.getSecurityPropertySet(), Relation.REF_RELATION, uriInfo)));
-//        map.put("protocolDialectConfigurationProperties", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) ->
-//            comTaskEnablementInfo.protocolDialectConfigurationProperties = protocolDialectConfigurationPropertiesInfoFactoryProvider.get().asLink(comTaskEnablement.getProtocolDialectConfigurationProperties(), Relation.REF_RELATION, uriInfo)));
+                comTaskEnablementInfo.securityPropertySet = configurationSecurityPropertySetInfoFactoryProvider.get()
+                        .asLink(comTaskEnablement.getSecurityPropertySet(), Relation.REF_RELATION, uriInfo)));
         return map;
     }
 

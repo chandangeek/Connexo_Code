@@ -10,6 +10,8 @@ public class ComTaskEnablementInfo extends LinkInfo<Long> {
     public LinkInfo comTask;
     public LinkInfo securityPropertySet;
     public LinkInfo partialConnectionTask;
+    public Boolean useDefaultConnectionTask;
+    public LinkInfo useConnectionTaskWithConnectionFunction;
     public Integer priority;
     public Boolean suspended;
 }

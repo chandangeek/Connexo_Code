@@ -103,6 +103,7 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.impl.MdcPropertyUtilsImpl;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -138,6 +139,7 @@ import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.upl.UPLConnectionFunction;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
 
@@ -350,7 +352,9 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(deviceService.findAndLockDeviceByIdAndVersion(eq(deviceId), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
         when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(mRID), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
         when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(mRID), eq(version))).thenReturn(Optional.of(mock));
-        DeviceType deviceType = mockDeviceType(99L, "Device type for " + serial, 1L);
+        DeviceType deviceType = deviceConfiguration.getDeviceType() != null
+                ? deviceConfiguration.getDeviceType()
+                : mockDeviceType(99L, "Device type for " + serial, 1L);
         when(mock.getDeviceType()).thenReturn(deviceType);
         when(mock.getVersion()).thenReturn(version);
         return mock;
@@ -499,8 +503,9 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return mock;
     }
 
-    PartialScheduledConnectionTask mockPartialScheduledConnectionTask(long id, String name, long version, PropertySpec... propertySpecs) {
+    PartialScheduledConnectionTask mockPartialScheduledConnectionTask(long id, String name, long version, UPLConnectionFunction connectionFunction, PropertySpec... propertySpecs) {
         PartialScheduledConnectionTask mock = mock(PartialScheduledConnectionTask.class);
+        when(mock.getConnectionFunction()).thenReturn(Optional.ofNullable(adaptToConnexoConnectionFunction(connectionFunction)));
         ConnectionTypePluggableClass connectionTaskPluggeableClass = mock(ConnectionTypePluggableClass.class);
         when(mock.getPluggableClass()).thenReturn(connectionTaskPluggeableClass);
         when(mock.getName()).thenReturn(name);
@@ -519,6 +524,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getPluggableClass()).thenReturn(connectionTaskPluggeableClass);
         when(mock.getId()).thenReturn(id);
         when(mock.getConfiguration()).thenReturn(deviceConfig);
+        when(mock.getConnectionFunction()).thenReturn(Optional.empty());
         when(connectionTaskPluggeableClass.getName()).thenReturn("inbound pluggeable class");
         InboundComPortPool comPortPool = mockInboundComPortPool(65L, 3333L);
         when(mock.getComPortPool()).thenReturn(comPortPool);
@@ -533,12 +539,18 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     }
 
     PartialScheduledConnectionTask mockPartialOutboundConnectionTask(long id, String name, DeviceConfiguration deviceConfig, long version, ProtocolDialectConfigurationProperties dialectProperties) {
+        return mockPartialOutboundConnectionTask(id, name, deviceConfig, version, dialectProperties, false, null);
+    }
+
+    PartialScheduledConnectionTask mockPartialOutboundConnectionTask(long id, String name, DeviceConfiguration deviceConfig, long version, ProtocolDialectConfigurationProperties dialectProperties, boolean isDefault, UPLConnectionFunction connectionFunction) {
         PartialScheduledConnectionTask mock = mock(PartialScheduledConnectionTask.class);
         when(mock.getName()).thenReturn(name);
         ConnectionTypePluggableClass connectionTaskPluggeableClass = mock(ConnectionTypePluggableClass.class);
         when(mock.getPluggableClass()).thenReturn(connectionTaskPluggeableClass);
         when(mock.getId()).thenReturn(id);
         when(mock.getConfiguration()).thenReturn(deviceConfig);
+        when(mock.isDefault()).thenReturn(isDefault);
+        when(mock.getConnectionFunction()).thenReturn(Optional.ofNullable(adaptToConnexoConnectionFunction(connectionFunction)));
         when(connectionTaskPluggeableClass.getName()).thenReturn("outbound pluggeable class");
         OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
         when(comPortPool.getId()).thenReturn(165L);
@@ -554,6 +566,28 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getVersion()).thenReturn(version);
         when(mock.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
         return mock;
+    }
+
+    protected ConnectionFunction adaptToConnexoConnectionFunction(UPLConnectionFunction connectionFunction) {
+        if (connectionFunction != null) {
+            return new ConnectionFunction() {
+                @Override
+                public String getConnectionFunctionDisplayName() {
+                    return connectionFunction.getConnectionFunctionName();
+                }
+
+                @Override
+                public String getConnectionFunctionName() {
+                    return connectionFunction.getConnectionFunctionName();
+                }
+
+                @Override
+                public long getId() {
+                    return connectionFunction.getId();
+                }
+            };
+        }
+        return null;
     }
 
     private InboundComPortPool mockInboundComPortPool(long id, long version) {
@@ -623,7 +657,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     DeviceProtocolPluggableClass mockPluggableClass(long id, String name, String version,
                                                     List<AuthenticationDeviceAccessLevel> authAccessLvls,
                                                     List<EncryptionDeviceAccessLevel> encAccessLvls) {
-        return mockPluggableClass(id, name, version, authAccessLvls, encAccessLvls, Collections.<SecuritySuite>emptyList(), Collections.<RequestSecurityLevel>emptyList(), Collections.<ResponseSecurityLevel>emptyList());
+        return mockPluggableClass(id, name, version, authAccessLvls, encAccessLvls, Collections.<SecuritySuite>emptyList(), Collections.<RequestSecurityLevel>emptyList(), Collections.<ResponseSecurityLevel>emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
     DeviceProtocolPluggableClass mockPluggableClass(long id, String name, String version,
@@ -632,6 +666,17 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
                                                     List<SecuritySuite> securitySuites,
                                                     List<RequestSecurityLevel> requestSecurityLvls,
                                                     List<ResponseSecurityLevel> responseSecurityLevels) {
+        return mockPluggableClass(id, name, version, authAccessLvls, encAccessLvls, securitySuites, requestSecurityLvls, responseSecurityLevels, Collections.emptyList(), Collections.emptyList());
+    }
+
+    DeviceProtocolPluggableClass mockPluggableClass(long id, String name, String version,
+                                                    List<AuthenticationDeviceAccessLevel> authAccessLvls,
+                                                    List<EncryptionDeviceAccessLevel> encAccessLvls,
+                                                    List<SecuritySuite> securitySuites,
+                                                    List<RequestSecurityLevel> requestSecurityLvls,
+                                                    List<ResponseSecurityLevel> responseSecurityLevels,
+                                                    List<UPLConnectionFunction> providedConnectionFunctions,
+                                                    List<UPLConnectionFunction> consumableConnectionFunctions) {
         DeviceProtocolPluggableClass mock = mock(DeviceProtocolPluggableClass.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
@@ -650,6 +695,11 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(adaptedSecuritySuites);
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getRequestSecurityLevels()).thenReturn(adaptedRequestSecurityLevels);
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getResponseSecurityLevels()).thenReturn(adaptedResponseSecurityLevels);
+
+        when(deviceProtocol.getProvidedConnectionFunctions()).thenReturn(providedConnectionFunctions);
+        when(mock.getProvidedConnectionFunctions()).thenReturn(providedConnectionFunctions.stream().map(this::adaptToConnexoConnectionFunction).collect(Collectors.toList()));
+        when(deviceProtocol.getConsumableConnectionFunctions()).thenReturn(consumableConnectionFunctions);
+        when(mock.getConsumableConnectionFunctions()).thenReturn(consumableConnectionFunctions.stream().map(this::adaptToConnexoConnectionFunction).collect(Collectors.toList()));
         when(mock.getDeviceProtocol()).thenReturn(deviceProtocol);
         return mock;
     }
@@ -695,6 +745,13 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         PropertySpec propertySpec = mockBigDecimalPropertySpec();
         when(mock.getSecurityProperties()).thenReturn(Collections.singletonList(propertySpec));
         return mock;
+    }
+
+    UPLConnectionFunction mockUPLConnectionFunction(long id, String name) {
+        UPLConnectionFunction connectionFunction = mock(UPLConnectionFunction.class);
+        when(connectionFunction.getId()).thenReturn(id);
+        when(connectionFunction.getConnectionFunctionName()).thenReturn(name);
+        return connectionFunction;
     }
 
     ComTaskEnablement mockComTaskEnablement(ComTask comTask, DeviceConfiguration deviceConfiguration, long version) {

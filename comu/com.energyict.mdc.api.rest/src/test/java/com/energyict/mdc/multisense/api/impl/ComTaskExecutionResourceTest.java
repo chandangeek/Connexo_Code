@@ -15,6 +15,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -52,8 +54,9 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         when(manuallyScheduledComTaskExecution.getDevice()).thenReturn(device);
         when(manuallyScheduledComTaskExecution.getConnectionTask()).thenReturn(Optional.empty());
         when(manuallyScheduledComTaskExecution.getComTask()).thenReturn(comTask);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(manuallyScheduledComTaskExecution));
-        Response response = target("/devices/SPE001/comtaskexecutions").queryParam("start",0).queryParam("limit",10).request().get();
+        when(manuallyScheduledComTaskExecution.getConnectionFunction()).thenReturn(Optional.empty());
+        when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(manuallyScheduledComTaskExecution));
+        Response response = target("/devices/SPE001/comtaskexecutions").queryParam("start", 0).queryParam("limit", 10).request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
@@ -79,9 +82,10 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         when(manuallyScheduledComTaskExecution.getId()).thenReturn(102L);
         when(manuallyScheduledComTaskExecution.getPlannedPriority()).thenReturn(-20);
         when(manuallyScheduledComTaskExecution.getDevice()).thenReturn(device);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(manuallyScheduledComTaskExecution));
+        when(manuallyScheduledComTaskExecution.getConnectionFunction()).thenReturn(Optional.empty());
+        when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(manuallyScheduledComTaskExecution));
 
-        Response response = target("/devices/SPE001/comtaskexecutions/102").queryParam("fields","id,priority").request().get();
+        Response response = target("/devices/SPE001/comtaskexecutions/102").queryParam("fields", "id,priority").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<Integer>get("$.id")).isEqualTo(102);
@@ -112,10 +116,13 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         when(manuallyScheduledComTaskExecution.isScheduledManually()).thenReturn(true);
         when(manuallyScheduledComTaskExecution.usesSharedSchedule()).thenReturn(false);
         when(manuallyScheduledComTaskExecution.getVersion()).thenReturn(1111L);
+        when(manuallyScheduledComTaskExecution.usesDefaultConnectionTask()).thenReturn(true);
+        ConnectionFunction connectionFunction = adaptToConnexoConnectionFunction(mockUPLConnectionFunction(1, "CF_1"));
+        when(manuallyScheduledComTaskExecution.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
         ScheduledConnectionTask scheduledConnectionTask = mockScheduledConnectionTask(24, "Scheduled task", 43333L);
         when(manuallyScheduledComTaskExecution.getConnectionTask()).thenReturn(Optional.of(scheduledConnectionTask));
         when(scheduledConnectionTask.getDevice()).thenReturn(device);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(manuallyScheduledComTaskExecution));
+        when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(manuallyScheduledComTaskExecution));
 
         Response response = target("/devices/SPE001/comtaskexecutions/102").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -134,6 +141,10 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         assertThat(model.<String>get("$.comTask.link.href")).isEqualTo("http://localhost:9998/comtasks/23");
         assertThat(model.<Integer>get("$.connectionTask.id")).isEqualTo(24);
         assertThat(model.<String>get("$.connectionTask.link.href")).isEqualTo("http://localhost:9998/devices/SPE001/connectiontasks/24");
+        assertThat(model.<Boolean>get("$.useDefaultConnectionTask")).isEqualTo(true);
+        assertThat(model.<Integer>get("$.useConnectionTaskWithConnectionFunction.id")).isEqualTo(1);
+        assertThat(model.<String>get("$.useConnectionTaskWithConnectionFunction.link.href")).isEqualTo("http://localhost:9998/pluggableclasses/441/connectionfunctions/1");
+        assertThat(model.<String>get("$.useConnectionTaskWithConnectionFunction.link.params.rel")).isEqualTo("related");
     }
 
     @Test
@@ -160,7 +171,8 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         ScheduledConnectionTask scheduledConnectionTask = mockScheduledConnectionTask(24, "Scheduled task", 3333L);
         when(scheduledConnectionTask.getDevice()).thenReturn(device);
         when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(scheduledConnectionTask));
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
+        when(comTaskExecution.getConnectionFunction()).thenReturn(Optional.empty());
+        when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
 
         Response response = target("/devices/SPE001/comtaskexecutions/102").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -203,7 +215,8 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         when(comTaskExecution.isAdHoc()).thenReturn(false);
         when(comTaskExecution.isScheduledManually()).thenReturn(false);
         when(comTaskExecution.usesSharedSchedule()).thenReturn(true);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
+        when(comTaskExecution.getConnectionFunction()).thenReturn(Optional.empty());
+        when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
         ScheduledConnectionTask scheduledConnectionTask = mockScheduledConnectionTask(25, "Scheduled task", 3333L);
         when(scheduledConnectionTask.getDevice()).thenReturn(device);
         when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(scheduledConnectionTask));
@@ -341,12 +354,12 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         ComTask comTask = mockComTask(comTaskId, "Com task", 3333L);
         ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration, 3335L);
 
-
         ComTaskExecution scheduledComTaskExecution = mockScheduledComTaskExecution(999L, comSchedule, device, 3339L);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(scheduledComTaskExecution));
+        when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(scheduledComTaskExecution));
         when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
         ComTaskExecutionUpdater updater = mock(ComTaskExecutionUpdater.class);
         when(scheduledComTaskExecution.getUpdater()).thenReturn(updater);
+        when(updater.getComTaskExecution()).thenReturn(scheduledComTaskExecution);
         ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getId()).thenReturn(999L);
@@ -355,6 +368,53 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         Response response = target("/devices/SPE001/comtaskexecutions/999").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(updater).update();
+    }
+
+    @Test
+    public void testUpdateScheduledComTaskExecutionWhenSetToUseDefaultAndConnectionFunctionAtTheSameTime() throws Exception {
+        long comTaskId = 24;
+        long scheduleId = 24L;
+
+        ComTaskExecutionInfo info = new ComTaskExecutionInfo();
+        info.version = 3339L;
+        info.schedule = new LinkInfo();
+        info.schedule.id = scheduleId;
+        info.useDefaultConnectionTask = true;
+        info.useConnectionTaskWithConnectionFunction = new LinkInfo();
+        info.useConnectionTaskWithConnectionFunction.id = 2L;
+        info.type = ComTaskExecutionType.SharedSchedule;
+        info.device = new LinkInfo();
+        info.device.version = 3334L;
+
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceType.getDeviceProtocolPluggableClass().get();
+        ConnectionFunction connectionFunction_1 = adaptToConnexoConnectionFunction(mockUPLConnectionFunction(1, "CF_1"));
+        ConnectionFunction connectionFunction_2 = adaptToConnexoConnectionFunction(mockUPLConnectionFunction(2, "CF_2"));
+        when(deviceProtocolPluggableClass.getProvidedConnectionFunctions()).thenReturn(Arrays.asList(connectionFunction_1, connectionFunction_2));
+        ComSchedule comSchedule = mockComSchedule(scheduleId, "Some schedule", 3333L);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
+        Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3334L);
+        ComTask comTask = mockComTask(comTaskId, "Com task", 3333L);
+        ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration, 3335L);
+
+        ComTaskExecution scheduledComTaskExecution = mockScheduledComTaskExecution(999L, comSchedule, device, 3339L);
+        when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(scheduledComTaskExecution));
+        when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
+        ComTaskExecutionUpdater updater = mock(ComTaskExecutionUpdater.class);
+        when(scheduledComTaskExecution.getUpdater()).thenReturn(updater);
+        when(updater.getComTaskExecution()).thenReturn(scheduledComTaskExecution);
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
+        when(comTaskExecution1.getDevice()).thenReturn(device);
+        when(comTaskExecution1.getId()).thenReturn(999L);
+        when(updater.update()).thenReturn(comTaskExecution1);
+
+        Response response = target("/devices/SPE001/comtaskexecutions/999").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        verify(updater, never()).update();
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<Boolean>get("$.success")).isEqualTo(false);
+        assertThat(model.<String>get("$.message")).isEqualTo("The communication task execution should either use the default connection task, the connection task having certain connection function or an explicitly set connection task");
+        assertThat(model.<String>get("$.error")).isEqualTo("EitherDefaultOrConnectionFunctionOrExplicit");
     }
 
     @Test
@@ -381,7 +441,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
 
 
         ComTaskExecution scheduledComTaskExecution = mockScheduledComTaskExecution(999L, comSchedule, device, 3339L);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(scheduledComTaskExecution));
+        when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(scheduledComTaskExecution));
         when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
         ComTaskExecutionUpdater updater = mock(ComTaskExecutionUpdater.class);
         when(scheduledComTaskExecution.getUpdater()).thenReturn(updater);
@@ -399,10 +459,10 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
     public void testComTaskExecutionFields() throws Exception {
         Response response = target("/devices/x/comtaskexecutions").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(15);
-        assertThat(model.<List<String>>get("$")).containsOnly("id","version", "link", "comTask", "schedule", "nextExecution", "plannedNextExecution",
+        assertThat(model.<List>get("$")).hasSize(17);
+        assertThat(model.<List<String>>get("$")).containsOnly("id", "version", "link", "comTask", "schedule", "nextExecution", "plannedNextExecution",
                 "priority", "type", "lastCommunicationStart", "status", "lastSuccessfulCompletion", "device", "connectionTask",
-                "ignoreNextExecutionSpecForInbound");
+                "ignoreNextExecutionSpecForInbound", "useDefaultConnectionTask", "useConnectionTaskWithConnectionFunction");
     }
 
 

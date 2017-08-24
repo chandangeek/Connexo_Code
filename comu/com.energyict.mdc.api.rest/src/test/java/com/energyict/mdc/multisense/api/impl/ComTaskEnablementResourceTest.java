@@ -11,6 +11,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.jayway.jsonpath.JsonModel;
@@ -43,6 +44,7 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
         when(comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(comTaskEnablement.getPriority()).thenReturn(-20);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTaskEnablement.getConnectionFunction()).thenReturn(Optional.empty());
         when(comTaskEnablement.getPartialConnectionTask()).thenReturn(Optional.empty());
         when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
         ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
@@ -73,14 +75,48 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
         when(comTaskEnablement.getId()).thenReturn(102L);
         when(comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTaskEnablement.usesDefaultConnectionTask()).thenReturn(true);
+        when(comTaskEnablement.getConnectionFunction()).thenReturn(Optional.empty());
         when(comTaskEnablement.getPriority()).thenReturn(-20);
         when(comTaskEnablement.getPartialConnectionTask()).thenReturn(Optional.empty());
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
 
-        Response response = target("/devicetypes/21/deviceconfigurations/22/comtaskenablements/102").queryParam("fields","id,priority").request().get();
+        Response response = target("/devicetypes/21/deviceconfigurations/22/comtaskenablements/102").queryParam("fields","id,useDefaultConnectionTask,useConnectionTaskWithConnectionFunction,priority").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<Integer>get("$.id")).isEqualTo(102);
+        assertThat(model.<Boolean>get("$.useDefaultConnectionTask")).isEqualTo(true);
+        assertThat(model.<Integer>get("$.priority")).isEqualTo(-20);
+        assertThat(model.<Integer>get("$.useConnectionTaskWithConnectionFunction")).isNull();
+        assertThat(model.<Integer>get("$.comTask")).isNull();
+    }
+
+    @Test
+    public void testGetSingleComTaskEnablementWhichUsesConnectionTaskHavingCertainConnectionFunction() throws Exception {
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
+        when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
+        ComTask comTask = mockComTask(23, "Com task", 3333L);
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(comTaskEnablement.getId()).thenReturn(102L);
+        when(comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTaskEnablement.usesDefaultConnectionTask()).thenReturn(false);
+        ConnectionFunction connectionFunction = adaptToConnexoConnectionFunction(mockUPLConnectionFunction(1, "CF_1"));
+        when(comTaskEnablement.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
+        when(comTaskEnablement.getPriority()).thenReturn(-20);
+        when(comTaskEnablement.getPartialConnectionTask()).thenReturn(Optional.empty());
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
+
+        Response response = target("/devicetypes/21/deviceconfigurations/22/comtaskenablements/102").queryParam("fields","id,useDefaultConnectionTask,useConnectionTaskWithConnectionFunction,priority").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.id")).isEqualTo(102);
+        assertThat(model.<Boolean>get("$.useDefaultConnectionTask")).isEqualTo(null);
+        assertThat(model.<Integer>get("$.useConnectionTaskWithConnectionFunction.id")).isEqualTo(1);
+        assertThat(model.<String>get("$.useConnectionTaskWithConnectionFunction.link.href")).isEqualTo("http://localhost:9998/pluggableclasses/441/connectionfunctions/1");
+        assertThat(model.<String>get("$.useConnectionTaskWithConnectionFunction.link.params.rel")).isEqualTo("related");
+
         assertThat(model.<Integer>get("$.priority")).isEqualTo(-20);
         assertThat(model.<Integer>get("$.comTask")).isNull();
     }
@@ -103,6 +139,7 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
         when(comTaskEnablement.getPriority()).thenReturn(-20);
         when(comTaskEnablement.isSuspended()).thenReturn(true);
+        when(comTaskEnablement.getConnectionFunction()).thenReturn(Optional.empty());
         when(comTaskEnablement.getPartialConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(comTaskEnablement.hasPartialConnectionTask()).thenReturn(true);
         when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
@@ -131,9 +168,8 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
         Response response = target("/devicetypes/x/deviceconfigurations/x/comtaskenablements").request("application/json").method("PROPFIND", Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(8);
-        assertThat(model.<List<String>>get("$")).containsOnly("id","version","link", "partialConnectionTask", "priority", "securityPropertySet", "comTask", "suspended");
+        assertThat(model.<List>get("$")).hasSize(10);
+        assertThat(model.<List<String>>get("$")).containsOnly("id","version","link", "partialConnectionTask", "useDefaultConnectionTask", "useConnectionTaskWithConnectionFunction", "priority", "securityPropertySet", "comTask", "suspended");
     }
-
 
 }

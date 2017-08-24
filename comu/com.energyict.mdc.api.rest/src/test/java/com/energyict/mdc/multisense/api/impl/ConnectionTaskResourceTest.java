@@ -67,7 +67,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         Response response = target("devices/XAS/connectiontasks").request().accept(MediaType.APPLICATION_JSON).method("PROPFIND", Response.class);
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<JSONArray>get("$")).containsOnly("numberOfSimultaneousConnections", "version", "comPortPool", "comWindow",
-                "connectionStrategy", "connectionType", "id", "direction", "isDefault", "link", "connectionMethod", "nextExecutionSpecs", "properties",
+                "connectionStrategy", "connectionType", "id", "direction", "isDefault", "connectionFunction", "link", "connectionMethod", "nextExecutionSpecs", "properties",
                 "rescheduleRetryDelay", "status", "device");
     }
 
@@ -79,7 +79,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
         when(comPortPool.getId()).thenReturn(65L);
 
-        PartialScheduledConnectionTask partial = mockPartialScheduledConnectionTask(1681, "partial connection task", 3333L);
+        PartialScheduledConnectionTask partial = mockPartialScheduledConnectionTask(1681, "partial connection task", 3333L, mockUPLConnectionFunction(1, "CF_1"));
         when(partial.getConfiguration()).thenReturn(deviceConfiguration);
         ScheduledConnectionTask connectionTask = mockScheduledConnectionTask(41L, "connTask", deviceXas, comPortPool, partial, 3333L);
         when(connectionTaskService.findConnectionTask(41L)).thenReturn(Optional.of(connectionTask));
@@ -95,6 +95,9 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(jsonModel.<String>get("$.direction")).isEqualTo("Outbound");
         assertThat(jsonModel.<String>get("$.status")).isEqualTo("Active");
         assertThat(jsonModel.<Boolean>get("$.isDefault")).isEqualTo(true);
+        assertThat(jsonModel.<Integer>get("$.connectionFunction.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.connectionFunction.link.href")).isEqualTo("http://localhost:9998/pluggableclasses/10201/connectionfunctions/1");
+        assertThat(jsonModel.<String>get("$.connectionFunction.link.params.rel")).isEqualTo("related");
         assertThat(jsonModel.<Integer>get("$.numberOfSimultaneousConnections")).isEqualTo(2);
         assertThat(jsonModel.<String>get("$.connectionType")).isEqualTo("outbound pluggeable class");
         assertThat(jsonModel.<Integer>get("$.rescheduleRetryDelay.count")).isEqualTo(60);
@@ -157,7 +160,6 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(comPortPoolArgumentCaptor.getValue()).isEqualTo(inboundComPortPool);
         assertThat(connectionTaskLifecycleStatusArgumentCaptor.getValue()).isEqualTo(info.status);
         verify(connectionTaskService).setDefaultConnectionTask(inboundConnectionTask);
-
     }
 
     @Test
@@ -318,8 +320,8 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         DeviceType elec1 = mockDeviceType(101, "Electricity 1", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1101L, "Default configuration", elec1, 3333L);
         PropertySpec propertySpec = mockBigDecimalPropertySpec();
-        PartialScheduledConnectionTask pct1 = mockPartialScheduledConnectionTask(333L, "new outbound", 3333L, propertySpec);
-        PartialScheduledConnectionTask pct2 = mockPartialScheduledConnectionTask(444L, "legacy", 3333L);
+        PartialScheduledConnectionTask pct1 = mockPartialScheduledConnectionTask(333L, "new outbound", 3333L, mockUPLConnectionFunction(1, "CF_1"), propertySpec);
+        PartialScheduledConnectionTask pct2 = mockPartialScheduledConnectionTask(444L, "legacy", 3333L, mockUPLConnectionFunction(2, "CF_2"));
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(pct1, pct2));
         Device deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration, 233L);
 
@@ -389,8 +391,8 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         DeviceType elec1 = mockDeviceType(101, "Electricity 1", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1101L, "Default configuration", elec1, 3333L);
         PropertySpec propertySpec = mockBigDecimalPropertySpec();
-        PartialScheduledConnectionTask pct1 = mockPartialScheduledConnectionTask(333L, "new outbound", 3333L, propertySpec);
-        PartialScheduledConnectionTask pct2 = mockPartialScheduledConnectionTask(444L, "legacy", 3333L);
+        PartialScheduledConnectionTask pct1 = mockPartialScheduledConnectionTask(333L, "new outbound", 3333L, mockUPLConnectionFunction(1, "CF_1"), propertySpec);
+        PartialScheduledConnectionTask pct2 = mockPartialScheduledConnectionTask(444L, "legacy", 3333L, mockUPLConnectionFunction(2, "CF_2"));
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(pct1, pct2));
         Device deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration, 233L);
         ScheduledConnectionTask existing = mockScheduledConnectionTask(123456789, "existing", deviceXas, outboundComPortPool, pct1, 13333L);

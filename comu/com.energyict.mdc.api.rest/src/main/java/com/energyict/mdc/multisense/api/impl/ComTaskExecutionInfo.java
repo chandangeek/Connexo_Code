@@ -16,6 +16,8 @@ public class ComTaskExecutionInfo extends LinkInfo<Long> {
     @NotNull
     public ComTaskExecutionType type;
     public LinkInfo<Long> connectionTask;
+    public Boolean useDefaultConnectionTask;
+    public LinkInfo<Long> useConnectionTaskWithConnectionFunction;
     public LinkInfo<Long> schedule;
     public LinkInfo<Long> device;
     @NotNull
@@ -23,7 +25,6 @@ public class ComTaskExecutionInfo extends LinkInfo<Long> {
     public Instant plannedNextExecution;
     public Integer priority;
     public Instant lastCommunicationStart;
-    public Boolean useDefaultConnectionTask;
     public Boolean ignoreNextExecutionSpecForInbound;
     @XmlJavaTypeAdapter(TaskStatusAdapter.class)
     public TaskStatus status;

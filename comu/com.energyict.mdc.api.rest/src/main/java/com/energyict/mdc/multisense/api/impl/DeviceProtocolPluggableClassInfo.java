@@ -19,4 +19,6 @@ public class DeviceProtocolPluggableClassInfo extends LinkInfo<Long> {
     public List<LinkInfo> encryptionAccessLevels;
     public List<LinkInfo> requestSecurityAccessLevels;
     public List<LinkInfo> responseSecurityAccessLevels;
+    public List<LinkInfo> providedConnectionFunctions;
+    public List<LinkInfo> consumableConnectionFunctions;
 }

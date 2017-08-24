@@ -82,11 +82,11 @@ public class KeyAccessorResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<String>get("data[0].name")).isEqualTo("AK");
         assertThat(model.<Integer>get("data[0].keyAccessorType.id")).isEqualTo(321);
         assertThat(model.<String>get("data[0].keyAccessorType.link.params.rel")).isEqualTo(Relation.REF_RELATION.rel());
-        assertThat(model.<String>get("data[0].keyAccessorType.link.href")).isEqualTo("http://localhost:9998/devicetypes/99/keyAccessorTypes/AK");
+        assertThat(model.<String>get("data[0].keyAccessorType.link.href")).isEqualTo("http://localhost:9998/devicetypes/1/keyAccessorTypes/AK");
         assertThat(model.<String>get("data[1].name")).isEqualTo("Password");
         assertThat(model.<Integer>get("data[1].keyAccessorType.id")).isEqualTo(123);
         assertThat(model.<String>get("data[1].keyAccessorType.link.params.rel")).isEqualTo(Relation.REF_RELATION.rel());
-        assertThat(model.<String>get("data[1].keyAccessorType.link.href")).isEqualTo("http://localhost:9998/devicetypes/99/keyAccessorTypes/Password");
+        assertThat(model.<String>get("data[1].keyAccessorType.link.href")).isEqualTo("http://localhost:9998/devicetypes/1/keyAccessorTypes/Password");
     }
 
     @Test

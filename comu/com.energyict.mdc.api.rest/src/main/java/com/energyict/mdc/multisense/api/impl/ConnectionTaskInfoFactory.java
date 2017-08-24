@@ -25,6 +25,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 
 import javax.inject.Inject;
@@ -49,13 +50,16 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
     private final Provider<PartialConnectionTaskInfoFactory> partialConnectionTaskInfoFactoryProvider;
     private final Provider<ComPortPoolInfoFactory> comPortPoolInfoFactoryProvider;
     private final Provider<DeviceInfoFactory> deviceInfoFactoryProvider;
+    private final Provider<ConnectionFunctionInfoFactory> connectionFunctionInfoFactoryProvider;
 
     @Inject
     public ConnectionTaskInfoFactory(
             MdcPropertyUtils mdcPropertyUtils, EngineConfigurationService engineConfigurationService,
             ConnectionTaskService connectionTaskService, ExceptionFactory exceptionFactory,
             Provider<PartialConnectionTaskInfoFactory> partialConnectionTaskInfoFactoryProvider,
-            Provider<ComPortPoolInfoFactory> comPortPoolInfoFactoryProvider, Provider<DeviceInfoFactory> deviceInfoFactoryProvider) {
+            Provider<ComPortPoolInfoFactory> comPortPoolInfoFactoryProvider,
+            Provider<DeviceInfoFactory> deviceInfoFactoryProvider,
+            Provider<ConnectionFunctionInfoFactory> connectionFunctionInfoFactoryProvider) {
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.engineConfigurationService = engineConfigurationService;
         this.connectionTaskService = connectionTaskService;
@@ -63,6 +67,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
         this.partialConnectionTaskInfoFactoryProvider = partialConnectionTaskInfoFactoryProvider;
         this.comPortPoolInfoFactoryProvider = comPortPoolInfoFactoryProvider;
         this.deviceInfoFactoryProvider = deviceInfoFactoryProvider;
+        this.connectionFunctionInfoFactoryProvider = connectionFunctionInfoFactoryProvider;
     }
 
     public LinkInfo asLink(ConnectionTask connectionTask, Relation relation, UriInfo uriInfo) {
@@ -123,6 +128,14 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
         map.put("device", (connectionTaskInfo, connectionTask, uriInfo)->
             connectionTaskInfo.device = deviceInfoFactoryProvider.get().asLink(connectionTask.getDevice(), Relation.REF_PARENT, uriInfo));
         map.put("isDefault", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.isDefault = connectionTask.isDefault());
+        map.put("connectionFunction", (connectionTaskInfo, connectionTask, uriInfo) -> {
+            if (connectionTask.getPartialConnectionTask().getConnectionFunction().isPresent() && connectionTask.getDevice().getDeviceType().getDeviceProtocolPluggableClass().isPresent()) {
+                DeviceProtocolPluggableClass deviceProtocolPluggableClass = connectionTask.getDevice().getDeviceType().getDeviceProtocolPluggableClass().get();
+                connectionTaskInfo.connectionFunction = connectionFunctionInfoFactoryProvider.get()
+                        .asLink(deviceProtocolPluggableClass, connectionTask.getPartialConnectionTask().getConnectionFunction().get(), Relation.REF_RELATION, uriInfo);
+            }
+        });
+        
         map.put("properties", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(connectionTask.getConnectionType().getPropertySpecs(), connectionTask.getTypedProperties()));
         map.put("comWindow", (connectionTaskInfo, connectionTask, uriInfo) -> {
             if (connectionTask instanceof ScheduledConnectionTask) {

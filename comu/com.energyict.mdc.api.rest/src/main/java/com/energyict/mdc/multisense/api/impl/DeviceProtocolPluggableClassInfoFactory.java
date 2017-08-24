@@ -12,9 +12,11 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.upl.UPLConnectionFunction;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
 
@@ -25,6 +27,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,13 +43,18 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
     private final Provider<EncryptionDeviceAccessLevelInfoFactory> encryptionDeviceAccessLevelInfoFactoryProvider;
     private final Provider<RequestSecurityDeviceAccessLevelInfoFactory> requestSecurityDeviceAccessLevelInfoFactoryProvider;
     private final Provider<ResponseSecurityDeviceAccessLevelInfoFactory> responseSecurityDeviceAccessLevelInfoFactoryProvider;
+    private final Provider<ConnectionFunctionInfoFactory> connectionFunctionInfoFactoryProvider;
     private final ProtocolPluggableService protocolPluggableService;
 
     @Inject
     public DeviceProtocolPluggableClassInfoFactory(
-            MdcPropertyUtils mdcPropertyUtils, Provider<SecuritySuiteDeviceAccessLevelInfoFactory> securitySuiteDeviceAccessLevelInfoFactoryProvider, Provider<RequestSecurityDeviceAccessLevelInfoFactory> requestSecurityDeviceAccessLevelInfoFactoryProvider, Provider<ResponseSecurityDeviceAccessLevelInfoFactory> responseSecurityDeviceAccessLevelInfoFactoryProvider, ProtocolPluggableService protocolPluggableService,
+            MdcPropertyUtils mdcPropertyUtils, Provider<SecuritySuiteDeviceAccessLevelInfoFactory> securitySuiteDeviceAccessLevelInfoFactoryProvider,
+            Provider<RequestSecurityDeviceAccessLevelInfoFactory> requestSecurityDeviceAccessLevelInfoFactoryProvider,
+            Provider<ResponseSecurityDeviceAccessLevelInfoFactory> responseSecurityDeviceAccessLevelInfoFactoryProvider,
+            ProtocolPluggableService protocolPluggableService,
             Provider<AuthenticationDeviceAccessLevelInfoFactory> authenticationDeviceAccessLevelInfoFactory,
-            Provider<EncryptionDeviceAccessLevelInfoFactory> encryptionDeviceAccessLevelInfoFactory) {
+            Provider<EncryptionDeviceAccessLevelInfoFactory> encryptionDeviceAccessLevelInfoFactory,
+            Provider<ConnectionFunctionInfoFactory> connectionFunctionInfoFactoryProvider) {
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.securitySuiteDeviceAccessLevelInfoFactoryProvider = securitySuiteDeviceAccessLevelInfoFactoryProvider;
         this.authenticationDeviceAccessLevelInfoFactoryProvider = authenticationDeviceAccessLevelInfoFactory;
@@ -54,6 +62,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
         this.requestSecurityDeviceAccessLevelInfoFactoryProvider = requestSecurityDeviceAccessLevelInfoFactoryProvider;
         this.responseSecurityDeviceAccessLevelInfoFactoryProvider = responseSecurityDeviceAccessLevelInfoFactoryProvider;
         this.protocolPluggableService = protocolPluggableService;
+        this.connectionFunctionInfoFactoryProvider = connectionFunctionInfoFactoryProvider;
     }
 
     public DeviceProtocolPluggableClassInfo from(DeviceProtocolPluggableClass deviceProtocolPluggableClass, UriInfo uriInfo, Collection<String> fields) {
@@ -102,7 +111,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                         ? ((AdvancedDeviceProtocolSecurityCapabilities) getActualDeviceProtocol(deviceProtocolPluggableClass)).getSecuritySuites()
                         .stream()
                         .map(this.protocolPluggableService::adapt)
-                        .sorted((aa1, aa2) -> aa1.getTranslation().compareTo(aa2.getTranslation()))
+                        .sorted(Comparator.comparing(DeviceAccessLevel::getTranslation))
                         .map(aal -> securitySuiteDeviceAccessLevelInfoFactoryProvider.get().asLink(deviceProtocolPluggableClass, aal, Relation.REF_RELATION, uriInfo))
                         .collect(toList())
                         : null));
@@ -111,7 +120,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                         .getAuthenticationAccessLevels()
                         .stream()
                         .map(this.protocolPluggableService::adapt)
-                        .sorted((aa1, aa2) -> aa1.getTranslation().compareTo(aa2.getTranslation()))
+                        .sorted(Comparator.comparing(DeviceAccessLevel::getTranslation))
                         .map(aal -> authenticationDeviceAccessLevelInfoFactoryProvider.get().asLink(deviceProtocolPluggableClass, aal, Relation.REF_RELATION, uriInfo))
                         .collect(toList())
         ));
@@ -120,7 +129,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                         .getEncryptionAccessLevels()
                         .stream()
                         .map(this.protocolPluggableService::adapt)
-                        .sorted((aa1, aa2) -> aa1.getTranslation().compareTo(aa2.getTranslation()))
+                        .sorted(Comparator.comparing(DeviceAccessLevel::getTranslation))
                         .map(eal -> encryptionDeviceAccessLevelInfoFactoryProvider.get().asLink(deviceProtocolPluggableClass, eal, Relation.REF_RELATION, uriInfo))
                         .collect(toList())
         ));
@@ -129,7 +138,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                         ? ((AdvancedDeviceProtocolSecurityCapabilities) getActualDeviceProtocol(deviceProtocolPluggableClass)).getRequestSecurityLevels()
                         .stream()
                         .map(this.protocolPluggableService::adapt)
-                        .sorted((aa1, aa2) -> aa1.getTranslation().compareTo(aa2.getTranslation()))
+                        .sorted(Comparator.comparing(DeviceAccessLevel::getTranslation))
                         .map(aal -> requestSecurityDeviceAccessLevelInfoFactoryProvider.get().asLink(deviceProtocolPluggableClass, aal, Relation.REF_RELATION, uriInfo))
                         .collect(toList())
                         : null));
@@ -138,10 +147,22 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                         ? ((AdvancedDeviceProtocolSecurityCapabilities) getActualDeviceProtocol(deviceProtocolPluggableClass)).getResponseSecurityLevels()
                         .stream()
                         .map(this.protocolPluggableService::adapt)
-                        .sorted((aa1, aa2) -> aa1.getTranslation().compareTo(aa2.getTranslation()))
+                        .sorted(Comparator.comparing(DeviceAccessLevel::getTranslation))
                         .map(aal -> responseSecurityDeviceAccessLevelInfoFactoryProvider.get().asLink(deviceProtocolPluggableClass, aal, Relation.REF_RELATION, uriInfo))
                         .collect(toList())
                         : null));
+        map.put("providedConnectionFunctions", ((deviceProtocolPluggableClassInfo, deviceProtocolPluggableClass, uriInfo) ->
+                deviceProtocolPluggableClassInfo.providedConnectionFunctions = getActualDeviceProtocol(deviceProtocolPluggableClass).getProvidedConnectionFunctions()
+                        .stream()
+                        .sorted(Comparator.comparing(UPLConnectionFunction::getId))
+                        .map(function -> connectionFunctionInfoFactoryProvider.get().asLink(deviceProtocolPluggableClass, function, Relation.REF_RELATION, uriInfo))
+                        .collect(toList())));
+        map.put("consumableConnectionFunctions", ((deviceProtocolPluggableClassInfo, deviceProtocolPluggableClass, uriInfo) ->
+                deviceProtocolPluggableClassInfo.consumableConnectionFunctions = getActualDeviceProtocol(deviceProtocolPluggableClass).getConsumableConnectionFunctions()
+                        .stream()
+                        .sorted(Comparator.comparing(UPLConnectionFunction::getId))
+                        .map(function -> connectionFunctionInfoFactoryProvider.get().asLink(deviceProtocolPluggableClass, function, Relation.REF_RELATION, uriInfo))
+                        .collect(toList())));
         return map;
     }
 
