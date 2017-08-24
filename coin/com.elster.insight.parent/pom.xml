@@ -58,6 +58,12 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>mdm.app.help</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>mdm.bpm.event</artifactId>
                 <version>1.1.1${revision}</version>
                 <scope>provided</scope>
@@ -125,6 +131,7 @@
             <id>insight</id>
             <modules>
                 <module>../com.elster.insight.app</module>
+                <module>../com.elster.insight.app.help</module>
                 <module>../com.elster.insight.common</module>
                 <module>../com.elster.insight.metering.extjs</module>
                 <module>../com.elster.insight.usagepoint.config</module>
