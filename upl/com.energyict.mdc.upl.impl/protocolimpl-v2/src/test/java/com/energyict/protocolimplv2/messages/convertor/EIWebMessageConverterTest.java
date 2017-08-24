@@ -67,6 +67,8 @@ public class EIWebMessageConverterTest extends AbstractV2MessageConverterTest {
     @Mock
     private OfflineDeviceMessage setDST;
     @Mock
+    private OfflineDeviceMessage setTimeZone;
+    @Mock
     private OfflineDeviceMessage setRefreshClockEvery;
     @Mock
     private OfflineDeviceMessage setEIWebPassword;
@@ -156,6 +158,7 @@ public class EIWebMessageConverterTest extends AbstractV2MessageConverterTest {
         setProxyServer = createMessage(NetworkConnectivityMessage.SetProxyServer);
         setIPAddress = createMessage(NetworkConnectivityMessage.SetIPAddress);
         setDST = createMessage(ClockDeviceMessage.SetDST);
+        setTimeZone = createMessage(ClockDeviceMessage.SetTimezone);
         setRefreshClockEvery = createMessage(ClockDeviceMessage.SetRefreshClockEvery);
         setEIWebPassword = createMessage(EIWebConfigurationDeviceMessage.SetEIWebPassword);
         setEIWebCurrentInterval = createMessage(EIWebConfigurationDeviceMessage.SetEIWebCurrentInterval);
@@ -218,6 +221,9 @@ public class EIWebMessageConverterTest extends AbstractV2MessageConverterTest {
 
         messageEntry = new SimpleEIWebMessageEntry().createMessageEntry(null, setDST);
         assertEquals("<DST>1</DST>", messageEntry.getContent());
+
+        messageEntry = new SimpleEIWebMessageEntry().createMessageEntry(null, setTimeZone);
+        assertEquals("<Timezone>1</Timezone>", messageEntry.getContent());
 
         messageEntry = new SimpleEIWebMessageEntry().createMessageEntry(null, setRefreshClockEvery);
         assertEquals("<RefreshClockEvery>1</RefreshClockEvery>", messageEntry.getContent());
