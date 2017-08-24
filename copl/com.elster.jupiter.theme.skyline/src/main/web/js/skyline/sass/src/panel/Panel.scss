@@ -218,6 +218,7 @@ $ui-body-color: $form-error-msg-color
 @import "Detail";
 @import "NoItemsFound";
 @import "Tool";
+@import "VisualiserPanel";
 
 .error-border .#{$prefix}panel-body {
   border-color: $color-red !important;
