@@ -219,7 +219,6 @@ IMT;REST;general.validationRuleSets[many];{0} Validierungsregelsätze;
 IMT;REST;general.value;Wert;
 IMT;REST;general.valueToEstimate;Zu schätzender Wert;
 IMT;REST;general.valueWh;Wert (Wh);
-IMT;REST;general.workspace;Arbeitsbereich;
 IMT;REST;general.xsuspects;{0} fehlerverdächtige Werte;
 IMT;REST;general.yes;Ja;
 IMT;REST;metrologyconfiguration.acknowledge.add.success;Metrologie-Konfiguration hinzugefügt;
@@ -353,33 +352,1122 @@ UDC;DOMAIN;duplicateReadingTypeOnMetrologyContract;Der gleiche Ablesetyp-Lieferg
 UDC;DOMAIN;lastChecked.after.currentLastChecked;Der neue, zuletzt überprüfte {2,date,yyyy-MM-dd HH:mm:ss} darf nicht nach dem aktuellen {1,date,yyyy-MM-dd HH:mm:ss} liegen.;The new last checked {2,date,yyyy-MM-dd HH:mm:ss} cannot be after current last checked {1,date,yyyy-MM-dd HH:mm:ss}.
 UDC;DOMAIN;lastChecked.null;Der neue, zuletzt überprüfte Zeitstempel darf nicht leer sein.;The new last checked timestamp cannot be null.
 UDC;DOMAIN;MetrologyPurposeNotLinkedToUsagePoint;Der Metrologie-Zweck mit der ID {0} konnte nicht an der Verwendungsstelle mit der MRID {1} gefunden werden.;Metrology purpose with id {0} is not found on usage point with MRID {1}.
-UDR;REST;addressDetail;Adressdaten;Address details
-UDR;REST;administrativeArea;Verwaltungsgebiet;Administrative area
-UDR;REST;complete;Vollständig;Complete
-UDR;REST;connection.state.connected;Verbunden;Connected
-UDR;REST;connection.state.demolished;Abgerissen;Demolished
-UDR;REST;connection.state.logicallyDisconnected;Logisch getrennt;Logically disconnected
-UDR;REST;connection.state.physicallyDisconnected;Physisch getrennt;Physically disconnected
-UDR;REST;connection.state.underConstruction;Im Aufbau;Under construction
-UDR;REST;countryCode;Ländercode;Country code
-UDR;REST;countryName;Ländername;Country name
-UDR;REST;displayConnectionState;Verbindungsstatus;Connection state
-UDR;REST;displayMetrologyConfiguration;Metrologie-Konfiguration;Metrology configuration
-UDR;REST;displayServiceCategory;Service-Kategorie;Service category
-UDR;REST;displayType;Typ;Type
-UDR;REST;establishmentName;Einrichtungsname;Establishment name
-UDR;REST;establishmentNumber;Einrichtungsnummer;Establishment number
-UDR;REST;establishmentType;Einrichtungstyp;Establishment type
-UDR;REST;incomplete;Unvollständig;Incomplete
-UDR;REST;locality;Region;Locality
-UDR;REST;location;Ort;Location
-UDR;REST;mRID;MRID;MRID
-UDR;REST;relativeperiod.category.usagepoint.validationOverview;Übersicht der Verwendungsstellen-Validierungen;Usage point validation overview
-UDR;REST;streetName;Straße;Street name
-UDR;REST;streetNumber;Hausnummer;Street number
-UDR;REST;streetType;Straßentyp;Street type
-UDR;REST;subLocality;Unterregion;Sublocality
-UDR;REST;zipCode;Postleitzahl;Zip code
-UPR;REST;NoMetrologyConfigForUsagePoint;Die Verwendungsstelle mit der MRID {0} hat keine Verbindung zur Metrologie-Konfiguration.;Usage point with MRID {0} doesn''t have a link to metrology configuration.
-UPR;REST;NoSuchChannelForUsagePoint;Die Verwendungsstelle mit der MRID {0}hat keinen Kanal mit {1}.;Usage point with MRID {0} doesn''t have channel with {1}.
-UPR;REST;NoUsagePointWithSuchMrid;Keine Verwendungsstelle mit der MRID {0}.;No usage point with MRID {0}.
+UDR;REST;addressDetail;Adressdaten;
+UDR;REST;administrativeArea;Verwaltungsgebiet;
+UDR;REST;complete;Vollständig;
+UDR;REST;connection.state.connected;Verbunden;
+UDR;REST;connection.state.demolished;Abgerissen;
+UDR;REST;connection.state.logicallyDisconnected;Logisch getrennt;
+UDR;REST;connection.state.physicallyDisconnected;Physisch getrennt;
+UDR;REST;connection.state.underConstruction;Im Aufbau;
+UDR;REST;countryCode;Ländercode;
+UDR;REST;countryName;Ländername;
+UDR;REST;displayConnectionState;Verbindungsstatus;
+UDR;REST;displayMetrologyConfiguration;Metrologie-Konfiguration;
+UDR;REST;displayServiceCategory;Service-Kategorie;
+UDR;REST;displayType;Typ;
+UDR;REST;establishmentName;Einrichtungsname;
+UDR;REST;establishmentNumber;Einrichtungsnummer;
+UDR;REST;establishmentType;Einrichtungstyp;
+UDR;REST;incomplete;Unvollständig;
+UDR;REST;locality;Region;
+UDR;REST;location;Ort;
+UDR;REST;mRID;MRID;
+UDR;REST;relativeperiod.category.usagepoint.validationOverview;Übersicht der Verwendungsstellen-Validierungen;
+UDR;REST;streetName;Straße;
+UDR;REST;streetNumber;Hausnummer;
+UDR;REST;streetType;Straßentyp;
+UDR;REST;subLocality;Unterregion;
+UDR;REST;zipCode;Postleitzahl;
+UPR;REST;NoMetrologyConfigForUsagePoint;Die Verwendungsstelle mit der MRID {0} hat keine Verbindung zur Metrologie-Konfiguration.;
+UPR;REST;NoSuchChannelForUsagePoint;Die Verwendungsstelle mit der MRID {0}hat keinen Kanal mit {1}.;
+UPR;REST;NoUsagePointWithSuchMrid;Keine Verwendungsstelle mit der MRID {0}.;
+PRA;REST;ExpectedPartialOutbound;Die erwartete Verbindungsmethode in der Gerätekonfiguration war vom Typ „Ausgehend“.
+PRA;REST;NoSuchConnectionTask;Das Gerät enthält keine Verbindungsmethode mit dieser Kennung.
+PRA;REST;ExpectedInbound;Die erwartete Verbindungsmethode auf dem Gerät war vom Typ „Eingehend“.
+PRA;REST;ExpectedOutbound;Die erwartete Verbindungsmethode auf dem Gerät war vom Typ „Ausgehend“.
+PRA;REST;NoSuchComTask;Die Übertragungsaufgabe ist nicht vorhanden.
+PRA;REST;NoSuchSecurityPropertySet;Die Sicherheitseigenschaften sind nicht vorhanden.
+PRA;REST;NoSuchDevice;Das Gerät ist nicht vorhanden.
+PRA;REST;ContentExpected;Bei dieser Methode wurde Inhalt erwartet, das Textfeld war jedoch leer.
+PRA;REST;NoSuchMessageCategory;Die Meldungskategorie ist nicht vorhanden.
+PRA;REST;NuSuchGateway;Das Gateway-Gerät ist nicht vorhanden.
+PRA;REST;NoSuchDeviceProtocol;Das Geräteprotokoll ist nicht vorhanden.
+PRA;REST;NoSuchAuthDevAccessLevel;Das Geräteprotokoll weist keine Zugriffsebene für Authentifizierungen mit dieser Kennung auf.
+PRA;REST;NoSuchEncDevAccessLevel;Das Geräteprotokoll weist keine Zugriffsebene für Verschlüsselungen mit dieser Kennung auf.
+PRA;REST;ConflictOnDevice;Das Gerät, das Sie bearbeiten wollten, wurde von jemand anderem geändert.
+PRA;REST;NoSuchProtocolTask;Die Protokollaufgabe ist nicht vorhanden.
+PRA;REST;NoSuchComTaskExecution;Das Gerät weist keine Übertragungsaufgabe mit dieser Kennung auf.
+PRA;REST;ComTaskNotSupporter;Die geplanten Übertragungsaufgaben können nicht mit „Übertragungsaufgabe“ konfiguriert werden, lediglich Zeitpläne annehmen.
+PRA;REST;ComTaskNotEnabled;Die Übertragungsaufgabe wurde in der Konfiguration nicht aktiviert.
+PRA;REST;ComTaskExpected;In der Anforderung wurde eine Übertragungsaufgabe erwartet.
+PRA;REST;ScheduleSpecExpected;Eine manuell geplante Übertragungsaufgabe erfordert eine Spezifikation des Zeitplans. Wollten Sie eine Ad-hoc-Übertragungsaufgabe ausführen?
+PRA;REST;SchedulingSpecNotSupported;Die Ausführung dieser Übertragungsaufgabe unterstützt keine festgelegten Zeitpläne.
+PRA;REST;ScheduleExpected;In einer geplanten Übertragungsaufgabe wird ein Übertragungszeitplan erwartet.
+PRA;REST;NoSuchComSchedule;Der Übertragungszeitplan ist nicht vorhanden.
+PRA;REST;NoSuchProtocolDialectProperties;Die Protokolldialekteigenschaften sind nicht vorhanden.
+PRA;REST;NoSuchComtaskEnablement;Es ist keine Berechtigung für die Übertragungsaufgabe vorhanden.
+PRA;REST;EitherDefaultorExplicit;Die Ausführung der Übertragungsaufgabe sollte entweder über eine Standardverbindungsaufgabe oder eine explizit festgelegte Verbindungsaufgabe erfolgen.
+PRA;REST;NoSuchDeviceMessage;Das Gerät weist keine bekannte Gerätemeldung mit dieser Kennung auf.
+PRA;REST;StatusUnknown;Zustand des Schütz eines unbekannten Geräts
+PRA;REST;NoComtaskForCommand;Es konnte keine Übertragungsaufgabe zur Ausführung der Gerätemeldungen gefunden werden.
+PRA;REST;NoSuchDeviceMessageSpec;Die Gerätemeldungskategorie enthält keine Meldungsspezifikation mit dieser Kennung.
+PRA;REST;NoSuchDeviceMessageCategory;Es ist keine solche Gerätemeldungskategorie vorhanden.
+PRA;REST;NoSuchMessageEnablement;Die Gerätekonfiguration enthält keine Freigabe für Gerätemeldungen mit dieser Kennung.
+PRA;REST;ExpectedDeviceMessageId;In der Anforderung wurde eine Kennung für die Gerätemeldung erwartet.
+PRA;REST;ExpectedContacterStatus;In der Anforderung wurde ein Geräteschützstatus erwartet.
+PRA;REST;VersionMissing;Für das Feld {0} wurde ein Versionswert erwartet.
+PRA;REST;MethodIdExpected;Es wurde eine Verbindungsmethodenkennung erwartet.
+PRA;REST;javax.validation.constraints.NotNull.message;Das erwartete Feld darf nicht null sein.
+PRA;REST;ExpectedDeviceMessageSpecId;In der Anforderung wurde eine Spezifikationskennung für die Gerätemeldung erwartet.
+PRA;REST;ReleaseDateExpected;In der Anforderung wurde ein Freigabedatum erwartet.
+PRA;REST;ExpectedProtocolInfo;In der Anforderung wurden Protokolldaten erwartet.
+PRA;REST;ExpectedComTask;In der Anforderung wurde eine Übertragungsaufgabe erwartet.
+PRA;REST;NoSuchUsagePoint;Es ist keine solche Verwendungsstelle vorhanden.
+PRA;REST;NoServiceKind;Dieses Feld ist erforderlich.
+PRA;REST;NoSuchServiceCategory;Es ist keine solche Dienstkategorie vorhanden.
+PRA;REST;NoSuchPropertySet;Es sind keine solchen benutzerdefinierten Eigenschaften vorhanden.
+PRA;REST;TypeNotSupported;Die Dienstkategorie wird nicht unterstützt.
+PRA;REST;NoSuchMetrologyConfig;Es ist keine solche messtechnische Konfiguration vorhanden.
+PRA;REST;NoSuchMeterActivation;Es ist keine solche Zähleraktivierung an der Verwendungsstelle vorhanden.
+PRA;REST;NoData;Es wurden keine Daten in Ihrer Anforderung gefunden.
+PRA;REST;NoSuchMeter;Es ist kein solcher Zähler vorhanden.
+PRA;REST;InvalidStartTime;Die Anfangszeit ist ungültig, da sie nicht vor der letzten Aktivierung liegen kann.
+PRA;REST;NoSuchDetail;Es konnten keine Details für diesem Zeitpunkt gefunden werden.
+PRA;REST;UnsupportedServiceKind;Verwendungsstellen dieser Dienstkategorie unterstützen keine Details
+PRA;REST;NoSuchConnectionState;Es ist kein solcher Verbindungsstatus vorhanden.
+PRA;REST;NoSuchDomainExtension;Die Domainerweiterung für den Dienstaufruf kann nicht abgerufen werden.
+PRA;REST;NoSuchEndpoint;Die Domainerweiterung für den Dienstaufruf kann nicht abgerufen werden.
+PRA;REST;HttpConnectionFailed;Senden einer HTTP-Antwort nicht möglich
+PRA;REST;NoSuchEndDevice;Es ist kein solches Endgerät an der Verwendungsstelle vorhanden.
+PRA;REST;invalidFieldLength;Die Feldlänge darf {max} Zeichen nicht überschreiten.
+PRA;REST;NoSuchServiceCallType;Es ist kein solcher Dienstaufruftyp mit der Kennung {0} vorhanden.
+PRA;REST;MetrologyContractsIncomplete;Die erforderlichen Verträge über messtechnische Dienstleistungen sind unvollständig.
+PRA;REST;CasIsNotAttachedToUsagePoint;Der benutzerdefinierte Attributesatz mit der Kennung {0} wurde der Verwendungsstelle nicht hinzugefügt.
+PRA;REST;NoSuchLocation;Es ist kein solcher Standort mit der Kennung {0} vorhanden.
+PRA;REST;NoSuchMeterRole;Es ist keine solche Zählerrolle mit dem Schlüssel {0} vorhanden.
+PRA;REST;UnsatisfiedReadingTypeRequirements;Der Zähler {0} konnte nicht verknüpft werden, da er keine Messtypen für die Zwecke {1} der messtechnischen Konfiguration an der Verwendungsstelle {2} bereitstellt.
+PRA;REST;NoSuchIssue;Es ist kein solches Problem mit der Kennung {0} vorhanden.
+PRA;REST;NoSuchUser;Es ist kein solcher Benutzer mit der Kennung {0} vorhanden.
+PRA;REST;NoSuchStatus;Es ist kein solcher Status mit dem Schlüssel {0} vorhanden.
+PRA;REST;IssueLockAttemptFailed;Es konnte keine Sperre für das Problem mit der Kennung {0} abgerufen werden.
+PRA;REST;BadFieldValue;Ungültiger Feldwert für {0}
+PRA;REST;IssueAlreadyClosed;Das Problem mit der Kennung {0} wurde bereits geschlossen.
+PRA;REST;NoSuchUsagePointLifeCycle;Es ist kein solcher Arbeitszyklus der Verwendungsstelle mit der Kennung {0} vorhanden.
+PRA;REST;NoSuchUsagePointLifeCycleState;Es ist kein solcher Zustand des Arbeitszyklus der Verwendungsstelle mit der Kennung {0} vorhanden.
+PRA;REST;NoUsagePointLifeCycleTransition;Es ist kein Übergang der Verwendungsstelle mit der Kennung {0} vorhanden.
+PRA;REST;UsagePointLifeCycleTransitionFailed;Der Übergang ist fehlgeschlagen: {0}.
+PRA;REST;MetersMustBeSpecifiedForMeterRoles;Die Zähler für die erforderlichen Zählerrollen „{0}“ sind an der Verwendungsstelle nicht festgelegt.
+PRA;REST;InvalidEndDeviceStage;Der Zähler befindet sich zum Zeitpunkt der Verknüpfung {0} nicht in einem betriebsbereitem Arbeitszyklus.
+PRA;REST;CommandCallback;Befehle der Verwendungsstelle bearbeiten
+PRA;REST;com.elster.jupiter.servicecall.ServiceCall;Dienstaufruf
+PRA;REST;pulse.public.api;Öffentliche Programmierschnittstelle
+PRA;REST;pulse.public.api.description;Öffentliche API verwalten
+PRA;REST;privilege.pulse.public.api.rest;Aufrufen
+PRA;REST;ImpossibleToSetMasterDevice;Das Gerät {0} ist direkt adressierbar. Das Hauptgerät kann nicht eingestellt werden.
+PRA;REST;NoSuchDeviceLifeCycleAction;Es ist keine Aktion für den Arbeitszyklus des Geräts mit der Kennung = {0} vorhanden.
+PRA;REST;ThisFieldIsRequired;Dieses Feld ist erforderlich.
+PRA;REST;CanNotHandleAction;Die angeforderte Aktion für den Arbeitszyklus des Geräts kann nicht bearbeitet werden.
+PRA;REST;NotFound;Die Ressource konnte nicht gefunden werden.
+PRA;REST;NoSuchPartialConnectionTask;Die Gerätekonfiguration enthält keine Verbindungsmethode mit dieser Kennung.
+PRA;REST;MissingConnectionTaskType;Die Art der Verbindungsaufgabe fehlt.
+PRA;REST;NoSuchDeviceType;Der Gerätetyp ist nicht vorhanden.
+PRA;REST;NoSuchDeviceConfig;Der Gerätetyp enthält keine Gerätekonfiguration mit dieser Kennung.
+PRA;REST;NoPartialConnectionTask;Die Verbindungsmethode auf dem Gerät fehlt.
+PRA;REST;ExpectedPartialInbound;Die erwartete Verbindungsmethode in der Gerätekonfiguration war vom Typ „Eingehend“.
+UCR;REST;com.elster.jupiter.metering.config.OperatorDIVIDE;{0} / {1}
+UCR;REST;com.elster.jupiter.metering.config.OperatorSAFE_DIVIDE;{0} / ({1} oder {2})
+UPC;DOMAIN;usagePoint.config.validationConfiguration;Validierungskonfiguration
+UPC;DOMAIN;usagePoint.config.validationConfiguration.description;Validierungskonfiguration verwalten
+UPC;DOMAIN;usagePoint.config.estimationConfiguration;Konfiguration der Bewertung
+UPC;DOMAIN;usagePoint.config.estimationConfiguration.description;Bewertungskonfiguration verwalten
+UPC;DOMAIN;privilege.view.metrologyConfiguration.validation;Validierung der messtechnischen Konfiguration anzeigen
+UPC;DOMAIN;privilege.administrate.metrologyConfiguration.validation;Validierung nach messtechnischer Konfiguration ausführen
+UPC;DOMAIN;privilege.view.metrologyConfiguration.estimation;Bewertung nach messtechnischer Konfiguration anzeigen
+UPC;DOMAIN;privilege.administrate.metrologyConfiguration.estimation;Bewertung nach messtechnischer Konfiguration ausführen
+BEP;DOMAIN;MdmBpmEventSubscriber;Ereignisse für das Verteilen der Daten im BPM-System bearbeiten
+UDC;DOMAIN;thisFieldIsRequired;Dieses Feld ist erforderlich.
+UDC;DOMAIN;thisFieldIsTooLong;Die Feldlänge darf {max} Zeichen nicht überschreiten.
+UDC;DOMAIN;ValidationPropertyCannotBeOverridden;Die Validierungsregeleigenschaft mit dem Schlüssel {0} kann nicht überschrieben werden.
+UDC;DOMAIN;EstimationPropertyCannotBeOverridden;Die Bewertungsregeleigenschaft mit dem Schlüssel {0} kann nicht überschrieben werden.
+UDC;DOMAIN;statisticsNotValidated;Nicht validiert
+UDC;DOMAIN;statisticsSuspect;Fehlerverdächtiger Wert
+UDC;DOMAIN;valid;Gültig
+UDC;DOMAIN;statisticsGeneral;Allgemein
+UDC;DOMAIN;statisticsEdited;Bearbeitet
+UDC;DOMAIN;statisticsEstimated;Bewertet
+UDC;DOMAIN;statisticsValid;Gültig
+UDC;DOMAIN;statisticsAdded;Hinzugefügt
+UDC;DOMAIN;edited;Bearbeitet
+UDC;DOMAIN;statisticsRemoved;Entfernt
+UDC;DOMAIN;statisticsConfirmed;Bestätigt
+UDC;DOMAIN;estimated;Bewertet
+UDC;DOMAIN;statisticsInformative;Informativ
+UDC;DOMAIN;statisticsNotSuspect;Nicht fehlerverdächtig
+UDC;DOMAIN;estimatedProjected;Geplant
+UDC;DOMAIN;usagepoint.bulk.itemizer;Massenaufschlüsselung der Verwendungsstelle
+UDC;DOMAIN;usagepoint.bulk.handler;Massenbearbeitung der Verwendungsstelle
+UDC;DOMAIN;usagePointGroup.usagePointGroups;Verwendungsstellengruppen
+UDC;DOMAIN;usagePointGroup.usagePointGroups.description;Gruppen der Verwendungsstelle verwalten
+UDC;DOMAIN;privilege.administer.usagePointGroup;Ausführen
+UDC;DOMAIN;privilege.administer.usagePointEnumeratedGroup;Statische Verwendungsstellengruppen ausführen
+UDC;DOMAIN;privilege.view.usagePointGroupDetail;Details anzeigen
+UDC;DOMAIN;privilege.administer.usagepoint.validationConfiguration;Validierungskonfiguration ausführen
+UDC;DOMAIN;privilege.administer.usagepoint.estimationConfiguration;Bewertungskonfiguration ausführen
+UCR;REST;com.elster.jupiter.metering.config.FunctionSUM;Summe ({0}, {1})
+UCR;REST;com.elster.jupiter.metering.config.FunctionMAX;max.
+UCR;REST;com.elster.jupiter.metering.config.FunctionMIN;min
+UCR;REST;com.elster.jupiter.metering.config.FunctionMAX_AGG;max ({0}, {1})
+UCR;REST;com.elster.jupiter.metering.config.FunctionMIN_AGG;min ({0}, {1})
+UCR;REST;com.elster.jupiter.metering.config.FunctionAVG;MW ({0}, {1})
+UCR;REST;com.elster.jupiter.metering.config.FunctionAGG_TIME;Aggregat ({0})
+UCR;REST;com.elster.jupiter.metering.config.FunctionPOWER;Leistung ({0}, {1})
+UCR;REST;com.elster.jupiter.metering.config.FunctionSQRT;Quadratwurzel ({0}, {1})
+UCR;REST;com.elster.jupiter.metering.config.FunctionFIRST_NOT_NULL;firstNotNull
+UCR;REST;com.elster.jupiter.metering.config.OperatorPLUS;{0} + {1}
+UCR;REST;com.elster.jupiter.metering.config.OperatorMINUS;{0} - {1}
+UCR;REST;com.elster.jupiter.metering.config.OperatorMULTIPLY;{0} * {1}
+UPR;REST;NoUsagePointWithSuchName;Es ist keine Verwendungsstelle mit dem Namen {0} vorhanden.
+UPR;REST;NoSuchRegisterForUsagePoint;Die Verwendungsstelle {0} weist kein Register mit der Kennung {1} auf.
+UDR;REST;NoDeviceWithName;Es ist kein Zähler mit dem Namen {0} vorhanden.
+UDR;REST;NoUsagePointWithName;Es ist keine Verwendungsstelle mit dem Namen {0} vorhanden.
+UDR;REST;NoReadingTypeForMRID;Es ist kein Messtyp mit der MRID {0} vorhanden.
+UDR;REST;NoSuchCustomPropertySet;Die benutzerdefinierten Eigenschaften mit der Kennung „{0}“ wurden nicht gefunden.
+UDR;REST;EndDateMusBeAfterStartDate;Das Enddatum muss nach dem Anfangsdatum liegen.
+UDR;REST;NoSuchServiceCtegory;Die Dienstkategorie wurde nicht gefunden.
+UDR;REST;NoSuchTechInfo;Es sollten technische Daten für {0} angegeben werden.
+UDR;REST;NoUsagePointForID;Es ist keine Verwendungsstelle mit der Kennung {0} vorhanden.
+UDR;REST;BadRequest;Ungültige Anforderung
+UDR;REST;NoMetrologyConfigWithId;Es ist keine messtechnische Konfiguration mit der Kennung {0} vorhanden.
+UDR;REST;UsagePointLinkedException;Fehler beim Verknüpfen der messtechnischen Konfiguration mit der Verwendungsstelle „{0}“.
+UDR;REST;UsagePointLinkedExceptionMsg;Die Verwendungsstelle {0} ist bereits mit einer messtechnischen Konfiguration verknüpft.
+UDR;REST;UsagePointLinkedInactiveMetrologyConfigurationExceptionMsg;Eine inaktive messtechnische Konfiguration kann nicht mit der Verwendungsstelle „{0}“ verknüpft werden.
+UDR;REST;NoMeterRoleForKey;Es ist keine Zählerrolle mit dem Schlüssel {0} vorhanden.
+UDR;REST;invalidCoordinates;Alle Koordinatenfelder müssen gültige Werte enthalten.
+UDR;REST;ThisFieldIsRequired;Dieses Feld ist erforderlich.
+UDR;REST;NoMetrologyConfigForUsagePoint;Die Verwendungsstelle {0} weist keine Verknüpfung zur messtechnischen Konfiguration auf.
+UDR;REST;MetrologyPurposeNotLinkedToUsagePoint;Der Vertrag über messtechnische Dienstleistungen mit der Kennung {0} wurde an der Verwendungsstelle {1} nicht gefunden.
+UDR;REST;NoSuchOutputForUsagePoint;Die Verwendungsstelle {0} weist keinen Ausgang mit der Kennung {1} auf.
+UDR;REST;ThisOutputIsIrregular;Der Ausgang der Verwendungsstelle mit der Kennung {0} ist unregelmäßig und kann keine Intervalldaten bereitstellen.
+UDR;REST;ThisOutputIsRegular;Der Ausgang der Verwendungsstelle mit der Kennung {0} ist regelmäßig und kann nur Intervalldaten bereitstellen.
+UDR;REST;NoRelativePeriodForId;Der relative Zeitraum mit der Kennung {0} wurde nicht gefunden.
+UDR;REST;RelativePeriodIsInTheFuture;Für den relativen Zeitraum mit der Kennung {0} können keine Validierungsstatistiken erhoben werden: Er liegt in der Zukunft.
+UDR;REST;version.start.should.be.greater.than.up.creation.date;Das Anfangsdatum muss größer als das oder gleich dem Erstellungsdatum der Verwendungsstelle sein.
+UDR;REST;ProcessStatusPending;Ausstehend
+UDR;REST;ProcessStatusActive;Aktiv
+UDR;REST;ProcessStatusCompleted;Abgeschlossen
+UDR;REST;ProcessStatusAborted;Abgebrochen
+UDR;REST;ProcessStatusSuspended;Unterbrochen
+UDR;REST;UsagePointSearchDomainNotRegistered;Die Such-Domain der Verwendungsstelle wurde nicht registriert.
+UDR;REST;AtLeastOneCriterion;Es muss mindestens ein Suchkriterium angegeben werden.
+UDR;REST;SearchablePropertyInvalidValue;Ungültiger Wert
+UDR;REST;NoSuchMetrologyPurpose;Es ist kein solcher Zweck der messtechnischen Konfiguration mit der Kennung {0} vorhanden.
+UDR;REST;CannotActivateMetrologyPurpose;Der Zweck der messtechnischen Konfiguration mit der Kennung {0} kann nicht aktiviert werden.
+UDR;REST;UnsatisfiedReadingTypeRequirements;Die Zähler stellen nicht den im Vertrag über messtechnische Dienstleistungen festgelegten Messtyp bereit.
+UDR;REST;invalidEstimatorPropertyValue;Ungültiger Eigenschaftswert
+UDR;REST;EstimatorRequired;Bitte wählen Sie eine Bewertungsfunktion aus.
+UDR;REST;EstimatorNotValid;Die eingegebene Bewertungsfunktion ist nicht gültig.
+UDR;REST;usagepoint.bulk.no.such.action;Unerwartete oder nicht vorhandene Aktion: {0}
+UDR;REST;NoSuchCalendar;Es sind keine solchen Kalender vorhanden.
+UDR;REST;usagepoint.bulk.no.appserver.to.serve;Für die Bearbeitung dieser Anforderung ist zurzeit kein aktiver Anwendungsserver verfügbar.
+UDR;REST;FlagAsFavoriteConflictTitle;Fehler beim Kennzeichnen von „{0}“ als bevorzugter Wert.
+UDR;REST;RemoveFromFavoritesConflictTitle;Fehler beim Entfernen von „{0}“ aus den bevorzugten Werten.
+UDR;REST;usagepoint.bulk.no.such.messagequeue;Der Befehl kann nicht in die Warteschlange gestellt werden, da keine Meldungswarteschlange gefunden wurde.
+UDR;REST;intervalEndBeforeStart;Endzeit liegt vor Anfangszeit
+UDR;REST;wrongActionSpecified;"Es wurde ein unbekannter Wert für „Aktion"" angegeben."
+UDR;REST;usagepoint.meterrole.activation.must.be.greater.than.up.creation.date;Die Aktivierungszeit der Zählerrollen muss größer oder gleich dem Anlagedatum der Verwendungsstelle sein.
+UDR;REST;missing.transition.requirements;Die Prüfung vor dem Übergang ist fehlgeschlagen: {0}.
+UDR;REST;NoTransitionWithId;Es ist kein Übergang der Verwendungsstelle mit der Kennung {0} vorhanden.
+UDR;REST;NoMetrologyConfigForUsagePointInThisTime;Die messtechnische Konfiguration ist zu diesem Zeitpunkt nicht mit der Verwendungsstelle verknüpft.
+UDR;REST;MetrologyPurposeNotFoundOnUsagePoint;Der Zweck der messtechnischen Konfiguration „{0}“ wurde an der Verwendungsstelle {1} nicht gefunden.
+UDR;REST;ReadingTypesDontMatch;Die Messtypen stimmen nicht überein.
+UDR;REST;ReadingTypeNotFoundOnUsagePoint;Der Messtyp wurde an der Verwendungsstelle nicht gefunden.
+UDR;REST;NoSuchValidationRule;Es ist keine Validierungsregel mit der Kennung {0} vorhanden.
+UDR;REST;NoSuchEstimationRule;Es ist keine Bewertungsregel mit der Kennung {0} vorhanden.
+UDR;REST;ValidationRuleIsNotApplicableToOutput;Die Validierungsregel mit der Kennung {0} ist nicht auf den Ausgang {1} anwendbar.
+UDR;REST;EstimationRuleIsNotApplicableToOutput;Die Bewertungsregel mit der Kennung {0} ist nicht auf den Ausgang {1} anwendbar.
+UDR;REST;nothing.is.validated;Die Validierung wurde zu diesem Zweck der Verwendungsstelle ab dem angegebenen Datum nicht konfiguriert.
+UDR;REST;invalid.transition.time;Das Übergangsdatum muss größer als das Datum der Erstellung der Verwendungsstelle {0} sein.
+UDR;REST;field.value.exceeded;Der Wert überschreitet die maximale Feldlänge.
+UDR;REST;no.open.cas.version.at.date;Die Werte für einen der benutzerdefinierten Attributesätze können nicht aktualisiert werden, da am {0} keine Version vorhanden ist.
+UDR;REST;another.cas.version.in.the.future;Eine neue Version für einen der benutzerdefinierten Attributesätze kann nicht erstellt werden, da eine andere Version mit einem Anfangsdatum nach {0} vorhanden ist.
+UDR;REST;usagepoint.calendar.cannot.link.before.start;Der Kalender kann nicht vor dem Anfangsdatum dieses Kalenders verknüpft werden.
+UDR;REST;usagepoint.calendar.cannot.link.before.creation.date;Der Kalender kann nicht vor dem Erstellungsdatum der Verwendungsstelle verknüpft werden.
+UDR;REST;none;Keine
+UDR;REST;name;Name
+UDR;REST;state;Zustand
+IMT;REST;general.immediately;Sofort
+IMT;REST;device.registerData.deltaValue;Deltawert
+IMT;REST;outputs.list.title;Ausgabe
+IMT;REST;general.dynamic;Dynamisch
+IMT;REST;validation.schedule;Planen
+IMT;REST;reading.validationResult.confirmed;Bestätigt
+IMT;REST;usagepointgroup.wizard.progress.creationGroup;Erstellung der Verwendungsstellengruppe Bitte warten ...
+IMT;REST;usagePointLifeCycleTransitions.add.failedPretransitionChecks;Fehlgeschlagene Prüfungen vor dem Übergang
+IMT;REST;usagePointLifeCycles.clone.templateMsg;Der neue Arbeitszyklus der Verwendungsstelle basiert auf {0} und wird dieselben Zustände und Übergänge verwenden.
+IMT;REST;general.lastChecked;Letzte Prüfung
+IMT;REST;customattributesets.multiselect.selected[1];Es wurden {0} benutzerdefinierten Attributesatz ausgewählt.
+IMT;REST;overview.widget.flaggedUsagePoints.usagePoint.serviceCategory;Dienstkategorie
+IMT;REST;general.label.metersSpecifications;Zählerspezifikationen
+IMT;REST;usagePointLifeCycleStates.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Zuständen
+IMT;REST;usagePointLifeCycleStates.noProcessesAdded;Es wurden keine Prozesse hinzugefügt.
+IMT;REST;general.versionsPerPage;Versionen pro Seite
+IMT;REST;favoriteUsagePointGroups.multiselect.selected[0];Es wurden keine Verwendungsstellengruppen ausgewählt.
+IMT;REST;general.metrologyConfiguration.manage;Messtechnische Konfiguration verwalten
+IMT;REST;overview.widget.flaggedUsagePoints.usagePoint.creationDate;Erstellungsdatum
+IMT;REST;metrologyConfigPurposes.empty.title;Es wurden keine Zwecke gefunden.
+IMT;REST;validationRuleSets.count.added[many];Es wurden {0} Validierungsregelsätze hinzugefügt.
+IMT;REST;outputReadingsHistory.empty.list.item2;Es stimmen keine Verlaufselemente mit dem Filter überein.
+IMT;REST;output.estimationErrorMessage;{0} konnte nicht bewertet werden.
+IMT;REST;reading.readingvaluetab.title;Messwert
+IMT;REST;outputReadingsHistory.empty.list.item1;Der Filter wurde noch nicht festgelegt.
+IMT;REST;Imt.metrologyconfiguration.add.empty.title;Es wurden keine benutzerdefinierten Attributesätze gefunden.
+IMT;REST;usagepoint.registerData.interval.end;Ende des Zeitraums
+IMT;REST;purpose.summary.endOfInterval;Ende des Intervalls
+IMT;REST;metrologyConfiguration.wizard.startDate;Anfangsdatum
+IMT;REST;general.label.status;Status
+IMT;REST;general.estimator;Bewertungsfunktion
+IMT;REST;device.registerData.deltaValueWithUnit;Deltawert ({0})
+IMT;REST;searchItems.bulk.confirmation;Bestätigung
+IMT;REST;searchItems.bulk.calendarErrorMsgDot;Diese Seite enthält Fehler, die Ihre Aufmerksamkeit erfordern.
+IMT;REST;customattributesetsversions.conflictedtoptext;Es sind unterschiedliche Versionen vorhanden.
+IMT;REST;usagepoint.registerData.reset.title.question1;Messwerte zurückstellen?
+IMT;REST;general.on;Ein
+IMT;REST;general.estimationConfiguration;Konfiguration der Bewertung
+IMT;REST;searchItems.bulk.actionDetails;Aktionsdetails
+IMT;REST;customattributesets.multiselect.selected[0];Es wurden keine benutzerdefinierten Attributesätze ausgewählt.
+IMT;REST;usagePointLifeCycles.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Arbeitszyklen der Verwendungsstelle
+IMT;REST;general.label.purposes;Zwecke
+IMT;REST;usagePointLifeCycleStates.added;Zustand hinzugefügt
+IMT;REST;general.fromDate.lc;von {0}
+IMT;REST;general.label.activeRules;Aktive Regeln
+IMT;REST;metrologyconfiguration.tooltip.isGapAllowed;Gibt an, ob Lücken zwischen Zählern in einer Zählerrolle und zwischen dem Anfangs-/Enddatum der messtechnischen Konfiguration und den Zähleraktivierungen an den Verwendungsstellen bestehen.
+IMT;REST;customattributesets.editlevels;Stufen bearbeiten
+IMT;REST;general.measurementunits.kiloVolt;kV
+IMT;REST;usagepoint.wizard.calendarStepTitle;Schritt {0}: {1}
+IMT;REST;usagepointsearch.empty.list.item2;Es stimmen keine Verwendungsstellen mit dem Filter überein.
+IMT;REST;general.editGeneralInformation.lostData;Nicht gespeicherte Änderungen gehen verloren.
+IMT;REST;usagepointsearch.empty.list.item1;Es sind keine Verwendungsstellen im System vorhanden.
+IMT;REST;general.label.linkMeters;<a href=“{0}“>Zähler verknüpfen</a>
+IMT;REST;general.label.dashboard;Übersicht
+IMT;REST;general.correct;Richtig
+IMT;REST;widget.myWorkList.topLabel;Die wichtigsten {0} dringenden Benutzeraufgaben
+IMT;REST;widget.myWorkList.userTasks;Benutzeraufgaben
+IMT;REST;general.refresh;Aktualisieren
+IMT;REST;calendars.selectCalendar;Kalender auswählen
+IMT;REST;general.editEstimationComment;Kommentar zur Bewertung bearbeiten
+IMT;REST;metrologyConfiguration.unlinked;Die Verknüpfung der messtechnischen Konfiguration wurde aufgehoben.
+IMT;REST;widget.myWorkList.property.processName;Prozessname
+IMT;REST;usagepoint.wizard.step1title;Schritt 1: Allgemeine Angaben
+IMT;REST;general.registers;Register
+IMT;REST;usagePointLifeCycleTransitions.add.showOptional;Nur die Optionen anzeigen
+IMT;REST;general.calendar;Kalender
+IMT;REST;searchItems.bulk.addCalendarToAllDevices[1];an {0} Verwendungsstelle
+IMT;REST;customattributesets.timeSliced;In Zeitintervalle unterteilt
+IMT;REST;readings.list.reason.3;Es stimmen keine Daten mit dem Filter überein.
+IMT;REST;readings.list.reason.2;Es wurden keine Geräte mit dieser Verwendungsstelle im angegebenen Zeitraum verknüpft.
+IMT;REST;readings.list.reason.1;Es wurden keine Daten für diesen Ausgang bereitgestellt.
+IMT;REST;overview.widget.flaggedUsagePoints.header;Meine gekennzeichneten Verwendungsstellen ({0})
+IMT;REST;general.projected;Geplant
+IMT;REST;general.label.addCalendars;Kalender hinzufügen
+IMT;REST;customattributeset.timesliced.clone.gap.title;Das Klonen der Version ist fehlgeschlagen.
+IMT;REST;favoriteUsagePointGroups.grid.type.static;Statisch
+IMT;REST;purpose.dataValidation.timeout.title1;Die Datenvalidierung dauert länger als erwartet.
+IMT;REST;widget.myWorkList.property.dueDate;Fälligkeitsdatum
+IMT;REST;general.label.interruptible;Unterbrechbar
+IMT;REST;general.measurementunits.kiloWattHours;kWh
+IMT;REST;usagepointgroup.wizard.edit.confirmationTitle;Verwendungsstellengruppe {0} speichern?
+IMT;REST;usagepoint.purpose.estimation.task.noTasks.on.usagePoint;Es wurden noch keine Bewertungsaufgaben für diese Verwendungsstelle konfiguriert. ({0} Bewertungsaufgaben verwalten {1})
+IMT;REST;general.validationConfiguration;Validierungskonfiguration
+IMT;REST;validationruleset.remove.successMsg;Der Validierungsregelsatz wurde entfernt.
+IMT;REST;searchItems.bulk.addCalendarToAllDevices[0];an {0} Verwendungsstellen
+IMT;REST;usagepointgroup.empty.list.message;Es sind keine Verwendungsstellen in Ihrer Gruppe vorhanden.
+IMT;REST;usagePointLifeCycles.pagingtoolbartop.emptyMsg;Es sind keine Arbeitszyklen der Verwendungsstelle zur Anzeige verfügbar.
+IMT;REST;generatereport.generateReportButton;Bericht erstellen
+IMT;REST;general.noCalendars;Es wurden keine Kalender gefunden.
+IMT;REST;searchItems.bulk.addCalendarXToYUsagePoints.confirmMsg;Kalender {0} zu den Verwendungsstellen {1} hinzufügen?
+IMT;REST;general.removing;Daten werden entfernt ...
+IMT;REST;metrologyconfiguration.general.activate.title;{0} aktivieren?
+IMT;REST;general.editAttributesFor;Bearbeiten der Attribute für
+IMT;REST;general.label.ongoingProcesses;Laufende Prozesse ({0})
+IMT;REST;general.noMetrologyConfiguration;Es ist keine messtechnische Konfiguration vorhanden.
+IMT;REST;transitionBusinessProcess.entry;Prozesse am Eingang
+IMT;REST;general.activePurposes;Aktive Zwecke
+IMT;REST;general.usagepoints.selected[1];Es wurde {0} Verwendungsstelle ausgewählt.
+IMT;REST;outputs.registers.pagingtoolbartop.displayMsgItems;{0} - {1} von {2} Messwerten
+IMT;REST;metrologyConfiguration.wizard.custtomAttributes.override;Werte der vorhandenen Versionen von versionierten benutzerdefinierten Attributesätzen überschreiben
+IMT;REST;usagepoint.registerData.interval.start;Anfang des Zeitabschnitts
+IMT;REST;ruleSet.metrologyConfigurationPurposes.pagingtoolbarbottom.itemsPerPage;Zwecke der messtechnischen Konfiguration pro Seite
+IMT;REST;general.estimateNow;Jetzt bewerten
+IMT;REST;general.servicecalls;Dienstaufrufe
+IMT;REST;general.usagePointGroup;Verwendungsstellengruppe
+IMT;REST;general.measurementunits.megaVolt;MV
+IMT;REST;usagepoint.add.emptyText.typeOfUsagePoint;Verwendungsstellentyp auswählen ...
+IMT;REST;usagepoint.wizard.lifeCycleTransitionStep.description;Der ausgewählte Übergang des Arbeitszyklus der Verwendungsstelle wird nach dem Erstellen der Verwendungsstelle ausgelöst.
+IMT;REST;general.label.type;Typ
+IMT;REST;metrologyConfiguration.estimation.rulesCount;{0} Bewertungsregel(n)
+IMT;REST;general.remove.count;{0} entfernen
+IMT;REST;general.amountOfSuspects;Menge der fehlerverdächtigen Werte
+IMT;REST;general.deprecate;Ablehnen
+IMT;REST;general.deviceQuality.tooltip.moreMessage;Details der Messqualität für nähere Informationen anzeigen
+IMT;REST;usagepoint.navigation.step2;Technische Daten
+IMT;REST;general.measurementunits.megaPascal;MPa
+IMT;REST;usagepoint.navigation.step1;Allgemeine Angaben
+IMT;REST;general.usagepoints.selected[0];Es wurden keine Verwendungsstellen ausgewählt.
+IMT;REST;general.addMetrologyConfigurationPurposes;Zwecke der messtechnischen Konfiguration hinzufügen
+IMT;REST;purpose.summary.includeBulkValues;Massenwerte einschließen
+IMT;REST;general.attributes.manage;Attribute der Verwendungsstelle verwalten
+IMT;REST;general.reset;Zurücksetzen
+IMT;REST;device.readingData.lastUpdate;Letzte Aktualisierung
+IMT;REST;validation.tasks.manage;Validierungsaufgaben verwalten
+IMT;REST;general.all;Alle
+IMT;REST;outputs.pagingtoolbartop.emptyMsg;Es sind keine Ausgänge zur Anzeige verfügbar.
+IMT;REST;usagepoint.wizard.step2title;Schritt 2: Technische Daten
+IMT;REST;usagepointgroup.pagingtoolbarbottom.itemsPerPage;Verwendungsstellengruppen pro Seite
+IMT;REST;ruleSet.metrologyConfigurationPurposes.add.success.msg;Es wurden {0} Zwecke der messtechnischen Konfigurationen hinzugefügt.
+IMT;REST;usagepointgroup.pagingtoolbartop.emptyMsg;Es sind keine Verwendungsstellengruppen zur Anzeige verfügbar.
+IMT;REST;metrologyConfiguration.wizard.clarification;Die messtechnischen Konfigurationen für die Verwendungsstelle.
+IMT;REST;transitionBusinessProcess.exit;Prozesse am Ausgang
+IMT;REST;general.measurementunits.volt;V
+IMT;REST;usagePointLifeCycles.acknowledgment.setAsDefault;Der Arbeitszyklus der Verwendungsstelle wurde als Standard festgelegt.
+IMT;REST;usagePoint.history.metrologyConfiguration.empty.title;Es wurden noch keine messtechnischen Konfigurationen mit dieser Verwendungsstelle verknüpft.
+IMT;REST;deviceloadprofiles.intervalFlags;Intervall-Markierungen
+IMT;REST;ruleSet.addMetrologyConfigurationPurposes.grid.multiselect.selected[1];Es wurde {0} Zweck der messtechnischen Konfigurationen ausgewählt.
+IMT;REST;metrologyconfiguration.general.deprecated;Die messtechnische Konfiguration wurde verworfen.
+IMT;REST;general.order;Anweisung
+IMT;REST;customattributesets.viewlevels;Ebenen anzeigen
+IMT;REST;overview.widget.flaggedUsagePointGroups.noUsagePointGroupsFound;Es wurden keine bevorzugten Verwendungsstellengruppen gefunden.
+IMT;REST;register-data.list.add;Messwerte hinzufügen
+IMT;REST;usagepoint.wizard.linkMetrologyConfigurationWithMetersStep.description;Eine messtechnische Konfiguration verknüpfen, und die Zähler mit den Zählerrollen der ausgewählten messtechnischen Konfiguration verknüpfen.
+IMT;REST;metrologyConfiguration.wizard.cpsStepTitle;Schritt {0}: {1}
+IMT;REST;general.usagePointSummary;Zusammenfassung der Verwendungsstellen
+IMT;REST;general.formula;Formel
+IMT;REST;general.suspectReadings;Fehlerverdächtige Messwerte
+IMT;REST;general.selectUsagePoints;Verwendungsstellen auswählen
+IMT;REST;general.label.isGapAllowed;Lücken zulassen
+IMT;REST;searchItems.bulk.devicesError;Sie müssen einen oder mehrere Verwendungsstellen auswählen, um zum nächsten Schritt übergehen zu können.
+IMT;REST;usagePoints.bulk.selectedDevicesInTable;Verwendungsstellen in Tabelle auswählen
+IMT;REST;ruleSet.addMetrologyConfigurationPurposes.grid.multiselect.selected[0];Es wurden keine Zwecke der messtechnischen Konfigurationen ausgewählt.
+IMT;REST;general.unknown;Unbekannt
+IMT;REST;transitionBusinessProcess.empty.title;Es wurden keine Prozesse gefunden.
+IMT;REST;selectMetrologyConfiguration.navigation.step1;Messtechnische Konfiguration auswählen
+IMT;REST;widget.myWorkList.property.priority;Priorität
+IMT;REST;selectFavoriteUsagePointGroups.addUsagePointGroup;Verwendungsstellengruppe hinzufügen
+IMT;REST;usagePointLifeCycles.edit.successMsg;Der Arbeitszyklus der Verwendungsstelle wurde gespeichert.
+IMT;REST;outputs.registers.pagingtoolbarbottom.itemsPerPage;Messwerte pro Seite
+IMT;REST;general.edited;Bearbeitet
+IMT;REST;historyGrid.changedOn;Geändert am
+IMT;REST;device.registerData.eventTime;Zeitpunkt des Ereignisses
+IMT;REST;metrologyConfigPurposes.add;Zweck hinzufügen
+IMT;REST;output.estimationErrorMessageWithIntervals;{0} konnte mit {1} nicht bewertet werden.
+IMT;REST;usagepoint.add.emptyText.serviceCategory;Dienstkategorie auswählen ...
+IMT;REST;estimation.addRuleSet.purpose;Zweck
+IMT;REST;validation.addRuleSet.purpose;Zweck
+IMT;REST;serviceCategories.cas.empty.list.item1;Es wurden noch keine benutzerdefinierten Attributesätze hinzugefügt.
+IMT;REST;general.cancelX;{0} abbrechen?
+IMT;REST;general.workspace;Arbeitsbereich
+IMT;REST;form.metrologyconfiguration.section.meterRoles;Zählerrollen
+IMT;REST;usagepoint.estimation.addRulesSetGrid.emptyCmp.item2;Alle Bewertungsregelwerke wurden bereits hinzugefügt.
+IMT;REST;usagepoint.registerData.editReading;Messwerte bearbeiten
+IMT;REST;overview.widget.flaggedUsagePointGroups.usagePointGroup.name;Name
+IMT;REST;general.measurementPeriod;Messzeitraum
+IMT;REST;general.addUsagePointLifeCycle;Arbeitszyklus der Verwendungsstelle hinzufügen
+IMT;REST;reading.validationResult.suspect;Fehlerverdächtiger Wert
+IMT;REST;metrologyConfigurationDetails.meterRolesCount;{2} Zählerrolle(n)
+IMT;REST;general.estimationCommentWithComment;Kommentar zur Bewertung: {0}
+IMT;REST;usagePoint.flag.tooltip.unflag;Das Element anklicken, um es aus der Liste der gekennzeichneten Verwendungsstelle zu entfernen.
+IMT;REST;usagepoints.bulk.selectedScheduleInTable;Kalender in Tabelle auswählen
+IMT;REST;usagePoint.metrologyConfiguration.empty.reason.at.this.time;Die messtechnische Konfiguration ist zu diesem Zeitpunkt nicht verknüpft.
+IMT;REST;customattributesets.multiselect.selected[many];Es wurden {0} benutzerdefinierte Attributesätze ausgewählt.
+IMT;REST;outputs.list.empty.reason1;Es wurden keine Ausgänge zu dem Zweck konfiguriert.
+IMT;REST;customattributesets.versions.empty.list.item1;Es wurden noch keine Versionen hinzugefügt.
+IMT;REST;general.usagePointStatesCount;{0} Zustände der Verwendungsstellen
+IMT;REST;general.customAttributes;Benutzerdefinierte Attribute
+IMT;REST;usagepoint.add.emptyText.phaseCode;Phasencode auswählen ...
+IMT;REST;usagepoint.registerData.restored;Die Registerdaten wurden erfolgreich auf die Gesamtmenge zurückgestellt.
+IMT;REST;general.eventTypes;Ereignistypen
+IMT;REST;metrologyConfiguration.validation.tasks.count;{0} Validierungsaufgabe(n)
+IMT;REST;reading.tou.gap;Nicht berechnete Daten, Kalender
+IMT;REST;general.estimates;Bewertungswerte
+IMT;REST;outputs.label.interval;Intervall
+IMT;REST;usagepoints.pagingtoolbarbottom.itemsPerPage;Verwendungsstellen pro Seite
+IMT;REST;general.measurementunits.kiloWatt;kW
+IMT;REST;purpose.dataEstimation.successMsg;Die Datenbewertung für den Zweck wurde abgeschlossen.
+IMT;REST;general.amountOfInformatives;Anzahl der informativen Werte
+IMT;REST;general.lifeCycleTransition;Übergang des Arbeitszyklus
+IMT;REST;general.validateNow;Jetzt validieren
+IMT;REST;customattributesetsversions.overlappanelbottomtext;Die hier vorgenommenen Änderungen werden sich auf andere Versionen auswirken.
+IMT;REST;usagepoint.servicecall.cancelall.title;Alle laufenden Dienstaufrufe abbrechen?
+IMT;REST;general.usagePointLifeCycle;Arbeitszyklus der Verwendungsstelle
+IMT;REST;general.readingQuality;Messqualität
+IMT;REST;ruleSet.validation.metrologyConfigurationPurposes.removeConfirmation.msg;Der Validierungsregelsatz wird für diesen Zweck der messtechnischen Konfiguration nicht mehr verfügbar sein.
+IMT;REST;usagepoints.bulk.step2title;Schritt 2: Aktion auswählen
+IMT;REST;general.dontApply;Nicht anwenden
+IMT;REST;estimationRuleSets.count.selected[many];{0} Bewertungsregelwerke ausgewählt
+IMT;REST;dataQuality.paging.displayMoreMsg;{0} - {1} von mehr als {2} Verwendungsstellen
+IMT;REST;usagePointLifeCycleTransitions.pagingtoolbarbottom.itemsPerPage;Übergänge pro Seite
+IMT;REST;transitionBusinessProcess.no.processes.selected;Mindestens einen Prozess auswählen
+IMT;REST;usagepoint.registerData.restored.message.new;Der Registerwert mit der Messzeit {0} um {1} wird auf den Wert des aggregierten Messwerts des Zählers zurückgestellt.
+IMT;REST;general.validator;Prüfmechanismus
+IMT;REST;general.suspectX[1];{0} fehlerverdächtiger Wert
+IMT;REST;general.count;Zähler
+IMT;REST;general.period.fromUntil;Von {0} bis {1}
+IMT;REST;general.addReading;Messwerte hinzufügen
+IMT;REST;general.customAttributeSets;Benutzerdefinierte Attributesätze
+IMT;REST;general.measurementunits.cubicMeterPerHour;mÂ³/h
+IMT;REST;useagepoint.servicecall.cancelall.msg;Alle abbrechbaren Dienstaufrufe werden abgebrochen. Möchten Sie fortfahren?
+IMT;REST;servicecalls.runningServiceCalls;Dienstaufrufe werden ausgeführt
+IMT;REST;usagepointgroup.wizard.step1.title.add;Schritt 1: Allgemeine Attribute
+IMT;REST;purpose.dataValidation.timeout.message;Die Datenvalidierung dauert länger als erwartet und wird im Hintergrund fortgesetzt.
+IMT;REST;general.usagePointGroup.remove;Entfernen
+IMT;REST;usagePointLifeCycleTransitions.empty.list.item1;Es wurden noch keine Übergänge hinzugefügt.
+IMT;REST;usagepoint.dataValidation.schedule.emptyCmp.item2;Es sind Validierungsaufgaben vorhanden, Sie sind jedoch nicht zu deren Anzeige berechtigt.
+IMT;REST;usagepoint.dataValidation.schedule.emptyCmp.item1;Es wurden noch keine Validierungsaufgaben definiert.
+IMT;REST;searchItems.bulk.addCalendarToAllDevices.baseSuccessMsg;Der Kalender {0} {1} wurde erfolgreich hinzugefügt.
+IMT;REST;noEstimationRules.message;Es sind keine anwendbaren Bewertungsregeln vorhanden.
+IMT;REST;general.bulkActionError;Beim Ausführen der Massenaktion ist ein Fehler aufgetreten.
+IMT;REST;usagepoints.pagingtoolbartop.displayMsg;{0} - {1} von {2} Verwendungsstellen
+IMT;REST;general.suspectX[0];{0} fehlerverdächtige Werte
+IMT;REST;reading.estimatedNotSaved;Bewertet
+IMT;REST;metrologyConfiguration.wizard.custtomAttributes.create;Neue Versionen für versionierte benutzerdefinierte Attributesätze erstellen
+IMT;REST;usagepoint.meterRole.select;Zählerrolle auswählen
+IMT;REST;reading.estimatedWithApplicationAndTime;Bewertet im {0} um {1}
+IMT;REST;usagepointgroup.noCriteriasSelected;Geben Sie mindestens ein Suchkriterium an.
+IMT;REST;usagePointLifeCycleTransitions.add.noStates;Es sind keine Zustände verfügbar.
+IMT;REST;general.actions.restore;Wiederherstellen
+IMT;REST;general.tooltip.readingTypePattern;Dieses Messtypschema stimmt mit einem Messtyp mit: {0} überein.
+IMT;REST;usagepoint.dataValidation.schedule.emptyCmp.title;Es wurden keine Validierungsaufgaben gefunden.
+IMT;REST;usagePointLifeCycles.pagingtoolbartop.displayMsg;{0} - {1} von {2} Arbeitszyklen der Verwendungsstelle
+IMT;REST;overview.widget.flaggedUsagePointGroups.usagePointGroup.comment;Kommentar
+IMT;REST;ruleSet.metrologyConfigurationPurposes.empty.list.item;Es wurden keine Zwecke der messtechnischen Konfiguration gefunden.
+IMT;REST;general.measurementunits.kiloAmpere;kA
+IMT;REST;device.registerData.failEqualData;Gleiche Daten auslassen
+IMT;REST;usagepointgroup.wizard.step2.title;Schritt 2: Verwendungsstellen auswählen
+IMT;REST;usagePointGroup.flag.tooltip.flag;Das Element anklicken, um die Verwendungsstellengruppe zu kennzeichnen.
+IMT;REST;dataQuality.paging.emptyMsg;Es sind keine Verwendungsstellen zur Anzeige verfügbar.
+IMT;REST;general.serviceCategories;Dienstkategorien
+IMT;REST;usagePointHistory.abortTransitionTitle;Statusänderung von {0} zu {1} abbrechen?
+IMT;REST;general.apply;Anwenden
+IMT;REST;general.static;Statisch
+IMT;REST;general.at;Zum
+IMT;REST;usagepoints.metrologyConfiguration;Messtechnische Konfiguration
+IMT;REST;general.dataCompletion;Datenvervollständigung
+IMT;REST;general.measurementunits.megaWatt;MW
+IMT;REST;general.inputs;Eingänge
+IMT;REST;usagepoint.add.required;Dieses Feld ist erforderlich.
+IMT;REST;general.always;Immer
+IMT;REST;reading.validationResult;Validierungsergebnis
+IMT;REST;general.linkMeter;Zähler verknüpfen
+IMT;REST;general.default;Standard
+IMT;REST;estimationDevice.estimator;Bewertungsfunktion
+IMT;REST;general.valueOf;Wert ({0})
+IMT;REST;general.preValidate;Vorab prüfen
+IMT;REST;general.label.loadLimit;Grenzwert laden
+IMT;REST;general.xMeterData;{0} Messdaten
+IMT;REST;general.label.usagePointRequirements;Anforderungen an die Verwendungsstelle
+IMT;REST;general.selectedUsagePointStates;Zustände der ausgewählten Verwendungsstellen
+IMT;REST;overview.widget.flaggedUsagePoints.usagePoint.lifecycleState;Zustand
+IMT;REST;usagePointLifeCycleStates.add;Zustand hinzufügen
+IMT;REST;devicetransitionexecute.wizard.step2.fail;Der Verwendungsstellenzustand kann nicht zu „{0}“ {(1)} geändert werden.
+IMT;REST;general.clearProjectedFlag;Geplante Kennzeichnung löschen
+IMT;REST;usagePointLifeCycleTransitions.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Übergängen
+IMT;REST;usagePoint.metrologyConfiguration.unlink;Verknüpfung von messtechnischer Konfiguration aufheben
+IMT;REST;outputs.list.empty;Es wurden keine Ausgänge gefunden.
+IMT;REST;general.unconfirmedSearchCriteria;Einige Suchkriterien wurden nicht angewendet. Möchten Sie sie anwenden?
+IMT;REST;general.Add;Hinzufügen
+IMT;REST;favoriteUsagePointGroups.multiselect.selected[many];Es wurden {0} Verwendungsstellengruppen ausgewählt.
+IMT;REST;general.suspectX[many];{0} fehlerverdächtige Werte
+IMT;REST;customattributesets.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} benutzerdefinierten Attributesätzen
+IMT;REST;general.measurementunits.watt;W
+IMT;REST;general.current;Aktuell
+IMT;REST;validationRuleSets.count.added[1];Es wurde {0} Validierungsregelsatz hinzugefügt.
+IMT;REST;usagePointLifeCycleTransitions.add.partOfMandatoryChecks;Dies gehört zu den zwingend erforderlichen Prüfungen.
+IMT;REST;general.version.cloned;Version geklont
+IMT;REST;general.purposes;Zwecke
+IMT;REST;metrologyConfiguration.estimation.ruleSetsCount;{0} Bewertungsregelwerk(e)
+IMT;REST;widget.myWorkList.title;Meine Arbeitsliste
+IMT;REST;validation.rules.empty.title1;Es wurden keine Versionen des Validierungsregelsatzes gefunden.
+IMT;REST;general.ongoingProcesses;Laufende Prozesse
+IMT;REST;general.metrologyConfigurationPurposes;Zwecke der messtechnischen Konfiguration
+IMT;REST;general.state;Zustand
+IMT;REST;usagepoint.estimation.estimationConfiguration;Konfiguration der Bewertung
+IMT;REST;general.label.nominalServiceVoltage;Nennspannung
+IMT;REST;usagePoint.meterRoles.empty.title;Es sind keine Zählerrollen vorhanden.
+IMT;REST;usagepointgroup.wizard.step1.title.edit;Schritt 1: Gruppennamen einstellen
+IMT;REST;serviceCategories.pagingtoolbartop.displayMsg;{0} - {1} von {2} Dienstkategorien
+IMT;REST;general.label.purpose;Zweck
+IMT;REST;general.privileges;Berechtigungen
+IMT;REST;general.measurementunits.pascal;Pa
+IMT;REST;general.overview;Übersicht
+IMT;REST;estimationRuleSets.count[1];{0} Bewertungsregelwerk
+IMT;REST;validationRuleSets.count.added[0];Es wurden keine Validierungsregelsätze hinzugefügt.
+IMT;REST;metrologyConfiguration.wizard.step1title;Schritt 1: Messtechnische Konfiguration auswählen
+IMT;REST;validation.version.display.until;Bis {0}
+IMT;REST;usagePointLifeCycleTransitions.edit.successMessage;Übergang gespeichert
+IMT;REST;usagePointLifeCycleStates.setAsInitial;Als Anfangszustand einstellen
+IMT;REST;usagePointLifeCycles.removeSuccessMsg;Der Arbeitszyklus der Verwendungsstelle wurde entfernt.
+IMT;REST;calendars.selectCategory;Kategorie auswählen
+IMT;REST;general.allDataValidated;Alle Daten wurden validiert.
+IMT;REST;usagepointgroup.add;Verwendungsstellengruppe hinzufügen
+IMT;REST;usagepoint.estimation.rulesSetGrid.emptyCmp.item2;Es sind Bewertungsregelwerke vorhanden, Sie sind jedoch nicht zu deren Anzeige berechtigt.
+IMT;REST;general.transition;Übergang
+IMT;REST;usagepoint.estimation.rulesSetGrid.emptyCmp.item1;Es wurden noch keine Bewertungsregelwerke definiert.
+IMT;REST;general.potentialSuspect;Potenziell fehlerverdächtiger Werte
+IMT;REST;dataQuality.empty.list.item2;Der Filter ist zu stark eingegrenzt.
+IMT;REST;Imt.metrologyconfiguration.empty.title;Es wurden keine benutzerdefinierten Attributesätze gefunden.
+IMT;REST;dataQuality.empty.list.item1;Es sind keine Verwendungsstellen im System vorhanden.
+IMT;REST;general.label.bypassStatus;Status umgehen
+IMT;REST;overview.widget.flaggedUsagePoints.usagePoint.type;Typ
+IMT;REST;general.category;Kategorie
+IMT;REST;general.states;Zustände
+IMT;REST;metrologyconfiguration.label.CAS;Benutzerdefinierte Attributesätze
+IMT;REST;general.thirdPartyQuality;Qualität der Drittanbieter
+IMT;REST;usagepoint.dataEstimation.estimationConfiguration;Konfiguration der Bewertung
+IMT;REST;general.tooltip.anyMultiplier;Beliebiger Multiplikator
+IMT;REST;general.amountOfConfirmed;Anzahl der bestätigten Werte
+IMT;REST;general.start;Anfang
+IMT;REST;estimationRuleSets.count[0];Es sind keine Bewertungsregelwerke vorhanden.
+IMT;REST;general.attributes.usagePoint.gas;Gas
+IMT;REST;general.lowercase.at;zum
+IMT;REST;usagepointtransitionexecute.wizard.transitiondate;Übergangsdatum
+IMT;REST;usagepointsearch.bulkSelection.allLabel;Alle Verwendungsstellen
+IMT;REST;general.label.physicalCapacity;Physikalische Kapazität
+IMT;REST;dataQuality.paging.displayMsg;{0} - {1} von {2} Verwendungsstellen
+IMT;REST;usagepoint.estimation.rulesSetGrid.emptyCmp.title;Es wurden keine Bewertungsregelwerke gefunden.
+IMT;REST;preValidate.noPotentialSuspectsFound;Es wurden keine potentiell fehlerverdächtigen Messwerte gefunden.
+IMT;REST;general.activationDate;Aktivierungsdatum
+IMT;REST;general.label.valve;Ventil
+IMT;REST;output.icon.isMatched;Der Validierungsregelsatz enthält eine Regeln, die dem anvisierten Ausgang entsprechende Messtypen aufweisen.
+IMT;REST;general.label.limiter;Begrenzer
+IMT;REST;metrologyConfiguration.validation.ruleSetsCount;{0} Validierungsregelsatz/-sätze
+IMT;REST;general.preview;Vorschau
+IMT;REST;transitionBusinessProcesses.process.name;Name
+IMT;REST;purpose.validateNow;Daten für „{0}“ Zweck an Verwendungsstelle „{1}“ validieren?
+IMT;REST;usagepoint.setTransitions.selectMeterRole;Zählerrolle auswählen ...
+IMT;REST;general.label.capped;Begrenzt
+IMT;REST;general.tooltip.edit;Bearbeiten
+IMT;REST;general.label.metrologyConfiguration;Messtechnische Konfiguration
+IMT;REST;general.label.loadLimiterType;Begrenzertyp laden
+IMT;REST;general.UnlinkMeter;Verknüpfung von Zähler aufheben
+IMT;REST;general.cloneUsagePointLifeCycle;Arbeitszyklus der Verwendungsstelle klonen
+IMT;REST;customattributesets.versions.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Versionen
+IMT;REST;usagepointgroup.empty.title;Es wurden keine Verwendungsstellengruppen gefunden.
+IMT;REST;general.dataQuality;Datenqualität
+IMT;REST;general.removed;Entfernt
+IMT;REST;usagepointgroup.wizard.static.confirmationMessage;Anzahl der Verwendungsstellen: {0}
+IMT;REST;general.viewHistory;Verlauf anzeigen
+IMT;REST;general.ruleSets;Regelsätze
+IMT;REST;general.label.pressure;Druck
+IMT;REST;usagePointLifeCycles.clone.successMsg;Der Arbeitszyklus der Verwendungsstelle wurde geklont.
+IMT;REST;general.untilX;Bis {0}
+IMT;REST;purpose.deactivated;Der Zweck wurde deaktiviert.
+IMT;REST;usagepoints.bulk.step4title;Schritt 4: Bestätigung
+IMT;REST;serviceCategories.empty.list.item;Es wurden noch keine Dienstkategorien definiert.
+IMT;REST;usagepoint.registerData.delete.message.new;Der Registerwert mit der Messzeit {0} um {1} wird nicht mehr verfügbar sein.
+IMT;REST;general.configuration;Konfiguration
+IMT;REST;metrologyConfiguration.wizard.customAttributes;Benutzerdefinierte Attribute
+IMT;REST;metrologyconfiguration.label.CAS.removeCustomAttributeSet.title;{0} entfernen?
+IMT;REST;general.measurementunits.megaWattHours;MWh
+IMT;REST;usagepoint.dataValidation.addRulesSetGrid.emptyCmp.item2;Alle Validierungsregelsätze wurden bereits hinzugefügt.
+IMT;REST;usagePointLifeCycleTransitions.add.showAll;Alle anzeigen
+IMT;REST;usagePointLifeCycleTransitions.add.partOfMandatoryAction;Dies gehört zu den zwingend erforderlichen automatischen Aktionen.
+IMT;REST;outputs.registers.displayMsgMoreItems;{0} - {1} von mehr als {2} Messwerten
+IMT;REST;general.metrologyConfigurations;Messtechnische Konfigurationen
+IMT;REST;selectFavoriteUsagePointGroups.empty.title;Es wurde keine Verwendungsstellengruppe gefunden.
+IMT;REST;historyGrid.changedBy;Geändert von
+IMT;REST;general.required;Pflichtfeld
+IMT;REST;reading.validationResult.notsuspect;Nicht fehlerverdächtig
+IMT;REST;general.metrologyConfigurationStatus;Status der messtechnischen Konfiguration
+IMT;REST;usagePointLifeCycleStates.pagingtoolbartop.displayMsg;{0} - {1} von {2} Zuständen
+IMT;REST;general.linkMetrologyConfiguration;Messtechnische Konfiguration verknüpfen
+IMT;REST;usagepoint.add.emptyText.calendar;Kalender auswählen ...
+IMT;REST;general.markAsProjected;Als geplant kennzeichnen
+IMT;REST;general.version.added;Version hinzugefügt
+IMT;REST;usagepoint.setMetrologyConfigurations.selectMC;Messtechnische Konfiguration auswählen
+IMT;REST;general.typeOfSuspects;Art der fehlerverdächtigen Werte
+IMT;REST;general.label.clamped;Geklemmt
+IMT;REST;general.measurementunits.gigaVolt;GV
+IMT;REST;general.placeholder.selectTransition;Übergang auswählen ...
+IMT;REST;metrologyConfigurationDetails.from;von
+IMT;REST;general.label.openIssues;Unbearbeitete Probleme ({0})
+IMT;REST;general.measurementunits.megaVoltAmpere;MVA
+IMT;REST;searchItems.bulk.addCalendarToAllDevices[many];an {0} Verwendungsstellen
+IMT;REST;Imt.metrologyconfiguration.add.empty.list.item2;Es wurden noch keine benutzerdefinierten Attributesätze definiert.
+IMT;REST;overview.widget.flaggedUsagePoints.usagePoint.connectionState;Verbindungsstatus
+IMT;REST;Imt.metrologyconfiguration.add.empty.list.item1;Es wurden bereits alle benutzerdefinierten Attributesätze hinzugefügt.
+IMT;REST;purpose.summary.overview;Übersicht
+IMT;REST;deviceloadprofiles.data.empty.addReadings;Messwerte hinzufügen
+IMT;REST;general.projectedValue;Geplanter Wert
+IMT;REST;general.FromX;Von {0}
+IMT;REST;estimationRuleSets.count.added[1];Es wurde {0} Bewertungsregelwerk hinzugefügt.
+IMT;REST;purpose.activated;Der Zweck wurde aktiviert.
+IMT;REST;general.calendars.selected[many];Es wurden {0} Kalender ausgewählt.
+IMT;REST;usagePointLifeCycles.empty.title;Es wurden keine Arbeitszyklen der Verwendungsstelle gefunden.
+IMT;REST;usagepointsearch.BulkSelection.selectedDescription;Verwendungsstellen in Tabelle auswählen
+IMT;REST;usagepointgroup.wizard.static;Statische Verwendungsstellengruppen (basierend auf den Suchergebnissen)
+IMT;REST;general.formulaComponents;Formelbestandteile
+IMT;REST;general.editedValues;Bearbeitete Werte
+IMT;REST;general.generalInformation;Allgemeine Angaben
+IMT;REST;usagepoint.setTransitions.selectTransition;Übergang auswählen ...
+IMT;REST;ruleSet.metrologyConfigurationPurposes.pagingtoolbartop.displayMsg;{0} - {1} von {2} Zwecken der messtechnischen Konfiguration
+IMT;REST;general.addUsagePointLifeCycleState.stage.qtip;Die Phase in einem Arbeitszyklus der Verwendungsstelle wirkt sich auf die verfügbaren Aktionen an der Verwendungsstelle aus, die sich im aktuellen Zustand befindet.
+IMT;REST;usagePointLifeCycles.remove.title;{0} entfernen?
+IMT;REST;general.dataValidation;Datenvalidierung
+IMT;REST;usagePointLifeCycleTransitions.add.failedAutoActions;Fehlgeschlagene automatische Aktionen
+IMT;REST;selectFavoriteUsagePointGroups.empty.list.item0;Es wurden keine Verwendungsstellengruppen definiert.
+IMT;REST;deviceloadprofiles.endOfInterval;Ende des Intervalls
+IMT;REST;usagepoint.servicecall.remove.msg;Dieser Dienstaufruf wird nicht mehr ausgeführt. Möchten Sie fortfahren?
+IMT;REST;usagepointgroup.wizard.add.dynamic.confirmationTitle;Dynamische Verwendungsstellengruppe {0} hinzufügen?
+IMT;REST;widget.myWorkList.property.name;Name
+IMT;REST;general.nrOfUsagePoints.selected[1];Es wurde {0} Verwendungsstelle ausgewählt.
+IMT;REST;estimationRuleSets.count.added[0];Es wurden keine Bewertungsregelwerke hinzugefügt.
+IMT;REST;usagepoint.dataValidation.estimationConfiguration;Konfiguration der Bewertung
+IMT;REST;searchItems.bulk.step3title;Schritt 3: Aktionsdetails
+IMT;REST;general.periods;Perioden
+IMT;REST;general.measurementTime;Messzeit
+IMT;REST;ruleSet.estimation.metrologyConfigurationPurposes.removeConfirmation.msg;Dieses Bewertungsregelwerk wird für diesen Zweck der messtechnischen Konfiguration nicht mehr verfügbar sein.
+IMT;REST;usagePointLifeCycles.empty.list.item2;Es sind Arbeitszyklen der Verwendungsstelle vorhanden, Sie sind jedoch nicht zu deren Anzeige berechtigt.
+IMT;REST;general.timeOut;Zeitbegrenzung
+IMT;REST;usagePointLifeCycles.empty.list.item1;Es wurden noch keine Arbeitszyklen der Verwendungsstelle definiert.
+IMT;REST;general.saveOrder;Reihenfolge speichern
+IMT;REST;general.outputName;Ausgangsname
+IMT;REST;general.measurementunits.kiloVoltAmpere;kVA
+IMT;REST;general.restoreToDefault;Auf Vorgabewert zurückstellen
+IMT;REST;general.tooltip.anyAccumulation;Beliebige Ansammlung
+IMT;REST;usagePointLifeCycles.add.successMsg;Der Arbeitszyklus der Verwendungsstelle wurde hinzugefügt.
+IMT;REST;overview.widget.flaggedUsagePoints.noUsagePointsFound;Es wurden keine gekennzeichneten Verwendungsstellen gefunden.
+IMT;REST;general.setAsDefault;Als Standard festlegen
+IMT;REST;general.nrOfUsagePoints.selected[0];Es wurden keine Verwendungsstellen ausgewählt.
+IMT;REST;validation.version.display.from;Von {0}
+IMT;REST;usagepoint.add.successMsg;Die Verwendungsstelle wurde hinzugefügt.
+IMT;REST;usagepointgroup.wizard.progress.modificationGroup;Änderung der Verwendungsstellengruppe Bitte warten ...
+IMT;REST;usagepoint.menu.purposes;Zwecke
+IMT;REST;estimation.addRuleSet;Bewertungsregelwerk hinzufügen
+IMT;REST;general.usagePointLifeCycles;Arbeitszyklen der Verwendungsstelle
+IMT;REST;outputs.pagingtoolbartop.displayMsg;(2) Ausgänge
+IMT;REST;usagepoints.bulk.step5title;Schritt 5: Status
+IMT;REST;usagePointLifeCycleTransitions.pagingtoolbartop.emptyMsg;Es sind keine Übergänge zur Anzeige verfügbar.
+IMT;REST;usagePointLifeCycleTransitions.add.noMandatoryChecks;Es sind keine Prüfungen vor dem Übergang verfügbar.
+IMT;REST;general.usagePointAttributes;Attribute der Verwendungsstelle
+IMT;REST;general.amountOfProjected;Anzahl der geplanten Werte
+IMT;REST;general.period;Zeitraum
+IMT;REST;estimationruleset.deleteConfirmation.msg1;Dieses Bewertungsregelwerk wird aus der messtechnischen Konfiguration entfernt.
+IMT;REST;usagePointLifeCycles.clone.title;{0} klonen
+IMT;REST;general.estimationComment;Kommentar zur Bewertung
+IMT;REST;general.actions.remove;Entfernen
+IMT;REST;serviceCategories.pagingtoolbartop.emptyMsg;Es sind keine Dienstkategorien zur Anzeige verfügbar.
+IMT;REST;customattributesets.versions.pagingtoolbartop.displayMsg;{0} - {1} von {2} Versionen
+IMT;REST;usagepointtransitionexecute.wizard.step2successNow;Der Zustand der Verwendungsstelle wurde zu „{0}“ geändert.
+IMT;REST;general.typeOfEstimates;Art der Bewertungswerte
+IMT;REST;general.abort;Abbrechen
+IMT;REST;validation.clickForMoreInformation;Klicken Sie hier für mehr Informationen.
+IMT;REST;general.name;Name
+IMT;REST;general.measurementunits.gigaWattHours;GWh
+IMT;REST;usagePoints.bulk.selectMsg;Alle Verwendungsstellen auswählen (anhand der Filter auf dem vorangehenden Bildschirm).
+IMT;REST;usagepointtransitionexecute.wizard.progressbar;Die Prüfungen vor dem Übergang und die automatischen Aktionen werden ausgeführt. Bitte warten ...
+IMT;REST;transitionBusinessProcess.empty.list.item2;Es wurden bereits alle Prozesse zum Zustand hinzugefügt.
+IMT;REST;transitionBusinessProcess.empty.list.item1;Es wurden noch keine Prozesse definiert.
+IMT;REST;usagePointLifeCycles.confirmWindow.removeMsg;Dieser Arbeitszyklus der Verwendungsstelle wird nicht mehr verfügbar sein.
+IMT;REST;customattributeset.timesliced.clone.gap.text;Die Version konnte nicht geklont werden. Zwischen den Versionen gibt es Lücken.
+IMT;REST;purpose.estimateData;Daten von {0} Zweck der Verwendungsstelle {1} bewerten?
+IMT;REST;general.label.metrologyconfigurations;Messtechnische Konfigurationen
+IMT;REST;general.MDMQuality;MDM-Qualität
+IMT;REST;general.technicalInformation;Technische Daten
+IMT;REST;usagepointtransitionexecute.wizard.step2.title;Schritt 2: Status
+IMT;REST;general.usagePointLifeCycle.no.states.selected;Mindestens einen Verwendungsstellenzustand auswählen
+IMT;REST;general.usagePointGroups;Verwendungsstellengruppen
+IMT;REST;customattributesets.pagingtoolbarbottom.itemsPerPage;Benutzerdefinierte Attributesätze pro Seite
+IMT;REST;general.startOfCalculations;Anfang der Berechnungen
+IMT;REST;general.label.calendars;Kalender
+IMT;REST;calendars.noCategoriesWithActiveCalendarsExist;Es sind keine Kategorien mit aktiven Kalender vorhanden.
+IMT;REST;reading.estimated.projected;Geplant
+IMT;REST;usagepointgroup.wizard.save.failure;Fehler beim Speichern der Verwendungsstelle „{0}“.
+IMT;REST;usagepoint.purpose.output.validation.hasSuspects.qtip;Der Ausgang enthält fehlerverdächtige Werte für den angegebenen Zeitraum.
+IMT;REST;general.fromUntilX;Von {0} - Bis {1}
+IMT;REST;customattributeset.timesliced.add.gap.title;Das Hinzufügen der Version ist fehlgeschlagen.
+IMT;REST;general.user;Benutzer
+IMT;REST;processes.title;Prozesse
+IMT;REST;general.label.location;Ort
+IMT;REST;general.ActiveFrom;Aktiv von
+IMT;REST;general.transitions;Übergänge
+IMT;REST;widget.myWorkList.property.processInstancesId;Prozesskennung
+IMT;REST;metrologyconfiguration.label.CAS.removeCustomAttributeSet;Dieser benutzerdefinierte Attributesatz wird nicht mehr verfügbar sein.
+IMT;REST;general.timeOutMessageGroups;Das Zählen der Anzahl der Gruppenmitglieder der Verwendungsstelle dauerte zu lange.
+IMT;REST;general.label.addReading;Messwerte hinzufügen
+IMT;REST;general.meterRoles;Zählerrollen
+IMT;REST;general.label.activePurposes;Aktive Zwecke
+IMT;REST;general.estimateValueWithRule;Mit Regel bewerten
+IMT;REST;customattributesets.versions.empty.title;Es wurden keine Versionen gefunden.
+IMT;REST;usagepoint.add.noServiceCategoryAvailable;Es ist keine Dienstkategorie verfügbar, da Sie nicht über ausreichende Berechtigungen verfügen.
+IMT;REST;output.icon.isNotMatched;Der Validierungsregelsatz enthält keine Regeln, die dem anvisierten Ausgang entsprechende Messtypen aufweisen.
+IMT;REST;general.editTechnicalInformation;„Technische Daten“ bearbeiten
+IMT;REST;general.Period;Zeitraum
+IMT;REST;usagePointLifeCycleStates.saved;Der Zustand wurde gespeichert.
+IMT;REST;overview.widget.flaggedUsagePointGroups.header;Meine bevorzugten Verwendungsstellengruppen ({0})
+IMT;REST;validation.version.display.fromUntil;Von {0} - Bis {1}
+IMT;REST;validationTasks.count[1];{0} Validierungsaufgabe
+IMT;REST;metrologyConfigPurposes.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Zwecken
+IMT;REST;usagePoint.metrologyConfigurations.history.pagingtoolbartop.displayMsgs;{2} messtechnische Konfiguration(en)
+IMT;REST;estimationruleset.remove.successMsg;Das Bewertungsregelwerk wurde entfernt.
+IMT;REST;general.nrOfProcesses.selected[1];{0} Prozess ausgewählt
+IMT;REST;usagePoints.bulk.allUsagePoints;Alle Verwendungsstellen
+IMT;REST;timesliced.customattributtesets.timeexceeds;Die Anfangszeit liegt nach der Endzeit.
+IMT;REST;usagepoints.pagingtoolbartop.emptyMsg;Es sind keine Verwendungsstellen zur Anzeige verfügbar.
+IMT;REST;general.nrOfUsagePoints.selected[many];Es wurden {0} Verwendungsstellen ausgewählt.
+IMT;REST;searchItems.bulk.selectDevices;Geräte auswählen
+IMT;REST;metrologyConfigPurposes.pagingtoolbartop.emptyMsg;Es sind keine Zwecke zur Anzeige verfügbar.
+IMT;REST;general.planned;Geplant
+IMT;REST;general.clearAll;Alle löschen
+IMT;REST;usagepoint.purpose.output.validation.status.active;Aktiv
+IMT;REST;general.measurementunits.megaAmpere;MA
+IMT;REST;devicetype.createDeviceType;Kalender hinzufügen
+IMT;REST;usagePoints.bulk.step1.title;Schritt 1: Verwendungsstellen auswählen
+IMT;REST;usagePointLifeCycleTransitions.add.noMandatoryAction;Es sind keine automatischen Aktionen verfügbar.
+IMT;REST;general.editGeneralInformation.discard;Verwerfen
+IMT;REST;customattributesonvaluesobjects.alignright;Rechts ausrichten
+IMT;REST;usagepoint.process.startProcess;Prozess starten
+IMT;REST;validation.rules.empty.list.item2;Es wurden noch keine Validierungsregelsatzversionen hinzugefügt.
+IMT;REST;general.requiredPurpose;Erforderlicher Zweck
+IMT;REST;validationTasks.count[0];Es sind keine Validierungsaufgaben vorhanden.
+IMT;REST;general.end;Ende
+IMT;REST;general.label.ongoingServiceCalls;Laufende Dienstaufrufe ({0})
+IMT;REST;general.restoreReadings;Wiederherstellen
+IMT;REST;general.unit;Einheit
+IMT;REST;searchItems.bulk.selectAction;Aktion auswählen
+IMT;REST;general.nrOfProcesses.selected[0];Es wurden keine Prozesse ausgewählt.
+IMT;REST;usagepoint.registerData.measurementTime;Messzeit
+IMT;REST;reading.validationResult.notvalidated;Nicht validiert
+IMT;REST;general.MDCQuality;MDC-Qualität
+IMT;REST;purpose.summary.dateAtTime;{0} um {1}
+IMT;REST;overview.widget.flaggedUsagePoints.unflag;Das Element anklicken, um es aus der Liste der gekennzeichneten Verwendungsstellen zu entfernen.
+IMT;REST;outputs.registers.noItemsToDisplay;Es sind keine Messwerte zur Anzeige verfügbar.
+IMT;REST;usagePointLifeCycleTransitions.pagingtoolbartop.displayMsg;{0} - {1} von {2} Übergänge
+IMT;REST;general.displayMsgOutputs;{0} - {1} von {2} Ausgängen
+IMT;REST;general.error;Fehler
+IMT;REST;usagePointLifeCycleTransitions.add.successMessage;Der Übergang wurde hinzugefügt.
+IMT;REST;ruleSet.metrologyConfigurationPurposes.remove.success.msg;Der Zweck der messtechnischen Konfiguration wurde entfernt.
+IMT;REST;usagePointLifeCycleStates.empty.title;Es wurden keine Zustände gefunden.
+IMT;REST;usagepointgroup.empty.list.item2;Es sind Verwendungsstellengruppen vorhanden, Sie sind jedoch nicht zu deren Anzeige berechtigt.
+IMT;REST;usagepointgroup.empty.list.item1;Es wurden noch keine Verwendungsstellengruppen definiert.
+IMT;REST;usagepoints.type;Typ
+IMT;REST;general.stage;Phase
+IMT;REST;general.back;Zurück
+IMT;REST;general.finish;Abschließen
+IMT;REST;general.label.collar;Ring
+IMT;REST;general.label.countedMeters;{0} Messgeräte
+IMT;REST;general.Calendar;Kalender
+IMT;REST;usagePointLifeCycleTransitions.add.autoActions;Automatische Aktionen
+IMT;REST;general.noDataQualitiesMsg;Es sind keine Messwertqualitäten für diese Daten vorhanden.
+IMT;REST;general.label.capacity;Physikalische Kapazität
+IMT;REST;general.measurementunits.teraVoltAmpere;Ð¢VA
+IMT;REST;preValidate.noPotentialSuspectsFoundMsg;Es wurden keine potentiell fehlerverdächtigen Messwerte in den sichtbaren Daten ab {0} gefunden.
+IMT;REST;general.index;Index
+IMT;REST;usagepointtransitionexecute.wizard.step2success;Der Zustand der Verwendungsstelle wird an {0} zu „{1}“ geändert.
+IMT;REST;ruleSet.metrologyConfigurationPurposes.pagingtoolbartop.emptyMsg;Es sind keine Zwecke der messtechnischen Konfiguration zur Anzeige verfügbar.
+IMT;REST;general.versions;Versionen
+IMT;REST;general.label.metrologyconfigurationManagement;Verwaltung der messtechnischen Konfiguration
+IMT;REST;usagepoints.bulk.devicesAddedToQueueTitle;Diese Aufgabe wurde in die Warteschlange gestellt.
+IMT;REST;general.eventName;Ereignisse der Nutzungszeit
+IMT;REST;general.restore;Wiederherstellen
+IMT;REST;usagepoint.setMeters.strtTyping;Eingabe beginnen, um einen Zähler auszuwählen.
+IMT;REST;reading.estimatedWithTime;Bewertet am {0}
+IMT;REST;general.measurementunits.gigaWatt;GW
+IMT;REST;validationRuleSets.count.selected[many];Es wurden {0} Validierungsregelsätze ausgewählt.
+IMT;REST;usagePointLifeCycleStates.empty.list.item1;Es wurden noch keine Zustände hinzugefügt.
+IMT;REST;general.nrOfProcesses.selected[many];{0} Prozesse ausgewählt
+IMT;REST;overview.widget.flaggedUsagePoints.usagePoint.comment;Kommentar
+IMT;REST;customattributesonvaluesobjects.alignleft;Links ausrichten
+IMT;REST;metrologyConfiguration.wizard.notPossibleLink;Sie können eine messtechnische Konfiguration nicht mit dieser Verwendungsstelle verknüpfen, da keine übereinstimmenden messtechnischen Konfigurationen gefunden wurden oder Sie nicht zu deren Anzeige berechtigt sind. Bitte überprüfen Sie Ihre messtechnischen Konfigurationsattribute.
+IMT;REST;general.navigation.calendar;Kalender
+IMT;REST;usagepoint.wizard.cpsStepTitle;Schritt {0}: {1}
+IMT;REST;general.tooltip.partOfCustomAttributeSet;Teil von {0} benutzerdefinierten Attributesatz
+IMT;REST;usagepointgroup.wizard.dynamic.confirmationMessage.criteriaNumber;Anzahl der angegebenen Suchkriterien: {0}
+IMT;REST;ruleSet.metrologyConfigurationPurposes.empty.list.item3;Es sind Zwecke der messtechnischen Konfiguration vorhanden, Sie sind jedoch nicht zu deren Anzeige berechtigt.
+IMT;REST;ruleSet.metrologyConfigurationPurposes.empty.list.item2;Es sind keine Zwecke der messtechnischen Konfiguration mit den Messtypen vorhanden, die den Regeln im Regelsatz entsprechen.
+IMT;REST;ruleSet.metrologyConfigurationPurposes.empty.list.item1;Es wurden noch keine messtechnischen Konfigurationen hinzugefügt.
+IMT;REST;purpose.successMsg;Die Datenvalidierung für den Zweck wurde abgeschlossen.
+IMT;REST;usagepointgroup.wizard.add.failure;Das Hinzufügen der Verwendungsstellengruppe „{0}“ ist fehlgeschlagen.
+IMT;REST;general.addTransition;Übergang hinzufügen
+IMT;REST;widget.myWorkList.myWorkgroupsLabel;In meiner/-n Arbeitsgruppe(n) ({0})
+IMT;REST;metrologyConfigurationDetails.purposesCount;(2) Zweck(e)
+IMT;REST;overview.widget.flaggedUsagePointGroups.usagePointGroup.type;Typ
+IMT;REST;dataQuality.empty.title;Es wurden keine Verwendungsstellen gefunden.
+IMT;REST;validationRuleSets.count[many];{0} Validierungsregelsätze
+IMT;REST;validationResults.validate.fromLast;Daten aus der letzten Validierung ({0}) validieren
+IMT;REST;general.remark;Anmerkung
+IMT;REST;usagePointLifeCycleTransitions.remove.success.msg;Übergang entfernt
+IMT;REST;general.serviceCalls;Dienstaufrufe
+IMT;REST;usagePointLifeCycles.add.templateMsg;Der neue Arbeitszyklus der Verwendungsstelle basiert auf der Standardvorlage und wird dieselben Zustände und Übergänge verwenden.
+IMT;REST;general.label.addCalendar;Kalender hinzufügen
+IMT;REST;general.period.from;Von {0}
+IMT;REST;usagePoint.calendars.empty.reason;Es wurden noch keine Kalender hinzugefügt.
+IMT;REST;general.amountOfEstimates;Anzahl der Bewertungswerte
+IMT;REST;general.attributes.usagePoint.electricity;Strom
+IMT;REST;general.measurementunits.kiloPascal;kPa
+IMT;REST;estimation.addEstimationRule;Bewertungsregel hinzufügen
+IMT;REST;Calendars.pagingtoolbarbottom.itemsPerPage;Kalender pro Seite
+IMT;REST;ruleSet.metrologyConfigurationPurposes.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Zwecken der messtechnischen Konfiguration
+IMT;REST;usagepointtransitionexecute.wizard.step1.title;Schritt 1: Eigenschaften festlegen
+IMT;REST;usagepoint.wizard.calendar.description;Kalender für diese Verwendungsstelle auswählen
+IMT;REST;usagePointLifeCycleTransitions.autoActions.empty;Es sind keine automatischen Aktionen vorhanden.
+IMT;REST;general.metrologyConfiguration;Messtechnische Konfiguration
+IMT;REST;usagePointLifeCycles.noLongerBeUsed;Der Arbeitszyklus der Verwendungsstelle wurde archiviert und kann nicht mehr verwendet werden.
+IMT;REST;metrologyConfigurationWithMetersInfoForm.info;Es sind nicht alle Zähler angegeben. Die Zwecke der Verwendungsstelle verbleiben im Zustand „Unvollständig“.
+IMT;REST;general.confirm;Bestätigen
+IMT;REST;general.menu.viewPreview;Vorschau anzeigen
+IMT;REST;customattributeset.timesliced.edit.gap.title;Das Bearbeiten der Version ist fehlgeschlagen.
+IMT;REST;usagepointgroup.wizard.step4.title;Schritt 4: Status
+IMT;REST;general.validationRules;Validierungsregeln
+IMT;REST;metrologyconfiguration.label.CAS.removed;Der benutzerdefinierte Attributesatz wurde entfernt.
+IMT;REST;metrologyconfiguration.general.activate.confirmation.msg;Sie werden diese messtechnische Konfiguration für Verwendungsstellen definieren können. Danach können Sie die messtechnische Konfiguration nicht mehr ändern.
+IMT;REST;estimation.rules.empty.list.item1;Es wurden noch keine Bewertungsregeln definiert.
+IMT;REST;usagepointsearch.bulkSelection.selectedLabel;Ausgewählte Verwendungsstellen
+IMT;REST;output.correctionErrorMessage;{0} konnte nicht korrigiert werden.
+IMT;REST;general.interval;Intervall
+IMT;REST;estimationRuleSets.count.selected[1];{0} Bewertungsregelwerk ausgewählt
+IMT;REST;device.registerData.removedRule;(Regel entfernt)
+IMT;REST;general.validationSchedule;Validierungszeitplan
+IMT;REST;general.meter;Zähler
+IMT;REST;general.editWithEstimator;Mit Bewertungsfunktion bearbeiten
+IMT;REST;calendars.history.empty.list;Es ist kein Verlauf für Kalender verfügbar.
+IMT;REST;usagepointgroup.wizard.progress.countingUsagePoints;Zählen der Anzahl der Verwendungsstellen Bitte warten ...
+IMT;REST;general.informatives;Informative Werte
+IMT;REST;searchItems.bulk.addCalendarToAllUsagePoints.infoMsg;Die ausgewählten Verwendungsstellen werden diesen Kalender verwenden.
+IMT;REST;customattributesets.pagingtoolbartop.emptyMsg;Es sind keine benutzerdefinierten Attributesätze zur Anzeige verfügbar.
+IMT;REST;general.purpose;Zweck
+IMT;REST;readings.list.empty;Es sind keine Daten verfügbar.
+IMT;REST;validationResults.validate.from;Validierung der Daten von
+IMT;REST;validationRuleSets.count[1];{0} Validierungsregelsatz
+IMT;REST;general.tooltip.unitsOfMeasure;{0} Mengeneinheiten
+IMT;REST;customattributesets.versions.pagingtoolbartop.emptyMsg;Es sind keine Versionen zur Anzeige verfügbar.
+IMT;REST;Calendars.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Kalendern
+IMT;REST;deviceloadprofiles.specifications;Spezifikationen
+IMT;REST;usagepoint.purpose.validation.task.noTasks.on.usagePoint;Es wurden noch keine Validierungsaufgaben für diese Verwendungsstelle konfiguriert ({0} Validierungsaufgaben verwalten{1}).
+IMT;REST;general.addCalendar;Kalender hinzufügen
+IMT;REST;general.linkMeters;Zähler verknüpfen
+IMT;REST;estimationRuleSets.count.selected[0];Es wurden keine Bewertungsregelwerke ausgewählt.
+IMT;REST;metrologyconfiguration.label.CAS.added;Die benutzerdefinierten Attributesätze wurden hinzugefügt.
+IMT;REST;estimateWithRule.emptyRequiredAttributesMsg;Es wurden keine obligatorischen Attribute auf der Ebene der Messtypen festgelegt.
+IMT;REST;general.deviceQuality;Gerätequalität
+IMT;REST;general.addState;Zustand hinzufügen
+IMT;REST;overview.widget.flaggedUsagePoints.usagePoint.metrologyConfiguration;Messtechnische Konfiguration
+IMT;REST;ruleSet.addMetrologyConfigurationPurposes.infoText;Es werden nur die Zwecke der messtechnischen Konfiguration mit mindestens einem übereinstimmenden Messtyp angezeigt.
+IMT;REST;validationRuleSets.count[0];Es sind keine Validierungsregelsätze vorhanden.
+IMT;REST;validationRuleSets.count.selected[1];{0} Validierungsregelsatz ausgewählt
+IMT;REST;general.usagepoints.selected[many];Es wurden {0} Verwendungsstellen ausgewählt.
+IMT;REST;general.calendars.selected[1];Es wurde {0} Kalender ausgewählt.
+IMT;REST;usagePoint.meterRoles.empty.reason;Die Zählerrollen wurden noch nicht mit dieser Verwendungsstelle verknüpft.
+IMT;REST;outputReadingsHistory.empty.title;Es wurden keine Verlaufselemente gefunden.
+IMT;REST;usagepoint.registerData.updated;Die Registerdaten wurden gespeichert.
+IMT;REST;metrologyConfigurationDetails.empty.list.item1;Es wurden noch keine Zwecke definiert.
+IMT;REST;validationTasks.count[many];{0} Validierungsaufgaben
+IMT;REST;dataQuality.paging.usagePointsPerPage;Verwendungsstellen pro Seite
+IMT;REST;usagePointLifeCycleTransitions.add.pretransitionChecks;Prüfungen vor dem Übergang
+IMT;REST;general.generalAttributes;Allgemeine Attribute
+IMT;REST;validationRuleSets.count.selected[0];Es wurden keine Validierungsregelsätze ausgewählt.
+IMT;REST;estimation.rules.empty.title;Es wurden keine Bewertungsregeln gefunden.
+IMT;REST;usagepointgroup.wizardMenu;Verwendungsstellengruppe hinzufügen
+IMT;REST;metrologyconfiguration.label.CAS.add;Benutzerdefinierte Attributesätze hinzufügen
+IMT;REST;general.markValuesAsProjected;Wert(e) als geplant kennzeichnen
+IMT;REST;estimationRuleSets.count[many];{0} Bewertungsregelwerke
+IMT;REST;usagepointsearch.bulk.selectMsg;Alle Verwendungsstellen auswählen (anhand der Suchkriterien).
+IMT;REST;general.endOfIntervalBetween;Ende des Intervalls zwischen
+IMT;REST;usagePointLifeCycleTransitions.remove.msg;Dieser Übergang wird nicht mehr verfügbar sein.
+IMT;REST;general.meterRole;Zählerrolle
+IMT;REST;general.measurementunits.gigaVoltAmpere;GVA
+IMT;REST;usagePointHistory.abortTransitionMsg;Die geplante Zustandsänderung wird abgebrochen.
+IMT;REST;transitionBusinessProcess.addProcesses;Prozesse hinzufügen
+IMT;REST;general.calendars.selected[0];Es wurden keine Kalender ausgewählt.
+IMT;REST;usagepoint.registerData.value;Wert
+IMT;REST;metrologyconfiguration.general.deprecate.msg;Sie werden diese messtechnische Konfiguration nicht mehr mit Verwendungsstellen verknüpfen können.
+IMT;REST;devicetransitionexecute.wizard.step2.checksFail;Der Verwendungsstellenzustand kann aufgrund fehlgeschlagener Prüfungen vor dem Übergang nicht zu „{0}“ geändert werden.
+IMT;REST;general.label.output;Ausgang
+IMT;REST;general.next;Weiter
+IMT;REST;usagePointLifeCycleStates.pagingtoolbarbottom.itemsPerPage;Zustände pro Seite
+IMT;REST;general.setGroupName;Gruppennamen einstellen
+IMT;REST;general.label.previewCalendar;Kalendervorschau
+IMT;REST;metrologyConfiguration.wizard.successMsg;Die messtechnische Konfiguration wurde definiert.
+IMT;REST;usagepointgroup.pagingtoolbartop.displayMsg;{0} - {1} von {2} Verwendungsstellengruppen
+IMT;REST;usagePoint.history.meters.empty.title;Es wurden noch keine Zähler mit dieser Verwendungsstelle verknüpft.
+IMT;REST;general.label.typeOfUsagePoint;Art der Verwendungsstelle
+IMT;REST;general.label.linkMetrologyConfiguration;<a href=“{0}“>Messtechnische Konfiguration verknüpfen</a>
+IMT;REST;Imt.metrologyconfiguration.empty.list.item2;Es wurden noch keine benutzerdefinierten Attributesätze definiert.
+IMT;REST;usagepoint.registerData.removed;Die Registerdaten wurden erfolgreich entfernt.
+IMT;REST;Imt.metrologyconfiguration.empty.list.item1;Es wurden noch keine benutzerdefinierten Attributesätze hinzugefügt.
+IMT;REST;general.label.unknown;Unbekannt
+IMT;REST;usagepoints.bulk.addCalendars;Kalender hinzufügen
+IMT;REST;metrologyconfiguration.general.deprecate.title;{0} ablehnen?
+IMT;REST;usagepoint.purpose.output.validation.suspects;Fehlerverdächtige Werte (im letzten Monat)
+IMT;REST;general.label.inactiveRules;Inaktive Regeln
+IMT;REST;customattributesets.pagingtoolbartop.displayMsg;{0} - {1} von {2} benutzerdefinierten Attributesätzen
+IMT;REST;overview.widget.flaggedUsagePoints.usagePoint.flaggedDate;Gekennzeichnetes Datum
+IMT;REST;general.menu.viewTimeline;Zeitachse anzeigen
+IMT;REST;general.serviceCategory;Dienstkategorie
+IMT;REST;purpose.summary.dataView;Daten anzeigen
+IMT;REST;preValidate.potentialSuspectsFoundMsg;Es sind potenziell fehlerverdächtige Werte im sichtbaren Teil der Daten ab {0} vorhanden.
+IMT;REST;metrologyconfiguration.general.activated;Die messtechnische Konfiguration wurde aktiviert.
+IMT;REST;usagepoint.purpose.output.validation.status.inactive;Inaktiv
+IMT;REST;form.output.label.interval;Intervall
+IMT;REST;general.addUsagePointGroup;Verwendungsstellengruppe hinzufügen
+IMT;REST;searchItems.bulk.selectCalendar;Kalender auswählen
+IMT;REST;usagepoint.processes;Prozesse
+IMT;REST;usagepoints.bulk.serviceCategory;Dienstkategorie
+IMT;REST;usagePointLifeCycleStates.initialState;Anfangszustand
+IMT;REST;general.remove;Entfernen
+IMT;REST;ruleSet.addStates.grid.multiselect.selected[1];Es wurde {0} Zustand ausgewählt.
+IMT;REST;general.attributes.usagePoint.water;Wasser
+IMT;REST;general.system;System
+IMT;REST;usagePointLifeCycleStates.edit;Zustand bearbeiten
+IMT;REST;usagePointLifeCycleTransitions.pretransitionChecks.empty;Es sind keine Prüfungen vor dem Übergang vorhanden.
+IMT;REST;validation.addValidationRuleSet;Version des Validierungsregelsatzes hinzufügen
+IMT;REST;widget.myWorkList.topZeroLabel;Es ist keine offenen Benutzeraufgaben vorhanden, die mir zugewiesen sind.
+IMT;REST;general.selectAnEstimator;Bewertungsfunktion auswählen ...
+IMT;REST;Calendars.pagingtoolbartop.emptyMsg;Es sind keine aktiven Kalender vorhanden.
+IMT;REST;purpose.summary.dataView.no.interval.outputs;Es sind keine Intervallausgänge zu diesem Zweck vorhanden.
+IMT;REST;reading.pagingtoolbartop.displayMsg;{1} Messwerte
+IMT;REST;general.lastRefreshedAt;Letzte Aktualisierung um {0}
+IMT;REST;general.version.saved;Version gespeichert
+IMT;REST;general.label.meters;Zähler
+IMT;REST;usagepoint.add.notPossibleAdd;Sie können keine Verwendungstelle hinzufügen, da eine Dienstkategorie verfügbar ist.
+IMT;REST;usagepoint.add.clarification.serviceCategory;Die Dienstkategorien, die Sie aufgrund von unzureichenden Berechtigungen nicht bearbeiten können, sind nicht enthalten.
+IMT;REST;serviceCategories.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Dienstkategorien
+IMT;REST;usagepointgroup.wizard.add.success;Die Verwendungsstellengruppe {0} wurde erstellt.
+IMT;REST;usagepoint.purpose.output.validation.lastchecked;Letzte Prüfung
+IMT;REST;customattributesets.versions.add;Version hinzufügen
+IMT;REST;ruleSet.addStates.grid.multiselect.selected[0];Es wurden keine Zustände ausgewählt.
+IMT;REST;usagepointgroup.remove.success.msg;Die Verwendungsstellengruppe wurde entfernt.
+IMT;REST;purposes.empty.list.item;Es wurden noch keine Zwecke hinzugefügt.
+IMT;REST;usagepointtransitionexecute.navigation.step1title;Eigenschaften festlegen
+IMT;REST;general.dayTypes;Art der Tage
+IMT;REST;general.label.editReading;Messwerte bearbeiten
+IMT;REST;validationStatus.informative;Informativ
+IMT;REST;general.usagePointStates;Zustände der Verwendungsstellen
+IMT;REST;general.label.coordinates;Koordinaten
+IMT;REST;usagepoint.add.emptyText.bypassStatus;Status umgehen ...
+IMT;REST;general.added;Hinzugefügt
+IMT;REST;usagePointGroup.flag.tooltip.unflag;Das Element anklicken, um es aus der Liste der gekennzeichneten Verwendungsstellengruppen zu entfernen.
+IMT;REST;general.meters;Zähler
+IMT;REST;general.readingType;Messtyp
+IMT;REST;general.attributes;Attribute
+IMT;REST;general.editX;{0} bearbeiten
+IMT;REST;general.validation;Validierung
+IMT;REST;usagepoint.purpose.output.validation.status;Validierungsstatus
+IMT;REST;general.selectFavoriteUsagePointGroups;Bevorzugte Verwendungsstellengruppen auswählen
+IMT;REST;usagePointLifeCycles.edit.title;{0} bearbeiten
+IMT;REST;usagepoint.purpose.output.validation.alldatavalidated;Alle Daten wurden validiert.
+IMT;REST;usagePoint.flag.tooltip.flag;Das Element anklicken, um die Verwendungsstelle zu kennzeichnen.
+IMT;REST;usagepoints.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Verwendungsstellen
+IMT;REST;usagepoint.registerData.delete.title.question;Messwerte entfernen?
+IMT;REST;searchItems.bulk.addCalendarXTo1UsagePoint.confirmMsg;Kalender {0} zur Verwendungsstelle {1} hinzufügen?
+IMT;REST;general.amountOfEdited;Anzahl der bearbeiteten Werte
+IMT;REST;usagepointgroup.wizard.save.success;Die Verwendungsstellengruppe {0} wurde gespeichert.
+IMT;REST;general.noActiveVersion;Es ist keine aktive Version vorhanden.
+IMT;REST;overview.widget.flaggedUsagePointGroups.selectBtn;Auswählen
+IMT;REST;overview.widget.flaggedUsagePointGroups.flag;Das Element anklicken, um die Verwendungsstellengruppe zu kennzeichnen.
+IMT;REST;devicechannels.successSavingMessage;Die Kanaldaten wurden gespeichert.
+IMT;REST;general.measurementunits.teraWatt;Ð¢W
+IMT;REST;usagepoint.purpose.output.validation.lastchecked.qtip;Der Zeitpunkt, an dem das letzte Intervall im Validierungsprozess geprüft wurde.
+IMT;REST;usagepointgroup.wizard.add.static.confirmationTitle;Statische Verwendungsstellengruppe {0} hinzufügen?
+IMT;REST;metrologyconfiguration.setMeters.acknowledge;Die Zählerliste wurde gespeichert.
+IMT;REST;usagePointLifeCycleStates.remove.success.msg;Der Zustand wurde entfernt.
+IMT;REST;purpose.summary.intervalData;{0} Daten
+IMT;REST;usagepointgroup.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Verwendungsstellengruppen
+IMT;REST;reading.generaltab.title;Allgemein
+IMT;REST;purpose.revalidationEstimatedData;Bewertete Daten erneut validieren
+IMT;REST;purpose.dataEstimation.timeout.title1;Die Datenbewertung dauert länger als erwartet.
+IMT;REST;searchItems.bulk.selectatleast1usagepoint;Mindestens eine Verwendungsstelle auswählen
+IMT;REST;selectFavoriteUsagePointGroups.title;Bevorzugte Verwendungsstellengruppen auswählen
+IMT;REST;general.value.empty;Wert
+IMT;REST;general.fromX;von {0}
+IMT;REST;ruleSet.addStates.grid.multiselect.selected[many];Es wurden {0} Zustände ausgewählt.
+IMT;REST;general.attributes.usagePoint.heat;Heizung
+IMT;REST;usagepoints.bulk.calendargMsg;Kalender zu den ausgewählten Verwendungsstellen hinzufügen
+IMT;REST;overview.widget.flaggedUsagePoints.usagePoint.name;Name
+IMT;REST;general.editGeneralInformation;„Allgemeine Informationen“ bearbeiten
+IMT;REST;general.allUsagePointStates;Alle Zustände der Verwendungsstellen
+IMT;REST;general.performBulkAction;Massenaktion durchführen?
+IMT;REST;general.measurementunits.voltAmpere;VA
+IMT;REST;usagePoints.bulk.selectedDevices;Ausgewählte Verwendungsstellen
+IMT;REST;usagePointLifeCycleStates.remove.msg;Dieser Zustand wird nicht mehr verfügbar sein.
+IMT;REST;metrologyConfiguration.validation.rulesCount;{0} Validierungsregel(n)
+IMT;REST;general.viewSchedule;Zeitplan anzeigen
+IMT;REST;general.fld.is.required;Dieses Feld ist erforderlich.
+IMT;REST;general.tooltip.anyTimePeriod;Beliebiger Zeitraum
+IMT;REST;general.to;An
+IMT;REST;favoriteUsagePointGroups.grid.type.dynamic;Dynamisch
+IMT;REST;customattributeset.timesliced.add.gap.text;Die Version konnte nicht hinzugefügt werden. Zwischen den Versionen gibt es Lücken.
+IMT;REST;validation.ruleSetAllStates;Der Validierungsregelsatz wird auf Daten in allen Zuständen der Verwendungsstellen angewendet.
+IMT;REST;usagepointgroup.wizard.dynamic;Dynamische Verwendungsstellengruppe (auf der Grundlage der Suchkriterien)
+IMT;REST;searchItems.bulk.addCalendarToAllDevices.all1;an alle Verwendungsstellen
+IMT;REST;general.now;Jetzt
+IMT;REST;general.transitionDate;Übergangsdatum
+IMT;REST;readings.list.reason2x;Es wurden noch keine Daten erfasst oder hinzugefügt.
+IMT;REST;usagePointLifeCycleTransitions.empty.title;Es wurden keine Übergänge gefunden.
+IMT;REST;reading.dataValidated.title;Daten validiert
+IMT;REST;general.Category;Kategorie
+IMT;REST;customattributeset.timesliced.edit.gap.text;Die Version konnte nicht bearbeitet werden. Zwischen den Versionen gibt es Lücken.
+IMT;REST;general.activateCalendar;Kalender aktivieren
+IMT;REST;general.usagePoint.LifecycleManagement;Verwaltung des Arbeitszyklus der Verwendungsstelle
+IMT;REST;metrologyConfigPurposes.pagingtoolbartop.displayMsg;{0} - {1} von {2} Zwecken
+IMT;REST;general.hasMeterActivations.info;Da die messtechnische Konfiguration „{0}“ ab {1} mit dieser Verwendungsstelle verknüpft ist, können Sie die Zähler mit den von dieser messtechnischen Konfiguration bereitgestellten Zählerrollen verknüpfen.
+IMT;REST;general.copyFromReference;Von Referenz kopieren
+IMT;REST;general.usagePointLifecycleManagement;Verwaltung des Arbeitszyklus der Verwendungsstelle
+IMT;REST;usagepointgroup.remove.msg;Diese Verwendungsstellengruppe wird nicht mehr verfügbar sein.
+IMT;REST;customattributesets.addattributesets;Benutzerdefinierte Attributesätze hinzufügen
+IMT;REST;general.calendars;Kalender
+IMT;REST;general.outputs;Ausgabe
+IMT;REST;readings.list.reason1x;Es sind keine messtechnischen Konfigurationen im angegebenen Zeitraum vorhanden.
+IMT;REST;usagePoint.setMeters.keepTyping;Die Eingabe zur Eingrenzung fortsetzen.
+IMT;REST;reading.estimated;Bewertet am {0} um {1}
+IMT;REST;usagepoints.connectionState;Verbindungsstatus
+IMT;REST;general.criteria;Kriterien
+IMT;REST;general.noMetrologyConfiguration.info;Da die messtechnische Konfiguration an dieser Verwendungsstelle nicht festgelegt ist, können Sie die Zähler mit jeder beliebigen Zählerrolle verknüpfen.
+IMT;REST;metrologyConfiguration.inThePast;Die messtechnische Konfiguration liegt in der Vergangenheit.
+IMT;REST;deviceloadprofiles.readings;Messwerte
+IMT;REST;overview.widget.flaggedUsagePointGroups.usagePointGroup.flaggedDate;Gekennzeichnetes Datum
+IMT;REST;general.ordering;Anweisungen
+IMT;REST;overview.widget.flaggedUsagePointGroups.unflag;Das Element anklicken, um es aus der Liste der bevorzugten Verwendungsstellengruppen zu entfernen.
+IMT;REST;usagepoint.wizard.menu;Verwendungsstelle hinzufügen
+IMT;REST;purpose.dataEstimation.timeout.message;Die Datenbewertung dauert länger als erwartet und wird im Hintergrund fortgesetzt.
+IMT;REST;Calendars.pagingtoolbartop.displayMsg;{0} - {1} von {2} Kalendern
+IMT;REST;metrologyConfiguration.wizard.emptyText;Messtechnische Konfiguration auswählen ...
+IMT;REST;searchItems.bulk.addCalendarToAllUsagePoints.confirmMsg;Kalender {0} zu allen Verwendungsstellen hinzufügen?
+IMT;REST;general.lastSuspect;Letzter fehlerverdächtiger Wert
+IMT;REST;metrologyConfiguration.wizard.noAvailable;Es sind keine messtechnischen Konfigurationen verfügbar.
+IMT;REST;usagepointsearch.empty.title;Es wurden keine Verwendungsstellen gefunden.
+IMT;REST;general.measurementunits.ampere;A
+IMT;REST;usagePoint.acknowledge.calendarAdded;Der Kalender wurde hinzugefügt.
+IMT;REST;general.measurementunits.wattHours;Wh
+IMT;REST;general.editGeneralInformation.discardChanges;{0} Änderungen verwerfen?
+IMT;REST;general.estimationSchedule;Bewertungszeitplan
+IMT;REST;widget.myWorkList.assignedToMeLabel;Mir zugewiesen ({0})
+IMT;REST;validation.usagePointStates;Zustände der Verwendungsstellen
+IMT;REST;validationruleset.deleteConfirmation.msg;Dieser Validierungsregelsatz wird nicht länger verfügbar sein.
+IMT;REST;form.output.label.formula;Formel
+IMT;REST;Imt.metrologyconfiguration.error.cannotEditCAS;Sie können benutzerdefinierte Attributesätze nicht verwalten, da die messtechnische Konfiguration aktiv ist.
+IMT;REST;estimationRuleSets.count.added[many];Es wurden {0} Bewertungsregelwerke hinzugefügt.
+IMT;REST;estimation.general.editOrder;Reihenfolge bearbeiten
+IMT;REST;general.type;Typ
+IMT;REST;usagePointLifeCycleStates.pagingtoolbartop.emptyMsg;Es sind keine Zustände zur Anzeige verfügbar.
+IMT;REST;ruleSet.addMetrologyConfigurationPurposes.grid.multiselect.selected[many];Es wurden {0} Zwecke der messtechnischen Konfigurationen ausgewählt.
+IMT;REST;device.registerData.measurementTime;Messzeit
+IMT;REST;usagePoint.calendars.define;Kalender hinzufügen
+IMT;REST;usagePoint.metrologyConfiguration.link;Messtechnische Konfiguration verknüpfen
+IMT;REST;usagepointgroup.wizard.dynamic.confirmationMessage.usagePointsNumber;Aktuelle Anzahl der Verwendungsstellen: {0}
+IMT;REST;overview.widget.flaggedUsagePoints.flag;Das Element anklicken, um die Verwendungsstelle zu kennzeichnen.
+IMT;REST;general.initial;Anfang
+IMT;REST;favoriteUsagePointGroups.multiselect.selected[1];Es wurde {0} Verwendungsstellengruppe ausgewählt.
+IMT;REST;general.confirmation;Bestätigung
+IMT;REST;general.label.bypass;Umgehung
+IMT;REST;general.changedData;Geänderte Daten
+IMT;REST;meterActivationsField.emptyMessage;Es wurden keine Zählerrollen in der ausgewählten messtechnischen Konfiguration definiert.
+IMT;REST;usagepointgroup.wizard.step3.title;Schritt 3: Bestätigung
+UQR;REST;InvalidFilterFormat;Ungültiges Format des Filters {0}, erwartetes Format: {1}
+UQR;REST;UnsupportedFilterOperator;Nicht unterstützter Operator {1} für den Filter {0}, unterstützte Operatoren: {2}
+UQR;REST;InvalidOperatorCriteria;Ungültige Kriterien für den Operator {0} des Filters {1}
+UQR;REST;NoSuchUsagePointGroup;Die Verwendungsstellengruppe mit der Kennung {0} wurde nicht gefunden.
+UQR;REST;NoSuchMetrologyConfiguration;Die messtechnische Konfiguration mit der Kennung „{0}“ wurde nicht gefunden.
+UQR;REST;NoSuchMetrologyPurpose;Der Zweck der messtechnischen Konfiguration mit der Kennung „{0}“ wurde nicht gefunden.
+UQR;REST;NoSuchValidator;Der Prüfmechanismus mit der Implementierung {0} wurde nicht gefunden.
+UQR;REST;NoSuchEstimator;Die Bewertungsfunktion mit der Implementierung {0} wurde nicht gefunden.
+IMT;REST;devicechannels.interval;Intervall
