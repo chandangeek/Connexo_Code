@@ -15,7 +15,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.AbstractConnectionTypeDelegate;
 import com.energyict.mdc.device.config.AbstractConnectionTypePluggableClassDelegate;
 import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
@@ -51,6 +50,7 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.TypedProperties;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -81,7 +81,7 @@ import static com.elster.jupiter.util.Checks.is;
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 @ComPortPoolIsCompatibleWithConnectionType(groups = {Save.Create.class, Save.Update.class})
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
-    implements
+        implements
         ServerConnectionTask<CPPT, PCTT>,
         ServerConnectionTaskForConfigChange<CPPT, PCTT>,
         ConnectionTaskPropertyProvider,
@@ -225,7 +225,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      * is part of the Device's configuration.
      *
      * @param partialConnectionTask The PartialConnectionTask
-     * @param device                The Device
+     * @param device The Device
      */
     private void validateSameConfiguration(PCTT partialConnectionTask, Device device) {
         if (!is(this.getDeviceConfigurationId(device)).equalTo(partialConnectionTask.getConfiguration().getId())) {
@@ -251,7 +251,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      */
     private void unRegisterConnectionTaskFromComTasks() {
         for (ComTaskExecution comTaskExecution : this.findDependentComTaskExecutions()) {
-            ((ServerComTaskExecution)comTaskExecution).connectionTaskRemoved();
+            ((ServerComTaskExecution) comTaskExecution).connectionTaskRemoved();
         }
     }
 
@@ -263,8 +263,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
                 if (!currentValues.isEmpty() && !currentValues.getEffectiveRange().lowerEndpoint().equals(currentTime)) {
                     this.getPluggableClass().setPropertiesFor(this, CustomPropertySetValues.emptyFrom(currentTime), currentTime);
                 }
-            }
-            else {
+            } else {
                 this.saveAllProperties(this.getAllProperties());
             }
         }
@@ -278,6 +277,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
         return this.protocolDialectConfigurationProperties.orNull();
     }
+
     @Override
     public void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties dialectConfigurationProperties) {
         this.protocolDialectConfigurationProperties.set(dialectConfigurationProperties);
@@ -294,12 +294,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    public void save () {
+    public void save() {
         if (this.id > 0) {
             this.validateAndUpdate();
             this.notifyUpdated();
-        }
-        else {
+        } else {
             this.validateAndCreate();
             this.notifyCreated();
         }
@@ -572,9 +571,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private void setLastSessionAndUpdate(ComSession session) {
         this.setLastSession(session);
         this.update(ConnectionTaskFields.LAST_SESSION.fieldName(),
-                    ConnectionTaskFields.LAST_SESSION_SUCCESS_INDICATOR.fieldName(),
-                    ConnectionTaskFields.LAST_SESSION_STATUS.fieldName(),
-                    ConnectionTaskFields.LAST_COMMUNICATION_START.fieldName());
+                ConnectionTaskFields.LAST_SESSION_SUCCESS_INDICATOR.fieldName(),
+                ConnectionTaskFields.LAST_SESSION_STATUS.fieldName(),
+                ConnectionTaskFields.LAST_COMMUNICATION_START.fieldName());
     }
 
     private void setLastSession(ComSession session) {
@@ -629,11 +628,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void setAsDefault() {
         this.doSetAsDefault();
         this.update();
+        this.postEvent(EventType.CONNECTIONTASK_SETASDEFAULT);
     }
 
     protected void doSetAsDefault() {
         this.isDefault = true;
-        this.postEvent(EventType.CONNECTIONTASK_SETASDEFAULT);
     }
 
     private void postEvent(EventType eventType) {
@@ -750,8 +749,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         if (this.getId() > 0 && this.isActive()) {
             try {
                 Save.UPDATE.save(this.dataModel, this);
-            }
-            catch (ConstraintViolationException e) {
+            } catch (ConstraintViolationException e) {
                 /* Assumption: no changes on this ConnectionTask
                  * therefore: exception relates to missing required properties
                  * so set the status to Incomplete and apply change. */
@@ -777,8 +775,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public boolean isActive() {
         return this.status.equals(ConnectionTaskLifecycleStatus.ACTIVE);
     }
-
-
 
     @Override
     public boolean isExecuting() {
@@ -926,17 +922,18 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         public PluggableClassWithPossibleValues(ConnectionTypePluggableClass connectionTypePluggableClass) {
             super(connectionTypePluggableClass);
         }
+
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return super.getPropertySpecs().stream().
-                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(()->getDevice().getDeviceType().getKeyAccessorTypes(), ps)).
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getDevice().getDeviceType().getKeyAccessorTypes(), ps)).
                     collect(Collectors.toList());
         }
 
         @Override
         public Optional<PropertySpec> getPropertySpec(String name) {
             return super.getPropertySpec(name).
-                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(()->getDevice().getDeviceType().getKeyAccessorTypes(), ps));
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getDevice().getDeviceType().getKeyAccessorTypes(), ps));
         }
 
         @Override
@@ -957,14 +954,14 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return connectionType.getPropertySpecs().stream().
-                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(()->getDevice().getDeviceType().getKeyAccessorTypes(), ps)).
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getDevice().getDeviceType().getKeyAccessorTypes(), ps)).
                     collect(Collectors.toList());
         }
 
         @Override
         public Optional<PropertySpec> getPropertySpec(String name) {
             return connectionType.getPropertySpec(name).
-                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(()->getDevice().getDeviceType().getKeyAccessorTypes(), ps));
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getDevice().getDeviceType().getKeyAccessorTypes(), ps));
         }
     }
 }
