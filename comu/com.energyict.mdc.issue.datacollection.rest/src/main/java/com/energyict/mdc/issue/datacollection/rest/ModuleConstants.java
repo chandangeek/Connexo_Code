@@ -15,6 +15,7 @@ public final class ModuleConstants {
     public static final String REASON_CONNECTION_FAILED = "reason.connection.failed";
     public static final String REASON_POWER_OUTAGE = "reason.power.outage";
     public static final String REASON_TYME_SYNC_FAILED = "reason.tyme.sync.failed";
+    public static final String REASON_UNREGISTERED_DEVICE = "reason.unregistered.device";
 
     public static final String ACTION_CLASS_RETRY_COMMUNICATION = "com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskAction";
     public static final String ACTION_CLASS_RETRY_COMMUNICATION_NOW = "com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskNowAction";

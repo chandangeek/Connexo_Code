@@ -98,6 +98,9 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
                 unknownOutboundDeviceIssueInfo.slaveDeviceIdentification = issue.getDeviceIdentification();
                 info = unknownOutboundDeviceIssueInfo;
                 break;
+            case ModuleConstants.REASON_UNREGISTERED_DEVICE:
+
+                break;
         }
         return info;
     }
