@@ -26,6 +26,12 @@ Ext.define('Imt.rulesets.view.AddUsagePointStatesGrid', {
             {
                 header: Uni.I18n.translate('general.stage', 'IMT', 'Stage'),
                 dataIndex: 'stage',
+                renderer: function (value) {
+                    if(!Ext.isEmpty(value.name)) {
+                        return value.name
+                    }
+                    return '-';
+                },
                 flex: 1
             },
             {
