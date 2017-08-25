@@ -11,6 +11,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.device.data.exceptions.CannotRevokeDeviceMessageException;
 import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -320,7 +321,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_INVALID_REVOKE + "}")
+    @Expected(value = CannotRevokeDeviceMessageException.class)
     public void revokeWithStatusConfirmedTest() {
         Instant myReleaseInstant = initializeClockWithCurrentAfterReleaseInstant();
 
@@ -358,7 +359,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_INVALID_REVOKE + "}")
+    @Expected(value = CannotRevokeDeviceMessageException.class)
     public void revokeWithStatusRevokedTest() {
         Instant myReleaseInstant = initializeClockWithCurrentAfterReleaseInstant();
 
@@ -396,7 +397,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_INVALID_REVOKE + "}")
+    @Expected(value = CannotRevokeDeviceMessageException.class)
     public void revokeWithStatusFailedTest() {
         Instant myReleaseInstant = initializeClockWithCurrentAfterReleaseInstant();
 
@@ -434,7 +435,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_INVALID_REVOKE + "}")
+    @Expected(value = CannotRevokeDeviceMessageException.class)
     public void revokeWithStatusIndoubtTest() {
         Instant myReleaseInstant = initializeClockWithCurrentAfterReleaseInstant();
 
@@ -472,7 +473,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_INVALID_REVOKE + "}")
+    @Expected(value = CannotRevokeDeviceMessageException.class)
     public void revokeWithStatusSentTest() {
         Instant myReleaseInstant = initializeClockWithCurrentAfterReleaseInstant();
 
@@ -690,7 +691,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER + "}")
+    @Expected(value = CannotRevokeDeviceMessageException.class)
     public void revokeWhileComServerHasPickedUpDeviceMessageTest() {
         Instant myReleaseInstant = initializeClockWithCurrentAfterReleaseInstant();
 
@@ -705,6 +706,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         when(connectionTask.isExecuting()).thenReturn(true);
         when(mockedDevice.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        when(comTaskExecution.isExecuting()).thenReturn(true);
         MessagesTask messagesTask = mock(MessagesTask.class);
         DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
         DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
