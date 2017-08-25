@@ -148,7 +148,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
                         ],
                         listeners: {
                             change: {
-                                fn: Ext.bind(me.dontIncreasePrioTrigger, me)
+                                fn: Ext.bind(me.dontIncreaseUrgencyTrigger, me)
                             }
                         }
                     }
@@ -265,7 +265,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
                 items: [
                     {
                         itemId: 'dueDateTrigger',
-                        xtype: 'radiogroup',
+                        xtype: 'radio',
                         name: 'dueDateTrigger',
                         formBind: false,
                         columns: 1,
@@ -524,6 +524,11 @@ Ext.define('Dal.view.creationrules.EditForm', {
                 number: me.down('[name=dueIn.number]').getValue(),
                 type: me.down('[name=dueIn.type]').getValue()
             });
+        } if (me.down('#increaseUrgencyTrigger')) {
+            record.set('increaseUrgency', {
+                number: me.down('[name=increaseUrgency.number]').getValue(),
+                type: me.down('[name=increaseUrgency.type]').getValue()
+            });
         } else {
             record.set('dueIn', null);
         }
@@ -557,6 +562,22 @@ Ext.define('Dal.view.creationrules.EditForm', {
         var me = this;
 
         me.down('#dueDateTrigger').setValue({dueDate: true});
+    },
+
+    increaseUrgencyTrigger: function () {
+        var me = this,
+            increaseUrgency = me.down('[name=increaseUrgency]'),
+            dontIncreaseUrgency = me.down('[name=dontIncreaseUrgency]');
+        if(increaseUrgency.checked)
+           dontIncreaseUrgency.setValue(false);
+    },
+
+    dontIncreaseUrgencyTrigger: function () {
+        var me = this,
+            increaseUrgency = me.down('[name=increaseUrgency]'),
+            dontIncreaseUrgency = me.down('[name=dontIncreaseUrgency]');
+        if(dontIncreaseUrgency.checked)
+            increaseUrgency.setValue(false);
     },
 
     hideResetButtons: function() {
