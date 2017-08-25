@@ -8,9 +8,11 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.issue.datacollection.event.ConnectionLostResolvedEvent;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureResolvedEvent;
+import com.energyict.mdc.issue.datacollection.event.RegisteredToGatewayEvent;
 import com.energyict.mdc.issue.datacollection.event.UnableToConnectResolvedEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownDeviceResolvedEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 
 import org.osgi.service.event.EventConstants;
 
@@ -85,6 +87,14 @@ public enum DataCollectionResolveEventDescription implements EventDescription {
         @Override
         public String getUniqueKey() {
             return DataCollectionEventDescription.UNKNOWN_OUTBOUND_DEVICE.getUniqueKey();
+        }
+    },
+    REGISTERED_TO_GATEWAY(
+            "com/energyict/mdc/topology/REGISTEREDTOGATEWAY",
+            RegisteredToGatewayEvent.class) {
+        @Override
+        public String getUniqueKey() {
+            return EventType.UNREGISTERED_FROM_GATEWAY_DELAYED.name();
         }
     };
 

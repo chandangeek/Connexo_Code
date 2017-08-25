@@ -82,13 +82,8 @@ public enum DataCollectionEventDescription implements EventDescription {
             null,
             UnregisteredFromGatewayEvent.class,
             TranslationKeys.EVENT_TITLE_UNREGISTERED_FROM_GATEWAY
-    ),
-    REGISTERED_TO_GATEWAY(
-            "com/energyict/mdc/topology/REGISTEREDTOGATEWAY",
-            null,
-            RegisteredToGatewayEvent.class,
-            TranslationKeys.EVENT_TITLE_REGISTERED_FROM_GATEWAY
     );
+
 
     private String topic;
     private CommunicationErrorType errorType;

@@ -22,28 +22,38 @@ import java.util.Map;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class RegisteredToGatewayEvent extends DataCollectionEvent  {
+public class RegisteredToGatewayEvent extends UnregisteredFromGatewayEvent  {
 
-    private String mRID;
+    private long deviceIdentifier;
+    private String deviceMrid;
 
     @Inject
     public RegisteredToGatewayEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
-        super(issueDataCollectionService, meteringService, deviceService, communicationTaskService, topologyService, thesaurus, injector);
+        super(issueDataCollectionService, meteringService, deviceService, topologyService, communicationTaskService, connectionTaskService, thesaurus, injector);
     }
+
 
     @Override
     public void apply(Issue issue) {
+        // do nothing, this event shouldn't produce any issues
     }
 
     @Override
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription) {
-        this.mRID = (String) rawEvent.get("mRID");
-        getDeviceService().findDeviceByMrid(mRID).ifPresent(this::setDevice);
+        this.deviceIdentifier = ((Number) rawEvent.get("deviceIdentifier")).longValue();
+        getDeviceService().findDeviceById(deviceIdentifier).ifPresent(device -> {
+            this.setDevice(device);
+            this.deviceMrid = device.getmRID();
+        });
     }
 
     @Override
     protected Condition getConditionForExistingIssue() {
-        return where("deviceMRID").isEqualTo(mRID);
+        return where("deviceMRID").isEqualTo(deviceMrid);
+    }
+
+    public boolean isResolveEvent(){
+        return true;
     }
 
 }

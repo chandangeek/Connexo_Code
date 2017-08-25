@@ -7,6 +7,8 @@ package com.energyict.mdc.issue.datacollection.impl.templates;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -101,10 +103,11 @@ public class MeterRegistrationRuleTemplate extends AbstractDataCollectionTemplat
                 "when\n" +
                 "\tevent : UnregisteredFromGatewayEvent()\n" +
                 "then\n" +
-                "\tSystem.out.println(\"Testje Meter unregistered @{ruleId}\");\n" +
                 "\tLOGGER.info(\"Putting issue on queue by unregistered from gateway rule=@{ruleId}\");\n" +
                 "\tlong delay = @{" + DELAY + "} * 3600;\n" +
-                "\teventService.postEvent(\"com/energyict/mdc/issue/datacollection/UNREGISTEREDFROMGATEWAYDELAYED\", event, delay);\n" +
+                "\tevent.setRuleId(@{ruleId});\n" +
+//                "\teventService.postEvent(\"com/energyict/mdc/issue/datacollection/UNREGISTEREDFROMGATEWAYDELAYED\", event, delay);\n" +
+                "\teventService.postEvent(\"com/energyict/mdc/issue/datacollection/UNREGISTEREDFROMGATEWAYDELAYED\", event, 20);\n" +
                 "end\n" +
                 "rule \"Auto-resolution section @{ruleId}\"\n" +
                 "when\n" +
@@ -117,8 +120,12 @@ public class MeterRegistrationRuleTemplate extends AbstractDataCollectionTemplat
 
     @Override
     public Optional<? extends Issue> resolveIssue(IssueEvent event) {
-        //todo: what is this
-        throw new UnsupportedOperationException();
+        Optional<? extends Issue> issue = event.findExistingIssue();
+        if (issue.isPresent() && !issue.get().getStatus().isHistorical()) {
+            OpenIssue openIssue = (OpenIssue) issue.get();
+            issue = Optional.of(openIssue.close(issueService.findStatus(IssueStatus.RESOLVED).get()));
+        }
+        return issue;
     }
 
     @Reference

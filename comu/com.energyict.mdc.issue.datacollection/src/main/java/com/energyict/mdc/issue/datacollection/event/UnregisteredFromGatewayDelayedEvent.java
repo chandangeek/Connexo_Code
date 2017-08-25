@@ -8,60 +8,58 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
+
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
+import com.energyict.mdc.issue.datacollection.impl.event.EventType;
 
 import com.google.inject.Injector;
 
-import javax.inject.Inject;
 import java.util.Map;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class UnregisteredFromGatewayEvent extends DataCollectionEvent  {
+public class UnregisteredFromGatewayDelayedEvent extends DataCollectionEvent {
 
+    private final String deviceMrid;
     private long deviceIdentifier;
-    private long ruleId;
 
-    @Inject
-    public UnregisteredFromGatewayEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
+    public UnregisteredFromGatewayDelayedEvent(Device device, IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, TopologyService topologyService, Thesaurus thesaurus, Injector injector) {
         super(issueDataCollectionService, meteringService, deviceService, communicationTaskService, topologyService, thesaurus, injector);
+        setDevice(device);
+        this.deviceIdentifier = device.getId();
+        this.deviceMrid = device.getmRID();
     }
 
     @Override
-    public void apply(Issue issue) {
-
+    public String getEventType() {
+        return EventType.UNREGISTERED_FROM_GATEWAY_DELAYED.name();
     }
 
     @Override
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription) {
-        this.deviceIdentifier = ((Number) rawEvent.get("deviceIdentifier")).longValue();
-        getDeviceService().findDeviceById(deviceIdentifier).ifPresent(this::setDevice);
+        //do nothing, this is never called (as this is a special case)
     }
 
     @Override
     protected Condition getConditionForExistingIssue() {
-        return Condition.TRUE; //not applicable
+        return where("deviceMRID").isEqualTo(deviceMrid);
     }
 
-    public long getDeviceIdentifier() {
-        return deviceIdentifier;
-    }
+    @Override
+    public void apply(Issue issue) {
+        if (issue instanceof OpenIssueDataCollection) {
+            OpenIssueDataCollection dcIssue = (OpenIssueDataCollection) issue;
+            if (getEndDevice().isPresent()) {
+                dcIssue.setDevice(getEndDevice().get());
+                dcIssue.setDeviceIdentification(deviceMrid);
 
-    public void setDeviceIdentifier(long deviceIdentifier) {
-        this.deviceIdentifier = deviceIdentifier;
-    }
-
-    public long getRuleId() {
-        return ruleId;
-    }
-
-    public void setRuleId(long ruleId) {
-        this.ruleId = ruleId;
+            }
+        }
     }
 }
