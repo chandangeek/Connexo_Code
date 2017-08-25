@@ -31,6 +31,7 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.events.EventService;
 
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
@@ -59,6 +60,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     public static final Logger LOG = Logger.getLogger(IssueCreationServiceImpl.class.getName());
 
     public static final String ISSUE_CREATION_SERVICE = "issueCreationService";
+    public static final String EVENT_SERVICE = "eventService";
     public static final String LOGGER = "LOGGER";
     private static final java.lang.String SEPARATOR = ":";
 
@@ -66,6 +68,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
     private volatile IssueService issueService;
+    private volatile EventService eventService;
     private volatile Optional<User> batchUser;
 
     private volatile KnowledgeBase knowledgeBase;
@@ -86,7 +89,8 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             KnowledgeBuilderFactoryService knowledgeBuilderFactoryService,
             KnowledgeBaseFactoryService knowledgeBaseFactoryService,
             KieResources resourceFactoryService,
-            Thesaurus thesaurus) {
+            Thesaurus thesaurus,
+            EventService eventService) {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.queryService = queryService;
@@ -95,6 +99,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         this.knowledgeBuilderFactoryService = knowledgeBuilderFactoryService;
         this.resourceFactoryService = resourceFactoryService;
         this.thesaurus = thesaurus;
+        this.eventService = eventService;
     }
 
     @Override
@@ -147,6 +152,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
             try {
                 ksession.setGlobal(ISSUE_CREATION_SERVICE, this);
+                ksession.setGlobal(EVENT_SERVICE, eventService);
                 ksession.setGlobal(LOGGER, LOG);
             } catch (RuntimeException ex) {
                 LOG.warning("Unable to set the issue creation service as a global for all rules. This means that no " +
