@@ -20,6 +20,7 @@ import com.energyict.mdc.issue.datacollection.event.UnregisteredFromGatewayDelay
 
 import com.google.inject.Injector;
 
+import javax.swing.text.html.Option;
 import javax.validation.MessageInterpolator;
 import java.util.Map;
 import java.util.Optional;
@@ -67,15 +68,17 @@ public class DelayedIssueEventHandler implements MessageHandler {
     public void process(Message message) {
         Map<?, ?> map = getJsonService().deserialize(message.getPayload(), Map.class);
         long deviceIdentifier = ((Number) map.get("deviceIdentifier")).longValue();
+        long gatewayIdentifier  = ((Number) map.get("gatewayIdentifier")).longValue();
         long ruleId = ((Number) map.get("ruleId")).longValue();
         Optional<Device> device = getDeviceService().findDeviceById(deviceIdentifier);
-        device.ifPresent(dev -> this.checkPhysicalGateway(dev, ruleId));
+        Optional<Device> gateway = getDeviceService().findDeviceById(gatewayIdentifier);
+        device.ifPresent(dev -> this.checkPhysicalGateway(dev, ruleId, gateway));
     }
 
-    private void checkPhysicalGateway(Device device, long ruleId) {
+    private void checkPhysicalGateway(Device device, long ruleId, Optional<Device> gateway) {
         Optional<Device> physicalGateway = getTopologyService().getPhysicalGateway(device);
         if (!physicalGateway.isPresent()) {
-            UnregisteredFromGatewayDelayedEvent unregisteredFromGatewayDelayedEvent = new UnregisteredFromGatewayDelayedEvent(device, getIssueDataCollectionService(), getMeteringService(), getDeviceService(),
+            UnregisteredFromGatewayDelayedEvent unregisteredFromGatewayDelayedEvent = new UnregisteredFromGatewayDelayedEvent(device, gateway, getIssueDataCollectionService(), getMeteringService(), getDeviceService(),
                     getCommunicationTaskService(), getTopologyService(), getThesaurus(), injector);
             getIssueCreationService().processIssueCreationEvent(ruleId,unregisteredFromGatewayDelayedEvent);
         }

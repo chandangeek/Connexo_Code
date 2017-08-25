@@ -26,6 +26,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class UnregisteredFromGatewayEvent extends DataCollectionEvent  {
 
     private long deviceIdentifier;
+    private long gatewayIdentifier;
     private long ruleId;
 
     @Inject
@@ -40,7 +41,8 @@ public class UnregisteredFromGatewayEvent extends DataCollectionEvent  {
 
     @Override
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription) {
-        this.deviceIdentifier = ((Number) rawEvent.get("deviceIdentifier")).longValue();
+        this.setDeviceIdentifier(((Number) rawEvent.get("deviceIdentifier")).longValue());
+        this.setGatewayIdentifier(((Number) rawEvent.get("gatewayIdentifier")).longValue());
         getDeviceService().findDeviceById(deviceIdentifier).ifPresent(this::setDevice);
     }
 
@@ -55,6 +57,14 @@ public class UnregisteredFromGatewayEvent extends DataCollectionEvent  {
 
     public void setDeviceIdentifier(long deviceIdentifier) {
         this.deviceIdentifier = deviceIdentifier;
+    }
+
+    public long getGatewayIdentifier() {
+        return gatewayIdentifier;
+    }
+
+    public void setGatewayIdentifier(long gatewayIdentifier) {
+        this.gatewayIdentifier = gatewayIdentifier;
     }
 
     public long getRuleId() {

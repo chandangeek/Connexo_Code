@@ -21,19 +21,20 @@ import com.energyict.mdc.issue.datacollection.impl.event.EventType;
 import com.google.inject.Injector;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class UnregisteredFromGatewayDelayedEvent extends DataCollectionEvent {
 
     private final String deviceMrid;
-    private long deviceIdentifier;
+    private String lastGatewayMrid;
 
-    public UnregisteredFromGatewayDelayedEvent(Device device, IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, TopologyService topologyService, Thesaurus thesaurus, Injector injector) {
+    public UnregisteredFromGatewayDelayedEvent(Device device, Optional<Device> gateway, IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, TopologyService topologyService, Thesaurus thesaurus, Injector injector) {
         super(issueDataCollectionService, meteringService, deviceService, communicationTaskService, topologyService, thesaurus, injector);
         setDevice(device);
-        this.deviceIdentifier = device.getId();
         this.deviceMrid = device.getmRID();
+        gateway.ifPresent(g -> lastGatewayMrid = g.getmRID());
     }
 
     @Override
@@ -58,7 +59,7 @@ public class UnregisteredFromGatewayDelayedEvent extends DataCollectionEvent {
             if (getEndDevice().isPresent()) {
                 dcIssue.setDevice(getEndDevice().get());
                 dcIssue.setDeviceIdentification(deviceMrid);
-
+                dcIssue.setLastGatewayIdentification(lastGatewayMrid);
             }
         }
     }

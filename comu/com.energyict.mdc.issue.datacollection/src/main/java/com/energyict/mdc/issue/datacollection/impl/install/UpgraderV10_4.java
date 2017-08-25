@@ -11,6 +11,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
@@ -24,15 +25,18 @@ import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 public class UpgraderV10_4 implements Upgrader {
     private final EventService eventService;
     private final MessageService messageService;
+    private final DataModel dataModel;
 
     @Inject
-    public UpgraderV10_4(EventService eventService, MessageService messageService) {
+    public UpgraderV10_4(EventService eventService, MessageService messageService, DataModel dataModel) {
         this.eventService = eventService;
         this.messageService = messageService;
+        this.dataModel = dataModel;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 4));
         this.setAQSubscriber();
         this.createEventTypes();
     }

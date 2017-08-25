@@ -22,6 +22,7 @@ final class DatabaseConst {
     static final String IDC_FIRST_TRY = "FIRST_TRY";
     static final String IDC_LAST_TRY = "LAST_TRY";
     static final String IDC_NUMBER_TRIES = "NUM_TRIES";
+    static final String IDC_LAST_GATEWAY_MRID = "LAST_GATEWAY_MRID";
 
     static final String IDC_ISSUE_PK = "IDC_ISSUE_PK";
     static final String IDC_ISSUE_FK_TO_ISSUE = "IDC_ISSUE_FK_TO_ISSUE";

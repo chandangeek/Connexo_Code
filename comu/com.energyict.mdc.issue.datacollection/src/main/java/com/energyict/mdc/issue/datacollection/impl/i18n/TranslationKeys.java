@@ -18,7 +18,7 @@ public enum TranslationKeys implements TranslationKey {
     BASIC_TEMPLATE_DATACOLLECTION_DESCRIPTION("TemplateBasicDataCollectionDescription", "Create issue when specific event occurs"),
     TEMPLATE_EVT_AGGREGATION_NAME("TemplateEvtAggregationName", "Events from meters of concentrator"),
     TEMPLATE_EVT_AGGREGATION_DESCRIPTION("TemplateEvtAggregationDescription", "Create an issue based on multiple events that are related"),
-    TEMPLATE_UNREGISTERED_FROM_GATEWAY_NAME("TemplateUnregisteredFromGatewayName", "Unregistered from gateway"),
+    TEMPLATE_UNREGISTERED_FROM_GATEWAY_NAME("TemplateUnregisteredFromGatewayName", "Meter registration issues"),
     TEMPLATE_UNREGISTERED_FROM_GATEWAY_DESCRIPTION("TemplateUnregisteredFromGatewayDescription", "Create an issue when a slave is unregistered from a gateway for some time"),
 
     PARAMETER_NAME_EVENT_TYPE(BasicDataCollectionRuleTemplate.EVENTTYPE, "Event"),
@@ -35,6 +35,7 @@ public enum TranslationKeys implements TranslationKey {
     ISSUE_REASON_CONNECTION_FAILED("IssueReasonConnectionFailed", "Connection failed"),
     ISSUE_REASON_POWER_OUTAGE("IssueReasonPowerOutage", "Power outage"),
     ISSUE_REASON_TIME_SYNC_FAILED("IssueReasonSyncFailed", "Time sync failed"),
+    ISSUE_REASON_UNREGISTERED_DEVICE("IssueReasonUnregisteredDevice", "Unregistered device"),
     ISSUE_REASON_DESCRIPTION_UNKNOWN_INBOUND_DEVICE("IssueReasonUnknownInboundDeviceDescription", "Unknown inbound device {0}"),
     ISSUE_REASON_DESCRIPTION_UNKNOWN_OUTBOUND_DEVICE("IssueReasonUnknownOutboundDeviceDescription", "Unknown outbound device {0}"),
     ISSUE_REASON_DESCRIPTION_FAILED_TO_COMMUNICATE("IssueReasonFailedToCommunicateDescription", "Failed to communicate with {0}"),
@@ -42,6 +43,7 @@ public enum TranslationKeys implements TranslationKey {
     ISSUE_REASON_DESCRIPTION_CONNECTION_FAILED("IssueReasonConnectionFailedDescription", "Connection failed to {0}"),
     ISSUE_REASON_DESCRIPTION_POWER_OUTAGE("IssueReasonPowerOutageDescription", "Power outage on {0}"),
     ISSUE_REASON_DESCRIPTION_TIME_SYNC_FAILED("IssueReasonSyncFailedDescription", "Time sync failed with {0}"),
+    ISSUE_REASON_DESCRIPTION_UNREGISTERED_DEVICE("IssueReasonSyncFailedDescription", "Unregistered device {0}"),
 
     ACTION_RETRY_NOW("ActionRetryNow", "Retry now"),
     ACTION_RETRY("ActionRetry", "Retry"),

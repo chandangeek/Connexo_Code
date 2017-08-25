@@ -9,9 +9,12 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.Optional;
 
+@ProviderType
 public interface IssueDataCollection extends Issue {
 
     Optional<ConnectionTask> getConnectionTask();
@@ -22,6 +25,9 @@ public interface IssueDataCollection extends Issue {
 
     String getDeviceIdentification();
     void setDeviceIdentification(String deviceIdentification);
+
+    String getLastGatewayIdentification();
+    void setLastGatewayIdentification(String gatewayIdentification);
     
     Optional<ComSession> getComSession();
     void setComSession(ComSession comSession);

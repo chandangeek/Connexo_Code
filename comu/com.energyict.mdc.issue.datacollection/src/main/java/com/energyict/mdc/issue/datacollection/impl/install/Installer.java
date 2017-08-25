@@ -143,6 +143,9 @@ public class Installer implements FullInstaller {
         issueService.createReason(ModuleConstants.REASON_TYME_SYNC_FAILED, issueType,
                 TranslationKeys.ISSUE_REASON_TIME_SYNC_FAILED, TranslationKeys.ISSUE_REASON_DESCRIPTION_TIME_SYNC_FAILED);
         issueActionService.createActionType(DataCollectionActionsFactory.ID, CloseIssueAction.class.getName(), issueType, CreationRuleActionPhase.OVERDUE);
+
+        issueService.createReason(ModuleConstants.REASON_UNREGISTERED_DEVICE, issueType,
+                TranslationKeys.ISSUE_REASON_UNREGISTERED_DEVICE, TranslationKeys.ISSUE_REASON_DESCRIPTION_UNREGISTERED_DEVICE);
     }
 
     private void run(Runnable runnable, String explanation, Logger logger) {

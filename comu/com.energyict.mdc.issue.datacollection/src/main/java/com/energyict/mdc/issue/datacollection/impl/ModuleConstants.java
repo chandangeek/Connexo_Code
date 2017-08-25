@@ -15,6 +15,7 @@ public final class ModuleConstants {
     public static final String REASON_CONNECTION_FAILED = "reason.connection.failed";
     public static final String REASON_POWER_OUTAGE = "reason.power.outage";
     public static final String REASON_TYME_SYNC_FAILED = "reason.tyme.sync.failed";
+    public static final String REASON_UNREGISTERED_DEVICE = "reason.unregistered.device";
 
     public static final String AQ_DATA_COLLECTION_EVENT_SUBSC = "IssueCreationDC";
     public static final String AQ_DATA_COLLECTION_EVENT_DISPLAYNAME = "Create data collection issues";

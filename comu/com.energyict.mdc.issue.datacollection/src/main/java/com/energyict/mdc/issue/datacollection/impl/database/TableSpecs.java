@@ -45,6 +45,7 @@ import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_OPEN_FK_TO_ISSUE;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_OPEN_PK;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_PK;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_LAST_GATEWAY_MRID;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_LAST_TRY;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_NUMBER_TRIES;
 
@@ -116,10 +117,11 @@ public enum TableSpecs {
             table.column(IDC_FIRST_TRY).number().conversion(NUMBER2INSTANT).map("firstConnectionAttemptTimestamp").since(version(10, 2)).add();
             table.column(IDC_LAST_TRY).number().conversion(NUMBER2INSTANT).map("lastConnectionAttemptTimestamp").since(version(10, 2)).add();
             table.column(IDC_NUMBER_TRIES).number().conversion(NUMBER2LONG).map("connectionAttempt").since(version(10, 2)).add();
+            table.column(IDC_LAST_GATEWAY_MRID).varChar(NAME_LENGTH).map("lastGatewayMRID").since(version(10, 4)).add();
 
             table.primaryKey(pkKey).on(idColumn).add();
             if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH){
-                throw new IllegalArgumentException("Passed arguments don't match foreigen keys");
+                throw new IllegalArgumentException("Passed arguments don't match foreign keys");
             }
             ListIterator<String> fkKeysIter = Arrays.asList(fkKeys).listIterator();
             table.foreignKey(fkKeysIter.next()).map("baseIssue").on(issueColRef).references(IssueService.COMPONENT_NAME, issueTable).add();

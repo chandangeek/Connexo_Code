@@ -17,9 +17,10 @@ public enum EventType {
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             return super.addCustomProperties(eventTypeBuilder).
                     withProperty("deviceIdentifier", ValueType.LONG, "deviceIdentifier").
-                    withProperty("ruleId", ValueType.LONG, "ruleId");
+                    withProperty("ruleId", ValueType.LONG, "ruleId").
+                    withProperty("gatewayIdentifier", ValueType.LONG, "gatewayIdentifier");
         }
-    } ;
+    };
     private static final String NAMESPACE = "com/energyict/mdc/issue/datacollection/";
     private final String topic;
 
