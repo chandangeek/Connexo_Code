@@ -13,7 +13,7 @@ Ext.define('Mdc.networkvisualiser.store.NetworkNodes', {
             type: 'json'
         },
         extraParams: {
-            filter: '[{"property":"layers","value":["Device types", "Issues/Alarms"]}]'
+            filter: '[{"property":"layers","value":["Device types", "Issues/Alarms", "Communication status", "Status of device life cycle"]}]'
         },
         pageParam: false,
         startParam: false,
