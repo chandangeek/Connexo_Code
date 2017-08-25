@@ -5,27 +5,21 @@ import com.energyict.mdc.device.topology.rest.GraphLayerService;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -69,6 +63,26 @@ public class GraphInfo<T extends HasId>  {
         this.rootNode = rootNode;
     }
 
+    /**
+     * Can we consider the graphInfo still valid for given Period
+     * @param period for which we check the validity (time to life = 1h)
+     * @return if the current graph can be considered being valid for give period
+     */
+    public boolean isValid(Range<Instant> period){
+        Range<Instant> graphPeriod = Range.atLeast(Instant.ofEpochMilli(getPeriod().getStart()));
+        if (graphPeriod.encloses(period)){
+            return isValid(period.lowerEndpoint());
+        }
+        return false;
+    }
+
+    /* The information contained by the graphInfo is considered valid for an hour (time to live = 1h)
+     * A GraphInfo is considered dead after 1 hour
+     */
+    private boolean isValid(Instant when){
+        return when.minus(getPeriod().getStart(), ChronoUnit.MILLIS).toEpochMilli() < ChronoUnit.HOURS.getDuration().toMillis();
+    }
+
     private void setPeriod(Range<Instant> period){
         if (period != null) {
             setProperty("period", new PeriodInfo(period));
@@ -103,24 +117,34 @@ public class GraphInfo<T extends HasId>  {
     @JsonTypeName("period")
     public static class PeriodInfo {
         @JsonProperty
-        private long start;
+        private Long start;
         @JsonProperty
-        private long end;
+        private Long end;
 
         public PeriodInfo(Range<Instant> period){
-            if (period.hasLowerBound())
-                this.start = period.lowerEndpoint().toEpochMilli();
-            if (period.hasUpperBound())
-                this.end = period.upperEndpoint().toEpochMilli();
+            if (period.hasLowerBound()) {
+                try {
+                    this.start = period.lowerEndpoint().toEpochMilli();
+                } catch (java.lang.ArithmeticException e) {
+                    this.start = null;
+                }
+            }
+            if (period.upperBoundType() == BoundType.CLOSED && period.hasUpperBound()) {
+                try {
+                    this.end = period.upperEndpoint().toEpochMilli();
+                }catch(java.lang.ArithmeticException e){
+                    this.end = null;
+                }
+            }
         }
         // for serialization purposes
         public PeriodInfo(){};
 
-        public long getStart() {
+        public Long getStart() {
             return start;
         }
 
-        public long getEnd() {
+        public Long getEnd() {
             return end;
         }
     }

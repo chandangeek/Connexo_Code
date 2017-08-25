@@ -60,8 +60,11 @@ public class DeviceGraphFactory implements GraphFactory {
         Instant now = clock.instant();
         Optional<GraphInfo> existing = cachedGraphs.stream().filter(g -> g.getRootNode().getId() == deviceTopology.getRoot().getId()).findFirst();
         if (existing.isPresent()) {
-            if (existing.get().getPeriod().getStart() == deviceTopology.getPeriod().lowerEndpoint().toEpochMilli()){
-                return existing.get();
+            if (existing.get().isValid(deviceTopology.getPeriod())){
+                GraphInfo graphInfo = existing.get();
+                graphInfo.setProperty("nodeCount", graphInfo.size());
+                graphInfo.setProperty("buildTime", Duration.between(now, clock.instant()).toMillis());
+                return graphInfo;
             }
             cachedGraphs.remove(existing.get());
         }

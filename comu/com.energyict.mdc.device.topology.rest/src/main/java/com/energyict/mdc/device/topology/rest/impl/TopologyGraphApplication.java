@@ -12,6 +12,8 @@ import com.energyict.mdc.device.topology.rest.GraphLayerService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -36,6 +38,13 @@ public class TopologyGraphApplication extends Application implements MessageSeed
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
+    private volatile DeviceGraphFactory deviceGraphFactory;
+
+    @Activate
+    public void activate(BundleContext context) {
+        // DeviceGraphFactory has a cache of GraphInfo's
+        deviceGraphFactory = new DeviceGraphFactory(topologyService, graphLayerService, clock);
+    }
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -102,6 +111,7 @@ public class TopologyGraphApplication extends Application implements MessageSeed
             bind(graphLayerService).to(GraphLayerService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(clock).to(Clock.class);
+            bind(deviceGraphFactory).to(DeviceGraphFactory.class);
         }
     }
 }
