@@ -142,8 +142,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     public void activate() {
         this.dataModel.register(this.getModule());
         upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
-                        Version.version(10, 2), V10_2SimpleUpgrader.class,
-                        Version.version(10, 4), UpgraderV10_4.class));
+                Version.version(10, 2), V10_2SimpleUpgrader.class,
+                Version.version(10, 4), UpgraderV10_4.class));
     }
 
     private Module getModule() {
@@ -795,8 +795,10 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     private void clearPhysicalGateway(Device slave, Instant when) {
-        this.getPhysicalGatewayReference(slave, when).ifPresent(r -> terminateTemporal(r, when));
-        eventService.postEvent(EventType.UNREGISTERED_FROM_GATEWAY.topic(), new DeviceEventInfo((slave.getId())));
+        this.getPhysicalGatewayReference(slave, when).ifPresent(r -> {
+            terminateTemporal(r, when);
+            eventService.postEvent(EventType.UNREGISTERED_FROM_GATEWAY.topic(), new DeviceEventInfo((slave.getId()), r.getGateway().getId()));
+        });
         this.slaveTopologyChanged(slave, Optional.empty());
     }
 

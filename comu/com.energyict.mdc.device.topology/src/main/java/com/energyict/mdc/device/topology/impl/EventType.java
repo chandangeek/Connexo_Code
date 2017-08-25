@@ -16,7 +16,8 @@ public enum EventType {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             return super.addCustomProperties(eventTypeBuilder).
-                    withProperty("deviceIdentifier", ValueType.LONG, "deviceIdentifier");
+                    withProperty("deviceIdentifier", ValueType.LONG, "deviceIdentifier").
+                    withProperty("gatewayIdentifier", ValueType.LONG, "gatewayIdentifier");
         }
     },
     REGISTERED_TO_GATEWAY("REGISTEREDTOGATEWAY") {
