@@ -242,9 +242,9 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                     align: 'stretch'
                                 },
                                 itemId: 'numberOfSimultaneousConnectionsField',
+                                disabled: true,
                                 items: [
                                     {
-
                                         xtype: 'numberfield',
                                         itemId: 'numberOfSimultaneousConnections',
                                         name: 'numberOfSimultaneousConnections',
