@@ -796,7 +796,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     private void clearPhysicalGateway(Device slave, Instant when) {
         this.getPhysicalGatewayReference(slave, when).ifPresent(r -> terminateTemporal(r, when));
-        eventService.postEvent(EventType.UNREGISTERED_FROM_GATEWAY.topic(), new DeviceEventInfo(slave.getId()));
+        eventService.postEvent(EventType.UNREGISTERED_FROM_GATEWAY.topic(), new DeviceEventInfo((slave.getId())));
         this.slaveTopologyChanged(slave, Optional.empty());
     }
 

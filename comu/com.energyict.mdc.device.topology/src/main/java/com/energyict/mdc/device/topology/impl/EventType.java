@@ -16,10 +16,16 @@ public enum EventType {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             return super.addCustomProperties(eventTypeBuilder).
-                    withProperty("deviceIdentifier", ValueType.STRING, "deviceIdentifier");
+                    withProperty("deviceIdentifier", ValueType.LONG, "deviceIdentifier");
         }
     },
-    REGISTERED_TO_GATEWAY("REGISTEREDTOGATEWAY");
+    REGISTERED_TO_GATEWAY("REGISTEREDTOGATEWAY") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            return super.addCustomProperties(eventTypeBuilder).
+                    withProperty("deviceIdentifier", ValueType.LONG, "deviceIdentifier");
+        }
+    };
     private static final String NAMESPACE = "com/energyict/mdc/topology/";
     private final String topic;
 
@@ -38,7 +44,7 @@ public enum EventType {
                 .component(TopologyService.COMPONENT_NAME)
                 .category("Crud")
                 .scope("System");
-        builder.create();
+         addCustomProperties(builder).create();
     }
 
     @TransactionRequired
