@@ -69,6 +69,7 @@ Ext.define('Tme.controller.RelativePeriods', {
 
         record.beginEdit();
         record.set('name', nameFieldValue);
+        record.categories().removeAll(true);
 
         Ext.Array.each(categories.getValue(), function (item) {
             record.categories().add(Ext.create(Tme.model.Categories, {id: item}));
@@ -144,11 +145,11 @@ Ext.define('Tme.controller.RelativePeriods', {
         }
     },
 
-    showAddRelativePeriod: function() {
+    showAddRelativePeriod: function () {
         this.showAddEditRelativePeriod();
     },
 
-    showEditRelativePeriod: function(relativePeriodId) {
+    showEditRelativePeriod: function (relativePeriodId) {
         this.showAddEditRelativePeriod(relativePeriodId);
     },
 
@@ -165,7 +166,7 @@ Ext.define('Tme.controller.RelativePeriods', {
         } else {
             cancelLink = '#/administration/relativeperiods';
         }
-        if(!Ext.isEmpty(relativePeriodId)) {
+        if (!Ext.isEmpty(relativePeriodId)) {
             record = Ext.ModelManager.getModel('Tme.model.RelativePeriod');
             record.load(relativePeriodId, {
                 success: function (record) {

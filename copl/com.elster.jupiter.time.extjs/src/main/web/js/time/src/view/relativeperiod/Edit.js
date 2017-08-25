@@ -78,7 +78,6 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                 editable: false,
                                 multiSelect: true,
                                 required: true,
-                                allowBlank: false,
                                 queryMode: 'local',
                                 triggerAction: 'all',
                                 fieldLabel: Uni.I18n.translate('relativeperiod.category', 'TME', 'Category'),
