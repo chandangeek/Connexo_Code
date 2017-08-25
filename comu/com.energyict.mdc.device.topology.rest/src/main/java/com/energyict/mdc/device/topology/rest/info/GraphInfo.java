@@ -129,7 +129,7 @@ public class GraphInfo<T extends HasId>  {
                     this.start = null;
                 }
             }
-            if (period.upperBoundType() == BoundType.CLOSED && period.hasUpperBound()) {
+            if (period.hasUpperBound() && period.upperBoundType() == BoundType.CLOSED ) {
                 try {
                     this.end = period.upperEndpoint().toEpochMilli();
                 }catch(java.lang.ArithmeticException e){

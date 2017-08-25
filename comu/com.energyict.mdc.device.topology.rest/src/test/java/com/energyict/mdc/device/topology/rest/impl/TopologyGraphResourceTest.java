@@ -1,16 +1,22 @@
 package com.energyict.mdc.device.topology.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
+import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 import com.energyict.mdc.device.topology.rest.layer.CommunicationStatusLayer;
 import com.energyict.mdc.device.topology.rest.layer.DeviceInfoLayer;
 import com.energyict.mdc.device.topology.rest.layer.DeviceLifeCycleStatusLayer;
+import com.energyict.mdc.device.topology.rest.layer.DeviceSummaryExtraInfoLayer;
 import com.energyict.mdc.device.topology.rest.layer.DeviceTypeLayer;
 import com.energyict.mdc.device.topology.rest.layer.IssuesAndAlarmsLayer;
 import com.energyict.mdc.device.topology.rest.layer.LinkQualityLayer;
+import com.energyict.mdc.tasks.ComTask;
 
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
@@ -22,7 +28,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -48,8 +56,9 @@ public class TopologyGraphResourceTest extends TopologyGraphApplicationJerseyTes
     static DeviceInfoLayer deviceInfoLayer = spy(new DeviceInfoLayer());
     static DeviceTypeLayer deviceTypeLayer = spy(new DeviceTypeLayer());
     static DeviceLifeCycleStatusLayer deviceLifeCycleStatusLayer = spy(new DeviceLifeCycleStatusLayer());
-    static IssuesAndAlarmsLayer issuesAndAlarmsLayer = spy(new IssuesAndAlarmsLayer());
+    static IssuesAndAlarmsLayer issuesAndAlarmsLayer = mock(IssuesAndAlarmsLayer.class);
     static LinkQualityLayer linkQualityLayer = spy(new LinkQualityLayer());
+    static DeviceSummaryExtraInfoLayer  deviceSummaryExtraInfoLayer = spy(new DeviceSummaryExtraInfoLayer());
 
     @Test
     public void getTopologyGraphByNameWithoutLayerActivation() throws Exception{
@@ -146,18 +155,65 @@ public class TopologyGraphResourceTest extends TopologyGraphApplicationJerseyTes
 
     @Test
     public void getGraphLayersTest() throws Exception {
+       // when(issuesAndAlarmsLayer.getDisplayName(any(Thesaurus.class))).thenReturn(new IssuesAndAlarmsLayer().getDisplayName(thesaurus));
         when(graphLayerService.getGraphLayers()).thenReturn(getExisting());
 
         Response response = target("/topology/graphlayers").request().get(Response.class);
         JSONArray jsonArray = new JSONArray(response.readEntity(String.class));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(jsonArray.length()).isEqualTo(6);
+        assertThat(jsonArray.length()).isEqualTo(7);
         assertThat(jsonArray.getString(0)).isEqualTo(new CommunicationStatusLayer().getDisplayName(thesaurus));
         assertThat(jsonArray.getString(1)).isEqualTo(new DeviceInfoLayer().getDisplayName(thesaurus));
         assertThat(jsonArray.getString(2)).isEqualTo(new DeviceTypeLayer().getDisplayName(thesaurus));
         assertThat(jsonArray.getString(3)).isEqualTo(new DeviceLifeCycleStatusLayer().getDisplayName(thesaurus));
-        assertThat(jsonArray.getString(4)).isEqualTo(new IssuesAndAlarmsLayer().getDisplayName(thesaurus));
+        assertThat(jsonArray.getString(4)).isEqualTo("null");
         assertThat(jsonArray.getString(5)).isEqualTo(new LinkQualityLayer().getDisplayName(thesaurus));
+        assertThat(jsonArray.getString(6)).isEqualTo(new DeviceSummaryExtraInfoLayer().getDisplayName(thesaurus));
+    }
+
+    @Test
+    public void getSummaryInfoTest() throws Exception {
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getName()).thenReturn("name of device type");
+        DeviceConfiguration deviceconfiguration = mock(DeviceConfiguration.class);
+        when(deviceconfiguration.getName()).thenReturn("name of device configuration");
+
+        Device slave3 = mock(Device.class);
+        when(slave3.getId()).thenReturn(203L);
+        when(slave3.getName()).thenReturn("slave3");
+        when(slave3.getSerialNumber()).thenReturn("Serial of slave3");
+        when(slave3.getDeviceType()).thenReturn(deviceType);
+        when(slave3.getDeviceConfiguration()).thenReturn(deviceconfiguration);
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
+        when(comTaskExecution1.isLastExecutionFailed()).thenReturn(false);
+        ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
+        when(comTaskExecution2.isLastExecutionFailed()).thenReturn(true);
+        ComTask comTask = mock(ComTask.class);
+        when(comTask.getName()).thenReturn("Hou je in stilte bezig...");
+        when(comTaskExecution2.getComTask()).thenReturn(comTask);
+
+        when(slave3.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
+
+        Map<String, Object> issuesAndAlarmProperties = new HashMap<>();
+        issuesAndAlarmProperties.put("issues", 3);
+        issuesAndAlarmProperties.put("alarms", 33);
+
+        when(issuesAndAlarmsLayer.getProperties(any(NodeInfo.class))).thenReturn(issuesAndAlarmProperties);
+
+        when(deviceService.findDeviceByName("slave3")).thenReturn(Optional.of(slave3));
+        when(graphLayerService.getAllSummaryLayers()).thenReturn(Arrays.asList(deviceInfoLayer, deviceTypeLayer, issuesAndAlarmsLayer, deviceSummaryExtraInfoLayer));
+
+        String stringResponse = target("/topology/summary/slave3").request().get(String.class);
+
+        JsonModel info = JsonModel.create(stringResponse);
+        assertThat(info.<Number>get("$.id")).isEqualTo(203);
+        assertThat(info.<Number>get("$.name")).isEqualTo("slave3");
+        assertThat(info.<String>get("$.serialNumber")).isEqualTo("Serial of slave3");
+        assertThat(info.<String>get("$.deviceType")).isEqualTo("name of device type");
+        assertThat(info.<String>get("$.deviceConfiguration")).isEqualTo("name of device configuration");
+        assertThat(info.<Number>get("$.issues")).isEqualTo(3);
+        assertThat(info.<Number>get("$.alarms")).isEqualTo(33);
+        assertThat(info.<Number>get("$.failedComTasks[0]")).isEqualTo("Hou je in stilte bezig...");
     }
 
     private static List<GraphLayer> getExisting(){
@@ -168,6 +224,7 @@ public class TopologyGraphResourceTest extends TopologyGraphApplicationJerseyTes
         layers.add(deviceLifeCycleStatusLayer);
         layers.add(issuesAndAlarmsLayer);
         layers.add(linkQualityLayer);
+        layers.add(deviceSummaryExtraInfoLayer);
         return layers;
     }
 }

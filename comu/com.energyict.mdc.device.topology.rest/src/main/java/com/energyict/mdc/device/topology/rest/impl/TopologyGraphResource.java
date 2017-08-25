@@ -8,6 +8,8 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
+import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
+import com.energyict.mdc.device.topology.rest.info.DeviceSummaryNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.GraphInfo;
 
 import javax.inject.Inject;
@@ -21,6 +23,7 @@ import javax.ws.rs.core.Response;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -73,6 +76,16 @@ public class TopologyGraphResource {
     public Response getGraphLayers() {
         List<String> layersNames = graphLayerService.getGraphLayers().stream().map(layer -> layer.getDisplayName(thesaurus)).collect(Collectors.toList());
         return Response.ok(layersNames.toArray()).build();
+    }
+
+    @GET
+    @Path("/summary/{name}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getSummaryInfo(@PathParam("name") String name) {
+        Device device = deviceService.findDeviceByName(name).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_NOT_FOUND, name));
+        DeviceSummaryNodeInfo deviceNodeInfo = new DeviceSummaryNodeInfo(device);
+        graphLayerService.getAllSummaryLayers().stream().forEach(deviceNodeInfo::addLayer);
+        return Response.ok(deviceNodeInfo).build();
     }
 
     private void activateGraphLayers(final List<String> names ) {

@@ -26,8 +26,19 @@ public interface GraphLayerService {
      */
     void unregister(GraphLayer graphLayer);
 
+    /**
+     * @return all known GraphLayers
+     */
     List<GraphLayer> getGraphLayers();
 
+    /**
+     * @param name of the layer
+     * @return the GraphLayer with given name
+     */
     Optional<GraphLayer> getGraphLayer(String name);
 
+    /**
+     * @return a list of layers involved in gathering the summary information for a given Node
+     */
+    List<GraphLayer> getAllSummaryLayers();
 }

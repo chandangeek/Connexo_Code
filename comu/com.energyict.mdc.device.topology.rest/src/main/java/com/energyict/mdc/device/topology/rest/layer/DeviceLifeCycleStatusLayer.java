@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Gathers the device life cycle state of a DeviceNodeInfo
  * Copyrights EnergyICT
  * Date: 6/01/2017
  * Time: 10:48

@@ -10,8 +10,10 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -45,4 +47,8 @@ public class GraphLayerServiceImpl implements GraphLayerService  {
         return this.getGraphLayers().stream().filter(each -> each.getName().equals(name)).findFirst();
     }
 
+    @Override
+    public List<GraphLayer> getAllSummaryLayers() {
+        return this.getGraphLayers().stream().filter( l -> Arrays.asList(DeviceInfoLayer.NAME, DeviceTypeLayer.NAME, IssuesAndAlarmsLayer.NAME, DeviceSummaryExtraInfoLayer.NAME).contains(l.getName())).collect(Collectors.toList());
+    }
 }

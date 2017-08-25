@@ -43,7 +43,7 @@ public class TopologyGraphApplication extends Application implements MessageSeed
     @Activate
     public void activate(BundleContext context) {
         // DeviceGraphFactory has a cache of GraphInfo's
-        deviceGraphFactory = new DeviceGraphFactory(topologyService, graphLayerService, clock);
+        setDeviceGraphFactory(new DeviceGraphFactory(topologyService, graphLayerService, clock));
     }
 
     @Override
@@ -88,6 +88,10 @@ public class TopologyGraphApplication extends Application implements MessageSeed
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    public void setDeviceGraphFactory(DeviceGraphFactory deviceGraphFactory) {
+        this.deviceGraphFactory = deviceGraphFactory;
     }
 
     @Override

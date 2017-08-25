@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Gathers the issue and alarm information of a DeviceNodeInfo
  * Copyrights EnergyICT
  * Date: 5/01/2017
  * Time: 15:05
@@ -38,7 +39,7 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
     private IssueDataCollectionService issueDataCollectionService;
     private DeviceAlarmService deviceAlarmService;
 
-    private final static String NAME = "topology.GraphLayer.IssuesAndAlarms";
+    public final static String NAME = "topology.GraphLayer.IssuesAndAlarms";
     private final static String DEFAULT_FORMAT = "Issues/Alarms";
 
     public enum PropertyNames implements TranslationKey {

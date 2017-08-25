@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * GraphLayer - Device Info
+ * GraphLayer - Device Type Info
  * Copyrights EnergyICT
  * Date: 3/01/2017
  * Time: 14:34

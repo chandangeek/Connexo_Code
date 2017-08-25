@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Properties;
 
 /**
+ * Base class for providing additional information about a NodeInfo
  * Copyrights EnergyICT
  * Date: 3/01/2017
  * Time: 11:18

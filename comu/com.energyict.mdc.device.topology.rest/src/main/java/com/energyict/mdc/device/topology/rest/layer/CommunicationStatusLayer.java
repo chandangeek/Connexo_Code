@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Gathers the  communication status information of a DeviceNodeInfo
  * Copyrights EnergyICT
  * Date: 5/01/2017
  * Time: 10:44

@@ -33,6 +33,7 @@ public class TopologyGraphApplicationJerseyTest extends FelixRestApplicationJers
         application.setGraphLayerService(graphLayerService);
         application.setClock(Clock.systemDefaultZone());
         application.setNlsService(nlsService);
+        application.setDeviceGraphFactory(new DeviceGraphFactory(topologyService, graphLayerService, Clock.systemDefaultZone()));
         return application;
     }
 
