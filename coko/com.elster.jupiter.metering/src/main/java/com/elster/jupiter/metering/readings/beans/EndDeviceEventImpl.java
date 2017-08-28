@@ -39,6 +39,25 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
         return new EndDeviceEventImpl(eventTypeCode, eventTime);
     }
 
+    public static EndDeviceEventImpl copyOf(EndDeviceEvent endDeviceEvent, Instant eventOccurredDate) {
+        EndDeviceEventImpl event = new EndDeviceEventImpl(endDeviceEvent.getEventTypeCode(), eventOccurredDate);
+        event.setMrid(endDeviceEvent.getMRID());
+        event.setReason(endDeviceEvent.getReason());
+        event.setSeverity(endDeviceEvent.getSeverity());
+        event.setStatus(endDeviceEvent.getStatus());
+        event.setType(endDeviceEvent.getType());
+        event.setIssuerId(endDeviceEvent.getIssuerID());
+        event.setIssuerTrackingId(endDeviceEvent.getIssuerTrackingID());
+        event.setUserId(endDeviceEvent.getUserID());
+        event.setEventData(endDeviceEvent.getEventData());
+        event.setLogBookId(endDeviceEvent.getLogBookId());
+        event.setLogBookPosition(endDeviceEvent.getLogBookPosition());
+        event.setAliasName(endDeviceEvent.getAliasName());
+        event.setDescription(endDeviceEvent.getDescription());
+        event.setName(endDeviceEvent.getName());
+        return event;
+    }
+
     @Override
     public Instant getCreatedDateTime() {
         return eventOccurredDate;
