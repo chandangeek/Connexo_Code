@@ -100,7 +100,6 @@ public class DeviceLifeCycleStatusLayer extends AbstractGraphLayer<Device> {
         Device device = ((DeviceNodeInfo) info).getDevice();
         State state = device.getState();
         setDeviceLifecycleState(DefaultState.from(state).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(state::getName));
-
         return propertyMap();
     }
 
