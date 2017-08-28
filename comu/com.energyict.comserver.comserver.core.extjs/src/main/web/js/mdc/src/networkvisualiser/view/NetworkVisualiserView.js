@@ -19,7 +19,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
                 iconCls: 'icon-spinner11',
                 text: Uni.I18n.translate('general.refresh', 'MDC', 'Refresh'),
                 handler: function(button) {
-                    button.up('visualiserpanel').refreshChart();
+                    button.up('visualiserpanel').refreshGraph();
                 }
             }
         ]
@@ -76,8 +76,8 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         me.forEachLink(function(link){
             return {
                 id: link.id,
-                w: 3,
-                c: link.d.linkQuality <= 51 ? me.badLinkQualityColor : me.goodLinkQualityColor
+                w: link.d.linkQuality ? 3 : 2,
+                c: link.d.linkQuality ? (link.d.linkQuality <= 51 ? me.badLinkQualityColor : me.goodLinkQualityColor) : 'grey'
             };
         });
 
@@ -85,6 +85,8 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.bad', 'MDC', 'Link quality <= 51'));
         icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+me.goodLinkQualityColor+'"></span>';
         me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.good', 'MDC', 'Link quality > 51'));
+        icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:grey"></span>';
+        me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.undefined', 'MDC', 'Link quality undefined'));
     },
 
     showDeviceType: function(){

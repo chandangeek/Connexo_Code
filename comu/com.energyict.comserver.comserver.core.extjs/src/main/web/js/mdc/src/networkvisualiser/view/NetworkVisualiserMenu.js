@@ -64,8 +64,9 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
         ]);
     },
 
-    checkboxHandler: function(field, values){
+    checkboxHandler: function(field, newValues, oldValues){
         var me = this, // = VisualiserPanel
+            oldFilters = [],
             filters = [],
             deviceTypeCheckBox = field.down('#mdc-visualiser-layer-device-types'),
             issuesAlarmsCheckBox = field.down('#mdc-visualiser-layer-issues-alarms'),
@@ -74,22 +75,24 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
             lifeCylceStatusCheckBox = field.down('#mdc-visualiser-layer-life-cycle-status'),
             commStatusCheckBox = field.down('#mdc-visualiser-layer-communication-status');
 
-        deviceTypeCheckBox.setDisabled(false);
-        issuesAlarmsCheckBox.setDisabled(false);
-        hopsCheckBox.setDisabled(false);
-        qualityCheckBox.setDisabled(false);
-        lifeCylceStatusCheckBox.setDisabled(false);
-        commStatusCheckBox.setDisabled(false);
-        if(!values.rb) {
-            filters.concat(values.rb);
-        } else if(typeof values.rb === 'string'){
-            filters[0] = values.rb;
+        if(!newValues.rb) {
+            filters.concat(newValues.rb);
+        } else if(typeof newValues.rb === 'string'){
+            filters[0] = newValues.rb;
         } else {
-            filters = values.rb;
+            filters = newValues.rb;
         }
-        this.clearLayers();
-        Ext.each(filters, function(filter){
-            switch(filter) {
+        if(!oldValues.rb) {
+            oldFilters.concat(oldValues.rb);
+        } else if(typeof oldValues.rb === 'string'){
+            oldFilters[0] = oldValues.rb;
+        } else {
+            oldFilters = oldValues.rb;
+        }
+
+        if (filters.length > oldFilters.length) { // An extra layer has been selected
+            var result = Ext.Array.difference(filters, oldFilters); // Determine the added layer
+            switch(result[0]) {
                 case '1':
                     hopsCheckBox.setDisabled(true);
                     lifeCylceStatusCheckBox.setDisabled(true);
@@ -98,7 +101,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                 case "2":
                     me.addLayer(me.showIssuesAndAlarms);
                     break;
-                case "3":
+                case "3": // amount of hops
                     deviceTypeCheckBox.setDisabled(true);
                     lifeCylceStatusCheckBox.setDisabled(true);
                     me.addLayer(me.showHopLevel);
@@ -109,13 +112,74 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                 case "5":
                     deviceTypeCheckBox.setDisabled(true);
                     hopsCheckBox.setDisabled(true);
-                    me.addLayer(me.showDeviceLifeCycleStatus());
+                    me.addLayer(me.showDeviceLifeCycleStatus);
                     break;
                 case "6":
                     me.addLayer(me.showCommunicationStatus);
                     break;
             }
-        });
-        this.showLayers();
+
+            if (result[0] === '3') { // amount of hops layer added (this one doesn't need extra back-end data)
+                me.clearAllLegendItems();
+                me.setDefaultStyle();
+                me.showLayers();
+            } else {
+                var layersToQuery = [];
+                if (deviceTypeCheckBox.getValue()) {
+                    layersToQuery.push(Uni.I18n.translate('general.layer.deviceTypes', 'MDC', 'Device types'));
+                }
+                if (issuesAlarmsCheckBox.getValue()) {
+                    layersToQuery.push(Uni.I18n.translate('general.layer.issuesAndAlarms', 'MDC', 'Issues/Alarms'));
+                }
+                if (qualityCheckBox.getValue()) {
+                    // layersToQuery.push(Uni.I18n.translate('general.layer.quality', 'MDC', 'Network/link quality'));
+                    layersToQuery.push('Network Link quality');
+                }
+                if (lifeCylceStatusCheckBox.getValue()) {
+                    layersToQuery.push(Uni.I18n.translate('general.layer.lifeCycleStatus', 'MDC', 'Status of device life cycle'));
+                }
+                if (commStatusCheckBox.getValue()) {
+                    layersToQuery.push(Uni.I18n.translate('general.layer.communicationStatus', 'MDC', 'Communication status'));
+                }
+                me.store.getProxy().setExtraParam('filter', Ext.encode([
+                    {
+                        property: 'layers',
+                        value: layersToQuery
+                    }
+                ]));
+                me.refreshLayers(qualityCheckBox.getValue());
+            }
+        } else if (filters.length < oldFilters.length) { // A layer has been removed
+            var result = Ext.Array.difference(oldFilters, filters); // Determine the removed layer
+            switch(result[0]) {
+                case '1':
+                    hopsCheckBox.setDisabled(false);
+                    lifeCylceStatusCheckBox.setDisabled(false);
+                    me.removeLayer(me.showDeviceType);
+                    break;
+                case "2":
+                    me.removeLayer(me.showIssuesAndAlarms);
+                    break;
+                case "3":
+                    deviceTypeCheckBox.setDisabled(false);
+                    lifeCylceStatusCheckBox.setDisabled(false);
+                    me.removeLayer(me.showHopLevel);
+                    break;
+                case "4":
+                    me.removeLayer(me.showLinkQuality);
+                    break;
+                case "5":
+                    deviceTypeCheckBox.setDisabled(false);
+                    hopsCheckBox.setDisabled(false);
+                    me.removeLayer(me.showDeviceLifeCycleStatus);
+                    break;
+                case "6":
+                    me.removeLayer(me.showCommunicationStatus);
+                    break;
+            }
+            me.clearAllLegendItems();
+            me.setDefaultStyle();
+            me.showLayers();
+        }
     }
 });

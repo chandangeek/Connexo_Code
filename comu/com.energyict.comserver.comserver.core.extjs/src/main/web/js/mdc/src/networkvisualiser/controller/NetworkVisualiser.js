@@ -43,6 +43,12 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
         widget.clearGraph();
         widget.store = Ext.getStore('Mdc.networkvisualiser.store.NetworkNodes');
         widget.store.getProxy().setUrl(deviceName);
+        widget.store.getProxy().setExtraParam('filter', Ext.encode([
+            {
+                property: 'layers',
+                value: [] /*No layers by default*/
+            }
+        ]));
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceName, {
            success: function (device) {
                me.getApplication().fireEvent('changecontentevent', widget);
