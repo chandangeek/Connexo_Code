@@ -4,18 +4,19 @@
 
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.protocol.LogBookReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 
-import java.util.Arrays;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LogBookReader;
+
+import java.util.Collections;
 
 import org.junit.Test;
 import org.mockito.Mock;
@@ -46,7 +47,7 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImplTest extends CommonComm
         when(logBookReader.getLogBookObisCode()).thenReturn(ObisCode.fromString(logbookObisCode));
         LoadProfilesTask loadProfilesTask = mock(LoadProfilesTask.class);
         LegacyLoadProfileLogBooksCommand legacyLoadProfileLogBooksDataCommand = mock(LegacyLoadProfileLogBooksCommand.class);
-        when(legacyLoadProfileLogBooksDataCommand.getLogBookReaders()).thenReturn(Arrays.asList(logBookReader));
+        when(legacyLoadProfileLogBooksDataCommand.getLogBookReaders()).thenReturn(Collections.singletonList(logBookReader));
         LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
         when(legacyLoadProfileLogBooksDataCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
         ReadLegacyLoadProfileLogBooksDataCommandImpl readLegacyLoadProfileLogBooksDataCommand
@@ -62,7 +63,7 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImplTest extends CommonComm
         LoadProfileType loadProfileType = mock(LoadProfileType.class);
         when(loadProfileType.getObisCode()).thenReturn(ObisCode.fromString(loadProfileObisCode));
         LoadProfilesTask loadProfilesTask = mock(LoadProfilesTask.class);
-        when(loadProfilesTask.getLoadProfileTypes()).thenReturn(Arrays.asList(loadProfileType));
+        when(loadProfilesTask.getLoadProfileTypes()).thenReturn(Collections.singletonList(loadProfileType));
         LegacyLoadProfileLogBooksCommand legacyLoadProfileLogBooksDataCommand = mock(LegacyLoadProfileLogBooksCommand.class);
         LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
         when(legacyLoadProfileLogBooksDataCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);

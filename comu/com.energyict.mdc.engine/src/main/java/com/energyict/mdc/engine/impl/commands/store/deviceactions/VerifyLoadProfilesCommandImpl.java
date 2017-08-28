@@ -236,7 +236,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
         for (ChannelInfo meterChannelInfo : loadProfileConfiguration.getChannelInfos()) {
             if (match(localChannelInfo, meterChannelInfo)) {
                 if (unitMismatch(localChannelInfo, meterChannelInfo)) {
-                    /* Do not add problem right away, because we can may have multiple channels with the same obiscode but with different units.
+                    /* Do not add problem right away, because we can may have multiple channels with the same obis code but with different units.
                      * Instead we should continue the loop and check if one of the other channels has a perfect match (for both obis and unit);
                      * If a perfect match is found later on, then validation should not fail. */
                     incorrectChannelUnitProblem = Optional.of(
@@ -260,10 +260,19 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
         return issues;
     }
 
+    /**
+     * Compare 2 channel infos
+     * Only ignore the B-field if it's a wildcard.
+     */
     private boolean match(ChannelInfo localChannelInfo, ChannelInfo meterChannelInfo) {
         try {
-            return meterChannelInfo.getChannelObisCode().equalsIgnoreBChannel(localChannelInfo.getChannelObisCode())
-                    && meterChannelInfo.getMeterIdentifier().equalsIgnoreCase(localChannelInfo.getMeterIdentifier());
+            if (meterChannelInfo.getChannelObisCode().anyChannel() || localChannelInfo.getChannelObisCode().anyChannel()) {
+                return meterChannelInfo.getChannelObisCode().equalsIgnoreBChannel(localChannelInfo.getChannelObisCode())
+                        && meterChannelInfo.getMeterIdentifier().equalsIgnoreCase(localChannelInfo.getMeterIdentifier());
+            } else {
+                return meterChannelInfo.getChannelObisCode().equals(localChannelInfo.getChannelObisCode())
+                        && meterChannelInfo.getMeterIdentifier().equalsIgnoreCase(localChannelInfo.getMeterIdentifier());
+            }
         } catch (IllegalArgumentException e) {
             throw new ObisCodeParseException(e);
         }

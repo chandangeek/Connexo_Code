@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link ComCommand} interface.
@@ -413,15 +414,13 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                 CollectedLoadProfile collectedLoadProfile = (CollectedLoadProfile) collectedData;
                 for (LoadProfileReader loadProfileReader : loadProfileReaders) {
                     if (collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode().equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
-
-                        collectedLoadProfile.getChannelInfo().forEach(collectedChannelInfo -> collectedChannelInfo.setReadingTypeMRID(
-                                loadProfileReader.getChannelInfos()
-                                        .stream()
-                                        .filter(configuredChannelInfo -> configuredChannelInfo.equals(collectedChannelInfo))
-                                        .findAny()
-                                        .get()
-                                        .getReadingTypeMRID()
-                        ));
+                        for (ChannelInfo collectedChannelInfo : collectedLoadProfile.getChannelInfo()) {
+                            Optional<ChannelInfo> configuredChannelInfo = loadProfileReader.getChannelInfos()
+                                    .stream()
+                                    .filter(configuredChannel -> configuredChannel.equals(collectedChannelInfo))
+                                    .findAny();
+                            configuredChannelInfo.ifPresent(configuredChannel -> collectedChannelInfo.setReadingTypeMRID(configuredChannel.getReadingTypeMRID()));
+                        }
                     }
                 }
             }

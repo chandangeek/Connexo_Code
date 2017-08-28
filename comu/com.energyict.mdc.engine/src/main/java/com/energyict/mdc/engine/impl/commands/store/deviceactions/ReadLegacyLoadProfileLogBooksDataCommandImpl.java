@@ -17,12 +17,15 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.exceptions.ObisCodeParseException;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
+import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -34,6 +37,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Optional;
 
 /**
  * Simple command that just reads the requested {@link com.energyict.mdc.upl.meterdata.LoadProfile}s from the device.
@@ -63,7 +67,10 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
     }
 
     /**
-     * Now verify that the number of channels match and that the received unit is correct
+     * Verify the received channel info<br/>
+     * The number of channels has already been verified previously (as part of VerifyLoadProfilesCommand), so there is no need to check this again.
+     * Here we should only check that the units of the received channels matches the configured ones, as for legacy protocols this could not be done
+     * as part of VerifyLoadProfilesCommand (as the device channel infos were not present at that time and instead all units were set to 'undefined')
      */
     private void verifyReceivedChannelInfo() {
         Iterator<CollectedData> iterator = loadProfileLogBooksData.iterator();
@@ -71,41 +78,80 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
             CollectedData collectedData = iterator.next();
             if (collectedData instanceof CollectedLoadProfile) {
                 CollectedLoadProfile collectedLoadProfile = (CollectedLoadProfile) collectedData;
-                LoadProfileReader loadProfileReader = legacyLoadProfileLogBooksCommand.getLoadProfileReaders()
+                legacyLoadProfileLogBooksCommand.getLoadProfileReaders()
                         .stream()
                         .filter(lpr -> lpr.getProfileObisCode().equals(collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode()))
                         .findAny()
-                        .get();
-                List<ChannelInfo> collectedChannelInfos = collectedLoadProfile.getChannelInfo();
-                List<ChannelInfo> configuredChannelInfos = loadProfileReader.getChannelInfos();
-                if (collectedChannelInfos.size() != configuredChannelInfos.size()) {
-                    Problem problem = getIssueService().newProblem(
-                            collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode(),
-                            MessageSeeds.LOAD_PROFILE_NUMBER_OF_CHANNELS_MISMATCH,
-                            collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode(),
-                            collectedLoadProfile.getChannelInfo().size(),
-                            configuredChannelInfos.size());
-                    addIssue(problem, CompletionCode.ConfigurationError);
-                    iterator.remove();
-                } else {
-                    for (ChannelInfo collectedChannelInfo : collectedChannelInfos) {
-                        ChannelInfo channelInfo = configuredChannelInfos.stream().filter(ci -> ci.getChannelObisCode().equalsIgnoreBChannel(collectedChannelInfo.getChannelObisCode())).findAny().get();
-                        if (!channelInfo.getUnit().equalBaseUnit(collectedChannelInfo.getUnit())) {
-                            Problem problem = getIssueService().newProblem(
-                                    collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode(),
+                        .ifPresent(lpr -> {
+                            List<Issue> issues = new ArrayList<>();
+                            lpr.getChannelInfos().forEach(localChannelInfo -> issues.addAll(verifyLocalChannelConfiguration(collectedLoadProfile, localChannelInfo)));
+                            if (!issues.isEmpty()) {
+                                issues.forEach(issue -> addIssue(issue, CompletionCode.ConfigurationError));
+                                iterator.remove();
+                            }
+                        });
+            }
+        }
+    }
+
+    private List<Issue> verifyLocalChannelConfiguration(CollectedLoadProfile collectedLoadProfile, ChannelInfo localChannelInfo) {
+        List<Issue> issues = new ArrayList<>();
+        ObisCode loadProfileConfigurationObisCode = collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode();
+        Optional<Problem> incorrectChannelUnitProblem = Optional.empty();
+        for (ChannelInfo meterChannelInfo : collectedLoadProfile.getChannelInfo()) {
+            if (match(localChannelInfo, meterChannelInfo)) {
+                if (unitMismatch(localChannelInfo, meterChannelInfo)) {
+                       /* Do not add problem right away, because we can may have multiple channels with the same obis code but with different units.
+                        * Instead we should continue the loop and check if one of the other channels has a perfect match (for both obis and unit);
+                        * If a perfect match is found later on, then validation should not fail. */
+                    incorrectChannelUnitProblem = Optional.of(
+                            getIssueService().newProblem(
+                                    loadProfileConfigurationObisCode,
                                     MessageSeeds.CHANNEL_UNIT_MISMATCH,
-                                    collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode(),
-                                    collectedChannelInfo.getChannelObisCode(),
-                                    collectedChannelInfo.getUnit(),
-                                    channelInfo.getUnit());
-                            addIssue(problem, CompletionCode.ConfigurationError);
-                            iterator.remove();
-                            return;
-                        }
-                    }
+                                    loadProfileConfigurationObisCode,
+                                    meterChannelInfo.getChannelObisCode(),
+                                    meterChannelInfo.getUnit(),
+                                    localChannelInfo.getUnit()));
+                } else {
+                    return issues; // Configuration of the channel match, so return
                 }
             }
         }
+        if (incorrectChannelUnitProblem.isPresent()) { // When configuration of the channel doesn't match
+            issues.add(incorrectChannelUnitProblem.get());
+        } else { // When the channel is missing (load profile in the meter doesn't have the channel, whilst it is configured in eiMaster)
+            issues.add(getIssueService().newProblem(
+                    loadProfileConfigurationObisCode,
+                    MessageSeeds.LOAD_PROFILE_CHANNEL_MISSING,
+                    loadProfileConfigurationObisCode,
+                    localChannelInfo.getName(),
+                    localChannelInfo.getMeterIdentifier()
+            ));
+        }
+        return issues;
+    }
+
+    /**
+     * Compare 2 channel infos
+     * Only ignore the B-field if it's a wildcard.
+     */
+    private boolean match(ChannelInfo localChannelInfo, ChannelInfo meterChannelInfo) {
+        try {
+            if (meterChannelInfo.getChannelObisCode().anyChannel() || localChannelInfo.getChannelObisCode().anyChannel()) {
+                return meterChannelInfo.getChannelObisCode().equalsIgnoreBChannel(localChannelInfo.getChannelObisCode())
+                        && meterChannelInfo.getMeterIdentifier().equalsIgnoreCase(localChannelInfo.getMeterIdentifier());
+            } else {
+                return meterChannelInfo.getChannelObisCode().equals(localChannelInfo.getChannelObisCode())
+                        && meterChannelInfo.getMeterIdentifier().equalsIgnoreCase(localChannelInfo.getMeterIdentifier());
+            }
+        } catch (IllegalArgumentException e) {
+            throw new ObisCodeParseException(e);
+        }
+    }
+
+    private boolean unitMismatch(ChannelInfo localChannelInfo, ChannelInfo meterChannelInfo) {
+        return !(meterChannelInfo.getUnit().isUndefined() || localChannelInfo.getUnit().isUndefined())
+                && !meterChannelInfo.getUnit().getBaseUnit().equals(localChannelInfo.getUnit().getBaseUnit());
     }
 
     private Instant getLastLogbookDate(MeterProtocolAdapter deviceProtocol) {
