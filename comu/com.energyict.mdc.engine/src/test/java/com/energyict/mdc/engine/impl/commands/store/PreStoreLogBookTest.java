@@ -43,6 +43,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static junit.framework.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -144,10 +145,13 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
 
         assertThat(localLogBook).isPresent();
-        assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(2);
+        assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(3); // One exact duplicate should be filtered out, 2th entry with same private key combination should have its event time increased with 1 millisecond
+        assertEquals(eventTime1.getTime(), localLogBook.get().getLast().getEndDeviceEvents().get(0).getCreatedDateTime().toEpochMilli());
+        assertEquals(eventTime2.getTime(), localLogBook.get().getLast().getEndDeviceEvents().get(1).getCreatedDateTime().toEpochMilli());
+        assertEquals(eventTime1.getTime() + 1, localLogBook.get().getLast().getEndDeviceEvents().get(2).getCreatedDateTime().toEpochMilli());
     }
 
-    protected ComServerDAOImpl mockComServerDAOWithOfflineLoadProfile(OfflineLogBook offlineLogBook) {
+    private ComServerDAOImpl mockComServerDAOWithOfflineLoadProfile(OfflineLogBook offlineLogBook) {
         final ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
         when(comServerDAO.executeTransaction(any())).thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
@@ -158,7 +162,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         return comServerDAO;
     }
 
-    CollectedLogBook createMockedCollectedLogBook() {
+    private CollectedLogBook createMockedCollectedLogBook() {
         CollectedLogBook collectedLogBook = mock(CollectedLogBook.class, RETURNS_DEEP_STUBS);
         MeterProtocolEvent powerDownEvent = new MeterProtocolEvent(eventTime2,
                 MeterEvent.POWERDOWN,
@@ -179,7 +183,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         return collectedLogBook;
     }
 
-    CollectedLogBook createMockedCollectedLogBookWithEventInFuture() {
+    private CollectedLogBook createMockedCollectedLogBookWithEventInFuture() {
         CollectedLogBook collectedLogBook = mock(CollectedLogBook.class, RETURNS_DEEP_STUBS);
         MeterProtocolEvent powerDownEvent = new MeterProtocolEvent(futureIntervalEndTime1,
                 MeterEvent.POWERDOWN,
@@ -200,13 +204,20 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         return collectedLogBook;
     }
 
-    CollectedLogBook createMockedCollectedLogBookWithDuplicates() {
+    private CollectedLogBook createMockedCollectedLogBookWithDuplicates() {
         CollectedLogBook collectedLogBook = mock(CollectedLogBook.class, RETURNS_DEEP_STUBS);
         MeterProtocolEvent powerDownEvent = new MeterProtocolEvent(eventTime1,
                 MeterEvent.POWERDOWN,
                 UNKNOWN,
                 EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN),
                 "Power down",
+                UNKNOWN,
+                UNKNOWN);
+        MeterProtocolEvent powerDownEventHavingOtherDescription = new MeterProtocolEvent(eventTime1,
+                MeterEvent.POWERDOWN,
+                UNKNOWN,
+                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN),
+                "Power down with other description",
                 UNKNOWN,
                 UNKNOWN);
         MeterProtocolEvent powerUpEvent = new MeterProtocolEvent(eventTime2,
@@ -216,12 +227,12 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
                 "Power up",
                 UNKNOWN,
                 UNKNOWN);
-        List<MeterProtocolEvent> meterEvents = Arrays.asList(powerDownEvent, powerUpEvent, powerDownEvent, powerDownEvent);
+        List<MeterProtocolEvent> meterEvents = Arrays.asList(powerDownEvent, powerUpEvent, powerDownEventHavingOtherDescription, powerDownEvent);
         when(collectedLogBook.getCollectedMeterEvents()).thenReturn(meterEvents);
         return collectedLogBook;
     }
 
-    CollectedLogBook enhanceCollectedLogBook(LogBook logBook, CollectedLogBook collectedLogBook) {
+    private CollectedLogBook enhanceCollectedLogBook(LogBook logBook, CollectedLogBook collectedLogBook) {
         LogBookIdentifier logBookIdentifier = mock(LogBookIdentifier.class);
         // Todo: figure out where the logBookService needs to be injected into
         when(this.logBookService.findByIdentifier(logBookIdentifier)).thenReturn(Optional.of(logBook));
