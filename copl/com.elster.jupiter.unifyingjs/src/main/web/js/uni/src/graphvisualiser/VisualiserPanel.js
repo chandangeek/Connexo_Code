@@ -454,12 +454,17 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         me.queryChartData(performAfterTheQuery);
     },
 
-    queryChartData: function(callback) {
+    queryChartData: function(callback, dataArray2Store, getLinksToo) {
         var me = this,
-            pageMainContent = Ext.ComponentQuery.query('viewport')[0];
+            pageMainContent = Ext.ComponentQuery.query('viewport')[0],
+            doGetLinksToo = Ext.isDefined(getLinksToo) ? getLinksToo : true;
 
         pageMainContent.setLoading(true);
-        this.store.load(function() {
+        if (dataArray2Store === undefined) {
+            dataArray2Store = me.chartData.items;
+        }
+
+        me.store.load(function() {
             var nodes = me.store.data.items[0].nodes(),
                 links = me.store.data.items[0].links(),
                 icon;
@@ -480,7 +485,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                     icon = KeyLines.getFontIcon(me.deviceIcon);
                     me.showDeviceLegend = true;
                 }
-                me.chartData.items.push(
+                dataArray2Store.push(
                     {
                         id: node.get('id'),
                         type: 'node',
@@ -511,21 +516,23 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                     }
                 );
             });
-            links.each(function (link) {
-                me.chartData.items.push(
-                    {
-                        id: link.get('source') + '-' + link.get('target'),
-                        type: 'link',
-                        id1: link.get('source'),
-                        id2: link.get('target'),
-                        w: 2,
-                        a2: true,
-                        d: {
-                            linkQuality: link.get('linkQuality')
+            if (doGetLinksToo) {
+                links.each(function (link) {
+                    dataArray2Store.push(
+                        {
+                            id: link.get('source') + '-' + link.get('target'),
+                            type: 'link',
+                            id1: link.get('source'),
+                            id2: link.get('target'),
+                            w: 2,
+                            a2: true,
+                            d: {
+                                linkQuality: link.get('linkQuality')
+                            }
                         }
-                    }
-                );
-            });
+                    );
+                });
+            }
 
             pageMainContent.setLoading(false);
             if (Ext.isFunction(callback)) {
@@ -634,6 +641,10 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         this.activeLayers.push(layerFunction);
     },
 
+    removeLayer: function(layerFunction) {
+        Ext.Array.remove(this.activeLayers, layerFunction);
+    },
+
     showLayers:function(){
         var me = this;
         Ext.each(me.activeLayers,function(filter){
@@ -709,20 +720,35 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         }
     },
 
-    refreshChart: function() {
+    refreshGraph: function() {
         var me = this,
             performAfterTheQuery = function() {
                 me.clearAllLegendItems();
                 me.setDefaultStyle();
                 me.showFloatingPanels();
                 me.chart.load(me.chartData, function () {
-                    me.doLayout();
                     me.showLayers();
+                    me.doLayout();
                 });
             };
 
         me.hideFloatingPanels();
+        me.clearGraph();
         me.queryChartData(performAfterTheQuery);
-    }
+    },
 
+    refreshLayers: function(linksIncluded) {
+        var me = this,
+            freshNodes = [],
+            performAfterTheQuery = function() {
+                me.chart.merge(freshNodes, performAfterTheMerge);
+            },
+            performAfterTheMerge = function() {
+                me.clearAllLegendItems();
+                me.setDefaultStyle();
+                me.showLayers();
+            };
+
+        me.queryChartData(performAfterTheQuery, freshNodes, linksIncluded);
+    }
 });
