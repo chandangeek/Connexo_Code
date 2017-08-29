@@ -322,6 +322,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
+    public Stream<PhysicalGatewayReference> getLastPhysicalGateways(Device slave, int numberOfDevices) {
+        return DefaultFinder.of(PhysicalGatewayReference.class, where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(slave), dataModel).paged(0, numberOfDevices).sorted("interval.start", false).stream();
+    }
+
+    @Override
     public Subquery IsLinkedToMaster(Device device) {
         return queryService.wrap(this.dataModel.query(PhysicalGatewayReference.class))
                 .asSubquery(where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(device)

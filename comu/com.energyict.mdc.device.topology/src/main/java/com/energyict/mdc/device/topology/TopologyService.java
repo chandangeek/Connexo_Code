@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Provides services that relate to the topology of {@link Device}s.
@@ -384,6 +385,14 @@ public interface TopologyService {
     List<Pair<Channel, Range<Instant>>> getDataLoggerChannelTimeLine(Channel channel, Range<Instant> range);
 
     List<Pair<Register, Range<Instant>>> getDataLoggerRegisterTimeLine(Register register, Range<Instant> intervalReg);
+
+    /**
+     * Returns the x last physical gateways of a certain device
+     * @param slave the device to find the gateways for
+     * @param numberOfDevices number of gateways that we need
+     * @return a Stream of physical gateway references
+     */
+    Stream<PhysicalGatewayReference> getLastPhysicalGateways(Device slave, int numberOfDevices);
 
     interface G3CommunicationPathSegmentBuilder {
 

@@ -13,6 +13,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Adds behavior to {@link TopologyService} that is specific
