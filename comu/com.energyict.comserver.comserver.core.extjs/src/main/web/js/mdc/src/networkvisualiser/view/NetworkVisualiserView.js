@@ -291,84 +291,14 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
     displayNodeProperties: function(id){
         var me = this,
             graphData = this.chart.getItem(id).d,
-            propertiesToDisplay = {},
             downStream = me.getDownStreamNodesLinks(id),
             shortestPaths = me.chart.graph().shortestPaths(me.top[0], id, {direction: 'any'}),
-            parentIndex = shortestPaths.one.length-2,
-            orderOfProperties = [
-                'name',
-                'serialNumber',
-                'deviceType',
-                'deviceConfiguration',
-                'parent',
-                'hopLevel',
-                'descendants',
-                'alarms',
-                'issues',
-                'failedComTasks'
-            ],
-            fieldLabels = [
-                Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                Uni.I18n.translate('general.serialNumber', 'MDC', 'Serial number'),
-                Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
-                Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
-                Uni.I18n.translate('general.parent', 'MDC', 'Parent'),
-                Uni.I18n.translate('general.numberOfHops', 'MDC', 'Number of hops'),
-                Uni.I18n.translate('general.totalDescendants', 'MDC', 'Total descendants'),
-                Uni.I18n.translate('general.alarms', 'MDC', 'Alarms'),
-                Uni.I18n.translate('general.issues', 'MDC', 'Issues'),
-                Uni.I18n.translate('general.failedCommunicationTasks', 'MDC', 'Failed communication tasks')
-            ];
+            parentIndex = shortestPaths.one.length-2;
 
-        // 1. Prepare the properties to display (in the right format)
         graphData.parent = parentIndex<0 ? '-' : this.chart.getItem(shortestPaths.one[parentIndex]).d.name;
         graphData.hopLevel = shortestPaths.one.length-1;
         graphData.descendants = downStream.nodes.length;
-
-        for (var property in graphData) {
-            if (graphData.hasOwnProperty(property)) {
-                var propertyIndex = orderOfProperties.indexOf(property),
-                    fieldLabel = propertyIndex<0 ? undefined : fieldLabels[propertyIndex],
-                    htmlEncode = true,
-                    graphDataPropertyValue = graphData[property];
-
-                switch(property) {
-                    case 'alarms':
-                    case 'issues':
-                        if (graphDataPropertyValue === 0) {
-                            graphDataPropertyValue = undefined; // Display a zero value as a dash
-                        }
-                        break;
-                    case 'failedComTasks':
-                        graphDataPropertyValue = undefined;
-                        if (Ext.isArray(graphDataPropertyValue)) {
-                            if (graphDataPropertyValue.length > 1) {
-                                var formattedResult = '';
-                                Ext.Array.each(graphDataPropertyValue, function (value) {
-                                    formattedResult += (value + '</br>');
-                                });
-                                graphDataPropertyValue = formattedResult;
-                                htmlEncode = false;
-                            } else if (graphDataPropertyValue.length === 1) {
-                                graphDataPropertyValue = graphDataPropertyValue[0];
-                            }
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                if (!Ext.isEmpty(fieldLabel)) {
-                    propertiesToDisplay[fieldLabel] = {
-                        value: graphDataPropertyValue,
-                        htmlEncode: htmlEncode,
-                        order: propertyIndex
-                    };
-                }
-            }
-        }
-
-        // 2. Display them
-        Ext.ComponentQuery.query('#uni-property-viewer')[0].displayProperties(propertiesToDisplay);
+        me.fireEvent('showdevicesummary', graphData);
     },
 
     showNotYetImplementedMessage: function() {

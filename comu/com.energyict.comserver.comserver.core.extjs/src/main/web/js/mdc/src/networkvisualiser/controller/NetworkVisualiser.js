@@ -6,7 +6,8 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
     stores: [
         'Uni.graphvisualiser.store.GraphStore',
         'Mdc.networkvisualiser.store.NetworkNodes',
-        'Mdc.store.CommunicationTasksOfDevice'
+        'Mdc.store.CommunicationTasksOfDevice',
+        'Mdc.networkvisualiser.store.DeviceSummary'
     ],
     views: [
         'Uni.view.window.Confirmation',
@@ -19,7 +20,8 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
     init: function () {
         this.control({
             'visualiserpanel': {
-                showretriggerwindow: this.showRetriggerWindow
+                showretriggerwindow: this.showRetriggerWindow,
+                showdevicesummary: this.showDeviceSummary
             }
         });
     },
@@ -180,6 +182,103 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
                     callback.call(context.scope, context);
                 }
             }
+        });
+    },
+
+    showDeviceSummary: function(graphData) {
+        var me = this,
+            deviceSummaryStore = me.getStore('Mdc.networkvisualiser.store.DeviceSummary'),
+            propertyViewer = Ext.ComponentQuery.query('#uni-property-viewer')[0],
+            propertiesToDisplay = {},
+            orderOfProperties = [
+                'name',
+                'serialNumber',
+                'deviceType',
+                'deviceConfiguration',
+                'parent',
+                'hopLevel',
+                'descendants',
+                'alarms',
+                'issues',
+                'failedComTasks'
+            ],
+            deviceProperties = [
+                'name',
+                'serialNumber',
+                'deviceType',
+                'deviceConfiguration',
+                'alarms',
+                'issues',
+                'failedComTasks'
+            ],
+            fieldLabels = [
+                Uni.I18n.translate('general.name', 'MDC', 'Name'),
+                Uni.I18n.translate('general.serialNumber', 'MDC', 'Serial number'),
+                Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
+                Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
+                Uni.I18n.translate('general.parent', 'MDC', 'Parent'),
+                Uni.I18n.translate('general.numberOfHops', 'MDC', 'Number of hops'),
+                Uni.I18n.translate('general.totalDescendants', 'MDC', 'Total descendants'),
+                Uni.I18n.translate('general.alarms', 'MDC', 'Alarms'),
+                Uni.I18n.translate('general.issues', 'MDC', 'Issues'),
+                Uni.I18n.translate('general.failedCommunicationTasks', 'MDC', 'Failed communication tasks')
+            ];
+
+        if (!propertyViewer.getCollapsed()) {
+            propertyViewer.setLoading();
+        }
+        // 1. Query the device summary data
+        deviceSummaryStore.getProxy().setUrl(encodeURIComponent(graphData.name));
+        deviceSummaryStore.load(function(records) {
+            var dataObject = records[0].getData();
+            Ext.Array.each(deviceProperties, function(propertyName) {
+                graphData[propertyName] = dataObject[propertyName];
+            });
+
+            for (var property in graphData) {
+                if (graphData.hasOwnProperty(property)) {
+                    var propertyIndex = orderOfProperties.indexOf(property),
+                        fieldLabel = propertyIndex<0 ? undefined : fieldLabels[propertyIndex],
+                        htmlEncode = true,
+                        graphDataPropertyValue = graphData[property];
+
+                    switch(property) {
+                        case 'alarms':
+                        case 'issues':
+                            if (graphDataPropertyValue === 0) {
+                                graphDataPropertyValue = undefined; // Display a zero value as a dash
+                            }
+                            break;
+                        case 'failedComTasks':
+                            graphDataPropertyValue = undefined;
+                            if (Ext.isArray(graphDataPropertyValue)) {
+                                if (graphDataPropertyValue.length > 1) {
+                                    var formattedResult = '';
+                                    Ext.Array.each(graphDataPropertyValue, function (value) {
+                                        formattedResult += (value + '</br>');
+                                    });
+                                    graphDataPropertyValue = formattedResult;
+                                    htmlEncode = false;
+                                } else if (graphDataPropertyValue.length === 1) {
+                                    graphDataPropertyValue = graphDataPropertyValue[0];
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    if (!Ext.isEmpty(fieldLabel)) {
+                        propertiesToDisplay[fieldLabel] = {
+                            value: graphDataPropertyValue,
+                            htmlEncode: htmlEncode,
+                            order: propertyIndex
+                        };
+                    }
+                }
+            }
+            propertyViewer.setLoading(false);
+            // 2. Display them
+            propertyViewer.displayProperties(propertiesToDisplay);
         });
     }
 });
