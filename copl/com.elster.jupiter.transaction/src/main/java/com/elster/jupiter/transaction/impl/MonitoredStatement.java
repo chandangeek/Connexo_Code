@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.transaction.impl;
 
+import com.elster.jupiter.transaction.SqlEvent;
+import com.elster.jupiter.util.time.StopWatch;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -25,9 +28,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
-import com.elster.jupiter.transaction.SqlEvent;
-import com.elster.jupiter.util.time.StopWatch;
 
 class MonitoredStatement extends PreparedStatementWrapper {
 
@@ -380,7 +380,7 @@ class MonitoredStatement extends PreparedStatementWrapper {
     	int [] result = super.executeBatch();
     	batchCount++;
     	rowCount += result.length;
-    	return super.executeBatch();
+    	return result;
     }
     
     
