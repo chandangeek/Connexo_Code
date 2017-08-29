@@ -132,8 +132,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                     layersToQuery.push(Uni.I18n.translate('general.layer.issuesAndAlarms', 'MDC', 'Issues/Alarms'));
                 }
                 if (qualityCheckBox.getValue()) {
-                    // layersToQuery.push(Uni.I18n.translate('general.layer.quality', 'MDC', 'Network/link quality'));
-                    layersToQuery.push('Network Link quality');
+                    layersToQuery.push(Uni.I18n.translate('general.layer.quality', 'MDC', 'Network/link quality'));
                 }
                 if (lifeCylceStatusCheckBox.getValue()) {
                     layersToQuery.push(Uni.I18n.translate('general.layer.lifeCycleStatus', 'MDC', 'Status of device life cycle'));
