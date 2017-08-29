@@ -38,6 +38,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         {
             xtype: 'menuitem',
             text: Uni.I18n.translate('general.navigateTo.communicationTopology', 'MDC', 'Navigate to communication topology'),
+            gatewayOnly: true, /*only show for gateways*/
             section: 3, /*SECTION_VIEW*/
             handler: function(menuItem) {
                 menuItem.visualiser.router.getRoute('devices/device/topology').forwardInNewTab({
@@ -72,12 +73,32 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
 
     showLinkQuality: function(){
         var me = this;
+            // Commented code = temporary code to be able to play with (more) colors and thickness
+            // linkColors = [
+            //     'grey',
+            //     '#FF0000',
+            //     '#FF8000',
+            //     '#FFFF00',
+            //     '#80FF00',
+            //     '#00FF00'
+            // ],
+            // linkColors = [
+            //     'grey',
+            //     '#C00000',
+            //     '#C06000',
+            //     '#C0C000',
+            //     '#60C000',
+            //     '#00C000'
+            // ],
+            // counter = 0;
 
         me.forEachLink(function(link){
             return {
                 id: link.id,
                 w: link.d.linkQuality ? 3 : 2,
                 c: link.d.linkQuality ? (link.d.linkQuality <= 51 ? me.badLinkQualityColor : me.goodLinkQualityColor) : 'grey'
+                // w: counter % 6 === 0 ? 2 : (counter%6===1 || counter%6===5) ? 5 : 3,
+                // c: linkColors[counter++ % 6]
             };
         });
 
@@ -87,6 +108,16 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.good', 'MDC', 'Link quality > 51'));
         icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:grey"></span>';
         me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.undefined', 'MDC', 'Link quality undefined'));
+        // icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+linkColors[1]+'"></span>';
+        // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.undefined', 'MDC', '0 < Link quality <= 64'));
+        // icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+linkColors[2]+'"></span>';
+        // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.undefined', 'MDC', '64 < Link quality <= 128'));
+        // icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+linkColors[3]+'"></span>';
+        // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.undefined', 'MDC', '128 < Link quality <= 192'));
+        // icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+linkColors[4]+'"></span>';
+        // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.undefined', 'MDC', '192 < Link quality < 255'));
+        // icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+linkColors[5]+'"></span>';
+        // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.undefined', 'MDC', 'Link quality = 255'));
     },
 
     showDeviceType: function(){
