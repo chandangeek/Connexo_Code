@@ -959,7 +959,7 @@ public class DeviceResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         TopologyTimeline timeline = topologyService.getPysicalTopologyTimeline(device);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
-        Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate).sorted(Comparator.comparing(Device::getName));
+        Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate).filter(d -> DeviceTopologyInfo.hasNotEnded(timeline, d)).sorted(Comparator.comparing(Device::getName));
         if (queryParameters.getStart().isPresent() && queryParameters.getStart().get() > 0) {
             stream = stream.skip(queryParameters.getStart().get());
         }
