@@ -106,8 +106,7 @@ public class MeterRegistrationRuleTemplate extends AbstractDataCollectionTemplat
                 "\tLOGGER.info(\"Putting issue on queue by unregistered from gateway rule=@{ruleId}\");\n" +
                 "\tlong delay = @{" + DELAY + "} * 3600;\n" +
                 "\tevent.setRuleId(@{ruleId});\n" +
-//                "\teventService.postEvent(\"com/energyict/mdc/issue/datacollection/UNREGISTEREDFROMGATEWAYDELAYED\", event, delay);\n" +
-                "\teventService.postEvent(\"com/energyict/mdc/issue/datacollection/UNREGISTEREDFROMGATEWAYDELAYED\", event, 20);\n" +
+                "\teventService.postEvent(\"com/energyict/mdc/issue/datacollection/UNREGISTEREDFROMGATEWAYDELAYED\", event, delay);\n" +
                 "end\n" +
                 "rule \"Auto-resolution section @{ruleId}\"\n" +
                 "when\n" +
