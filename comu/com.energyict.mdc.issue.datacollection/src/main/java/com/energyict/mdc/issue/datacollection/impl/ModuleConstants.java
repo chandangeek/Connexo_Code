@@ -24,6 +24,7 @@ public final class ModuleConstants {
 
     public static final String DEVICE_IDENTIFIER = "deviceIdentifier";
     public static final String MASTER_DEVICE_IDENTIFIER = "masterDeviceId";
+    public static final String GATEWAY_IDENTIFIER = "gatewayIdentifier";
     public static final String EVENT_IDENTIFIER = "eventIdentifier";
     public static final String FAILED_TASK_IDS = "failedTaskIDs";
     public static final String SKIPPED_TASK_IDS = "skippedTaskIDs";

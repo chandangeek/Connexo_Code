@@ -127,6 +127,13 @@ public class MeterRegistrationRuleTemplate extends AbstractDataCollectionTemplat
         return issue;
     }
 
+    @Override
+    public void updateIssue(OpenIssue openIssue, IssueEvent event) {
+        if (IssueStatus.IN_PROGRESS.equals(openIssue.getStatus().getKey())) {
+            openIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
+        }
+    }
+
     @Reference
     public void setPropertySpecService(com.energyict.mdc.dynamic.PropertySpecService propertySpecService) {
         super.setPropertySpecService(propertySpecService);
