@@ -159,7 +159,8 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             return;
         }
 
-        var visualiser = Ext.ComponentQuery.query('visualiserpanel')[0],
+        var isGateway = item.d && !Ext.isEmpty(item.d.gateway) && item.d.gateway,
+            visualiser = Ext.ComponentQuery.query('visualiserpanel')[0],
             items = [
                 {
                     xtype: 'menuitem',
@@ -195,6 +196,9 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         }
         if (this.contextMenuItems) {
             Ext.each(this.contextMenuItems, function (item) {
+                if (Ext.isDefined(item.gatewayOnly) && item.gatewayOnly) {
+                    item.hidden = !isGateway;
+                }
                 item.graphId = id;
                 item.visualiser = visualiser;
             });
