@@ -13,7 +13,8 @@ Ext.define('Idc.controller.Detail', {
         'Idc.store.CommunicationLogs',
         'Idc.store.ConnectionLogs',
         'Idc.store.TimelineEntries',
-        'Bpm.monitorissueprocesses.store.IssueProcesses'
+        'Bpm.monitorissueprocesses.store.IssueProcesses',
+        'Idc.store.Gateways'
     ],
 
     models: [
@@ -26,7 +27,8 @@ Ext.define('Idc.controller.Detail', {
         'Idc.view.InboundIssueDetailsForm',
         'Idc.view.OutboundIssueDetailsForm',
         'Idc.view.ConnectionIssueDetailsForm',
-        'Idc.view.DefaultIssueDetailsForm'
+        'Idc.view.DefaultIssueDetailsForm',
+        'Idc.view.MeterRegistrationIssueDetailsForm'
     ],
 
     constructor: function () {

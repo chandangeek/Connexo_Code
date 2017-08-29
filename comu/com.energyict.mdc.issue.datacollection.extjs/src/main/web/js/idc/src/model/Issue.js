@@ -4,12 +4,16 @@
 
 Ext.define('Idc.model.Issue', {
     extend: 'Isu.model.Issue',
+    requires: [
+        'Idc.model.Gateway'
+    ],
     fields: [
-        'deviceConfiguration', 'deviceType', 'deviceState', 'deviceName', 'slaveDeviceIdentification',
-        'connectionAttemptsNumber', 'connectionTask', 'communicationTask',
+        'deviceConfiguration', 'deviceType', 'deviceState', 'deviceName', 'slaveDeviceIdentification', 'connectionAttemptsNumber', 'connectionTask',
+        'communicationTask', 'master', 'masterDeviceConfig', 'masterDeviceType', 'masterState', 'masterUsagePoint', 'gateways', 'masterFrom', 'masterTo',
         {name: 'firstConnectionAttempt', type: 'date', dateFormat: 'time'},
         {name: 'lastConnectionAttempt', type: 'date', dateFormat: 'time'},
         {name: 'deviceState_name', persist: false, mapping: 'deviceState.name'},
+        {name: 'masterState_name', persist: false, mapping: 'masterState.name'},
         {name: 'connectionMethod_name', persist: false, mapping: 'connectionTask.connectionMethod.name'},
         {name: 'connectionTask_latestAttempt', type: 'date', dateFormat: 'time', persist: false, mapping: 'connectionTask.latestAttempt'},
         {name: 'connectionTask_latestStatus_name', persist: false, mapping: 'connectionTask.latestStatus.name'},
@@ -22,7 +26,36 @@ Ext.define('Idc.model.Issue', {
         {name: 'communicationTask_latestResult_name', persist: false, mapping: 'communicationTask.latestResult.name'},
         {name: 'communicationTask_lastSuccessfulAttempt', type: 'date', dateFormat: 'time', persist: false, mapping: 'communicationTask.lastSuccessfulAttempt'},
         {name: 'connectionTask_journals', persist: false, mapping: 'connectionTask.journals'},
-        {name: 'communicationTask_journals', persist: false, mapping: 'communicationTask.journals'}
+        {name: 'communicationTask_journals', persist: false, mapping: 'communicationTask.journals'},
+        {
+            name: 'period',
+            persist: false,
+            mapping: function (data) {
+                var result, startDate, endDate;
+
+                startDate = data.masterFrom;
+                endDate = data.masterTo;
+                if (startDate && endDate) {
+                    result = Uni.I18n.translate('validation.version.display.fromUntil', 'IDC', "From {0} to {1}",
+                        [Uni.DateTime.formatDateTimeShort(new Date(startDate)),
+                            Uni.DateTime.formatDateTimeShort(new Date(endDate))],
+                        false
+                    );
+                } else {
+                    result = '-'
+                }
+                return result;
+            }
+        }
+    ],
+
+    associations: [
+        {
+            name: 'gateways',
+            type: 'hasMany',
+            model: 'Idc.model.Gateway',
+            associationKey: 'gateways'
+        }
     ],
     proxy: {
         type: 'rest',
