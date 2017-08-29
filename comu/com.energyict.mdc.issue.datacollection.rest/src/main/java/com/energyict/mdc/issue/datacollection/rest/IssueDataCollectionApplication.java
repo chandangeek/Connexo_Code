@@ -30,6 +30,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.rest.i18n.DataCollectionIssueTranslationKeys;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
@@ -68,6 +69,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
     private volatile AppService appService;
     private volatile JsonService jsonService;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile TopologyService topologyService;
     private volatile BpmService bpmService;
     private volatile PropertyValueInfoService propertyValueInfoService;
 
@@ -163,6 +165,11 @@ public class IssueDataCollectionApplication extends Application implements Messa
     public void setLicense(License license) {
     }
 
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
+    }
+
     @Override
     public Layer getLayer() {
         return Layer.REST;
@@ -208,6 +215,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
             bind(thesaurus).to(Thesaurus.class);
             bind(deviceService).to(DeviceService.class);
             bind(messageService).to(MessageService.class);
+            bind(topologyService).to(TopologyService.class);
             bind(appService).to(AppService.class);
             bind(jsonService).to(JsonService.class);
             bind(DataCollectionIssueInfoFactory.class).to(DataCollectionIssueInfoFactory.class);
