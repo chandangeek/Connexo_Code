@@ -52,6 +52,7 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceName, {
            success: function (device) {
                me.getApplication().fireEvent('changecontentevent', widget);
+               widget.deviceId2Select = device.get('id');
                me.getApplication().fireEvent('loadDevice', device);
                viewport.setLoading(false);
            }
