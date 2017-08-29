@@ -12,7 +12,7 @@ MTR;REST;readingtypesmanagment.status;Status;
 MTR;REST;readingtypesmanagment.selectaction;Aktion auswählen;
 MTR;REST;readingtypesmanagment.kind;Art;
 MTR;REST;readingtypesmanagment.CimCode;CIM-Code;
-MTR;REST;readingtypesmanagment.addreadingtypes.title;Ablesetypen hinzufügen;
+MTR;REST;readingtypesmanagment.addreadingtypes.title;Ablesetypen hinzufügen.;
 MTR;REST;readingtypesmanagment.addReadingType.addConfirmationXXX[0];{0} Ablesetypen hinzufügen?;
 MTR;REST;readingtypesmanagment.empty.title;Keine Ablesetypen gefunden.;
 MTR;REST;readingtypesmanagment.time;Uhrzeit;
@@ -29,7 +29,7 @@ MTR;REST;readingTypes.attribute.criticalPeakPeriod;Kritische Spitzenzeit;
 MTR;REST;readingtypesmanagment.attribute.criticalPeakPeriod;Kritische Spitzenzeit;
 MTR;REST;readingtypesmanagment.bulk.step1title;Bulk-Aktion - Schritt 1 von 5: Ablesetypen auswählen.;
 MTR;REST;readingtypesmanagment.multiplaier;Multiplikator;
-MTR;REST;readingtypesmanagment.pagingtoolbartop.addButton;Ablesetypen hinzufügen;
+MTR;REST;readingtypesmanagment.pagingtoolbartop.addButton;Ablesetypen hinzufügen.;
 MTR;REST;readingTypes.attribute.dataQualifier;Datenqualifikator;
 MTR;REST;readingTypes.attribute.phase;Phasen-;
 MTR;REST;readingtypes.management;Ablesetypenverwaltung;
@@ -75,7 +75,7 @@ MTR;REST;readingtypesmanagment.errors;Diese Seite enthält Fehler, die Ihre Aufm
 MTR;REST;readingtypesmanagment.interharmonicnumeration;Interharmonischer Zähler;
 MTR;REST;general.serverError;Server-Fehler;
 MTR;REST;readingtypesmanagment.currency;Währung;
-MTR;REST;readingtypes.add;Ablesetypen hinzufügen;
+MTR;REST;readingtypes.add;Ablesetypen hinzufügen.;
 MTR;REST;readingTypes.attribute.name;Name;
 MTR;REST;readingTypes.attribute.accumulation;Kumulierung;
 MTR;REST;readingTypes.attribute.consumptionTier;Verbrauchsstufe;
@@ -198,14 +198,6 @@ TME;DOMAIN;period.periods;Relative Zeitabschnitte;
 TME;DOMAIN;period.periods.description;Relative Zeitabschnitte verwalten;
 TME;DOMAIN;privilege.administrate.period;Verwalten;
 TME;DOMAIN;privilege.view.period;Details anzeigen;
-TME;DOMAIN;timeDuration.timeUnit.description.milliseconds;Millisekunde(n);
-TME;DOMAIN;timeDuration.timeUnit.description.seconds;Sekunde(n);
-TME;DOMAIN;timeDuration.timeUnit.description.minutes;Minute(n);
-TME;DOMAIN;timeDuration.timeUnit.description.hours;Stunde(n);
-TME;DOMAIN;timeDuration.timeUnit.description.days;Tag(e);
-TME;DOMAIN;timeDuration.timeUnit.description.weeks;Woche(n);
-TME;DOMAIN;timeDuration.timeUnit.description.months;Monat(e);
-TME;DOMAIN;timeDuration.timeUnit.description.years;Jahr(e);
 YFN;DOMAIN;error.facts.unavailable;Connexo Facts ist nicht verfügbar.;
 YFN;DOMAIN;reportYfn.reports;Berichte;
 YFN;DOMAIN;reportYfn.reports.description;Berichte verwalten;
@@ -295,11 +287,11 @@ CFG;REST;validation.version.on;Ein;
 CFG;REST;validation.numberOfRules;Anzahl der Regeln;
 CFG;REST;validation.versionStart;Start;
 CFG;REST;general.validation;Datenvalidierung;
-CFG;REST;validationTasks.general.addValidationTask;Validierungstask hinzufügen;
+CFG;REST;validationTasks.general.addValidationTask;Validierungstask hinzufügen.;
 CFG;REST;period.minutes;Minute(n);
 CFG;REST;validationTasks.history.pagingtoolbartop.displayMsg;{0} - {1} von {2} Historien-Elementen;
 CFG;REST;general.readingTypes;Ablesetypen;
-CFG;REST;validation.addRuleSet;Validierungsregelsatz hinzufügen;
+CFG;REST;validation.addRuleSet;Validierungsregelsatz hinzufügen.;
 CFG;REST;validation.editVersionSuccess.msg;Validierungsregelsatzversion gespeichert.;
 CFG;REST;validation.removeRule.msg;Diese Validierungsregel wird im Validierungsregelsatz nicht mehr verfügbar sein.;
 CFG;REST;validationTasks.connection.widget.sideFilter.apply;Anwenden;
@@ -307,7 +299,7 @@ CFG;REST;validation.dataQualityLevelWarnOnly;Informativ;
 CFG;REST;general.addReadingTypes;Ablesetypen hinzufügen;
 CFG;REST;general.nrOfReadingTypes.selected[many];{0} Ablesetypen ausgewählt;
 CFG;REST;validation.versions;Versionen;
-CFG;REST;validation.addValidationRulesetVersion;Validierungsregelsatzversion hinzufügen;
+CFG;REST;validation.addValidationRulesetVersion;Validierungsregelsatzversion hinzufügen.;
 CFG;REST;general.validationRules;Validierungsregeln;
 CFG;REST;validationTasks.general.every;Jede/Alle;
 CFG;REST;validation.deactivateRuleSuccess.msg;Validierungsregel deaktiviert.;
@@ -327,7 +319,7 @@ CFG;REST;validation.readingType.empty.list.item3;Alle Ablesetypen wurden bereits
 CFG;REST;general.removing;Daten werden entfernt...;
 CFG;REST;validation.readingType.empty.list.item2;Es stimmen keine Ablesetypen mit dem Filter überein.;
 CFG;REST;validation.readingType.empty.list.item1;Es wurden noch keine Ablesetypen hinzugefügt.;
-CFG;REST;validation.addVersion;Version hinzufügen;
+CFG;REST;validation.addVersion;Version hinzufügen.;
 CFG;REST;validationTasks.general.viewDetails;Details anzeigen.;
 CFG;REST;general.removex;'{0}' entfernen;
 CFG;REST;validation.active;Aktiv;
@@ -393,7 +385,7 @@ CFG;REST;validationTasks.general.validationTasks;Validierungstasks;
 CFG;REST;general.none;Keine;
 CFG;REST;validationTasks.general.logLevel;Protokollierebene;
 CFG;REST;general.edit;Bearbeiten;
-CFG;REST;validation.addValidationRule;Validierungsregel hinzufügen;
+CFG;REST;validation.addValidationRule;Validierungsregel hinzufügen.;
 CFG;REST;validation.pagingtoolbartop.itemsPerPage;Validierungsregeln pro Seite;
 CFG;REST;validationTasks.validationTasksHistory.empty.title;Keine Validierungshistorie gefunden.;
 CFG;REST;general.details;Details;
@@ -424,7 +416,7 @@ CFG;REST;validationtask.historyFilter.finishedBetween;Beendet zwischen;
 CFG;REST;validation.removeVersionSuccess.msg;Validierungsregelsatzversion entfernt;
 CFG;REST;validation.removeRuleSet.msg;Dieser Validierungsregelsatz wird nicht länger verfügbar sein.;
 CFG;REST;validationTasks.general.usagePointGroup;Verwendungsstellengruppe;
-CFG;REST;validation.addReadingTypes;Ablesetypen hinzufügen;
+CFG;REST;validation.addReadingTypes;Ablesetypen hinzufügen.;
 CFG;REST;validationTasks.general.remove.confirm.msg;Validierungstask entfernt;
 CFG;REST;validationTasks.general.run;Ausführen;
 CFG;REST;validation.empty.rules.list.item1;Es wurden noch keine Validierungsregeln hinzugefügt.;
@@ -464,7 +456,7 @@ EST;REST;general.remove;Entfernen;
 EST;REST;estimationrulesets.reason1;Es wurden noch keine Bewertungsregelsätze definiert.;
 EST;REST;estimationtasks.history.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {1} Historienzeilen;
 EST;REST;estimationtasks.general.finishedOn;Beendet am;
-EST;REST;general.addDeviceConfigurations;Gerätekonfigurationen hinzufügen;
+EST;REST;general.addDeviceConfigurations;Gerätekonfigurationen hinzufügen.;
 EST;REST;general.cancel;Abbrechen;
 EST;REST;estimationtasks.addTask.successMsg;Bewertungstask hinzugefügt;
 EST;REST;period.minutes;Minute(n);
@@ -475,7 +467,7 @@ EST;REST;general.readingTypes;Ablesetypen;
 EST;REST;general.placeholder.enterName;Einen Namen eingeben...;
 EST;REST;estimationtasks.general.schedule;Zeitplan;
 EST;REST;estimationtasks.finished;Beendet zwischen;
-EST;REST;general.addReadingTypes;Ablesetypen hinzufügen;
+EST;REST;general.addReadingTypes;Ablesetypen hinzufügen.;
 EST;REST;estimationtasks.pagingtoolbartop.displayMsg;{0} - {1} von {2} Bewertungstasks;
 EST;REST;estimationrules.estimator;Bewertungsfunktion;
 EST;REST;general.nrOfReadingTypes.selected[many];{0} Ablesetypen ausgewählt;
@@ -540,7 +532,7 @@ EST;REST;estimationtasks.log.empty.list.item1;Bei der Bewertungstask '{0}' mit B
 EST;REST;estimationtasks.pagingtoolbarbottom.itemsPerPage;Bewertungstasks pro Seite;
 EST;REST;general.noReadingTypesAvailable;Es wurden keine Ablesetypen hinzugefügt.;
 EST;REST;estimationtasks.general.log;Ereignisprotokoll;
-EST;REST;estimationtasks.general.addEstimationTask;Bewertungstask hinzufügen;
+EST;REST;estimationtasks.general.addEstimationTask;Bewertungstask hinzufügen.;
 EST;REST;estimationrules.pagingtoolbarbottom.itemsPerPage;Bewertungsregeln pro Seite;
 EST;REST;estimationtasks.log.runStartedOn;Ausführung gestartet am;
 EST;REST;general.timeOfUse;Nutzungszeit;
@@ -573,8 +565,8 @@ EST;REST;period.weeks;Woche(n);
 EST;REST;general.order;Reihenfolge;
 EST;REST;general.unitOfMeasure;Maßeinheit;
 EST;REST;general.editx;'{0}' bearbeiten;
-EST;REST;estimationrulesets.add.title;Bewertungsregelwerk hinzufügen;
-EST;REST;estimationrules.addEstimationRule;Bewertungsregel hinzufügen;
+EST;REST;estimationrulesets.add.title;Bewertungsregelwerk hinzufügen.;
+EST;REST;estimationrules.addEstimationRule;Bewertungsregel hinzufügen.;
 EST;REST;estimationrulesets.pagingtoolbartop.displayMsg;{0} - {1} von {2} Bewertungsregelsätzen;
 EST;REST;estimationtasks.general.every;Jede/Alle;
 EST;REST;estimationtasks.general.dataSources;Datenquellen;
@@ -605,8 +597,8 @@ EST;REST;estimationrulesets.empty.title;Keine Bewertungsregelsätze gefunden.;
 EST;REST;estimationrules.activateRuleSuccess;Bewertungsregel aktiviert;
 EST;REST;estimationtasks.general.run;Ausführen;
 EST;REST;estimationrulesets.remove.successMsg;Bewertungsregelwerk entfernt;
-EST;DOMAIN;averagewithsamples.maxPeriodOfConsecutiveSuspects;Maximale Zeitspanne aufeinander folgender fehlerverdächtiger Werte;
-EST;DOMAIN;averagewithsamples.maxPeriodOfConsecutiveSuspects.description;Die maximal zulässige Zeitspanne aufeinander folgender fehlerverdächtiger Werte. Wird dieser Wert überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
+EST;DOMAIN;averagewithsamples.maxNumberOfConsecutiveSuspects;Maximale Anzahl aufeinander folgender fehlerverdächtiger Werte;
+EST;DOMAIN;averagewithsamples.maxNumberOfConsecutiveSuspects.description;Die maximal zulässige Anzahl aufeinander folgender fehlerverdächtiger Werte. Wird dieser Wert überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
 EST;DOMAIN;averagewithsamples.minNumberOfSamples;Minimale Probenzahl;
 EST;DOMAIN;averagewithsamples.minNumberOfSamples.description;Die minimale Anzahl an Proben, die für eine Bewertung erforderlich ist.;
 EST;DOMAIN;averagewithsamples.maxNumberOfSamples;Maximale Probenzahl;
@@ -617,18 +609,10 @@ EST;DOMAIN;averagewithsamples.relativePeriod;Relativer Zeitabschnitt;
 EST;DOMAIN;averagewithsamples.relativePeriod.description;Die Anzahl an Proben, die gefunden und für eine Bewertung genutzt werden können.;
 EST;DOMAIN;averagewithsamples.advanceReadingsSettings;Erweiterte Messdaten nutzen;
 EST;DOMAIN;averagewithsamples.advanceReadingsSettings.description;Zur Nutzung anderer Daten als der eigenen Deltawerte des Kanals zur Bewertung fehlerverdächtiger Daten.;
-EST;DOMAIN;equaldistribution.maxPeriodOfConsecutiveSuspects;Maximale Zeitspanne aufeinander folgender fehlerverdächtiger Werte;
-EST;DOMAIN;equaldistribution.maxPeriodOfConsecutiveSuspects.description;Die maximal zulässige Zeitspanne aufeinander folgender fehlerverdächtiger Werte. Wird dieser Wert überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
+EST;DOMAIN;equaldistribution.maxNumberOfConsecutiveSuspects;Maximale Anzahl aufeinander folgender fehlerverdächtiger Werte;
+EST;DOMAIN;equaldistribution.maxNumberOfConsecutiveSuspects.description;Die maximal zulässige Anzahl aufeinander folgender fehlerverdächtiger Werte. Wird dieser Wert überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
 EST;DOMAIN;equaldistribution.advanceReadingsSettings;Erweiterte Messdaten nutzen;
 EST;DOMAIN;equaldistribution.advanceReadingsSettings.description;Zur Nutzung anderer Daten als der eigenen Deltawerte des Kanals zur Bewertung fehlerverdächtiger Daten.;
-EST;DOMAIN;linearinterpolation.maxPeriodOfConsecutiveSuspects;Maximale Zeitspanne aufeinander folgender fehlerverdächtiger Werte;
-EST;DOMAIN;linearinterpolation.maxPeriodOfConsecutiveSuspects.description;Die maximal zulässige Zeitspanne aufeinander folgender fehlerverdächtiger Werte. Wird dieser Wert überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
-EST;DOMAIN;powergapfill.maxPeriodOfConsecutiveSuspects;Maximale Zeitspanne aufeinander folgender fehlerverdächtiger Werte;
-EST;DOMAIN;powergapfill.maxPeriodOfConsecutiveSuspects.description;Die maximal zulässige Zeitspanne aufeinander folgender fehlerverdächtiger Werte. Wird dieser Wert überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
-EST;DOMAIN;valuefill.maxPeriodOfConsecutiveSuspects;Maximale Zeitspanne aufeinander folgender fehlerverdächtiger Werte;
-EST;DOMAIN;valuefill.maxPeriodOfConsecutiveSuspects.description;Die maximal zulässige Zeitspanne aufeinander folgender fehlerverdächtiger Werte. Wird dieser Wert überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
-EST;DOMAIN;valuefill.fillValue;Füllwert;
-EST;DOMAIN;valuefill.fillValue.description;Die Werte-Füllregel ist die einfachste Regel und bewertet fehlerverdächtige Messdaten durch das Austauschen aller Messdaten durch einen benutzerdefinierten Wert.;
 DES;REST;des.and;und;
 DES;REST;addDataExportTask.successMsg;Datenexporttask hinzugefügt;
 DES;REST;export.eventType.deviceType;Gerätetyp;
@@ -636,7 +620,6 @@ DES;REST;addDataExportTask.formatter.tooltip.col5;Validierungsergebnis (Text);
 DES;REST;general.skipMissingData;Überspringen von Intervallen mit fehlenden Daten (Daten mit Lücken).;
 DES;REST;general.nrOfReadingTypes[0];Keine Ablesetypen;
 DES;REST;general.logLevel;Protokollierebene;
-DES;REST;general.workspace;Arbeitsbereich;
 DES;REST;addDataExportTask.formatter.tooltip.col4;Wert (Zahl);
 DES;REST;addDataExportTask.formatter.tooltip.col3;Ablesetyp (Text);
 DES;REST;addDataExportTask.formatter.tooltip.col2;Geräte-MRID (Text);
@@ -677,7 +660,7 @@ DES;REST;dataExportdestinations.ftpsServer;FTPS-Server;
 DES;REST;addDataExportTask.formatter.tooltip2;Die Exportdatei enthält 3 Spalten.;
 DES;REST;dataExportTasks.history.pagingtoolbartop.emptyMsg;Keine Historienzeilen zur Anzeige verfügbar.;
 DES;REST;general.runDataExportTaskx;Datenexporttask {0} ausführen?;
-DES;REST;general.addReadingTypes;Ablesetypen hinzufügen;
+DES;REST;general.addReadingTypes;Ablesetypen hinzufügen.;
 DES;REST;general.deviceGroup;Gerätegruppe;
 DES;REST;general.eventTypes;Ereignistypen;
 DES;REST;general.noExportForUpdated;Nicht exportieren.;
@@ -755,7 +738,7 @@ DES;REST;general.history;Unternehmensgeschichte;
 DES;REST;general.nextRun;Nächste Ausführung;
 DES;REST;export.eventType.deviceSubDomain;Geräte-Subdomain;
 DES;REST;dataSources.pagingtoolbartop.displayMsg;{0} - {1} von {2} Datenquellen;
-DES;REST;general.addDestination;Zielort hinzufügen;
+DES;REST;general.addDestination;Zielort hinzufügen.;
 DES;REST;general.lastExportedDate;Zuletzt exportiertes Datum;
 DES;REST;general.validatedData;Validierte Daten;
 DES;REST;general.nrOfEventTypes[1];1 Ereignistyp;
@@ -775,7 +758,7 @@ DES;REST;general.skipSuspectOrNotValidated;Intervalle mit fehlerverdächtigen/ni
 DES;REST;destination.email;E-Mail;
 DES;REST;dataExportTasks.dateyearTag.info;Zum Ausführungsdatum gehörendes Jahr;
 DES;REST;general.nrOfEventTypes[0];Keine Ereignistypen;
-DES;REST;general.addUpdateTimeframe;Aktualisierungszeitrahmen hinzufügen;
+DES;REST;general.addUpdateTimeframe;Aktualisierungszeitrahmen hinzufügen.;
 DES;REST;tasks.historyFilter.startedBetween;Gestartet zwischen;
 DES;REST;dataExportTasks.readingTypeName;Ablesetypbezeichnung;
 DES;REST;general.outputFormat;Ausgangsformat;
@@ -839,7 +822,7 @@ DES;REST;general.exportWindow;Exportfenster;
 DES;REST;dataExportTasks.secTag.info;Zur Ausführungszeit gehörende Sekunden;
 DES;REST;dataExport.editDestination;Zielort bearbeiten.;
 DES;REST;validation.readingType.empty.title;Keine Ablesetypen gefunden.;
-DES;REST;general.addEventType;Ereignistyp hinzufügen;
+DES;REST;general.addEventType;Ereignistyp hinzufügen.;
 DES;REST;addDataExportTask.deviceGroupPrompt;Eine Gerätegruppe auswählen...;
 DES;REST;dataExportTasks.seqnrwithindayTag.info;Anzahl der bereits erfolgten Task-Ausführungen am Ausführungsdatum.;
 DES;REST;general.exportWithinWindow;Export innerhalb des Aktualisierungsfensters.;
@@ -848,8 +831,8 @@ DES;REST;period.days;Tag(e);
 DES;REST;general.log;Ereignisprotokoll;
 DES;REST;general.addUpdateWindow;Aktualisierungsfenster hinzufügen;
 DES;REST;general.viewLog;Ereignisprotokoll anzeigen;
-DES;REST;general.addDataExportTask;Datenexporttask hinzufügen;
-DES;REST;general.addReadngTypes;Ablesetypen hinzufügen;
+DES;REST;general.addDataExportTask;Datenexporttask hinzufügen.;
+DES;REST;general.addReadngTypes;Ablesetypen hinzufügen.;
 DES;REST;dataExportTasksHistory.empty.title;Keine Datenexport-Historie gefunden.;
 DES;REST;addDataExportTask.exportWindowPrompt;Ein Exportfenster auswählen...;
 DES;REST;general.possibleTags;Mögliche Tags;
@@ -908,7 +891,7 @@ ISU;REST;issues.empty.title;Keine Probleme gefunden.;
 ISU;REST;issue.wizardInvalid;Assistent ungültig;
 ISU;REST;general.group;Gruppe;
 ISU;REST;general.clearAll;Alle löschen;
-ISU;REST;general.issueCreationRules.add;Problem-Generierungsregel hinzufügen;
+ISU;REST;general.issueCreationRules.add;Problem-Generierungsregel hinzufügen.;
 ISU;REST;general.NoCommentsFound;Keine Kommentare gefunden;
 ISU;REST;issues.startTypingForUsers;Eingabe für die User beginnen.;
 ISU;REST;issues.assign.failed.result[0];-;
@@ -946,12 +929,12 @@ ISU;REST;issueAssignment.empty.list.item;Es wurden noch keine Problemzuordnungsr
 ISU;REST;issues.selectUser;Benutzer auswählen.;
 ISU;REST;general.sort;Sortieren;
 ISU;REST;general.assignTo;Zuordnen zu;
-ISU;REST;issues.actionMenu.addComment;Kommentar hinzufügen;
+ISU;REST;issues.actionMenu.addComment;Kommentar hinzufügen.;
 ISU;REST;issueCreationRules.noDueDate;Kein Fälligkeitsdatum;
 ISU;REST;general.add;Hinzufügen;
 ISU;REST;general.action;Aktion;
 ISU;REST;period.months;Monat(e);
-ISU;REST;general.addAction;Aktion hinzufügen;
+ISU;REST;general.addAction;Aktion hinzufügen.;
 ISU;REST;administration.issueCreationRules.title.editIssueCreationRule;'{0}' bearbeiten;
 ISU;REST;issue.userImages;Bilder des Benutzers;
 ISU;REST;general.title.name;Name;
@@ -968,10 +951,10 @@ ISU;REST;administration.issueCreationRules.pagingtoolbartop.displayMoreMsg;{0} -
 ISU;REST;general.description;Beschreibung;
 ISU;REST;issues.selectIssues;Probleme auswählen;
 ISU;REST;issues.allIssues.willBeAssigned;Alle Probleme werden {0} zugeordnet.;
-ISU;REST;general.addComment;Kommentar hinzufügen;
+ISU;REST;general.addComment;Kommentar hinzufügen.;
 ISU;REST;general.nrOfIssues.selected[many];{0} Probleme ausgewählt.;
 ISU;REST;issues.processing.close;{0} Problem(e) wird/werden geschlossen. Bitte warten...;
-ISU;REST;issues.addSort;Sorte hinzufügen;
+ISU;REST;issues.addSort;Sorte hinzufügen.;
 ISU;REST;administration.issueCreationRules.updateSuccess.msg;Problem-Generierungsregel aktualisiert.;
 ISU;REST;general.title.issue;Problem;
 ISU;REST;general.title.bulkActions;Bulk-Aktion;
@@ -1121,7 +1104,7 @@ MTR;REST;readingtypesmanagment.bulk.step4applyDeactivate;{0} deaktivieren?;
 MTR;REST;readingtypesmanagment.pagingtoolbartop.emptyMsg;Keine Ablesetypen zur Anzeige verfügbar.;
 MTR;REST;readingtypesmanagment.bulk.step5editMsg;Die {1} werden zur Eingabe des Alias '{0}' in die Warteschlange gestellt.;
 MTR;REST;readingtypesmanagment.bulk.editreadingtypes;Ablesetypen bearbeiten.;
-MTR;REST;readingtypesmanagment.addSort;Sorte hinzufügen;
+MTR;REST;readingtypesmanagment.addSort;Sorte hinzufügen.;
 MTR;REST;readingtypesmanagment.bulk.step4title;Bulk-Aktion - Schritt 4 von 5: Bestätigung.;
 MTR;REST;readingtypesmanagment.attribute.multiplier;Multiplikator;
 MTR;REST;readingtypesmanagment.bulk.activatereadingtypes;Ablesetypen aktivieren.;
@@ -2779,7 +2762,7 @@ BPM;REST;bpm.task.dueDate;Fälligkeitsdatum;
 BPM;REST;bpm.filter.dueDate;Fälligkeitsdatum;
 BPM;REST;bpm.task.priority;Priorität;
 BPM;REST;bpm.task.bulk.confirmation.taskmanagementTitle;Ausgewählte Tasks speichern?;
-BPM;REST;general.task.addSort;Sorte hinzufügen;
+BPM;REST;general.task.addSort;Sorte hinzufügen.;
 BPM;REST;general.confirm;Bestätigen;
 BPM;REST;bpm.task.bulk.setPriority;Priorität festlegen.;
 BPM;REST;general.nrOfTasks.selected[0];Keine Tasks ausgewählt;
@@ -3037,9 +3020,33 @@ SYS;REST;license.status.EXPIRED;Abgelaufen;
 ESR;DOMAIN;estimator.doesnotexist;Die Bewertungsfunktion {0} ist nicht vorhanden.;
 ESR;DOMAIN;property.missing;Die erforderliche Eigenschaft mit der ID ''{0}'' konnte nicht gefunden werden.;
 ESR;DOMAIN;property.error.maxNumberOfSamples;Der Höchstwert darf nicht kleiner sein als der Mindestwert.;
-ESR;DOMAIN;property.error.invalidMaxPeriodOfConsecutiveSuspects;Diese Zeitspanne sollte eine positive Länge haben.;
+ESR;DOMAIN;property.error.invalidMaxNumberOfConsecutiveSuspects;Dieser Wert sollte positiv sein.;
 ESR;DOMAIN;property.error.advanceReadingsSettings;Der Ablesetyp sollte kumulativ sein.;
+ESR;DOMAIN;property.error.maxNumberOfConsecutiveSuspectsShouldBeInteger;Dieser Wert sollte positiv sein.;
 ESR;DOMAIN;property.error.advanceReadingsSettings.not.none;Ohne ist nicht zulässig.;
+ESR;DOMAIN;averagewithsamples.maxNumberOfConsecutiveSuspects;Maximale Anzahl aufeinander folgender fehlerverdächtiger Werte;
+ESR;DOMAIN;averagewithsamples.maxNumberOfConsecutiveSuspects.description;Die maximal zulässige Anzahl aufeinander folgender fehlerverdächtiger Werte. Wird dieser Wert überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
+ESR;DOMAIN;averagewithsamples.minNumberOfSamples;Minimale Probenzahl;
+ESR;DOMAIN;averagewithsamples.minNumberOfSamples.description;Die minimale Anzahl an Proben, die für eine Bewertung erforderlich ist.;
+ESR;DOMAIN;averagewithsamples.maxNumberOfSamples;Maximale Probenzahl;
+ESR;DOMAIN;averagewithsamples.maxNumberOfSamples.description;Die maximale Anzahl an Proben, die für eine Bewertung erforderlich ist.;
+ESR;DOMAIN;averagewithsamples.allowNegativeValues;Negative Werte zulassen;
+ESR;DOMAIN;averagewithsamples.allowNegativeValues.description;Zeigt an, dass negative Werte zur Bewertung von Daten verwendet werden können.;
+ESR;DOMAIN;averagewithsamples.relativePeriod;Relativer Zeitabschnitt;
+ESR;DOMAIN;averagewithsamples.relativePeriod.description;Die Anzahl an Proben, die gefunden und für eine Bewertung genutzt werden können.;
+ESR;DOMAIN;averagewithsamples.advanceReadingsSettings;Erweiterte Messdaten nutzen;
+ESR;DOMAIN;averagewithsamples.advanceReadingsSettings.description;Zur Nutzung anderer Daten als der eigenen Deltawerte des Kanals zur Bewertung fehlerverdächtiger Daten.;
+ESR;DOMAIN;equaldistribution.maxNumberOfConsecutiveSuspects;Maximale Anzahl aufeinander folgender fehlerverdächtiger Werte;
+ESR;DOMAIN;equaldistribution.maxNumberOfConsecutiveSuspects.description;Die maximal zulässige Anzahl aufeinander folgender fehlerverdächtiger Werte. Wird dieser Wert überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
+ESR;DOMAIN;equaldistribution.advanceReadingsSettings;Erweiterte Messdaten nutzen;
+ESR;DOMAIN;equaldistribution.advanceReadingsSettings.description;Zur Nutzung anderer Daten als der eigenen Deltawerte des Kanals zur Bewertung fehlerverdächtiger Daten.;
+ESR;DOMAIN;linearinterpolation.maxNumberOfConsecutiveSuspects;Maximale Anzahl aufeinander folgender fehlerverdächtiger Werte;
+ESR;DOMAIN;linearinterpolation.maxNumberOfConsecutiveSuspects.description;Die maximal zulässige Anzahl aufeinander folgender fehlerverdächtiger Werte. Wird dieser Wert überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
+ESR;DOMAIN;powergapfill.maxNumberOfConsecutiveSuspects;Maximale Anzahl aufeinander folgender fehlerverdächtiger Werte;
+ESR;DOMAIN;valuefill.maxNumberOfConsecutiveSuspects;Maximale Anzahl aufeinander folgender fehlerverdächtiger Werte;
+ESR;DOMAIN;valuefill.maxNumberOfConsecutiveSuspects.description;Die maximal zulässige Anzahl aufeinander folgender fehlerverdächtiger Werte. Wird dieser Wert überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
+ESR;DOMAIN;valuefill.fillValue;Füllwert;
+ESR;DOMAIN;valuefill.fillValue.description;Die Werte-Füllregel ist die einfachste Regel und bewertet fehlerverdächtige Messdaten durch das Austauschen aller Messdaten durch einen benutzerdefinierten Wert.;
 VAL;DOMAIN;CanNotBeEmpty;Dieses Feld muss ausgefüllt werden.;
 VAL;DOMAIN;FieldSizeBetween1and80;Die Feldtextlänge muss zwischen 1 und 80 Zeichen betragen.;
 VAL;DOMAIN;FieldSizeBetween1and4000;Die Feldtextlänge muss zwischen 1 und 4000 Zeichen betragen.;
@@ -3227,7 +3234,7 @@ UNI;REST;readingType.cimCode;CIM-Code;
 UNI;REST;error.unknownErrorOccurred;Es ist ein unbekannter Fehler aufgetreten.;
 UNI;REST;datePicker.todayText;Heute;
 UNI;REST;error.pageNotFoundTitle;Sorry! Die Suche ergab keine Ergebnisse.;
-UNI;REST;general.addCriterion;Kriterium hinzufügen;
+UNI;REST;general.addCriterion;Kriterium hinzufügen.;
 UNI;REST;general.editedOnX;Bearbeitet am {0};
 UNI;REST;general.ok;OK;
 UNI;REST;error.license;Lizenz;
@@ -3268,7 +3275,7 @@ UNI;REST;general.time.hours[many];{0} Stunden;
 UNI;REST;general.time.seconds[many];{0} Sekunden;
 UNI;REST;period.weeks;Woche(n);
 UNI;REST;window.wizard.tools.next;"Next &raquo; Comment: pending question";
-UNI;REST;deviceconfigurations.addDeviceConfigurations;Gerätekonfigurationen hinzufügen;
+UNI;REST;deviceconfigurations.addDeviceConfigurations;Gerätekonfigurationen hinzufügen.;
 UNI;REST;uni.grid.filterpanel.title;Filter;
 UNI;REST;grid.filter.date.label;Datum;
 UNI;REST;general.period.ahead;ahead Comment: pending question;
@@ -3320,7 +3327,7 @@ UNI;REST;general.time.hours[1];{0} Stunde;
 UNI;REST;general.requiredField;Dieses Feld muss ausgefüllt werden.;
 UNI;REST;general.time.seconds_short;{0}s;
 UNI;REST;validationResults.last.days[1];{0} Tag;
-UNI;REST;search.overview.addCriteria.emptyText;Kriterien hinzufügen;
+UNI;REST;search.overview.addCriteria.emptyText;Kriterien hinzufügen.;
 UNI;REST;validationResults.last.milliseconds[many];{0} Millisekunden;
 UNI;REST;device.registerData.value;Wert;
 UNI;REST;error.pageNotFoundPageNotAvailable;Die von Ihnen gesuchte Seite ist nicht verfügbar.;
@@ -3400,7 +3407,7 @@ USR;REST;userDirectories.baseUser;User-Basis-DN;
 USR;REST;userDirectories.userStatus.inactiveDeleted;Inaktiv;
 USR;REST;privilege.fullControl;Umfassende Kontrolle;
 USR;REST;userDirectories.successMsg.added;Benutzerverzeichnis hinzugefügt.;
-USR;REST;general.addUserDirectory;Benutzerverzeichnis hinzufügen;
+USR;REST;general.addUserDirectory;Benutzerverzeichnis hinzufügen.;
 USR;REST;general.roles;Rollen;
 USR;REST;user.userdirectory;Benutzerverzeichnis;
 USR;REST;userDirectories.noSecurityProtocol;Kein Sicherheitsprotokoll.;
@@ -3411,7 +3418,7 @@ USR;REST;userDirectories.type.internal;Intern;
 USR;REST;userDirectories.baseGroup;Gruppen-Basis-DN;
 USR;REST;userDirectories.pagingtoolbarbottom.itemsPerPage;Benutzerverzeichnisse pro Seite;
 USR;REST;general.save;Speichern;
-USR;REST;userDirectories.add;Benutzerverzeichnis hinzufügen;
+USR;REST;userDirectories.add;Benutzerverzeichnis hinzufügen.;
 USR;REST;general.nrOfUsers.selected[0];Kein User ausgewählt.;
 USR;REST;userDirectories.userName;User;
 USR;REST;userDirectories.edit;'{0}' bearbeiten;
@@ -3538,7 +3545,7 @@ APR;REST;general.applicationServer;Anwendungsserver;
 APR;REST;dataExportTasks.messageServices.empty.list.item3;Alle Nachrichten-Services wurden bereits zur Datenexporttask hinzugefügt.;
 APR;REST;general.queue;Warteschlange;
 APR;REST;general.messageServicesCount[many];{0} Nachrichten-Services;
-APR;REST;general.addMessageServices;Nachrichten-Services hinzufügen;
+APR;REST;general.addMessageServices;Nachrichten-Services hinzufügen.;
 APR;REST;general.Errors;Fehler;
 APR;REST;general.monitor;Monitor;
 APR;REST;general.failedOn;Fehlgeschlagen am {0};
@@ -3585,7 +3592,7 @@ APR;REST;appServers.deactivateSuccessMsg;Anwendungsserver deaktiviert.;
 APR;REST;general.applicationServers;Anwendungsserver;
 APR;REST;general.cancel;Abbrechen;
 APR;REST;taskOverview.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Tasks;
-APR;REST;general.addApplicationServer;Anwendungsserver hinzufügen;
+APR;REST;general.addApplicationServer;Anwendungsserver hinzufügen.;
 APR;REST;general.name;Name;
 APR;REST;general.overview;Übersicht;
 APR;REST;general.nrOfMessageServices.selected[1];{0} Nachrichten-Service ausgewählt.;
@@ -3651,7 +3658,6 @@ CPS;REST;customattributesets.noItems;Keine benutzerdefinierten Attributsätze ge
 CPS;REST;general.order;Reihenfolge;
 FIM;REST;importService.history.fileName;Dateiname;
 FIM;REST;general.status;Status;
-FIM;REST;general.workspace;Arbeitsbereich;
 FIM;REST;importService.filePatternInfo.example;Im Folgenden sind einige Beispiele zur Mustersyntax aufgeführt:;
 FIM;REST;importService.history.empty.list.item2;Die Filterkriterien sind zu stark eingegrenzt.;
 FIM;REST;importService.history.empty.list.item1;Für diesen Import-Service steht keine Historie zur Verfügung.;
@@ -3736,7 +3742,7 @@ FIM;REST;importService.filePattern;Dateimuster;
 FIM;REST;importService.activate.message;Die Dateien werden importiert, sobald sie im Import-Ordner abgelegt sind.;
 FIM;REST;general.administration;Administration;
 FIM;REST;importService.history.level;Ebene;
-FIM;REST;general.addImportService;Import-Service hinzufügen;
+FIM;REST;general.addImportService;Import-Service hinzufügen.;
 FIM;REST;general.actions;Aktionen;
 FIM;REST;importService.history.summary;Übersicht;
 FIM;REST;importService.fileImporterPrompt;Einen Datei-Importer auswählen...;
@@ -3809,7 +3815,7 @@ TME;REST;general.day.saturday;Samstag;
 TME;REST;general.period.ago;vor Comment: pending question;
 TME;REST;general.day;Tag;
 TME;REST;general.Now;Jetzt;
-TME;REST;relativeperiod.add;Relativen Zeitabschnitt hinzufügen;
+TME;REST;relativeperiod.add;Relativen Zeitabschnitt hinzufügen.;
 TME;REST;general.ofTheMonth;des Monats;
 TME;REST;general.cancel;Abbrechen;
 TME;REST;relativePeriod.form.end.previewText;Das Enddatum des relativen Zeitabschnitts ist {0}.;
@@ -4657,391 +4663,1580 @@ SCS;DOMAIN;sclc.default.paused#cancelled;Abbrechen;
 SCS;DOMAIN;sclc.default.paused#ongoing;Fortfahren;
 SCS;DOMAIN;sclc.default.pending#cancelled;Abbrechen;
 SCS;DOMAIN;sclc.default.pending#ongoing;Steuerungsprogramm aktivieren;
-SCS;DOMAIN;sclc.default.scheduled#cancelled;;
-SCS;DOMAIN;sclc.default.scheduled#pending;In die Warteschlange für die Abholung stellen;Enqueue for pickup
-SCS;DOMAIN;sclc.default.waiting#cancelled;Abbrechen;Cancel
-SCS;DOMAIN;sclc.default.waiting#ongoing;Bereit zum Fortfahren;Ready to continue
-SCS;DOMAIN;scs.standard.service.call.life.cycle;Standard-Serviceabruf-Lebenszyklus;Default service call life cycle
-SCS;DOMAIN;SerivceCalls;Serviceabrufe bearbeiten;Handle service calls
-SCS;REST;servicecall.remove.msg;Dieser Serviceabruf wird abgebrochen und nicht mehr ausgeführt werden. Möchten Sie fortfahren?;This service call will be canceled and no longer be running. Do you wish to continue?
-SCS;DOMAIN;servicecallhandler.failed;Ausführung des Serviceabruf-Steuerungsprogramms fehlgeschlagen.;Service call handler failed.
-SCS;REST;servicecalls.affectedObject;Betroffenes Objekt;Affected object
-SCS;REST;serviceCalls.empty.list.item1;Es wurden noch keine Serviceabrufe definiert.;No service calls have been defined yet.
-SCS;REST;serviceCalls.empty.list.item2;Die Serviceabrufe sind vorhanden, Sie sind jedoch nicht befugt, sie einzusehen.;Service calls exist, but you don't have permission to view them.
-SCS;REST;serviceCalls.empty.list.item4;Es stimmen keine Serviceabrufe mit dem Filter überein.;No service calls comply with the filter.
-SCS;REST;serviceCalls.empty.title;Keine Serviceabrufe gefunden;No service calls found
-SCS;REST;servicecalls.externalReference;Externe Referenz;External reference
-SCS;REST;servicecalls.log.empty.list;Keine Protokolle für diesen Serviceabruf vorhanden;There are no logs for this service call
-SCS;REST;serviceCalls.log.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Protokollzeilen;{0} - {1} of more than {2} log lines
-SCS;REST;serviceCalls.log.pagingtoolbartop.displayMsg;{0} - {1} von {2} Protokollzeilen;{0} - {1} of {2} log lines
-SCS;REST;serviceCalls.log.pagingtoolbartop.emptyMsg;Keine Protokollzeilen zur Anzeige verfügbar;There are no log lines to display
-SCS;REST;serviceCalls.pagingtoolbarbottom.itemsPerPage;Serviceabrufe pro Seite;Service calls per page
-SCS;REST;serviceCalls.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Serviceabrufen;{0} - {1} of more than {2} service calls
-SCS;REST;serviceCalls.pagingtoolbartop.displayMsg;{0} - {1} von {2} Serviceabrufen;{0} - {1} of {2} service calls
-SCS;REST;serviceCalls.pagingtoolbartop.emptyMsg;Keine Serviceabrufe zur Anzeige verfügbar;There are no service calls to display
-SCS;DOMAIN;serviceCalls.serviceCalls;Serviceabrufe;Service calls
-SCS;DOMAIN;serviceCalls.serviceCalls.description;Serviceabrufe verwalten;Manage service calls
-SCS;DOMAIN;serviceCallTypes.serviceCallTypes;Serviceabruftypen;Service call types
-SCS;DOMAIN;serviceCallTypes.serviceCallTypes.description;Serviceabruftypen verwalten;Manage service call types
-SCT;REST;general.actions;Aktionen;Actions
-SCT;REST;general.administration;Administration;Administration
-SCT;REST;general.attributes;Attribute;Attributes
-SCT;REST;general.cancel;Abbrechen;Cancel
-SCT;REST;general.changeLogLevel;Protokollierebene ändern;Change log level
-SCT;REST;general.lifeCycle;Lebenszyklus;Life cycle
-SCT;REST;general.logLevel;Protokollierebene;Log level
-SCT;REST;general.save;Speichern;Save
-SCT;REST;general.selectALogLevel;Eine Protokollierebene auswählen...;Select a log level...
-SCT;REST;general.selectLogLevel;Eine Protokollierebene auswählen;Select log level
-SCT;REST;general.serviceCalls;Serviceabrufe;Service calls
-SCT;REST;general.serviceCallTypes;Serviceabruftypen;Service call types
-SCT;REST;general.status;Status;Status
-SCT;REST;general.type;Typ;Type
-SCT;REST;general.version;Version;Version
-SCT;REST;servicecalltype.noCASmessage;Dieser Serviceabruftyp hat keine Attribute, die definiert werden müssen.;This service call type has no attributes that need to be defined.
-SCT;REST;serviceCallTypes.empty.list.item1;Es wurden noch keine Serviceabruftypen definiert.;No service call types have been defined yet.
-SCT;REST;serviceCallTypes.empty.list.item2;Die Serviceabruftypen sind vorhanden, Sie sind jedoch nicht befugt, sie einzusehen.;Service call types exist, but you don't have permission to view them.
-SCT;REST;serviceCallTypes.empty.title;Keine Serviceabruftypen gefunden;No service call types found
-SCT;REST;serviceCallTypes.pagingtoolbarbottom.itemsPerPage;Serviceabruftypen pro Seite;Service call types per page
-SCT;REST;serviceCallTypes.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Serviceabruftypen;{0} - {1} of more than {2} service call types
-SCT;REST;serviceCallTypes.pagingtoolbartop.displayMsg;{0} - {1} von {2} Serviceabruftypen;{0} - {1} of {2} service call types
-SCT;REST;serviceCallTypes.pagingtoolbartop.emptyMsg;Keine Serviceabruftypen zur Anzeige verfügbar;There are no service call types to display
-SYS;REST;FileIO;Beim Ausführen von IO an der Datei ist ein Fehler aufgetreten;Failure while doing IO on file
-SYS;REST;MaxFileSizeExceeded;Die Dateigröße darf {0} MB nicht überschreiten;File size should be less than {0} Mb
-TSK;DOMAIN;Created;Erstellt;Created
-TSK;DOMAIN;Ongoing;Laufend;Ongoing
-TSK;DOMAIN;Successful;Erfolgreich;Successful
-UNI;REST;coordinate.coordinateResetTooltip;Auf Koordinaten der Verwendungsstelle zurücksetzen;Reset to usage point coordinates
-UNI;REST;coordinate.noInput;Keine Koordinateneingabe;No coordinates input
-UNI;REST;coordinate.note;Die bearbeiteten Koordinatenwerte werden auch im Grad-, Minuten- und Sekundenformat angezeigt;Edited coordinate values will be displayed also in degrees, minutes, seconds format
-UNI;REST;coordinates.elevationUnit;m;m
-UNI;REST;deviceGeneralInformation.whatsGoingOn;Was passiert gerade;What's going on
-UNI;REST;general.addedOnXApp;Hinzugefügt in {0} an {1};Added in {0} on {1}
-UNI;REST;general.addReadingQualities;Ablesequalitäten hinzufügen;Add reading qualities
-UNI;REST;general.addReadingQuality;Ablesequalität hinzufügen;Add reading quality
-UNI;REST;general.and;Und;And
-UNI;REST;general.count;Zähler;Count
-UNI;REST;general.dayTypes;Tagestypen;Day types
-UNI;REST;general.editedOnXApp;Bearbeitet in {0} an {1};Edited in {0} on {1}
-UNI;REST;general.estimatedOnXApp;Geschätzt in {0} an {1};Estimated in {0} on {1}
-UNI;REST;general.every.days[0];Alle {0} Tage;Every {0} days
-UNI;REST;general.every.days[1];Jeden Tag;Every day
-UNI;REST;general.every.days[many];Alle {0} Tage;Every {0} days
-UNI;REST;general.every.hours[0];Alle {0} Stunden;Every {0} hours
-UNI;REST;general.every.hours[1];Jede Stunde;Every hour
-UNI;REST;general.every.hours[many];Alle {0} Stunden;Every {0} hours
-UNI;REST;general.every.minutes[0];Alle {0} Minuten;Every {0} minutes
-UNI;REST;general.every.minutes[1];Jede Minute;Every minute
-UNI;REST;general.every.minutes[many];Alle {0} Minuten;Every {0} minutes
-UNI;REST;general.every.months[0];Alle {0} Monate;Every {0} months
-UNI;REST;general.every.months[1];Jeden Monat;Every month
-UNI;REST;general.every.months[many];Alle {0} Monate;Every {0} months
-UNI;REST;general.every.seconds[0];Alle {0} Sekunden;Every {0} seconds
-UNI;REST;general.every.seconds[1];Jede Sekunde;Every second
-UNI;REST;general.every.seconds[many];Alle {0} Sekunden;Every {0} seconds
-UNI;REST;general.every.weeks[0];Alle {0} Wochen;Every {0} weeks
-UNI;REST;general.every.weeks[1];Jede Woche;Every week
-UNI;REST;general.every.weeks[many];Alle {0} Wochen;Every {0} weeks
-UNI;REST;general.every.years[0];Alle {0} Jahre;Every {0} years
-UNI;REST;general.every.years[1];Jedes Jahr;Every year
-UNI;REST;general.every.years[many];Alle {0} Jahre;Every {0} years
-UNI;REST;general.fromX;von {0};from {0}
-UNI;REST;general.interval;Intervall;Interval
-UNI;REST;general.noObjectsDefinedYet;Es wurden noch  keine Objekte definiert;No objects defined yet
-UNI;REST;general.noReadingQualitiesAdded;Es wurden keine Ablesequalitäten hinzugefügt;No reading qualities have been added
-UNI;REST;general.notApplicable;Nicht anwendbar;Not applicable
-UNI;REST;general.previewX;Vorschau von '{0}' anzeigen;Preview '{0}'
-UNI;REST;general.readingQuality;Ablesequalität;Reading quality
-UNI;REST;general.readingQuality.field1.emptyText;Ein System auswählen...;Select a system...
-UNI;REST;general.readingQuality.field1.name;System;System
-UNI;REST;general.readingQuality.field2.emptyText;Eine Kategorie auswählen...;Select a category...
-UNI;REST;general.readingQuality.field2.name;Kategorie;Category
-UNI;REST;general.readingQuality.field3.emptyText;Einen Index auswählen...;Select an index...
-UNI;REST;general.readingQuality.field3.name;Index;Index
-UNI;REST;general.readingQuality.invalid;Die Ablesequalität ist ungültig;Reading quality is invalid
-UNI;REST;general.removedOnXApp;Entfernt in {0} an {1};Removed in {0} on {1}
-UNI;REST;general.selectAnObject;Ein Objekt auswählen...;Select an object...
-UNI;REST;general.specifyReadingQuality;Ablesequalität festlegen;Specify reading quality
-UNI;REST;general.specifyReadingQuality.tooltip;Die Wildcard '*' kann im 1. und 3. Abschnitt der Ablesequalität verwendet werden und wird mit allen möglichen Werten übereinstimmen.;The wildcard '*' can be used in the 1st and 3rd part of the reading quality and will match all possible values.
-UNI;REST;general.specifyReadingQualityParts;Abschnitte der Ablesequalität festlegen;Specify reading quality parts
-UNI;REST;general.startOfCalculations;Start der Berechnungen;Start of calculations
-UNI;REST;general.tariffs;Tarife;Tariffs
-UNI;REST;general.timeOfUse;Nutzungszeit;Time of use
-UNI;REST;general.timeOut;Zeitgrenze;Time out
-UNI;REST;general.timeOutMessage;Das Zählen der Suchergebnisse dauerte zu lange.;Counting the search results took too long.
-UNI;REST;general.timeUnit.days[0];{0} Tage;{0} days
-UNI;REST;general.timeUnit.days[1];{0} Tag;{0} day
-UNI;REST;general.timeUnit.days[many];{0} Tage;{0} days
-UNI;REST;general.timeUnit.hours[0];{0} Stunden;{0} hours
-UNI;REST;general.timeUnit.hours[1];{0} Stunde;{0} hour
-UNI;REST;general.timeUnit.hours[many];{0} Stunden;{0} hours
-UNI;REST;general.timeUnit.minutes[0];{0} Minuten;{0} minutes
-UNI;REST;general.timeUnit.minutes[1];{0} Minute;{0} minute
-UNI;REST;general.timeUnit.minutes[many];{0} Minuten;{0} minutes
-UNI;REST;general.timeUnit.seconds[0];{0} Sekunden;{0} seconds
-UNI;REST;general.timeUnit.seconds[1];{0} Sekunde;{0} second
-UNI;REST;general.timeUnit.seconds[many];{0} Sekunden;{0} seconds
-UNI;REST;general.unitOfMeasure;Maßeinheit;Unit of measure
-UNI;REST;general.unknown;Unbekannt;Unknown
-UNI;REST;general.weekOf;Woche vom;Week of
-UNI;REST;HealthCategories.alarm;Alarm;Alarm
-UNI;REST;HealthCategories.all;Alle;Alle
-UNI;REST;HealthCategories.issue;Problem;Issue
-UNI;REST;HealthCategories.process;Prozess;Process
-UNI;REST;HealthCategories.serviceCall;Serviceabruf;Service call
-UNI;REST;location.editLocation;Eingabeort;Input location
-UNI;REST;location.location;Ort;Location
-UNI;REST;location.locationResetTooltip;Auf Ort der Verwendungsstelle zurücksetzen;Reset to usage point location
-UNI;REST;location.typingAddress;Eingabe der Adresse beginnen...;Start typing an address ...
-UNI;REST;process.connectionState;Verbindungsstatus;Connection state
-UNI;REST;process.deviceCycleName;Gerätelebenszyklus;Device life cycle
-UNI;REST;process.deviceState;Gerätestatus;Device state
-UNI;REST;process.issueReasons;Ursache für das Problem;Issue reason
-UNI;REST;process.metrologyConfiguration;Metrologie-Konfiguration;Metrology configuration
-UNI;REST;readingTypesField.addReadingTypes;Ablesetypen hinzufügen;Add reading types
-UNI;REST;readingTypesField.filter.readingTypeName;Ablesetypbezeichnung;Reading type name
-UNI;REST;readingTypesField.grid.empty.list.item1;Es wurden noch keine Ablesetypen definiert.;No reading types have been defined yet.
-UNI;REST;readingTypesField.grid.empty.list.item2;Es stimmen keine Ablesetypen mit dem Filter überein.;No reading types comply with the filter.
-UNI;REST;readingTypesField.grid.empty.list.item3;Die Ablesetypen sind vorhanden, Sie sind jedoch nicht befugt, sie einzusehen.;Reading types exist but you don't have permission to view them.
-UNI;REST;readingTypesField.grid.empty.title;Keine Ablesetypen gefunden.;No reading types found.
-UNI;REST;readingTypesField.grid.infoButtonTooltip;Klicken Sie hier für mehr Informationen;Click for more information
-UNI;REST;readingTypesField.grid.nrOfReadingTypes.selected[0];Keine Ablesetypen ausgewählt;No reading types selected
-UNI;REST;readingTypesField.grid.nrOfReadingTypes.selected[1];{0} Ablesetyp ausgewählt;{0} reading type selected
-UNI;REST;readingTypesField.grid.nrOfReadingTypes.selected[many];{0} Ablesetypen ausgewählt;{0} reading types selected
-UNI;REST;readingTypesField.noAdded;Es wurden keine Ablesetypen hinzugefügt;No reading types have been added
-UNI;REST;readingTypesField.readingTypes;Ablesetypen;Reading types
-UNI;REST;schedulefield.friday;Freitag;Friday
-UNI;REST;schedulefield.monday;Montag;Monday
-UNI;REST;schedulefield.saturday;Samstag;Saturday
-UNI;REST;schedulefield.sunday;Sonntag;Sunday
-UNI;REST;schedulefield.thursday;Donnerstag;Thursday
-UNI;REST;schedulefield.tuesday;Dienstag;Tuesday
-UNI;REST;schedulefield.wednesday;Mittwoch;Wednesday
-UNI;REST;scheduleToStringConverter.and;und;and
-UNI;REST;scheduleToStringConverter.at;um;at
-UNI;REST;scheduleToStringConverter.on;an;on
-UNI;REST;scheduleToStringConverter.onTheDay;am Tag {0};on day {0}
-UNI;REST;scheduleToStringConverter.onTheLastDay;am letzten Tag;on the last day
-UNI;REST;search.field.selection.checkbox.advancedSerach;Erweiterte Suche;Advanced search
-UNI;REST;searchCriteriaDisplay.between;zwischen {0} und {1};between {0} and {1}
-UNI;REST;Uni.property.selectionGrid.noItemsDefined;Es wurden noch keine Elemente definiert.;No items have been defined yet.
-UNI;REST;whatsGoingOn.alarm;Alarm;Alarm
-UNI;REST;whatsGoingOn.assignee;Empfänger: {0};Assignee: {0}
-UNI;REST;whatsGoingOn.due;(fällig am {0});(due {0})
-UNI;REST;whatsGoingOn.dueDate;Fälligkeitsdatum: {0};Due date: {0}
-UNI;REST;whatsGoingOn.issue;Problem;Issue
-UNI;REST;whatsGoingOn.nothingToShow;Keine aktiven Probleme, Prozesse oder Serviceabrufe zur Anzeige vorhanden;No active issues, processes or service calls to show
-UNI;REST;whatsGoingOn.process;Prozess;Process
-UNI;REST;whatsGoingOn.serviceCall;Serviceabruf;Service call
-UNI;REST;whatsGoingOn.status;Status: {0};Status: {0}
-USR;DOMAIN;FieldSizeBetween1and10;Die Feldtextlänge muss zwischen 1 und 10 Zeichen betragen;Field text length should be between 1 and 10 symbols
-USR;DOMAIN;FieldSizeBetween1and256;Die Feldtextlänge muss zwischen 1 und 256 Zeichen betragen;Field text length should be between 1 and 256 symbols
-USR;DOMAIN;FieldSizeBetween1and3;Die Feldtextlänge muss zwischen 1 und 3 Zeichen betragen;Field text length should be between 1 and 3 symbols
-USR;DOMAIN;FieldSizeBetween1and4;Die Feldtextlänge muss zwischen 1 und 4 Zeichen betragen;Field text length should be between 1 and 4 symbols
-USR;DOMAIN;FieldSizeBetween1and64;Die Feldtextlänge muss zwischen 1 und 64 Zeichen betragen;Field text length should be between 1 and 64 symbols
-USR;DOMAIN;FieldSizeBetween1and65;Die Feldtextlänge muss zwischen 1 und 65 Zeichen betragen;Field text length should be between 1 and 65 symbols
-USR;REST;general.lastSuccessfulLogin;Letzte erfolgreiche Anmeldung;Last successful login
-USR;REST;general.lastUnSuccessfulLogin;Letzte fehlgeschlagene Anmeldung;Last unsuccessful login
-USR;REST;role.Browse.empty;Beim Laden der Rollen ist ein Fehler aufgetreten.;An error occurred while loading the roles.
-USR;REST;role.remove.confirmation;Rolle entfernt;Role removed
-USR;REST;role.remove.message;Jeder Benutzer mit dieser Rolle wird die damit verbundenen Privilegien verlieren, außer wenn sie mit anderen Rollen des betreffenden Benutzers verbunden sind.;Any user with this role will lose the associated privileges unless they are associated with other roles for the concerned user.
-USR;REST;role.remove.title;'{0}' entfernen?;Remove '{0}'?
-USR;DOMAIN;UnderlyingIO;Zugrunde liegende IO-Ausnahme;Underlying IO Exception
-USR;REST;user.activity.section;Letzte Aktivität;Recent activity
-USR;REST;user.Browse.empty;Beim Laden der Benutzer ist ein Fehler aufgetreten.;An error occurred while loading the users.
-USR;REST;userDirectories.acknowledgment.setAsDefault;Benutzerverzeichnis als Standard festgelegt;User directory set as default
-VAL;DOMAIN;CanNotChangeFrequency;Die Häufigkeit kann nicht geändert werden;The frequency can not be changed
-VAL;DOMAIN;DeviceGroupMustBeUnique;Es gibt bereits eine KPI für diese Gerätegruppe;There is already a KPI for this device group
-VAL;DOMAIN;DeviceGroupStillInUse;Die Gerätegruppe {0} wird noch von einem Datenvalidierungstask verwendet.;Device group {0} is still in use by a data validation task.
-VAL;DOMAIN;UsagePointTaskValidatedSuccesfully;Verwendungsstelle {0} erfolgreich validiert an {1};Usage point {0} validated successfully on {1}
-VDR;DOMAIN;com.elster.jupiter.validators.impl.ReadingQualitiesValidator;Ablesequalitäten;Reading qualities
-VDR;DOMAIN;readingQualities;Ablesequalitäten;Reading qualities
-VDR;DOMAIN;ReadingQualityAccepted;Manuell anerkannt;Manually accepted
-VDR;DOMAIN;ReadingQualityAdded;Manuell hinzugefügt;Manually added
-VDR;DOMAIN;ReadingQualityAlarmFlag;Alarm-Markierung;Alarm flag
-VDR;DOMAIN;ReadingQualityAllIndexes;Alle Indizes;All indexes
-VDR;DOMAIN;ReadingQualityAllSystems;Alle Systeme;All systems
-VDR;DOMAIN;ReadingQualityBatteryLow;Niedriger Batteriestand;Battery low
-VDR;DOMAIN;ReadingQualityCategory_DATACOLLECTION;Datenerfassung;Data collection
-VDR;DOMAIN;ReadingQualityCategory_DERIVED;Abgeleitet;Derived
-VDR;DOMAIN;ReadingQualityCategory_DIAGNOSTICS;Diagnosen;Diagnostics
-VDR;DOMAIN;ReadingQualityCategory_EDITED;Bearbeitet;Edited
-VDR;DOMAIN;ReadingQualityCategory_ESTIMATED;Geschätzt;Estimated
-VDR;DOMAIN;ReadingQualityCategory_OBSOLETE_OSCILLATORY;Oszillierend;Oscillatory
-VDR;DOMAIN;ReadingQualityCategory_POWERQUALITY;Leistungsqualität;Power quality
-VDR;DOMAIN;ReadingQualityCategory_PROJECTED;Projiziert;Projected
-VDR;DOMAIN;ReadingQualityCategory_QUESTIONABLE;Bedenklich;Questionable
-VDR;DOMAIN;ReadingQualityCategory_REASONABILITY;Plausibilität;Reasonability
-VDR;DOMAIN;ReadingQualityCategory_TAMPER;Tamper;Tamper
-VDR;DOMAIN;ReadingQualityCategory_VALID;Gültig;Valid
-VDR;DOMAIN;ReadingQualityCategory_VALIDATION;Validierung;Validation
-VDR;DOMAIN;ReadingQualityClockChanged;Uhr geändert;Clock changed
-VDR;DOMAIN;ReadingQualityClockError;Uhren-Fehler;Clock error
-VDR;DOMAIN;ReadingQualityClockSetBackward;Uhr zurückgestellt;Clock set backward
-VDR;DOMAIN;ReadingQualityClockSetForward;Uhr vorgestellt;Clock set forward
-VDR;DOMAIN;ReadingQualityConfigurationChanged;Konfiguration geändert;Configuration changed
-VDR;DOMAIN;ReadingQualityCoverOpened;Deckel geöffnet;Cover opened
-VDR;DOMAIN;ReadingQualityCRCError;CRC-Fehler;CRC error
-VDR;DOMAIN;ReadingQualityCustomerRead;Ablesung durch den Kunden;Customer read
-VDR;DOMAIN;ReadingQualityDataOutsideExpectedRange;Daten außerhalb des erwarteten Bereichs;Data outside expected range
-VDR;DOMAIN;ReadingQualityDataValid;Daten gültig;Data valid
-VDR;DOMAIN;ReadingQualityDeterministic;Hergeleitet - deterministisch;Derived - deterministic
-VDR;DOMAIN;ReadingQualityDiagnosticsFlag;Diagnosen-Markierung;Diagnostics flag
-VDR;DOMAIN;ReadingQualityDstChangeOccurred;Bearbeitung der Sommerzeit ausgeführt;DST change occurred
-VDR;DOMAIN;ReadingQualityDstInEffect;Sommerzeit angewendet;DST in effect
-VDR;DOMAIN;ReadingQualityEditGeneric;Manuell bearbeitet - generisch;Manually edited - generic
-VDR;DOMAIN;ReadingQualityErrorCode;Fehlercode;Error code
-VDR;DOMAIN;ReadingQualityEstimateGeneric;Geschätzt - generisch;Estimated - generic
-VDR;DOMAIN;ReadingQualityExcessiveOutageCount;Übermäßige Ausfallzählung;Excessive outage count
-VDR;DOMAIN;ReadingQualityFailedProbeAttempt;Scanversuch fehlgeschlagen;Failed probe attempt
-VDR;DOMAIN;ReadingQualityIndeterminate;Unbestimmt;Indeterminate
-VDR;DOMAIN;ReadingQualityInferred;Hergeleitet - erschlossen;Derived - inferred
-VDR;DOMAIN;ReadingQualityKnownMissingRead;Bekannte fehlende Ablesung;Known missing read
-VDR;DOMAIN;ReadingQualityLoadControlOccurred;Lastkontrolle ausgeführt;Load control occurred
-VDR;DOMAIN;ReadingQualityLogicalDisconnect;Logische Trennung;Logical disconnect
-VDR;DOMAIN;ReadingQualityLongInterval;Langes Intervall;Long interval
-VDR;DOMAIN;ReadingQualityManualRead;Manuelle Ablesung;Manual read
-VDR;DOMAIN;ReadingQualityNotRecording;Daten werden nicht aufgezeichnet;Not recording
-VDR;DOMAIN;ReadingQualityOther;Sonstige;Other
-VDR;DOMAIN;ReadingQualityOverflowConditionDetected;Überlaufbedingung ermittelt;Overflow condition detected
-VDR;DOMAIN;ReadingQualityParityError;Paritätsfehler;Parity error
-VDR;DOMAIN;ReadingQualityPartialInterval;Partielles Intervall;Partial interval
-VDR;DOMAIN;ReadingQualityPhaseFailure;Phasenausfall;Phase failure
-VDR;DOMAIN;ReadingQualityPowerDown;Ausschalten;Power down
-VDR;DOMAIN;ReadingQualityPowerFail;Netzausfall;Power fail
-VDR;DOMAIN;ReadingQualityPowerQualityFlag;Leistungsqualität-Markierung;Power quality flag
-VDR;DOMAIN;ReadingQualityPowerUp;Einschalten;Power up
-VDR;DOMAIN;ReadingQualityPqCounter;PQ-Zähler;PQ counter
-VDR;DOMAIN;ReadingQualityProjectedGeneric;Projiziert - generisch;Projected - generic
-VDR;DOMAIN;ReadingQualityRAMChecksumError;RAM-Prüfsummenfehler;RAM checksum error
-VDR;DOMAIN;ReadingQualityRejected;Manuell abgelehnt;Manually rejected
-VDR;DOMAIN;ReadingQualityResetOccurred;Reset ausgeführt;Reset occurred
-VDR;DOMAIN;ReadingQualityRevenueProtection;Einnahmensicherung;Revenue protection
-VDR;DOMAIN;ReadingQualityRevenueProtectionSuspect;Einnahmensicherung fehlerverdächtig;Revenue protection suspect
-VDR;DOMAIN;ReadingQualityReverseRotation;Rückwärtslauf;Reverse rotation
-VDR;DOMAIN;ReadingQualityROMChecksumError;ROM-Prüfsummenfehler;ROM checksum error
-VDR;DOMAIN;ReadingQualitySensorFailure;Sensor-Ausfall;Sensor failure
-VDR;DOMAIN;ReadingQualityServiceDisconnectSwitching;Service-Trennschaltvorrichtung;Service disconnect switching
-VDR;DOMAIN;ReadingQualityShortLong;Kurz lang;Short long
-VDR;DOMAIN;ReadingQualitySkippedInterval;Übersprungenes Intervall;Skipped interval
-VDR;DOMAIN;ReadingQualityStaticDataFlag;Statische Datenmarkierung;Static data flag
-VDR;DOMAIN;ReadingQualitySuspect;Fehlerverdächtig;Suspect
-VDR;DOMAIN;ReadingQualitySystem_ENDDEVICE;Gerät;Device
-VDR;DOMAIN;ReadingQualitySystem_EXTERNAL;Extern festgelegt (Drittanbieter);Externally specified (third party)
-VDR;DOMAIN;ReadingQualitySystem_MDC;MDC;MDC
-VDR;DOMAIN;ReadingQualitySystem_MDM;MDM;MDM
-VDR;DOMAIN;ReadingQualitySystem_NOTAPPLICABLE;Nicht anwendbar;Not applicable
-VDR;DOMAIN;ReadingQualitySystem_OTHER;Anderes System (Drittanbieter);Other system (third party)
-VDR;DOMAIN;ReadingQualityTestData;Testdaten;Test data
-VDR;DOMAIN;ReadingQualityTouSumCheck;Validierung fehlgeschlagen - TOU-Prüfsummenfehler;Failed validation - TOU sum check failure
-VDR;DOMAIN;ReadingQualityUsageAbove;Validierung fehlgeschlagen - Verwendung über dem Höchstwert;Failed validation - usage above maximum
-VDR;DOMAIN;ReadingQualityUsageAbovePercent;Validierung fehlgeschlagen - Verwendung über dem maximalen Prozentsatz;Failed validation - usage above maximum percentage
-VDR;DOMAIN;ReadingQualityUsageBelow;Validierung fehlgeschlagen - Verwendung unter dem Mindestwert;Failed validation - usage below minimum
-VDR;DOMAIN;ReadingQualityUsageBelowPercent;Validierung fehlgeschlagen - Verwendung unter dem minimalen Prozentsatz;Failed validation - usage below minimum percentage
-VDR;DOMAIN;ReadingQualityUsageOnInactiveMeter;Validierung fehlgeschlagen - Verwendung an einem inaktiven Zähler;Failed validation - usage on inactive meter
-VDR;DOMAIN;ReadingQualityValidated;Validiert;Validated
-VDR;DOMAIN;ReadingQualityValidationGeneric;Validierung fehlgeschlagen - generisch;Failed validation - generic
-VDR;DOMAIN;ReadingQualityWatchdogFlag;Überwachungs-Markierung;Watchdog flag
-VDR;DOMAIN;ReadingQualityZeroUsage;Validierung fehlgeschlagen - keine Verwendungen;Failed validation - zero usages
-WS;REST;FieldIsRequired;Dieses Feld ist erforderlich;Dieses Feld ist erforderlich
-WS;REST;NoSuchEndPointConfig;Es sind keine derartigen Verwendungsstellen-Konfigurationen vorhanden;No such end point configurations exists
-WS;REST;NoSuchGroup;Keine derartige Rolle;No such role
-WS;REST;NoSuchWebService;Es wurde kein derartiger Webservice registriert;No such web service was registered
-WS;REST;PayloadExpected;Diese Methode erfordert Nutzdaten;This method requires a payload
-WSS;REST;endPointAdd.addTitle;Webservice-Endpunkt hinzufügen;Add webservice endpoint
-WSS;REST;endPointAdd.all;Alle;Alle
-WSS;REST;endPointAdd.authentication;Authentifizierung;Authentication
-WSS;REST;endPointAdd.editTitle;'{0}' bearbeiten;Edit '{0}'
-WSS;REST;endPointAdd.endpointAdded;Webservice-Endpunkt hinzugefügt;Webservice endpoint added
-WSS;REST;endPointAdd.endpointSaved;Webservice-Endpunkt gespeichert;Webservice endpoint saved
-WSS;REST;endPointAdd.httpCompression;HTTP-Komprimierung;HTTP-Komprimierung
-WSS;REST;endPointAdd.logLevel;Protokollierebene;Log level
-WSS;REST;endPointAdd.name;Name;Name
-WSS;REST;endPointAdd.password;Passwort;Password
-WSS;REST;endPointAdd.schemeValidation;Schemavalidierung;Schemavalidierung
-WSS;REST;endPointAdd.traceRequestFileName;Dateiname der Ablaufverfolgungsanforderung;Trace request file name
-WSS;REST;endPointAdd.traceRequests;Ablaufverfolgungsanforderungen;Ablaufverfolgungsanforderungen
-WSS;REST;endPointAdd.url;URL;URL
-WSS;REST;endPointAdd.urlEmptyText;Geben Sie das Format als https://<Host>:<Schnittstelle>/<Pfad> an;Provide the format as https://<host>:<port>/<path>
-WSS;REST;endPointAdd.urlPath;URL-Pfad;Url Path
-WSS;REST;endPointAdd.urlPathEmptyText;Geben Sie den Pfad z. B. https://Anwendungsserver:Schnittstelle/<Pfad> an;Provide the path e.g. https://applicationserver:port/<path>
-WSS;REST;endPointAdd.userName;Benutzername;User name
-WSS;REST;endPointAdd.userRole;Benutzerrolle;User role
-WSS;REST;endPointAdd.Webservice;Webservice;Webservice
-WSS;DOMAIN;field.required;Dieses Feld ist erforderlich;Dieses Feld ist erforderlich
-WSS;DOMAIN;FieldMustBeUnique;Dieses Feld muss eindeutig sein;This field must be unique
-WSS;REST;general.actions;Aktionen;Actions
-WSS;REST;general.activate;Aktivieren;Activate
-WSS;REST;general.active;Aktiv;Active
-WSS;REST;general.add;Hinzufügen;Add
-WSS;REST;general.addWebserviceEndpoint;Webservice-Endpunkt hinzufügen;Add webservice endpoint
-WSS;REST;general.administration;Administration;Administration
-WSS;REST;general.cancel;Abbrechen;Cancel
-WSS;REST;general.deactivate;Deaktivieren;Deactivate
-WSS;REST;general.edit;Bearbeiten;Edit
-WSS;REST;general.Edit;Bearbeiten;Edit
-WSS;REST;general.formErrorEndPointActive;Einige Attribute können nur geändert werden, wenn der Status des Webservice-Endpunkts inaktiv ist.;Some attributes can only be changed when the status of the webservice endpoint is inactive.
-WSS;REST;general.formErrors;Diese Seite enthält Fehler, die Ihre Aufmerksamkeit erfordern.;There are errors on this page that require your attention.
-WSS;REST;general.inactive;Inaktiv;Inactive
-WSS;REST;general.Logging;Protokollierung;Logging
-WSS;REST;general.logging;Protokollierung;Logging
-WSS;REST;general.logLevel;Protokollierebene;Log level
-WSS;REST;general.message;Nachricht;Message
-WSS;REST;general.name;Name;Name
-WSS;REST;general.no;Nein;No
-WSS;REST;general.notAvailable;nicht verfügbar;not available
-WSS;REST;general.overview;Übersicht;Overview
-WSS;REST;general.password;Passwort;Password
-WSS;REST;general.remove;Entfernen;Remove
-WSS;REST;general.removeX;'{0}' entfernen?;Remove '{0}'?
-WSS;REST;general.save;Speichern;Save
-WSS;REST;general.status;Status;Status
-WSS;REST;general.timestamp;Zeitstempel;Timestamp
-WSS;REST;general.type;Typ;Type
-WSS;REST;general.url;URL;URL
-WSS;REST;general.userName;Benutzername;Username
-WSS;REST;general.userRole;Benutzerrolle;User role
-WSS;REST;general.webservice;Webservice;Webservice
-WSS;REST;general.webservices;Webservices;Webservices
-WSS;REST;general.xActivated;{0} aktiviert;{0} activated
-WSS;REST;general.xDeactivated;{0} deaktiviert;{0} deactivated
-WSS;REST;general.yes;Ja;Yes
-WSS;DOMAIN;InvalidFileName;Ungültiger Dateiname;Invalid file name
-WSS;DOMAIN;InvalidPath;Ungültiger Pfad;Invalid path
-WSS;REST;log.pagingtoolbarbottom.itemsPerPage;Protokollzeilen pro Seite;Log lines per page
-WSS;DOMAIN;privilege.administrate.webservices;Verwalten;Administrate
-WSS;DOMAIN;privilege.view.webservices;Ansicht;View
-WSS;DOMAIN;ThisFieldIsTooLong;Dieses Feld ist zu lang;This field is too long
-WSS;REST;webservices.addWebServiceEndpoint;Webservice-Endpunkt hinzufügen;Add webservice endpoint
-WSS;REST;webservices.authenticationRequired;Authentifizierung;Authentication
-WSS;REST;webservices.empty.title;Keine Webservice-Endpunkte gefunden;No webservice endpoints found
-WSS;REST;webservices.httpCompression;HTTP-Komprimierung;HTTP-Komprimierung
-WSS;REST;webservices.log.empty.list;Keine Protokolle für diesen Webservice-Endpunkt vorhanden;There are no logs for this webservice endpoint
-WSS;REST;webservices.log.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Protokollzeilen;{0} - {1} of more than {2} log lines
-WSS;REST;webservices.log.pagingtoolbartop.displayMsg;{0} - {1} von {2} Protokollzeilen;{0} - {1} of {2} log lines
-WSS;REST;webservices.log.pagingtoolbartop.emptyMsg;Keine Protokollzeilen zur Anzeige verfügbar;There are no log lines to display
-WSS;REST;webservices.mpty;Es wurden noch keine Webservice-Endpunkte definiert.;No webservice endpoints have been defined yet.
-WSS;REST;webservices.pagingtoolbarbottom.itemsPerPage;Webservice-Endpunkte pro Seite;Webservice endpoints per page
-WSS;REST;webservices.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Webservice-Endpunkten;{0} - {1} of more than {2} webservice endpoints
-WSS;REST;webservices.pagingtoolbartop.displayMsg;{0} - {1} von {2} Webservice-Endpunkten;{0} - {1} of {2} webservice endpoints
-WSS;REST;webservices.pagingtoolbartop.emptyMsg;Keine Webservice-Endpunkte zur Anzeige verfügbar;There are no webservice endpoints to display
-WSS;REST;webservices.remove.msg;Der Webservice-Endpunkt wird entfernt und wird nicht mehr verfügbar sein.;This webservice endpoint will be removed and no longer be available.
-WSS;REST;webservices.remove.success.msg;Webservice-Endpunkte entfernt;Webservice endpoint removed
-WSS;REST;webservices.schemeValidation;Schemavalidierung;Schemavalidierung
-WSS;REST;webservices.traceRequests;Ablaufverfolgungsanforderungen;Ablaufverfolgungsanforderungen
-WSS;REST;webservices.traceRequestsFileName;Dateiname der Ablaufverfolgungsanforderungen;Dateiname der Ablaufverfolgungsanforderungen
-WSS;REST;webservices.webserviceEndpointOverview;Übersicht der Webservice-Endpunkte;Webservice endpoint overview
-WSS;REST;webservices.webserviceEndpoints;Webservice-Endpunkte;Webservice-Endpunkte
-WSS;DOMAIN;webservices.webservices;Webservices;Webservices
-WSS;DOMAIN;webservices.webservices.description;Webservices verwalten;Manage webservices
-WS;REST;webservices.authentication.basic_authentication;Basisauthentifizierung;Basic authentication
-WS;REST;webservices.authentication.none;Keine Authentifizierung;No authentication
-WS;REST;webservices.direction.inbound;Inbound;Inbound
-WS;REST;webservices.direction.outbound;Outbound;Outbound
-WS;REST;webservices.loglevel.config;Konfiguration;Configuration
-WS;REST;webservices.loglevel.fine;Fein;Fine
-WS;REST;webservices.loglevel.finer;Feiner;Finer
-WS;REST;webservices.loglevel.finest;Am feinsten;Finest
-WS;REST;webservices.loglevel.info;Informationen;Information
-WS;REST;webservices.loglevel.severe;Schwerwiegend;Severe
-WS;REST;webservices.loglevel.warning;Warnung;Warning
+SCS;DOMAIN;sclc.default.scheduled#cancelled;Abbrechen;
+SCS;DOMAIN;sclc.default.scheduled#pending;In die Warteschlange für die Abholung stellen;
+SCS;DOMAIN;sclc.default.waiting#cancelled;Abbrechen;
+SCS;DOMAIN;sclc.default.waiting#ongoing;Bereit zum Fortfahren;
+SCS;DOMAIN;scs.standard.service.call.life.cycle;Standard-Serviceabruf-Lebenszyklus;
+SCS;DOMAIN;SerivceCalls;Serviceabrufe bearbeiten;
+SCS;REST;servicecall.remove.msg;Dieser Serviceabruf wird abgebrochen und nicht mehr ausgeführt werden. Möchten Sie fortfahren?;
+SCS;DOMAIN;servicecallhandler.failed;Ausführung des Serviceabruf-Steuerungsprogramms fehlgeschlagen.;
+SCS;REST;servicecalls.affectedObject;Betroffenes Objekt;
+SCS;REST;serviceCalls.empty.list.item1;Es wurden noch keine Serviceabrufe definiert.;
+SCS;REST;serviceCalls.empty.list.item2;Die Serviceabrufe sind vorhanden, Sie sind jedoch nicht befugt, sie einzusehen.;
+SCS;REST;serviceCalls.empty.list.item4;Es stimmen keine Serviceabrufe mit dem Filter überein.;
+SCS;REST;serviceCalls.empty.title;Keine Serviceabrufe gefunden;
+SCS;REST;servicecalls.externalReference;Externe Referenz;
+SCS;REST;servicecalls.log.empty.list;Keine Protokolle für diesen Serviceabruf vorhanden;
+SCS;REST;serviceCalls.log.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Protokollzeilen;
+SCS;REST;serviceCalls.log.pagingtoolbartop.displayMsg;{0} - {1} von {2} Protokollzeilen;
+SCS;REST;serviceCalls.log.pagingtoolbartop.emptyMsg;Keine Protokollzeilen zur Anzeige verfügbar;
+SCS;REST;serviceCalls.pagingtoolbarbottom.itemsPerPage;Serviceabrufe pro Seite;S
+SCS;REST;serviceCalls.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Serviceabrufen;
+SCS;REST;serviceCalls.pagingtoolbartop.displayMsg;{0} - {1} von {2} Serviceabrufen;
+SCS;REST;serviceCalls.pagingtoolbartop.emptyMsg;Keine Serviceabrufe zur Anzeige verfügbar;
+SCS;DOMAIN;serviceCalls.serviceCalls;Serviceabrufe;
+SCS;DOMAIN;serviceCalls.serviceCalls.description;Serviceabrufe verwalten;
+SCS;DOMAIN;serviceCallTypes.serviceCallTypes;Serviceabruftypen;
+SCS;DOMAIN;serviceCallTypes.serviceCallTypes.description;
+SCT;REST;general.actions;Aktionen;
+SCT;REST;general.administration;Administration;
+SCT;REST;general.attributes;Attribute;
+SCT;REST;general.cancel;Abbrechen;
+SCT;REST;general.changeLogLevel;Protokollierebene ändern;
+SCT;REST;general.lifeCycle;Lebenszyklus;
+SCT;REST;general.logLevel;Protokollierebene;
+SCT;REST;general.save;Speichern;
+SCT;REST;general.selectALogLevel;Eine Protokollierebene auswählen...;
+SCT;REST;general.selectLogLevel;Eine Protokollierebene auswählen;
+SCT;REST;general.serviceCalls;Serviceabrufe;
+SCT;REST;general.serviceCallTypes;Serviceabruftypen;
+SCT;REST;general.status;Status;
+SCT;REST;general.type;Typ;
+SCT;REST;general.version;Version;
+SCT;REST;servicecalltype.noCASmessage;Dieser Serviceabruftyp hat keine Attribute, die definiert werden müssen.;
+SCT;REST;serviceCallTypes.empty.list.item1;Es wurden noch keine Serviceabruftypen definiert.;
+SCT;REST;serviceCallTypes.empty.list.item2;Die Serviceabruftypen sind vorhanden, Sie sind jedoch nicht befugt, sie einzusehen.;
+SCT;REST;serviceCallTypes.empty.title;Keine Serviceabruftypen gefunden;
+SCT;REST;serviceCallTypes.pagingtoolbarbottom.itemsPerPage;Serviceabruftypen pro Seite;e
+SCT;REST;serviceCallTypes.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Serviceabruftypen;
+SCT;REST;serviceCallTypes.pagingtoolbartop.displayMsg;{0} - {1} von {2} Serviceabruftypen;
+SCT;REST;serviceCallTypes.pagingtoolbartop.emptyMsg;Keine Serviceabruftypen zur Anzeige verfügbar;
+SYS;REST;FileIO;Beim Ausführen von IO an der Datei ist ein Fehler aufgetreten;
+SYS;REST;MaxFileSizeExceeded;Die Dateigröße darf {0} MB nicht überschreiten;
+TSK;DOMAIN;Created;Erstellt;
+TSK;DOMAIN;Ongoing;Laufend;
+TSK;DOMAIN;Successful;Erfolgreich;
+UNI;REST;coordinate.coordinateResetTooltip;Auf Koordinaten der Verwendungsstelle zurücksetzen;
+UNI;REST;coordinate.noInput;Keine Koordinateneingabe;
+UNI;REST;coordinate.note;Die bearbeiteten Koordinatenwerte werden auch im Grad-, Minuten- und Sekundenformat angezeigt;
+UNI;REST;coordinates.elevationUnit;m;
+UNI;REST;deviceGeneralInformation.whatsGoingOn;Was passiert gerade;
+UNI;REST;general.addedOnXApp;Hinzugefügt in {0} an {1};
+UNI;REST;general.addReadingQualities;Ablesequalitäten hinzufügen;
+UNI;REST;general.addReadingQuality;Ablesequalität hinzufügen;
+UNI;REST;general.and;Und;
+UNI;REST;general.count;Zähler;
+UNI;REST;general.dayTypes;Tagestypen;
+UNI;REST;general.editedOnXApp;Bearbeitet in {0} an {1};
+UNI;REST;general.estimatedOnXApp;Geschätzt in {0} an {1};
+UNI;REST;general.every.days[0];Alle {0} Tage;
+UNI;REST;general.every.days[1];Jeden Tag;
+UNI;REST;general.every.days[many];Alle {0} Tage;
+UNI;REST;general.every.hours[0];Alle {0} Stunden;
+UNI;REST;general.every.hours[1];Jede Stunde;
+UNI;REST;general.every.hours[many];Alle {0} Stunden;
+UNI;REST;general.every.minutes[0];Alle {0} Minuten;
+UNI;REST;general.every.minutes[1];Jede Minute;
+UNI;REST;general.every.minutes[many];Alle {0} Minuten;
+UNI;REST;general.every.months[0];Alle {0} Monate;
+UNI;REST;general.every.months[1];Jeden Monat;
+UNI;REST;general.every.months[many];Alle {0} Monate;
+UNI;REST;general.every.seconds[0];Alle {0} Sekunden;
+UNI;REST;general.every.seconds[1];Jede Sekunde;
+UNI;REST;general.every.seconds[many];Alle {0} Sekunden;
+UNI;REST;general.every.weeks[0];Alle {0} Wochen;
+UNI;REST;general.every.weeks[1];Jede Woche;
+UNI;REST;general.every.weeks[many];Alle {0} Wochen;
+UNI;REST;general.every.years[0];Alle {0} Jahre;
+UNI;REST;general.every.years[1];Jedes Jahr;
+UNI;REST;general.every.years[many];Alle {0} Jahre;
+UNI;REST;general.fromX;von {0};
+UNI;REST;general.interval;Intervall;
+UNI;REST;general.noObjectsDefinedYet;Es wurden noch  keine Objekte definiert;
+UNI;REST;general.noReadingQualitiesAdded;Es wurden keine Ablesequalitäten hinzugefügt;
+UNI;REST;general.notApplicable;Nicht anwendbar;
+UNI;REST;general.previewX;Vorschau von '{0}' anzeigen;
+UNI;REST;general.readingQuality;Ablesequalität;
+UNI;REST;general.readingQuality.field1.emptyText;Ein System auswählen...;
+UNI;REST;general.readingQuality.field1.name;System;
+UNI;REST;general.readingQuality.field2.emptyText;Eine Kategorie auswählen...;
+UNI;REST;general.readingQuality.field2.name;Kategorie;
+UNI;REST;general.readingQuality.field3.emptyText;Einen Index auswählen...;
+UNI;REST;general.readingQuality.field3.name;Index;
+UNI;REST;general.readingQuality.invalid;Die Ablesequalität ist ungültig;
+UNI;REST;general.removedOnXApp;Entfernt in {0} an {1};
+UNI;REST;general.selectAnObject;Ein Objekt auswählen...;
+UNI;REST;general.specifyReadingQuality;Ablesequalität festlegen;
+UNI;REST;general.specifyReadingQuality.tooltip;Die Wildcard '*' kann im 1. und 3. Abschnitt der Ablesequalität verwendet werden und wird mit allen möglichen Werten übereinstimmen.;
+UNI;REST;general.specifyReadingQualityParts;Abschnitte der Ablesequalität festlegen;
+UNI;REST;general.startOfCalculations;Start der Berechnungen;
+UNI;REST;general.tariffs;Tarife;
+UNI;REST;general.timeOfUse;Nutzungszeit;
+UNI;REST;general.timeOut;Zeitgrenze;
+UNI;REST;general.timeOutMessage;Das Zählen der Suchergebnisse dauerte zu lange.;
+UNI;REST;general.timeUnit.days[0];{0} Tage;
+UNI;REST;general.timeUnit.days[1];{0} Tag;
+UNI;REST;general.timeUnit.days[many];{0} Tage;
+UNI;REST;general.timeUnit.hours[0];{0} Stunden;
+UNI;REST;general.timeUnit.hours[1];{0} Stunde;
+UNI;REST;general.timeUnit.hours[many];{0} Stunden;
+UNI;REST;general.timeUnit.minutes[0];{0} Minuten;
+UNI;REST;general.timeUnit.minutes[1];{0} Minute;
+UNI;REST;general.timeUnit.minutes[many];{0} Minuten;
+UNI;REST;general.timeUnit.seconds[0];{0} Sekunden;
+UNI;REST;general.timeUnit.seconds[1];{0} Sekunde;
+UNI;REST;general.timeUnit.seconds[many];{0} Sekunden;
+UNI;REST;general.unitOfMeasure;Maßeinheit;
+UNI;REST;general.unknown;Unbekannt;
+UNI;REST;general.weekOf;Woche vom;
+UNI;REST;HealthCategories.alarm;Alarm;
+UNI;REST;HealthCategories.all;Alle;
+UNI;REST;HealthCategories.issue;Problem;
+UNI;REST;HealthCategories.process;Prozess;
+UNI;REST;HealthCategories.serviceCall;Serviceabruf;
+UNI;REST;location.editLocation;Eingabeort;
+UNI;REST;location.location;Ort;
+UNI;REST;location.locationResetTooltip;Auf Ort der Verwendungsstelle zurücksetzen;
+UNI;REST;location.typingAddress;Eingabe der Adresse beginnen...;
+UNI;REST;process.connectionState;Verbindungsstatus;
+UNI;REST;process.deviceCycleName;Gerätelebenszyklus;
+UNI;REST;process.deviceState;Gerätestatus;
+UNI;REST;process.issueReasons;Ursache für das Problem;
+UNI;REST;process.metrologyConfiguration;Metrologie-Konfiguration;
+UNI;REST;readingTypesField.addReadingTypes;Ablesetypen hinzufügen;
+UNI;REST;readingTypesField.filter.readingTypeName;Ablesetypbezeichnung;
+UNI;REST;readingTypesField.grid.empty.list.item1;Es wurden noch keine Ablesetypen definiert.;
+UNI;REST;readingTypesField.grid.empty.list.item2;Es stimmen keine Ablesetypen mit dem Filter überein.;
+UNI;REST;readingTypesField.grid.empty.list.item3;Die Ablesetypen sind vorhanden, Sie sind jedoch nicht befugt, sie einzusehen.;
+UNI;REST;readingTypesField.grid.empty.title;Keine Ablesetypen gefunden.;
+UNI;REST;readingTypesField.grid.infoButtonTooltip;Klicken Sie hier für mehr Informationen;
+UNI;REST;readingTypesField.grid.nrOfReadingTypes.selected[0];Keine Ablesetypen ausgewählt;
+UNI;REST;readingTypesField.grid.nrOfReadingTypes.selected[1];{0} Ablesetyp ausgewählt;
+UNI;REST;readingTypesField.grid.nrOfReadingTypes.selected[many];{0} Ablesetypen ausgewählt;
+UNI;REST;readingTypesField.noAdded;Es wurden keine Ablesetypen hinzugefügt;
+UNI;REST;readingTypesField.readingTypes;Ablesetypen;
+UNI;REST;schedulefield.friday;Freitag;
+UNI;REST;schedulefield.monday;Montag;
+UNI;REST;schedulefield.saturday;Samstag;
+UNI;REST;schedulefield.sunday;Sonntag;
+UNI;REST;schedulefield.thursday;Donnerstag;
+UNI;REST;schedulefield.tuesday;Dienstag;
+UNI;REST;schedulefield.wednesday;Mittwoch;
+UNI;REST;scheduleToStringConverter.and;und;
+UNI;REST;scheduleToStringConverter.at;um;
+UNI;REST;scheduleToStringConverter.on;an;
+UNI;REST;scheduleToStringConverter.onTheDay;am Tag {0};
+UNI;REST;scheduleToStringConverter.onTheLastDay;am letzten Tag;
+UNI;REST;search.field.selection.checkbox.advancedSerach;Erweiterte Suche;
+UNI;REST;searchCriteriaDisplay.between;zwischen {0} und {1};
+UNI;REST;Uni.property.selectionGrid.noItemsDefined;Es wurden noch keine Elemente definiert.;
+UNI;REST;whatsGoingOn.alarm;Alarm;
+UNI;REST;whatsGoingOn.assignee;Empfänger: {0};
+UNI;REST;whatsGoingOn.due;(fällig am {0});
+UNI;REST;whatsGoingOn.dueDate;Fälligkeitsdatum: {0};
+UNI;REST;whatsGoingOn.issue;Problem;
+UNI;REST;whatsGoingOn.nothingToShow;Keine aktiven Probleme, Prozesse oder Serviceabrufe zur Anzeige vorhanden;
+UNI;REST;whatsGoingOn.process;Prozess;
+UNI;REST;whatsGoingOn.serviceCall;Serviceabruf;
+UNI;REST;whatsGoingOn.status;Status: {0};
+USR;DOMAIN;FieldSizeBetween1and10;Die Feldtextlänge muss zwischen 1 und 10 Zeichen betragen;
+USR;DOMAIN;FieldSizeBetween1and256;Die Feldtextlänge muss zwischen 1 und 256 Zeichen betragen;
+USR;DOMAIN;FieldSizeBetween1and3;Die Feldtextlänge muss zwischen 1 und 3 Zeichen betragen;
+USR;DOMAIN;FieldSizeBetween1and4;Die Feldtextlänge muss zwischen 1 und 4 Zeichen betragen;
+USR;DOMAIN;FieldSizeBetween1and64;Die Feldtextlänge muss zwischen 1 und 64 Zeichen betragen;
+USR;DOMAIN;FieldSizeBetween1and65;Die Feldtextlänge muss zwischen 1 und 65 Zeichen betragen;
+USR;REST;general.lastSuccessfulLogin;Letzte erfolgreiche Anmeldung;
+USR;REST;general.lastUnSuccessfulLogin;Letzte fehlgeschlagene Anmeldung;
+USR;REST;role.Browse.empty;Beim Laden der Rollen ist ein Fehler aufgetreten.;
+USR;REST;role.remove.confirmation;Rolle entfernt;
+USR;REST;role.remove.message;Jeder Benutzer mit dieser Rolle wird die damit verbundenen Privilegien verlieren, außer wenn sie mit anderen Rollen des betreffenden Benutzers verbunden sind.;
+USR;REST;role.remove.title;'{0}' entfernen?;
+USR;DOMAIN;UnderlyingIO;Zugrunde liegende IO-Ausnahme;
+USR;REST;user.activity.section;Letzte Aktivität;
+USR;REST;user.Browse.empty;Beim Laden der Benutzer ist ein Fehler aufgetreten.;
+USR;REST;userDirectories.acknowledgment.setAsDefault;Benutzerverzeichnis als Standard festgelegt;
+VAL;DOMAIN;CanNotChangeFrequency;Die Häufigkeit kann nicht geändert werden;
+VAL;DOMAIN;DeviceGroupMustBeUnique;Es gibt bereits eine KPI für diese Gerätegruppe;
+VAL;DOMAIN;DeviceGroupStillInUse;Die Gerätegruppe {0} wird noch von einem Datenvalidierungstask verwendet.;
+VAL;DOMAIN;UsagePointTaskValidatedSuccesfully;Verwendungsstelle {0} erfolgreich validiert an {1};
+VDR;DOMAIN;com.elster.jupiter.validators.impl.ReadingQualitiesValidator;Ablesequalitäten;
+VDR;DOMAIN;readingQualities;Ablesequalitäten;
+VDR;DOMAIN;ReadingQualityAccepted;Manuell anerkannt;
+VDR;DOMAIN;ReadingQualityAdded;Manuell hinzugefügt;
+VDR;DOMAIN;ReadingQualityAlarmFlag;Alarm-Markierung;
+VDR;DOMAIN;ReadingQualityAllIndexes;Alle Indizes;
+VDR;DOMAIN;ReadingQualityAllSystems;Alle Systeme;
+VDR;DOMAIN;ReadingQualityBatteryLow;Niedriger Batteriestand;
+VDR;DOMAIN;ReadingQualityCategory_DATACOLLECTION;Datenerfassung;
+VDR;DOMAIN;ReadingQualityCategory_DERIVED;Abgeleitet;
+VDR;DOMAIN;ReadingQualityCategory_DIAGNOSTICS;Diagnosen;
+VDR;DOMAIN;ReadingQualityCategory_EDITED;Bearbeitet;
+VDR;DOMAIN;ReadingQualityCategory_ESTIMATED;Geschätzt;
+VDR;DOMAIN;ReadingQualityCategory_OBSOLETE_OSCILLATORY;Oszillierend;
+VDR;DOMAIN;ReadingQualityCategory_POWERQUALITY;Leistungsqualität;
+VDR;DOMAIN;ReadingQualityCategory_PROJECTED;Projiziert;
+VDR;DOMAIN;ReadingQualityCategory_QUESTIONABLE;Bedenklich;
+VDR;DOMAIN;ReadingQualityCategory_REASONABILITY;Plausibilität;
+VDR;DOMAIN;ReadingQualityCategory_TAMPER;Tamper;
+VDR;DOMAIN;ReadingQualityCategory_VALID;Gültig;
+VDR;DOMAIN;ReadingQualityCategory_VALIDATION;Validierung;
+VDR;DOMAIN;ReadingQualityClockChanged;Uhr geändert;
+VDR;DOMAIN;ReadingQualityClockError;Uhren-Fehler;
+VDR;DOMAIN;ReadingQualityClockSetBackward;Uhr zurückgestellt;
+VDR;DOMAIN;ReadingQualityClockSetForward;Uhr vorgestellt;
+VDR;DOMAIN;ReadingQualityConfigurationChanged;Konfiguration geändert;
+VDR;DOMAIN;ReadingQualityCoverOpened;Deckel geöffnet;
+VDR;DOMAIN;ReadingQualityCRCError;CRC-Fehler;
+VDR;DOMAIN;ReadingQualityCustomerRead;Ablesung durch den Kunden;
+VDR;DOMAIN;ReadingQualityDataOutsideExpectedRange;Daten außerhalb des erwarteten Bereichs;
+VDR;DOMAIN;ReadingQualityDataValid;Daten gültig;
+VDR;DOMAIN;ReadingQualityDeterministic;Hergeleitet - deterministisch;
+VDR;DOMAIN;ReadingQualityDiagnosticsFlag;Diagnosen-Markierung;
+VDR;DOMAIN;ReadingQualityDstChangeOccurred;Bearbeitung der Sommerzeit ausgeführt;
+VDR;DOMAIN;ReadingQualityDstInEffect;Sommerzeit angewendet;
+VDR;DOMAIN;ReadingQualityEditGeneric;Manuell bearbeitet - generisch;
+VDR;DOMAIN;ReadingQualityErrorCode;Fehlercode;
+VDR;DOMAIN;ReadingQualityEstimateGeneric;Geschätzt - generisch;
+VDR;DOMAIN;ReadingQualityExcessiveOutageCount;Übermäßige Ausfallzählung;
+VDR;DOMAIN;ReadingQualityFailedProbeAttempt;Scanversuch fehlgeschlagen;
+VDR;DOMAIN;ReadingQualityIndeterminate;Unbestimmt;
+VDR;DOMAIN;ReadingQualityInferred;Hergeleitet - erschlossen;
+VDR;DOMAIN;ReadingQualityKnownMissingRead;Bekannte fehlende Ablesung;
+VDR;DOMAIN;ReadingQualityLoadControlOccurred;Lastkontrolle ausgeführt;
+VDR;DOMAIN;ReadingQualityLogicalDisconnect;Logische Trennung;
+VDR;DOMAIN;ReadingQualityLongInterval;Langes Intervall;
+VDR;DOMAIN;ReadingQualityManualRead;Manuelle Ablesung;
+VDR;DOMAIN;ReadingQualityNotRecording;Daten werden nicht aufgezeichnet;
+VDR;DOMAIN;ReadingQualityOther;Sonstige;
+VDR;DOMAIN;ReadingQualityOverflowConditionDetected;Überlaufbedingung ermittelt;
+VDR;DOMAIN;ReadingQualityParityError;Paritätsfehler;
+VDR;DOMAIN;ReadingQualityPartialInterval;Partielles Intervall;
+VDR;DOMAIN;ReadingQualityPhaseFailure;Phasenausfall;
+VDR;DOMAIN;ReadingQualityPowerDown;Ausschalten;
+VDR;DOMAIN;ReadingQualityPowerFail;Netzausfall;
+VDR;DOMAIN;ReadingQualityPowerQualityFlag;Leistungsqualität-Markierung;
+VDR;DOMAIN;ReadingQualityPowerUp;Einschalten;
+VDR;DOMAIN;ReadingQualityPqCounter;PQ-Zähler;
+VDR;DOMAIN;ReadingQualityProjectedGeneric;Projiziert - generisch;
+VDR;DOMAIN;ReadingQualityRAMChecksumError;RAM-Prüfsummenfehler;
+VDR;DOMAIN;ReadingQualityRejected;Manuell abgelehnt;
+VDR;DOMAIN;ReadingQualityResetOccurred;Reset ausgeführt;
+VDR;DOMAIN;ReadingQualityRevenueProtection;Einnahmensicherung;
+VDR;DOMAIN;ReadingQualityRevenueProtectionSuspect;Einnahmensicherung fehlerverdächtig;
+VDR;DOMAIN;ReadingQualityReverseRotation;Rückwärtslauf;
+VDR;DOMAIN;ReadingQualityROMChecksumError;ROM-Prüfsummenfehler;
+VDR;DOMAIN;ReadingQualitySensorFailure;Sensor-Ausfall;
+VDR;DOMAIN;ReadingQualityServiceDisconnectSwitching;Service-Trennschaltvorrichtung;
+VDR;DOMAIN;ReadingQualityShortLong;Kurz lang;
+VDR;DOMAIN;ReadingQualitySkippedInterval;Übersprungenes Intervall;
+VDR;DOMAIN;ReadingQualityStaticDataFlag;Statische Datenmarkierung;
+VDR;DOMAIN;ReadingQualitySuspect;Fehlerverdächtig;
+VDR;DOMAIN;ReadingQualitySystem_ENDDEVICE;Gerät;
+VDR;DOMAIN;ReadingQualitySystem_EXTERNAL;Extern festgelegt (Drittanbieter);
+VDR;DOMAIN;ReadingQualitySystem_MDC;MDC;
+VDR;DOMAIN;ReadingQualitySystem_MDM;MDM;
+VDR;DOMAIN;ReadingQualitySystem_NOTAPPLICABLE;Nicht anwendbar;
+VDR;DOMAIN;ReadingQualitySystem_OTHER;Anderes System (Drittanbieter);
+VDR;DOMAIN;ReadingQualityTestData;Testdaten;
+VDR;DOMAIN;ReadingQualityTouSumCheck;Validierung fehlgeschlagen - TOU-Prüfsummenfehler;
+VDR;DOMAIN;ReadingQualityUsageAbove;Validierung fehlgeschlagen - Verwendung über dem Höchstwert;
+VDR;DOMAIN;ReadingQualityUsageAbovePercent;Validierung fehlgeschlagen - Verwendung über dem maximalen Prozentsatz;
+VDR;DOMAIN;ReadingQualityUsageBelow;Validierung fehlgeschlagen - Verwendung unter dem Mindestwert;
+VDR;DOMAIN;ReadingQualityUsageBelowPercent;Validierung fehlgeschlagen - Verwendung unter dem minimalen Prozentsatz;
+VDR;DOMAIN;ReadingQualityUsageOnInactiveMeter;Validierung fehlgeschlagen - Verwendung an einem inaktiven Zähler;
+VDR;DOMAIN;ReadingQualityValidated;Validiert;
+VDR;DOMAIN;ReadingQualityValidationGeneric;Validierung fehlgeschlagen - generisch;
+VDR;DOMAIN;ReadingQualityWatchdogFlag;Überwachungs-Markierung;
+VDR;DOMAIN;ReadingQualityZeroUsage;Validierung fehlgeschlagen - keine Verwendungen;
+WS;REST;FieldIsRequired;Dieses Feld ist erforderlich;
+WS;REST;NoSuchEndPointConfig;Es sind keine derartigen Verwendungsstellen-Konfigurationen vorhanden;
+WS;REST;NoSuchGroup;Keine derartige Rolle;
+WS;REST;NoSuchWebService;Es wurde kein derartiger Webservice registriert;
+WS;REST;PayloadExpected;Diese Methode erfordert Nutzdaten;
+WSS;REST;endPointAdd.addTitle;Webservice-Endpunkt hinzufügen;
+WSS;REST;endPointAdd.all;Alle;
+WSS;REST;endPointAdd.authentication;Authentifizierung;
+WSS;REST;endPointAdd.editTitle;'{0}' bearbeiten;
+WSS;REST;endPointAdd.endpointAdded;Webservice-Endpunkt hinzugefügt;
+WSS;REST;endPointAdd.endpointSaved;Webservice-Endpunkt gespeichert;
+WSS;REST;endPointAdd.httpCompression;HTTP-Komprimierung;
+WSS;REST;endPointAdd.logLevel;Protokollierebene;
+WSS;REST;endPointAdd.name;Name;
+WSS;REST;endPointAdd.password;Passwort;
+WSS;REST;endPointAdd.schemeValidation;Schemavalidierung;
+WSS;REST;endPointAdd.traceRequestFileName;Dateiname der Ablaufverfolgungsanforderung;
+WSS;REST;endPointAdd.traceRequests;Ablaufverfolgungsanforderungen;
+WSS;REST;endPointAdd.url;URL;
+WSS;REST;endPointAdd.urlEmptyText;Geben Sie das Format als https://<Host>:<Schnittstelle>/<Pfad> an;
+WSS;REST;endPointAdd.urlPath;URL-Pfad;
+WSS;REST;endPointAdd.urlPathEmptyText;Geben Sie den Pfad z. B. https://Anwendungsserver:Schnittstelle/<Pfad> an;
+WSS;REST;endPointAdd.userName;Benutzername;
+WSS;REST;endPointAdd.userRole;Benutzerrolle;
+WSS;REST;endPointAdd.Webservice;Webservice;
+WSS;DOMAIN;field.required;Dieses Feld ist erforderlich;
+WSS;DOMAIN;FieldMustBeUnique;Dieses Feld muss eindeutig sein;
+WSS;REST;general.actions;Aktionen;
+WSS;REST;general.activate;Aktivieren;
+WSS;REST;general.active;Aktiv;
+WSS;REST;general.add;Hinzufügen;
+WSS;REST;general.addWebserviceEndpoint;Webservice-Endpunkt hinzufügen;
+WSS;REST;general.administration;Administration;
+WSS;REST;general.cancel;Abbrechen;
+WSS;REST;general.deactivate;Deaktivieren;
+WSS;REST;general.edit;Bearbeiten;
+WSS;REST;general.Edit;Bearbeiten;
+WSS;REST;general.formErrorEndPointActive;Einige Attribute können nur geändert werden, wenn der Status des Webservice-Endpunkts inaktiv ist.;
+WSS;REST;general.formErrors;Diese Seite enthält Fehler, die Ihre Aufmerksamkeit erfordern.;
+WSS;REST;general.inactive;Inaktiv;
+WSS;REST;general.Logging;Protokollierung;
+WSS;REST;general.logging;Protokollierung;
+WSS;REST;general.logLevel;Protokollierebene;
+WSS;REST;general.message;Nachricht;
+WSS;REST;general.name;Name;
+WSS;REST;general.no;Nein;
+WSS;REST;general.notAvailable;nicht verfügbar;
+WSS;REST;general.overview;Übersicht;
+WSS;REST;general.password;Passwort;
+WSS;REST;general.remove;Entfernen;
+WSS;REST;general.removeX;'{0}' entfernen?;
+WSS;REST;general.save;Speichern;
+WSS;REST;general.status;Status;
+WSS;REST;general.timestamp;Zeitstempel;
+WSS;REST;general.type;Typ;
+WSS;REST;general.url;URL;
+WSS;REST;general.userName;Benutzername;
+WSS;REST;general.userRole;Benutzerrolle;
+WSS;REST;general.webservice;Webservice;
+WSS;REST;general.webservices;Webservices;
+WSS;REST;general.xActivated;{0} aktiviert;{
+WSS;REST;general.xDeactivated;{0} deaktiviert;{
+WSS;REST;general.yes;Ja;
+WSS;DOMAIN;InvalidFileName;Ungültiger Dateiname;
+WSS;DOMAIN;InvalidPath;Ungültiger Pfad;
+WSS;REST;log.pagingtoolbarbottom.itemsPerPage;Protokollzeilen pro Seite;
+WSS;DOMAIN;privilege.administrate.webservices;Verwalten;
+WSS;DOMAIN;privilege.view.webservices;Ansicht;
+WSS;DOMAIN;ThisFieldIsTooLong;Dieses Feld ist zu lang;
+WSS;REST;webservices.addWebServiceEndpoint;Webservice-Endpunkt hinzufügen;
+WSS;REST;webservices.authenticationRequired;Authentifizierung;
+WSS;REST;webservices.empty.title;Keine Webservice-Endpunkte gefunden;
+WSS;REST;webservices.httpCompression;HTTP-Komprimierung;
+WSS;REST;webservices.log.empty.list;Keine Protokolle für diesen Webservice-Endpunkt vorhanden;
+WSS;REST;webservices.log.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Protokollzeilen;
+WSS;REST;webservices.log.pagingtoolbartop.displayMsg;{0} - {1} von {2} Protokollzeilen;
+WSS;REST;webservices.log.pagingtoolbartop.emptyMsg;Keine Protokollzeilen zur Anzeige verfügbar;
+WSS;REST;webservices.mpty;Es wurden noch keine Webservice-Endpunkte definiert.;
+WSS;REST;webservices.pagingtoolbarbottom.itemsPerPage;Webservice-Endpunkte pro Seite;
+WSS;REST;webservices.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Webservice-Endpunkten;
+WSS;REST;webservices.pagingtoolbartop.displayMsg;{0} - {1} von {2} Webservice-Endpunkten;
+WSS;REST;webservices.pagingtoolbartop.emptyMsg;Keine Webservice-Endpunkte zur Anzeige verfügbar;
+WSS;REST;webservices.remove.msg;Der Webservice-Endpunkt wird entfernt und wird nicht mehr verfügbar sein.;
+WSS;REST;webservices.remove.success.msg;Webservice-Endpunkte entfernt;
+WSS;REST;webservices.schemeValidation;Schemavalidierung;
+WSS;REST;webservices.traceRequests;Ablaufverfolgungsanforderungen;
+WSS;REST;webservices.traceRequestsFileName;Dateiname der Ablaufverfolgungsanforderungen;
+WSS;REST;webservices.webserviceEndpointOverview;Übersicht der Webservice-Endpunkte;
+WSS;REST;webservices.webserviceEndpoints;Webservice-Endpunkte;
+WSS;DOMAIN;webservices.webservices;Webservices;
+WSS;DOMAIN;webservices.webservices.description;Webservices verwalten;
+WS;REST;webservices.authentication.basic_authentication;Basisauthentifizierung;
+WS;REST;webservices.authentication.none;Keine Authentifizierung;
+WS;REST;webservices.direction.inbound;Inbound;
+WS;REST;webservices.direction.outbound;Outbound;
+WS;REST;webservices.loglevel.config;Konfiguration;
+WS;REST;webservices.loglevel.fine;Fein;
+WS;REST;webservices.loglevel.finer;Feiner;
+WS;REST;webservices.loglevel.finest;Am feinsten;
+WS;REST;webservices.loglevel.info;Informationen;
+WS;REST;webservices.loglevel.severe;Schwerwiegend;
+WS;REST;webservices.loglevel.warning;Warnung;
+DES;REST;estimationtasks.addValidationTask.clear;Löschen
+DES;REST;export.eventType.typeIsAlreadyAssigned;Der Ereignistyp wurde bereits einer Exportaufgabe zugewiesen.
+DES;REST;exportTasksHistory.empty.titlex;Es ist kein Verlauf für diese Exportaufgabe verfügbar.
+DES;REST;general.usagePointGroup;Verwendungsstellengruppe
+DES;REST;general.remove.confirm.msgx;Die Exportaufgabe wurde entfernt.
+DES;REST;exportTask.history.startedOn;Gestartet am
+DES;REST;general.runExportTaskx;Exportaufgabe {0} ausführen?
+DES;REST;general.history.addSort;Sorte hinzufügen
+DES;REST;general.usagePoints.skipExportWindowMsg;Exportfenster für Verwendungsstellen mit fehlerverdächtigen/nicht validierten Daten überspringen
+DES;REST;dataSources.usagePoint.empty.list.item3;Keine der Verwendungsstellen in der Gruppe verfügt über eine Datenquelle, die mit einem der ausgewählten Messtypen übereinstimmt.
+DES;REST;dataSources.usagePoint.empty.list.item2;Die Verwendungsstellengruppe enthält keine Verwendungsstellen.
+DES;REST;general.addExportTask;Exportaufgabe hinzufügen
+DES;REST;editExportTask.successMsg.saved;Die Exportaufgabe wurde gespeichert.
+DES;REST;general.details;Details
+DES;REST;exportTasks.empty.title;Es wurden keine Exportaufgaben gefunden.
+DES;REST;general.logx;Protokoll {0}
+DES;REST;general.remove.msgx;Diese Exportaufgabe wird nicht mehr verfügbar sein.
+DES;REST;importService.filter.sort;Sortieren
+DES;REST;general.purpose;Zweck
+DES;REST;exportTask.history.successStatus;Erfolgreich
+DES;REST;dataExportTasks.purpose;Zweck
+DES;REST;general.exportHistory;Verlauf exportieren
+DES;REST;csvUsagePointDataProcessorFactory;CSV-Formatierer [STD]
+WSS;REST;endPointAdd.outboundURLFormatText;Definieren Sie die URL im Format http://<Host>:<Port>/<Pfad>.
+WSS;REST;webservices.endpoint.activated;Der Endpunkt des Webdienstes wurde aktiviert.
+WSS;REST;webservices.endpoint.saved;Der Endpunkt des Webdienstes wurde gespeichert.
+WSS;REST;webservices.endpoint.added;Der Endpunkt des Webdienstes wurde hinzugefügt.
+WSS;REST;webservices.endpoint.deactivated;Der Endpunkt des Webdienstes wurde deaktiviert.
+WSS;REST;endPointAdd.inboundURLFormatText;Definieren Sie den Pfad in der URL im folgenden Format http://host:port/<Pfad>.
+WSS;REST;general.webServices;Webdienste
+WSS;REST;general.selectWebservice;Webdienst auswählen ...
+WSS;REST;webservices.webserviceEndpoint;Endpunkt des Webdienstes
+WSS;REST;general.details;Details
+WSS;REST;webservices.endpoint.removed;Der Endpunkt des Webdienstes wurde entfernt.
+DES;REST;addDataExportTask.formatter.tooltip.col6;Validierungsergebnis (Text)
+DES;REST;addExportTask.successMsg;Die Exportaufgabe wurde hinzugefügt.
+DES;REST;general.exportTask;Aufgabe exportieren
+DES;REST;title.workspace;Arbeitsbereich
+DES;REST;dataExportTasks.metrologyConfiguration;Messtechnische Konfiguration
+DES;REST;general.dataExchange;Datenaustausch
+DES;REST;general.workspace;Arbeitsbereich
+DES;REST;exportTask.log.of.occurence;Protokoll {0}
+DES;REST;exportTask.history.busyStatus;Laufend
+DES;REST;exportTasks.pagingtoolbartop.emptyMsg;Es sind keine Exportaufgaben zur Anzeige verfügbar.
+DES;REST;general.exportHistoryx;Verlauf exportieren
+DES;REST;addDataExportTask.usagePointGroupPrompt;Verwendungsstellengruppe auswählen ...
+DES;REST;estimationtasks.addValidationTask.purposePrompt;Zweck auswählen ...
+DES;REST;estimationtasks.general.purpose;Zweck
+DES;REST;exportTasks.empty.list.item2;Es sind Exportaufgaben vorhanden, Sie sind jedoch nicht zu deren Anzeige berechtigt.
+DES;REST;exportTasks.empty.list.item1;Es wurden noch keine Exportaufgaben definiert.
+DES;REST;exportTasks.runMsg;Die Datenexportaufgabe wird in die Warteschlange gestellt und zum frühestmöglichen Zeitpunkt ausgeführt.
+DES;REST;exportTask.history.failStatus;Fehlgeschlagen
+DES;REST;addDataExportTask.eventFormatter.tooltip.col4;Gerätename (Text)
+DES;REST;general.created;Erstellt
+ISU;REST;general.assign;Zuweisen
+ISU;REST;issues.retrycomm.unable.results[0];-
+ISU;REST;administration.alarmCreationRules.active;Aktiv
+ISU;REST;administration.issueCreationRules.deactivate;Deaktivieren
+ISU;REST;issues.selectedIssues.assign.msg2[many];<h3>{0} Probleme zuweisen?</h3><br>
+ISU;REST;issues.assign.success.result542;{0} Probleme wurden {1} Benutzer und {2} Arbeitsgruppe erfolgreich zugewiesen.
+ISU;REST;issues.assign.success.result541;Ein Problem wurde {0} Benutzer und {1} Arbeitsgruppe erfolgreich zugewiesen.
+ISU;REST;issues.assign.success.result540;Es sind keine Probleme vorhanden, die {0} Benutzer und {1} Arbeitsgruppe zugewiesen sind.
+ISU;REST;issues.assign.failed.results[many];"<h3 style=""color: #eb5642"">Fehler beim Zuweisen von {0} Problemen</h3><br>"
+ISU;REST;issue.dal.setpriority.success;Die Priorität der Alarmmeldung wurde geändert.
+ISU;REST;administration.issue.apply.action.failed.title;Ihre Aktion konnte nicht ausgeführt werden.
+ISU;REST;issues.actionMenu.unassign;Zuweisung aufheben
+ISU;REST;issues.applyAction.failureTitle;Ihre Aktion konnte nicht ausgeführt werden.
+ISU;REST;issues.assign.success.result51[many];Die Zuweisung von {0} Problemen wurde erfolgreich aufgehoben.
+ISU;REST;issues.assign.success.result532;{0} Probleme wurden {1} Arbeitsgruppe erfolgreich zugewiesen.
+ISU;REST;issues.actionMenu.assignToMe;Mir zuweisen
+ISU;REST;issues.assign.success.result531;Ein Problem wurde {0} Arbeitsgruppe erfolgreich zugewiesen.
+ISU;REST;issues.assign.success.result530;Es sind keine Probleme vorhanden, die {0} Arbeitsgruppe zugewiesen sind.
+ISU;REST;issues.assign.success.result522;{0} Probleme wurden {1} Benutzer erfolgreich zugewiesen.
+ISU;REST;general.title.issueId;Kennung
+ISU;REST;issues.assign.success.result521;Ein Problem wurde {0} Benutzer erfolgreich zugewiesen.
+ISU;REST;issues.assign.success.result520;Es sind keine Probleme vorhanden, die {0} Benutzer zugewiesen sind.
+ISU;REST;issues.retryconn.unable.results[many];<h3>Die Verbindungen für {0} Probleme konnten nicht erneut versucht werden</h3><br>
+ISU;REST;issues.selectedIssues.assign.msg1[many];<h3>Die Zuweisung von {0} Problemen aufheben?</h3><br>
+ISU;REST;general.activate;Aktivieren
+ISU;REST;issue.setpriority;Priorität einstellen
+ISU;REST;issues.close.unable.results[1];"<h3 style=""color: #eb5642“>Ein Problem konnte nicht geschlossen werden</h3><br>"
+ISU;REST;issue.isu.setpriority.success;Die Priorität des Problems wurde geändert.
+ISU;REST;general.urgency;Dringlichkeit
+ISU;REST;administration.issueCreationRules.error.unknown;Es ist ein unbekannter Fehler aufgetreten.
+ISU;REST;issues.close.unable.results[0];-
+ISU;REST;issues.selectedIssues.assign.msg1[1];<h3>Die Zuweisung von einem Problem aufheben?</h3><br>
+ISU;REST;general.workgroup;Arbeitsgruppe
+ISU;REST;general.impact;Auswirkungen
+ISU;REST;issues.selectedIssues.assign.msg1[0];-
+ISU;REST;administration.issueCreationRules.activate.operation.failed;Die Aktivierung des Vorgangs ist fehlgeschlagen.
+ISU;REST;workspace.issues.myWorkgroupsIssues;Meine Probleme der Arbeitsgruppen
+ISU;REST;workspace.perWorkgroupAssignee;Nach Arbeitsgruppe
+ISU;REST;issues.assign.unable.results[many];"<h3 style=""color: #eb5642"">{0} Probleme konnten nicht zugewiesen werden</h3><br>"
+ISU;REST;action.assign.showAllUsers;Alle Benutzer anzeigen
+ISU;REST;issues.retrycomm.unable.results[many];<h3>Die Übertragungsaufgaben für {0} Probleme konnten nicht erneut versucht werden</h3><br>
+ISU;REST;issues.close.failed.results[1];"<h3 style=""color: #eb5642"">Fehler beim Schließen eines Problems</h3><br>"
+ISU;REST;general.title.priority;Priorität
+ISU;REST;issues.close.failed.results[0];-
+ISU;REST;issues.selectedIssues.assign.msg2[1];<h3>Ein Problem zuweisen?</h3><br>
+ISU;REST;general.inputIssueId;Problemkennung
+ISU;REST;issues.selectedIssues.assign.msg2[0];-
+ISU;REST;administration.issueCreationRules.activateSuccessMsg;Die Erstellungsregel für Probleme wurde aktiviert.
+ISU;REST;issues.assign.failed.results[1];"<h3 style=""color: #eb5642"">Fehler beim Zuweisen eines Problems</h3><br>"
+ISU;REST;issues.startTypingForWorkgroup;Eingabe beginnen, um eine Arbeitsgruppe auszuwählen.
+ISU;REST;issues.assign.failed.results[0];-
+EST;REST;general.logLevel;Protokollierebene
+EST;REST;general.yes;Ja
+EST;REST;estimationrulesets.remove.message1;Dieses Bewertungsregelwerk wird nicht mehr verfügbar sein.
+EST;REST;estimationtasks.general.noUsagePointGroup;Es wurde noch keine Verwendungsstellengruppe definiert.
+EST;REST;estimationrulesets.details;Details
+EST;REST;estimationtasks.addValidationTask.purposePrompt;Zweck auswählen ...
+EST;REST;estimationtasks.addEstimationTask.usagePointGroupPrompt;Verwendungsstellengruppe auswählen ...
+EST;REST;estimationtasks.general.purpose;Zweck
+EST;REST;general.estimationComment;Kommentar zur Bewertung
+EST;REST;general.editName.question;Namen bearbeiten?
+EST;REST;estimationtasks.addValidationTask.clear;Löschen
+EST;REST;estimationtasks.addEstimationTask.deviceGroup;Gerätegruppe
+EST;REST;estimation.schedule.manual;Auf Anforderung
+EST;REST;estimationtasks.runQueued;Die Ausführung der Bewertungsaufgabe wurde in die Warteschlange gestellt.
+EST;REST;estimationtasks.general.usagePointGroup;Verwendungsstellengruppe
+EST;REST;general.placeholder.selectEstimator;Bewertungsfunktion auswählen ...
+EST;REST;general.markAsProjected;Als geplant kennzeichnen
+EST;REST;general.reValidate;Bewertete Daten erneut validieren
+EST;REST;estimationrules.info;Obligatorische Attribute können auf der Ebene der Messtypen angefordert werden.
+EST;REST;general.details;Details
+EST;REST;estimationtasks.general.created;Erstellt
+EST;REST;estimation.schedule.scheduled;{0}. Nächste Ausführung {1}
+EST;REST;general.no;Nein
+EST;REST;validationTasks.general.usagePointGroup;Verwendungsstellengruppe
+EST;REST;general.editName.msg;Das Ändern des Namens könnte unter Umständen überschriebene Attribute an {0} Messwertqualitäten löschen.
+EST;REST;estimationtasks.general.metrologyPurpose;Zweck
+CAL;REST;general.eventTypes;Ereignistypen
+CAL;REST;general.activate;Aktivieren
+CAL;REST;calendar.save.success.msg;Der Kalender wurde gespeichert.
+CAL;REST;general.category;Kategorie
+CAL;REST;calendar.remove.msg;Dieser Kalender wird nicht mehr verfügbar sein.
+CAL;REST;calendar.empty;Noch es wurden noch keine Kalender definiert.
+CAL;REST;calendar.pagingtoolbartop.emptyMsg;Es sind keine Kalender zur Anzeige verfügbar.
+CAL;REST;calendar.pagingtoolbartop.displayMsg;{0} - {1} von {2} Kalendern
+CAL;REST;general.calendar;Kalendervorschau
+CAL;REST;calendar.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Kalendern
+CAL;REST;general.deActivate;Deaktivieren
+CAL;REST;general.status;Status
+CAL;REST;calendar.remove.success.msg;Der Kalender wurde entfernt.
+CAL;REST;calendar.pagingtoolbarbottom.displayMsg;Kalender pro Seite
+BPM;REST;bpm.filter.created;Erstellt
+BPM;REST;bpm.task.userAssignee;Benutzer
+BPM;REST;bpm.task.completeTaskTitle;Vollständige {0}
+BPM;REST;editProcess.successMsg.unassigned;Die Zuweisung der Aufgabe wurde aufgehoben.
+BPM;REST;bpm.filter.cancelledStatus;Abgebrochen
+BPM;REST;bpm.filter.workgroup;Arbeitsgruppe
+BPM;REST;general.workgroup;Arbeitsgruppe
+BPM;REST;bpm.filter.assigned;Zugewiesen
+BPM;REST;bpm.task.notAllowedToStartTask;Sie sind nicht berechtigt, diese Aufgabe zu starten, da Sie Ihnen nicht zugewiesen ist.
+DES;REST;general.noUsagePointGroup;Es wurde noch keine Verwendungsstellengruppe definiert.
+DES;REST;general.exportTasks;Aufgaben exportieren
+DES;REST;exportTasks.pagingtoolbarbottom.itemsPerPage;Exportaufgaben pro Seite
+DES;REST;dataSources.device.empty.list.item1x;Die Exportaufgabe wurde noch nie ausgeführt.
+DES;REST;exportTasks.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Exportaufgaben
+DES;REST;dataSources.device.empty.list.item3;Keines der Geräte in der Gruppe verfügt über eine Datenquelle, die mit einem der ausgewählten Messtypen übereinstimmt.
+DES;REST;general.usagePoints.skipExportWindowMissingDataMsg;Exportfenster für Verwendungsstellen mit fehlenden Daten überspringen (Daten vervollständigen)
+DES;REST;dataSources.device.empty.list.item2;Die Gerätegruppe enthält keine Geräte.
+DES;REST;exportTasks.runQueued;Die Ausführung der Exportaufgabe wurde in die Warteschlange gestellt.
+DES;REST;dataSources.usagePoint.empty.list.item1x;Die Exportaufgabe wurde noch nie ausgeführt.
+DES;REST;exportTasks.pagingtoolbartop.displayMsg;{0} - {1} von {2} Exportaufgaben
+EST;DOMAIN;com.elster.jupiter.estimators.impl.AverageWithSamplesEstimator;Mittelwert mit Stichproben [STD]
+EST;DOMAIN;com.elster.jupiter.estimators.impl.EqualDistribution;Gleichverteilung [STD]
+EST;DOMAIN;com.elster.jupiter.estimators.impl.LinearInterpolation;Lineare Interpolation [STD]
+EST;DOMAIN;com.elster.jupiter.estimators.impl.PowerGapFill;Ausgleich des Leistungsunterschieds [STD]
+EST;DOMAIN;com.elster.jupiter.estimators.impl.ValueFillEstimator;Wertausgleich [STD]
+EST;DOMAIN;com.elster.jupiter.estimators.impl.NearestAvgValueDayEstimator;Nächster Mittelwert (Tag) [STD]
+EST;DOMAIN;nearestaveragevalueday.discardSpecificDay;Bestimmten Tag verwerfen
+EST;DOMAIN;nearestaveragevalueday.discardSpecificDay.description;Bewertete und Stichprobentage können verworfen werden, wenn sie einen ausgewählten Ereigniscode enthalten.
+EST;DOMAIN;nearestaveragevalueday.numberOfSamples;Anzahl der Stichproben
+EST;DOMAIN;nearestaveragevalueday.numberOfSamples.description;Anzahl der für die Bewertung eines Wertes erforderlichen Stichproben
+EST;DOMAIN;nearestaveragevalueday.maximumNumberOfWeeks;Maximale Anzahl der Wochen
+EST;DOMAIN;nearestaveragevalueday.maximumNumberOfWeeks.description;Begrenzung auf einige Wochen, in denen die Stichproben gesucht werden können.
+EST;DOMAIN;nearestaveragevalueday.calendar;Nutzungszeitkalender
+EST;DOMAIN;nearestaveragevalueday.eventCode;Ereigniscode
+FIM;REST;importService.log.of.occurence;Protokoll {0}
+FIM;REST;uploadFile.filesize;Die maximale Dateigröße beträgt 100 MB.
+FIM;REST;general.logx;Protokoll {0}
+FIM;REST;uploadFile.noImportServices;Es sind keine aktiven Importdienste mit der Option zum Hochladen von Dateien in die Anwendung im System vorhanden.
+FIM;REST;importService.history.importServiceName;Importdienst
+FIM;REST;title.workspace;Arbeitsbereich
+FIM;REST;general.file.buttonText;Datei auswählen ...
+FIM;REST;uploadFile.title;Datei für den Import hochladen
+FIM;REST;general.workspace;Arbeitsbereich
+FIM;REST;general.file;Datei
+FIM;REST;uploadFile.failed;Fehler beim Hochladen von {0}.
+FIM;REST;general.no;Nein
+FIM;REST;general.yes;Ja
+FIM;REST;general.allowUploads.note;Hierdurch wird die hochzuladende Datei auf der Seite „Datei für den Import hochladen“ bereitgestellt.
+FIM;REST;uploadFile.success;Die Datei wurde hochgeladen.
+FIM;REST;general.close;Schließen
+FIM;REST;uploadFile.emptyImportServices;Importdienst auswählen ...
+FIM;REST;general.upload;Hochladen
+FIM;REST;general.dataExchange;Datenaustausch
+FIM;REST;uploadFile.infoMsg;Die hochgeladene Datei wird vom System nach der vom Systemadministrator festgelegten Häufigkeit der Ordnerscans importiert.
+FIM;REST;general.details;Details
+FIM;REST;general.allowUploads;Hochladevorgänge in Anwendung zulassen
+ISU;REST;priority.veryHigh;Sehr hoch ({0})
+ISU;REST;issues.retryconn.unable.results[1];"<h3 style=""color: #eb5642“>Verbindungen für {0} Problem konnten nicht erneut versucht werden</h3><br>"
+ISU;REST;priority.low;Niedrig ({0})
+ISU;REST;administration.alarmCreationRules.inactive;Inaktiv
+ISU;REST;issues.actionMenu.setPriority;Priorität einstellen
+ISU;REST;issues.assign.unable.results[1];"<h3 style=""color: #eb5642“>Ein Problem konnte nicht zugewiesen werden</h3><br>"
+ISU;REST;issues.retryconn.unable.results[0];-
+ISU;REST;issueCreationRules.actions.noActionsDefined;Es wurden keine Aktionen definiert.
+ISU;REST;issues.assign.unable.results[0];-
+ISU;REST;administration.issueCreationRules.deactivateSuccessMsg;Die Erstellungsregel für Probleme wurde deaktiviert.
+ISU;REST;issues.selectedIssues.assign.title8;Alle Probleme werden {0} Arbeitsgruppe und {1} Benutzer zugewiesen.
+ISU;REST;issues.selectedIssues.assign.title7;Alle Probleme werden {0} Arbeitsgruppe zugewiesen.
+ISU;REST;issues.selectedIssues.assign.title6;Alle Probleme werden {0} Benutzer zugewiesen.
+ISU;REST;issues.selectedIssues.assign.title5;Die Zuweisung aller Probleme wird aufgehoben.
+ISU;REST;issues.selectedIssues.assign.title4;Die ausgewählten Probleme werden der Arbeitsgruppe {0} und dem Benutzer {1} zugewiesen.
+ISU;REST;issues.selectedIssues.assign.title3;Die ausgewählten Probleme werden der Arbeitsgruppe {0} zugewiesen.
+ISU;REST;issues.selectedIssues.assign.title2;Die ausgewählten Probleme werden dem Benutzer {0} zugewiesen.
+ISU;REST;issues.selectedIssues.assign.title1;Die Zuweisung der ausgewählten Probleme wird aufgehoben.
+ISU;REST;priority.high;Hohe ({0})
+ISU;REST;priority.medium;Medium ({0})
+ISU;REST;issues.close.unable.results[many];"<h3 style=""color: #eb5642"">{0} Probleme konnten nicht geschlossen werden</h3><br>"
+ISU;REST;issues.close.failed.results[many];"<h3 style=""color: #eb5642"">Fehler beim Schließen von {0} Problemen</h3><br>"
+ISU;REST;issue.title.steps;Schritt {0}
+ISU;REST;administration.issueCreationRules.activate;Aktivieren
+ISU;REST;administration.issueCreationRules.active;Aktiv
+ISU;REST;administration.issueCreationRules.inactive;Inaktiv
+ISU;REST;general.device.selectname;Namen des Geräts auswählen ...
+ISU;REST;general.user;Benutzer
+ISU;REST;issues.selectedIssues.assign.msg4;<h3>Alle Probleme zuweisen?</h3><br>
+ISU;REST;issues.selectedIssues.assign.msg3;<h3>Die Zuweisung von allen Problemen aufheben?</h3><br>
+ISU;REST;administration.issueCreationRules.deactivate.operation.failed;Die Deaktivierung des Vorgangs ist fehlgeschlagen.
+ISU;REST;general.priority;Priorität
+ISU;REST;administration.issueCreationRules.activation.operation.failed.title;Ihre Aktion konnte nicht ausgeführt werden.
+ISU;REST;issues.assign.success.result51[1];Die Zuweisung eines Problems wurde erfolgreich aufgehoben.
+ISU;REST;priority.veryLow;Sehr niedrig ({0})
+ISU;REST;processes.issue.noProcessesStarted;Es wurde noch kein Prozess für dieses Problem gestartet.
+ISU;REST;workspace.perUserAssignee;Nach Benutzer
+ISU;REST;general.title.USER;Benutzer
+ISU;REST;issues.retrycomm.unable.results[1];"<h3 style=""color: #eb5642"">Übertragungsaufgaben für {0} Problem konnten nicht erneut versucht werden</h3><br>"
+ISU;REST;general.unassigned;Nicht zugewiesen
+ISU;REST;issues.assign.success.result51[0];Es sind keine Probleme vorhanden.
+CFG;REST;dataqualitykpis.deleteConfirmation.msg;Diese Datenqualitätskennzahl wird nicht mehr im System verfügbar sein. Bereits berechnete Daten werden nicht entfernt.
+CFG;REST;copyFromReference.completeBoxMassage;Nur kopieren, wenn alle Daten vorhanden sind.
+CFG;REST;ins.dataqualitykpi.selectUsagePointGroup;Verwendungsstellengruppe auswählen ...
+CFG;REST;dataqualitykpis.pagingtoolbartop.emptyMsg;Es sind keine Datenqualitätskennzahlen zur Anzeige verfügbar.
+CFG;REST;dataqualitykpis.added;Die Datenqualitätskennzahl wurde hinzugefügt.
+CFG;REST;validation.rule.info;Obligatorische Attribute können auf der Ebene der Messtypen angefordert werden.
+CFG;REST;copyFromReference.projectedBoxMassage;Werte als geplant kennzeichnen
+CFG;REST;copyFromReference.readingType;Messtyp überprüfen
+CFG;REST;general.dataQualityKpis;Datenqualitätskennzahlen
+CFG;REST;general.active;Aktiv
+CFG;REST;dataqualitykpis.pagingtoolbartop.displayMsg;{0} - {1} von {2} Datenqualitätskennzahlen
+CFG;REST;copyFromReference.usagePoint;Verwendungsstelle überprüfen
+CFG;REST;general.editName.msg;Das Ändern des Namens könnte unter Umständen überschriebene Attribute an {0} Messwertqualitäten löschen.
+CFG;REST;copyFromReference.selectReadingType;Messtyp auswählen
+CFG;REST;ins.dataqualitykpi.overview.info;Die Kennzahlen für inaktive Zwecke der Verwendungsstellen Punkte werden nicht berechnet.
+CFG;REST;copyFromReference.purpose;Zweck überprüfen
+CFG;REST;general.restoreAttributes.success;Die bearbeiteten Attribute wurden zurückgestellt.
+CFG;REST;general.uagePointGroup;Verwendungsstellengruppe
+SPI;DOMAIN;correctionFactorImporter;Die Importfunktion für synthetische Lastprofile [STD]
+SPI;DOMAIN;SLPFileImport;Import des synthetischen Lastprofils bearbeiten
+SPI;DOMAIN;delimiter;Trennzeichen
+SPI;DOMAIN;dateFormat;Datumsformat
+SPI;DOMAIN;dateFormat.description;Das für Datumseigenschaften verwendete Format
+SPI;DOMAIN;timeZone;Zeitzone
+SPI;DOMAIN;timeZone.description;Der eindeutige Bezeichner der Zeitzone, in der die Datumseigenschaften festgelegt sind
+SPI;DOMAIN;numberFormat;Zahlenformat
+SPI;DOMAIN;numberFormat.description;Das für numerische Eigenschaften verwendete Format
+SPI;DOMAIN;ImportDefaultProcessorErrorPrefix;Die Verarbeitung von Zeile {0} ist nicht möglich: {1}
+SPI;DOMAIN;CFImportResultFailed;Der Import ist fehlgeschlagen.
+SPI;DOMAIN;CFImportResultSuccess;Der Import wurde erfolgreich abgeschlossen. Es wurde(n) {0} Intervall(e) für {1} importiert.
+BPM;REST;bpm.menu.editAttributes;Attribute bearbeiten
+BPM;REST;bpm.filter.ongoingStatus;Laufend
+BPM;REST;bpm.filter.user;Benutzer
+BPM;REST;bpm.menu.complete;Vollständig
+BPM;REST;task.startTypingForUsers;Eingabe beginnen, um einen Benutzer auszuwählen.
+BPM;REST;bpm.task.user.unassigned;Nicht zugewiesen
+BPM;REST;task.startTypingForWorkgroup;Eingabe beginnen, um eine Arbeitsgruppe auszuwählen.
+BPM;REST;bpm.task.workgroupAssignee;Arbeitsgruppe
+BPM;REST;bpm.status.ongoing;Laufend
+BPM;REST;bpm.status.cancelled;Abgebrochen
+BPM;REST;general.tasks.title;Aufgaben
+BPM;REST;bpm.task.startTaskTitle;Anfang {0}
+BPM;REST;bpm.task.taskAttributes;Aufgabenattribute
+BPM;REST;general.unassigned;Nicht zugewiesen
+BPM;REST;bpm.task.taskExecutionAttributesNotAvailableBecauseTaskCompleted;Die Attribute für die Ausführung der Aufgabe sind nicht verfügbar, da die Aufgabe abgeschlossen wurde.
+BPM;REST;bpm.filter.createdStatus;Erstellt
+BPM;REST;general.user;Benutzer
+BPM;REST;bpm.task.taskExecutionNoAttributes;Diese Aufgabe weist keine Attribute für die Ausführung der Aufgabe auf.
+BPM;REST;general.workgroupUnassigned;Nicht zugewiesen
+BPM;REST;bpm.menu.releaseTask;Zuweisung aufheben
+BPM;REST;general.userUnassigned;Nicht zugewiesen
+BPM;REST;editProcess.successMsg.assigned;Die Aufgabe wurde zugewiesen.
+BPM;REST;bpm.menu.assignToMe;Mir zuweisen
+BPM;REST;bpm.menu.start;Anfang
+BPM;REST;bpm.filter.assignedStatus;Zugewiesen
+BPM;REST;action.assign.showAllUsers;Alle Benutzer anzeigen
+MTR;REST;readingtypesmanagment.readingTypeNotActivateDeactivateTitle;Ihre Aktion konnte nicht ausgeführt werden.
+MTR;REST;readingtypesmanagment.bulk.step5.title;Schritt 5: Status
+MTR;REST;readingtypesmanagment.bulk.step3.title;Schritt 3: Aktionsdetails
+MTR;REST;readingtypesmanagment.bulk.step4.title;Schritt 4: Bestätigung
+MTR;REST;readingtypesmanagment.bulk.step1.title;Schritt 1: Messtypen auswählen
+MTR;REST;readingtypesmanagment.bulk.step2.title;Schritt 2: Aktion auswählen
+APR;REST;appServers.save.operation.failedTitle;Ihre Aktion konnte nicht ausgeführt werden.
+APR;REST;appServers.deactivate.operation.failedTitle;Ihre Aktion konnte nicht ausgeführt werden.
+APR;REST;dataExportTasks.messageServices.empty.list.item3x;Alle Meldungsdienste wurden bereits zu der Exportaufgabe hinzugefügt.
+APR;REST;general.details;Details
+APR;REST;appServers.undo.operation.failedTitle;Ihre Aktion konnte nicht ausgeführt werden.
+CFG;REST;general.logLevel;Protokollierebene
+CFG;REST;validationTasks.general.lastRunOnRequest;{0} auf Anforderung
+CFG;REST;ins.dataqualitykpi.noUsagePointGroup;Es ist keine Verwendungsstellengruppe verfügbar.
+CFG;REST;general.copy;Kopieren
+CFG;REST;general.dataValidation;Datenvalidierung
+CFG;REST;validationTasks.addValidationTask.purposePrompt;Zweck auswählen ...
+CFG;REST;copyFromReference.complete;Vollständiger Zeitraum
+CFG;REST;general.copyFromReference;Von Referenz kopieren
+CFG;REST;copyFromReference.device;Gerät überprüfen
+CFG;REST;copyFromReference.selectUsagePoint;Verwendungsstelle auswählen
+CFG;REST;general.editedAttributesSaved;Die bearbeiteten Attribute wurden gespeichert.
+CFG;REST;general.checkAll;Alle überprüfen
+CFG;REST;general.restoreAttributes.question;Attribute zurückstellen?
+CFG;REST;general.futureOrPastVersion;Zukünftigen oder frühere Version
+CFG;REST;dataqualitykpis.empty.title;Es wurden keine Datenqualitätskennzahlen gefunden.
+CFG;REST;general.restoreAttributes.msg;Alle bearbeiteten Attribute werden entfernt.
+CFG;REST;dataqualitykpis.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Datenqualitätskennzahlen
+CFG;REST;copyFromReference.selectPurpose;Zweck auswählen
+CFG;REST;copyFromReference.projectedValue;Geplanter Wert
+CFG;REST;general.estimationRule;Bewertungsregel
+CFG;REST;general.restore;Wiederherstellen
+CFG;REST;general.adddataqualitykpis;Datenqualitätskennzahlen hinzufügen
+CFG;REST;validation.schedule.manual;Auf Anforderung
+CFG;REST;general.editDataQualityLevel.question;Datenqualitätsstufe bearbeiten?
+CFG;REST;validationTasks.general.lastRunBySchedule;{0} nach Zeitplan
+CFG;REST;general.unCheckAll;Alle Markierungen entfernen
+CFG;REST;general.editName.question;Namen bearbeiten?
+CFG;REST;copyFromReference.suspectFlag;Fehlerverdächtige Werte zulassen
+CFG;REST;editComment.valueToEditComment;Wert für die Bearbeitung des Kommentars
+CFG;REST;general.currentAttributes;Aktuelle Attribute
+CFG;REST;general.dataqualitykpis.added;Die Datenqualitätskennzahlen wurden hinzugefügt.
+CFG;REST;dataqualitykpis.removed;Die Datenqualitätskennzahl wurde entfernt.
+CFG;REST;copyFromReference.startDate;Anfangsdatum/-zeit
+CFG;REST;validationTasks.general.created;Erstellt
+CFG;REST;editComment.value;Wert (kWh)
+CFG;REST;general.editEstimationComment;Kommentar zur Bewertung bearbeiten
+CFG;REST;dataqualitykpis.empty.list.item1;Es wurden noch keine Datenqualitätskennzahlen erstellt.
+CFG;REST;dataqualitykpis.add;Datenqualitätskennzahl hinzufügen
+CFG;REST;general.Purpose;Zweck
+CFG;REST;dataqualitykpis.pagingtoolbarbottom.kpisPerPage;Datenqualitätskennzahlen pro Seite
+CFG;REST;general.editDataQualityLevel.msg;Das Ändern der Datenqualität könnte unter Umständen überschriebene Attribute an {0} Messwertqualitäten löschen.
+CFG;REST;editComment.bulkValue;Massenwert (kWh)
+CFG;REST;copyFromReference.selectDevice;Gerät auswählen
+CFG;REST;general.estimator;Bewertungsfunktion
+CFG;REST;editRuleWithAttributes.infoMsg;Die geänderten Attribute überschreiben die Werte von der Regel.
+CFG;REST;general.inactive;Inaktiv
+CFG;REST;validationTasks.addValidationTask.clear;Löschen
+CFG;REST;validation.schedule.scheduled;{0}. Nächste Ausführung {1}
+UNI;REST;uni.eventType.eventType;Ereignistyp
+UNI;REST;assign.user;Benutzer
+UNI;REST;uni.eventType.specifyEventType;Ereignistyp festlegen
+UNI;REST;search.field.internal.between;Zwischen
+UNI;REST;correct.window.onlySuspects;Nur fehlerverdächtige und bewertete Werte
+UNI;REST;general.reject;Zurückweisen
+UNI;REST;general.informatives;Informative Werte
+UNI;REST;general.editedOnXx;Bearbeitet
+UNI;REST;general.mark;Kennzeichnen
+UNI;REST;general.noPendingChanges;Für diese Beschränkungsregel für Befehle stehen keine Änderungen aus.
+UNI;REST;correct.window.subtract;Subtrahieren
+UNI;REST;process.alarmReasons;Grund der Alarmmeldung
+UNI;REST;general.raiseEvents.decrease.urgency;Dringlichkeit verringern (-1)
+UNI;REST;uni.eventType.alreadyAssigned;Der Ereignistyp wurde bereits zugewiesen.
+UNI;REST;general.approve;Genehmigen
+UNI;REST;general.create.alarms.when;Alarmmeldungen erstellen, wenn mindestens
+UNI;REST;bpm.task.priority.veryLow;Sehr niedrig
+UNI;REST;uni.eventType.deviceDomain;Domain des Geräts
+UNI;REST;general.enterName.optional;Namen eingeben (optional)
+UNI;REST;general.device.state.empty;Gerätezustand auswählen ...
+UNI;REST;uni.eventType.deviceEventOrAction;Ereignis oder Aktion des Geräts
+UNI;REST;uni.eventType.invalid.partx;Der Ereignistyp ist ungültig (Teil {0}).
+UNI;REST;correct.window.type;Typ
+UNI;REST;general.restoreDefaultEmptyValue;Auf leeren Vorgabewert zurückstellen
+UNI;REST;general.eventCode;Ereigniscode
+UNI;REST;form.field.onPeriod.optionCurrentOfYear.label;Aktueller Tag des Jahres
+UNI;REST;error.requestFailedConnexoKnownError;Ihre Aktion konnte nicht ausgeführt werden.
+UNI;REST;error.pageNotVisibleAuthorized;Sie sind nicht berechtigt, auf diese Seite zuzugreifen.
+UNI;REST;error.pageNotVisibleTitle;Entschuldigen Sie! Dies kann nicht gezeigt werden.
+UNI;REST;uni.eventType.deviceType;Gerätetyp
+UNI;REST;general.confirmed;Bestätigt
+UNI;REST;general.raiseEvents.increase;Dringlichkeit erhöhen (+ 1)
+UNI;REST;correct.window.limitValues;Grenzwerte
+UNI;REST;correct.window.multiply;Multiplizieren
+UNI;REST;uni.requiredField;Dieses Feld ist erforderlich.
+UNI;REST;general.addComment;Kommentar hinzufügen
+UNI;REST;assign.workgroup;Arbeitsgruppe
+UNI;REST;general.waitingForOtherApprovals;Warten auf die Genehmigung durch andere Benutzer.
+UNI;REST;general.errorCode;Fehlercode
+UNI;REST;bpm.task.user;Benutzer
+UNI;REST;general.raiseEvents.create;Neue Alarmmeldungen erstellen
+UNI;REST;error.communication.failureTitle;Die Aktion dauerte länger als erwartet.
+UNI;REST;whatsGoingOn.nothingToShowUP;Es sind keine aktiven Prozesse zur Anzeige verfügbar.
+UNI;REST;bpm.task.priority.veryHigh;Sehr hoch
+UNI;REST;general.performCount;Zählung durchführen?
+UNI;REST;general.raiseEvents.cleared;Bei Löschung
+UNI;REST;assign.showAllUsers;Alle Benutzer anzeigen
+UNI;REST;general.raiseEvents.again;Bei erneuter Auslösung
+UNI;REST;device.state;Gerätezustand
+UNI;REST;general.estimatedOnXx;Bewertet
+UNI;REST;general.raiseEvents.log;Protokoll der vorhandenen unbearbeiteten Alarmmeldungen
+UNI;REST;period.years;Jahr(e)
+UNI;REST;general.pendingChanges;Ausstehende Änderungen
+UNI;REST;error.communication.failure;Connexo hat ein Problem ermittelt, versuchen Sie bitte, die Seite zu aktualisieren. Wenn der Fehler weiterhin auftritt, wenden Sie sich bitte an Ihren Systemverwalter.
+UNI;REST;estimationComment.selectComment;Kommentar auswählen ...
+UNI;REST;correct.window.correct;Richtig
+UNI;REST;general.attribute;Attribut
+UNI;REST;assign.startTypingForUsers;Eingabe beginnen, um einen Benutzer auszuwählen.
+UNI;REST;general.estimates;Bewertungswerte
+UNI;REST;general.overridden;Übersteuert
+UNI;REST;assign.comment;Kommentar
+UNI;REST;uni.eventType.deviceCode;Gerätekennung
+UNI;REST;error.forbiddenAccess;Zugriff verweigert
+UNI;REST;correct.window.info.message;Die Korrektur wird auf den berechneten Wert angewendet.
+UNI;REST;general.suspects;Fehlerverdächtige Werte
+UNI;REST;general.events.per;Ereignisse pro
+UNI;REST;property.selectUsagePoint;Verwendungsstelle auswählen
+UNI;REST;whatsGoingOn.workGroupAssignee;Arbeitsgruppe: {0}
+UNI;REST;estimationComment.keepComment;Ursprünglichen Kommentar speichern
+UNI;REST;assign.startTypingForWorkgroup;Eingabe beginnen, um eine Arbeitsgruppe auszuwählen.
+UNI;REST;bpm.task.priority.medium;Mittel
+UNI;REST;general.eventTypes;Ereignistypen
+UNI;REST;general.deviceCode;Gerätekennung
+UNI;REST;general.restoredOnXx;Wiederhergestellt
+UNI;REST;error.internalConnexoErrorTitle;Interner Fehler bei Connexo
+UNI;REST;property.readingType.emptyText;Eingabe beginnen, um einen Messtyp auszuwählen.
+UNI;REST;assign.provideComment;Kommentar eingeben (optional)
+UNI;REST;general.originalValue;Ausgangswert
+UNI;REST;bpm.task.workgroup;Arbeitsgruppe
+UNI;REST;general.privileges;Berechtigungen
+UNI;REST;property.readingType.keepTyping;Die Eingabe zur Eingrenzung fortsetzen.
+UNI;REST;general.newValue;Neuer Wert
+UNI;REST;uni.eventType.deviceSubDomain;Subdomain des Geräts
+UNI;REST;general.estimationCommentWithComment;Kommentar zur Bewertung: {0}
+UNI;REST;general.device.type.empty;Gerätetyp auswählen ...
+UNI;REST;general.addEventTypes;Ereignistypen hinzufügen
+MTI;DOMAIN;UsagePointFileImporterFactory;Importfunktion für Verwendungsstelle [STD]
+MTI;DOMAIN;UsagePointFileImport;Import der Verwendungsstelle bearbeiten
+MTI;DOMAIN;delimiter;Trennzeichen
+MTI;DOMAIN;dateFormat;Datumsformat
+MTI;DOMAIN;dateFormat.description;Das für Datumseigenschaften verwendete Format
+MTI;DOMAIN;timeZone;Zeitzone
+MTI;DOMAIN;timeZone.description;Der eindeutige Bezeichner der Zeitzone, in der die Datumseigenschaften festgelegt sind
+MTI;DOMAIN;numberFormat;Zahlenformat
+MTI;DOMAIN;numberFormat.description;Das für numerische Eigenschaften verwendete Format
+MTI;DOMAIN;ImportResultNoUPWereProcessed;Der Vorgang konnte nicht abgeschlossen werden. Es wurden keine Verwendungsstellen verarbeitet.
+MTI;DOMAIN;ImportResultFail;Der Vorgang konnte nicht abgeschlossen werden. Es wurde(n) {0} Verwendungsstelle(n) erfolgreich verarbeitet.
+MTI;DOMAIN;ImportResultFailWithErrors;Der Vorgang konnte nicht abgeschlossen werden. Es wurde(n) {0} Verwendungsstelle(n) erfolgreich verarbeitet und {1} Verwendungsstelle(n) aufgrund von Fehlern übersprungen.
+MTI;DOMAIN;ImportResultFailWithWarnAndErrors;Der Vorgang konnte nicht abgeschlossen werden. Es wurde(n) {0} Verwendungsstelle(n) erfolgreich verarbeitet, wovon {1} Verwendungsstelle(n) einen Hinweis enthält bzw. enthalten und {2} Verwendungsstelle(n) aufgrund von Fehlern übersprungen wurde(n).
+MTI;DOMAIN;ImportResultFailWithWarn;Der Vorgang konnte nicht abgeschlossen werden. Es wurde(n) {0} Verwendungsstelle(n) erfolgreich verarbeitet, wovon {1} Verwendungsstelle(n) einen Hinweis enthält bzw. enthalten.
+MTI;DOMAIN;ImportResultSuccess;Der Vorgang wurde mit erfolgreich abgeschlossen. {0} Verwendungsstelle(n) wurde(n) erfolgreich verarbeitet.
+MTI;DOMAIN;ImportResultSuccessWithErrors;Der Vorgang wurde mit (einigen) Fehlern erfolgreich abgeschlossen. {0} Verwendungsstelle(n) wurde(n) erfolgreich verarbeitet, wovon {1} Verwendungsstelle(n) aufgrund von Fehlern übersprungen wurde(n).
+MTI;DOMAIN;ImportResultSuccessWithWarnAndErrors;Der Vorgang wurde mit (einigen) Fehlern und Hinweisen erfolgreich abgeschlossen. {0} Verwendungsstelle(n) wurde(n) erfolgreich verarbeitet, wovon {1} Verwendungsstelle(n) einen Hinweis enthält bzw. enthalten und {2} Verwendungsstelle(n) aufgrund von Fehlern übersprungen wurde(n).
+MTI;DOMAIN;ImportResultSuccessWithWarn;Der Vorgang wurde mit (einigen) Hinweisen erfolgreich abgeschlossen. {0} Verwendungsstelle(n) wurde(n) erfolgreich verarbeitet, wovon {1} Verwendungsstelle(n) einen Hinweis enthält bzw. enthalten.
+MTI;DOMAIN;ImportDefaultProcessorErrorPrefix;Die Verarbeitung von Zeile {0} ist nicht möglich: {1}
+SAM;REST;general.connexoVersion.10.3;Connexo Version 10.3
+SAM;REST;general.failed.to.upload.licenses.title;Ihre Aktion konnte nicht ausgeführt werden.
+TME;REST;general.Details;Details
+TME;REST;general.details;Details
+TME;REST;relativeperiod.form.selectCategory;Mindestens eine Kategorie auswählen ...
+UNI;REST;whatsGoingOn.nothingToShowIssues;Es sind keine aktiven Probleme zur Anzeige verfügbar.
+UNI;REST;general.eventCode.empty;Ereigniscode auswählen ...
+UNI;REST;uni.eventType.invalid;Ungültiger Ereignistyp
+UNI;REST;general.calendar;Kalender
+UNI;REST;whatsGoingOn.myWorkGroup;(Meine Arbeitsgruppe)
+UNI;REST;general.canBeOverridden;Der Wert kann überschrieben werden.
+UNI;REST;correct.window.projectedValues;Geplanter Wert
+UNI;REST;search.field.internal.notEmpty;Nicht leer
+UNI;REST;correct.window.add;Hinzufügen
+UNI;REST;bpm.task.priority.high;Hoch
+UNI;REST;copyFromReference.estimationComment;Kommentar zur Bewertung
+UNI;REST;general.discardDays;Bestimmte Tage verwerfen
+UNI;REST;general.discardDays.noCalendars;Es wurden noch keine Kalender definiert.
+UNI;REST;general.logLevel;Protokollierebene
+UNI;REST;general.raiseEvents.name;Ereignisse auslösen bei
+UNI;REST;whatsGoingOn.nothingToShowServiceCalls;Es sind keine aktiven Dienstaufrufe zur Anzeige verfügbar.
+UNI;REST;uni.eventType.tooltip;Der Platzhalter „*“ kann in jedem Abschnitt des Ereignistyps verwendet werden und steht für jeden beliebigen Wert.
+UNI;REST;error.pageNotVisibleLicenseExpired;Ihre Lizenz ist abgelaufen.
+UNI;REST;error.pageNotVisible;Die Seite ist nicht sichtbar.
+UNI;REST;bpm.task.priority.low;Niedrig
+UNI;REST;whatsGoingOn.nothingToShowAlarms;Es sind keine aktiven Alarmmeldungen zur Anzeige verfügbar.
+UNI;REST;general.selectValue;Wert auswählen ...
+UNI;REST;whatsGoingOn.nothingToShowProcesses;Es sind keine aktiven Prozesse zur Anzeige verfügbar.
+UNI;REST;general.calendar.type.empty;Nutzungszeitkalender auswählen ...
+UNI;REST;general.noEventTypes;Es wurden keine Ereignistypen hinzugefügt.
+UNI;REST;correct.window.correctionAmount;Korrekturbetrag
+UNI;REST;general.raiseEvents.nothing;Nichts unternehmen
+UNI;REST;correct.window.projectedValues.markValuess;Wert(e) als geplant kennzeichnen
+UNI;REST;uni.eventType.specifyEventTypeParts;Abschnitte des Ereignistyps festlegen
+UNI;REST;general.unmark;Kennzeichnung aufheben
+UNI;REST;general.unconfirmedSearchCriteria;Einige Suchkriterien wurden nicht angewendet. Möchten Sie sie anwenden?
+UNI;REST;general.addEventType;Ereignistyp hinzufügen
+UNI;REST;general.addedOnXx;Hinzugefügt
+UNI;REST;general.edited;Bearbeitet
+UNI;REST;whatsGoingOn.userAssignee;Benutzer: {0}
+UNI;REST;general.unspecifiedParameter;Nicht näher bestimmter Parameter
+UNI;REST;general.dontApply;Nicht anwenden
+UNI;REST;general.comment;Kommentar
+UNI;REST;general.restoredOnX;Auf {0} zurückgestellt
+UNI;REST;whatsGoingOn.currentUser;(Aktueller Benutzer)
+UNI;REST;general.removedOnXx;Entfernt
+YFN;REST;generatereport.yfnFilterTypeCONTAINS;enthält
+YFN;REST;generatereport.yfnFilterTypeGREATERCOLUMN;Spalte größer als
+YFN;REST;generatereport.yfnFilterTypeLESSCOLUMN;Spalte kleiner als
+YFN;REST;generatereport.yfnFilterTypeISNOTNULL;ist ungleich Null
+YFN;REST;general.clearAllButton;Alle löschen
+YFN;REST;generatereport.yfnFilterTypeMAXIMUMDATE;Datum von Maximum
+YFN;REST;generatereport.yfnFilterTypeLINKFILTER;Verknüpfung zum Filter
+YFN;REST;generatereport.yfnFilterTypeLESSEQUAL;kleiner als oder gleich
+YFN;REST;generatereport.yfnFilterTypeISNULL;ist gleich Null
+YFN;REST;generatereport.yfnFilterTypeGREATEREQUAL;größer als oder gleich
+YFN;REST;generatereport.yfnFilterTypeEQUAL;gleich
+YFN;REST;generatereport.yfnFilterTypeEQUALCOLUMN;Spalte gleich
+YFN;REST;generatereport.yfnFilterTypeNOTBETWEEN;Nicht zwischen
+YFN;REST;generatereport.yfnFilterTypeNOTCONTAINS;enthält nicht
+YFN;REST;generatereport.yfnFilterTypeLESSEQUALCOLUMN;Spalte kleiner als oder gleich
+YFN;REST;generatereport.yfnFilterTypeNOTEQUAL;abweichend von
+YFN;REST;generatereport.yfnFilterTypeMINIMUMDATE;Datum von Minimum
+YFN;REST;generatereport.yfnFilterTypeNOTINLIST;Nicht in der Liste
+YFN;REST;generatereport.interval.invalid;Das Anfangsdatum muss vor dem Enddatum liegen.
+YFN;REST;generatereport.yfnFilterTypeNOTEQUALCOLUMN;abweichend von Spalte
+YFN;REST;generatereport.yfnFilterTypeBETWEEN;zwischen
+YFN;REST;generatereport.yfnFilterTypeGREATER;größer als
+YFN;REST;general.workspace;Arbeitsbereich
+YFN;REST;generatereport.wizard.step2.title;Schritt 2: Berichtsfilter auswählen
+YFN;REST;generatereport.wizard.step1.title;Schritt 1: Berichtstyp auswählen
+YFN;REST;generatereport.yfnFilterTypeLESS;kleiner als
+YFN;REST;generatereport.wizard.step3.title;Schritt 3: Ausgewählten Bericht erstellen
+YFN;REST;generatereport.yfnFilterTypeGREATEREQUALCOLUMN;Spalte größer als oder gleich
+YFN;REST;generatereport.yfnFilterTypeINLIST;In der Liste
+YFN;REST;general.selectAllButton;Alle auswählen
+SCT;REST;servicecalltype.setXUnavailable;Der benutzerdefinierte Attributesatz „{0}“ ist (vorübergehend) nicht verfügbar.
+PKJ;REST;trustStores.add;Trust Store hinzufügen
+PKJ;REST;trustedCertificates.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} vertrauenswürdigen Zertifikate
+PKJ;REST;general.status;Status
+PKJ;REST;trustedCertificates.pagingtoolbartop.emptyMsg;Es sind keine vertrauenswürdigen Zertifikate zur Anzeige verfügbar.
+PKJ;REST;general.remove;Entfernen
+PKJ;REST;general.selectCertificateType;Zertifikattyp auswählen ...
+PKJ;REST;general.expirationDate;Ablaufdatum
+PKJ;REST;general.certificates;Zertifikate
+PKJ;REST;general.certificatesImport.success;Die Zertifikate wurden importiert.
+PKJ;REST;general.certificateAttributes;Zertifikatattribute
+PKJ;REST;general.Edit;Bearbeiten
+PKJ;REST;general.version;Version
+PKJ;REST;general.addCertificate;Zertifikat hinzufügen
+PKJ;REST;general.alias;Alias
+PKJ;REST;certificates.empty.list.reason2;Es stimmen keine Zertifikate mit dem Filter überein.
+PKJ;REST;certificates.empty.list.reason1;Es wurden noch keine Zertifikate definiert.
+PKJ;REST;general.csrAttribute.commonName;Allgemeiner Name (CN)
+PKJ;REST;general.csrAttributes;CSR-Attribute
+PKJ;REST;general.addTrustStore;Trust Store hinzufügen
+PKJ;REST;general.validFrom;Gültig von
+PKJ;REST;general.downloadCSR;CSR herunterladen
+PKJ;REST;general.maxCertificateFileSize;Die maximale Dateigröße beträgt 2 KB, und die Datei sollte DER-codiert sein.
+PKJ;REST;general.serialNumber;Seriennummer
+PKJ;REST;trustStores.pagingtoolbarbottom.itemsPerPage;Trust Stores pro Seite
+PKJ;REST;general.editX;{0} bearbeiten
+PKJ;REST;certificates.pagingtoolbarbottom.itemsPerPage;Zertifikate pro Seite
+PKJ;REST;general.csrAttribute;CSR-Attribute
+PKJ;REST;general.csrAttribute.locality;Ort (L)
+PKJ;REST;trustedCertificates.empty.list.reason2;Es stimmen keine vertrauenswürdigen Zertifikate mit dem Filter überein.
+PKJ;REST;trustedCertificates.empty.list.reason1;Es wurden noch keine vertrauenswürdigen Zertifikate definiert.
+PKJ;REST;general.certificatesWithSameAlias.info;Die vorhandenen Zertifikate mit demselben Alias werden überschrieben.
+PKJ;REST;general.keyStoreFile;Speicherdatei des Schlüssels
+PKJ;REST;general.keyAttribute;Schlüsselattribut
+PKJ;REST;truststores.remove.msg;Der Trust Store und die entsprechenden Zertifikate werden nicht mehr verfügbar sein.
+PKJ;REST;general.keyEncryptionMethod;Verschlüsselungsmethode für den Schlüssel
+PKJ;REST;trustedCertificate.remove.msg;Durch das Entfernen dieses vertrauenswürdigen Zertifikats könnte eine Vertrauenskette unterbrochen werden.
+PKJ;REST;general.editTrustStore;Trust Store bearbeiten
+PKJ;REST;trustStores.pagingtoolbartop.emptyMsg;Es sind keine Trust Stores zur Anzeige verfügbar.
+PKJ;REST;general.certificateRemoved;Das Zertifikat wurde entfernt.
+PKJ;REST;certificates.empty.title;Es wurden keine Zertifikate gefunden.
+PKJ;REST;truststores.addSuccess;Der Trust Store wurde hinzugefügt.
+PKJ;REST;general.certificateFileTooBig;Die Dateigröße sollte 2 KB nicht überschreiten.
+PKJ;REST;general.maxKeyStoreFileSize;Die maximale Dateigröße beträgt 250 KB, und der Dateityp sollte JKS sein.
+PKJ;REST;general.save;Speichern
+PKJ;REST;certificates.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Zertifikaten
+PKJ;REST;general.keyUsage;Schlüsselverwendung
+PKJ;REST;general.certificateImport.success;Das Zertifikat wurde importiert.
+PKJ;REST;trustedCertificates.pagingtoolbartop.displayMsg;{0} - {1} von {2} vertrauenswürdigen Zertifikaten
+PKJ;REST;general.csrAttribute.organisation;Organisation (O)
+PKJ;REST;general.importCertificate;Zertifikat importieren
+PKJ;REST;general.csrAttribute.stateOrProvince;Staat oder Provinz (ST)
+PKJ;REST;general.certificateUploadFailed;Fehler beim Hochladen der Datei.
+PKJ;REST;general.add;Hinzufügen
+PKJ;REST;general.trustedCertificateRemoved;Das vertrauenswürdige Zertifikat wurde entfernt.
+PKJ;REST;general.description;Beschreibung
+PKJ;REST;trustedCertificates.pagingtoolbarbottom.itemsPerPage;Vertrauenswürdige Zertifikate pro Seite
+PKJ;REST;general.addCSR;CSR hinzufügen
+PKJ;REST;general.certificateFile;Zertifikatdatei
+PKJ;REST;general.trustStoreRemoved;Der Trust Store wurde entfernt.
+PKJ;REST;general.issuer;Zertifikataussteller
+PKJ;REST;trustStores.empty.list.item2;Es sind Trust Stores vorhanden, Sie sind jedoch nicht zu deren Anzeige berechtigt.
+PKJ;REST;trustStores.empty.list.item1;Es wurden noch keine Trust Stores definiert.
+PKJ;REST;general.cancel;Abbrechen
+PKJ;REST;certificate.remove.msg;Das Zertifikat wird nicht mehr verfügbar sein.
+PKJ;REST;general.trustedCertificates;Vertrauenswürdige Zertifikate
+PKJ;REST;general.certificateManagement;Zertifikatverwaltung
+PKJ;REST;general.keyStoreFileTooBig;Die Dateigröße sollte 250 KB nicht überschreiten.
+PKJ;REST;general.name;Name
+PKJ;REST;general.csrAdded;CSR wurde hinzugefügt.
+PKJ;REST;general.signatureAlgorithm;Signaturalgorithmus
+PKJ;REST;certificates.pagingtoolbartop.displayMsg;{0} - {1} von {2} Zertifikaten
+PKJ;REST;general.download;Herunterladen
+PKJ;REST;trustStores.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Trust Stores
+PKJ;REST;general.downloadCertificate;Zertifikat herunterladen
+PKJ;REST;general.csrAttribute.organisationalUnit;Organisationseinheit (OE)
+PKJ;REST;truststores.saveSuccess;Der Trust Store wurde gespeichert.
+PKJ;REST;general.import;Importieren
+PKJ;REST;general.administration;Administration
+PKJ;REST;general.selectFile;Datei auswählen ...
+PKJ;REST;general.selectKeyEncryptionMethod;Verschlüsselungsmethode für den Schlüssel auswählen ...
+PKJ;REST;general.password;Kennwort
+PKJ;REST;trustStores.empty.title;Es wurden keine Trust Stores gefunden.
+PKJ;REST;general.certificateFileAlreadyAvailable;Das vorhandene Zertifikat wird überschrieben.
+PKJ;REST;general.certificateType;Zertifikattyp
+PKJ;REST;general.csrAttribute.country;Land (C)
+PKJ;REST;general.trustStores;Trust Stores
+PKJ;REST;general.validTo;Gültig bis
+PKJ;REST;general.details;Details
+PKJ;REST;general.keyAttributes;Schlüsselattribute
+PKJ;REST;general.removeX;{0} entfernen?
+PKJ;REST;trustStores.pagingtoolbartop.displayMsg;{0} - {1} von {2} Trust Stores
+PKJ;REST;general.importTrustedCertificates;Vertrauenswürdige Zertifikate importieren
+PKJ;REST;general.edit;Bearbeiten
+PKJ;REST;certificates.pagingtoolbartop.emptyMsg;Es sind keine Zertifikate zur Anzeige verfügbar.
+PKJ;REST;trustedCertificates.empty.title;Es wurden keine vertrauenswürdigen Zertifikate gefunden.
+PKJ;REST;general.subject;Zertifikatinhaber
+RUT;REST;internalConnexoError;Connexo hat einen Fehler ermittelt, wenden Sie sich bitte Ihren Systemadministrator.
+SPI;DOMAIN;DateFormatIsNotValid;Ungültiges Datumsformat
+SPI;DOMAIN;TimeZoneIsNotValid;Ungültige Zeitzone
+SPI;DOMAIN;NumberFormatIncompatibleWithDelimiter;Das Zahlenformat ist mit dem Trennzeichen nicht kompatibel.
+SPI;DOMAIN;TitleMissingError;Fehlerhaftes Dateiformat: fehlerhafte Anzahl an Titelspalten in der ersten Zeile. Der Importdienst erwartet {0}, fand jedoch {1} vor.
+SPI;DOMAIN;FileFormatError;Fehlerhaftes Dateiformat: fehlerhafte Anzahl an Spalten in der Zeile {0}. Der Importdienst erwartet {1}, fand jedoch {2} vor.
+SPI;DOMAIN;LineMissingValueError;Formatfehler für Zeile {0}: fehlender obligatorischer Wert für Spalte {1}.
+SPI;DOMAIN;LineFormatError;Formatfehler in Zeile {0}: falsches Werteformat für Spalte {1} (erwartetes Format = {2})
+SPI;DOMAIN;NoSuchCorrectionFactorError;Die Verarbeitung der Datei ist nicht möglich: unbekannter Name des Korrekturfaktors {1}
+SPI;DOMAIN;ColumnsNumberLessThan2;Die Verarbeitung der Datei ist nicht möglich: Die Mindestanzahl der Spalten ist 2.
+SPI;DOMAIN;TimestampColumnNotDefined;Die Verarbeitung der Datei ist nicht möglich: Die Spalte „Zeitstempel“ ist in der Datei nicht festgelegt.
+SPI;DOMAIN;DurationAttributesNotTheSame;Die Verarbeitung der Datei ist nicht möglich: Die Datei muss die Daten für Korrekturfaktoren mit demselben Attributewert „Dauer“ enthalten.
+SPI;DOMAIN;WrongTimestamp;Die Verarbeitung von Zeile {0} ist nicht möglich: falsches Format des Zeitstempels
+SPI;DOMAIN;NoSuchCorrectionFactor;Die Verarbeitung von Zeile {0} ist nicht möglich: unbekannter Name des Korrekturfaktors {1}
+SPI;DOMAIN;WrongValueFormat;Die Verarbeitung von Zeile {0} ist nicht möglich: falsches Format des Werts
+SPI;DOMAIN;TimestampIsBeforeStarttime;Die Verarbeitung von Zeile {0} ist nicht möglich: Der Zeitstempel muss größer als oder gleich {1} sein.
+SPI;DOMAIN;WrongFirstTimestamp;"Die Verarbeitung von Zeile {0} ist nicht möglich: falscher erster Zeitstempel Der erste Zeitstempel in der Datei sollte mit Monat, Tag und Stunde der Anfangszeit aller in der Datei angegebenen Korrekturfaktoren übereinstimmen. Erwartete Angaben zu Datum und Uhrzeit: „{1}"", aktuelles Datum und Uhrzeit: „{2}“"
+SPI;DOMAIN;WrongInterval;Die Verarbeitung von Zeile {0} ist nicht möglich: falscher Zeitstempel Das Intervall zwischen diesem und einem früheren Zeitstempel muss gleich dem Wert „Intervall“ aller in der Datei angegebenen Korrekturfaktoren sein.
+SPI;DOMAIN;NotEnoughData;Die Verarbeitung der Datei ist nicht möglich: Die Datei muss die Anzahl der Daten enthalten, die das Vielfache des Attributewerts „Dauer“ aller in der Datei festgelegten Korrekturfaktoren ist.
+SPI;DOMAIN;CorrectionFactorImportFailed;Der Import ist fehlgeschlagen.
+MTI;DOMAIN;DateFormatIsNotValid;Ungültiges Datumsformat
+MTI;DOMAIN;TimeZoneIsNotValid;Ungültige Zeitzone
+MTI;DOMAIN;NumberFormatIncompatibleWithDelimiter;Das Zahlenformat ist mit dem Trennzeichen nicht kompatibel.
+MTI;DOMAIN;TitleMissingError;Fehlerhaftes Dateiformat: fehlerhafte Anzahl an Titelspalten in der ersten Zeile. Der Importdienst erwartet {0}, fand jedoch {1} vor.
+MTI;DOMAIN;FileFormatError;Fehlerhaftes Dateiformat: fehlerhafte Anzahl an Spalten in der Zeile {0}. Der Importdienst erwartet {1}, fand jedoch {2} vor.
+MTI;DOMAIN;LineMissingValueError;Formatfehler für Zeile {0}: fehlender obligatorischer Wert für Spalte {1}.
+MTI;DOMAIN;LineFormatError;Formatfehler in Zeile {0}: falsches Werteformat für Spalte {1} (erwartetes Format = {2})
+MTI;DOMAIN;update.not.allowed;Die Verarbeitung von Zeile {0} ist nicht möglich: Die Aktualisierung ist nicht zulässig.
+MTI;DOMAIN;up.import.succeeded;Es wurden {0} Verwendungsstellen erfolgreich ohne Fehler importiert.
+MTI;DOMAIN;up.import.succeeded.with.failures;Es wurden {0} Verwendungsstellen erfolgreich importiert, bei {1} Verwendungsstellen ist der Import fehlgeschlagen.
+MTI;DOMAIN;up.import.exception;Der Import ist fehlgeschlagen. Bitte prüfen Sie das Format des Dateiinhalts.
+MTI;DOMAIN;up.invalid.date;Die Verarbeitung von Zeile {0} ist nicht möglich: Ungültige Daten
+MTI;DOMAIN;up.no.service.kind;Die Verarbeitung von Zeile {0} ist nicht möglich: Ungültige Dienstart
+MTI;DOMAIN;up.invalid.service.kind;Die Verarbeitung von Zeile {0} ist nicht möglich: Es wurde kein Diensttyp mit dem Namen {1} gefunden.
+MTI;DOMAIN;up.invalid.service.location;Ungültiger Dienststandort in Zeile {0} Das Attribut wurde übersprungen.
+MTI;DOMAIN;up.invalid.id;Die Verarbeitung von Zeile {0} ist nicht möglich: Ungültiger Bezeichner (MRID oder Name)
+MTI;DOMAIN;up.invalid.parser;Die Verarbeitung von Zeile {0} ist nicht möglich: Der Parser für {0} wurde nicht gefunden.
+MTI;DOMAIN;up.not.found;Die Verarbeitung von Zeile {0} ist nicht möglich: Es wurde keine Verwendungsstelle gefunden: {1}
+MTI;DOMAIN;up.constraint.violation;Die Verarbeitung von Zeile {0} ist nicht möglich: {1} - {2}
+MTI;DOMAIN;quantity.out.of.bounds;Die Verarbeitung von Zeile {0} ist nicht möglich: Ungültige Daten Der Multiplikator überschreitet die zulässigen Grenzwerte.
+MTI;DOMAIN;up.invalid.service.category;Die Verarbeitung von Zeile {0} ist nicht möglich: Es wurde keine Kategorie mit dem Namen {1} gefunden.
+MTI;DOMAIN;up.service.category.cannot.change;Die Verarbeitung von Zeile {0} ist nicht möglich: Die Dienstkategorie an Verwendungsstellen kann nicht geändert werden.
+MTI;DOMAIN;up.versioned.values.not.found;Die Verarbeitung von Zeile {0} ist nicht möglich: Es sind keine solchen aktiven Versionen für {1} vorhanden.
+MTI;DOMAIN;line.missing.location.value;Formatfehler für Zeile {0}: fehlender obligatorischer Wert für Feld {1}.
+MTI;DOMAIN;bad.metrology.configuration;Die Verarbeitung von Zeile {0} ist nicht möglich: Es ist keine solche aktive messtechnische Konfiguration vorhanden.
+MTI;DOMAIN;service.categories.do.not.match;Die Verarbeitung von Zeile {0} ist nicht möglich: Die Dienstkategorie der Verwendungsstelle stimmt nicht mit der Dienstkategorie der messtechnischen Konfiguration überein.
+MTI;DOMAIN;empty.metrology.configuration.time;Die Verarbeitung von Zeile {0} ist nicht möglich: Das Anfangsdatum der messtechnischen Konfiguration wurde nicht angegeben.
+MTI;DOMAIN;no.such.meter;Es wurde kein Zähler mit dem Namen {0} gefunden.
+MTI;DOMAIN;no.such.meter.role;Es wurde keine Zählerrolle mit dem Schlüssel {0} gefunden.
+MTI;DOMAIN;activation.date.of.meter.role.is.before.up.creation;Das Aktivierungsdatum des Messgeräts {0} muss größer als das oder gleich dem Erstellungsdatum der Verwendungsstelle sein.
+MTI;DOMAIN;some.fields.are.empty;Der Zähler und das Aktivierungsdatum müssen für die Verwendungsstelle zusammen angegeben werden.
+MTI;DOMAIN;no.such.transition;Der Übergang {0} kann an der Verwendungsstelle nicht durchgeführt werden.
+MTI;DOMAIN;transition.date.is.not.specified;Das Übergangsdatum wurde für de Verwendungsstelle nicht angegeben.
+MTI;DOMAIN;activation.date.of.transition.is.before.up.creation;Das Übergangsdatum muss größer als das oder gleich dem Erstellungsdatum der Verwendungsstelle sein.
+MTI;DOMAIN;pre.transition.check.failed;Die Prüfung vor dem Übergang ist fehlgeschlagen: {0}.
+MTI;DOMAIN;calendar.does.not.exist;Die Verarbeitung von Zeile {0} ist nicht möglich: Es ist kein solcher {1} Kalender vorhanden.
+MTI;DOMAIN;no.such.mandatory.cps.value;Die Verarbeitung von Zeile {0} ist nicht möglich: Fehlender obligatorischer Wert {1} für benutzerdefinierte Eigenschaften {2}
+RUT;REST;loglevel.SEVERE;Fehler
+RUT;REST;loglevel.WARNING;Warnmeldung
+RUT;REST;loglevel.CONFIG;Informationen
+RUT;REST;loglevel.FINER;Fehlerbehebung
+RUT;REST;loglevel.FINEST;Zurückverfolgen
+SCS;REST;servicecalltype.loglevel.severe;Schwer
+SCS;REST;servicecalltype.loglevel.warning;Warnmeldung
+SCS;REST;servicecalltype.loglevel.info;Informationen
+SCS;REST;servicecalltype.loglevel.config;Konfiguration
+FIM;DOMAIN;privilege.view.import.history;Verlauf anzeigen
+FIM;DOMAIN;privilege.import.file;Datei importieren
+CAL;REST;CalendarInUse;Der Kalender wird noch verwendet.
+CAL;REST;NoSuchCategory;Die Kategorie ist nicht vorhanden.
+CAL;REST;CalendarInActiveState;Sie können einen aktiven Kalender nicht entfernen.
+CAL;DOMAIN;calendar.category.not.found;Die Kategorie {0} ist nicht vorhanden.
+CAL;DOMAIN;calendar.eventset.name.too.long;Das Einstellen eines Namens für das Ereignis ist zu lang, es darf 80 Zeichen nicht überschreiten.
+CAL;DOMAIN;calendar.import.no.daytype.defined.with.name;Es wurde kein Tagestyp mit dem Namen „{0}“ definiert.
+CAL;DOMAIN;calendar.update.no.past.exceptions.on.active.calendar;Sie können ortsfeste außergewöhnliche Ereignisse in der Vergangenheit nicht zu einem aktiven Kalender hinzufügen.
+CAL;DOMAIN;CalendarImporterFactory;Importfunktion für Kalender [STD]
+CAL;DOMAIN;calendar.import.summary.succeeded;Der Vorgang wurde erfolgreich abgeschlossen.
+CAL;DOMAIN;calendar.import.summary.failed;Der Vorgang konnte nicht abgeschlossen werden. Es wurden keine Kalender verarbeitet.
+CAL;DOMAIN;CalendarImport;Kalenderimport bearbeiten
+CAL;DOMAIN;calendar.category.tou;Nutzungszeit
+CAL;DOMAIN;calendar.category.workforce;Mitarbeiter
+CAL;DOMAIN;calendar.category.commands;Befehle
+CAL;DOMAIN;CALTimeSeriesExtender;Definition eines Kalenders um ein Jahr verlängern
+CAL;DOMAIN;Status.ACTIVE;Aktiv
+CAL;DOMAIN;Status.INACTIVE;Inaktiv
+TSK;REST;MultiSense;MultiSense
+TSK;REST;Insight;Einblick
+TSK;REST;Facts;Fakten
+TSK;REST;Admin;Admin
+TSK;REST;Flow;Durchfluss
+CPS;REST;com.elster.jupiter.util.units.Quantity;Anzahl
+CPS;REST;java.lang.Long;Lang
+CPS;REST;java.time.Instant;Augenblick
+DUC;DOMAIN;dualControl.cantCombineWithGrant;Die Berechtigung „{0}“ kann dieser Rolle nicht erteilt werden, da mindestens ein Benutzer mit dieser Rolle die Berechtigung „{1}“ hat.
+DUC;DOMAIN;dualControl.cantCombineWithApprove;Die Berechtigung „{0}“ kann dieser Rolle nicht erteilt werden, da mindestens ein Benutzer mit dieser Rolle bereits die Berechtigung „Genehmigen“ hat.
+DUC;DOMAIN;dualControl.cantCombineRolesWithPrivilegesXandY;Aus Sicherheitsgründen können Sie die Benutzerrollen nicht mit den Berechtigungen „{0}“ und „{1}“ kombinieren.
+DUC;DOMAIN;dualControl.cantGrantRole;Der aktuelle Benutzer kann die gegebene(n) Rolle(n) nicht erteilen/widerrufen.
+DUC;DOMAIN;dualcontrol;Doppelsteuerung
+DUC;DOMAIN;dualcontrol.description;Doppelsteuerung verwalten
+DUC;DOMAIN;dualcontrol.grant.approval;Berechtigungen für die Genehmigung von Doppelsteuerungsinstanzen erteilen
+FIR;REST;DeleteImportScheduleSqlException;Der Importzeitplan {0} konnte nicht entfernt werden. Beim Zugriff auf die Datenbank ist ein Problem aufgetreten.
+FIR;REST;InvalidCharsImporter;Dieses Feld enthält ungültige Zeichen.
+FIR;REST;FieldRequired;Dieses Feld ist erforderlich.
+FIR;REST;ImportServiceNotFound;Der Importzeitplan {0} wurde nicht gefunden.
+FIR;REST;FailedToUploadToServer;Die Datei {0} kann nicht vom Webserver auf den Anwendungsserver {1} kopiert werden.
+FIR;REST;MaxFileSizeExceeded;Die Dateigröße sollte 100 MB nicht überschreiten.
+TME;DOMAIN;InvalidTimeDuration;Ungültige Dauer
+TME;DOMAIN;relative.period.lastSevenDays;Letzte 7 Tage
+TME;DOMAIN;relative.period.previouMonth;Vorhergehender Monat
+TME;DOMAIN;relative.period.thisMonth;Aktueller Monat
+TME;DOMAIN;relative.period.PreviousWeek;Vorhergehende Woche
+TME;DOMAIN;relative.period.thisWeek;Aktuelle Woche
+TME;DOMAIN;relative.period.yesterday;Gestern
+TME;DOMAIN;relative.period.today;Heute
+TME;DOMAIN;relative.period.thisYear;Aktuelles Jahr
+TME;DOMAIN;milliseconds;Millisekunden
+TME;DOMAIN;seconds;Sekunden
+TME;REST;InvalidTimeDuration;Ungültige Dauer
+DQK;DOMAIN;CanNotBeEmpty;Dieses Feld ist erforderlich.
+DQK;DOMAIN;DeviceGroupMustBeUnique;Es ist bereits eine Kennzahl für diese Gerätegruppe vorhanden.
+DQK;DOMAIN;UsagePointGroupAndPurposeMustBeUnique;Es gibt bereits ein Kennzahl für diese Verwendungsstellengruppe und diesen Zweck.
+DQK;DOMAIN;DataQualityKpiCalc;Datenqualitätskennungen berechnen
+DQK;DOMAIN;data.quality;Datenqualität
+DQK;DOMAIN;data.quality.description;Datenqualitätskennzahl verwalten
+DQK;DOMAIN;privilege.administer.dataQualityKpi;Ausführen
+DQK;DOMAIN;privilege.view.dataQualityKpi;Kennzahlen anzeigen
+DQK;DOMAIN;privilege.view.dataQualityResults;Ergebnisse anzeigen
+EST;DOMAIN;CannotDeleteEstimationTask;Die Bewertungsaufgabe kann nicht entfernt werden, da die Aufgabe zurzeit ausgeführt wird.
+EST;DOMAIN;UsagePointGroupXstillInUseByTask;Die Verwendungsstellengruppe {0} wird noch von mindestens einer Aufgabe verwendet.
+EST;DOMAIN;privilege.view.estimateManual;Manuell bewerten
+EST;DOMAIN;privilege.estimate.with.rule;Mit Regel bewerten
+EST;DOMAIN;privilege.edit.with.estimator;Mit Bewertungsfunktion bearbeiten
+EST;DOMAIN;MDC;MultiSense
+EST;DOMAIN;MDM;Einblick
+DQR;REST;NoSuchDeviceGroup;Es ist keine Endgerätegruppe mit der Kennung {0} vorhanden.
+DQR;REST;NoSuchUsagePointGroup;Es ist keine Verwendungsstellengruppe mit der Kennung {0} vorhanden.
+DQR;REST;NoSuchMetrologyPurpose;Es ist kein Zweck der messtechnischen Konfiguration mit der Kennung {0} vorhanden.
+DQR;REST;CanNotBeEmpty;Dieses Feld ist erforderlich.
+DES;REST;NotSupportedPropertyValue;Dieser Wert ist nur für die Verwendungsstelle verfügbar.
+DER;REST;exporttask.recurrence.none;Keine
+DER;REST;status.before;{0} seit
+DER;REST;status.on;{0} an
+DER;REST;dataexporttask.occurrence.scheduled;Geplant
+DER;REST;dataexporttask.occurrence.onrequest;Auf Anforderung
+DER;REST;dataexporttask.occurrence.nonrecurring;Einmalig
+MTR;REST;readingtype.alreadyExists;Der Messtyp {0} ist bereits vorhanden.
+MTR;REST;readingtype.tooManyReadingTypes;Sie fügen hierdurch {0} Messtypen hinzu. Die Grenze liegt bei 1000.
+MTR;REST;readingtype.creatingFail;Die Erstellung der Messtypen ist fehlgeschlagen.
+SCS;REST;servicecalltype.loglevel.fine;Fein
+SCS;REST;servicecalltype.loglevel.finer;Feiner
+SCS;REST;servicecalltype.loglevel.finest;Feinste
+SCS;REST;servicecalltype.status.active;Aktiv
+SCS;REST;servicecalltype.status.deprecated;Abgelehnt
+SCS;DOMAIN;sclc.default.created;Erstellt
+SCS;DOMAIN;sclc.default.pending;Ausstehend
+SCS;DOMAIN;sclc.default.scheduled;Geplant
+SCS;DOMAIN;sclc.default.ongoing;Laufend
+SCS;DOMAIN;sclc.default.paused;Angehalten
+SCS;DOMAIN;sclc.default.waiting;Warten
+SCS;DOMAIN;sclc.default.partialSuccess;Teilerfolg
+SCS;DOMAIN;sclc.default.successful;Erfolgreich
+SCS;DOMAIN;sclc.default.failed;Fehlgeschlagen
+SCS;DOMAIN;sclc.default.rejected;Zurückgewiesen
+SCS;DOMAIN;sclc.default.cancelled;Abgebrochen
+SCS;DOMAIN;servicecalltype.loglevel.severe;Schwer
+SCS;DOMAIN;servicecalltype.loglevel.warning;Warnmeldung
+SCS;DOMAIN;servicecalltype.loglevel.info;Informationen
+SCS;DOMAIN;servicecalltype.loglevel.config;Konfiguration
+SCS;DOMAIN;servicecalltype.loglevel.fine;Fein
+SCS;DOMAIN;servicecalltype.loglevel.finer;Feiner
+SCS;DOMAIN;servicecalltype.loglevel.finest;Feinste
+USR;DOMAIN;DuplicateWorkGroupName;Doppelter Name
+USR;DOMAIN;InsufficientPrivileges;Der Benutzer hat nicht die erforderlichen Berechtigungen, die angeforderte Aktion durchzuführen.
+USR;DOMAIN;cannot.remove.all.user.administrators;Es ist mindestens ein Benutzerkonto mit der Rolle Benutzeradministrator erforderlich.
+ISU;DOMAIN;action.issue.assigned;Das Problem wurde zugewiesen.
+ISU;DOMAIN;action.issue.commented;Das Problem wurde kommentiert.
+ISU;DOMAIN;action.issue.unassigned;Die Zuweisung des Problems wurde aufgehoben.
+ISR;REST;IssueActionPhaseNotApplicableDescription;Die Aktion wird nie ausgeführt.
+ISR;REST;action.issue.unassigned;Die Zuweisung des Problems wurde aufgehoben.
+ISR;REST;action.issue.assigned.user;Das Problem wurde zugewiesen.
+ISR;REST;action.issue.priority.changed;Die Priorität des Problems wurde geändert.
+MTR;DOMAIN;meter.role.meter.role.default;Standard;
+MTR;DOMAIN;meter.role.meter.role.production;Produktion;
+MTR;DOMAIN;meter.role.meter.role.consumption;Verbrauch;
+MTR;DOMAIN;meter.role.meter.role.main;Haupt...;
+MTR;DOMAIN;meter.role.meter.role.check;Überprüfen;
+MTR;DOMAIN;meter.role.meter.role.peak.consumption;Verbrauchsspitzen;
+MTR;DOMAIN;meter.role.meter.role.off.peak.consumption;Verbrauchsspitzen aus;
+MTG;DOMAIN;noQueryProviderFound;Es ist kein Abfrageanbieter mit dem Namen vorhanden.
+MTG;DOMAIN;groupIsUsedByAnotherGroup;Die Gruppe wird von einer anderen Gruppe verwendet.
+MTG;DOMAIN;usagePointGroup;Verwendungsstellengruppe
+ESR;DOMAIN;estimator.fail.no.up;Fehler beim Ausführen der Bewertung mit der Methode {0}, da die Verwendungsstelle nicht gefunden wurde.
+ESR;DOMAIN;maincheck.estimator.fail.internal;Die Bewertung des Zeitraums {0} unter Verwendung der Methode {1} am {2}/{3}/{4} ist aufgrund eines internen Fehlers fehlgeschlagen.
+ESR;DOMAIN;maincheck.estimator.fail.effective.mc.not.found;Die Bewertung des Zeitraums {0} unter Verwendung der Methode {1} am {2} ist fehlgeschlagen, weil die tatsächliche messtechnische Konfiguration am {3} nicht gefunden wurde.
+ESR;DOMAIN;maincheck.estimator.fail.purpose.does.no.exist;Die Bewertung des Zeitraums {0} unter Verwendung der Methode {1} am {2} ist fehlgeschlagen, weil der angegebene Zweck am {3} nicht vorhanden ist.
+ESR;DOMAIN;maincheck.estimator.fail.no.output.on.purpose;Die Bewertung des Zeitraums {0} unter Verwendung der Methode {1} am {2} ist fehlgeschlagen, weil der Prüfausgang mit dem übereinstimmenden Messtyp zum angegebenen Zweck am {3} nicht vorhanden ist.
+ESR;DOMAIN;maincheck.estimator.fail.data.suspect.or.missing;Die Bewertung des Zeitraums {0} unter Verwendung der Methode {1} am {2}/{3}/{4} ist fehlgeschlagen, da die Daten des Prüfausgangs fehlerverdächtig sind oder fehlen.
+ESR;DOMAIN;reference.estimator.misc.not.complete;Die Bewertung des Zeitraums {0}/{1}/{2} unter Verwendung der Methode {3} ist fehlgeschlagen, weil Verwendungsstelle, Zweck und Messtyp für die Prüfung nicht angegeben sind.
+ESR;DOMAIN;reference.estimator.misc.check.readingtype.not.comparable;Die Bewertung des Zeitraums {0}/{1}/{2} unter Verwendung der Methode {3} ist fehlgeschlagen, weil das Ergebnis der Prüfung nicht mit dem „Haupt“-Messtyp übereinstimmt.
+ESR;DOMAIN;reference.estimator.validate.props.no.purpose;Der Zweck wurde nicht an der Verwendungsstelle gefunden.
+ESR;DOMAIN;reference.estimator.validate.props.no.readingtype;Der Messtyp wurde zu dem Zweck nicht gefunden.
+ESR;DOMAIN;reference.estimator.fail.effective.mc.not.found;Die Bewertung des Zeitraums {0} unter Verwendung der Methode {1} am {2} ist fehlgeschlagen, weil die tatsächliche messtechnische Konfiguration am {3} nicht gefunden wurde.
+ESR;DOMAIN;reference.estimator.fail.purpose.does.no.exist;Die Bewertung des Zeitraums {0}/{1}/{2} unter Verwendung der Methode {3} ist fehlgeschlagen, weil der angegebene Zweck/Messtyp am {4} nicht vorhanden ist.
+ESR;DOMAIN;reference.estimator.fail.no.output.on.purpose;Die Bewertung des Zeitraums {0} unter Verwendung der Methode {1} am {2} ist fehlgeschlagen, weil der Prüfausgang mit dem übereinstimmenden Messtyp zum angegebenen Zweck am {3} nicht vorhanden ist.
+ESR;DOMAIN;reference.estimator.fail.data.suspect.or.missing;Die Bewertung des Zeitraums {0} unter Verwendung der Methode {1} am {2}/{3}/{4} ist fehlgeschlagen, da die Daten des Prüfausgangs fehlerverdächtig sind oder fehlen.
+ESR;DOMAIN;property.error;Dieser Wert sollte positiv sein.
+ESR;DOMAIN;nearestavgvalueday.estimator.fail.not.enough.samples;Die Bewertung des Zeitraums {0} unter Verwendung der Methode {1} ist fehlgeschlagen, weil nicht genügend (gültige) Stichproben am {2}/{3} gefunden wurden.
+ESR;DOMAIN;nearestavgvalueday.estimator.fail.estimated.day.is.discarded;Die Bewertung des Zeitraums {0} unter Verwendung der Methode {1} ist fehlgeschlagen, weil die zu bewertenden Werte zu einem Tag gehören, der am {2}/{3} abgelegt wird.
+EST;DOMAIN;com.elster.jupiter.estimators.impl.MainCheckEstimator;Auswechslung von „Prüf-“ und „Haupt-“ [STD]
+DES;DOMAIN;dataexport.usagepoint.mismatch;Einige Verwendungsstellen der Verwendungsstellengruppe {0} enthalten nicht den/die ausgewählten zu exportierenden Messtyp(en).
+DES;DOMAIN;usagePointGroupXstillInUseByTask;Die Verwendungsstellengruppe {0} wird noch von einer Exportaufgabe verwendet.
+DES;DOMAIN;dataexport.usagepoint.missingwindow;Das Exportfenster von {0} bis {1} mit fehlenden Daten wurde nicht zur Verwendungsstelle {2} exportiert.
+DES;DOMAIN;privilege.view.export.history;Verlauf anzeigen
+DES;DOMAIN;Standard Usage Point Data Selector;Selektor für die Messwerte der Verwendungsstelle [STD]
+VAL;DOMAIN;UsagePointGroupXstillInUseByTask;Die Verwendungsstellengruppe {0} wird noch von mindestens einer Aufgabe verwendet.
+VAL;DOMAIN;MDC;MultiSense
+VAL;DOMAIN;MDM;Einblick
+VAL;DOMAIN;validation.task.status.ongoing;Laufend
+VAL;DOMAIN;validation.task.status.successful;Erfolgreich
+VAL;DOMAIN;validation.task.status.warning;Warnmeldung
+VAL;DOMAIN;validation.task.status.failed;Fehlgeschlagen
+VAL;DOMAIN;validation.task.status.created;Erstellt
+VDR;DOMAIN;com.elster.jupiter.validators.impl.MainCheckValidator;Vergleich von „Prüf-“ und „Haupt-“ [STD]
+VDR;DOMAIN;com.elster.jupiter.validators.impl.MainCheckValidator.checkPurpose;Zweck überprüfen
+VDR;DOMAIN;com.elster.jupiter.validators.impl.MainCheckValidator.maximumAbsoluteDifference;Maximale absolute Differenz
+VDR;DOMAIN;com.elster.jupiter.validators.impl.MainCheckValidator.passIfNoRefData;Durchlauf, wenn keine Referenzdaten
+VDR;DOMAIN;com.elster.jupiter.validators.impl.MainCheckValidator.useValidatedData;Validierte Daten verwenden
+VDR;DOMAIN;com.elster.jupiter.validators.impl.MainCheckValidator.minThreshold;Unterer Schwellenwert
+VDR;DOMAIN;com.elster.jupiter.validators.impl.ConsecutiveZerosValidator;Aufeinanderfolgende Nullwerte [STD]
+VDR;DOMAIN;com.elster.jupiter.validators.impl.ConsecutiveZerosValidator.checkRetroactively;Rückwirkend überprüfen
+VDR;DOMAIN;com.elster.jupiter.validators.impl.ConsecutiveZerosValidator.minimumPeriod;Mindestdauer
+VDR;DOMAIN;com.elster.jupiter.validators.impl.ConsecutiveZerosValidator.maximumPeriod;Höchstdauer
+VDR;DOMAIN;com.elster.jupiter.validators.impl.ConsecutiveZerosValidator.minimumThreshold;Unterer Schwellenwert
+VDR;DOMAIN;com.elster.jupiter.validators.impl.meteradvance.MeterAdvanceValidator;Zählervorlauf [STD]
+VDR;DOMAIN;com.elster.jupiter.validators.impl.meteradvance.MeterAdvanceValidator.referenceReadingType;Referenzmesstyp
+VDR;DOMAIN;com.elster.jupiter.validators.impl.meteradvance.MeterAdvanceValidator.maxAbsoluteDifference;Maximale absolute Differenz
+VDR;DOMAIN;com.elster.jupiter.validators.impl.meteradvance.MeterAdvanceValidator.referencePeriod;Referenzzeitraum
+VDR;DOMAIN;com.elster.jupiter.validators.impl.meteradvance.MeterAdvanceValidator.minThreshold;Unterer Schwellenwert
+VDR;DOMAIN;com.elster.jupiter.validators.impl.ReferenceComparisonValidator;Vergleich mit Referenz [STD]
+VDR;DOMAIN;com.elster.jupiter.validators.impl.ReferenceComparisonValidator.checkPurpose;Zweck überprüfen
+VDR;DOMAIN;com.elster.jupiter.validators.impl.ReferenceComparisonValidator.maximumAbsoluteDifference;Maximale absolute Differenz
+VDR;DOMAIN;com.elster.jupiter.validators.impl.ReferenceComparisonValidator.passIfNoRefData;Durchlauf, wenn keine Referenzdaten
+VDR;DOMAIN;com.elster.jupiter.validators.impl.ReferenceComparisonValidator.useValidatedData;Validierte Daten verwenden
+VDR;DOMAIN;com.elster.jupiter.validators.impl.ReferenceComparisonValidator.minThreshold;Unterer Schwellenwert
+VDR;DOMAIN;com.elster.jupiter.validators.impl.ReferenceComparisonValidator.checkUsagePoint;Verwendungsstelle überprüfen
+VDR;DOMAIN;com.elster.jupiter.validators.impl.ReferenceComparisonValidator.checkReadingType;Messtyp überprüfen
+EST;REST;NoSuchEstimator;Es ist keine solche Bewertungsfunktion {0} vorhanden.
+EST;REST;NoSuchEstimationRuleSet;Es ist kein solches Bewertungsregelwerk mit der Kennung {0} vorhanden.
+EST;REST;NoSuchEstimationRuleInRuleSet;Es ist keine solche Bewertungsregel mit der Kennung {0} im Regelwerk {1} vorhanden.
+EST;REST;RuleSetInIse;{0} kann nicht entfernt werden, da dieses Bewertungsregelwerk von mindestens einer messtechnischen Konfiguration verwendet wird.
+EST;REST;estimationtask.recurrence.none;Keine
+EST;REST;status.before;{0} seit
+EST;REST;status.on;{0} an
+MTR;DOMAIN;meter.role.not.part.of.metrology.configuration;Die Zählerrolle {0} ist nicht in der messtechnischen Konfiguration enthalten, die für den Zähleraktivierungszeitraum gilt.
+MTR;DOMAIN;virtual.usagepoint.only.support.constant.expressions;Die nicht gemessene Verwendungsstelle unterstützt nur Konstanten und entsprechende benutzerdefinierte Attribute oder Vorgänge und Funktionen.
+MTR;DOMAIN;usage.point.incorrect.stage;Falsche Phase der Verwendungsstelle, diese sollte „vor der Betriebsbereitschaft“ oder „ausgesetzt“ sein.
+MTR;DOMAIN;incompatible.time.of.use.for.editing;Die Messwerte auf einem Zeitstempel mit der Nutzungszeit {1} können nicht bearbeitet/bestätigt/bewertet/entfernt werden, wenn {0} erwartet wurde.
+MTR;DOMAIN;invalidCoordinates;Alle Koordinatenfelder müssen gültige Werte enthalten.
+MTR;DOMAIN;invalid.end.device.stage.without.mc;Fehler bei Verknüpfung des Zählers Der Zähler {0} kann nicht mit der Verwendungsstelle {1} verknüpft werden, da sich dieser Zähler nach dem Verknüpfungsdatum {2} in einer falschen Arbeitszyklusphase befindet.
+MTR;DOMAIN;meter.cannot.be.unlinked;Fehler bei Trennung des Zählers Da die messtechnische Konfiguration keine Lücken zulässt, kann die Verknüpfung von Zähler {0} mit der Verwendungsstelle {1} am {2} nicht aufgehoben werden. Dieser Zähler ist für die Berechnung der aktiven Zwecke der messtechnischen Konfiguration erforderlich.
+MTR;DOMAIN;meter.activation.invalid.requirements;Fehler bei Verknüpfung des Zählers Die Zähler der Verwendungsstelle stellen nicht die notwendigen Messtypen für die Zwecke {0} der neuen messtechnischen Konfiguration bereit.
+MTR;DOMAIN;usagepoint.tou.unsatisfied;Die messtechnische Konfiguration weist Zwecke auf, die nicht mit denen im Kalender übereinstimmen. Anderen Kalender hinzufügen oder die messtechnische Konfiguration für eine Überstimmung ändern
+MTR;DOMAIN;usagepoint.mrid.already.exists;Die MRID muss eindeutig sein.
+MTR;DOMAIN;usagepoint.name.already.exists;Der Name der Verwendungsstelle muss eindeutig sein.
+MTR;DOMAIN;deliverable.tou.not.backed.by.eventset;Der Speicherbereich für die Nutzungszeit {0} des Liefergegenstands {1} wird nicht durch einen der Ereignissätze der messtechnischen Konfiguration gestützt.
+MTR;DOMAIN;requirement.not.backed.by.meter;Der bevorzugte Kanal für die Anforderung {0} kann nicht ermittelt werden, wahrscheinlich weil der Zähler keinen übereinstimmenden Kanal bereitstellt.
+MTR;DOMAIN;reading.type.already.used.for.deliverable.on.same.metrologycontract;Der Messtyp wird bereits für einen anderen Liefergegenstand dieses Vertrags über messtechnische Dienstleistungen verwendet.
+MTR;DOMAIN;bulk.deliverable.can.only.use.other.bulk.reading;In einem Liefergegenstand mit Massenmesstyp können nur Messtypen mit Massenmesstypen verwendet werden.
+MTR;DOMAIN;cps.property.not.slp;Die Eigenschaft „{0}“ der benutzerdefinierten Eigenschaften „{1}“ muss numerisch sein.
+MTR;DOMAIN;invalid.metrologycontract.for.deliverable;Der Liefergegenstand mit der Kennung {0} kann nicht verwendet werden, weil er einen anderen Vertrag über messtechnische Dienstleistungen aufweist.
+MTR;DOMAIN;time.of.use.bucket.inconsistency;Es besteht eine Inkonsistenz zwischen dem angeforderten (={0}) und dem bereitgestellten (={1}) Speicherbereich der Nutzungszeit für die Berechnung des Liefergegenstands (Name={2}) für die Verwendungsstelle (MRID={3}) im Zeitraum {4}.
+MTR;DOMAIN;usage.point.details.not.unique.for.interval;Die Verwendungsstelle weist bereits Details für dieses Intervall auf.
+MTR;DOMAIN;activation.failed.by.custom.validators;Die Aktivierung der Verwendungsstelle ist aufgrund des benutzerdefinierten Prüfmechanismus fehlgeschlagen: {0}.
+MTR;DOMAIN;usage.point.already.active.with.given.role;Die Verwendungsstelle weist bereits eine Verknüpfung des Zählers {0} für die Rolle {1} auf.
+MTR;DOMAIN;unsatisfied.reading.type.requirement.for.meter;Der Zähler {0} stellt nicht die für den Zweck {1} erforderlichen Messtypen bereit.
+MTR;DOMAIN;usagepoint.calendar.cannot.start.prior.of.same.category;Der Kalender kann an der Verwendungsstelle nicht vor dem letzten Kalender derselben Kategorie gestartet werden.
+MTR;DOMAIN;meter.not.in.operational.stage;Der Zähler {0} ist nicht betriebsbereit.
+MTR;DOMAIN;meter.in.post.operational.stage;Die messtechnische Konfiguration ist nicht aktiv, der Zähler befindet sich jedoch in der Phase nach der Betriebsbereitschaft.
+MTR;DOMAIN;usagepoint.calendar.cannot.start.before.now;Das Aktivierungsdatum kann nicht in der Vergangenheit liegen.
+MTR;DOMAIN;denominator.cannot.be.zero;Der Nenner darf nicht 0 sein.
+MTR;DOMAIN;required.cps.missing;Die erforderlichen benutzerdefinierten Eigenschaften fehlen.
+MTR;DOMAIN;can.not.delete.active.life.cycle;Der Arbeitszyklus der Verwendungsstelle kann nicht entfernt werden, da er von mindestens einer Verwendungsstelle verwendet wird.
+MTR;DOMAIN;can.not.delete.active.state;Dieser Zustand kann nicht aus diesem Arbeitszyklus der Verwendungsstelle entfernt werden, da ein oder mehrere Verwendungsstellen diesen Zustand verwenden.
+MTR;DOMAIN;slp.name.already.exists;Der synthetische Lastprofilname muss eindeutig sein.
+MTR;DOMAIN;connection.state.change.before.installation.time;Die Änderung des Verbindungsstatus sollte nach dem Zeitpunkt der Installation der Verwendungsstelle liegen.
+MTR;DOMAIN;connection.state.change.before.latest.change;Die Änderung des Verbindungsstatus sollte nach der letzten Änderung des Verbindungsstatus an der Verwendungsstelle liegen.
+MTR;DOMAIN;metrology.configuration.invalid.start.date;Fehler bei Verknüpfung der messtechnischen Konfiguration Die messtechnische Konfiguration „{0}“ konnte nicht mit der Verwendungsstelle {1} am {2} verknüpft werden, da eine andere messtechnische Konfiguration zu diesem Zeitpunkt oder danach aktiv ist.
+MTR;DOMAIN;invalid.end.device.stage;Fehler bei Verknüpfung der messtechnischen Konfiguration Nicht alle Zähler befinden sich nach der messtechnischen Konfiguration zum Zeitpunkt der Verknüpfung {0} nicht in einem betriebsbereitem Arbeitszyklus.
+MTR;DOMAIN;meter.activation.invalid.date;Fehler bei Verknüpfung des Zählers Da die messtechnische Konfiguration keine Lücken zulässt, muss das Aktivierungsdatum von Zähler {0} kleiner als das oder gleich dem Datum der Verknüpfung mit der messtechnischen Konfiguration {1} sein.
+MTR;DOMAIN;invalid.end.device.stage.with.gaps.allowed;Fehler bei Verknüpfung des Zählers Der Zähler {0} kann nicht mit der Verwendungsstelle {1} verknüpft werden, da die Verknüpfung nach der Aktivierung der messtechnischen Konfiguration und vor der Inbetriebnahme des Zählers erfolgen würde.
+MTR;DOMAIN;meter.activation.before.up.installation.time;Fehler bei Verknüpfung des Zählers Das Aktivierungsdatum des Zählers muss größer als das oder gleich dem Erstellungsdatum der Verwendungsstelle sein. Dieses Erstellungsdatum der Verwendungsstelle ist {0}.
+MTR;DOMAIN;metrology.config.invalid.start.date;Fehler bei Verknüpfung der messtechnischen Konfiguration Das Anfangsdatum der messtechnischen Konfigurationen muss größer als das oder gleich dem Erstellungsdatum der Verwendungsstelle {0} sein.
+MTR;DOMAIN;meters.are.not.specified.for.configuration;Fehler bei Verknüpfung der messtechnischen Konfiguration  Die Zähler müssen für alle für die Berechnung der aktiven Zwecke der ausgewählten messtechnischen Konfiguration erforderlichen Zählerrollen festgelegt sein. Erforderliche Zählerrollen: {0}
+MTR;DOMAIN;meter.activation.overlap;Fehler bei Verknüpfung des Zählers Der Zähler {0} kann nicht mit {1} verbunden werden, da es zu diesem Zeitpunkt abgeschlossene Zähleraktivierungen an diesem Messgerät gibt.
+MTR;DOMAIN;connection.state.underConstruction;Derzeit nicht verfügbar
+MTR;DOMAIN;connection.state.connected;Verbunden
+MTR;DOMAIN;connection.state.physicallyDisconnected;Physikalisch getrennt
+MTR;DOMAIN;connection.state.logicallyDisconnected;Logisch getrennt
+MTR;DOMAIN;connection.state.demolished;Vernichtet
+MTR;DOMAIN;event.missing.name;Fehlend
+MTR;DOMAIN;CALTimeSeriesCacheHandler;Speichert die Definition eines Kalenders für jedes wahrscheinlich verwendete Intervall beim Anwenden auf eine Verwendungsstelle in den Cache.
+MTR;DOMAIN;meter.role.default;Standard
+MTR;DOMAIN;meter.role.consumption;Verbrauch
+MTR;DOMAIN;meter.role.production;Produktion
+MTR;DOMAIN;meter.role.main;Haupt...
+MTR;DOMAIN;meter.role.check;Überprüfen
+MTR;DOMAIN;meter.role.peak.consumption;Verbrauchsspitzen
+MTR;DOMAIN;meter.role.off.peak.consumption;Verbrauchsspitzen aus
+MTR;DOMAIN;privilege.administer.usage.point.manage.attributes;Attribute der Verwendungsstelle verwalten
+MTR;DOMAIN;usagepoint.meter;Zähler
+MTR;DOMAIN;usagepoint.purpose;Zweck
+MTR;DOMAIN;usagepoint.state;Zustand
+MTR;DOMAIN;enddevice.mRID;MRID
+MTR;DOMAIN;enddevice.name;Name
+MTR;DOMAIN;enddevice.domain;Gerät
+MTR;DOMAIN;gas.relative.period.lastSevenDays;Letzten 7 Tage (Gas)
+MTR;DOMAIN;gas.relative.period.previouMonth;Vormonat (Gas)
+MTR;DOMAIN;gas.relative.period.thisMonth;Aktueller Monat (Gas)
+MTR;DOMAIN;gas.relative.period.PreviousWeek;Vorwoche (Gas)
+MTR;DOMAIN;gas.relative.period.thisWeek;Aktuelle Woche (Gas)
+MTR;DOMAIN;gas.relative.period.yesterday;Gestern (Gas)
+MTR;DOMAIN;gas.relative.period.today;Heute (Gas)
+MTR;DOMAIN;gas.relative.period.thisYear;Aktuelles Jahr (Gas)
+MTR;REST;denominator.cannot.be.zero;Der Nenner darf nicht 0 sein.
+MTR;REST;unsatisfied.reading.type.requirements.for.device;Die an dieser Verwendungsstelle im angegebenen Zeitraum aktivierten Geräte weisen nicht die in der ausgewählten messtechnischen Konfiguration angegebenen Messtypen auf.
+MTR;REST;NoUsagePointWithName;Es ist keine Verwendungsstelle mit dem Namen {0} vorhanden.
+MTR;REST;field.required;Dieses Feld ist erforderlich.
+MTR;REST;MacroPeriodId.1001;Jährlich
+MTR;REST;manufacturer;Hersteller
+MTR;REST;modelNbr;Modellnummer
+MTR;REST;modelVersion;Modellversion
+MTR;REST;zipCode;Postleitzahl
+MTR;REST;countryCode;Ländercode
+MTR;REST;countryName;Ländername
+MTR;REST;administrativeArea;Verwaltungsbereich
+MTR;REST;locality;Ort
+MTR;REST;subLocality;Ort
+MTR;REST;streetType;Straßentyp
+MTR;REST;streetName;Straßenname
+MTR;REST;streetNumber;Hausnummer
+MTR;REST;establishmentType;Art der Einrichtung
+MTR;REST;establishmentName;Name der Einrichtung
+MTR;REST;establishmentNumber;Nummer der Einrichtung
+MTR;REST;addressDetail;Anschriftsangaben
+VAL;REST;validationtask.recurrence.none;Keine
+VDR;DOMAIN;validation.failed.on.period;Die Validierung des Zeitraums {0} unter Verwendung der Methode {1} am {2} ist wegen {3} fehlgeschlagen.
+VDR;DOMAIN;UnsupportedIrregularChannel;Unregelmäßige Kanäle können vom Prüfmechanismus „{0}“ nicht validiert werden.
+VDR;DOMAIN;UnsupportedReadingType;Die Kanäle des Messtyps {0} können vom Prüfmechanismus {1} nicht validiert werden.
+VDR;DOMAIN;validator.init.misc.no.up;Die Validierung des Zeitraums {0} unter Verwendung der Methode {1} am {2} ist fehlgeschlagen, weil der validierte Kanal keine Verwendungsstelle aufweist.
+VDR;DOMAIN;validator.validator.misc.not.one.emc;Die Validierung des Zeitraums {0} unter Verwendung der Methode {1} am {2} ist fehlgeschlagen, weil die Verwendungsstelle eine effektive messtechnische Konfiguration aufweisen muss, jedoch {3} aufweist.
+VDR;DOMAIN;maximum.period.less.minimum;Die Höchstdauer ist kleiner als die Mindestdauer.
+VDR;DOMAIN;not.delta.reading.type;{0} ist kein Delta-Messtyp.
+VDR;DOMAIN;maincheck.validator.misc.no.purpose;Die Validierung des Zeitraums {0} unter Verwendung der Methode {1} am {2} ist fehlgeschlagen, weil der angegebene Zweck am {3} nicht vorhanden ist.
+VDR;DOMAIN;maincheck.validator.misc.purpose.never.activated;Die Validierung des Zeitraums {0} unter Verwendung der Methode {1} am {2} ist fehlgeschlagen, weil der angegebene Zweck am {4} in der tatsächlichen messtechnischen Konfiguration nicht aktiviert ist.
+VDR;DOMAIN;maincheck.validator.misc.no.check.output;Die Validierung des Zeitraums {0} unter Verwendung der Methode {1} am {2} ist fehlgeschlagen, weil der Prüfausgang mit dem übereinstimmenden Messtyp zum angegebenen Zweck am {3} nicht vorhanden ist.
+VDR;DOMAIN;maincheck.validator.misc.check.output.missing.or.not.valid;Die Validierung des Zeitraums {0} unter Verwendung der Methode {1} am {2}/{3} ist fehlgeschlagen, weil die Daten des Prüfausgangs fehlen oder nicht validiert wurden.
+VDR;DOMAIN;reference.validator.misc.no.reference.usagepoint;Die Validierung des Zeitraums {0} unter Verwendung der Methode {1} am {2}/{3}/{4} ist fehlgeschlagen, weil der angegebene Zweck/Messtyp am {5} nicht vorhanden ist.
+VDR;DOMAIN;reference.validator.misc.no.purpose;Die Validierung des Zeitraums {0} unter Verwendung der Methode {1} am {2}/{3}/{4} ist fehlgeschlagen, weil der angegebene Zweck/Messtyp am {5} nicht vorhanden ist.
+VDR;DOMAIN;reference.validator.misc.purpose.never.activated;Die Validierung des Zeitraums {0} unter Verwendung der Methode {1} am {2} ist fehlgeschlagen, weil der angegebene Zweck am {4} in der tatsächlichen messtechnischen Konfiguration nicht aktiviert ist.
+VDR;DOMAIN;reference.validator.misc.no.check.output;Die Validierung des Zeitraums {0} unter Verwendung der Methode {1} am {2} ist fehlgeschlagen, weil der Prüfausgang mit dem übereinstimmenden Messtyp zum angegebenen Zweck am {3} nicht vorhanden ist.
+VDR;DOMAIN;reference.validator.misc.check.output.missing.or.not.valid;Die Validierung des Zeitraums {0} unter Verwendung der Methode {1} am {2}/{3}/{4} ist fehlgeschlagen, weil die Daten des Prüfausgangs fehlen oder nicht validiert wurden.
+VDR;DOMAIN;reference.validator.misc.check.readingtype.not.comparable;Die Validierung des Zeitraums {0} unter Verwendung der Methode {1} am {2}/{3}/{4} ist fehlgeschlagen, weil der angegebene Prüfausgang nicht mit dem Hauptmesstyp übereinstimmt.
+VDR;DOMAIN;reference.validator.misc.not.complete;Die Validierung des Zeitraums {0} unter Verwendung der Methode {1} am {2}/{3}/{4} ist fehlgeschlagen, weil die Prüfverbindungsstelle, der Zweck und der Messtyp nicht festgelegt wurden.
+VDR;DOMAIN;reference.validator.validate.props.no.purpose;Der Zweck wurde nicht an der Verwendungsstelle gefunden.
+VDR;DOMAIN;reference.validator.validate.props.no.readingtype;Der Messtyp wurde zu dem Zweck nicht gefunden.
+VDR;DOMAIN;ReferenceReadingTypeIncorrect;Dieser Messtyp kann nicht als Referenzmesstyp verwendet werden.
+VDR;DOMAIN;ReferenceReadingTypeDoesNotMatch;Die Validierung des Zeitraums {0} bis {1} unter Verwendung der Methode {2} am {3} ist fehlgeschlagen, weil die der angegebene Referenzmesstyp nicht mit dem Messtyp am {4} übereinstimmt.
+VDR;DOMAIN;NoReferenceReadingType;Die Validierung des Zeitraums {0} bis {1} unter Verwendung der Methode {2} am {3} ist fehlgeschlagen, weil der angegebene Referenzmesstyp am {4} nicht vorhanden ist.
+VDR;DOMAIN;ReferenceReadingsAreMissing;Die Validierung des Zeitraums {0} bis {1} unter Verwendung der Methode {2} am {3} ist fehlgeschlagen, weil die Referenzmesswerte für das validierte angegebene Intervall am {4} nicht vorhanden sind.
+VDR;DOMAIN;ValidatedPeriodIsGreaterThanReferencePeriod;Der Zeitraum „{0} bis {1}“ wurde über die Methode „{2}“ an „{3}“‘ als gültig gekennzeichnet, da die Länge des validierten Zeitraums größer als der konfigurierte Referenzzeitraum ist.
+VDR;DOMAIN;DiffLessThanMinThreshold;Der Zeitraum „{0} bis {1}“ wurde über die Methode „{2}“ an „{3}“‘ als gültig gekennzeichnet, da der Unterschied zwischen den Referenzablesewerten den unteren Schwellenwert an {4} unterschreitet.
+VDR;DOMAIN;com.elster.jupiter.validators.impl.ReadingQualitiesValidator.readingQualities;Messmengen
+MTR;DOMAIN;readingType.macroperiod.YEARLY;Jährlich
+MTR;DOMAIN;metrology.purpose.market.name;Markt
+MTR;DOMAIN;metrology.purpose.check.name;Überprüfen
+MTR;DOMAIN;metrology.purpose.market.description;Messtechnischer Zweck für Markt
+MTR;DOMAIN;metrology.purpose.check.description;Zweck der messtechnischen Konfiguration überprüfen
+MTR;DOMAIN;physical.sdp;Physikalisches SDP
+MTR;DOMAIN;virtual.sdp;Virtuelle SDP
+MTR;DOMAIN;physical.non.sdp;Physikalisches Nicht-SDP
+MTR;DOMAIN;virtual.non.sdp;Virtuelle Nicht-SDP
+UPL;DOMAIN;FieldTooLong;Das Feld darf {max} Zeichen nicht überschreiten.
+UPL;DOMAIN;user.can.not.perform.transition;Der aktuelle Benutzer ist nicht berechtigt, diesen Übergang durchzuführen.
+UPL;DOMAIN;transition.not.found;Der Übergang mit der Kennung {0} ist nicht vorhanden.
+UPL;DOMAIN;usage.point.state.does.not.support.transition;Der Zustand der Verwendungsstelle „{0}“ unterstützt keinen Übergang zu Zustand „{1}“.
+UPL;DOMAIN;micro.checks.failed.no.param;Fehlgeschlagene Prüfungen vor dem Übergang:
+UPL;DOMAIN;micro.checks.failed;Fehlgeschlagene Prüfungen vor dem Übergang: {0}
+UPL;DOMAIN;micro.action.failed.no.param;Fehlgeschlagene automatische Aktionen:
+UPL;DOMAIN;transition.date.must.be.greater.than.latest.state.change;Das Übergangsdatum muss größer als das Datum der letzten Statusänderung {0} sein.
+UPL;DOMAIN;transition.already.planned.for.usage.point;Es ist bereits ein anderer Übergang auf {0} geplant.
+UPE;DOMAIN;usage.point.micro.check.name.MetrologyConfigurationIsDefinedCheck;Die messtechnische Konfiguration wurde definiert.
+UPE;DOMAIN;usage.point.micro.check.message.MetrologyConfigurationIsDefinedCheck;Diese Prüfung stellt sicher, dass eine messtechnische Konfiguration mit einer Verwendungsstelle verknüpft ist.
+UPE;DOMAIN;usage.point.micro.check.name.MeterRolesAreSpecifiedCheck;Es sind Zähler für alle Rollen angegeben.
+UPE;DOMAIN;usage.point.micro.check.message.MeterRolesAreSpecifiedCheck;Diese Prüfung stellt sicher, dass für alle Zählerrollen der messtechnischen Konfiguration für eine Verwendungsstelle Zähler angegeben wurden.
+UPE;DOMAIN;usage.point.micro.action.name.SetConnectionStateAction;Verbindungsstatus einstellen
+UPE;DOMAIN;usage.point.micro.action.description.SetConnectionStateAction;Verbindungsstatus auf einen der verfügbaren Statuswerte einstellen
+UPE;DOMAIN;set.connection.state.property.name;Verbindungsstatus
+UPE;DOMAIN;set.connection.state.property.message;Falscher Wert für „Verbindungsstatus“
+UPE;DOMAIN;usage.point.micro.action.name.ResetValidationResultsAction;Validierungsergebnisse zurücksetzen
+UPE;DOMAIN;usage.point.micro.action.description.ResetValidationResultsAction;Das Datum der letzten Validierung an allen Ausgängen einer Verwendungsstelle auf den dem Übergangsdatum entsprechenden Zeitpunkt verschieben.
+UPE;DOMAIN;usage.point.micro.category.name.CONNECTION_STATE;Verbindungsstatus
+UPE;DOMAIN;usage.point.micro.category.name.INSTALLATION;Installation
+UPE;DOMAIN;usage.point.micro.category.name.VALIDATION;Validierung
+UPE;DOMAIN;UpeQueueSubscriber;Arbeitszyklus der Verwendungsstelle bearbeiten
+UPE;DOMAIN;usage.point.state.change.request.status.COMPLETED;Abgeschlossen
+UPE;DOMAIN;usage.point.state.change.request.status.FAILED;Fehlgeschlagen
+UPE;DOMAIN;usage.point.state.change.request.status.SCHEDULED;Geplant
+UPE;DOMAIN;usage.point.state.change.request.status.CANCELLED;Abgebrochen
+UPE;DOMAIN;usage.point.state.change.request.type.STATE_CHANGE;Zustandsänderung
+UPL;REST;no.such.life.cycle;Es sind kein Arbeitszyklus mit der Kennung {0} vorhanden.
+UPL;REST;no.such.life.cycle.state;Es ist kein Zustand der Verwendungsstelle mit der Kennung {0} vorhanden.
+UPL;REST;no.such.state.process;Es ist kein Geschäftsprozess mit der Kennung {0} vorhanden.
+UPL;REST;no.such.life.cycle.transition;Es ist kein Übergang der Verwendungsstelle mit der Kennung {0} vorhanden.
+UPL;REST;field.can.not.be.empty;Dieses Feld ist erforderlich.
+UPL;REST;no.such.usage.point;Es ist keine Verwendungsstelle mit dem Namen {0} vorhanden.
+UPL;REST;transition.microAction.required.properties.missing;Es wurde kein Wert für die folgende Eigenschaftenspezifikation der konfigurierten Aktionen festgelegt: {0}.
+UPL;DOMAIN;CanNotBeEmpty;Dieses Feld ist erforderlich.
+UPL;DOMAIN;usage.point.life.cycle.unique.name;Der Name muss eindeutig sein.
+UPL;DOMAIN;can.not.remove.state.has.transitions;Dieser Zustand kann nicht aus diesem Arbeitszyklus der Verwendungsstelle entfernt werden, da er bei den Übergängen {0} verwendet wird.
+UPL;DOMAIN;can.not.remove.last.state;Dieser Zustand kann nicht aus diesem Arbeitszyklus der Verwendungsstelle entfernt werden, da dies der letzte Zustand ist. Fügen Sie zunächst einen anderen Zustand hinzu.
+UPL;DOMAIN;can.not.remove.initial.state;Dieser Zustand kann nicht aus diesem Arbeitszyklus der Verwendungsstelle entfernt werden, da dies der Anfangszustand ist. Legen Sie zuerst einen anderen Zustand als Anfangszustand fest.
+UPL;DOMAIN;transition.combination.of.from.and.name.not.unique;Die Kombination „Name“ und „Von“ muss im Arbeitszyklus der Verwendungsstelle eindeutig sein.
+UPL;DOMAIN;transition.from.and.to.are.the.same;Die Zustände „Von“ und „Bis“ müssen unterschiedlich sein.
+UPL;DOMAIN;can.not.remove.default.life.cycle;Der Standardarbeitszyklus kann nicht entfernt werden.
+UPL;DOMAIN;usage.point.state.active;Aktiv
+UPL;DOMAIN;usage.point.state.demolished;Vernichtet
+UPL;DOMAIN;usage.point.state.inactive;Inaktiv
+UPL;DOMAIN;usage.point.state.under.construction;Derzeit nicht verfügbar
+UPL;DOMAIN;usage.point.life.cycle.standard.name;Standardarbeitszyklus der Verwendungsstelle
+UPL;DOMAIN;usage.point.transition.install.active;Installieren aktiv
+UPL;DOMAIN;usage.point.transition.install.inactive;Installieren inaktiv
+UPL;DOMAIN;usage.point.transition.deactivate;Deaktivieren
+UPL;DOMAIN;usage.point.transition.activate;Aktivieren
+UPL;DOMAIN;usage.point.transition.demolish.from.active;Vernichten
+UPL;DOMAIN;usage.point.transition.demolish.from.inactive;Vernichten
+UPL;DOMAIN;mtr.usagepointstage.preoperational;Vor der Betriebsbereitschaft
+UPL;DOMAIN;mtr.usagepointstage.operational;Betriebsbereit
+UPL;DOMAIN;mtr.usagepointstage.postoperational;Nach der Betriebsbereitschaft
+UPL;DOMAIN;mtr.usagepointstage.suspended;Unterbrochen
+UPL;DOMAIN;resource.usagePoint.lifecycle;Arbeitszyklus der Verwendungsstelle
+UPL;DOMAIN;resource.usagePoint.lifecycle.description;Arbeitszyklus der Verwendungsstelle verwalten
+UPL;DOMAIN;resource.usagePoint.lifecycle.access.levels;Zugriffsebenen für den Arbeitszyklus der Verwendungsstelle
+UPL;DOMAIN;resource.usagePoint.lifecycle.access.levels.description;Zugriffsebenen für den Arbeitszyklus der Verwendungsstelle verwalten
+UPL;DOMAIN;privilege.usagePoint.lifecycle.view;Anzeigen
+UPL;DOMAIN;privilege.usagePoint.lifecycle.administer;Verwalten
+UPL;DOMAIN;usagePoint.lifecycle.execute.transition.level1;Übergangsstufe 1 ausführen
+UPL;DOMAIN;usagePoint.lifecycle.execute.transition.level2;Übergangsstufe 2 ausführen
+UPL;DOMAIN;usagePoint.lifecycle.execute.transition.level3;Übergangsstufe 3 ausführen
+UPL;DOMAIN;usagePoint.lifecycle.execute.transition.level4;Übergangsstufe 4 ausführen
+USR;REST;workgroups.users;Benutzer
+USR;REST;workgroups.empty.title;Es wurden keine Arbeitsgruppen gefunden.
+USR;REST;workgroups.addUsersToWorkgroup;Benutzer auswählen
+USR;REST;workgroups.remove.message;Diese Arbeitsgruppe wird nicht mehr verfügbar sein.
+USR;REST;workgroups.empty.list.item2;Es sind Arbeitsgruppen vorhanden, Sie sind jedoch nicht zu deren Anzeige berechtigt.
+USR;REST;workgroups.description;Beschreibung
+USR;REST;workgroups.empty.list.item1;Es wurden noch keine Arbeitsgruppen definiert.
+USR;REST;workgroups.addUsers.nrOfUsers.selected[1];{0} Benutzer ausgewählt
+BPM;REST;BPMAssigneeUnassigned;Nicht zugewiesen
+PKI;DOMAIN;X.name.required;Der Name ist erforderlich.
+PKI;DOMAIN;X.name.unique;Der Name muss eindeutig sein.
+PKI;DOMAIN;fieldTooLong;Die Feldlänge darf {max} Zeichen nicht überschreiten.
+PKI;DOMAIN;field.required;Dieses Feld ist erforderlich.
+PKI;DOMAIN;no.such.encryption.method;Die Speichermethode ist nicht bekannt oder wurde noch nicht eingetragen.
+PKI;DOMAIN;key.encryption.duplication;Es wurde bereits eine Schlüsselspeichermethode mit demselben Namen für diesen Elementtyp eingetragen.
+PKI;DOMAIN;NoSuchAlgorithm;Der erforderliche Algorithmus wird zu diesem Zeitpunkt in der Umgebung nicht unterstützt.
+PKI;DOMAIN;InvalidKeyException;Der Schlüssel konnte aufgrund einer fehlerhaften Codierung nicht neu erstellt werden.
+PKI;DOMAIN;InvalidKeySpecificationException;Die Schlüsselspezifikation ist ungültig.
+PKI;DOMAIN;InvalidAlgorithmException;Es wurden ungültige oder ungeeignete Algorithmusparameter eingegeben.
+PKI;DOMAIN;UnknownSecurityProvider;Der angeforderte Sicherheitsanbieter wird in dieser Umgebung nicht mehr verfügbar sein.
+PKI;DOMAIN;CrlException;CRL konnte nicht gelesen werden.
+PKI;DOMAIN;CertificateException;Das Zertifikat konnte nicht gelesen werden.
+PKI;DOMAIN;CsrException;CSR konnte nicht gelesen werden.
+PKI;DOMAIN;CertificateEncodingException;Das Zertifikat konnte nicht ordnungsgemäß codiert werden.
+PKI;DOMAIN;X.alias.unique;Der Alias muss eindeutig sein.
+PKI;DOMAIN;SignatureException;Beim Signieren ist ein Fehler aufgetreten.
+PKI;DOMAIN;FailedToConstructCSR;CSR konnte nicht erstellt werden.
+PKI;DOMAIN;IncorrectKeyEncryptionMethod;Nicht-Klartext-Schlüssel können nicht bearbeitet werden.
+PKI;DOMAIN;FailedToWrapWK;Der AES-Umlauf von WK ist fehlgeschlagen: {0}
+PKI;DOMAIN;GeneralKeystoreFailure;Der Keystore konnte nicht gelesen werden: {0}.
+PKI;DOMAIN;ErrorReadingKeyUsages;Die Schlüsselverwendungen konnten nicht gelesen werden.
+PKI;DOMAIN;PublicKeyMismatchCSR;Der öffentliche Schlüssel des Zertifikats stimmt nicht mit der CSR überein.
+PKI;DOMAIN;UnsupportedKeyType;Der angeforderte Schlüsseltyp wird nicht unterstützt: {0}.
+PKI;DOMAIN;SubjectMismatchCSR;Der eindeutige Name (DN) des Zertifikatinhabers stimmt nicht mit der CSR überein.
+PKI;DOMAIN;KeyUsagesMismatchCSR;Die Verlängerung der Schlüsselverwendung des Zertifikats stimmt nicht mit der CSR überein.
+PKI;DOMAIN;ExtendedKeyUsagesMismatchCSR;Die Verlängerung der erweiterten Schlüsselverwendung des Zertifikats stimmt nicht mit der CSR überein.
+PKI;DOMAIN;validation.invalid.value;Dieser Wert ist ungültig.
+PKI;DOMAIN;NoValidCharacters;Der Mantratyp verfügt über keine auswählbaren Zeichensätze.
+PKI;DOMAIN;InvalidPassphraseLength;Ungültige Mantralänge
+PKI;DOMAIN;InvalidKeySize;Ungültige Schlüsselgröße
+PKI;DOMAIN;validation.invalid.hex.value;Dieser Schlüssel hat keine korrekte hexadezimale Codierung.
+PKI;DOMAIN;Alias;Alias
+PKI;DOMAIN;Available;Verfügbar
+PKI;DOMAIN;Requested;Angefordert
+PKI;DOMAIN;Expired;Abgelaufen
+PKI;DOMAIN;notYetValid;Noch nicht gültig
+PKI;DOMAIN;TrustStore;Trust store
+PKI;DOMAIN;pki.certificateMgmt;Zertifikatverwaltung
+PKI;DOMAIN;pki.certificates.description;Trust Stores und Zertifikate verwalten
+PKI;DOMAIN;privilege.view.certificates;Anzeigen
+PKI;DOMAIN;privilege.administrate.certificates;Zertifikate verwalten
+PKI;DOMAIN;privilege.administrate.trust.store;Trust Stores verwalten
+YFN;DOMAIN;privilege.administrate.reports;Verwalten
+USR;REST;workgroups.addUsers.userName;Benutzername
+USR;REST;workgroups.addUsers.nrOfUsers.selected[0];Es wurden keine Benutzer ausgewählt.
+USR;REST;role.uneditable;Es sind keine Aktionen verfügbar, weil diese Rolle von Connexo intern verwaltet wird.
+USR;REST;workgroups.noUsersAdded;Es wurden keine Benutzer hinzugefügt.
+USR;REST;general.workgroups;Arbeitsgruppen
+USR;REST;workgroups.addUsers.nrOfUsers.selected[many];{0} Benutzer ausgewählt
+USR;REST;workgroups.successMsg.saved;Die Arbeitsgruppe wurde gespeichert.
+USR;REST;workgroups.pagingtoolbartop.emptyMsg;Es sind keine Arbeitsgruppen zur Anzeige verfügbar.
+USR;REST;workgroups.successMsg.added;Die Arbeitsgruppe wurde hinzugefügt.
+USR;REST;workgroups.remove.confirmation;Die Arbeitsgruppe wurde entfernt.
+USR;REST;workgroups.pagingtoolbartop.displayMoreMsg;{0} - {1} von mehr als {2} Arbeitsgruppen
+USR;REST;workgroups.pagingtoolbartop.displayMsg;{0} - {1} von {2} Arbeitsgruppen
+USR;REST;workgroups.remove.title;{0} entfernen?
+USR;REST;general.addWorkgroup;Arbeitsgruppe hinzufügen
+USR;REST;workgroups.edit;{0} bearbeiten
+USR;REST;workgroups.selectUsers;Benutzer auswählen
+USR;REST;workgroup.add;Arbeitsgruppe hinzufügen
+USR;REST;workgroups.addUsers.status;Status
+USR;REST;workgroups.pagingtoolbarbottom.itemsPerPage;Arbeitsgruppen pro Seite
+BPM;DOMAIN;devicealarm;Alarmmeldung
+BPM;DOMAIN;alarmReasons;Gründe für die Alarmmeldung
+BPM;DOMAIN;alarmReason;Grund der Alarmmeldung
+BPM;DOMAIN;datacollectionissue;Problem mit der Datenerfassung
+BPM;DOMAIN;issueReasons;Gründe für das Problem
+BPM;DOMAIN;issueReason;Ursache für das Problem
+DQR;REST;InvalidFilterFormat;Ungültiges Format des Filters {0}, erwartetes Format: {1}
+DQR;REST;UnsupportedFilterOperator;Nicht unterstützter Operator {1} für den Filter {0}, unterstützte Operatoren: {2}
+DQR;REST;InvalidOperatorCriteria;Ungültige Kriterien für den Operator {0} des Filters {1}
+DQR;REST;NoSuchDeviceType;Der Gerätetyp mit der Kennung {0} wurde nicht gefunden.
+DQR;REST;NoSuchValidator;Der Prüfmechanismus mit der Implementierung {0} wurde nicht gefunden.
+DQR;REST;NoSuchEstimator;Die Bewertungsfunktion mit der Implementierung {0} wurde nicht gefunden.
+EST;DOMAIN;equaldistribution.maxPeriodOfConsecutiveSuspects.description;Der maximaler Zeitabschnitt aufeinander folgender fehlerverdächtiger Werte. Wird dieser Zeitabschnitt überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
+EST;DOMAIN;valuefill.fillValue.description;Die Werte-Füllregel ist die einfachste Regel und bewertet fehlerverdächtige Messdaten durch das Austauschen aller Messdaten durch einen benutzerdefinierten Wert.;
+EST;DOMAIN;valuefill.maxPeriodOfConsecutiveSuspects;Maximaler Zeitabschnitt aufeinander folgender fehlerverdächtiger Werte;
+EST;DOMAIN;powergapfill.maxPeriodOfConsecutiveSuspects;Maximaler Zeitabschnitt aufeinander folgender fehlerverdächtiger Werte;
+EST;DOMAIN;averagewithsamples.maxPeriodOfConsecutiveSuspects.description;Der maximaler Zeitabschnitt aufeinander folgender fehlerverdächtiger Werte. Wird dieser Zeitabschnitt überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
+EST;DOMAIN;averagewithsamples.maxPeriodOfConsecutiveSuspects;Maximum period of consecutive suspects
+EST;DOMAIN;valuefill.maxPeriodOfConsecutiveSuspects.description;Der maximaler Zeitabschnitt aufeinander folgender fehlerverdächtiger Werte. Wird dieser Zeitabschnitt überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
+EST;DOMAIN;powergapfill.maxPeriodOfConsecutiveSuspects.description;Der maximaler Zeitabschnitt aufeinander folgender fehlerverdächtiger Werte. Wird dieser Zeitabschnitt überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
+EST;DOMAIN;linearinterpolation.maxPeriodOfConsecutiveSuspects.description;Der maximaler Zeitabschnitt aufeinander folgender fehlerverdächtiger Werte. Wird dieser Zeitabschnitt überschritten, werden die Daten nicht bewertet, können jedoch manuell bearbeitet oder bewertet werden.;
+EST;DOMAIN;linearinterpolation.maxPeriodOfConsecutiveSuspects;Maximaler Zeitabschnitt aufeinander folgender fehlerverdächtiger Werte;
+EST;DOMAIN;equaldistribution.maxPeriodOfConsecutiveSuspects;Maximaler Zeitabschnitt aufeinander folgender fehlerverdächtiger Werte;
+EST;DOMAIN;valuefill.fillValue;Füllwert;
+TME;DOMAIN;timeDuration.timeUnit.description.years;Jahr(e)
+TME;DOMAIN;timeDuration.timeUnit.description.months;Monat(e)
+TME;DOMAIN;timeDuration.timeUnit.description.weeks;Woche(n)
+TME;DOMAIN;timeDuration.timeUnit.description.milliseconds;Millisekunde(n)
+TME;DOMAIN;timeDuration.timeUnit.description.days;Tage(n)
+TME;DOMAIN;timeDuration.timeUnit.description.minutes;Minute(n)
+TME;DOMAIN;timeDuration.timeUnit.description.hours;Stunde(n)
+TME;DOMAIN;timeDuration.timeUnit.description.seconds;Sekunde(n)
+ESR;DOMAIN;property.error.invalidMaxPeriodOfConsecutiveSuspects;Dieser Zeitabschnitrevok sollte positiv sein.;
