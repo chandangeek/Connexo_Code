@@ -345,13 +345,8 @@ public class DeviceFirmwareMessagesResource {
     private void rescheduleFirmwareUpgradeTask(FirmwareManagementDeviceUtils helper, Instant earliestReleaseDate) {
         Optional<ComTaskExecution> firmwareComTaskExecution = helper.getFirmwareComTaskExecution();
         firmwareComTaskExecution.ifPresent(comTaskExecution -> {
-            if (earliestReleaseDate != null) {
-                if (comTaskExecution.getNextExecutionTimestamp() == null ||
-                        comTaskExecution.getNextExecutionTimestamp().isAfter(earliestReleaseDate)) {
-                    comTaskExecution.schedule(earliestReleaseDate);
-                }
-            } else {
-                comTaskExecution.putOnHold();
+            if (comTaskExecution.getNextExecutionTimestamp() == null || earliestReleaseDate == null || comTaskExecution.getNextExecutionTimestamp().isAfter(earliestReleaseDate)) {
+                comTaskExecution.schedule(earliestReleaseDate);
             }
         });
     }
