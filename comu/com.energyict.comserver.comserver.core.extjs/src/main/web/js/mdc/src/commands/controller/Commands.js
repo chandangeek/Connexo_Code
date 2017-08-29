@@ -19,7 +19,6 @@ Ext.define('Mdc.commands.controller.Commands', {
         'Mdc.commands.store.Commands',
         'Mdc.store.DeviceGroupsNoPaging',
         'Mdc.store.DeviceGroups',
-        'Mdc.store.DeviceGroupsNoPaging',
         'Mdc.commands.store.CommandCategoriesForDeviceGroup'
     ],
 
@@ -183,7 +182,7 @@ Ext.define('Mdc.commands.controller.Commands', {
                 router: router,
                 returnLink: router.getRoute('workspace/commands').buildUrl()
             }),
-            deviceGroupStore = Ext.getStore('Mdc.store.DeviceGroups');
+            deviceGroupStore = Ext.getStore('Mdc.store.DeviceGroupsNoPaging');
 
         mainView.setLoading();
         me.wizardInformation = {};
