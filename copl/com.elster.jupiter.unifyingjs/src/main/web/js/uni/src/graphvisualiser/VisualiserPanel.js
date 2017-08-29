@@ -19,7 +19,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         }
     ],
     padding: 10,
-    device: null,
+    deviceId2Select: null, // int
     router: null,
     graphLayout: 'standard',
     chartData: {
@@ -453,6 +453,10 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                     }
                 });
                 me.sideMenu.down('combobox').bindStore(me.nodeStoreForComboBox);
+                if (!Ext.isEmpty(me.deviceId2Select)) {
+                    me.setSelection(me.deviceId2Select+'');
+                    me.highlightUpStreamFromNode(me.deviceId2Select+'');
+                }
             };
 
         me.queryChartData(performAfterTheQuery);
@@ -485,6 +489,9 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 if (!Ext.isEmpty(node.get('gateway')) && node.get('gateway')) {
                     icon = KeyLines.getFontIcon(me.gatewayIcon);
                     me.showGatewayLegend = true;
+                    if (me.deviceId2Select === node.get('id')) {
+                        me.deviceId2Select = undefined; // don't (pre)select the gateway
+                    }
                 } else {
                     icon = KeyLines.getFontIcon(me.deviceIcon);
                     me.showDeviceLegend = true;
