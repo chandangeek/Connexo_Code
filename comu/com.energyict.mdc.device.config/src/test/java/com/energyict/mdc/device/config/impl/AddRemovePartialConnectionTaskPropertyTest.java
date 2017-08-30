@@ -37,19 +37,19 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
 import javax.validation.Validator;
@@ -170,6 +170,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
             eventType.install(eventService);
         }
     }
+
     private static void initializeStaticMocks() {
         eventAdmin = mock(EventAdmin.class);
         bundleContext = mock(BundleContext.class);
@@ -180,7 +181,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         nlsService = mock(NlsService.class);
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
         publisher = mock(Publisher.class);
-        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {
+        });
         validationService = mock(ValidationService.class);
         estimationService = mock(EstimationService.class);
         meteringService = mock(MeteringService.class);
@@ -247,7 +249,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
-        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {
+        });
 
         // Business method
         partialConnectionTask.setProperty(HOST_PROPERTY_SPEC_NAME, "localhost");
@@ -257,8 +260,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
         verify(publisher).publish(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
-        Event osgiEvent = localEvent.toOsgiEvent();
-        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo(HOST_PROPERTY_SPEC_NAME);
+        assertThat(localEvent.getSource()).isInstanceOf(PartialConnectionTaskUpdateDetails.class);
+        assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).contains(HOST_PROPERTY_SPEC_NAME);
     }
 
     @Test
@@ -270,7 +273,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
-        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {
+        });
 
         // Business method
         partialConnectionTask.removeProperty(HOST_PROPERTY_SPEC_NAME);
@@ -280,8 +284,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
         verify(publisher).publish(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
-        Event osgiEvent = localEvent.toOsgiEvent();
-        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo(HOST_PROPERTY_SPEC_NAME);
+        assertThat(localEvent.getSource()).isInstanceOf(PartialConnectionTaskUpdateDetails.class);
+        assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).contains(HOST_PROPERTY_SPEC_NAME);
     }
 
     @Test
@@ -291,7 +295,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
-        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {
+        });
 
         // Business method
         partialConnectionTask.setProperty(HOST_PROPERTY_SPEC_NAME, "localhost");
@@ -302,8 +307,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
         verify(publisher).publish(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
-        Event osgiEvent = localEvent.toOsgiEvent();
-        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo(HOST_PROPERTY_SPEC_NAME + "," + PORT_PROPERTY_SPEC_NAME);
+        assertThat(localEvent.getSource()).isInstanceOf(PartialConnectionTaskUpdateDetails.class);
+        assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).contains(HOST_PROPERTY_SPEC_NAME, PORT_PROPERTY_SPEC_NAME);
     }
 
     @Test
@@ -315,7 +320,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
-        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {
+        });
 
         // Business method
         partialConnectionTask.removeProperty(HOST_PROPERTY_SPEC_NAME);
@@ -326,8 +332,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
         verify(publisher).publish(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
-        Event osgiEvent = localEvent.toOsgiEvent();
-        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo(HOST_PROPERTY_SPEC_NAME + "," + PORT_PROPERTY_SPEC_NAME);
+        assertThat(localEvent.getSource()).isInstanceOf(PartialConnectionTaskUpdateDetails.class);
+        assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).contains(HOST_PROPERTY_SPEC_NAME, PORT_PROPERTY_SPEC_NAME);
     }
 
     @Test
@@ -339,7 +345,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
-        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {
+        });
 
         // Business method
         partialConnectionTask.removeProperty(HOST_PROPERTY_SPEC_NAME);
@@ -352,8 +359,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
         verify(publisher).publish(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
-        Event osgiEvent = localEvent.toOsgiEvent();
-        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo("");
+        assertThat(localEvent.getSource()).isInstanceOf(PartialConnectionTaskUpdateDetails.class);
+        assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).isEmpty();
     }
 
     @Test
@@ -363,7 +370,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
-        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {
+        });
 
         // Business method
         partialConnectionTask.setProperty(HOST_PROPERTY_SPEC_NAME, "some.host");
@@ -376,8 +384,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
         verify(publisher).publish(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
-        Event osgiEvent = localEvent.toOsgiEvent();
-        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo("");
+        assertThat(localEvent.getSource()).isInstanceOf(PartialConnectionTaskUpdateDetails.class);
+        assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).isEmpty();
     }
 
     @Test
@@ -389,7 +397,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
-        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {
+        });
 
         // Business method
         partialConnectionTask.setProperty(TIMEOUT_PROPERTY_SPEC_NAME, BigDecimal.ONE);
@@ -399,8 +408,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
         verify(publisher).publish(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
-        Event osgiEvent = localEvent.toOsgiEvent();
-        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo("");
+        assertThat(localEvent.getSource()).isInstanceOf(PartialConnectionTaskUpdateDetails.class);
+        assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).isEmpty();
     }
 
     @Test
@@ -413,7 +422,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
-        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {
+        });
 
         // Business method
         partialConnectionTask.removeProperty(TIMEOUT_PROPERTY_SPEC_NAME);
@@ -423,8 +433,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
         verify(publisher).publish(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
-        Event osgiEvent = localEvent.toOsgiEvent();
-        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo("");
+        assertThat(localEvent.getSource()).isInstanceOf(PartialConnectionTaskUpdateDetails.class);
+        assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).isEmpty();
     }
 
     @Test
@@ -436,7 +446,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
-        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {
+        });
 
         // Business method
         partialConnectionTask.setProperty(TIMEOUT_PROPERTY_SPEC_NAME, BigDecimal.TEN);
@@ -447,8 +458,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
         verify(publisher).publish(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
-        Event osgiEvent = localEvent.toOsgiEvent();
-        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo("");
+        assertThat(localEvent.getSource()).isInstanceOf(PartialConnectionTaskUpdateDetails.class);
+        assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).isEmpty();
     }
 
     @Test
@@ -461,7 +472,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         partialConnectionTask.save();
         resetAndInitializeJsonService();
         reset(publisher);
-        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {});
+        when(publisher.addThreadSubscriber(any())).thenReturn(() -> {
+        });
 
         // Business method
         partialConnectionTask.removeProperty(TIMEOUT_PROPERTY_SPEC_NAME);
@@ -472,8 +484,8 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         ArgumentCaptor<LocalEvent> eventArgumentCaptor = ArgumentCaptor.forClass(LocalEvent.class);
         verify(publisher).publish(eventArgumentCaptor.capture());
         LocalEvent localEvent = eventArgumentCaptor.getValue();
-        Event osgiEvent = localEvent.toOsgiEvent();
-        assertThat(osgiEvent.getProperty("addedOrRemovedRequiredProperties")).isEqualTo("");
+        assertThat(localEvent.getSource()).isInstanceOf(PartialConnectionTaskUpdateDetails.class);
+        assertThat(((PartialConnectionTaskUpdateDetails) localEvent.getSource()).getAddedOrRemovedRequiredProperties()).isEmpty();
     }
 
     private PartialScheduledConnectionTaskImpl testInstance() {
