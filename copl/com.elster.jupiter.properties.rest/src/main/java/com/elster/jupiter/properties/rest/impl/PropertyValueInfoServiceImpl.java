@@ -195,6 +195,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 && propertyType != SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE
                 && propertyType != SimplePropertyType.RAISEEVENTPROPS
                 && propertyType != SimplePropertyType.BPM_PROCESS
+                && propertyType != SimplePropertyType.IDWITHNAME
                 ) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
             return null;
