@@ -279,6 +279,12 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>webservices.outbound.rest.issue.actions</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>yellowfin.extjs</artifactId>
                 <version>1.4.0${revision}</version>
                 <scope>provided</scope>
@@ -376,6 +382,7 @@
                 <module>../com.elster.jupiter.metering.cps.doa</module>
                 <module>../com.elster.jupiter.webservices.inbound.rest.demo</module>
                 <module>../com.elster.jupiter.webservices.outbound.rest.demo</module>
+                <module>../com.elster.jupiter.webservices.outbound.rest.issue.actions</module>
                 <module>../com.elster.jupiter.webservices.outbound.client.demo</module>
                 <module>../com.elster.jupiter.webservices.demo</module>
             </modules>
