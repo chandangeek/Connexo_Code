@@ -20,6 +20,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
+import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
@@ -27,6 +28,7 @@ import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
+import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -325,27 +327,27 @@ public abstract class BaseTest {
         builder.setName(name);
         builder.setComment("Comment for rule");
         builder.setIssueType(getIssueService().findIssueType(DeviceAlarmService.DEVICE_ALARM).get());
-        builder.setReason(issueService.createReason("alarmReason", getIssueService().findIssueType(DeviceAlarmService.DEVICE_ALARM).get(), new TranslationKey() {
-            @Override
-            public String getKey() {
-                return "alarmReason";
-            }
+        builder.setReason(issueService.createReason("alarmReason",getIssueService().findIssueType(DeviceAlarmService.DEVICE_ALARM).get(), new TranslationKey() {
+                    @Override
+                    public String getKey() {
+                        return "alarmReason";
+                    }
 
-            @Override
-            public String getDefaultFormat() {
-                return "Reason format";
-            }
-        }, new TranslationKey() {
-            @Override
-            public String getKey() {
-                return "alarmReason";
-            }
+                    @Override
+                    public String getDefaultFormat() {
+                        return "Reason format";
+                    }
+                }, new TranslationKey() {
+                    @Override
+                    public String getKey() {
+                        return "alarmReason";
+                    }
 
-            @Override
-            public String getDefaultFormat() {
-                return "Reason format";
-            }
-        }));
+                    @Override
+                    public String getDefaultFormat() {
+                        return "Reason format";
+                    }
+                }));
         builder.setPriority(Priority.DEFAULT);
         builder.activate();
         builder.setDueInTime(DueInType.DAY, 15L);
