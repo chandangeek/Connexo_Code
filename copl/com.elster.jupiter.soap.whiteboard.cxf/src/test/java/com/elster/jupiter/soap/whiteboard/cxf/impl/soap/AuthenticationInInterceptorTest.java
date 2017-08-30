@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -60,11 +61,13 @@ public class AuthenticationInInterceptorTest {
     private Message message;
     @Mock
     private InboundEndPointConfiguration endPointConfiguration;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
 
 
     @Before
     public void setUp() throws Exception {
-        authorizationInInterceptor = new AuthorizationInInterceptor(userService, transactionService);
+        authorizationInInterceptor = new AuthorizationInInterceptor(userService, transactionService, threadPrincipalService);
         Group developerGroup = mock(Group.class);
         when(developerGroup.getName()).thenReturn("Developer");
         when(userService.findGroup("Developer")).thenReturn(Optional.of(developerGroup));
@@ -83,6 +86,7 @@ public class AuthenticationInInterceptorTest {
         when(httpServletRequest.getSession()).thenReturn(httpSession);
         when(httpServletRequest.getRemoteAddr()).thenReturn("127.0.0.1");
         when(message.get(AuthorizationPolicy.class)).thenReturn(authorizationPolicy);
+        when(userService.findUser(anyString())).thenReturn(Optional.empty());
     }
 
     @Test

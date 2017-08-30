@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -41,12 +42,14 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
     private final UserService userService;
     private InboundEndPointConfiguration endPointConfiguration;
     private final TransactionService transactionService;
+    private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
-    public AuthorizationInInterceptor(UserService userService, TransactionService transactionService) {
+    public AuthorizationInInterceptor(UserService userService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService) {
         super(Phase.PRE_INVOKE);
         this.userService = userService;
         this.transactionService = transactionService;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     public void handleMessage(Message message) throws Fault {
@@ -70,6 +73,7 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
             }
         }
         try {
+            this.userService.findUser(userName).ifPresent(threadPrincipalService::set);
             Optional<User> user = userService.authenticateBase64(Base64Utility.encode((userName + ":" + password).getBytes()), request
                     .getRemoteAddr());
             if (!user.isPresent()) {
