@@ -1,6 +1,4 @@
-package com.elster.jupiter.pki.impl;
-
-import com.elster.jupiter.pki.SecurityValueWrapper;
+package com.elster.jupiter.pki;
 
 /**
  * Capable of importing a specific key into connexo, into a form understood by either Connexo (DataVault key) or an

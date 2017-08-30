@@ -44,7 +44,11 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_PASSWORD_LENGTH(1028, Keys.INVALIDPASSPHRASELENGTH, "Invalid passphrase length"),
     INVALID_KEY_SIZE(1029, Keys.INVALID_KEY_SIZE, "Invalid key size"),
     INVALID_HEX_VALUE(1030,Keys.INVALID_HEX_VALUE, "Not a properly hex encoded key"),
-    UNSUPPORTED_IMPORT_TYPE(1031, "UnsupportedImportType", "Connexo can currently not import device secrets of type ''{0}'' (security accessor ''{1}'')");
+    UNSUPPORTED_IMPORT_TYPE(1031, "UnsupportedImportType", "Connexo can currently not import device secrets of type ''{0}'' (security accessor ''{1}'')"),
+    NO_IMPORT_KEY_DEFINED(1032, "NoImportKeyDefined", "DataVault importer requires an import key to be defined in the config file, however the property ''{0}'' was not set."),
+    IMPORT_KEY_NOT_FOUND(1033, "ImportKeyNotFound", "DataVault importer could not find the certificate ''{0}'' with associated private key, required during import"),
+    INCORRECT_IMPORT_KEY(1034, "IncorrectImportKey", "The certificate ''{0}'' does not seem to be associated with a private key and can not be used by the importer"),
+    DEVICE_KEY_IMPORT_FAILED(1035, "FailedToImportDeviceKey", "DataVault importer failed to import the device key: ''{0}''");
 
     private final int number;
     private final String key;

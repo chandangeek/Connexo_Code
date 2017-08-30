@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.pki;
 
-import com.elster.jupiter.pki.impl.DeviceSecretImporter;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.List;
