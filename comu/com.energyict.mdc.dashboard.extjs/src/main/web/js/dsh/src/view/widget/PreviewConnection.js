@@ -102,6 +102,18 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     }
                 },
                 {
+                    fieldLabel: Uni.I18n.translate('connection.widget.details.connectionFunction', 'DSH', 'Connection function'),
+                    name: 'connectionFunctionInfo',
+                    renderer: function (value, field) {
+                        if (!Ext.isEmpty(value)) {
+                            field.show();
+                            return value.localizedValue;
+                        } else {
+                            field.hide();
+                        }
+                    }
+                },
+                {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.connWindow', 'DSH', 'Connection window'),
                     name: 'window'
                 },
