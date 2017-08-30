@@ -198,6 +198,9 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         } else if ((record.get('isConfirmed') || record.get('confirmedNotSaved')) && !record.isModified('value')) {
             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.confirmed', 'IMT', 'Confirmed') + '"></span>';
+            if (Ext.isEmpty(v) && record.data.calculatedValue) {
+                value = record.data.value = record.data.calculatedValue;
+            }
         } else if ((record.get('modificationFlag') && record.get('modificationDate') || record.isModified('value')) && record.get('isProjected')) {
             icon = this.addProjectedFlag(icon);
         }
