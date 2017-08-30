@@ -5,7 +5,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
@@ -15,17 +14,15 @@ import com.energyict.mdc.device.topology.rest.layer.DeviceLifeCycleStatusLayer;
 import com.energyict.mdc.device.topology.rest.layer.DeviceSummaryExtraInfoLayer;
 import com.energyict.mdc.device.topology.rest.layer.DeviceTypeLayer;
 import com.energyict.mdc.device.topology.rest.layer.IssuesAndAlarmsLayer;
+import com.energyict.mdc.device.topology.rest.layer.LayerNames;
 import com.energyict.mdc.device.topology.rest.layer.LinkQualityLayer;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 import org.json.JSONArray;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +35,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -62,7 +58,6 @@ public class TopologyGraphResourceTest extends TopologyGraphApplicationJerseyTes
 
     @Test
     public void getTopologyGraphByNameWithoutLayerActivation() throws Exception{
-        Instant yesterday = Instant.now().minus(1, ChronoUnit.DAYS);
         Device gateway = mock(Device.class);
         when(gateway.getId()).thenReturn(123L);
         when(gateway.getName()).thenReturn("gateway");
@@ -80,7 +75,6 @@ public class TopologyGraphResourceTest extends TopologyGraphApplicationJerseyTes
         when(slave3.getName()).thenReturn("slave3");
         when(slave3.getSerialNumber()).thenReturn("Serial of slave3");
 
-        List<Device> devicesInTopology = Arrays.asList(slave1, slave2, slave3);
         List<G3CommunicationPathSegment> comSegmentsInTopology = new ArrayList<>();
         G3CommunicationPathSegment segment1 = mock(G3CommunicationPathSegment.class);
         when(segment1.getSource()).thenReturn(gateway);
@@ -95,15 +89,9 @@ public class TopologyGraphResourceTest extends TopologyGraphApplicationJerseyTes
         when(segment3.getTarget()).thenReturn(slave3);
         comSegmentsInTopology.add(segment3);
 
-        DeviceTopology topology = mock(DeviceTopology.class);
-        when(topology.getRoot()).thenReturn(gateway);
-        when(topology.getDevices()).thenReturn(devicesInTopology);
-        when(topology.getPeriod()).thenReturn(Range.atLeast(yesterday));
-
         when(deviceService.findDeviceByName("deviceName")).thenReturn(Optional.of(gateway));
-        when(topologyService.getPhysicalTopology(eq(gateway), any(Range.class))).thenReturn(topology);
         when(topologyService.getPhysicalGateway(gateway)).thenReturn(Optional.empty());
-        when(topologyService.getUniqueG3CommunicationPathSegments(devicesInTopology)).thenReturn(comSegmentsInTopology.stream());
+        when(topologyService.getUniqueG3CommunicationPathSegments(gateway)).thenReturn(comSegmentsInTopology.stream());
 
         when(graphLayerService.getGraphLayers()).thenReturn(getExisting());
 
@@ -133,42 +121,35 @@ public class TopologyGraphResourceTest extends TopologyGraphApplicationJerseyTes
         when(slave3.getName()).thenReturn("slave3");
         when(slave3.getSerialNumber()).thenReturn("Serial of slave3");
 
-        List<Device> devicesInTopology = Arrays.asList(slave1, slave2, slave3);
         List<G3CommunicationPathSegment> comSegmentsInTopology = new ArrayList<>();
-        DeviceTopology topology = mock(DeviceTopology.class);
-        when(topology.getRoot()).thenReturn(gateway);
-        when(topology.getDevices()).thenReturn(devicesInTopology);
-
         when(deviceService.findDeviceByName("deviceName")).thenReturn(Optional.of(gateway));
-        when(topologyService.getPhysicalTopology(eq(gateway), any(Range.class))).thenReturn(topology);
         when(topologyService.getPhysicalGateway(gateway)).thenReturn(Optional.empty());
-        when(topologyService.getUniqueG3CommunicationPathSegments(devicesInTopology)).thenReturn(comSegmentsInTopology.stream());
+        when(topologyService.getUniqueG3CommunicationPathSegments(gateway)).thenReturn(comSegmentsInTopology.stream());
 
         when(graphLayerService.getGraphLayers()).thenReturn(getExisting());
 
-        target("/topology/deviceName").queryParam("filter", ExtjsFilter.filter("layers", Arrays.asList("Communication+Status", "Device+Identifiers", "Device+types"))).request().get();
+        target("/topology/deviceName").queryParam("filter", ExtjsFilter.filter("layers", Arrays.asList(LayerNames.CommunciationStatusLayer.fullName(), LayerNames.DeviceInfoLayer.fullName(), LayerNames.DeviceTypeLayer.fullName()))).request().get();
 
-        verify(deviceInfoLayer).activate();
-        verify(deviceTypeLayer).activate();
-        verify(communicationStatusLayer).activate();
+        verify(deviceInfoLayer).setActive(true);
+        verify(deviceTypeLayer).setActive(true);
+        verify(communicationStatusLayer).setActive(true);
     }
 
     @Test
     public void getGraphLayersTest() throws Exception {
-       // when(issuesAndAlarmsLayer.getDisplayName(any(Thesaurus.class))).thenReturn(new IssuesAndAlarmsLayer().getDisplayName(thesaurus));
         when(graphLayerService.getGraphLayers()).thenReturn(getExisting());
 
         Response response = target("/topology/graphlayers").request().get(Response.class);
         JSONArray jsonArray = new JSONArray(response.readEntity(String.class));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(jsonArray.length()).isEqualTo(7);
-        assertThat(jsonArray.getString(0)).isEqualTo(new CommunicationStatusLayer().getDisplayName(thesaurus));
-        assertThat(jsonArray.getString(1)).isEqualTo(new DeviceInfoLayer().getDisplayName(thesaurus));
-        assertThat(jsonArray.getString(2)).isEqualTo(new DeviceTypeLayer().getDisplayName(thesaurus));
-        assertThat(jsonArray.getString(3)).isEqualTo(new DeviceLifeCycleStatusLayer().getDisplayName(thesaurus));
+        assertThat(jsonArray.getString(0)).isEqualTo(LayerNames.CommunciationStatusLayer.fullName());
+        assertThat(jsonArray.getString(1)).isEqualTo(LayerNames.DeviceInfoLayer.fullName());
+        assertThat(jsonArray.getString(2)).isEqualTo(LayerNames.DeviceTypeLayer.fullName());
+        assertThat(jsonArray.getString(3)).isEqualTo(LayerNames.DeviceLifeCycleStatusLayer.fullName());
         assertThat(jsonArray.getString(4)).isEqualTo("null");
-        assertThat(jsonArray.getString(5)).isEqualTo(new LinkQualityLayer().getDisplayName(thesaurus));
-        assertThat(jsonArray.getString(6)).isEqualTo(new DeviceSummaryExtraInfoLayer().getDisplayName(thesaurus));
+        assertThat(jsonArray.getString(5)).isEqualTo(LayerNames.LinkQualityLayer.fullName());
+        assertThat(jsonArray.getString(6)).isEqualTo(LayerNames.DeviceSummaryExtraInfoLayer.fullName());
     }
 
     @Test

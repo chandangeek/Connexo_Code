@@ -30,6 +30,8 @@ public abstract class NodeInfo<T extends HasId> {
     private List<GraphLayer<T>> layers = new ArrayList<>();
     @JsonIgnore
     private T parent;
+    @JsonIgnore
+    protected Map<String, Object> allProperties =  new HashMap<>();
 
     public NodeInfo(T nodeObject) {
         this.nodeObject = nodeObject;
@@ -70,7 +72,6 @@ public abstract class NodeInfo<T extends HasId> {
 
     @JsonAnyGetter
     public Map<String, Object> getProperties(){
-        Map<String, Object> allProperties =  new HashMap<>();
         layers.stream().filter(GraphLayer::isActive).forEach(layer -> allProperties.putAll(layer.getProperties(this)));
         return allProperties;
     }
@@ -95,4 +96,5 @@ public abstract class NodeInfo<T extends HasId> {
     public int hashCode() {
         return (int) (this.nodeObject.getId() ^ (this.nodeObject.getId() >>> 32));
     }
+
 }

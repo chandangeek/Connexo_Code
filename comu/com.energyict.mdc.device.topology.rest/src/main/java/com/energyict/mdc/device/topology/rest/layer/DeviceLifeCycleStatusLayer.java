@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
@@ -14,7 +13,6 @@ import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +29,6 @@ public class DeviceLifeCycleStatusLayer extends AbstractGraphLayer<Device> {
 
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
-    public final static String NAME = "topology.GraphLayer.DeviceLifeCycleStatus";
-    public final static String DEFAULT_FORMAT = "Status of device life cycle";
-
     public enum PropertyNames implements TranslationKey {
         LIFECYCLE_STATUS("deviceLifecycleStatus", "Device life cycle status");
 
@@ -47,7 +42,7 @@ public class DeviceLifeCycleStatusLayer extends AbstractGraphLayer<Device> {
 
         @Override
         public String getKey() {
-            return NAME + ".node." + propertyName;    //topology.graphLayer.DeviceLifeCycleStatu.node.xxxx
+            return LayerNames.DeviceLifeCycleStatusLayer.fullName() + ".node." + propertyName;    //topology.graphLayer.DeviceLifeCycleStatu.node.xxxx
         }
 
         public String getPropertyName() {
@@ -68,25 +63,7 @@ public class DeviceLifeCycleStatusLayer extends AbstractGraphLayer<Device> {
 
     @Override
     public String getName() {
-        return NAME;
-    }
-
-    public String getDisplayName(Thesaurus thesaurus){
-        return thesaurus.getFormat(getTranslatedName()).format();
-    }
-
-    private TranslationKey getTranslatedName(){
-        return new TranslationKey() {
-                    @Override
-                    public String getKey() {
-                        return NAME;
-                    }
-
-                    @Override
-                    public String getDefaultFormat() {
-                        return DEFAULT_FORMAT;
-                    }
-                };
+        return LayerNames.DeviceLifeCycleStatusLayer.fullName();
     }
 
     @Reference
@@ -110,9 +87,6 @@ public class DeviceLifeCycleStatusLayer extends AbstractGraphLayer<Device> {
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        keys.add(getTranslatedName());
-        keys.addAll(Arrays.asList(PropertyNames.values()));
-        return keys;
+        return Arrays.asList(PropertyNames.values());
     }
 }

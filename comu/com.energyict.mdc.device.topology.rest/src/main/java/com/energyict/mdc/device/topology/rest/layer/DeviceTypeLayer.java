@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
@@ -10,7 +9,6 @@ import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
 import org.osgi.service.component.annotations.Component;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +24,6 @@ import java.util.Map;
 public class DeviceTypeLayer extends AbstractGraphLayer<Device> {
 
     public final static String NAME = "topology.GraphLayer.DeviceType";
-    public final static String DEFAULT_FORMAT = "Device types";
 
     public enum PropertyNames implements TranslationKey {
         DEVICE_TYPE("deviceType", "Device type"),
@@ -42,7 +39,7 @@ public class DeviceTypeLayer extends AbstractGraphLayer<Device> {
 
         @Override
         public String getKey() {
-            return NAME + ".node." + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
+            return LayerNames.DeviceTypeLayer.fullName() + ".node." + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
         }
 
         public String getPropertyName(){
@@ -62,25 +59,7 @@ public class DeviceTypeLayer extends AbstractGraphLayer<Device> {
 
     @Override
     public String getName() {
-        return NAME;
-    }
-
-    public String getDisplayName(Thesaurus thesaurus){
-        return thesaurus.getFormat(getTranslatedName()).format();
-    }
-
-    private TranslationKey getTranslatedName(){
-        return new TranslationKey() {
-                    @Override
-                    public String getKey() {
-                        return NAME;
-                    }
-
-                    @Override
-                    public String getDefaultFormat() {
-                        return DEFAULT_FORMAT;
-                    }
-                };
+        return LayerNames.DeviceTypeLayer.fullName();
     }
 
     public void setDeviceType(String deviceTypeName){
@@ -93,10 +72,7 @@ public class DeviceTypeLayer extends AbstractGraphLayer<Device> {
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        keys.add(getTranslatedName());
-        keys.addAll(Arrays.asList(PropertyNames.values()));
-        return keys;
+        return Arrays.asList(PropertyNames.values());
     }
 
     public Map<String, Object> getProperties(NodeInfo<Device> nodeInfo) {

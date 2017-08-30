@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
@@ -16,7 +15,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Clock;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +32,6 @@ public class CommunicationStatusLayer extends AbstractGraphLayer<Device> {
     private Clock clock;
     private TopologyService topologyService;
 
-    private final static String NAME = "topology.GraphLayer.CommunicationStatus";
-    private final static String DEFAULT_FORMAT = "Communication Status";
     public enum PropertyNames implements TranslationKey {
         COMMUNICATION_STATUS("failedCommunications", "Failed communications");
 
@@ -49,7 +45,7 @@ public class CommunicationStatusLayer extends AbstractGraphLayer<Device> {
 
         @Override
         public String getKey() {
-            return NAME + ".node." + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
+            return LayerNames.CommunciationStatusLayer.fullName() + ".node." + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
         }
 
         public String getPropertyName(){
@@ -70,26 +66,7 @@ public class CommunicationStatusLayer extends AbstractGraphLayer<Device> {
 
     @Override
     public String getName() {
-        return NAME;
-    }
-
-    public String getDisplayName(Thesaurus thesaurus){
-        return thesaurus.getFormat(getTranslatedName()).format();
-    }
-
-    private TranslationKey getTranslatedName(){
-        return new TranslationKey() {
-                    @Override
-                    public String getKey() {
-                        return NAME;
-                    }
-
-                    @Override
-                    public String getDefaultFormat() {
-                        return DEFAULT_FORMAT;
-                    }
-                };
-    }
+        return LayerNames.CommunciationStatusLayer.fullName();    }
 
     @Reference
     public void setTopologyService(TopologyService topologyService) {
@@ -119,10 +96,7 @@ public class CommunicationStatusLayer extends AbstractGraphLayer<Device> {
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        keys.add(getTranslatedName());
-        keys.addAll(Arrays.asList(PropertyNames.values()));
-        return keys;
+        return Arrays.asList(PropertyNames.values());
     }
 
 }

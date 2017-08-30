@@ -4,9 +4,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +22,7 @@ public class DeviceSummaryNodeInfo extends DeviceNodeInfo{
     private Map<String, Object> allProperties =  new HashMap<>();
 
     public DeviceSummaryNodeInfo(Device device) {
-        super(device, Optional.empty());
+        super(device, Optional.empty(), Optional.empty());
     }
 
     @Override

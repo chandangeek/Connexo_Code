@@ -1,10 +1,8 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
@@ -13,7 +11,6 @@ import com.energyict.mdc.tasks.ComTask;
 
 import org.osgi.service.component.annotations.Component;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +25,6 @@ import java.util.stream.Collectors;
 @Component(name = "com.energyict.mdc.device.topology.DeviceSummaryExtraInfo", service = GraphLayer.class, immediate = true)
 public class DeviceSummaryExtraInfoLayer extends AbstractGraphLayer<Device> {
 
-    public final static String NAME = "topology.GraphLayer.DeviceSummary";
-    private final static String DEFAULT_FORMAT = "Device Summary";
-
     public enum PropertyNames implements TranslationKey {
         FAILED_COM_TASKS("failedComTasks", "Failed Communication tasks");
 
@@ -44,7 +38,7 @@ public class DeviceSummaryExtraInfoLayer extends AbstractGraphLayer<Device> {
 
         @Override
         public String getKey() {
-            return NAME + ".node." + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
+            return LayerNames.DeviceSummaryExtraInfoLayer.fullName() + ".node." + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
         }
 
         public String getPropertyName() {
@@ -64,7 +58,7 @@ public class DeviceSummaryExtraInfoLayer extends AbstractGraphLayer<Device> {
 
     @Override
     public String getName() {
-        return NAME;
+        return LayerNames.DeviceSummaryExtraInfoLayer.fullName();
     }
 
     @Override
@@ -79,23 +73,6 @@ public class DeviceSummaryExtraInfoLayer extends AbstractGraphLayer<Device> {
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        keys.add(getTranslatedName());
-        keys.addAll(Arrays.asList(PropertyNames.values()));
-        return keys;
-    }
-
-    private TranslationKey getTranslatedName() {
-        return new TranslationKey() {
-            @Override
-            public String getKey() {
-                return NAME;
-            }
-
-            @Override
-            public String getDefaultFormat() {
-                return DEFAULT_FORMAT;
-            }
-        };
+        return Arrays.asList(PropertyNames.values());
     }
 }

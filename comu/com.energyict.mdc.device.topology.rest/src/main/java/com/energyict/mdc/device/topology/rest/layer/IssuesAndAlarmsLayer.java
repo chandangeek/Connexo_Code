@@ -3,7 +3,6 @@ package com.energyict.mdc.device.topology.rest.layer;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
@@ -20,7 +19,6 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +38,6 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
     private DeviceAlarmService deviceAlarmService;
 
     public final static String NAME = "topology.GraphLayer.IssuesAndAlarms";
-    private final static String DEFAULT_FORMAT = "Issues/Alarms";
 
     public enum PropertyNames implements TranslationKey {
         ISSUE_COUNT("issues", "Issues"),
@@ -56,7 +53,7 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
 
         @Override
         public String getKey() {
-            return NAME + ".node." + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
+            return LayerNames.IssuesAndAlarmLayer.fullName() + ".node." + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
         }
 
         public String getPropertyName() {
@@ -77,25 +74,7 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
 
     @Override
     public String getName() {
-        return NAME;
-    }
-
-    public String getDisplayName(Thesaurus thesaurus){
-        return thesaurus.getFormat(getTranslatedName()).format();
-    }
-
-    private TranslationKey getTranslatedName(){
-        return new TranslationKey() {
-                    @Override
-                    public String getKey() {
-                        return NAME;
-                    }
-
-                    @Override
-                    public String getDefaultFormat() {
-                        return DEFAULT_FORMAT;
-                    }
-                };
+        return LayerNames.IssuesAndAlarmLayer.fullName();
     }
 
     @Reference
@@ -146,9 +125,6 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        keys.add(getTranslatedName());
-        keys.addAll(Arrays.asList(PropertyNames.values()));
-        return keys;
+        return Arrays.asList(PropertyNames.values());
     }
 }

@@ -7,7 +7,7 @@ package com.energyict.mdc.device.topology.rest.impl;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.impl.ServerTopologyService;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
 
 import javax.ws.rs.core.Application;
@@ -19,7 +19,7 @@ import org.mockito.Mock;
 public class TopologyGraphApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     @Mock
-    TopologyService topologyService;
+    ServerTopologyService topologyService;
     @Mock
     DeviceService deviceService;
     @Mock

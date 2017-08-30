@@ -49,6 +49,6 @@ public class GraphLayerServiceImpl implements GraphLayerService  {
 
     @Override
     public List<GraphLayer> getAllSummaryLayers() {
-        return this.getGraphLayers().stream().filter( l -> Arrays.asList(DeviceInfoLayer.NAME, DeviceTypeLayer.NAME, IssuesAndAlarmsLayer.NAME, DeviceSummaryExtraInfoLayer.NAME).contains(l.getName())).collect(Collectors.toList());
+        return this.getGraphLayers().stream().filter( l -> Arrays.asList(LayerNames.DeviceInfoLayer.fullName(), LayerNames.DeviceTypeLayer.fullName(), LayerNames.IssuesAndAlarmLayer.fullName(), LayerNames.DeviceSummaryExtraInfoLayer.fullName()).contains(l.getName())).collect(Collectors.toList());
     }
 }

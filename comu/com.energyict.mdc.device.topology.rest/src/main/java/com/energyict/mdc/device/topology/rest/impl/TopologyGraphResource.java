@@ -7,8 +7,8 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
-import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.DeviceSummaryNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.GraphInfo;
 
@@ -23,7 +23,6 @@ import javax.ws.rs.core.Response;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -57,6 +56,7 @@ public class TopologyGraphResource {
     @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getTopologyGraphByName(@PathParam("name") String name, @BeanParam JsonQueryFilter layerFilter, @BeanParam JsonQueryParameters queryParams) {
+        boolean forceRefresh = false; // do not use the cached graphInfo
         if (layerFilter.hasFilters()) {
             List<String> encodedLayerNames = layerFilter.getStringList("layers");
             List<String>  decodedLayerNames = new ArrayList<>(encodedLayerNames.size());
@@ -64,9 +64,12 @@ public class TopologyGraphResource {
                  decodedLayerNames.add(URLDecoder.decode(encodedLayerName));
             }
             activateGraphLayers(decodedLayerNames);
+            if (layerFilter.hasProperty("refresh")) {
+                forceRefresh = layerFilter.getBoolean("refresh");
+            }
         }
         Device device = deviceService.findDeviceByName(name).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_NOT_FOUND, name));
-        GraphInfo graphInfo =  deviceGraphFactory.from(device);
+        GraphInfo graphInfo =  deviceGraphFactory.forceRefresh(forceRefresh).from(device);
         return Response.ok(graphInfo).build();
     }
 
@@ -74,7 +77,7 @@ public class TopologyGraphResource {
     @Path("/graphlayers")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getGraphLayers() {
-        List<String> layersNames = graphLayerService.getGraphLayers().stream().map(layer -> layer.getDisplayName(thesaurus)).collect(Collectors.toList());
+        List<String> layersNames = graphLayerService.getGraphLayers().stream().map(GraphLayer::getName).collect(Collectors.toList());
         return Response.ok(layersNames.toArray()).build();
     }
 
@@ -89,13 +92,7 @@ public class TopologyGraphResource {
     }
 
     private void activateGraphLayers(final List<String> names ) {
-        graphLayerService.getGraphLayers().stream().forEach((layer)-> {
-            if (names.contains(layer.getDisplayName(thesaurus))){
-                layer.activate();
-            }else{
-                layer.deActivate();
-            }
-        });
+        graphLayerService.getGraphLayers().stream().forEach((layer)-> layer.setActive(names.contains(layer.getName())));
     }
 
 }

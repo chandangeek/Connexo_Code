@@ -32,13 +32,10 @@ public abstract class AbstractGraphLayer<T extends HasId> implements GraphLayer<
     }
 
     @Override
-    public void activate() {
-        this.active = true;
+    public void setActive(boolean active) {
+        this.active = active;
     }
-    @Override
-    public void deActivate() {
-        this.active = false;
-    }
+
     @Override
     public boolean isActive(){
         return this.getCalculationMode() == GraphLayerCalculationMode.IMMEDIATE || this.active;
