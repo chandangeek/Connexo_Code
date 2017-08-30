@@ -303,9 +303,9 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
     },
 
     onRefresh: function(buttonPressed) {
-        var me = this,
-            visualiserPanel = buttonPressed.up('visualiserpanel'),
+        var visualiserPanel = buttonPressed.up('visualiserpanel'),
             layersToQuery = [],
+            layerName = undefined,
             getMatchingLayerName = function(methodName) {
                 switch(methodName) {
                     case 'showDeviceType':
@@ -318,11 +318,16 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
                         return 'topology.GraphLayer.DeviceLifeCycleStatus';
                     case 'showCommunicationStatus':
                         return 'topology.GraphLayer.CommunicationStatus';
+                    default:
+                        return undefined;
                 }
             };
 
         Ext.each(visualiserPanel.activeLayers, function(layerFunction) {
-            layersToQuery.push(getMatchingLayerName(layerFunction.name));
+            layerName = getMatchingLayerName(layerFunction.name);
+            if (!Ext.isEmpty(layerName)) {
+                layersToQuery.push(layerName);
+            }
         });
         visualiserPanel.store.getProxy().setExtraParam('filter', Ext.encode([
             {
