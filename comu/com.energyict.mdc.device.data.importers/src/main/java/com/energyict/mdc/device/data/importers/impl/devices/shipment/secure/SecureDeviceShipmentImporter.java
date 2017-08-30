@@ -7,8 +7,8 @@ import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.impl.DeviceSecretImporter;
-import com.elster.jupiter.pki.impl.KeyImportFailedException;
+import com.elster.jupiter.pki.DeviceSecretImporter;
+import com.elster.jupiter.pki.KeyImportFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -118,7 +118,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
             throw new RuntimeException(thesaurus.getFormat(MessageSeeds.SHIPMENT_CERTIFICATE_UNTRUSTED).format(e.getMessage()));
         } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException e) {
             log(logger, MessageSeeds.FAILED_TO_VERIFY_CERTIFICATE);
-            throw new RuntimeException(thesaurus.getFormat(MessageSeeds.NO_CERTIFICATE_FOUND_IN_SHIPMENT).format());
+            throw new RuntimeException(thesaurus.getFormat(MessageSeeds.FAILED_TO_VERIFY_CERTIFICATE).format());
         } catch (ImportFailedException e) {
             log(logger, e.getMessageSeed(), e.getMessageParameters());
             throw new RuntimeException(thesaurus.getFormat(e.getMessageSeed()).format(e.getMessageParameters()));

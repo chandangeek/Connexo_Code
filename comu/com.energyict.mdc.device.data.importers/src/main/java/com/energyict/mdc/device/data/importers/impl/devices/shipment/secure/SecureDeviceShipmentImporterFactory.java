@@ -47,7 +47,7 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
         TrustStore trustStore = (TrustStore) properties.get(SecureDeviceShipmentImporterProperty.TRUSTSTORE.getPropertyKey());
-        PublicKey publicKey = (PublicKey) properties.get(SecureDeviceShipmentImporterProperty.PUBLICKEY.getPropertyKey());
+//        PublicKey publicKey = (PublicKey) properties.get(SecureDeviceShipmentImporterProperty.PUBLICKEY.getPropertyKey());
         return new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, pkiService);
     }
 
@@ -118,20 +118,20 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
                         .finish();
             }
         },
-        PUBLICKEY(TranslationKeys.DEVICE_DATA_IMPORTER_PUBLICKEY, TranslationKeys.DEVICE_DATA_IMPORTER_PUBLICKEY_DESCRIPTION) {
-            @Override
-            public PropertySpec getPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, PkiService pkiService) {
-                return propertySpecService
-                        .referenceSpec(TrustStore.class)
-                        .named(this.getPropertyKey(), this.getNameTranslationKey())
-                        .describedAs(this.getDescriptionTranslationKey())
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
-                        .markExhaustive()
-                        .addValues(pkiService.getAllTrustStores())
-                        .finish();
-            }
-        },
+//        PUBLICKEY(TranslationKeys.DEVICE_DATA_IMPORTER_PUBLICKEY, TranslationKeys.DEVICE_DATA_IMPORTER_PUBLICKEY_DESCRIPTION) {
+//            @Override
+//            public PropertySpec getPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, PkiService pkiService) {
+//                return propertySpecService
+//                        .referenceSpec(TrustStore.class)
+//                        .named(this.getPropertyKey(), this.getNameTranslationKey())
+//                        .describedAs(this.getDescriptionTranslationKey())
+//                        .fromThesaurus(thesaurus)
+//                        .markRequired()
+//                        .markExhaustive()
+//                        .addValues(pkiService.getAllTrustStores())
+//                        .finish();
+//            }
+//        },
         ;
         private final TranslationKeys nameTranslationKey;
         private final TranslationKeys descriptionTranslationKey;

@@ -33,7 +33,7 @@ import static com.elster.jupiter.orm.Version.version;
 public class SecureDeviceShipmentImporterMessageHandler implements MessageHandlerFactory {
 
     static final String DESTINATION_NAME = "SecureShipmentImport";
-    static final String SUBSCRIBER_NAME = "SecureShipmentImport";
+    public static final String SUBSCRIBER_NAME = "SecureShipmentImport";
     static final String COMPONENT_NAME = "SSI";
 
     private volatile FileImportService fileImportService;

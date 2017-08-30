@@ -38,7 +38,7 @@ class Installer implements FullInstaller {
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(SecureDeviceShipmentImporterMessageHandler.DESTINATION_NAME, 60);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe(TranslationKeys.DATA_IMPORTER_SUBSCRIBER, SecureDeviceShipmentImporterMessageHandler.COMPONENT_NAME, Layer.DOMAIN);
+        destinationSpec.subscribe(TranslationKeys.SECURE_SHIPMENT_IMPORT_SUBSCRIBER, SecureDeviceShipmentImporterMessageHandler.COMPONENT_NAME, Layer.DOMAIN);
     }
 
 }

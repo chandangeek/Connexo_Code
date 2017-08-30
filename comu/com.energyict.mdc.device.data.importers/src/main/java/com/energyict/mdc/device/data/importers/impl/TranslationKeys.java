@@ -14,11 +14,13 @@ import com.energyict.mdc.device.data.importers.impl.devices.installation.DeviceI
 import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceShipmentImporterFactory;
+import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceShipmentImporterMessageHandler;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 
 public enum TranslationKeys implements TranslationKey {
 
     DATA_IMPORTER_SUBSCRIBER(DeviceDataImporterMessageHandler.SUBSCRIBER_NAME, "Handle data import"),
+    SECURE_SHIPMENT_IMPORT_SUBSCRIBER(SecureDeviceShipmentImporterMessageHandler.SUBSCRIBER_NAME, "Handle secure shipment import"),
 
     IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED("ImportResultNoDevicesWereProcessed", "Failed to complete, no devices have been processed."),
     IMPORT_RESULT_FAIL("ImportResultFail", "Failed to complete. {0} devices processed successfully."),

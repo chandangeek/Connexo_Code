@@ -7,7 +7,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.impl.DeviceSecretImporter;
+import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
