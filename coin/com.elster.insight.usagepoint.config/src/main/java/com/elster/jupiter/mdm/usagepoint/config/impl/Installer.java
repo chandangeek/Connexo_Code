@@ -27,24 +27,21 @@ class Installer implements FullInstaller, PrivilegesProvider {
 
     private final DataModel dataModel;
     private final UserService userService;
-    private final MetrologyConfigurationsInstaller metrologyConfigurationsInstaller;
+    private final MetrologyConfigurationService metrologyConfigurationService;
+    private final MeteringService meteringService;
 
     @Inject
     Installer(DataModel dataModel, UserService userService, CalendarService calendarService, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
-        this.metrologyConfigurationsInstaller = new MetrologyConfigurationsInstaller(calendarService, metrologyConfigurationService, meteringService);
+        this.metrologyConfigurationService = metrologyConfigurationService;
+        this.meteringService = meteringService;
     }
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        doTry(
-                "Create Metrology Configurations",
-                this.metrologyConfigurationsInstaller::createMetrologyConfigurations,
-                logger
-        );
         userService.addModulePrivileges(this);
     }
 

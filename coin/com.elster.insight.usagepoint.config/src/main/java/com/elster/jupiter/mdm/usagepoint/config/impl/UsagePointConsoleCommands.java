@@ -48,7 +48,6 @@ import java.util.Optional;
         service = UsagePointConsoleCommands.class,
         property = {"osgi.command.scope=usagepoint",
                 "osgi.command.function=createMetrologyConfiguration",
-                "osgi.command.function=instalOOTBMetrologyConfiguration",
                 "osgi.command.function=renameMetrologyConfiguration",
                 "osgi.command.function=deleteMetrologyConfiguration",
                 "osgi.command.function=metrologyConfigurations",
@@ -78,32 +77,6 @@ public class UsagePointConsoleCommands {
                         .run(() -> metrologyConfigurationService.newMetrologyConfiguration(name, serviceCategory.get()).create());
             } else {
                 System.out.println("No ServiceCategory for: " + serviceKindName);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Install OOTB metrology configuration
-     *
-     * @param name
-     */
-    @Descriptor("Install OOTB metrology configuration")
-    public void instalOOTBMetrologyConfiguration(@Descriptor("Name of OOTB metrology configuration") String name) {
-        try {
-            Optional<MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration> ootbMetrologyConfiguration = Arrays.stream(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration
-                    .values()).filter(c -> c.getName().equals(name)).findFirst();
-            if (!ootbMetrologyConfiguration.isPresent()){
-                System.err.println("No OOTB has been found with name "+ name);
-                return;
-            } else {
-                transactionService.builder()
-                        .principal(() -> "console")
-                        .run(() -> {
-                            MetrologyConfigurationsInstaller metrologyConfigurationsInstaller = new MetrologyConfigurationsInstaller(calendarService, metrologyConfigurationService, meteringService);
-                            ootbMetrologyConfiguration.get().install(metrologyConfigurationsInstaller);
-                        });
             }
         } catch (Exception e) {
             e.printStackTrace();
