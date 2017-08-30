@@ -134,8 +134,7 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
         var me = this,
             communicationTasksOfDeviceStore = Ext.getStore('Mdc.store.CommunicationTasksOfDevice'),
             retriggerWindow = Ext.ComponentQuery.query('#mdc-retriggerCommunicationTasksWindow')[0],
-            checkBoxOfComTask = undefined,
-            viewport = Ext.ComponentQuery.query('viewport')[0];
+            checkBoxOfComTask = undefined;
 
         retriggerWindow.setLoading();
         me.comTasks2Trigger = [];
@@ -151,31 +150,35 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
     },
 
     doRetriggerCommTasks: function(context) {
-        var me = context.scope;
-        if (Ext.isEmpty(me.comTasks2Trigger)) {
-            me.retriggerWindow.setLoading(false);
-            me.destroyRetriggerWindow();
-            return;
-        }
-        // When (re)triggering a commtask, some of the device's fields (eg. its version) are part of the payload.
-        // Simply loading the device once and then retriggering the comtasks one by one didn't work, since after each successful trigger
-        // the device's version changes and hence for the 2nd,3rd,... comtask trigger request you get an error telling you
-        // that the device('s version) has been changed meanwhile (how we handle concurrent updates)
-        // So, EACH TIME you have to reload the device first (to have its correct version) before you can perform the comtask trigger.
+        var me = context.scope,
+            performAfterRetrigger = function() {
+                me.retriggerWindow.setLoading(false);
+                me.destroyRetriggerWindow();
+            };
+
         Ext.ModelManager.getModel('Mdc.model.Device').load(me.retriggerWindow.deviceName, {
             success: function (device) {
-                me.triggerComTask(me.comTasks2Trigger.pop(), device, me.doRetriggerCommTasks, context);
+                me.triggerComTasks(device, performAfterRetrigger, context);
             }
         });
     },
 
-    triggerComTask: function(comTask, device, callback, context) {
+    triggerComTasks: function(device, callback, context) {
+        var me = context.scope,
+            comTaskIds2Trigger = [];
+
+        Ext.Array.each(me.comTasks2Trigger, function(comTask) {
+            comTaskIds2Trigger.push(comTask.get('comTask').id);
+        });
+
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(device.get('name')) + '/comtasks/' + comTask.get('comTask').id + '/runnow',
+            url: '/api/ddr/devices/' + encodeURIComponent(device.get('name')) + '/comtasks/runnow',
             method: 'PUT',
-            params: '',
             isNotEdit: true,
-            jsonData: {device: _.pick(device.getRecordData(), 'name', 'version', 'parent')},
+            jsonData: {
+                comTaskIds: comTaskIds2Trigger,
+                device: _.pick(device.getRecordData(), 'name', 'version', 'parent')
+            },
             timeout: 180000,
             success: function() {
                 if (Ext.isFunction(callback)) {
