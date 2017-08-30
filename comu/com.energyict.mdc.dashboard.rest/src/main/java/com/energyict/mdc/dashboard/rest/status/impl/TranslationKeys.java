@@ -45,6 +45,7 @@ public enum TranslationKeys implements TranslationKey {
     ONGOING("Ongoing", "Ongoing" ),
     TARGET("Target", "Target"),
     CONNECTION_FUNCTION("Connection.function", "''{0}'' function"),
+    NONE("None", "None")
 
     ;
 

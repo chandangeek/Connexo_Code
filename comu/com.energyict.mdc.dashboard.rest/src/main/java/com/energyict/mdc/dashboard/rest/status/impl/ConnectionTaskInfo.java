@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 
 public class ConnectionTaskInfo extends DeviceConnectionTaskInfo {
     public IdWithNameInfo device;
-    public DeviceConfigurationIdInfo deviceConfiguration;
     public IdWithNameInfo deviceType;
+    public DeviceConfigurationIdInfo deviceConfiguration;
+    public ConnectionFunctionInfo connectionFunctionInfo;
 }

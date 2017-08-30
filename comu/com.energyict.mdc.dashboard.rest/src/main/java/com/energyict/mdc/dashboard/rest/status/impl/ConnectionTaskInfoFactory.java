@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.Device;
@@ -18,6 +19,8 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import javax.inject.Inject;
 import java.time.Duration;
@@ -99,8 +102,34 @@ public class ConnectionTaskInfoFactory {
             String connectionFunction = connectionTask.getPartialConnectionTask().getConnectionFunction().get().getConnectionFunctionDisplayName();
             info.connectionMethod.name += " (" + thesaurus.getFormat(TranslationKeys.CONNECTION_FUNCTION).format(connectionFunction)  + ")";
         }
+        info.connectionFunctionInfo = connectionTask.getPartialConnectionTask().getConnectionFunction().isPresent()
+                       ? new ConnectionFunctionInfo(connectionTask.getPartialConnectionTask().getConnectionFunction().get())
+                       : deviceProtocolSupportsConnectionFunctions(device.getDeviceType()) ? getNoConnectionFunctionSpecifiedConnectionFunctionInfo(thesaurus) : null;
         info.version = connectionTask.getVersion();
         return info;
     }
 
+    private boolean deviceProtocolSupportsConnectionFunctions(DeviceType deviceType) {
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClassOptional = deviceType.getDeviceProtocolPluggableClass();
+        return deviceProtocolPluggableClassOptional.isPresent() && !deviceProtocolPluggableClassOptional.get().getProvidedConnectionFunctions().isEmpty();
+    }
+
+    private ConnectionFunctionInfo getNoConnectionFunctionSpecifiedConnectionFunctionInfo(Thesaurus thesaurus) {
+        return new ConnectionFunctionInfo(new ConnectionFunction() {
+            @Override
+            public String getConnectionFunctionDisplayName() {
+                return thesaurus.getString(TranslationKeys.NONE.getKey(), TranslationKeys.NONE.getDefaultFormat());
+            }
+
+            @Override
+            public String getConnectionFunctionName() {
+                return TranslationKeys.NONE.getKey();
+            }
+
+            @Override
+            public long getId() {
+                return -1;
+            }
+        });
+    }
 }
