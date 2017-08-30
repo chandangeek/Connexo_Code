@@ -78,7 +78,8 @@ public enum EndDeviceEventTypeMapping {
     MANUAL_CONNECTION_MBUS  (61, EndDeviceEventTypeFactory.getManualConnectionMbusEventType()),
     REMOTE_DISCONNECTION_MBUS(62, EndDeviceEventTypeFactory.getRemoteDisconnectionMbusEventType()),
     REMOTE_CONNECTION_MBUS  (63, EndDeviceEventTypeFactory.getRemoteConnectionMbusEventType()),
-    VALVE_ALARM_MBUS        (64, EndDeviceEventTypeFactory.getValveAlarmMbusEventType());
+    VALVE_ALARM_MBUS        (64, EndDeviceEventTypeFactory.getValveAlarmMbusEventType()),
+    TAMPER_CLEARED          (65, EndDeviceEventTypeFactory.getTamperClearedEventType());
 
     private final int eisCode;
     private final EndDeviceEventType eventType;
