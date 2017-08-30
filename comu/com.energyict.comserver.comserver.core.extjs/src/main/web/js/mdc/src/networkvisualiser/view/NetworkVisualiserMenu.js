@@ -126,24 +126,28 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
             } else {
                 var layersToQuery = [];
                 if (deviceTypeCheckBox.getValue()) {
-                    layersToQuery.push(Uni.I18n.translate('general.layer.deviceTypes', 'MDC', 'Device types'));
+                    layersToQuery.push('topology.GraphLayer.DeviceType');
                 }
                 if (issuesAlarmsCheckBox.getValue()) {
-                    layersToQuery.push(Uni.I18n.translate('general.layer.issuesAndAlarms', 'MDC', 'Issues/Alarms'));
+                    layersToQuery.push('topology.GraphLayer.IssuesAndAlarms');
                 }
                 if (qualityCheckBox.getValue()) {
-                    layersToQuery.push(Uni.I18n.translate('general.layer.quality', 'MDC', 'Network/link quality'));
+                    layersToQuery.push('topology.GraphLayer.linkQuality');
                 }
                 if (lifeCylceStatusCheckBox.getValue()) {
-                    layersToQuery.push(Uni.I18n.translate('general.layer.lifeCycleStatus', 'MDC', 'Status of device life cycle'));
+                    layersToQuery.push('topology.GraphLayer.DeviceLifeCycleStatus');
                 }
                 if (commStatusCheckBox.getValue()) {
-                    layersToQuery.push(Uni.I18n.translate('general.layer.communicationStatus', 'MDC', 'Communication status'));
+                    layersToQuery.push('topology.GraphLayer.CommunicationStatus');
                 }
                 me.store.getProxy().setExtraParam('filter', Ext.encode([
                     {
                         property: 'layers',
                         value: layersToQuery
+                    },
+                    {
+                        property: 'refresh',
+                        value: false
                     }
                 ]));
                 me.refreshLayers(qualityCheckBox.getValue());

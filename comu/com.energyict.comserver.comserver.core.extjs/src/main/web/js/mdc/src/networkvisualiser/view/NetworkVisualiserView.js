@@ -13,16 +13,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         style: {
             paddingRight: '0px'
         },
-        items:[
-            {
-                xtype: 'button',
-                iconCls: 'icon-spinner11',
-                text: Uni.I18n.translate('general.refresh', 'MDC', 'Refresh'),
-                handler: function(button) {
-                    button.up('visualiserpanel').refreshGraph();
-                }
-            }
-        ]
+        items:[]
     },
     contextMenuItems: [
         {
@@ -68,6 +59,16 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
     propertyViewerTitle: Uni.I18n.translate('general.deviceSummary', 'MDC', 'Device summary'),
 
     initComponent: function () {
+        if (this.getHeader().items.length === 0) {
+            this.getHeader().items.push(
+                {
+                    xtype: 'button',
+                    iconCls: 'icon-spinner11',
+                    text: Uni.I18n.translate('general.refresh', 'MDC', 'Refresh'),
+                    handler: this.onRefresh
+                }
+            );
+        }
         this.callParent();
     },
 
@@ -301,33 +302,40 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         me.fireEvent('showdevicesummary', graphData);
     },
 
-    showNotYetImplementedMessage: function() {
-        var box = Ext.create('Ext.window.MessageBox', {
-                buttons: [
-                    {
-                        xtype: 'button',
-                        text: Uni.I18n.translate('general.close', 'MDC', 'Close'),
-                        action: 'close',
-                        name: 'close',
-                        ui: 'remove',
-                        handler: function () {
-                            box.close();
-                        }
-                    }
-                ]
-            }),
-            config = {};
+    onRefresh: function(buttonPressed) {
+        var me = this,
+            visualiserPanel = buttonPressed.up('visualiserpanel'),
+            layersToQuery = [],
+            getMatchingLayerName = function(methodName) {
+                switch(methodName) {
+                    case 'showDeviceType':
+                        return 'topology.GraphLayer.DeviceType';
+                    case 'showLinkQuality':
+                        return 'topology.GraphLayer.linkQuality';
+                    case 'showIssuesAndAlarms':
+                        return 'topology.GraphLayer.IssuesAndAlarms';
+                    case 'showDeviceLifeCycleStatus':
+                        return 'topology.GraphLayer.DeviceLifeCycleStatus';
+                    case 'showCommunicationStatus':
+                        return 'topology.GraphLayer.CommunicationStatus';
+                }
+            };
 
-        Ext.apply(config, {
-            title: 'To be implemented',
-            msg: 'Not yet implemented',
-            modal: false,
-            ui: 'message-error',
-            icon: 'icon-warning2',
-            style: 'font-size: 34px;'
+        Ext.each(visualiserPanel.activeLayers, function(layerFunction) {
+            layersToQuery.push(getMatchingLayerName(layerFunction.name));
         });
-
-        box.show(config);
+        visualiserPanel.store.getProxy().setExtraParam('filter', Ext.encode([
+            {
+                property: 'layers',
+                value: layersToQuery
+            },
+            {
+                property: 'refresh',
+                value: true
+            }
+        ]));
+        visualiserPanel.refreshGraph();
     }
+
 
 });

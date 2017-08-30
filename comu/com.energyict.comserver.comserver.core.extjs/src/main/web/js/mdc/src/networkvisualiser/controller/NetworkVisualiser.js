@@ -49,6 +49,10 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
             {
                 property: 'layers',
                 value: [] /*No layers by default*/
+            },
+            {
+                property: 'refresh',
+                value: true
             }
         ]));
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceName, {
