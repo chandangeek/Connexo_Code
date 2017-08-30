@@ -110,7 +110,6 @@ public interface TopologyService {
      */
     G3CommunicationPath getCommunicationPath(Device source, Device target);
 
-    Stream<G3CommunicationPathSegment> getUniqueG3CommunicationPathSegments(List<Device> slaves);
 
     /**
      * Starts the process to add {@link G3CommunicationPathSegment}s
@@ -120,6 +119,13 @@ public interface TopologyService {
      * @return The G3CommunicationPathSegmentBuilder
      */
     G3CommunicationPathSegmentBuilder addCommunicationSegments(Device source);
+
+    /**
+     * Return the current stream of communication path segments to all gateway slaves
+     * @param gateway to get the segments to its slaves
+     * @return  a Stream of segments
+     */
+    Stream<G3CommunicationPathSegment> getUniqueG3CommunicationPathSegments(Device gateway);
 
     /**
      * Counts the number of communication errors that have occurred in the specified
