@@ -85,8 +85,8 @@ public class WebServiceNotificationAction extends AbstractIssueAction {
                             }
                         });
                     }
+                    result.success(getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CALLED).format());
                 }));
-        //result.success(getThesaurus().getFormat(TranslationKeys.ACTION_ISSUE_ASSIGNED).format());
         return result;
     }
 
@@ -119,12 +119,12 @@ public class WebServiceNotificationAction extends AbstractIssueAction {
         builder.add(
                 getPropertySpecService()
                         .specForValuesOf(new EndPointConfigurationFactory())
-                        .named(WEBSERVICE, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_END_POINT)
-                        .describedAs(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_END_POINT)
+                        .named(WEBSERVICE, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION)
+                        .describedAs(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION)
                         .fromThesaurus(getThesaurus())
                         .markRequired()
                         .setDefaultValue(possibleValues.length == 1 ? possibleValues[0] : null)
-                        .addValues(this.getPossibleStatuses())
+                        .addValues(possibleValues)
                         .markExhaustive()
                         .finish());
 
@@ -145,7 +145,7 @@ public class WebServiceNotificationAction extends AbstractIssueAction {
 
     @Override
     public String getDisplayName() {
-        return getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_END_POINT).format();
+        return getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION).format();
     }
 
     @Override
@@ -158,7 +158,7 @@ public class WebServiceNotificationAction extends AbstractIssueAction {
         return issue == null;
     }
 
-    private class EndPoint extends HasIdAndName {
+    static class EndPoint extends HasIdAndName {
 
         private EndPointConfiguration endPointConfiguration;
 
