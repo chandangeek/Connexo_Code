@@ -6,15 +6,12 @@ package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
-import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDataLoggerCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDataLoggerSlaveCommand;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
-import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.pki.PkiService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -114,9 +111,6 @@ public class CreateDataLoggerSetupCommand extends CommandWithTransaction {
         if (!deviceConfiguration.isActive()) {
             deviceConfiguration.activate();
         }
-        //3. Create Device Group "Data logger slaves"
-        EndDeviceGroup dataLoggerSlaveGroup = Builders.from(DeviceGroupTpl.DATA_LOGGER_SLAVES).get();
-        Builders.from(FavoriteGroupBuilder.class).withGroup(dataLoggerSlaveGroup).get();
 
         //4. Create "Data logger slave" devices
         int existing = deviceService.findDevicesByDeviceConfiguration(deviceConfiguration).find().size();
