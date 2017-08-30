@@ -317,6 +317,10 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceType);
         ComSchedule comSchedule = mockComSchedule();
         PartialScheduledConnectionTask partialConnectionTask = mockPartialScheduledConnectionTask();
+        ConnectionFunction connectionFunction = mock(ConnectionFunction.class);
+        when(connectionFunction.getId()).thenReturn(123L);
+        when(connectionFunction.getConnectionFunctionDisplayName()).thenReturn("My connection function");
+        when(partialConnectionTask.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
         ComServer comServer = mockComServer();
         ComPort comPort = mockComPort(comServer);
         OutboundComPortPool comPortPool = mockComPortPool();
@@ -392,6 +396,9 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategyInfo.localizedValue")).isEqualTo(ConnectionStrategyTranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
         assertThat(jsonModel.<String>get("$.connectionTasks[0].window")).isEqualTo("09:00 - 17:00");
         assertThat(jsonModel.<Long>get("$.connectionTasks[0].nextExecution")).isEqualTo(plannedNext.toEpochMilli());
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].connectionFunctionInfo.id")).isEqualTo(123);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionFunctionInfo.localizedValue")).isEqualTo(connectionFunction.getConnectionFunctionDisplayName());
+        assertThat(jsonModel.<Boolean>get("$.connectionTasks[0].connectionFunctionInfo.alreadyUsed")).isEqualTo(false);
     }
 
     @Test
@@ -406,6 +413,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         ComSchedule comSchedule = mockComSchedule();
         PartialScheduledConnectionTask partialConnectionTask = mockPartialScheduledConnectionTask();
         ConnectionFunction connectionFunction = mock(ConnectionFunction.class);
+        when(connectionFunction.getId()).thenReturn(123L);
         when(connectionFunction.getConnectionFunctionDisplayName()).thenReturn("Mirror");
         when(partialConnectionTask.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
         ComServer comServer = mockComServer();
@@ -483,6 +491,9 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategyInfo.localizedValue")).isEqualTo(ConnectionStrategyTranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
         assertThat(jsonModel.<String>get("$.connectionTasks[0].window")).isEqualTo("09:00 - 17:00");
         assertThat(jsonModel.<Long>get("$.connectionTasks[0].nextExecution")).isEqualTo(plannedNext.toEpochMilli());
+        assertThat(jsonModel.<Integer>get("$.connectionTasks[0].connectionFunctionInfo.id")).isEqualTo(123);
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionFunctionInfo.localizedValue")).isEqualTo(connectionFunction.getConnectionFunctionDisplayName());
+        assertThat(jsonModel.<Boolean>get("$.connectionTasks[0].connectionFunctionInfo.alreadyUsed")).isEqualTo(false);
     }
 
     @Test

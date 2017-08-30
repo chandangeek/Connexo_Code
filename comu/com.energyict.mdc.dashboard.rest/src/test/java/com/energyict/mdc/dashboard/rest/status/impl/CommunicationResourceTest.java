@@ -36,22 +36,25 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -244,7 +247,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
     @Test
     public void testCommunicationTaskJsonBinding() throws Exception {
         ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
-        when(communicationTaskService.findComTaskExecutionsByFilter(Matchers.<ComTaskExecutionFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
+        when(communicationTaskService.findComTaskExecutionsByFilter(Matchers.<ComTaskExecutionFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Collections.<ComTaskExecution>singletonList(comTaskExecution1));
         ComSession comSession = mock(ComSession.class);
         when(comSession.getNumberOfFailedTasks()).thenReturn(401);
         when(comSession.getNumberOfSuccessFulTasks()).thenReturn(12);
@@ -283,7 +286,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.Busy);
         when(comTaskExecution1.getId()).thenReturn(123123L);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
+        when(device.getComTaskExecutions()).thenReturn(Collections.<ComTaskExecution>singletonList(comTaskExecution1));
         when(comTaskExecutionSession.getSuccessIndicator()).thenReturn(ComTaskExecutionSession.SuccessIndicator.Success);
         when(comTaskExecutionSession.getStartDate()).thenReturn(Instant.now());
         when(comTaskExecutionSession.getStopDate()).thenReturn(Instant.now());
@@ -345,11 +348,14 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(dialectProperties.getDeviceProtocolDialect()).thenReturn(dialect);
         when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("Device protocol display name");
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
-        when(connectionTaskService.findConnectionTasksByFilter(Matchers.<ConnectionTaskFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Arrays.<ConnectionTask>asList(connectionTask));
+        when(connectionTaskService.findConnectionTasksByFilter(Matchers.<ConnectionTaskFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Collections.<ConnectionTask>singletonList(connectionTask));
         when(connectionTask.getId()).thenReturn(1234L);
         when(connectionTask.getName()).thenReturn("fancy name");
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialConnectionTask.getName()).thenReturn("partial connection task name");
+        ConnectionFunction connectionFunction = mock(ConnectionFunction.class);
+        when(connectionFunction.getConnectionFunctionDisplayName()).thenReturn("My connection function");
+        when(partialConnectionTask.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
         when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
         when(connectionTask.isDefault()).thenReturn(true);
         OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
@@ -374,7 +380,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.Busy);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
+        when(device.getComTaskExecutions()).thenReturn(Collections.<ComTaskExecution>singletonList(comTaskExecution1));
         when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         when(connectionTask.getTaskStatus()).thenReturn(TaskStatus.Busy);
         when(connectionTask.getSuccessIndicator()).thenReturn(ConnectionTask.SuccessIndicator.SUCCESS);
@@ -394,7 +400,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(Instant.now());
         when(comTaskExecution1.getLastSuccessfulCompletionTimestamp()).thenReturn(Instant.now());
         when(comTaskExecution1.getNextExecutionTimestamp()).thenReturn(Instant.now());
-        Finder<ComTaskExecution> comTaskExecutionFinder = mockFinder(Arrays.<ComTaskExecution>asList(comTaskExecution1));
+        Finder<ComTaskExecution> comTaskExecutionFinder = mockFinder(Collections.<ComTaskExecution>singletonList(comTaskExecution1));
         when(communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutionFinder);
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
