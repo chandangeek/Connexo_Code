@@ -103,6 +103,50 @@ public class TopologyGraphResourceTest extends TopologyGraphApplicationJerseyTes
     }
 
     @Test
+    public void getTopologyGraphByNameForRefresh() throws Exception{
+        Device gateway = mock(Device.class);
+        when(gateway.getId()).thenReturn(123L);
+        when(gateway.getName()).thenReturn("gateway");
+        when(gateway.getSerialNumber()).thenReturn("Serial of gateway");
+        Device slave1 = mock(Device.class);
+        when(slave1.getId()).thenReturn(201L);
+        when(slave1.getName()).thenReturn("slave1");
+        when(slave1.getSerialNumber()).thenReturn("Serial of slave1");
+        Device slave2 = mock(Device.class);
+        when(slave1.getId()).thenReturn(202L);
+        when(slave2.getName()).thenReturn("slave2");
+        when(slave2.getSerialNumber()).thenReturn("Serial of slave2");
+        Device slave3 = mock(Device.class);
+        when(slave3.getId()).thenReturn(203L);
+        when(slave3.getName()).thenReturn("slave3");
+        when(slave3.getSerialNumber()).thenReturn("Serial of slave3");
+
+        List<G3CommunicationPathSegment> comSegmentsInTopology = new ArrayList<>();
+        G3CommunicationPathSegment segment1 = mock(G3CommunicationPathSegment.class);
+        when(segment1.getSource()).thenReturn(gateway);
+        when(segment1.getTarget()).thenReturn(slave1);
+        comSegmentsInTopology.add(segment1);
+        G3CommunicationPathSegment segment2 = mock(G3CommunicationPathSegment.class);
+        when(segment2.getSource()).thenReturn(gateway);
+        when(segment2.getTarget()).thenReturn(slave2);
+        comSegmentsInTopology.add(segment2);
+        G3CommunicationPathSegment segment3 = mock(G3CommunicationPathSegment.class);
+        when(segment3.getSource()).thenReturn(gateway);
+        when(segment3.getTarget()).thenReturn(slave3);
+        comSegmentsInTopology.add(segment3);
+
+        when(deviceService.findDeviceByName("deviceName")).thenReturn(Optional.of(gateway));
+        when(topologyService.getPhysicalGateway(gateway)).thenReturn(Optional.empty());
+        when(topologyService.getUniqueG3CommunicationPathSegments(gateway)).thenReturn(comSegmentsInTopology.stream());
+
+        when(graphLayerService.getGraphLayers()).thenReturn(getExisting());
+
+        Response response = target("/topology/deviceName").queryParam("filter", ExtjsFilter.filter("refresh", "true")).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+    }
+
+    @Test
     public void getTopologyGraphByNameWithLayerActivationTest() throws Exception{
         Device gateway = mock(Device.class);
         when(gateway.getId()).thenReturn(123L);
