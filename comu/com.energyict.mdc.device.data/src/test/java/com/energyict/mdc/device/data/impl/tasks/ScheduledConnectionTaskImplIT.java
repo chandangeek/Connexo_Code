@@ -1697,7 +1697,12 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         EventService eventServiceSpy = spy(inMemoryPersistence.getEventService());
         connectionTask.injectEventService(eventServiceSpy);
 
-        connectionTask.notifyConnectionFunctionUpdate(Optional.of(mock(ConnectionFunction.class)), Optional.of(mock(ConnectionFunction.class)));
+        ConnectionFunction oldConnectionFunction = mock(ConnectionFunction.class);
+        ConnectionFunction newConnectionFunction = mock(ConnectionFunction.class);
+        when(oldConnectionFunction.getId()).thenReturn(1L);
+        when(oldConnectionFunction.getId()).thenReturn(2L);
+
+        connectionTask.notifyConnectionFunctionUpdate(Optional.of(oldConnectionFunction), Optional.of(newConnectionFunction));
 
         // Asserts
         ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
