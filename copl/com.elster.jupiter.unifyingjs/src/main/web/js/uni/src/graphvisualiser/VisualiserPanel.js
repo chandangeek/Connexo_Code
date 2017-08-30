@@ -480,13 +480,13 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             me.showGatewayLegend = false;
             me.showDeviceLegend = false;
             me.nodeStoreForComboBox = new Ext.data.SimpleStore({ fields: ['id', 'name'] });
-            me.top = [nodes.data.items[0].get('id') + '']; // Assumption: the first node is the top node
             nodes.each(function (node) {
                 me.nodeStoreForComboBox.add({
                     id: node.get('id'),
                     name: node.get('name')
                 });
                 if (!Ext.isEmpty(node.get('gateway')) && node.get('gateway')) {
+                    me.top = [node.get('id') + '']; // Assumption: there is only ONE gateway node (that's Keyline's top node)
                     icon = KeyLines.getFontIcon(me.gatewayIcon);
                     me.showGatewayLegend = true;
                     if (me.deviceId2Select === node.get('id')) {
@@ -734,10 +734,10 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     refreshGraph: function() {
         var me = this,
             performAfterTheQuery = function() {
-                me.clearAllLegendItems();
-                me.setDefaultStyle();
-                me.showFloatingPanels();
                 me.chart.load(me.chartData, function () {
+                    me.clearAllLegendItems();
+                    me.setDefaultStyle();
+                    me.showFloatingPanels();
                     me.showLayers();
                     me.doLayout();
                 });
