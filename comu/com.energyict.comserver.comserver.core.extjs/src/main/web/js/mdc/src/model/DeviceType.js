@@ -28,7 +28,8 @@ Ext.define('Mdc.model.DeviceType', {
         {name: 'deviceTypePurpose'},
         {name: 'version', type: 'number', useNull: true},
         {name: 'fileManagementEnabled', type: 'boolean'},
-        {name: 'isLogicalSlave', type: 'boolean', useNull: true}
+        {name: 'isLogicalSlave', type: 'boolean', useNull: true},
+        {name: 'needsImageIdentifierForFirmware', type: 'boolean', useNull: true}
     ],
     associations: [
             {name: 'registerTypes', type: 'hasMany', model: 'Mdc.model.RegisterType', associationKey: 'registerTypes',
