@@ -58,6 +58,11 @@ public class LocalEventImpl implements LocalEvent {
     }
 
     @Override
+    public void publish() {
+        publish(0);
+    }
+
+    @Override
     public void publish(int delay) {
         String payload = jsonService.serialize(extractProperties());
         getEventDestination().message(payload).withCorrelationId(getType().getTopic()).withDelay(delay).send();

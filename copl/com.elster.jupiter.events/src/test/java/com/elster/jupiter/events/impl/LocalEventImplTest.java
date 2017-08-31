@@ -129,7 +129,8 @@ public class LocalEventImplTest {
 
         verify(destination).message(SERIALIZED);
         verify(destination.message(SERIALIZED)).withCorrelationId(TOPIC);
-        verify(destination.message(SERIALIZED).withCorrelationId(TOPIC)).send();
+        verify(destination.message(SERIALIZED).withCorrelationId(TOPIC)).withDelay(0);
+        verify(destination.message(SERIALIZED).withCorrelationId(TOPIC).withDelay(0)).send();
 
     }
 

@@ -167,6 +167,9 @@ public class EventServiceImpl implements EventService, MessageSeedProvider {
 
     @Override
     public void postEvent(String topic, Object source, long delay) {
+        if(delay < 0) {
+            delay = 0;
+        }
         Optional<EventType> found = dataModel.mapper(EventType.class).getOptional(topic);
         if (!found.isPresent()) {
             throw new NoSuchTopicException(thesaurus, topic);
