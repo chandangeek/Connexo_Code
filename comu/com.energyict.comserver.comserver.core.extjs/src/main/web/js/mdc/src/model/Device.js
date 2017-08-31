@@ -51,7 +51,8 @@ Ext.define('Mdc.model.Device', {
         {name: 'serviceCategory', type: 'string', useNull: true},
         {name: 'version', type: 'number', useNull: true},
         {name: 'estimationStatus', defaultValue: null},
-        {name: 'dataLoggerSlaveDevices', type: 'auto', defaultValue: null}
+        {name: 'dataLoggerSlaveDevices', type: 'auto', defaultValue: null},
+        {name: 'protocolNeedsImageIdentifierForFirmwareUpgrade', type: 'boolean'}
     ],
 
     associations: [

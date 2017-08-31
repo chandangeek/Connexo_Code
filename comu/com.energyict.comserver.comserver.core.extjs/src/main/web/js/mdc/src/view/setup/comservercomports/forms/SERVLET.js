@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
         {
             defaults: {
                 xtype: 'displayfield',
-                labelWidth: 250
+                labelWidth: 300
             },
             items: [
                 {
@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
         {
             defaults: {
                 xtype: 'displayfield',
-                labelWidth: 250
+                labelWidth: 300
             },
             items: [
                 {
@@ -69,11 +69,19 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
                     name: 'contextPath'
                 },
                 {
+                    fieldLabel: Uni.I18n.translate('comServerComPorts.form.https', 'MDC', 'Use https'),
+                    name: 'useHttps',
+                    renderer: function(value) {
+                        return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
+                    }
+                },
+                {
                     fieldLabel: Uni.I18n.translate('comports.preview.keyStoreFilePath', 'MDC', 'Key store file path'),
                     name: 'keyStoreFilePath'
                 },
                 {
                     xtype: 'fieldcontainer',
+                    itemId: 'mdc-servlet-port-preview-keyStoreAccessPasswordContainer',
                     fieldLabel: Uni.I18n.translate('comports.preview.keyStoreAccessPassword', 'MDC', 'Key store access password'),
                     items: [
                         {
@@ -85,22 +93,11 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
                             }
                         },
                         {
-                            xtype: 'container',
-                            layout: 'hbox',
-                            items: [
-                                {
-                                    xtype: 'checkbox',
-                                    checked: false,
-                                    action: 'passwordVisibleTrigger',
-                                    margin: '0 10 0 0'
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    renderer: function () {
-                                        return Uni.I18n.translate('comports.preview.seePassword', 'MDC', 'See password')
-                                    }
-                                }
-                            ]
+                            xtype: 'checkbox',
+                            checked: false,
+                            action: 'passwordVisibleTrigger',
+                            boxLabel: Uni.I18n.translate('comports.preview.seePassword', 'MDC', 'See password'),
+                            margin: '0 0 10 0'
                         }
                     ]
                 },
@@ -110,6 +107,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
                 },
                 {
                     xtype: 'fieldcontainer',
+                    itemId: 'mdc-servlet-port-preview-trustStoreAccessPasswordContainer',
                     fieldLabel: Uni.I18n.translate('comports.preview.trustStoreAccessPassword', 'MDC', 'Trust store access password'),
                     items: [
                         {
@@ -121,22 +119,11 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
                             }
                         },
                         {
-                            xtype: 'container',
-                            layout: 'hbox',
-                            items: [
-                                {
-                                    xtype: 'checkbox',
-                                    checked: false,
-                                    action: 'passwordVisibleTrigger',
-                                    margin: '0 10 0 0'
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    renderer: function () {
-                                        return Uni.I18n.translate('comports.preview.seePassword', 'MDC', 'See password')
-                                    }
-                                }
-                            ]
+                            xtype: 'checkbox',
+                            checked: false,
+                            action: 'passwordVisibleTrigger',
+                            boxLabel: Uni.I18n.translate('comports.preview.seePassword', 'MDC', 'See password'),
+                            margin: '0 0 10 0'
                         }
                     ]
                 }
