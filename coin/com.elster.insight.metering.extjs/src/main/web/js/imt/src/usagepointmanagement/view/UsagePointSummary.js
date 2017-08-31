@@ -84,13 +84,12 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
                 fieldLabel: Uni.I18n.translate('general.state', 'IMT', 'State'),
                 renderer: function (value) {
                     return value
-                        ? Ext.String.htmlEncode(value.name) + ' (<a href="' + me.router.getRoute('usagepoints/view/history').buildUrl() + '">' +
-                    Uni.I18n.translate('general.viewHistory', 'IMT', 'View history') + '</a>)'
-                    + '<br><span style="font-size: 90%">'
-                    + Uni.I18n.translate('general.fromDate.lc', 'IMT', 'from {0}', [Uni.DateTime.formatDateTimeShort(new Date(me.getRecord().get('lastTransitionTime')))], false)
-                    + '</span>'
+                        ? Ext.String.htmlEncode(value.name) + ' (<a href="' + me.router.getRoute('usagepoints/view/history').buildUrl(me.router.arguments, {activeHistoryTab: 'up-life-cycle-tab'}) + '">' +
+                        Uni.I18n.translate('general.viewHistory', 'IMT', 'View history') + '</a>)'
+                        + '<br><span style="font-size: 90%">'
+                        + Uni.I18n.translate('general.fromDate.lc', 'IMT', 'from {0}', [Uni.DateTime.formatDateTimeShort(new Date(me.getRecord().get('lastTransitionTime')))], false)
+                        + '</span>'
                         : '-';
-
 
                 }
             },
