@@ -237,7 +237,8 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
         // 1. Query the device summary data
         deviceSummaryStore.getProxy().setUrl(encodeURIComponent(graphData.name));
         deviceSummaryStore.load(function(records) {
-            var dataObject = records[0].getData();
+            var dataObject = records[0].getData(),
+                pathPeriod = dataObject['period'];
             Ext.Array.each(deviceProperties, function(propertyName) {
                 graphData[propertyName] = dataObject[propertyName];
             });
@@ -285,7 +286,9 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
             }
             propertyViewer.setLoading(false);
             // 2. Display them
-            propertyViewer.displayProperties(propertiesToDisplay);
+            var subTitle = Ext.isEmpty(pathPeriod) ? undefined
+                : Uni.I18n.translate('general.pathLastUpdatedAtX', 'MDC', 'Path last updated at {0}', Uni.DateTime.formatDateTimeShort(new Date(pathPeriod.start)));
+            propertyViewer.displayProperties(propertiesToDisplay, subTitle);
         });
     }
 });

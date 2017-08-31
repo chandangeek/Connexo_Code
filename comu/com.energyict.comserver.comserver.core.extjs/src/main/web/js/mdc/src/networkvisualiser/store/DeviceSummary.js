@@ -12,7 +12,8 @@ Ext.define('Mdc.networkvisualiser.store.DeviceSummary', {
         'serialNumber',
         'alarms',
         'issues',
-        'failedComTasks'
+        'failedComTasks',
+        'period'
     ],
     autoLoad: false,
     proxy: {
