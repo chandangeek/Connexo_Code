@@ -235,7 +235,7 @@ final class ExportTaskImpl implements IExportTask {
 
     @Override
     public DataFormatterFactory getDataFormatterFactory() {
-        return this.dataExportService.getDataFormatterFactory(this.dataFormatter).orElseThrow(() -> new IllegalArgumentException("No such data formatter: " + dataSelector));
+        return this.dataExportService.getDataFormatterFactory(this.dataFormatter).orElseThrow(() -> new IllegalArgumentException("No such data formatter: " + dataFormatter));
     }
 
     @Override
