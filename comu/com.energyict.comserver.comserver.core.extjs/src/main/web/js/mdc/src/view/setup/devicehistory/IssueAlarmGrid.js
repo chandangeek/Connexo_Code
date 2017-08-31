@@ -32,19 +32,19 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
         me.columns = [
             {
                 itemId: 'issues-grid-type',
-                header: Uni.I18n.translate('general.type', 'ISU', 'Type'),
+                header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                 dataIndex: 'issueType_name',
                 flex: 1.2
             },
             {
                 itemId: 'issues-grid-update',
-                header: Uni.I18n.translate('general.update', 'ISU', 'Update'),
+                header: Uni.I18n.translate('general.update', 'MDC', 'Update'),
                 dataIndex: 'title',
                 flex: 2
             },
             {
                 itemId: 'issues-grid-created',
-                header: Uni.I18n.translate('general.created', 'ISU', 'Created On'),
+                header: Uni.I18n.translate('general.created', 'MDC', 'Created On'),
                 dataIndex: 'creationDate',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateShort(value) : '-';
@@ -53,13 +53,13 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
             },
             {
                 itemId: 'issues-grid-status',
-                header: Uni.I18n.translate('general.status', 'ISU', 'Status'),
+                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                 dataIndex: 'status_name',
                 flex: 1
             },
             {
                 itemId: 'issues-grid-workgroup',
-                header: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
+                header: Uni.I18n.translate('general.workgroup', 'MDC', 'Workgroup'),
                 dataIndex: 'workGroupAssignee',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
@@ -68,7 +68,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
             },
             {
                 itemId: 'issues-grid-assignee',
-                header: Uni.I18n.translate('general.user', 'ISU', 'User'),
+                header: Uni.I18n.translate('general.user', 'MDC', 'User'),
                 dataIndex: 'userAssignee',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {

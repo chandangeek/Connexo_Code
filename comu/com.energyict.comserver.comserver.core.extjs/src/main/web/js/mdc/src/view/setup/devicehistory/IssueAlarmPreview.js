@@ -49,13 +49,13 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
                 items: [
                     {
                         itemId: 'issue-id',
-                        fieldLabel: Uni.I18n.translate('general.title.issueId', 'ISU', 'ID'),
+                        fieldLabel: Uni.I18n.translate('general.title.issueId', 'MDC', 'ID'),
                         name: 'issueId'
                     },
                     {
 
                         itemId: 'issue-preview-reason',
-                        fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
+                        fieldLabel: Uni.I18n.translate('general.title.reason', 'MDC', 'Reason'),
                         name: 'reason',
                         renderer: function (value) {
                             if (value && me.getRecord()) {
@@ -67,13 +67,13 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
                     },
                     {
                         itemId: 'issue-preview-usage-point',
-                        fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage point'),
+                        fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'MDC', 'Usage point'),
                         name: 'usage_point'
                     },
                     {
 
                         itemId: 'issue-location',
-                        fieldLabel: Uni.I18n.translate('general.location', 'ISU', 'Location'),
+                        fieldLabel: Uni.I18n.translate('general.location', 'MDC', 'Location'),
                         name: 'issueLocation',
                         renderer: function (value) {
                             return value ? value.name : '-';
@@ -82,7 +82,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
                     {
 
                         itemId: 'issue-logbook',
-                        fieldLabel: Uni.I18n.translate('general.logbook', 'ISU', 'Logbook'),
+                        fieldLabel: Uni.I18n.translate('general.logbook', 'MDC', 'Logbook'),
                         name: 'device',
                         renderer: function (value) {
                             return value ? value.name : '-';
@@ -99,7 +99,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
                     {
 
                         itemId: 'issue-preview-status',
-                        fieldLabel: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
+                        fieldLabel: Uni.I18n.translate('general.title.status', 'MDC', 'Status'),
                         name: 'status',
                         renderer: function (value) {
                             return value.name ? value.name : '-';
@@ -107,7 +107,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
                     },
                     {
                         itemId: 'issue-preview-due-date',
-                        fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
+                        fieldLabel: Uni.I18n.translate('general.title.dueDate', 'MDC', 'Due date'),
                         name: 'dueDate',
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateShort(value) : '-';
@@ -115,30 +115,30 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
                     },
                     {
                         itemId: 'issue-preview-priority',
-                        fieldLabel: Uni.I18n.translate('general.title.priority', 'ISU', 'Priority'),
+                        fieldLabel: Uni.I18n.translate('general.title.priority', 'MDC', 'Priority'),
                         name: 'priority'
                     },
                     {
 
                         itemId: 'issue-preview-workgroup',
-                        fieldLabel: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
+                        fieldLabel: Uni.I18n.translate('general.workgroup', 'MDC', 'Workgroup'),
                         name: 'workGroupAssignee',
                         renderer: function (value) {
-                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
+                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'MDC', 'Unassigned');
                         }
                     },
                     {
 
                         itemId: 'issue-preview-assignee',
-                        fieldLabel: Uni.I18n.translate('general.title.USER', 'ISU', 'User'),
+                        fieldLabel: Uni.I18n.translate('general.title.USER', 'MDC', 'User'),
                         name: 'userAssignee',
                         renderer: function (value) {
-                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
+                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'MDC', 'Unassigned');
                         }
                     },
                     {
                         itemId: 'issue-preview-creation-date',
-                        fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
+                        fieldLabel: Uni.I18n.translate('general.title.creationDate', 'MDC', 'Creation date'),
                         name: 'creationDate',
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
