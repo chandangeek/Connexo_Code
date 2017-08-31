@@ -52,12 +52,14 @@ public class DeviceTypeInfo {
     public String deviceTypePurpose;
     public boolean fileManagementEnabled;
     public boolean isLogicalSlave;
+    public boolean needsImageIdentifierForFirmware;
 
     public DeviceTypeInfo() {
     }
 
-    public static DeviceTypeInfo from(DeviceType deviceType, List<RegisterType> registerTypes, RegisterTypeInfoFactory registerTypeInfoFactory) {
+    public static DeviceTypeInfo from(DeviceType deviceType, List<RegisterType> registerTypes, RegisterTypeInfoFactory registerTypeInfoFactory, boolean needsImageIdentifierForFirmware) {
         DeviceTypeInfo deviceTypeInfo = from(deviceType);
+        deviceTypeInfo.needsImageIdentifierForFirmware = needsImageIdentifierForFirmware;
         deviceTypeInfo.registerTypes = new ArrayList<>();
         for (MeasurementType measurementType : registerTypes) {
             deviceTypeInfo.registerTypes.add(registerTypeInfoFactory.asInfo(measurementType, true, false));
