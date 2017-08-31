@@ -6,6 +6,7 @@ package com.energyict.mdc.issue.datacollection.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -39,5 +40,6 @@ public class IssueDataCollectionModule extends AbstractModule {
 
         bind(IssueDataCollectionService.class).to(IssueDataCollectionServiceImpl.class).in(Scopes.SINGLETON);
         bind(DataCollectionEventHandlerFactory.class).in(Scopes.SINGLETON);
+        bind(DataCollectionActionsFactory.class).in(Scopes.SINGLETON);
     }
 }
