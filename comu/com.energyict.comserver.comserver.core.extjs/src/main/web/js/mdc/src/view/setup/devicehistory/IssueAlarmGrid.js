@@ -63,7 +63,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
                 dataIndex: 'workGroupAssignee',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
-                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
+                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'MDC', 'Unassigned');
                 }
             },
             {
@@ -72,7 +72,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
                 dataIndex: 'userAssignee',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
-                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
+                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'MDC', 'Unassigned');
                 }
             }
             /* {
@@ -94,9 +94,9 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
                 xtype: 'pagingtoolbartop',
                 dock: 'top',
                 store: me.store,
-                displayMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMsg', 'ISU', '{0} - {1} of {2} issues'),
-                displayMoreMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} issues'),
-                emptyMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.emptyMsg', 'ISU', 'There are no issues to display'),
+                displayMsg: Uni.I18n.translate('workspace.general.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} issues/alarms'),
+                displayMoreMsg: Uni.I18n.translate('workspace.general.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} issues/alarms'),
+                emptyMsg: Uni.I18n.translate('workspace.general.pagingtoolbartop.emptyMsg', 'MDC', 'There are no issues/alarms to display'),
                 /*items: [
                  {
                  xtype: 'button',
@@ -115,7 +115,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
                 xtype: 'pagingtoolbarbottom',
                 dock: 'bottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('workspace.issues.pagingtoolbarbottom.itemsPerPage', 'ISU', 'Issues per page')
+                itemsPerPageMsg: Uni.I18n.translate('workspace.general.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Issues and alarms per page')
             }
         ];
         me.callParent(arguments);
