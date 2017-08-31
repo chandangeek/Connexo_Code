@@ -90,6 +90,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                 "import com.energyict.mdc.issue.datavalidation.impl.event.CannotEstimateDataEvent;\n" +
                 "import com.energyict.mdc.issue.datavalidation.impl.event.SuspectDeletedEvent;\n" +
                 "global java.util.logging.Logger LOGGER;\n" +
+                "global com.elster.jupiter.events.EventService eventService;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Data validation rule @{ruleId}\"\n" +
                 "when\n" +
