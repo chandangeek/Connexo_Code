@@ -22,7 +22,8 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         'Mdc.store.DeviceFirmwareHistory',
         'Mdc.customattributesonvaluesobjects.store.DeviceCustomAttributeSets',
         'Mdc.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnDevice',
-        'Mdc.store.device.MeterActivations'
+        'Mdc.store.device.MeterActivations',
+        'Isu.store.Issues'
     ],
 
     models: [
@@ -77,12 +78,14 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             firmwareHistoryPanel = Ext.widget('device-history-firmware-panel'),
             firmwareHistoryStore = me.getStore('Mdc.store.DeviceFirmwareHistory');
 
+
         me.getPage().setLoading();
         lifeCycleTab.add(lifeCyclePanel);
         lifeCycleDataView.bindStore(lifeCycleHistoryStore);
         Ext.apply(lifeCycleHistoryStore.getProxy().extraParams, routerArguments);
         lifeCycleHistoryStore.load(function (records) {
             lifeCycleHistoryStore.add(records.reverse());
+
 
             Ext.apply(firmwareHistoryStore.getProxy().extraParams, routerArguments);
             firmwareHistoryStore.load(function() {
@@ -151,7 +154,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         me.getTabPanel().on('tabchange', function(tabpanel, tabItem) {
             if (tabItem.itemId !== 'device-history-firmware-tab'
                 && tabItem.itemId !== 'device-history-life-cycle-tab'
-                && tabItem.itemId !== 'device-history-meter-activations-tab') {
+                && tabItem.itemId !== 'device-history-meter-activations-tab' && tabItem.itemId !== 'device-history-issues-alarms-tab') {
                 router.queryParams = {};
                 if (tabItem.customAttributeSetId) {
                     router.queryParams.customAttributeSetId = tabItem.customAttributeSetId;

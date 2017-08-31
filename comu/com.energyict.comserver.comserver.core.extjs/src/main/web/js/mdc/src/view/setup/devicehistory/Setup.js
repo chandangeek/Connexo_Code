@@ -11,7 +11,10 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
         'Mdc.view.setup.devicehistory.LifeCycle',
         'Mdc.view.setup.devicehistory.MeterActivations',
         'Uni.view.container.EmptyGridContainer',
-        'Uni.util.FormEmptyMessage'
+        'Uni.util.FormEmptyMessage',
+        'Mdc.view.setup.devicehistory.IssueAlarmFilter',
+        'Mdc.view.setup.devicehistory.IssueAlarmGrid',
+        'Mdc.view.setup.devicehistory.IssueAlarmPreview'
     ],
 
     router: null,
@@ -76,11 +79,52 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                                     ]
                                 }
                             },
+
                             listeners: {
                                 activate: me.controller.showMeterActivations,
                                 scope: me.controller
                             }
-                        }
+                        },
+                        {
+                            title: Uni.I18n.translate('general.issuesAndAlarms', 'MDC', 'Issues and Alarms'),
+                            padding: '8 16 16 0',
+                            itemId: 'device-history-issues-alarms-tab',
+                            items: {
+                                xtype: 'contentcontainer',
+                                content: [
+                                    {
+                                        xtype: 'issues-alarm-filter',
+                                        itemId: 'issues-alarm-filter'
+                                    },
+                                    {
+                                        store: 'Isu.store.Issues',
+                                        xtype: 'issues-alarms-grid',
+                                        itemId: 'issues-alarms-grid'
+                                    },
+                                    {
+                                        xtype: 'issues-alarms-preview',
+                                        itemId: 'issues-alarms-preview',
+                                        fieldxtype: 'displayfield'
+                                    }
+
+                                ],
+                                grid1: {
+                                    xtype: 'device-history-meter-activations-tab',
+                                    itemId: 'device-history-meter-activations-grid',
+                                    device: me.device,
+                                    router: me.router
+                                },
+                                emptyComponent1: {
+                                    xtype: 'form',
+                                    items: [
+                                        {
+                                            xtype: 'uni-form-empty-message',
+                                            text: Uni.I18n.translate('general.device.noMeterActivations', 'MDC', 'No meter activations for this device')
+                                        }
+                                    ]
+                                }
+                            },
+                        },
                     ]
                 }
             ]
