@@ -81,6 +81,7 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
     public String getContent() {
         return "package com.energyict.mdc.issue.datacollection\n" +
                 "import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;\n" +
+                "global com.elster.jupiter.events.EventService eventService;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Events from meters of concentrator @{ruleId}\"\n" +
                 "when\n" +

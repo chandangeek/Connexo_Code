@@ -101,6 +101,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
         return "package com.energyict.mdc.issue.datacollection\n" +
                 "import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;\n" +
                 "global java.util.logging.Logger LOGGER;\n" +
+                "global com.elster.jupiter.events.EventService eventService;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Basic datacollection rule @{ruleId}\"\n" +
                 "when\n" +
