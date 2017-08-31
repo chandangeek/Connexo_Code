@@ -97,18 +97,6 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
                 displayMsg: Uni.I18n.translate('workspace.general.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} issues/alarms'),
                 displayMoreMsg: Uni.I18n.translate('workspace.general.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} issues/alarms'),
                 emptyMsg: Uni.I18n.translate('workspace.general.pagingtoolbartop.emptyMsg', 'MDC', 'There are no issues/alarms to display'),
-                /*items: [
-                 {
-                 xtype: 'button',
-                 itemId: 'issues-bulk-action',
-                 text: Uni.I18n.translate('general.title.bulkActions', 'ISU', 'Bulk action'),
-                 privileges: Isu.privileges.Issue.closeOrAssing,
-                 action: 'issuesBulkAction',
-                 handler: function () {
-                 me.router.getRoute(me.router.currentRoute + '/bulkaction').forward(me.router.arguments, Uni.util.QueryString.getQueryStringValues(false));
-                 }
-                 }
-                 ]*/
             },
             {
                 itemId: 'pagingtoolbarbottom',
