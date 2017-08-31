@@ -37,6 +37,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.impl.DataExportServiceImpl;
 import com.elster.jupiter.export.impl.ExportModule;
 import com.elster.jupiter.export.processor.impl.CsvMeterDataFormatterFactory;
+import com.elster.jupiter.export.processor.impl.CsvUsagePointDataFormatterFactory;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
@@ -58,10 +59,16 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
+import com.elster.jupiter.metering.impl.MeteringDataModelServiceImpl;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.impl.search.UsagePointSearchDomain;
+import com.elster.jupiter.metering.imports.impl.MeteringImportsModule;
+import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImporterFactory;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.nls.impl.NlsServiceImpl;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.PassphraseFactory;
@@ -81,6 +88,8 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
+import com.elster.jupiter.slp.importers.impl.SyntheticLoadProfileImportModule;
+import com.elster.jupiter.slp.importers.impl.syntheticloadprofile.SyntheticLoadProfileImporterFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeDuration;
@@ -161,6 +170,7 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.impl.FirmwareModule;
 import com.energyict.mdc.io.impl.SerialIOAtModemComponentServiceImpl;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.impl.DataCollectionActionsFactory;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
 import com.energyict.mdc.issue.datacollection.impl.templates.AbstractDataCollectionTemplate;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
@@ -218,6 +228,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.security.Security;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -230,6 +241,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.in;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -253,7 +265,6 @@ public class DemoTest {
             Thesaurus thesaurus = mock(Thesaurus.class);
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(MessageInterpolator.class).toInstance(thesaurus);
-
             LicenseService licenseService = mock(LicenseService.class);
             License license = mockLicense("MDC");
             License insightLicense = mockLicense("INS");
@@ -416,7 +427,9 @@ public class DemoTest {
                 new DeviceAlarmModule(),
                 new CommandRuleModule(),
                 new DualControlModule(),
-                new DataQualityKpiModule()
+                new DataQualityKpiModule(),
+                new SyntheticLoadProfileImportModule(),
+                new MeteringImportsModule()
         );
         doPreparations();
     }
@@ -744,7 +757,7 @@ public class DemoTest {
         demoService.createDemoData("DemoServ", "host", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         demoService.createImporters();
 
-        assertThat(fileImportService.getImportSchedules()).hasSize(10);
+        assertThat(fileImportService.getImportSchedules()).hasSize(12);
     }
 
     @Test
@@ -791,9 +804,9 @@ public class DemoTest {
             initializeCustomPropertySets();
             createRequiredProtocols();
             createDefaultStuff();
-            injector.getInstance(DemoServiceImpl.class);
             prepareSearchDomain();
             preparePKIService();
+            ((NlsServiceImpl) injector.getInstance(NlsService.class)).addTranslationKeyProvider((MeteringDataModelServiceImpl)injector.getInstance(MeteringDataModelService.class));
             ctx.commit();
         }
         tuneDeviceCountForSpeedTest();
@@ -858,9 +871,12 @@ public class DemoTest {
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceInstallationImporterFactory.class));
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceRemoveImportFactory.class));
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(CalendarImporterFactory.class));
+        ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(UsagePointsImporterFactory.class));
+        ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(SyntheticLoadProfileImporterFactory.class));
 
-        ((DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
-        ((DataExportServiceImpl) injector.getInstance(DataExportService.class)).addFormatter(injector.getInstance(CsvMeterDataFormatterFactory.class), ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
+        HashMap<String, Object> formatterType = new HashMap<>();
+        formatterType.put(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_USAGE_POINT_DATA_TYPE);
+        ((DataExportServiceImpl) injector.getInstance(DataExportService.class)).addFormatter(injector.getInstance(CsvUsagePointDataFormatterFactory.class), formatterType);
 
         injector.getInstance(MeteringDataModelService.class).addHeadEndInterface(injector.getInstance(MultiSenseHeadEndInterfaceImpl.class));
         injector.getInstance(IssueDataCollectionService.class);
@@ -868,6 +884,13 @@ public class DemoTest {
         injector.getInstance(DeviceAlarmService.class);
         fixIssueTemplates();
         fixEstimators(propertySpecService, injector.getInstance(TimeService.class));
+
+        injector.getInstance(DemoServiceImpl.class);
+        ((IssueServiceImpl) injector.getInstance(IssueService.class)).addIssueActionFactory(
+                injector.getInstance(DataCollectionActionsFactory.class));
+        injector.getInstance(SearchService.class).register(injector.getInstance(UsagePointSearchDomain.class));
+        ((DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
+        ((DataExportServiceImpl) injector.getInstance(DataExportService.class)).addFormatter(injector.getInstance(CsvMeterDataFormatterFactory.class), ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
     }
 
     private void fixIssueTemplates() {
