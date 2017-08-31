@@ -1,5 +1,5 @@
 Ext.define('Uni.graphvisualiser.VisualiserLegendFloat', {
-    extend: 'Ext.form.Panel',
+    extend: 'Ext.panel.Panel',
     minWidth: 300,
     alias: 'widget.uniVisualiserLegendFloat',
     itemId: 'uni-legend-panel',
@@ -62,30 +62,32 @@ Ext.define('Uni.graphvisualiser.VisualiserLegendFloat', {
         }
     ],
 
-    displayProperties: function(properties){
-        var itemsToAdd = [];
-        if(properties){
-            for (var property in properties) {
-                if (properties.hasOwnProperty(property)) {
-                    itemsToAdd.push({
-                        xtype: 'displayfield',
-                        value: properties[property].value,
-                        htmlEncode: properties[property].htmlEncode,
-                        order: properties[property].order,
-                        fieldLabel: property,
-                        labelWidth: 150
-                    });
+    addLegendItem: function(icon, text) {
+        var legendTable = this.down('#uni-visualiser-legend-table');
+        legendTable.add(
+            {
+                xtype: 'displayfield',
+                fieldLabel: '',
+                labelWidth: 0,
+                margin: '0 5 0 0',
+                iconForRenderer: icon, // to make it work when the legend panel is collapsed and the rendering is done later on when the panel expands
+                renderer: function(raw, displayField) {
+                    return displayField.iconForRenderer;
                 }
             }
-        }
-        // Sort them by their order attribute
-        Ext.Array.sort(itemsToAdd, function(item1, item2){
-            return item1.order - item2.order;
-        });
+        );
+        legendTable.add(
+            {
+                xtype: 'displayfield',
+                fieldLabel: '',
+                labelWidth: 0,
+                margin: '0 15 0 0',
+                value: text
+            }
+        );
+    },
 
-        this.removeAll();
-        this.add(itemsToAdd);
-        this.doLayout();
-        this.expand();
+    reset: function() {
+        this.down('#uni-visualiser-legend-table').removeAll();
     }
 });

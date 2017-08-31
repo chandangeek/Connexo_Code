@@ -678,37 +678,11 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     },
 
     addLegendItem: function(icon, text) {
-        this.addLegendItems([
-            {
-                xtype: 'displayfield',
-                fieldLabel: '',
-                labelWidth: 0,
-                margin: '0 5 0 0',
-                iconForRenderer: icon, // to make it work when the legend panel is collapsed and the rendering is done later on when the panel expands
-                renderer: function(raw, displayField) {
-                    return displayField.iconForRenderer;
-                }
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: '',
-                labelWidth: 0,
-                margin: '0 15 0 0',
-                value: text
-            }
-        ]);
-    },
-
-    addLegendItems: function(items) {
-        var me = this,
-            legendTable = me.legendPanel.down('#uni-visualiser-legend-table');
-        Ext.Array.each(items, function(item){
-            legendTable.add(item);
-        });
+        this.legendPanel.addLegendItem(icon, text);
     },
 
     clearAllLegendItems: function() {
-        this.legendPanel.down('#uni-visualiser-legend-table').removeAll();
+        this.legendPanel.reset();
     },
 
     clearGraph: function() {

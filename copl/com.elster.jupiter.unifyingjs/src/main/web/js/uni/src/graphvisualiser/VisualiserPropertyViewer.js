@@ -1,5 +1,5 @@
 Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
-    extend: 'Ext.form.Panel',
+    extend: 'Ext.panel.Panel',
     minWidth: 400,
     itemId: 'uni-property-viewer',
     floating: true,
@@ -50,7 +50,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
         this.callParent();
     },
 
-    displayProperties: function(properties){
+    displayProperties: function(properties, subTitle){
         var itemsToAdd = [];
         this.setTitle(this.propertyViewerTitle);
         if(properties){
@@ -65,7 +65,8 @@ Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
                         htmlEncode: properties[property].htmlEncode,
                         order: properties[property].order,
                         fieldLabel: property,
-                        labelWidth: 150
+                        labelWidth: 150,
+                        margin: '0 0 0 0'
                     });
                 }
             }
@@ -76,6 +77,17 @@ Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
         });
 
         this.removeAll();
+        if (!Ext.isEmpty(subTitle)) {
+            this.add(
+                {
+                    xtype: 'displayfield',
+                    htmlEncode: false,
+                    value: subTitle,
+                    fieldLabel: undefined,
+                    margin: '0 0 10 10'
+                }
+            );
+        }
         this.add(itemsToAdd);
         this.doLayout();
     }
