@@ -6,7 +6,8 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    DEVICE_NOT_FOUND(1, "deviceXNotFound", "No device with id {0} found");
+    DEVICE_NOT_FOUND(1, "deviceXNotFound", "No device with name {0} found"),
+    DEVICE_NOT_FOUND_IN_ANY_GRAPH(2, "NoNodeFoundForDeviceX", "No node information found for device with name {0}");
 
     private final int number;
     private final String key;

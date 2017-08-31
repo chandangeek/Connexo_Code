@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.topology.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -18,11 +19,13 @@ import com.energyict.mdc.device.topology.rest.layer.LayerNames;
 import com.energyict.mdc.device.topology.rest.layer.LinkQualityLayer;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 import org.json.JSONArray;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -197,7 +200,13 @@ public class TopologyGraphResourceTest extends TopologyGraphApplicationJerseyTes
     }
 
     @Test
+
     public void getSummaryInfoTest() throws Exception {
+        Device gateway = mock(Device.class);
+        when(gateway.getId()).thenReturn(123L);
+        when(gateway.getName()).thenReturn("gateway");
+        when(gateway.getSerialNumber()).thenReturn("Serial of gateway");
+
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getName()).thenReturn("name of device type");
         DeviceConfiguration deviceconfiguration = mock(DeviceConfiguration.class);
@@ -218,15 +227,27 @@ public class TopologyGraphResourceTest extends TopologyGraphApplicationJerseyTes
         when(comTaskExecution2.getComTask()).thenReturn(comTask);
 
         when(slave3.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
+        when(topologyService.getPhysicalGateway(slave3)).thenReturn(Optional.of(gateway));
+
+        List<G3CommunicationPathSegment> comSegmentsInTopology = new ArrayList<>();
+        G3CommunicationPathSegment segment3 = mock(G3CommunicationPathSegment.class);
+        when(segment3.getSource()).thenReturn(gateway);
+        when(segment3.getTarget()).thenReturn(slave3);
+        when(segment3.getInterval()).thenReturn(Interval.of(Range.atLeast(Clock.systemDefaultZone().instant())));
+        comSegmentsInTopology.add(segment3);
+
+        when(topologyService.getUniqueG3CommunicationPathSegments(gateway)).thenReturn(comSegmentsInTopology.stream());
 
         Map<String, Object> issuesAndAlarmProperties = new HashMap<>();
-        issuesAndAlarmProperties.put("issues", 3);
+                issuesAndAlarmProperties.put("issues", 3);
         issuesAndAlarmProperties.put("alarms", 33);
-
-        when(issuesAndAlarmsLayer.getProperties(any(NodeInfo.class))).thenReturn(issuesAndAlarmProperties);
 
         when(deviceService.findDeviceByName("slave3")).thenReturn(Optional.of(slave3));
         when(graphLayerService.getAllSummaryLayers()).thenReturn(Arrays.asList(deviceInfoLayer, deviceTypeLayer, issuesAndAlarmsLayer, deviceSummaryExtraInfoLayer));
+        when(issuesAndAlarmsLayer.getProperties(any(NodeInfo.class))).thenReturn(issuesAndAlarmProperties);
+
+        // I need a cached graphInfo
+        deviceGraphFactory.from(slave3);
 
         String stringResponse = target("/topology/summary/slave3").request().get(String.class);
 

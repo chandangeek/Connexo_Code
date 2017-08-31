@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
@@ -15,13 +16,23 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Gathers the issue and alarm information of a DeviceNodeInfo
@@ -36,6 +47,7 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
     private IssueService issueService;
     private IssueDataCollectionService issueDataCollectionService;
     private DeviceAlarmService deviceAlarmService;
+    private OrmService ormService;
 
     public final static String NAME = "topology.GraphLayer.IssuesAndAlarms";
 
@@ -92,6 +104,11 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
         this.deviceAlarmService = deviceAlarmService;
     }
 
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
+    }
+
     private void countIssuesAndAlarms(DeviceNodeInfo info) {
         Device device = info.getDevice();
         EndDevice meter = device.getCurrentMeterActivation().get().getMeter().get();
@@ -100,13 +117,12 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
         IssueDataCollectionFilter filter = new IssueDataCollectionFilter();
         filter.addStatus(openStatus);
         filter.addDevice(meter);
-        Finder<? extends IssueDataCollection> finder = issueDataCollectionService.findIssues(filter);
-        setIssues(finder.stream().count());
+        setIssues(countIssues(issueDataCollectionService.findIssues(filter)));
 
         DeviceAlarmFilter alarmFilter = new DeviceAlarmFilter();
         alarmFilter.setDevice(meter);
         alarmFilter.setStatus(openStatus);
-        setAlarms(deviceAlarmService.findAlarms(alarmFilter).stream().count());
+        setAlarms(countAlarms(deviceAlarmService.findAlarms(alarmFilter)));
     }
 
     @Override
@@ -127,4 +143,36 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
     public List<TranslationKey> getKeys() {
         return Arrays.asList(PropertyNames.values());
     }
+
+    private long countIssues(Finder<? extends IssueDataCollection> issueFinder) {
+        return count(issueFinder, IssueDataCollectionService.COMPONENT_NAME );
+    }
+
+    private long countAlarms(Finder<? extends DeviceAlarm> alarmFinder) {
+        return count(alarmFinder, DeviceAlarmService.COMPONENT_NAME );
+    }
+
+    private SqlFragment asFragment(Finder finder, String... fieldNames) {
+        return finder.asFragment(fieldNames);
+    }
+
+    private long count(Finder finder, String componentName ){
+        Optional<DataModel> dataModel = ormService.getDataModel(componentName);
+        if (dataModel.isPresent()) {
+            try (Connection connection = dataModel.get().getConnection(false)) {
+                SqlBuilder countSqlBuilder = new SqlBuilder();
+                countSqlBuilder.add(asFragment(finder, "count(*)"));
+                try (PreparedStatement statement = countSqlBuilder.prepare(connection)) {
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        resultSet.next();
+                        return resultSet.getInt(1);
+                    }
+                }
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
+            }
+        }
+        return finder.find().stream().count();
+    }
+
 }

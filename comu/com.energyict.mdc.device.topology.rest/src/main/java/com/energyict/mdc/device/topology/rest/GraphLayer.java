@@ -43,7 +43,9 @@ public interface GraphLayer<T extends HasId> {
      */
     Map<String, Object> getProperties(NodeInfo<T> info);
 
+    @SuppressWarnings("unused")
     Object getProperty(String propertyName);
     void setProperty(String propertyName, Object propertyValue);
+
 
 }

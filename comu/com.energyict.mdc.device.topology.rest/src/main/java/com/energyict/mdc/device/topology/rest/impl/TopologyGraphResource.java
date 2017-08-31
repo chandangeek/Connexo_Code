@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.topology.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -9,6 +8,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
+import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.DeviceSummaryNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.GraphInfo;
 
@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 @Path("/topology")
 public class TopologyGraphResource {
 
-    private final Thesaurus thesaurus;
     private final DeviceService deviceService;
     private final GraphLayerService graphLayerService;
     private final ExceptionFactory exceptionFactory;
@@ -43,12 +42,10 @@ public class TopologyGraphResource {
     public TopologyGraphResource(DeviceService deviceService,
                                  GraphLayerService graphLayerService,
                                  ExceptionFactory exceptionFactory,
-                                 Thesaurus thesaurus,
                                  DeviceGraphFactory deviceGraphFactory) {
         this.deviceService = deviceService;
         this.graphLayerService = graphLayerService;
         this.exceptionFactory = exceptionFactory;
-        this.thesaurus = thesaurus;
         this.deviceGraphFactory = deviceGraphFactory;
     }
 
@@ -86,9 +83,10 @@ public class TopologyGraphResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getSummaryInfo(@PathParam("name") String name) {
         Device device = deviceService.findDeviceByName(name).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_NOT_FOUND, name));
-        DeviceSummaryNodeInfo deviceNodeInfo = new DeviceSummaryNodeInfo(device);
-        graphLayerService.getAllSummaryLayers().stream().forEach(deviceNodeInfo::addLayer);
-        return Response.ok(deviceNodeInfo).build();
+        DeviceNodeInfo deviceNodeInfo = deviceGraphFactory.getNode(device).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_NOT_FOUND_IN_ANY_GRAPH, name));
+        DeviceSummaryNodeInfo deviceSummaryNodeInfo = DeviceSummaryNodeInfo.of(deviceNodeInfo).withDevice(device);
+        graphLayerService.getAllSummaryLayers().stream().forEach(deviceSummaryNodeInfo::addLayer);
+        return Response.ok(deviceSummaryNodeInfo).build();
     }
 
     private void activateGraphLayers(final List<String> names ) {

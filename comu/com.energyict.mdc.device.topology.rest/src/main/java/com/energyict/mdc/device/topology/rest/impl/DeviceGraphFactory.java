@@ -27,7 +27,7 @@ public class DeviceGraphFactory implements GraphFactory {
     private final TopologyService topologyService;
     private final GraphLayerService graphLayerService;
     private final Clock clock;
-    private Map<Long, GraphInfo> cachedGraphs = new HashMap<>();
+    private Map<Long, GraphInfo<Device>> cachedGraphs = new HashMap<>();
     private boolean forceRefresh;
 
     public DeviceGraphFactory(TopologyService topologyService, GraphLayerService graphLayerService, Clock clock) {
@@ -92,6 +92,23 @@ public class DeviceGraphFactory implements GraphFactory {
 //        cachedGraphs.add(graphInfo);
 //        return graphInfo;
 //    }
+
+    /**
+     * Searches for a DeviceNodeInfo representing the device in all cached graphs
+     * @param device to find the node for
+     * @return an Optional holding the found node
+     */
+    public Optional<DeviceNodeInfo> getNode(Device device){
+        Device gateway = this.topologyService.getPhysicalGateway(device).orElse(device);
+        Instant now = clock.instant();
+        GraphInfo<Device> cachedGraphInfo = cachedGraphs.get(gateway.getId());
+        if (cachedGraphInfo != null) {
+            if (cachedGraphInfo.isValid(now)) {
+                return Optional.ofNullable((DeviceNodeInfo) cachedGraphInfo.getNode(device));
+            }
+        }
+        return Optional.empty();
+    }
 
     private DeviceNodeInfo newNode(Device device) {
         final DeviceNodeInfo node = new DeviceNodeInfo(device, Optional.empty(), Optional.empty() );

@@ -103,6 +103,7 @@ public class NetworkTopologyBuilder {
         Device child = deviceService.findDeviceByName(name).orElseGet(() ->  deviceService.newDevice(randomConfiguration(), name, clock.instant()));
         topologyService.clearPhysicalGateway(child); // reset parent
         topologyService.setPhysicalGateway(child, gateway);
+        System.out.println(String.format("created slave %s", child.getName()));
         return child;
     }
 

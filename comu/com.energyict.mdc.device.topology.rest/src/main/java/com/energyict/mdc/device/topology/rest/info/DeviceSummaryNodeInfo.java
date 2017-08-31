@@ -21,8 +21,18 @@ public class DeviceSummaryNodeInfo extends DeviceNodeInfo{
 
     private Map<String, Object> allProperties =  new HashMap<>();
 
-    public DeviceSummaryNodeInfo(Device device) {
-        super(device, Optional.empty(), Optional.empty());
+    public static DeviceSummaryNodeInfo of(DeviceNodeInfo originalNode) {
+       return new DeviceSummaryNodeInfo(originalNode);
+    }
+
+    public DeviceSummaryNodeInfo withDevice(Device device){
+        setDevice(device);
+        return this;
+    }
+
+    private DeviceSummaryNodeInfo(DeviceNodeInfo originalNode){
+        super(originalNode.getDevice(), Optional.ofNullable(originalNode.getParent()), Optional.ofNullable(originalNode.realPeriod));
+        this.allProperties.putAll(originalNode.getProperties());
     }
 
     @Override
@@ -30,7 +40,6 @@ public class DeviceSummaryNodeInfo extends DeviceNodeInfo{
         allProperties.putAll(graphLayer.getProperties(this));
         return true;
     }
-
 
     @JsonAnyGetter
     @Override

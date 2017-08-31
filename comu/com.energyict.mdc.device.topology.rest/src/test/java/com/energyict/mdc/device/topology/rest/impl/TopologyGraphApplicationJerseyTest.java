@@ -16,6 +16,8 @@ import java.time.Clock;
 
 import org.mockito.Mock;
 
+import static org.mockito.Mockito.spy;
+
 public class TopologyGraphApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     @Mock
@@ -25,6 +27,8 @@ public class TopologyGraphApplicationJerseyTest extends FelixRestApplicationJers
     @Mock
     GraphLayerService graphLayerService;
 
+    protected DeviceGraphFactory deviceGraphFactory;
+
     @Override
     protected Application getApplication() {
         TopologyGraphApplication application = new TopologyGraphApplication();
@@ -33,7 +37,7 @@ public class TopologyGraphApplicationJerseyTest extends FelixRestApplicationJers
         application.setGraphLayerService(graphLayerService);
         application.setClock(Clock.systemDefaultZone());
         application.setNlsService(nlsService);
-        application.setDeviceGraphFactory(new DeviceGraphFactory(topologyService, graphLayerService, Clock.systemDefaultZone()));
+        application.setDeviceGraphFactory(deviceGraphFactory = new DeviceGraphFactory(topologyService, graphLayerService, Clock.systemDefaultZone()));
         return application;
     }
 

@@ -25,7 +25,7 @@ import java.util.Map;
 public abstract class NodeInfo<T extends HasId> {
 
     @JsonIgnore
-    private T nodeObject;
+    protected T nodeObject;
     @JsonIgnore
     private List<GraphLayer<T>> layers = new ArrayList<>();
     @JsonIgnore

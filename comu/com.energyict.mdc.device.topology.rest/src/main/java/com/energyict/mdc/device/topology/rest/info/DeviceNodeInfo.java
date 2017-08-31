@@ -23,15 +23,20 @@ import java.util.Optional;
 @JsonPropertyOrder({ "id", "gateway"})
 public class DeviceNodeInfo extends NodeInfo<Device>{
 
+    @JsonIgnore
+    protected Range<Instant> realPeriod;
+
     public DeviceNodeInfo(Device device, Optional<Device> parent, Optional<Range<Instant>> period) {
         super(device);
         if (parent.isPresent()) {
             setParent(parent.get());
         }
         if (period.isPresent()){
+            this.realPeriod = period.get();
             setPeriod(period.get());
         }
     }
+
 
     @SuppressWarnings("unused")
     @JsonIgnore
@@ -47,6 +52,13 @@ public class DeviceNodeInfo extends NodeInfo<Device>{
     @JsonIgnore
     public Device getDevice(){
         return super.getNodeObject();
+    }
+
+    // allowing a refresh of the node
+    protected void setDevice(Device device){
+        this.nodeObject = device;
+        this.allProperties.clear();  // as the properties were linked on the previous version of the device
+        this.setPeriod(realPeriod);
     }
 
     private void setPeriod(Range<Instant> period){
