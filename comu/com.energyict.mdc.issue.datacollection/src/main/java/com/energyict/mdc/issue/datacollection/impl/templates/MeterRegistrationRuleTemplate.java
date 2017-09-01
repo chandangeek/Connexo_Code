@@ -101,7 +101,7 @@ public class MeterRegistrationRuleTemplate extends AbstractDataCollectionTemplat
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Unregistered from gateway @{ruleId}\"\n" +
                 "when\n" +
-                "\tevent : UnregisteredFromGatewayEvent()\n" +
+                "\tevent : UnregisteredFromGatewayEvent(resolveEvent == false)\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Putting issue on queue by unregistered from gateway rule=@{ruleId}\");\n" +
                 "\tlong delay = @{" + DELAY + "} * 3600;\n" +

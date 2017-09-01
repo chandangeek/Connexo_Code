@@ -74,4 +74,9 @@ public class UnregisteredFromGatewayEvent extends DataCollectionEvent  {
     public void setRuleId(long ruleId) {
         this.ruleId = ruleId;
     }
+
+    @Override
+    public boolean isResolveEvent() {
+        return false;
+    }
 }
