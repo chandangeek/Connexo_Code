@@ -194,9 +194,10 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
     @Override
     public void updateIssue(OpenIssue openIssue, IssueEvent event) {
-
         if (IssueStatus.IN_PROGRESS.equals(openIssue.getStatus().getKey())) {
-            openIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
+            openIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElseThrow(() ->
+                    new IllegalArgumentException(TranslationKeys.ALARM_REASON_UNKNOWN.getDefaultFormat()) {
+                    }));
         }
         getAlarmForUpdate(openIssue, event).update();
     }
@@ -592,15 +593,15 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             return "Log on same alarm : Increase urgency on raised event : Decrease urgency on clearing event";
         }
 
-        public boolean logOnSameAlarm() {
+        private boolean logOnSameAlarm() {
             return Integer.parseInt(Arrays.asList(value.split(SEPARATOR)).get(0)) == 1;
         }
 
-        boolean hasIncreaseUrgency() {
+        private boolean hasIncreaseUrgency() {
             return Integer.parseInt(Arrays.asList(value.split(SEPARATOR)).get(1)) == 1;
         }
 
-        boolean hasDecreaseUrgency() {
+        private boolean hasDecreaseUrgency() {
             return Integer.parseInt(Arrays.asList(value.split(SEPARATOR)).get(2)) == 1;
         }
 
@@ -705,7 +706,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             return "";
         }
 
-        protected long getRelativePeriodId() {
+        long getRelativePeriodId() {
             return relativePeriod.getId();
         }
 
