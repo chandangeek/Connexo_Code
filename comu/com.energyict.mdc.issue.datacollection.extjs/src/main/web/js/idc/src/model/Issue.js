@@ -35,12 +35,15 @@ Ext.define('Idc.model.Issue', {
 
                 startDate = data.masterFrom;
                 endDate = data.masterTo;
-                if (startDate && endDate) {
-                    result = Uni.I18n.translate('validation.version.display.fromUntil', 'IDC', "From {0} to {1}",
+                if (!Ext.isEmpty(startDate) && !Ext.isEmpty(endDate)) {
+                    result = Uni.I18n.translate('period.fromXToY', 'IDC', "From {0} to {1}",
                         [Uni.DateTime.formatDateTimeShort(new Date(startDate)),
                             Uni.DateTime.formatDateTimeShort(new Date(endDate))],
                         false
                     );
+                } else if (!Ext.isEmpty(startDate)) {
+                    result = Uni.I18n.translate('period.fromX', 'IDC', "From {0}",
+                        [Uni.DateTime.formatDateTimeShort(new Date(startDate))], false);
                 } else {
                     result = '-'
                 }
