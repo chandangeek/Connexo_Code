@@ -40,6 +40,7 @@ import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -292,6 +293,8 @@ public class InMemoryPersistence {
 
             bind(Thesaurus.class).toInstance(NlsModule.FakeThesaurus.INSTANCE);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+
+            bind(EndPointConfigurationService.class).toInstance(mock(EndPointConfigurationService.class));
         }
 
     }
