@@ -19,6 +19,7 @@ public enum TranslationKeys implements TranslationKey {
 
     PARAMETER_NAME_EVENT_TYPE(BasicDataCollectionRuleTemplate.EVENTTYPE, "Event"),
     PARAMETER_AUTO_RESOLUTION(BasicDataCollectionRuleTemplate.AUTORESOLUTION, "Auto resolution"),
+    PARAMETER_INCREASE_URGENCY(BasicDataCollectionRuleTemplate.INCREASEURGENCY, "Increase Urgency on issue recurrence"),
     PARAMETER_NAME_THRESHOLD(EventAggregationRuleTemplate.THRESHOLD, "Threshold (%)"),
     PARAMETER_NAME_EVENT_TYPE_FOR_AGGREGATION(EventAggregationRuleTemplate.EVENTTYPE, "Event"),
 
@@ -37,6 +38,7 @@ public enum TranslationKeys implements TranslationKey {
     ISSUE_REASON_DESCRIPTION_CONNECTION_FAILED("IssueReasonConnectionFailedDescription", "Connection failed to {0}"),
     ISSUE_REASON_DESCRIPTION_POWER_OUTAGE("IssueReasonPowerOutageDescription", "Power outage on {0}"),
     ISSUE_REASON_DESCRIPTION_TIME_SYNC_FAILED("IssueReasonSyncFailedDescription", "Time sync failed with {0}"),
+    ISSUE_REASON_UNKNOWN("IssueReasonUnknown", "Issue Reason Unknown"),
 
     ACTION_RETRY_NOW("ActionRetryNow", "Retry now"),
     ACTION_RETRY("ActionRetry", "Retry"),

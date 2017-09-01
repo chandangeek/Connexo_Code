@@ -6,6 +6,7 @@ package com.energyict.mdc.issue.datacollection.impl.templates;
 
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -40,6 +41,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
 
     public static final String EVENTTYPE = NAME + ".eventType";
     public static final String AUTORESOLUTION = NAME + ".autoresolution";
+    public static final String INCREASEURGENCY = NAME + ".increaseurgency";
 
     //for OSGI
     public BasicDataCollectionRuleTemplate() {
@@ -115,8 +117,14 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     @Override
     public void updateIssue(OpenIssue openIssue, IssueEvent event) {
         if (IssueStatus.IN_PROGRESS.equals(openIssue.getStatus().getKey())) {
-            openIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
+            openIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElseThrow(() ->
+                    new IllegalArgumentException(TranslationKeys.ISSUE_REASON_UNKNOWN.getDefaultFormat()) {
+                    }));
         }
+        openIssue.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(INCREASEURGENCY))
+                .findFirst().map(found -> (Boolean) found.getValue()).filter(Boolean::booleanValue)
+                .ifPresent(increaseUrgency ->
+                        openIssue.setPriority(Priority.get(openIssue.getPriority().increaseUrgency(), openIssue.getPriority().getImpact())));
         updateConnectionAttempts(openIssue, event).update();
     }
 
@@ -147,6 +155,12 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                 .named(AUTORESOLUTION, TranslationKeys.PARAMETER_AUTO_RESOLUTION)
                 .fromThesaurus(this.getThesaurus())
                 .setDefaultValue(true)
+                .finish());
+        builder.add(propertySpecService
+                .booleanSpec()
+                .named(INCREASEURGENCY, TranslationKeys.PARAMETER_INCREASE_URGENCY)
+                .fromThesaurus(this.getThesaurus())
+                .setDefaultValue(false)
                 .finish());
         return builder.build();
     }
