@@ -111,7 +111,7 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
             case ModuleConstants.REASON_UNREGISTERED_DEVICE:
                 MeterRegistrationIssueInfo<?> meterRegistrationIssueInfo = new MeterRegistrationIssueInfo<>(issue, deviceInfoClass);
                 addMeterInfo(meterRegistrationIssueInfo, issue);
-                addLastMasterInfo(meterRegistrationIssueInfo, issue);
+                addLastMasterInfo(meterRegistrationIssueInfo);
                 addLastGateways(meterRegistrationIssueInfo, issue);
                 info = meterRegistrationIssueInfo;
                 break;
@@ -120,12 +120,14 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
     }
 
     private void addLastGateways(MeterRegistrationIssueInfo<?> meterRegistrationIssueInfo, IssueDataCollection issue) {
-        if(this.device != null) {
+        if (this.device != null) {
             topologyService.getLastPhysicalGateways(device, 5).forEach(physicalGatewayReference -> {
                 GatewayInfo gatewayInfo = new GatewayInfo();
-                gatewayInfo.name =  physicalGatewayReference.getGateway().getName();
+                gatewayInfo.name = physicalGatewayReference.getGateway().getName();
                 gatewayInfo.start = physicalGatewayReference.getRange().lowerEndpoint();
-                gatewayInfo.end = physicalGatewayReference.getRange().upperEndpoint();
+                if(physicalGatewayReference.getRange().hasUpperBound()) {
+                    gatewayInfo.end = physicalGatewayReference.getRange().upperEndpoint();
+                }
                 meterRegistrationIssueInfo.gateways.add(gatewayInfo);
             });
         }
@@ -171,17 +173,16 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         info.connectionAttemptsNumber = issue.getConnectionAttempt();
     }
 
-    private void addLastMasterInfo(MeterRegistrationIssueInfo<?> info, IssueDataCollection issue) {
-        deviceService.findDeviceByMrid(issue.getLastGatewayIdentification()).ifPresent(master -> {
+    private void addLastMasterInfo(MeterRegistrationIssueInfo<?> info) {
+        topologyService.getLastPhysicalGateways(device, 1).findFirst().ifPresent(physicalGatewayReference -> {
+            Device master = physicalGatewayReference.getGateway();
             info.master = master.getName();
             info.masterDeviceType = new IdWithNameInfo(master.getDeviceType());
             info.masterDeviceConfig = new IdWithNameInfo(master.getDeviceConfiguration());
             info.masterState = new IdWithNameInfo(master.getState().getId(), getStateName(master.getState()));
-            if(device != null) {
-                topologyService.getLastPhysicalGateways(device, 1).findFirst().ifPresent(physicalGatewayReference -> {
-                    info.masterFrom = physicalGatewayReference.getRange().lowerEndpoint();
-                    info.masterTo = physicalGatewayReference.getRange().upperEndpoint();
-                });
+            info.masterFrom = physicalGatewayReference.getRange().lowerEndpoint();
+            if(physicalGatewayReference.getRange().hasUpperBound()) {
+                info.masterTo = physicalGatewayReference.getRange().upperEndpoint();
             }
             master.getUsagePoint().ifPresent(usagePoint -> info.masterUsagePoint = usagePoint.getName());
         });
