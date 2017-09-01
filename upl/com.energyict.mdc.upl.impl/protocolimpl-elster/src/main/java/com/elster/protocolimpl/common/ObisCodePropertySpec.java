@@ -1,38 +1,47 @@
-package com.elster.protocolimpl.dlms;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.elster.protocolimpl.common;
 
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
-import com.elster.dlms.types.basic.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.properties.AbstractPropertySpec;
 
 /**
- * Provides an implementation for the PropertySpec interface for {@link ObisCode}s.
+ * Insert your comments here.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2016-10-31 (11:21)
+ * @since 2016-10-31 (15:47)
  */
-class ObisCodePropertySpec extends AbstractPropertySpec {
+public class ObisCodePropertySpec extends AbstractPropertySpec {
 
-    ObisCodePropertySpec(String name, boolean required, String displayName, String description) {
-        super(name, required, displayName, description);
+    public ObisCodePropertySpec(String name, String translatedName, String description) {
+        super(name, false, translatedName, description);
+    }
+
+    public ObisCodePropertySpec(String name, boolean required, String translatedName, String description) {
+        super(name, required, translatedName, description);
     }
 
     @Override
     public boolean validateValue(Object value) throws PropertyValidationException {
+        boolean isInvalid = false;
         if (this.isRequired() && value == null) {
             throw MissingPropertyException.forName(this.getName());
+        } else if (value instanceof ObisCode) {
+            isInvalid = ((ObisCode) value).isInvalid();
         } else if (value instanceof String) {
-            try {
-                new ObisCode((String) value);
-                return true;
-            } catch (IllegalArgumentException e) {
-                throw InvalidPropertyException.forNameAndValue(this.getName(), value);
-            }
-        } else {
-            throw InvalidPropertyException.forNameAndValue(this.getName(), value);
+            isInvalid = ObisCode.fromString((String) value).isInvalid();
         }
+
+        if (isInvalid) {
+            throw InvalidPropertyException.forNameAndValue(this.getDisplayName(), value);
+        }
+        return true;
     }
 
     @Override
@@ -43,12 +52,15 @@ class ObisCodePropertySpec extends AbstractPropertySpec {
     private static class ValueFactory implements com.energyict.mdc.upl.properties.ValueFactory {
         @Override
         public Object fromStringValue(String stringValue) {
-            return new ObisCode(stringValue);
+            ObisCode obisCode = ObisCode.fromString(stringValue);
+            return obisCode.isInvalid() ? "Invalid" : obisCode;
         }
 
         @Override
         public String toStringValue(Object object) {
-            return this.toStringValue((ObisCode) object);
+            return object instanceof ObisCode
+                    ? this.toStringValue((ObisCode) object)
+                    : object.toString();
         }
 
         private String toStringValue(ObisCode obisCode) {
@@ -70,5 +82,4 @@ class ObisCodePropertySpec extends AbstractPropertySpec {
             return this.fromStringValue((String) databaseValue);
         }
     }
-
 }

@@ -35,6 +35,7 @@ import com.elster.dlms.types.basic.DlmsDateTime;
 import com.elster.dlms.types.basic.ObisCode;
 import com.elster.dlms.types.data.DlmsData;
 import com.elster.dlms.types.data.DlmsDataOctetString;
+import com.elster.protocolimpl.common.ObisCodePropertySpec;
 import com.elster.protocolimpl.dlms.connection.DlmsConnection;
 import com.elster.protocolimpl.dlms.messaging.DlmsMessageExecutor;
 import com.elster.protocolimpl.dlms.messaging.XmlMessageWriter;
@@ -234,6 +235,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
                 UPLPropertySpecFactory.specBuilder(ARCHIVESTRUCTURE, false, PropertyTranslationKeys.DLMS_ARCHIVESTRUCTURE, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(LOGSTRUCTURE, false, PropertyTranslationKeys.DLMS_LOGSTRUCTURE, this.propertySpecService::stringSpec).finish(),
                 new ObisCodePropertySpec(OC_INTERVALPROFILE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_OC_INTERVALPROFILE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_OC_INTERVALPROFILE_DESCRIPTION).format()),
+                new ObisCodePropertySpec(OC_LOGPROFILE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_OC_LOGPROFILE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_OC_LOGPROFILE_DESCRIPTION).format()),
                 new VariableBaseIntegerPropertySpec(MAXPDUSIZE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_MAX_PDU_SIZE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_MAX_PDU_SIZE_DESCRIPTION).format()),
                 keyAccessorTypeReferenceSpec(getPropertySpecService(), Dlms.MASTERKEY, PropertyTranslationKeys.MASTER_KEY)
         );
@@ -277,13 +279,13 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
             }
 
             // check if an obis code for interval profile is defined
-            String ocIntervalProfile = properties.getTypedProperty(Dlms.OC_INTERVALPROFILE, "");
-            if ((ocIntervalProfile != null) && (!ocIntervalProfile.isEmpty())) {
-                this.ocIntervalProfile = new ObisCode(ocIntervalProfile);
+            com.energyict.obis.ObisCode ocIntervalProfile = properties.getTypedProperty(Dlms.OC_INTERVALPROFILE, null);
+            if ((ocIntervalProfile != null) && (!ocIntervalProfile.isInvalid())) {
+                this.ocIntervalProfile = new ObisCode(ocIntervalProfile.toString());
             }
-            String ocLogProfile = properties.getTypedProperty(Dlms.OC_LOGPROFILE, "");
-            if ((ocLogProfile != null) && (!ocLogProfile.isEmpty())) {
-                this.ocLogProfile = new ObisCode(ocLogProfile);
+            com.energyict.obis.ObisCode ocLogProfile = properties.getTypedProperty(Dlms.OC_LOGPROFILE, null);
+            if ((ocLogProfile != null) && (!ocLogProfile.isInvalid())) {
+                this.ocLogProfile = new ObisCode(ocLogProfile.toString());
             }
 
             if (this.ocIntervalProfile == null) {
