@@ -847,10 +847,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     private void updateComTasksToUseNewConnectionTaskBasedOnConnectionFunction(Device slave, Map<ConnectionFunction, List<ComTaskExecution>> comTasksUsingConnectionFunction) {
-        comTasksUsingConnectionFunction.entrySet().forEach(entry -> {
-            ConnectionFunction connectionFunction = entry.getKey();
-            List<ComTaskExecution> affectedComTaskExecutions = entry.getValue();
-
+        comTasksUsingConnectionFunction.forEach((connectionFunction, affectedComTaskExecutions) -> {
             Optional<ConnectionTask> connectionTaskOptional = this.findConnectionTaskWithConnectionFunctionForTopology(slave, connectionFunction);
             for (ComTaskExecution comTaskExecution : affectedComTaskExecutions) {
                 ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
