@@ -123,6 +123,15 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.upl</artifactId>
         </dependency>
+        <!-- Dependencies due to demo -->
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.lifecycle</artifactId>
+        </dependency>
         <!-- Testing -->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
@@ -192,11 +201,6 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>properties</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

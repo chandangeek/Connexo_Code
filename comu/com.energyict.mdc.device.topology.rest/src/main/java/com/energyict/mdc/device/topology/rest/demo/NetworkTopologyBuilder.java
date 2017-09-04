@@ -14,7 +14,9 @@ import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.rest.demo.layer.GraphLayerBuilder;
 
+import java.nio.file.attribute.UserPrincipalLookupService;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -44,9 +46,10 @@ public class NetworkTopologyBuilder {
     private int levelCount;
     private int nodeNbr;
 
+    List<GraphLayerBuilder> graphLayerBuilders = new ArrayList<>();
+
     public NetworkTopologyBuilder(ThreadPrincipalService threadPrincipalService, TransactionService transactionService, DeviceService deviceService, TopologyService topologyService, DeviceConfigurationService deviceConfigurationService, Clock clock) {
         this.threadPrincipalService = threadPrincipalService;
-
         this.transactionService = transactionService;
         this.deviceService = deviceService;
         this.topologyService = topologyService;
@@ -68,33 +71,36 @@ public class NetworkTopologyBuilder {
         return this;
     }
 
+    public NetworkTopologyBuilder havingGraphLayerBuilder(GraphLayerBuilder graphLayerBuilder){
+        graphLayerBuilders.add(graphLayerBuilder);
+        return this;
+    }
+
     public void buildTopology(Device device) {
-        threadPrincipalService.set(() -> "Console");
-        try (TransactionContext context = transactionService.getContext()) {
+        this.levels = new NodeLevel[levelCount];
+        this.nodeNbr = 0;
+        this.gateway = device;
 
-            this.levels = new NodeLevel[levelCount];
-            this.nodeNbr = 0;
-            this.gateway = device;
-            int maxNodesPerLevel = nodeCount / levelCount;
+        for (int currentLevel = 0; currentLevel < levelCount; currentLevel++) {
+            System.out.println(String.format("level %d", currentLevel));
+            NodeLevel currentNodeLevel = new NodeLevel(currentLevel);
+            levels[currentLevel] = currentNodeLevel;
 
-            for (int currentLevel = 0; currentLevel < levelCount; currentLevel++) {
-                NodeLevel currentNodeLevel = new NodeLevel(currentLevel);
-                levels[currentLevel] = currentNodeLevel;
-
-                Random r = new Random();
-                int nodesPerLevel = r.nextInt(maxNodesPerLevel) + 1;
-                if (currentLevel == levelCount - 1) {
-                    nodesPerLevel = nodeCount - nodeNbr;
-                }
-
-                for (int nodesOnLevelCount = 0; nodesOnLevelCount < nodesPerLevel; nodesOnLevelCount++) {
-                    Device child = createNode();
-                    currentNodeLevel.add(child);
-
-                    addComPathSegmentsAndNeighbor(child, currentLevel);
-                }
+            Random r = new Random();
+            int nodesPerLevel;
+            if (currentLevel == levelCount - 1) {
+                nodesPerLevel = nodeCount - nodeNbr;
+            }else{
+                nodesPerLevel = ((r.nextInt(2* (nodeCount - nodeNbr) / (levelCount - currentLevel)) + 1) );
             }
-            context.commit();
+
+            for (int nodesOnLevelCount = 0; nodesOnLevelCount < nodesPerLevel; nodesOnLevelCount++) {
+                Device child = createNode();
+                currentNodeLevel.add(child);
+
+                addComPathSegmentsAndNeighbor(child, currentLevel);
+                graphLayerBuilders.stream().forEach((gb) -> gb.buildLayer(child));
+            }
         }
     }
 
