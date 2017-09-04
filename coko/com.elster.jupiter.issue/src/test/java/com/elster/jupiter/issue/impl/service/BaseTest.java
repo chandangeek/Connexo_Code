@@ -56,6 +56,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
@@ -115,8 +116,8 @@ public abstract class BaseTest {
 
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    private static IssueService issueService;
-
+    protected static IssueService issueService;
+    protected static EndPointConfigurationService endPointConfigurationService;
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
 
@@ -149,6 +150,9 @@ public abstract class BaseTest {
             bind(KnowledgeBaseFactoryService.class).toInstance(mockKnowledgeBaseFactoryService());
             bind(KnowledgeBuilderFactoryService.class).toInstance(mockKnowledgeBuilderFactoryService());
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+
+            endPointConfigurationService = mock(EndPointConfigurationService.class);
+            bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
         }
     }
 
