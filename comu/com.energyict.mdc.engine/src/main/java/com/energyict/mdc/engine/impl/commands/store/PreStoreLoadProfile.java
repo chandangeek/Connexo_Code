@@ -12,7 +12,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.masterdata.LoadProfileIntervals;
@@ -22,6 +21,8 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
+
+import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.google.common.collect.Range;
 
@@ -188,9 +189,9 @@ public class PreStoreLoadProfile {
         }
 
         private Optional<IntervalReading> findInValidInterval(IntervalBlock intervalBlock, String readingTypeMRID, ZoneId zone) {
-            TimeDuration timeDuration = mdcReadingTypeUtilService.getReadingTypeInformationFor(readingTypeMRID).getTimeDuration();
-            final boolean validInterval = Stream.of(LoadProfileIntervals.values())
-                    .filter(interval -> interval.getTimeDuration().getSeconds() == timeDuration.getSeconds())
+            Optional<TimeDuration> timeDuration = mdcReadingTypeUtilService.getReadingTypeInterval(readingTypeMRID);
+            final boolean validInterval = timeDuration.isPresent() && Stream.of(LoadProfileIntervals.values())
+                    .filter(interval -> interval.getTimeDuration().getSeconds() == timeDuration.get().getSeconds())
                     .findAny()
                     .isPresent();
 
@@ -199,15 +200,15 @@ public class PreStoreLoadProfile {
                     return false;
                 }
                 ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(intervalReading1.getTimeStamp(), zone);
-
-                if (timeDuration.getTemporalUnit().equals(ChronoUnit.SECONDS) && timeDuration.getCount() <= 3600) {
-                    return zonedDateTime.getMinute() % getMinuteIntervalLength(timeDuration.getTemporalUnit(), timeDuration) == 0
+                TimeDuration interval = timeDuration.get();
+                if (interval.getTemporalUnit().equals(ChronoUnit.SECONDS) && interval.getCount() <= 3600) {
+                    return zonedDateTime.getMinute() % getMinuteIntervalLength(interval.getTemporalUnit(), interval) == 0
                             && zonedDateTime.getSecond() == 0 && zonedDateTime.getNano() == 0;
                 }
                 if (!validTimeOfDay(zonedDateTime)) {
                     return false;
                 }
-                return !timeDuration.getTemporalUnit().equals(ChronoUnit.MONTHS) || zonedDateTime.getDayOfMonth() == 1;
+                return !interval.getTemporalUnit().equals(ChronoUnit.MONTHS) || zonedDateTime.getDayOfMonth() == 1;
             })).findAny();
         }
 

@@ -289,8 +289,8 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
             return getIssueService().newProblem(
                     loadProfileConfigurationObisCode,
                     MessageSeeds.LOAD_PROFILE_CHANNEL_MISSING,
-                    loadProfileConfigurationObisCode,
                     localChannelInfo.getName(),
+                    loadProfileConfigurationObisCode,
                     localChannelInfo.getMeterIdentifier()
             );
         } else {
