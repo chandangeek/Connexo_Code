@@ -15,7 +15,6 @@ import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.security.Privileges;
-import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -35,19 +34,18 @@ import java.util.stream.Collectors;
 
 @Path("/campaigns")
 public class FirmwareCampaignResource {
+
     private final FirmwareService firmwareService;
-    private final ResourceHelper resourceHelper;
     private final FirmwareCampaignInfoFactory campaignInfoFactory;
     private final DeviceInFirmwareCampaignInfoFactory deviceInCampaignInfoFactory;
-    private final MdcPropertyUtils mdcPropertyUtils;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public FirmwareCampaignResource(FirmwareService firmwareService, ResourceHelper resourceHelper, FirmwareCampaignInfoFactory campaignInfoFactory, DeviceInFirmwareCampaignInfoFactory deviceInCampaignInfoFactory, MdcPropertyUtils mdcPropertyUtils) {
+    public FirmwareCampaignResource(FirmwareService firmwareService, ResourceHelper resourceHelper, FirmwareCampaignInfoFactory campaignInfoFactory, DeviceInFirmwareCampaignInfoFactory deviceInCampaignInfoFactory) {
         this.firmwareService = firmwareService;
         this.resourceHelper = resourceHelper;
         this.campaignInfoFactory = campaignInfoFactory;
         this.deviceInCampaignInfoFactory = deviceInCampaignInfoFactory;
-        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
     @GET @Transactional

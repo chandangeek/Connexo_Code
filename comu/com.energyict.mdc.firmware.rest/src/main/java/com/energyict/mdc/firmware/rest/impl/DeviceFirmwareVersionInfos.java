@@ -46,6 +46,7 @@ public class DeviceFirmwareVersionInfos {
                 .forEach(firmware -> {
                     DeviceFirmwareVersionInfo.ActiveVersion activeVersion = new DeviceFirmwareVersionInfo.ActiveVersion();
                     activeVersion.firmwareVersion = activatedFirmwareVersion.getFirmwareVersion().getFirmwareVersion();
+                    activeVersion.imageIdentifier = activatedFirmwareVersion.getFirmwareVersion().getImageIdentifier();
                     activeVersion.firmwareVersionStatus = new FirmwareStatusInfo(activatedFirmwareVersion.getFirmwareVersion().getFirmwareStatus(), this.thesaurus);
                     activeVersion.lastCheckedDate = activatedFirmwareVersion.getLastChecked() != null ? activatedFirmwareVersion.getLastChecked().toEpochMilli() : null;
                     firmware.activeVersion = activeVersion;

@@ -18,6 +18,7 @@ public class DeviceFirmwareVersionInfo {
 
     public static class ActiveVersion {
         public String firmwareVersion;
+        public String imageIdentifier;
         public FirmwareStatusInfo firmwareVersionStatus;
         public Long lastCheckedDate;
 

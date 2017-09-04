@@ -21,7 +21,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.Optional;
 
 public class ResourceHelper {
@@ -106,22 +105,18 @@ public class ResourceHelper {
     /**
      * Returns the appropriate DeviceMessageId which corresponds with the uploadOption
      */
-    public DeviceMessageId findFirmwareMessageIdOrThrowException(DeviceType deviceType, String firmwareOption) {
-        ProtocolSupportedFirmwareOptions targetFirmwareOptions = findProtocolSupportedFirmwareOptionsOrThrowException(firmwareOption);
-        return deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()).orElse(Collections.emptyList())
-                .stream()
-                .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
-                .map(DeviceMessageId::from)
-                .filter(firmwareMessageCandidate -> {
-                    Optional<ProtocolSupportedFirmwareOptions> firmwareOptionForCandidate = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(firmwareMessageCandidate);
-                    return firmwareOptionForCandidate.isPresent() && targetFirmwareOptions.equals(firmwareOptionForCandidate.get());
-                })
-                .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
+    public DeviceMessageId findFirmwareMessageIdOrThrowException(DeviceType deviceType, String uploadOption) {
+        return firmwareService.bestSuitableFirmwareUpgradeMessageId(deviceType, findProtocolSupportedFirmwareOptionsOrThrowException(uploadOption), null).orElse(null);
     }
 
-    public DeviceMessageSpec findFirmwareMessageSpecOrThrowException(DeviceType deviceType, String firmwareOption) {
-        DeviceMessageId firmwareMessageId = findFirmwareMessageIdOrThrowException(deviceType, firmwareOption);
+    public DeviceMessageSpec findFirmwareMessageSpecOrThrowException(DeviceType deviceType, String uploadOption) {
+        FirmwareMessageInfo firmwareMessageInfo = new FirmwareMessageInfo();
+        firmwareMessageInfo.uploadOption = uploadOption;
+        return findFirmwareMessageSpecOrThrowException(deviceType, firmwareMessageInfo);
+    }
+
+    public DeviceMessageSpec findFirmwareMessageSpecOrThrowException(DeviceType deviceType, FirmwareMessageInfo messageInfo) {
+        DeviceMessageId firmwareMessageId = findFirmwareMessageIdOrThrowException(deviceType, messageInfo.uploadOption);
         return this.findFirmwareMessageSpecOrThrowException(firmwareMessageId);
     }
 

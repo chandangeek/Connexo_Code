@@ -110,9 +110,17 @@ public class DeviceFirmwareMessagesResource {
     public Response uploadFirmwareToDevice(@PathParam("name") String name, FirmwareMessageInfo info) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         checkFirmwareUpgradeOption(device.getDeviceType(), info.uploadOption);
-
+        Long firmwareVersionId = new Long((Integer) info.getPropertyInfo(FirmwareMessageInfoFactory.PROPERTY_KEY_FIRMWARE_VERSION).get().propertyValueInfo.value);
+        Optional<FirmwareVersion> firmwareVersion = firmwareService.getFirmwareVersionById(firmwareVersionId);
         DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(device.getDeviceType(), info.uploadOption);
         DeviceMessageSpec firmwareMessageSpec = resourceHelper.findFirmwareMessageSpecOrThrowException(firmwareMessageId);
+        if (deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(firmwareMessageId)){
+            firmwareVersion.ifPresent(x -> {if (x.getImageIdentifier() != null){
+                                               firmwareMessageInfoFactory.initImageIdentifier(info, x.getImageIdentifier());
+                                           }
+                    });
+        }
+        firmwareMessageInfoFactory.initResumeProperty(info, false);
         Map<String, Object> convertedProperties = getConvertedProperties(firmwareMessageSpec, info);
         Instant releaseDate = info.releaseDate == null ? this.clock.instant() : info.releaseDate;
 
@@ -153,7 +161,7 @@ public class DeviceFirmwareMessagesResource {
         deviceMessageBuilder.setTrackingId(String.valueOf(messageId));
         deviceMessageBuilder.setReleaseDate(info.releaseDate);
 
-        DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.dbValue()).get();
+        DeviceMessageSpec deviceMessageSpec = upgradeMessage.getSpecification();
         Optional<PropertySpec> activationDatePropertySpec = deviceMessageSpec.getPropertySpecs().stream().filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(Date.class)).findAny();
         if (activationDatePropertySpec.isPresent()) {
             deviceMessageBuilder.addProperty(activationDatePropertySpec.get().getName(), info.releaseDate != null ? Date.from(info.releaseDate) : new Date());
@@ -174,7 +182,7 @@ public class DeviceFirmwareMessagesResource {
         Map<String, Object> convertedProperties = new HashMap<>();
         try {
             for (PropertySpec propertySpec : firmwareMessageSpec.getPropertySpecs()) {
-                Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, info.properties);
+                Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, info.getProperties());
                 if (propertyValue != null) {
                     convertedProperties.put(propertySpec.getName(), propertyValue);
                 }
