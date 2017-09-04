@@ -1248,7 +1248,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         try (final RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
-            it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), true, ImageTransfer.DEFAULT_IMAGE_NAME, false);
+            it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), true, messageHandler.getImageIdentifier() == null || messageHandler.getImageIdentifier().isEmpty() ? ImageTransfer.DEFAULT_IMAGE_NAME : messageHandler.getImageIdentifier(), false);
         }
         if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
             it.imageActivation();

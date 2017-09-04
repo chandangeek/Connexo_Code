@@ -52,7 +52,7 @@ public class FirmwareUdateWithUserFileMessageEntry implements MessageEntryCreato
             if (!resume) {
                 extraTrackingId = "noresume ";
             } else {
-                // todo; other protocols might use "resume" in the trackingId ?
+                extraTrackingId = "resume";
             }
         }
         if (typeAttributeName != null) {   //Attribute that indicates the firmware upgrade type (true: PLC, false: normal)
