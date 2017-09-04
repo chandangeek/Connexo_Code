@@ -32,6 +32,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     nodeStoreForComboBox: undefined,
     showGatewayLegend: undefined,
     showDeviceLegend: undefined,
+    freshNodes: [],
 
     gatewayIcon: 'icon-diamond4',
     deviceIcon: 'icon-circle2',
@@ -379,12 +380,16 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         var me = this;
         if(me.chart.combo().isCombo(id)){
             me.chart.combo().uncombine(id,null,function(){
-                me.clearAllLegendItems();
-                me.setDefaultStyle();
-                Ext.each(me.activeLayers,function(layer){
-                    layer.call(me);
+                // Previously collapsed nodes may miss certain data,
+                // so first re-merge the latest queried data:
+                me.chart.merge(me.freshNodes, function() {
+                    me.clearAllLegendItems();
+                    me.setDefaultStyle();
+                    Ext.each(me.activeLayers,function(layer){
+                        layer.call(me);
+                    });
+                    me.doLayout();
                 });
-                me.doLayout();
             });
         } else {
             var result = me.getDownStreamNodesLinks(id);
@@ -754,9 +759,8 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
 
     refreshLayers: function(linksIncluded) {
         var me = this,
-            freshNodes = [],
             performAfterTheQuery = function() {
-                me.chart.merge(freshNodes, performAfterTheMerge);
+                me.chart.merge(me.freshNodes, performAfterTheMerge);
             },
             performAfterTheMerge = function() {
                 me.clearAllLegendItems();
@@ -764,6 +768,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 me.showLayers();
             };
 
-        me.queryChartData(performAfterTheQuery, freshNodes, linksIncluded);
+        me.freshNodes = [];
+        me.queryChartData(performAfterTheQuery, me.freshNodes, linksIncluded);
     }
 });
