@@ -5,8 +5,10 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.demo.NetworkTopologyBuilder;
+import com.energyict.mdc.device.topology.rest.demo.layer.DeviceLifeCycleStatusGraphLayerBuilder;
 
 
 import javax.inject.Inject;
@@ -25,6 +27,7 @@ public class CreateNetworkTopologyCommand  extends CommandWithTransaction{
     private final TopologyService topologyService;
     private final DeviceService deviceService;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceLifeCycleService deviceLifeCycleService;
     private final Clock clock;
 
     String gatewayMrid;
@@ -32,12 +35,13 @@ public class CreateNetworkTopologyCommand  extends CommandWithTransaction{
     Integer levelCount;
 
     @Inject
-    public  CreateNetworkTopologyCommand(ThreadPrincipalService threadPrincipalService, TransactionService transactionService, TopologyService topologyService, DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, Clock clock){
+    public  CreateNetworkTopologyCommand(ThreadPrincipalService threadPrincipalService, TransactionService transactionService, TopologyService topologyService, DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleService deviceLifeCycleService, Clock clock){
         this.threadPrincipalService = threadPrincipalService;
         this.transactionService = transactionService;
         this.topologyService = topologyService;
         this.deviceService = deviceService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceLifeCycleService = deviceLifeCycleService;
         this.clock = clock;
     }
 
@@ -66,6 +70,7 @@ public class CreateNetworkTopologyCommand  extends CommandWithTransaction{
             new NetworkTopologyBuilder(threadPrincipalService, transactionService, deviceService, topologyService, deviceConfigurationService, clock)
                     .havingNodes(deviceCount)
                     .havingLevels(levelCount)
+                    .havingGraphLayerBuilder(new DeviceLifeCycleStatusGraphLayerBuilder(deviceLifeCycleService))
                     .buildTopology(gateway.get());
         }
     }

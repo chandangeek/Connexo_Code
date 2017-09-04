@@ -673,7 +673,7 @@ public class DemoServiceImpl {
         }
         command.setDeviceCount(childcount);
         command.setLevelCount(levelcount);
-        command.run();
+        command.runInTransaction();
     }
 
     @SuppressWarnings("unused")
