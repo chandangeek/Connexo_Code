@@ -67,7 +67,6 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
 
     showRetriggerWindow: function(deviceName) {
         var me = this,
-            communicationTasksOfDeviceStore = Ext.getStore('Mdc.store.CommunicationTasksOfDevice'),
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'mdc-retriggerCommunicationTasksWindow',
                 deviceName: deviceName,
@@ -79,19 +78,15 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
                 }
             });
 
-        communicationTasksOfDeviceStore.getProxy().setExtraParam('deviceId', deviceName);
-        communicationTasksOfDeviceStore.load({
-            callback: function () {
-                confirmationWindow.insert(1, me.getRetriggerContent());
-                confirmationWindow.show({
-                    title: Uni.I18n.translate('general.retriggerCommTasksWindow.title', 'MDC', 'Retrigger communication tasks?')
-                });
-            }
+        confirmationWindow.insert(1, me.getRetriggerContent());
+        confirmationWindow.show({
+            title: Uni.I18n.translate('general.retriggerCommTasksWindow.title', 'MDC', 'Retrigger communication tasks?')
         });
     },
 
     getRetriggerContent: function() {
         var communicationTasksOfDeviceStore = Ext.getStore('Mdc.store.CommunicationTasksOfDevice'),
+            // The loading of this store already happened in NetworkVisualiserView.preprocessMenuItemsBeforeShowing()
             container = Ext.create('Ext.container.Container', {
                 padding: '5 5 10 50',
                 items: [

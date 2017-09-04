@@ -19,31 +19,33 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         {
             xtype: 'menuitem',
             text: Uni.I18n.translate('general.navigateTo.deviceLandingPage', 'MDC', 'Navigate to device landing page'),
+            itemId: 'mdc-network-visualiser-landingpage-menu-item',
             section: 3, /*SECTION_VIEW*/
             handler: function(menuItem) {
                 menuItem.visualiser.router.getRoute('devices/device').forwardInNewTab({
-                    deviceId: menuItem.visualiser.chart.getItem(menuItem.graphId).d.name
+                    deviceId: menuItem.visualiser.chart.getItem(menuItem.chartNodeId).d.name
                 });
             }
         },
         {
             xtype: 'menuitem',
             text: Uni.I18n.translate('general.navigateTo.communicationTopology', 'MDC', 'Navigate to communication topology'),
-            gatewayOnly: true, /*only show for gateways*/
+            itemId: 'mdc-network-visualiser-topology-menu-item',
             section: 3, /*SECTION_VIEW*/
             handler: function(menuItem) {
                 menuItem.visualiser.router.getRoute('devices/device/topology').forwardInNewTab({
-                    deviceId: menuItem.visualiser.chart.getItem(menuItem.graphId).d.name
+                    deviceId: menuItem.visualiser.chart.getItem(menuItem.chartNodeId).d.name
                 });
             }
         },
         {
             xtype: 'menuitem',
             text: Uni.I18n.translate('general.sendCommands', 'MDC', 'Send commands'),
+            itemId: 'mdc-network-visualiser-sendcommands-menu-item',
             section: 1, /*SECTION_ACTION*/
             handler: function(menuItem) {
                 menuItem.visualiser.router.getRoute('devices/device/commands/add').forwardInNewTab({
-                    deviceId: menuItem.visualiser.chart.getItem(menuItem.graphId).d.name
+                    deviceId: menuItem.visualiser.chart.getItem(menuItem.chartNodeId).d.name
                 });
             }
         },
@@ -51,8 +53,9 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             xtype: 'menuitem',
             text: Uni.I18n.translate('general.retriggerCommTasks', 'MDC', 'Retrigger communication tasks'),
             section: 1, /*SECTION_ACTION*/
+            itemId: 'mdc-network-visualiser-retrigger-menu-item',
             handler: function(menuItem) {
-                menuItem.visualiser.fireEvent('showretriggerwindow', menuItem.visualiser.chart.getItem(menuItem.graphId).d.name);
+                menuItem.visualiser.fireEvent('showretriggerwindow', menuItem.visualiser.chart.getItem(menuItem.chartNodeId).d.name);
             }
         }
     ],
@@ -110,15 +113,15 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:grey"></span>';
         me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.undefined', 'MDC', 'Link quality undefined'));
         // icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+linkColors[1]+'"></span>';
-        // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.undefined', 'MDC', '0 < Link quality <= 64'));
+        // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.less.64', 'MDC', '0 < Link quality <= 64'));
         // icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+linkColors[2]+'"></span>';
-        // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.undefined', 'MDC', '64 < Link quality <= 128'));
+        // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.less.128', 'MDC', '64 < Link quality <= 128'));
         // icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+linkColors[3]+'"></span>';
-        // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.undefined', 'MDC', '128 < Link quality <= 192'));
+        // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.less.192', 'MDC', '128 < Link quality <= 192'));
         // icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+linkColors[4]+'"></span>';
-        // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.undefined', 'MDC', '192 < Link quality < 255'));
+        // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.less.255', 'MDC', '192 < Link quality < 255'));
         // icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+linkColors[5]+'"></span>';
-        // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.undefined', 'MDC', 'Link quality = 255'));
+        // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.255', 'MDC', 'Link quality = 255'));
     },
 
     showDeviceType: function(){
@@ -290,8 +293,11 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
     },
 
     displayNodeProperties: function(id){
+        if (this.chart.combo().isCombo(id)) {
+            return;
+        }
         var me = this,
-            graphData = this.chart.getItem(id).d,
+            graphData = me.chart.getItem(id).d,
             downStream = me.getDownStreamNodesLinks(id),
             shortestPaths = me.chart.graph().shortestPaths(me.top[0], id, {direction: 'any'}),
             parentIndex = shortestPaths.one.length-2;
@@ -340,7 +346,59 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             }
         ]));
         visualiserPanel.refreshGraph();
-    }
+    },
 
+    preprocessSingleSelectionMenuItemsBeforeShowing: function(menu, doShowMenuFunction) {
+        var doShowMenuFunctionCalled = false;
+        menu.items.each(function(menuItem) {
+            if (menuItem.xtype !== 'menuseparator') {
+                var chartItem = menuItem.visualiser.chart.getItem(menuItem.chartNodeId),
+                    collapsedNode = menuItem.visualiser.chart.combo().isCombo(menuItem.chartNodeId);
+
+                if (menuItem.itemId) {
+                    if (menuItem.itemId === 'uni-visualiser-single-selection-highlight-downstream-menu-item' ||
+                        menuItem.itemId === 'mdc-network-visualiser-sendcommands-menu-item' ||
+                        menuItem.itemId === 'mdc-network-visualiser-landingpage-menu-item') {
+                        menuItem.hidden = collapsedNode;
+                    } else if (menuItem.itemId === 'mdc-network-visualiser-topology-menu-item') {
+                        // Show the "Navigate to communication topology" menu item only for the gateway:
+                        menuItem.hidden = !(chartItem.d && !Ext.isEmpty(chartItem.d.gateway) && chartItem.d.gateway);
+                    } else if (menuItem.itemId === 'mdc-network-visualiser-retrigger-menu-item') {
+                        // Disable the "Retrigger communication tasks" menu item when there are no communication tasks that can be triggered:
+                        menuItem.disabled = true;
+                        menuItem.tooltip = Uni.I18n.translate('general.retriggerCommTasks.disabledMenu.tooltip', 'MDC', 'No communication tasks to trigger on this device');
+                        if (collapsedNode) {
+                            menuItem.hidden = true;
+                        } else {
+                            var communicationTasksOfDeviceStore = Ext.getStore('Mdc.store.CommunicationTasksOfDevice');
+                            communicationTasksOfDeviceStore.getProxy().setExtraParam('deviceId', chartItem.d.name);
+                            communicationTasksOfDeviceStore.load({
+                                callback: function (records) {
+                                    Ext.Array.each(records, function (comTaskRecord) {
+                                        var connectionDefinedOnDevice = comTaskRecord.get('connectionDefinedOnDevice'),
+                                            isOnHold = comTaskRecord.get('isOnHold'),
+                                            isSystemComtask = comTaskRecord.get('comTask').isSystemComTask;
+                                        if (connectionDefinedOnDevice && !isOnHold && !isSystemComtask) { // at least one convenient task is found, so:
+                                            menuItem.disabled = false;
+                                            menuItem.tooltip = null;
+                                            return false;
+                                        }
+                                    });
+                                    if (Ext.isFunction(doShowMenuFunction)) {
+                                        doShowMenuFunctionCalled = true;
+                                        doShowMenuFunction();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        });
+        // Fallback (to be sure the menu is called):
+        if (!doShowMenuFunctionCalled && Ext.isFunction(doShowMenuFunction)) {
+            doShowMenuFunction();
+        }
+    }
 
 });
