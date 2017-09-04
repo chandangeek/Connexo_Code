@@ -56,6 +56,8 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     @Max(value = FirmwareService.MAX_FIRMWARE_FILE_SIZE, message = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED + "}")
     private Long firmwareFileSize = null; // set this size for validation reason
     private boolean hasFirmwareFile = false; // boolean indicating whether or not the firmware file has been set/updated
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String imageIdentifier;
     @SuppressWarnings("unused")
     private Instant createTime;
     private Instant modTime;
@@ -185,6 +187,16 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     }
 
     @Override
+    public String getImageIdentifier() {
+        return imageIdentifier;
+    }
+
+    @Override
+    public void setImageIdentifier(String imageIdentifier) {
+        this.imageIdentifier = imageIdentifier;
+    }
+
+    @Override
     public void validate() {
         Save.CREATE.validate(dataModel, this);
     }
@@ -286,7 +298,8 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
         DEVICETYPE("deviceType"),
         FIRMWARETYPE("firmwareType"),
         FIRMWARESTATUS("firmwareStatus"),
-        FIRMWAREFILE("firmwareFile");
+        FIRMWAREFILE("firmwareFile"),
+        IMAGEIDENTIFIER("imageIdentifier");
 
         private final String javaFieldName;
 
@@ -306,6 +319,11 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
         public FirmwareVersionImplBuilder(FirmwareVersionImpl underConstruction, DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType) {
             this.underConstruction = underConstruction;
             this.underConstruction.init(deviceType, firmwareVersion, firmwareStatus, firmwareType);
+        }
+
+        public FirmwareVersionImplBuilder(FirmwareVersionImpl underConstruction, DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType, String imageIdentifier) {
+            this.underConstruction = underConstruction;
+            this.underConstruction.init(deviceType, firmwareVersion, firmwareStatus, firmwareType).setImageIdentifier(imageIdentifier);
         }
 
         @Override

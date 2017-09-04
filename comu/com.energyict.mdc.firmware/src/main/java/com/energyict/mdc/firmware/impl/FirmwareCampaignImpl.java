@@ -40,7 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -184,17 +183,17 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     @Override
     public FirmwareVersion getFirmwareVersion() {
-        Optional<DeviceMessageSpec> firmwareMessageSpec = getFirmwareMessageSpec();
+        Optional<DeviceMessageSpec> firmwareMessageSpec = firmwareService.defaultFirmwareVersionSpec();
         if (firmwareMessageSpec.isPresent()) {
             Optional<PropertySpec> firmwareVersionPropertySpec = firmwareMessageSpec.get()
                     .getPropertySpecs()
                     .stream()
                     .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BaseFirmwareVersion.class))
                     .findAny();
-            if (firmwareVersionPropertySpec.isPresent()) {
-                return (FirmwareVersion) getProperties().get(firmwareVersionPropertySpec.get().getName());
+            if  (firmwareVersionPropertySpec.isPresent()){
+                 return (FirmwareVersion) properties.stream().filter(property -> property.getKey().equals(firmwareVersionPropertySpec.get().getName())).findFirst().map(property -> firmwareVersionPropertySpec.get().getValueFactory().fromStringValue(property.getValue())).orElse(null);
             }
-        }
+         }
         return null;
     }
 
@@ -254,17 +253,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     public Optional<DeviceMessageId> getFirmwareMessageId() {
         if (deviceType.isPresent() && deviceType.get().getDeviceProtocolPluggableClass().isPresent() && getFirmwareManagementOption() != null) {
-            return deviceType.get().getDeviceProtocolPluggableClass()
-                    .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
-                            .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
-                            .map(DeviceMessageId::from)
-                            .collect(Collectors.toList())).orElse(Collections.emptyList())
-                    .stream()
-                    .filter(firmwareMessageCandidate -> {
-                        Optional<ProtocolSupportedFirmwareOptions> firmwareOptionForCandidate = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(firmwareMessageCandidate);
-                        return firmwareOptionForCandidate.isPresent() && getFirmwareManagementOption().equals(firmwareOptionForCandidate.get());
-                    })
-                    .findFirst();
+            return firmwareService.bestSuitableFirmwareUpgradeMessageId(deviceType.get(), getFirmwareManagementOption(), getFirmwareVersion());
         }
         return Optional.empty();
     }

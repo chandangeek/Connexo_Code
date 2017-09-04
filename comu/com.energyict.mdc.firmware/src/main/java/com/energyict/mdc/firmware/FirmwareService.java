@@ -10,6 +10,8 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import aQute.bnd.annotation.ProviderType;
@@ -34,6 +36,7 @@ public interface FirmwareService {
     Optional<FirmwareVersion> findAndLockFirmwareVersionByIdAndVersion(long id, long version);
     Optional<FirmwareVersion> getFirmwareVersionByVersionAndType(String version, FirmwareType firmwareType, DeviceType deviceType);
     FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type);
+    FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type, String imageIdentifier);
     boolean isFirmwareVersionInUse(long firmwareVersionId);
 
 
@@ -42,6 +45,10 @@ public interface FirmwareService {
      * Provides a set of ProtocolSupportedFirmwareOptions for the given DeviceType
      */
     Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType);
+    boolean imageIdentifierExpectedAtFirmwareUpload(DeviceType deviceType);
+    boolean isResumeFirmwareUploadEnabled(DeviceType deviceType);
+    Optional<com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec> defaultFirmwareVersionSpec();
+    Optional<DeviceMessageId> bestSuitableFirmwareUpgradeMessageId(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOption, FirmwareVersion firmwareVersion);
     Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareManagementOptionsFor(DeviceType deviceType);
     FirmwareManagementOptions newFirmwareManagementOptions(DeviceType deviceType);
     Optional<FirmwareManagementOptions> findFirmwareManagementOptions(DeviceType deviceType);
@@ -77,7 +84,7 @@ public interface FirmwareService {
     /**
      * Returns the {@link FirmwareCampaign} that is linked with the given comtaskExecution
      * @param comTaskExecution as a result of the firmware campaing
-     * @return
+     * @return the {@link FirmwareCampaign} that is linked with the given comtaskExecution
      */
     Optional<FirmwareCampaign> getFirmwareCampaign(ComTaskExecution comTaskExecution);
 
@@ -90,6 +97,14 @@ public interface FirmwareService {
      * @return true if we did a cancel, false if no action was required
      */
     boolean cancelFirmwareUploadForDevice(Device device);
+
+    /**
+        * Tries to resume the current FirmwareComTaskExecution on the device if it was still pending.
+        *
+        * @param device the device to cancel the firmware upload
+        *
+        */
+    void resumeFirmwareUploadForDevice(Device device);
 
     /**
      * Tries to retry the current FirmwareComTaskExecution on the device if it was still pending.
