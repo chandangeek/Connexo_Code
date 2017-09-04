@@ -29,8 +29,10 @@ import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactoryImpl;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactory;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactoryImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.search.UsagePointSearchDomain;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -101,6 +103,7 @@ public class MeteringModule extends AbstractModule {
         bind(MeteringDataModelService.class).to(MeteringDataModelServiceImpl.class).in(Scopes.SINGLETON);
         bind(MeteringService.class).toProvider(MeteringServiceProvider.class);
         bind(MeteringTranslationService.class).toProvider(MeteringTranslationServiceProvider.class);
+
         bind(ServerMeteringService.class).toProvider(MeteringServiceProvider.class);
         bind(ServerMetrologyConfigurationService.class).toProvider(MetrologyConfigurationServiceProvider.class);
         bind(MetrologyConfigurationService.class).toProvider(MetrologyConfigurationServiceProvider.class);
@@ -109,6 +112,7 @@ public class MeteringModule extends AbstractModule {
         bind(SqlBuilderFactory.class).to(SqlBuilderFactoryImpl.class).in(Scopes.SINGLETON);
         bind(DataAggregationService.class).annotatedWith(Names.named("dataAggregationMock")).toProvider(() -> dataAggregationMock);
         bind(DataAggregationService.class).toProvider(DataAggregationServiceProvider.class);
+        bind(UsagePointSearchDomain.class).in(Scopes.SINGLETON);
     }
 
     private static class MeteringServiceProvider implements Provider<ServerMeteringService> {
