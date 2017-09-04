@@ -23,6 +23,7 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -496,7 +497,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     dataModel,
                     Installer.class,
                     ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class
+                            version(10, 2), UpgraderV10_2.class,
+                            version(10, 4), V10_4SimpleUpgrader.class
                     ));
         } catch (RuntimeException e) {
             e.printStackTrace();
