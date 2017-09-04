@@ -100,6 +100,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                         p: 'se'
                     },
                     iconFontFamily: 'Icomoon',
+                    marqueeLinkSelection: 'off',
                     overview: {
                         icon:false
                     },
