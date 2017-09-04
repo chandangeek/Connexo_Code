@@ -760,7 +760,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         List<ComTaskExecution> allComTaskExecutionsWithConnectionFunction = this.deviceDataModelService.dataModel()
                 .query(ComTaskExecution.class)
                 .select(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device)
-                        .and(where(ComTaskExecutionFields.CONNECTION_FUNCTION.fieldName()).isNotNull())
+                        .and(where(ComTaskExecutionFields.CONNECTION_FUNCTION.fieldName()).isNotEqualAndNotBothNull(0))
                         .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()));
 
         Map<ConnectionFunction, List<ComTaskExecution>> map = new HashMap<>();
