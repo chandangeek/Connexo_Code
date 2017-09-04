@@ -154,26 +154,33 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     },
 
     doShowSingleSelectionContextMenu: function(id, x, y) {
-        var item = this.chart.getItem(id);
+        var me = this,
+            item = this.chart.getItem(id);
+
         if (Ext.isEmpty(item) || item.type != 'node') {
             return;
         }
 
-        var isGateway = item.d && !Ext.isEmpty(item.d.gateway) && item.d.gateway,
-            visualiser = Ext.ComponentQuery.query('visualiserpanel')[0],
+        var visualiser = Ext.ComponentQuery.query('visualiserpanel')[0],
             items = [
                 {
                     xtype: 'menuitem',
+                    itemId: 'uni-visualiser-single-selection-highlight-upstream-menu-item',
                     text: Uni.I18n.translate('general.highlight.upstream', 'UNI', 'Highlight upstream'),
                     section: 1, /*SECTION_ACTION*/
+                    chartNodeId: id,
+                    visualiser: visualiser,
                     handler: function () {
                         visualiser.highlightUpStreamFromNode(id);
                     }
                 },
                 {
                     xtype: 'menuitem',
+                    itemId: 'uni-visualiser-single-selection-highlight-downstream-menu-item',
                     text: Uni.I18n.translate('general.highlight.downstream', 'UNI', 'Highlight downstream'),
                     section: 1, /*SECTION_ACTION*/
+                    chartNodeId: id,
+                    visualiser: visualiser,
                     handler: function () {
                         visualiser.highlightDownStreamFromNode(id);
                     }
@@ -184,10 +191,13 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             items.push(
                 {
                     xtype: 'menuitem',
+                    itemId: 'uni-visualiser-single-selection-expand-collapse-menu-item',
                     text: visualiser.chart.combo().isCombo(id)
                         ? Uni.I18n.translate('general.expand', 'UNI', 'Expand')
                         : Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'),
                     section: 1, /*SECTION_ACTION*/
+                    chartNodeId: id,
+                    visualiser: visualiser,
                     handler: function () {
                         visualiser.combine(id);
                     }
@@ -195,18 +205,16 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             );
         }
         if (this.contextMenuItems) {
-            Ext.each(this.contextMenuItems, function (item) {
-                if (Ext.isDefined(item.gatewayOnly) && item.gatewayOnly) {
-                    item.hidden = !isGateway;
-                }
-                item.graphId = id;
-                item.visualiser = visualiser;
+            Ext.each(this.contextMenuItems, function (menuItem) {
+                menuItem.chartNodeId = id;
+                menuItem.visualiser = visualiser;
             });
             items = items.concat(this.contextMenuItems);
         }
 
         var popupMenu = Ext.create('Uni.view.menu.ActionsMenu',
                 {
+                    itemId: 'uni-visualiser-single-selection-context-menu',
                     items: items,
                     listeners: {
                         render: function (menu) {
@@ -217,7 +225,17 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             ),
             position = this.getPosition();
 
-        popupMenu.showAt([position[0] + x, position[1] + y]);
+        me.preprocessSingleSelectionMenuItemsBeforeShowing(popupMenu, function() {
+            popupMenu.showAt([position[0] + x, position[1] + y]);
+        });
+    },
+
+    preprocessSingleSelectionMenuItemsBeforeShowing: function(menu, doShowMenuFunction) {
+        // Can be overridden in 'classes' extending this one (ic. NetworkVisualiserView)
+        // to eg. hide or disable certain menu items
+        if (Ext.isFunction(doShowMenuFunction)) {
+            doShowMenuFunction();
+        }
     },
 
     doShowMultiSelectionContextMenu: function(x, y) {
@@ -227,6 +245,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             items = [
                 {
                     xtype: 'menuitem',
+                    itemId: 'uni-visualiser-multi-selection-collapse-menu-item',
                     text: Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'),
                     section: 1, /*SECTION_ACTION*/
                     handler: function () {
@@ -285,6 +304,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 },
                 {
                     xtype: 'menuitem',
+                    itemId: 'uni-visualiser-multi-selection-expand-menu-item',
                     text: Uni.I18n.translate('general.expand', 'UNI', 'Expand'),
                     section: 1, /*SECTION_ACTION*/
                     handler: function () {
@@ -301,6 +321,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             ],
             popupMenu = Ext.create('Uni.view.menu.ActionsMenu',
                 {
+                    itemId: 'uni-visualiser-multi-selection-context-menu',
                     items: items,
                     listeners: {
                         render: function (menu) {
@@ -311,7 +332,16 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             ),
             position = this.getPosition();
 
-        popupMenu.showAt([position[0] + x, position[1] + y]);
+        me.preprocessMultiSelectionMenuItemsBeforeShowing(popupMenu, function() {
+            popupMenu.showAt([position[0] + x, position[1] + y]);
+        });
+    },
+
+    preprocessMultiSelectionMenuItemsBeforeShowing: function(menu, doShowMenuFunction) {
+        // Can be overridden in 'classes' extending this one to eg. hide or disable certain menu items
+        if (Ext.isFunction(doShowMenuFunction)) {
+            doShowMenuFunction();
+        }
     },
 
     collapsePropertyViewer: function(){
