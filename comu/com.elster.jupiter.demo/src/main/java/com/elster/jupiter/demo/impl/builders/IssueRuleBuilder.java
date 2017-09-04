@@ -197,7 +197,9 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             properties.put(
                     BasicDataCollectionRuleTemplate.AUTORESOLUTION,
                     template.getPropertySpec(BasicDataCollectionRuleTemplate.AUTORESOLUTION).get().getValueFactory().fromStringValue("1"));
-
+            properties.put(
+                    BasicDataCollectionRuleTemplate.INCREASEURGENCY,
+                    template.getPropertySpec(BasicDataCollectionRuleTemplate.INCREASEURGENCY).get().getValueFactory().fromStringValue("1"));
         } else if (template.getName().equals(BASIC_DATA_VALIDATION_RULE_TEMPLATE)) {
             List<HasIdAndName> deviceConfigurations = new ArrayList<>();
             deviceConfigurationService.findDeviceTypeByName("Elster A1800").get().getConfigurations()
