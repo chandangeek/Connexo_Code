@@ -16,13 +16,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the {@link ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory} component.
+ * Tests the {@link ConnectionTaskValidatorAfterConnectionFunctionModificationMessageHandlerFactory} component
  *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-07-16 (14:58)
+ * @author Stijn Vanhoorelbeke
+ * @since 18.08.17 - 10:09
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactoryTest {
+public class ConnectionTaskValidatorAfterConnectionFunctionModificationMessageHandlerFactoryTest {
 
     @Mock
     private MessageService messageService;
@@ -31,14 +31,14 @@ public class ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactoryTes
 
     @Test
     public void test() {
-        ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory factory = new ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory(this.messageService, this.connectionTaskService);
+        ConnectionTaskValidatorAfterConnectionFunctionModificationMessageHandlerFactory factory = new ConnectionTaskValidatorAfterConnectionFunctionModificationMessageHandlerFactory(this.messageService, this.connectionTaskService);
 
         // Business method
         MessageHandler messageHandler = factory.newMessageHandler();
 
         // Asserts
         assertThat(messageHandler).isNotNull();
-        assertThat(messageHandler).isInstanceOf(ConnectionTaskValidatorAfterPropertyRemovalMessageHandler.class);
+        assertThat(messageHandler).isInstanceOf(ConnectionTaskValidatorAfterConnectionFunctionModificationMessageHandler.class);
     }
 
 }

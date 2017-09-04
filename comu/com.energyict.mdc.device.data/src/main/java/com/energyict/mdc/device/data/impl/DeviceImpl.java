@@ -163,6 +163,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -2473,6 +2474,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public void setConnectionTaskForComTaskExecutions(ConnectionTask connectionTask) {
         List<ComTask> comTasksWithConnectionTask = this.getDeviceConfiguration().getComTaskEnablements().stream()
                 .filter(comTaskEnablement -> !comTaskEnablement.usesDefaultConnectionTask())
+                .filter(comTaskEnablement -> !comTaskEnablement.getConnectionFunction().isPresent())
                 .filter(comTaskEnablement -> comTaskEnablement.getPartialConnectionTask().isPresent())
                 .filter(comTaskEnablement -> comTaskEnablement.getPartialConnectionTask().get().equals(connectionTask.getPartialConnectionTask()))
                 .map(ComTaskEnablement::getComTask)
@@ -2910,6 +2912,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                     .forEach(builder -> builder.useDefaultConnectionTask(useDefaultConnectionTask));
             comTaskExecutionsUpdaters.stream()
                     .forEach(updater -> updater.useDefaultConnectionTask(useDefaultConnectionTask));
+            return this;
+        }
+
+        @Override
+        public ComTaskExecutionBuilder setConnectionFunction(ConnectionFunction connectionFunction) {
+            comTaskExecutionsBuilders.stream()
+                    .forEach(builder -> builder.setConnectionFunction(connectionFunction));
+            comTaskExecutionsUpdaters.stream()
+                    .forEach(updater -> updater.setConnectionFunction(connectionFunction));
             return this;
         }
 

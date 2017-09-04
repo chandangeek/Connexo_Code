@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.config.AbstractConnectionTypeDelegate;
 import com.energyict.mdc.device.config.AbstractConnectionTypePluggableClassDelegate;
 import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
@@ -46,6 +47,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -169,6 +171,16 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             this.isDefault = partialConnectionTask.isDefault();
         }
         this.protocolDialectConfigurationProperties.set(partialConnectionTask.getProtocolDialectConfigurationProperties());
+    }
+
+    /**
+     * Inject a custom {@link EventService}<br/>
+     * Note: this method should only be used in unit tests
+     *
+     * @param eventService the new event service
+     */
+    protected  void injectEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Override
@@ -636,7 +648,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     private void postEvent(EventType eventType) {
-        this.eventService.postEvent(eventType.topic(), this);
+        postEvent(eventType, this);
+    }
+
+    private void postEvent(EventType eventType, Object source) {
+        this.eventService.postEvent(eventType.topic(), source);
     }
 
     // Only to be used by the ConnectionTaskServiceImpl that now has the responsibility to switch defaults.
@@ -816,10 +832,22 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public void setNewPartialConnectionTask(PCTT partialConnectionTask) {
+        Optional<ConnectionFunction> previousConnectionFunction = getPartialConnectionTask().getConnectionFunction();
         this.partialConnectionTask.set(partialConnectionTask);
         this.pluggableClass = partialConnectionTask.getPluggableClass();
         this.pluggableClassId = this.pluggableClass.getId();
         getDataModel().update(this, "partialConnectionTask", "pluggableClassId");
+        notifyConnectionFunctionUpdate(previousConnectionFunction, partialConnectionTask.getConnectionFunction());
+    }
+
+    @Override
+    public void notifyConnectionFunctionUpdate(Optional<ConnectionFunction> previousConnectionFunction, Optional<ConnectionFunction> newConnectionFunction) {
+        if (previousConnectionFunction.isPresent() && newConnectionFunction.isPresent() && previousConnectionFunction.get().getId()== newConnectionFunction.get().getId()) {
+            return; // In case the connection function has not changed, then there is no reason to notify someone
+        }
+
+        previousConnectionFunction.ifPresent(connectionFunction -> this.postEvent(EventType.CONNECTIONTASK_CLEARCONNECTIONFUNCTION, Pair.of(this, connectionFunction)));
+        newConnectionFunction.ifPresent(connectionFunction -> this.postEvent(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION));
     }
 
     /**

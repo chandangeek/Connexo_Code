@@ -21,6 +21,7 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementChangeMessageHandler;
+import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterConnectionFunctionModificationMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -139,6 +140,7 @@ public class Installer implements FullInstaller {
         this.createMessageHandler(defaultQueueTableSpec, ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_QUEUE_DESTINATION, SubscriberTranslationKeys.COMTASK_ENABLEMENT);
         this.createMessageHandler(defaultQueueTableSpec, DeviceMessageService.BULK_DEVICE_MESSAGE_QUEUE_DESTINATION, SubscriberTranslationKeys.BULK_DEVICE_MESSAGES);
         this.createMessageHandler(defaultQueueTableSpec, DeviceMessageService.DEVICE_MESSAGE_QUEUE_DESTINATION, SubscriberTranslationKeys.DEVICE_MESSAGES);
+        this.createMessageHandler(defaultQueueTableSpec, ConnectionTaskValidatorAfterConnectionFunctionModificationMessageHandlerFactory.TASK_DESTINATION, SubscriberTranslationKeys.CONNECTION_TASK_VALIDATOR_AFTER_CONNECTION_FUNCTION_MODIFICATION);
     }
 
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, TranslationKey nameKey) {
