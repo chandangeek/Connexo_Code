@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -14,6 +13,8 @@ import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpe
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.upl.UPLConnectionFunction;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -114,6 +115,16 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
                 .stream()
                 .map(connectionType -> new UPLConnectionTypeAdapter(connectionType, customPropertySetInstantiatorService))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UPLConnectionFunction> getProvidedConnectionFunctions() {
+        return deviceProtocol.getProvidedConnectionFunctions();
+    }
+
+    @Override
+    public List<UPLConnectionFunction> getConsumableConnectionFunctions() {
+        return deviceProtocol.getConsumableConnectionFunctions();
     }
 
     @Override

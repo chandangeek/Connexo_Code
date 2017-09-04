@@ -32,12 +32,12 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -58,11 +58,14 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.NonExistingMess
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.mocks.DeviceMessageTestSpec;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
+import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocolHavingSupportForConnectionFunctions;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocolWithTestPropertySpecs;
 import com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.NotADeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.SDKDeviceProtocolTestWithMandatoryProperty;
+import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.upl.UPLConnectionFunction;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 
 import com.energyict.obis.ObisCode;
@@ -78,6 +81,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.After;
@@ -100,6 +104,7 @@ public class DeviceProtocolPluggableClassImplTest {
     public static final String DEVICE_PROTOCOL_NAME = "DeviceProtocolPluggableClassName";
     public static final String MOCK_DEVICE_PROTOCOL = "com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol";
     public static final String MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES = "com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocolWithTestPropertySpecs";
+    public static final String MOCK_DEVICE_PROTOCOL_WITH_CONNECTION_FUNCTIONS = "com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocolHavingSupportForConnectionFunctions";
     public static final String MOCK_METER_PROTOCOL = "com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol";
     public static final String MOCK_SMART_METER_PROTOCOL = "com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol";
     public static final String MOCK_NOT_A_DEVICE_PROTOCOL = "com.energyict.mdc.protocol.pluggable.mocks.NotADeviceProtocol";
@@ -184,6 +189,7 @@ public class DeviceProtocolPluggableClassImplTest {
     public void initializeDeviceProtocolService() {
         when(deviceProtocolService.createProtocol(MOCK_DEVICE_PROTOCOL)).thenReturn(new MockDeviceProtocol());
         when(deviceProtocolService.createProtocol(MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES)).thenReturn(new MockDeviceProtocolWithTestPropertySpecs(propertySpecService));
+        when(deviceProtocolService.createProtocol(MOCK_DEVICE_PROTOCOL_WITH_CONNECTION_FUNCTIONS)).thenReturn(new MockDeviceProtocolHavingSupportForConnectionFunctions());
         when(deviceProtocolService.createProtocol(MOCK_METER_PROTOCOL)).thenReturn(new MockMeterProtocol(propertySpecService));
         when(deviceProtocolService.createProtocol(MOCK_SMART_METER_PROTOCOL)).thenReturn(new MockSmartMeterProtocol());
         when(deviceProtocolService.createProtocol(MOCK_NOT_A_DEVICE_PROTOCOL)).thenReturn(new NotADeviceProtocol());
@@ -351,6 +357,46 @@ public class DeviceProtocolPluggableClassImplTest {
                 });
 
         // Expected UnknownPluggableClassPropertiesException
+    }
+
+    @Test
+    public void newDeviceProtocolSupportingConnectionFunctionsTest() throws SQLException {
+        // Business method
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass =
+                transactionService.execute(() -> protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_CONNECTION_FUNCTIONS));
+
+        // asserts
+        assertThat(deviceProtocolPluggableClass).isNotNull();
+        assertThat(deviceProtocolPluggableClass.getJavaClassName()).isEqualTo(MOCK_DEVICE_PROTOCOL_WITH_CONNECTION_FUNCTIONS);
+        DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
+        assertThat(deviceProtocol).isNotNull();
+        assertThat(deviceProtocol).isInstanceOf(DeviceProtocol.class);
+        assertThat(deviceProtocol.getProvidedConnectionFunctions()).hasSize(2);
+        assertThat(deviceProtocolPluggableClass.getProvidedConnectionFunctions()).hasSize(2);
+        assertConnectionFunction(deviceProtocol.getProvidedConnectionFunctions(), deviceProtocolPluggableClass.getProvidedConnectionFunctions(), MockDeviceProtocolHavingSupportForConnectionFunctions.PROVIDED_CF_1_ID, MockDeviceProtocolHavingSupportForConnectionFunctions.PROVIDED_CF_1_NAME);
+        assertConnectionFunction(deviceProtocol.getProvidedConnectionFunctions(), deviceProtocolPluggableClass.getProvidedConnectionFunctions(), MockDeviceProtocolHavingSupportForConnectionFunctions.PROVIDED_CF_2_ID, MockDeviceProtocolHavingSupportForConnectionFunctions.PROVIDED_CF_2_NAME);
+
+        assertThat(deviceProtocol.getConsumableConnectionFunctions()).hasSize(2);
+        assertThat(deviceProtocolPluggableClass.getConsumableConnectionFunctions()).hasSize(2);
+        assertConnectionFunction(deviceProtocol.getConsumableConnectionFunctions(), deviceProtocolPluggableClass.getConsumableConnectionFunctions(), MockDeviceProtocolHavingSupportForConnectionFunctions.CONSUMABLE_CF_3_ID, MockDeviceProtocolHavingSupportForConnectionFunctions.CONSUMABLE_CF_3_NAME);
+        assertConnectionFunction(deviceProtocol.getConsumableConnectionFunctions(), deviceProtocolPluggableClass.getConsumableConnectionFunctions(), MockDeviceProtocolHavingSupportForConnectionFunctions.CONSUMABLE_CF_4_ID, MockDeviceProtocolHavingSupportForConnectionFunctions.CONSUMABLE_CF_4_NAME);
+    }
+
+    private void assertConnectionFunction(List<UPLConnectionFunction> protocolConnectionFunctions, List<ConnectionFunction> pluggableClassConnectionFunctions, int id, String name) {
+        Optional<UPLConnectionFunction> protocolConnectionFunction = protocolConnectionFunctions
+                .stream()
+                .filter(cf -> cf.getId() == id)
+                .findFirst();
+        assertThat(protocolConnectionFunction).isPresent();
+        assertThat(protocolConnectionFunction.get().getConnectionFunctionName()).isEqualTo(name);
+
+        Optional<ConnectionFunction> pluggableClassConnectionFunction = pluggableClassConnectionFunctions
+                .stream()
+                .filter(cf -> cf.getId() == id)
+                .findFirst();
+        assertThat(pluggableClassConnectionFunction).isPresent();
+        assertThat(pluggableClassConnectionFunction.get().getConnectionFunctionName()).isEqualTo(name);
+        assertThat(pluggableClassConnectionFunction.get().getConnectionFunctionDisplayName()).isEqualTo(name);
     }
 
     @Test

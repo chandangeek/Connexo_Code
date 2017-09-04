@@ -8,7 +8,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -18,6 +17,8 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.TranslationKeys;
 import com.energyict.mdc.upl.DeviceCachingSupport;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.upl.UPLConnectionFunction;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -241,4 +242,13 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
         return getSecuritySupportAdapter().getLegacyTypedPropertiesAsSecurityPropertySet(typedProperties);
     }
 
+    @Override
+    public List<UPLConnectionFunction> getProvidedConnectionFunctions() {
+        return Collections.emptyList(); // Currently no support for connection functions on V10/V11 protocols - if needed, then an adapter has to be foreseen
+    }
+
+    @Override
+    public List<UPLConnectionFunction> getConsumableConnectionFunctions() {
+        return Collections.emptyList(); // Currently no support for connection functions on V10/V11 protocols - if needed, then an adapter has to be foreseen
+    }
 }
