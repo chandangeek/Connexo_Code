@@ -165,7 +165,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: Uni.I18n.translate('general.commands', 'MDC', 'Commands'),
                             route: 'commands',
                             controller: 'Mdc.controller.setup.DeviceCommands',
-                            privileges: Ext.Array.merge(Mdc.privileges.Device.deviceOperator, Mdc.privileges.DeviceCommands.executeCommands),
+                            privileges: Ext.Array.merge(Mdc.privileges.Device.viewCommands, Mdc.privileges.DeviceCommands.executeCommands),
                             action: 'showOverview',
                             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.all,
                             items: {

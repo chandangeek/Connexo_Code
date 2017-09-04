@@ -24,8 +24,11 @@ Ext.define('Mdc.commands.store.CommandCategoriesForDeviceGroup', {
         reader: {
             type: 'json'
         },
-        setUrl: function(deviceGroupId) {
+        setUrl: function (deviceGroupId) {
             this.url = this.urlTpl.replace('{deviceGroupId}', deviceGroupId);
-        }
+        },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined
     }
 });

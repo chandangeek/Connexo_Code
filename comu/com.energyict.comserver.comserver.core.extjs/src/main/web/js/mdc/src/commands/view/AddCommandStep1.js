@@ -8,7 +8,7 @@ Ext.define('Mdc.commands.view.AddCommandStep1', {
 
     requires: [
         'Uni.util.FormErrorMessage',
-        'Mdc.store.DeviceGroups'
+        'Mdc.store.DeviceGroupsNoPaging'
     ],
 
     initComponent: function () {
@@ -27,7 +27,7 @@ Ext.define('Mdc.commands.view.AddCommandStep1', {
                 fieldLabel: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group'),
                 itemId: 'mdc-add-command-step1-deviceGroup-combo',
                 emptyText: Uni.I18n.translate('general.selectADeviceGroup', 'MDC', 'Select a device group...'),
-                store: 'Mdc.store.DeviceGroups',
+                store: 'Mdc.store.DeviceGroupsNoPaging',
                 required: true,
                 editable: false,
                 displayField: 'name',
