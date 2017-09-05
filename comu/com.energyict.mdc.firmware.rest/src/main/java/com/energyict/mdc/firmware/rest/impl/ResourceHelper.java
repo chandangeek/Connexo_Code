@@ -106,7 +106,8 @@ public class ResourceHelper {
      * Returns the appropriate DeviceMessageId which corresponds with the uploadOption
      */
     public DeviceMessageId findFirmwareMessageIdOrThrowException(DeviceType deviceType, String uploadOption) {
-        return firmwareService.bestSuitableFirmwareUpgradeMessageId(deviceType, findProtocolSupportedFirmwareOptionsOrThrowException(uploadOption), null).orElse(null);
+        return firmwareService.bestSuitableFirmwareUpgradeMessageId(deviceType, findProtocolSupportedFirmwareOptionsOrThrowException(uploadOption), null)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
     }
 
     public DeviceMessageSpec findFirmwareMessageSpecOrThrowException(DeviceType deviceType, String uploadOption) {
