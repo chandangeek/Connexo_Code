@@ -23,6 +23,7 @@ Ext.define('Fwc.devicefirmware.view.Upload', {
                 {
                     xtype: 'uni-form-error-message',
                     itemId: 'form-errors',
+                    width: 665,
                     hidden: true
                 },
                 {
