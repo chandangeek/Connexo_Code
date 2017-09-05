@@ -138,6 +138,11 @@ Ext.define('Mdc.commands.controller.Commands', {
         previewForm.setLoading(true);
         model.load(simpleRecord.get('id'), {
             success: function (record) {
+                if (Ext.isEmpty(me.getCommandPreviewForm())) {
+                    // The preview panel is already gone (because eg. the "Add command" wizard is already on screen)
+                    return;
+                }
+
                 Ext.suspendLayouts();
                 if (record.get('trackingCategory').id === 'trackingCategory.serviceCall') {
                     trackingField.setFieldLabel(Uni.I18n.translate('general.serviceCall', 'MDC', 'Service call'));
@@ -167,7 +172,9 @@ Ext.define('Mdc.commands.controller.Commands', {
                 Ext.resumeLayouts(true);
             },
             callback: function() {
-                previewForm.setLoading(false);
+                if (me.getCommandPreviewForm()) {
+                    me.getCommandPreviewForm().setLoading(false);
+                }
             }
         });
     },
