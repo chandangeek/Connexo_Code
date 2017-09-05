@@ -31,11 +31,11 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_NOT_FOUND(14, Keys.DEVICE_NOT_FOUND, "No device {0} could be found"),
     MAX_FILE_SIZE_EXCEEDED(15, Keys.MAX_FILE_SIZE_EXCEEDED, "File size should be less than " + FirmwareService.MAX_FIRMWARE_FILE_SIZE/1024/1024 + " Mb"),
     FILE_IO(16, Keys.FILE_IO, "Failure while doing IO on file"),
-    FIRMWARE_VERSION_NOT_FOUND(14, Keys.FIRMWARE_VERSION_NOT_FOUND, "No firmware version with id {0} could be found"),
-    FIRMWARE_ACTION_CHECK_VERSION (15, Keys.FIRMWARE_ACTION_CHECK_VERSION, "Check firmware version"),
-
     FIRMWARE_CAMPAIGN_NOT_FOUND(17, Keys.FIRMWARE_CAMPAIGN_NOT_FOUND, "No firmware campaign with id {0} could be found"),
-    DEVICE_GROUP_NOT_FOUND(18, Keys.DEVICE_GROUP_NOT_FOUND, "No device group with id {0} could be found"),
+        DEVICE_GROUP_NOT_FOUND(18, Keys.DEVICE_GROUP_NOT_FOUND, "No device group with id {0} could be found"),
+    FIRMWARE_VERSION_NOT_FOUND(19, Keys.FIRMWARE_VERSION_NOT_FOUND, "No firmware version with id {0} could be found"),
+    FIRMWARE_VERSION_MISSING(20, Keys.FIRMWARE_VERSION_MISSING, "Firmware version is missing in the request"),
+    FIRMWARE_ACTION_CHECK_VERSION (21, Keys.FIRMWARE_ACTION_CHECK_VERSION, "Check firmware version"),
 
     FIRMWARE_CAMPAIGN_STATUS_PROCESSING(50, Keys.FIRMWARE_CAMPAIGN_STATUS_PROCESSING, "Processing"),
     FIRMWARE_CAMPAIGN_STATUS_SCHEDULED(51, Keys.FIRMWARE_CAMPAIGN_STATUS_SCHEDULED , "Scheduled"),
@@ -122,6 +122,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIRMWARE_CAMPAIGN_STATUS_CANCELLED = "FirmwareCampaignStatusCancelled";
         public static final String FIRMWARE_CAMPAIGN_NOT_FOUND = "firmwareCampaignNotFound";
         public static final String FIRMWARE_VERSION_NOT_FOUND = "firmwareVersionNotFound";
+        public static final String FIRMWARE_VERSION_MISSING = "firmwareVersionMissing";
         public static final String DEVICE_GROUP_NOT_FOUND = "deviceGroupNotFound";
         public static final String FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX = "FirmwareManagementDeviceStatus.";
 

@@ -110,15 +110,17 @@ public class DeviceFirmwareMessagesResource {
     public Response uploadFirmwareToDevice(@PathParam("name") String name, FirmwareMessageInfo info) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         checkFirmwareUpgradeOption(device.getDeviceType(), info.uploadOption);
-        Long firmwareVersionId = new Long((Integer) info.getPropertyInfo(FirmwareMessageInfoFactory.PROPERTY_KEY_FIRMWARE_VERSION).get().propertyValueInfo.value);
-        Optional<FirmwareVersion> firmwareVersion = firmwareService.getFirmwareVersionById(firmwareVersionId);
+        Long firmwareVersionId = info.getPropertyInfo(FirmwareMessageInfoFactory.PROPERTY_KEY_FIRMWARE_VERSION).get().propertyValueInfo.value != null
+                ? new Long((Integer) info.getPropertyInfo(FirmwareMessageInfoFactory.PROPERTY_KEY_FIRMWARE_VERSION).get().propertyValueInfo.value)
+                : null;
+        if (firmwareVersionId == null) {
+            throw exceptionFactory.newException(MessageSeeds.FIRMWARE_VERSION_MISSING);
+        };
+        FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(firmwareVersionId);
         DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(device.getDeviceType(), info.uploadOption);
         DeviceMessageSpec firmwareMessageSpec = resourceHelper.findFirmwareMessageSpecOrThrowException(firmwareMessageId);
-        if (deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(firmwareMessageId)){
-            firmwareVersion.ifPresent(x -> {if (x.getImageIdentifier() != null){
-                                               firmwareMessageInfoFactory.initImageIdentifier(info, x.getImageIdentifier());
-                                           }
-                    });
+        if (deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(firmwareMessageId) && firmwareVersion.getImageIdentifier() != null) {
+            firmwareMessageInfoFactory.initImageIdentifier(info, firmwareVersion.getImageIdentifier());
         }
         firmwareMessageInfoFactory.initResumeProperty(info, false);
         Map<String, Object> convertedProperties = getConvertedProperties(firmwareMessageSpec, info);
