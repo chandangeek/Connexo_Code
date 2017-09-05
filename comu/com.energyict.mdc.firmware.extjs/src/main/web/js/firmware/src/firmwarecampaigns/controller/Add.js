@@ -82,6 +82,10 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
             errorMessage = form.down('uni-form-error-message'),
             baseForm = form.getForm();
 
+        if (!form.isValid()) {
+            errorMessage.show();
+            return;
+        }
         Ext.suspendLayouts();
         baseForm.clearInvalid();
         errorMessage.hide();
@@ -123,6 +127,10 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
             baseForm = form.getForm(),
             nameOrTimeBoundaryChanged = false;
 
+        if (!form.isValid()) {
+            errorMessage.show();
+            return;
+        }
         Ext.suspendLayouts();
         baseForm.clearInvalid();
         errorMessage.hide();
