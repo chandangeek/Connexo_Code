@@ -26,6 +26,7 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -235,6 +236,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     LocationService locationService;
     @Mock
     static SecurityContext securityContext;
+    @Mock
+    IssueInfoFactoryService issueInfoFactoryService;
 
     protected ChannelInfoFactory channelInfoFactory;
     ReadingTypeInfoFactory readingTypeInfoFactory;
@@ -342,6 +345,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setUserService(userService);
         application.setObisCodeDescriptor(obisCodeDescriptor);
         application.setPkiService(pkiService);
+        application.setIssueInfoFactoryService(issueInfoFactoryService);
         return application;
     }
 
