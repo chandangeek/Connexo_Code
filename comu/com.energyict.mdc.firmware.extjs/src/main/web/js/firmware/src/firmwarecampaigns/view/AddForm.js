@@ -40,7 +40,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 itemId: 'firmware-campaign-name',
                 name: 'name',
                 fieldLabel: Uni.I18n.translate('general.name', 'FWC', 'Name'),
-                required: true
+                required: true,
+                allowBlank: false
             },
             {
                 xtype: 'combobox',
@@ -48,6 +49,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 name: 'deviceType',
                 fieldLabel: Uni.I18n.translate('general.deviceType', 'FWC', 'Device type'),
                 required: true,
+                allowBlank: false,
                 store: 'Fwc.store.DeviceTypes',
                 forceSelection: true,
                 queryMode: 'local',
@@ -64,6 +66,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 fieldLabel: Uni.I18n.translate('general.deviceGroup', 'FWC', 'Device group'),
                 itemId: 'firmware-campaign-device-group-field-container',
                 required: true,
+                allowBlank: false,
                 layout: 'hbox',
                 width: 650,
                 items: [
@@ -73,6 +76,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         name: 'deviceGroup',
                         store: 'Fwc.store.DeviceGroups',
                         forceSelection: true,
+                        allowBlank: false,
                         queryMode: 'local',
                         displayField: 'name',
                         valueField: 'id',
@@ -98,14 +102,16 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 fieldLabel: Uni.I18n.translate('general.timeBoundaryStart', 'FWC', 'Time boundary start'),
                 name: 'timeBoundaryStart',
                 itemId: 'timeBoundaryStart',
-                required: true
+                required: true,
+                allowBlank: false
             },
             {
                 xtype: 'timeInHoursAndMinutes',
                 fieldLabel: Uni.I18n.translate('general.timeBoundaryEnd', 'FWC', 'Time boundary end'),
                 name: 'timeBoundaryEnd',
                 itemId: 'timeBoundaryEnd',
-                required: true
+                required: true,
+                allowBlank: false
             },
             {
                 xtype: 'dynamic-radiogroup',
@@ -113,6 +119,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 name: 'managementOption',
                 fieldLabel: Uni.I18n.translate('firmware.campaigns.firmwareManagementOption', 'FWC', 'Firmware management option'),
                 required: true,
+                allowBlank: false,
                 hidden: true,
                 listeners: {
                     change: {
@@ -127,6 +134,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 name: 'firmwareType',
                 fieldLabel: Uni.I18n.translate('general.firmwareType', 'FWC', 'Firmware type'),
                 required: true,
+                allowBlank: false,
                 hidden: true,
                 listeners: {
                     change: {
