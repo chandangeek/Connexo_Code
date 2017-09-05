@@ -65,6 +65,7 @@ public enum MessageSeeds implements MessageSeed {
     FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_TITLE (1012, "FirmwareCheckTaskConcurrentFail", "Failed to run ''{0}''"),
     FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_BODY (1013, "FirmwareCheckTaskConcurrentBody", "{0} has changed since the page was last updated."),
     FIRMWARE_COMMUNICATION_TASK_NAME (1014, "FirmwareTaskName", "Firmware communication task"),
+    NOT_ABLE_TO_CREATE_CAMPAIGN(1015, "NotAbleToCreateCampaign", "Not able to create a new firmware campaign from the specified information")
     ;
     private final int number;
     private final String key;

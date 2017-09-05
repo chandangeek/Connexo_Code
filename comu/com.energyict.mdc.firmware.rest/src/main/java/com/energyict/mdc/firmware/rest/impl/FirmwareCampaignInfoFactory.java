@@ -8,14 +8,15 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.inject.Inject;
 import java.util.Optional;
@@ -30,6 +31,7 @@ public class FirmwareCampaignInfoFactory {
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final FirmwareVersionInfoFactory firmwareVersionFactory;
     private final FirmwareMessageInfoFactory firmwareMessageInfoFactory;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
     public FirmwareCampaignInfoFactory(
@@ -40,7 +42,7 @@ public class FirmwareCampaignInfoFactory {
             DeviceMessageSpecificationService deviceMessageSpecificationService,
             ResourceHelper resourceHelper,
             FirmwareVersionInfoFactory firmwareVersionFactory,
-            FirmwareMessageInfoFactory firmwareMessageInfoFactory) {
+            FirmwareMessageInfoFactory firmwareMessageInfoFactory, ExceptionFactory exceptionFactory) {
         this.thesaurus = thesaurus;
         this.resourceHelper = resourceHelper;
         this.firmwareService = firmwareService;
@@ -49,6 +51,7 @@ public class FirmwareCampaignInfoFactory {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.firmwareVersionFactory = firmwareVersionFactory;
         this.firmwareMessageInfoFactory = firmwareMessageInfoFactory;
+        this.exceptionFactory = exceptionFactory;
     }
 
     public FirmwareCampaignInfo from(FirmwareCampaign campaign){
@@ -93,6 +96,9 @@ public class FirmwareCampaignInfoFactory {
             deviceGroup = meteringGroupsService.findEndDeviceGroup(info.deviceGroup.id).orElse(null);
         }
         // Initializing the messageIdentifier property
+        if (info.managementOption == null || info.managementOption.id == null) {
+            throw exceptionFactory.newException(MessageSeeds.NOT_ABLE_TO_CREATE_CAMPAIGN);
+        }
         DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(deviceType, info.managementOption.id);
         if (deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(firmwareMessageId)){
             Long firmwareVersionId = new Long((Integer) info.getPropertyInfo(FirmwareMessageInfoFactory.PROPERTY_KEY_FIRMWARE_VERSION).get().propertyValueInfo.value);
