@@ -98,6 +98,10 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             container = me.getContainer(),
             record;
 
+        if (!propertyForm.isValid()) {
+            errorMsg.show();
+            return;
+        }
         container.setLoading();
         errorMsg.hide();
         propertyForm.clearInvalid();
