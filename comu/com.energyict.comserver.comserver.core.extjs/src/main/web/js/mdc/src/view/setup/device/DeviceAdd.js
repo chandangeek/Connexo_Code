@@ -59,11 +59,10 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                                 itemId: 'deviceAddName',
                                 fieldLabel: Uni.I18n.translate('deviceAdd.name', 'MDC', 'Name'),
                                 required: true,
+                                allowBlank: false,
                                 msgTarget: 'under',
                                 maxLength: 80,
                                 enforceMaxLength: true,
-                                validateOnBlur: false,
-                                validateOnChange: false,
                                 listeners: {
                                     afterrender: function (field) {
                                         field.focus(false, 200);
