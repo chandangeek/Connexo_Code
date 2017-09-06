@@ -106,6 +106,22 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                             },
                             {
                                 xtype: 'combobox',
+                                name: 'connectionFunction',
+                                fieldLabel: Uni.I18n.translate('connectionmethod.connectionFunction', 'MDC', 'Connection function'),
+                                itemId: 'connectionFunctionComboBox',
+                                store: this.connectionFunctionsStore,
+                                queryMode: 'local',
+                                required: true,
+                                allowBlank: false,
+                                displayField: 'localizedValue',
+                                valueField: 'id',
+                                emptyText: Uni.I18n.translate('connectionmethod.selectConnectionFunction', 'MDC', 'Select a connection function...'),
+                                forceSelection: true,
+                                typeAhead: true,
+                                msgTarget: 'under'
+                            },
+                            {
+                                xtype: 'combobox',
                                 name: 'comPortPool',
                                 fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),
                                 itemId: 'communicationPortPoolComboBox',
@@ -119,7 +135,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 msgTarget: 'under',
                                 listeners: {
                                     'change': function (combo, newValue) {
-                                        if (newValue === null || newValue === '' )
+                                        if (newValue === null || newValue === '')
                                             combo.reset();
                                     }
                                 }
@@ -233,7 +249,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                         items: [
                                             {
                                                 xtype: 'displayfield',
-                                                renderer: function() {
+                                                renderer: function () {
                                                     return ''; // No dash!
                                                 }
                                             },
@@ -279,7 +295,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                     type: 'hbox',
                                     align: 'stretch'
                                 },
-                                itemId:'numberOfSimultaneousConnections',
+                                itemId: 'numberOfSimultaneousConnections',
                                 items: [
                                     {
 

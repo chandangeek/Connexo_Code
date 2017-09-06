@@ -10,7 +10,7 @@ Ext.define('Mdc.model.ConnectionMethod', {
         'Mdc.model.field.TimeInfo'
     ],
     fields: [
-        {name: 'id', type: 'int', useNull: true},
+        {name: 'id', type: 'number', useNull: true},
         {name: 'name', type: 'string', useNull: true},
         {name: 'direction', type: 'string', useNull: true},
         {name: 'displayDirection', type: 'string', useNull: true},
@@ -18,6 +18,7 @@ Ext.define('Mdc.model.ConnectionMethod', {
         {name: 'isDefault', type: 'boolean', useNull: true},
         {name: 'comPortPool', type: 'string', useNull: true},
         {name: 'connectionTypePluggableClass', type: 'auto', useNull: true},
+        {name: 'connectionFunctionInfo', type: 'Mdc.model.ConnectionFunction', useNull: true, defaultValue: null},
         {name: 'connectionStrategyInfo', type: 'Mdc.model.field.ConnectionStrategy', useNull: true},
         {name: 'rescheduleRetryDelay', type: 'Mdc.model.field.TimeInfo', useNull: true},
         {name: 'temporalExpression', useNull: true, defaultValue: null},
