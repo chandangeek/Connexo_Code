@@ -1,15 +1,24 @@
 package com.elster.jupiter.demo.impl.commands;
 
+import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.demo.NetworkTopologyBuilder;
+import com.energyict.mdc.device.topology.rest.demo.layer.CommunicationStatusLayerBuilder;
 import com.energyict.mdc.device.topology.rest.demo.layer.DeviceLifeCycleStatusGraphLayerBuilder;
+import com.energyict.mdc.device.topology.rest.demo.layer.IssuesAndAlarmsLayerBuilder;
 
+
+import com.google.inject.Injector;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -22,6 +31,7 @@ import java.util.Optional;
  */
 public class CreateNetworkTopologyCommand  extends CommandWithTransaction{
 
+    private final Injector injector;
     private final ThreadPrincipalService threadPrincipalService;
     private final TransactionService transactionService;
     private final TopologyService topologyService;
@@ -29,19 +39,26 @@ public class CreateNetworkTopologyCommand  extends CommandWithTransaction{
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceLifeCycleService deviceLifeCycleService;
     private final Clock clock;
+    private final ConnectionTaskService connectionTaskService;
+    private final IssueService issueService;
+    private final IssueCreationService issueCreationService;
 
     String gatewayMrid;
     Integer deviceCount;
     Integer levelCount;
 
     @Inject
-    public  CreateNetworkTopologyCommand(ThreadPrincipalService threadPrincipalService, TransactionService transactionService, TopologyService topologyService, DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleService deviceLifeCycleService, Clock clock){
+    public  CreateNetworkTopologyCommand(Injector injector, ThreadPrincipalService threadPrincipalService, TransactionService transactionService, TopologyService topologyService, DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleService deviceLifeCycleService, ConnectionTaskService connectionTaskService, IssueService issueService, IssueCreationService issueCreationService, Clock clock){
+        this.injector = injector;
         this.threadPrincipalService = threadPrincipalService;
         this.transactionService = transactionService;
         this.topologyService = topologyService;
         this.deviceService = deviceService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleService = deviceLifeCycleService;
+        this.connectionTaskService  = connectionTaskService;
+        this.issueService = issueService;
+        this.issueCreationService = issueCreationService;
         this.clock = clock;
     }
 
@@ -71,7 +88,9 @@ public class CreateNetworkTopologyCommand  extends CommandWithTransaction{
                     .havingNodes(deviceCount)
                     .havingLevels(levelCount)
                     .havingGraphLayerBuilder(new DeviceLifeCycleStatusGraphLayerBuilder(deviceLifeCycleService))
+                    .havingGraphLayerBuilder(new CommunicationStatusLayerBuilder(connectionTaskService, clock))
                     .buildTopology(gateway.get());
         }
+
     }
 }
