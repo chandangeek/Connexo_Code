@@ -6,7 +6,9 @@ package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
@@ -35,6 +37,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
     private List<ComTask> comTasks;
     private List<SecurityPropertySetBuilder> securityPropertySetBuilders;
     private BigDecimal overflowValue = new BigDecimal(9999999999L);
+    private boolean validateOnStore = true;
 
     @Inject
     public DeviceConfigurationBuilder() {
@@ -43,6 +46,11 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
 
     public DeviceConfigurationBuilder withDeviceType(DeviceType deviceType) {
         this.deviceType = deviceType;
+        return this;
+    }
+
+    public DeviceConfigurationBuilder withValidateOnStore(boolean validateOnStore) {
+        this.validateOnStore = validateOnStore;
         return this;
     }
 
@@ -113,6 +121,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         configBuilder.isDirectlyAddressable(directlyAddressable);
         configBuilder.dataloggerEnabled(dataLoggerEnabled);
         configBuilder.multiElementEnabled(multiElementEnabled);
+        configBuilder.validateOnStore(validateOnStore);
         addRegisters(configBuilder);
         addLoadProfiles(configBuilder);
         addLogBooks(configBuilder);
@@ -128,6 +137,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         if (this.registerTypes != null) {
             for (RegisterType registerType : registerTypes) {
                 builder.newNumericalRegisterSpec(registerType)
+                        .overruledObisCode(ObisCode.fromString(RegisterTypeTpl.findByMRID(registerType.getReadingType().getMRID()).getObisCode()))
                         .overflowValue(overflowValue)
                         .numberOfFractionDigits(0);
             }

@@ -11,14 +11,15 @@ import com.elster.jupiter.demo.impl.builders.DeviceDataQualityKpiBuilder;
 import java.time.Duration;
 import java.time.temporal.TemporalAmount;
 
-public enum DataQualityKpiTpl implements Template<DeviceDataQualityKpi, DeviceDataQualityKpiBuilder> {
+public enum DeviceDataQualityKpiTpl implements Template<DeviceDataQualityKpi, DeviceDataQualityKpiBuilder> {
 
-    ALL_ELECTRICITY_DEVICES(DeviceGroupTpl.ALL_ELECTRICITY_DEVICES, Duration.ofHours(1L));
+    SOUTH_REGION(DeviceGroupTpl.SOUTH_REGION, Duration.ofDays(1L)),
+    NORTH_REGION(DeviceGroupTpl.NORTH_REGION, Duration.ofDays(1L));
 
     private final DeviceGroupTpl deviceGroupTpl;
     private final TemporalAmount frequency;
 
-    DataQualityKpiTpl(DeviceGroupTpl deviceGroupTpl, TemporalAmount frequency) {
+    DeviceDataQualityKpiTpl(DeviceGroupTpl deviceGroupTpl, TemporalAmount frequency) {
         this.deviceGroupTpl = deviceGroupTpl;
         this.frequency = frequency;
     }

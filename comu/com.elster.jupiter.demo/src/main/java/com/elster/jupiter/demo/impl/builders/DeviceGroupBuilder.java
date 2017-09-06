@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
  */
 public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroupBuilder> {
 
-    public static final String PROPERTY_DEVICE_NAME = "name";
-    public static final String PROPERTY_DEVICE_TYPE = "deviceType";
+    private static final String PROPERTY_DEVICE_NAME = "name";
+    private static final String PROPERTY_DEVICE_TYPE = "deviceType";
 
     private final MeteringGroupsService meteringGroupsService;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -54,7 +54,6 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
         } else {
             searchablePropertyNames.add(PROPERTY_DEVICE_NAME);
         }
-
         this.namePrefix = namePrefix;
         return this;
     }
@@ -87,7 +86,7 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
         return searchService.findDomain(Device.class.getName()).orElseThrow(() -> new UnableToCreate("Unable to find device search domain"));
     }
 
-    protected SearchablePropertyValue[] getSearchablePropertyValues() {
+    private SearchablePropertyValue[] getSearchablePropertyValues() {
         List<SearchablePropertyValue> values = new ArrayList<>(searchablePropertyNames.size());
         if (searchablePropertyNames.contains(PROPERTY_DEVICE_NAME)) {
             values.add(createSearchablePropertyValue(PROPERTY_DEVICE_NAME, Collections.singletonList(namePrefix)));

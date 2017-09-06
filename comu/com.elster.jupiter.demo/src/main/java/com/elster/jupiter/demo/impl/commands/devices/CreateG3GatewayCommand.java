@@ -104,9 +104,12 @@ public class CreateG3GatewayCommand {
         // 4. Create the configuration
         DeviceConfiguration configuration = createG3DeviceConfiguration(deviceType);
 
+        Device gatewayDevice = createG3GatewayDevice(configuration);
+        gatewayDevice = deviceService.findDeviceById(gatewayDevice.getId()).get();
+
         // 5. Create the gateway device (and set it to the 'Active' life cycle state)
         lifecyclePostBuilder.get()
-                .setDevices(Collections.singletonList(createG3GatewayDevice(configuration)))
+                .setDevices(Collections.singletonList(gatewayDevice))
                 .run();
     }
 

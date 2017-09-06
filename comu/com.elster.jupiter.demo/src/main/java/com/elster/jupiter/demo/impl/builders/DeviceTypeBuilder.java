@@ -122,6 +122,7 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
         if (this.calendars != null && !this.calendars.isEmpty()) {
             this.calendars.forEach(result::addCalendar);
         }
+
         return applyPostBuilders(result);
     }
 }
