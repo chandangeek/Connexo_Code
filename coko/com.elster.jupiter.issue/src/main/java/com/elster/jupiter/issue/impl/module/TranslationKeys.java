@@ -34,8 +34,7 @@ public enum TranslationKeys implements TranslationKey {
     ISSUE_SNOOZE_SUBSCRIBER_NAME (IssueSnoozeHandlerFactory.ISSUE_SNOOZE_TASK_SUBSCRIBER, IssueSnoozeHandlerFactory.ISSUE_SNOOZE_TASK_DISPLAYNAME),
     ACTION_ISSUE_ASSIGNED("action.issue.assigned", "Issue assigned"),
     ACTION_ISSUE_COMMENTED("action.issue.commented", "Issue commented"),
-    ACTION_ISSUE_UNASSIGNED("action.issue.unassigned", "Issue unassigned"),
-    ACTION_ISSUE_SNOOZED("action.issue.snoozed", "Snoozed");
+    ACTION_ISSUE_SNOOZED("action.issue.snoozed", "Snoozed"),
     ACTION_ISSUE_UNASSIGNED("action.issue.unassigned", "Issue unassigned"),
     ACTION_WEBSERVICE_NOTIFICATION_CALLED("issue.action.webServiceNotification", "Web service notification called"),
     ACTION_WEBSERVICE_NOTIFICATION("issue.action.webServiceNotification", "Web service notification"),
