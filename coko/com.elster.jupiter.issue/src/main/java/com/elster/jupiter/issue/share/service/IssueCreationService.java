@@ -39,7 +39,7 @@ public interface IssueCreationService {
     void processIssueResolutionEvent(long ruleId, IssueEvent event);
 
     boolean reReadRules();
-    
+
     @ProviderType
     interface CreationRuleBuilder {
         
