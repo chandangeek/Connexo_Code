@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties
 public class ComTaskConnectionMethodInfo {
     @JsonProperty("connectionMethod")
-    public String connectionMethod;
+    public long connectionMethod;
 
     public DeviceInfo device;
 }

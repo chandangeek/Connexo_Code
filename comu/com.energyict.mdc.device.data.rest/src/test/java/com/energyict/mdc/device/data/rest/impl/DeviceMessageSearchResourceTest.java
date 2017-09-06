@@ -84,10 +84,6 @@ public class DeviceMessageSearchResourceTest extends DeviceDataRestApplicationJe
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<Integer>get("$.deviceMessages[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<Integer>get("$.deviceMessages[0].deviceConfiguration.id")).isEqualTo(100);
-        assertThat(jsonModel.<String>get("$.deviceMessages[0].deviceConfiguration.name")).isEqualTo("config");
-        assertThat(jsonModel.<Integer>get("$.deviceMessages[0].deviceType.id")).isEqualTo(200);
-        assertThat(jsonModel.<String>get("$.deviceMessages[0].deviceType.name")).isEqualTo("type");
     }
     @Test
     public void searchDeviceMessagesCached() throws Exception {
