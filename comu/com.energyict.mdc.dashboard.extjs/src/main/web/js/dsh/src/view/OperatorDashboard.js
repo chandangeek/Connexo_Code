@@ -134,6 +134,12 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     itemRoute: 'workspace/issues/view',
                     routeArguments: [{name: 'issueId', property: 'id'}],
                     queryParams: [{name: 'issueType', value: 'datacollection'}],
+                    queryParamFunction: function(item, name, value) {
+                        if (name === 'issueType') {
+                            return item['issueType'].uid === 'datacollection' ? 'datacollection' : 'datavalidation'
+                        }
+                        return value;
+                    },
                     assignedToMeLink: me.router.getRoute('workspace/issues').buildUrl({}, {myopenissues: true, status: ['status.open', 'status.in.progress']}),
                     myWorkgroupsLink: me.router.getRoute('workspace/issues').buildUrl({}, {myworkgroupissues: true, status: ['status.open', 'status.in.progress']}),
                     userProperty: 'userAssignee',

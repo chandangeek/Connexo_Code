@@ -9,7 +9,6 @@ Ext.define('Dsh.controller.OperatorDashboard', {
         'Dsh.model.connection.OverviewDashboard',
         'Dsh.model.communication.Overview',
         'Dsh.model.communication.OverviewDashboard',
-        'Dsh.model.opendatacollectionissues.Overview'
     ],
     stores: [
         'CommunicationServerInfos',
@@ -145,7 +144,6 @@ Ext.define('Dsh.controller.OperatorDashboard', {
                 Isu.privileges.Issue.canViewAdminDevice()) {
             var connectionModel = me.getModel('Dsh.model.connection.OverviewDashboard'),
                 communicationModel = me.getModel('Dsh.model.communication.OverviewDashboard'),
-                myOpenIssuesModel = me.getModel('Dsh.model.opendatacollectionissues.Overview'),
                 myWorkList = me.getMyWorkList(),
                 router = this.getController('Uni.controller.history.Router');
             if (Mdc.privileges.Device.canView()) {
