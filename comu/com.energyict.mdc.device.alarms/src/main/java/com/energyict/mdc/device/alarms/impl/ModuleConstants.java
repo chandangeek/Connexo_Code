@@ -19,12 +19,12 @@ public final class ModuleConstants {
     public static final String BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION = "basicTemplateDeviceAlarmDescription";
     public static final String BASIC_TEMPLATE_DEVICE_ALARM_NAME = "basicTemplateDeviceAlarmName";
     public static final String ISSUE_TYPE_DEVICE_ALARM = "issueTypeDeviceAlarm";
-    public static final String ALARM_REASON_DESCRIPTION = "alarmReasonDescription";
     public static final String EVENT_TEMPORAL_THRESHOLD = "eventTemporalThreshold";
     public static final String RAISE_EVENT_PROPS = "raiseEventProperties";
     public static final String TRIGGERING_EVENTS = "triggeringEvents";
     public static final String CLEARING_EVENTS = "clearingEvents";
     public static final String DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES ="deviceLifecycleInDeviceStates";
     public static final String ALARM_RELATIVE_PERIOD_CATEGORY = "relativeperiod.category.deviceAlarm";
+    public static final String ALARM_REASON_DESCRIPTION = "alarmReasonDescription";
 
 }
