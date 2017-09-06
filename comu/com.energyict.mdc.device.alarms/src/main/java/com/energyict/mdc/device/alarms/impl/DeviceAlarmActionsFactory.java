@@ -15,10 +15,13 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.actions.AssignDeviceAlarmAction;
 import com.energyict.mdc.device.alarms.impl.actions.CloseDeviceAlarmAction;
 import com.energyict.mdc.device.alarms.impl.actions.StartProcessAlarmAction;
+import com.energyict.mdc.device.alarms.impl.actions.WebServiceNotificationAlarmAction;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.google.inject.AbstractModule;
@@ -45,11 +48,13 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile IssueService issueService;
+    private volatile DeviceAlarmService deviceAlarmService;
     private volatile PropertySpecService propertySpecService;
     private volatile UserService userService;
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile BpmService bpmService;
+    private volatile EndPointConfigurationService endPointConfigurationService;
 
     private Injector injector;
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
@@ -64,18 +69,22 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
     public DeviceAlarmActionsFactory(OrmService ormService,
                                      NlsService nlsService,
                                      IssueService issueService,
+                                     DeviceAlarmService deviceAlarmService,
                                      PropertySpecService propertySpecService,
                                      UserService userService,
                                      BpmService bpmService,
-                                     ThreadPrincipalService threadPrincipalService) {
+                                     ThreadPrincipalService threadPrincipalService,
+                                     EndPointConfigurationService endPointConfigurationService) {
         this();
         setOrmService(ormService);
         setThesaurus(nlsService);
         setIssueService(issueService);
+        setDeviceAlarmService(deviceAlarmService);
         setPropertySpecService(propertySpecService);
         setUserService(userService);
         setThreadPrincipalService(threadPrincipalService);
         setBpmService(bpmService);
+        setEndPointConfigurationService(endPointConfigurationService);
 
         activate();
     }
@@ -90,10 +99,12 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(IssueService.class).toInstance(issueService);
+                bind(DeviceAlarmService.class).toInstance(deviceAlarmService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(UserService.class).toInstance(userService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(BpmService.class).toInstance(bpmService);
+                bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
             }
         });
 
@@ -119,10 +130,14 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
         this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
-
     @Reference
     public final void setIssueService(IssueService issueService) {
         this.issueService = issueService;
+    }
+
+    @Reference
+    public final void setDeviceAlarmService(DeviceAlarmService deviceAlarmService) {
+        this.deviceAlarmService = deviceAlarmService;
     }
 
     @Reference
@@ -150,11 +165,17 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
         this.userService = userService;
     }
 
+    @Reference
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
+    }
+
     private void addDefaultActions() {
         try {
             actionProviders.put(StartProcessAlarmAction.class.getName(), injector.getProvider(StartProcessAlarmAction.class));
             actionProviders.put(AssignDeviceAlarmAction.class.getName(), injector.getProvider(AssignDeviceAlarmAction.class));
             actionProviders.put(CloseDeviceAlarmAction.class.getName(), injector.getProvider(CloseDeviceAlarmAction.class));
+            actionProviders.put(WebServiceNotificationAlarmAction.class.getName(), injector.getProvider(WebServiceNotificationAlarmAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }

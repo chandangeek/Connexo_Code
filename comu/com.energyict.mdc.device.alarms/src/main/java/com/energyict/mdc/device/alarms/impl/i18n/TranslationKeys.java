@@ -31,7 +31,10 @@ public enum TranslationKeys implements TranslationKey {
     TRIGGERING_EVENTS(ModuleConstants.TRIGGERING_EVENTS, "Raised on event types"),
     CLEARING_EVENTS(ModuleConstants.CLEARING_EVENTS, "Cleared on event types"),
     DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES(ModuleConstants.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, "Device lifecycle state in device type "),
-    ALARM_RELATIVE_PERIOD_CATEGORY(ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY, "Device alarm");
+    ALARM_RELATIVE_PERIOD_CATEGORY(ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY, "Device alarm"),
+    ACTION_WEBSERVICE_NOTIFICATION_CALLED("alarm.action.webServiceNotification", "Web service notification called"),
+    ACTION_WEBSERVICE_NOTIFICATION("alarm.action.webServiceNotification", "Web service notification"),
+    ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM("alarm.action.webServiceNotification.close", "Close alarm with status ‘Won’t fix’");
 
     private final String key;
     private final String defaultFormat;
