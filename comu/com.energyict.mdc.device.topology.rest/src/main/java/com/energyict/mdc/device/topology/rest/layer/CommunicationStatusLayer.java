@@ -3,6 +3,7 @@ package com.energyict.mdc.device.topology.rest.layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
@@ -80,8 +81,7 @@ public class CommunicationStatusLayer extends AbstractGraphLayer<Device> {
 
     private void checkCommunicationStatus(DeviceNodeInfo info){
         Device device = info.getDevice();
-        setFailedCommunications(this.topologyService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.COMMUNICATION_FAILURE, device,
-                Interval.of(Range.lessThan(clock.instant()))));
+        setFailedCommunications(device.getComTaskExecutions().stream().filter(ComTaskExecution::isLastExecutionFailed).count());
     }
 
     @Override
@@ -90,7 +90,7 @@ public class CommunicationStatusLayer extends AbstractGraphLayer<Device> {
         return propertyMap();
     }
 
-    private void setFailedCommunications(int errors){
+    private void setFailedCommunications(long errors){
        this.setProperty(PropertyNames.COMMUNICATION_STATUS.getPropertyName(), errors);
     }
 

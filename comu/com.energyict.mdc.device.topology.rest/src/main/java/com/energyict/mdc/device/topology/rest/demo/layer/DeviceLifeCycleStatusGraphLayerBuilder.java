@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.topology.rest.demo.layer;
 
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.streams.DecoratedStream;
@@ -16,6 +19,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -40,7 +44,7 @@ public class DeviceLifeCycleStatusGraphLayerBuilder implements GraphLayerBuilder
     @Override
     public void buildLayer(Device device) {
         // Execute a randomly chosen Executable Action so to have devices with different lifecycle state
-        List<ExecutableAction> possibleActions = getExecutableActions(device);
+        List<ExecutableAction> possibleActions = getExecutableActions(device).stream().filter(this::leadsToStateInOperationalStage).collect(Collectors.toList());
         if (!possibleActions.isEmpty()) {
             Collections.shuffle(possibleActions);
             this.execute(possibleActions.get(0), device, Clock.systemDefaultZone().instant());
@@ -53,7 +57,6 @@ public class DeviceLifeCycleStatusGraphLayerBuilder implements GraphLayerBuilder
 
     private void execute(ExecutableAction action, Device device, Instant effectiveTimestamp) {
         AuthorizedTransitionAction authorizedTransitionAction = (AuthorizedTransitionAction) action.getAction();
-
         List<ExecutableActionProperty> properties =
                 DecoratedStream
                     .decorate(authorizedTransitionAction.getActions().stream())
@@ -64,6 +67,11 @@ public class DeviceLifeCycleStatusGraphLayerBuilder implements GraphLayerBuilder
         action.execute(effectiveTimestamp, properties);
     }
 
+    private boolean leadsToStateInOperationalStage(ExecutableAction executableAction){
+        AuthorizedTransitionAction authorizedTransitionAction = (AuthorizedTransitionAction) executableAction.getAction();
+        Optional<Stage> stage = authorizedTransitionAction.getStateTransition().getTo().getStage();
+        return stage.isPresent() && stage.get().getName().equals(EndDeviceStage.OPERATIONAL.getKey());
+    }
 
     private ExecutableActionProperty toExecutableActionProperty(PropertySpec propertySpec, Device device, Instant effectiveTimestamp) {
         try {

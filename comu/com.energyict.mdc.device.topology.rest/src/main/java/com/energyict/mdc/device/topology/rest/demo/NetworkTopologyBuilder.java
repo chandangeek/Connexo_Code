@@ -8,6 +8,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.G3Neighbor;
 import com.energyict.mdc.device.topology.Modulation;
@@ -55,7 +56,6 @@ public class NetworkTopologyBuilder {
         this.topologyService = topologyService;
         this.clock = clock;
         this.initAvailableConfigurations(deviceConfigurationService, availableConfigurations);
-
         assert availableConfigurations.size() > 0;
     }
 
@@ -109,7 +109,7 @@ public class NetworkTopologyBuilder {
         Device child = deviceService.findDeviceByName(name).orElseGet(() ->  deviceService.newDevice(randomConfiguration(), name, clock.instant()));
         topologyService.clearPhysicalGateway(child); // reset parent
         topologyService.setPhysicalGateway(child, gateway);
-        System.out.println(String.format("created slave %s", child.getName()));
+        System.out.println(String.format("created slave %s (%d)", child.getName(), child.getId()));
         return child;
     }
 
@@ -135,6 +135,7 @@ public class NetworkTopologyBuilder {
         TopologyService.G3CommunicationPathSegmentBuilder builder = topologyService.addCommunicationSegments(gateway);
         for (int i = 0; i < intermediateHops.size(); i++){
             Device hop = intermediateHops.get(i);
+            System.out.println(String.format("hop with id %d",hop.getId()));
             builder.add(device, hop, Duration.ofDays(14), new Random().nextInt(100));
             builder.complete().forEach(this::addNeighbors);
             builder = topologyService.addCommunicationSegments(hop);
