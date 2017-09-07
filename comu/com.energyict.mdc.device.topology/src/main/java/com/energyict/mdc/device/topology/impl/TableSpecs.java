@@ -4,16 +4,22 @@
 
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.CommunicationPathSegment;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
 import com.energyict.mdc.device.topology.PLCNeighbor;
 import com.energyict.mdc.device.topology.PhysicalGatewayReference;
+import com.energyict.mdc.device.topology.impl.kpi.RegisteredDevicesKpiImpl;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
 
 import java.util.List;
 
@@ -194,6 +200,36 @@ public enum TableSpecs {
                     map(DataLoggerChannelUsageImpl.Field.GATEWAY_CHANNEL.fieldName()).
                     add();
 
+        }
+    },
+
+    DTL_REGISTEREDDEVICESKPI {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<RegisteredDevicesKpi> table = dataModel.addTable(name(), RegisteredDevicesKpi.class).since(version(10, 4));
+            table.map(RegisteredDevicesKpiImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
+            table.column("TARGET").number().conversion(NUMBER2INT).map(RegisteredDevicesKpiImpl.Fields.TARGET.fieldName()).add();
+            Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().notNull().add();
+            Column connectionKpi = table.column("KPI").number().add();
+            Column connectionKpiTask = table.column("KPI_TASK").number().add();
+            table.primaryKey("PK_RDK_DATA_COLLECTION_KPI").on(id).add();
+            table.foreignKey("FK_RDK_ENDDEVICEGROUP").
+                    on(endDeviceGroup).
+                    references(EndDeviceGroup.class).
+                    map(RegisteredDevicesKpiImpl.Fields.END_DEVICE_GROUP.fieldName()).
+                    add();
+            table.foreignKey("FK_RDK_KPI").
+                    on(connectionKpi).
+                    references(Kpi.class).
+                    map(RegisteredDevicesKpiImpl.Fields.KPI.fieldName()).
+                    add();
+            table.foreignKey("FK_RDK_KPI_TASK").
+                    on(connectionKpiTask).
+                    references(RecurrentTask.class).
+                    map(RegisteredDevicesKpiImpl.Fields.KPI_TASK.fieldName()).
+                    add();
         }
     };
 

@@ -8,6 +8,8 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -16,6 +18,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
@@ -54,16 +57,21 @@ import com.energyict.mdc.device.topology.PhysicalGatewayReference;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
+import com.energyict.mdc.device.topology.impl.kpi.RegisteredDevicesKpiServiceImpl;
 import com.energyict.mdc.device.topology.impl.utils.ChannelDataTransferor;
 import com.energyict.mdc.device.topology.impl.utils.MeteringChannelProvider;
 import com.energyict.mdc.device.topology.impl.utils.Utils;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
 
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -102,6 +110,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private volatile UpgradeService upgradeService;
     private volatile QueryService queryService;
     private MeteringChannelProvider meteringChannelProvider;
+    private volatile MessageService messageService;
+    private volatile TaskService taskService;
+    private volatile KpiService kpiService;
+    private RegisteredDevicesKpiService registeredDevicesKpiService;
+    private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     // For OSGi framework only
     public TopologyServiceImpl() {
@@ -110,7 +123,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     // For unit testing purposes only
     @Inject
-    public TopologyServiceImpl(OrmService ormService, NlsService nlsService, Clock clock, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, UpgradeService upgradeService, QueryService queryService) {
+    public TopologyServiceImpl(BundleContext bundleContext, OrmService ormService, NlsService nlsService, Clock clock, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, UpgradeService upgradeService, QueryService queryService, MessageService messageService, TaskService taskService, KpiService kpiService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -119,8 +132,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         setCommunicationTaskService(communicationTaskService);
         setUpgradeService(upgradeService);
         setQueryService(queryService);
+        setMessageService(messageService);
+        setTaskService(taskService);
+        setKpiService(kpiService);
         meteringChannelProvider = new MeteringChannelProvider(thesaurus);
-        activate();
+        activate(bundleContext);
     }
 
     @Override
@@ -134,9 +150,24 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext bundleContext) {
+        createRealServices();
         this.dataModel.register(this.getModule());
         upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
+        this.registerRealServices(bundleContext);
+    }
+
+    private void createRealServices() {
+        this.registeredDevicesKpiService = new RegisteredDevicesKpiServiceImpl(this);
+    }
+
+    private void registerRealServices(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(RegisteredDevicesKpiService.class, this.registeredDevicesKpiService, null));
+    }
+
+    @Deactivate
+    public void stop() throws Exception {
+        this.serviceRegistrations.forEach(ServiceRegistration::unregister);
     }
 
     private Module getModule() {
@@ -149,6 +180,10 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(TopologyService.class).toInstance(TopologyServiceImpl.this);
                 bind(ServerTopologyService.class).toInstance(TopologyServiceImpl.this);
+                bind(MessageService.class).toInstance(messageService);
+                bind(KpiService.class).toInstance(kpiService);
+                bind(TaskService.class).toInstance(taskService);
+                bind(RegisteredDevicesKpiService.class).toInstance(registeredDevicesKpiService);
             }
         };
     }
@@ -1180,6 +1215,20 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         this.queryService = queryService;
     }
 
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
+    public void setKpiService(KpiService kpiService) {
+        this.kpiService = kpiService;
+    }
 
     private interface FirstLevelTopologyTimeslicer {
         List<ServerTopologyTimeslice> firstLevelTopologyTimeslices(Device device, Range<Instant> period);
