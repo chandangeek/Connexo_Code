@@ -57,6 +57,16 @@ public abstract class ComServerRuntimeException extends ComServerExecutionExcept
         this.messageArguments = messageArguments;
     }
 
+    @Override
+    public String getMessage() {
+        return String.format(this.messageSeed.getDefaultFormat(), this.messageArguments); // Untranslated, but at least we get the english message...
+    }
+
+    @Override
+    public String getLocalizedMessage() {
+        return getMessage(); // Untranslated, but at least we get the english message...
+    }
+
     public MessageSeed getMessageSeed() {
         return this.messageSeed;
     }
@@ -65,7 +75,7 @@ public abstract class ComServerRuntimeException extends ComServerExecutionExcept
         return messageArguments;
     }
 
-    public String translated (NlsService nlsService) {
+    public String translated (NlsService nlsService) {  //TODO: what is the use case for this method? It is never used...
         Thesaurus thesaurus = nlsService.getThesaurus(this.messageSeed.getModule(), Layer.DOMAIN);
         return thesaurus.getFormat(messageSeed).format(this.messageArguments);
     }
