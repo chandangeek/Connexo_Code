@@ -46,6 +46,6 @@ public interface InboundComPortLogger {
      * @param comPortThreadName The name of the ComPort thread that ran into an unexpected problem
      * @param unexpected The unexpected problem
      */
-    @Configuration(format = "ComPort ''{0}'' ran into the following unexpected problem: {1}", logLevel = LogLevel.ERROR)
+    @Configuration(format = "ComPort ''{0}'' ran into the following unexpected problem:", logLevel = LogLevel.ERROR)
     public void unexpectedError(String comPortThreadName, Throwable unexpected);
 }
