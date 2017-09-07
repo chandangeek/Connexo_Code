@@ -100,7 +100,8 @@ Ext.define('Uni.view.window.Confirmation', {
                             text: me.confirmText,
                             ui: me.confirmBtnUi,
                             handler: me.confirmation,
-                            margin: '0 0 0 ' + me.iconWidth
+                            margin: '0 0 0 ' + me.iconWidth,
+                            itemId: 'confirm-button'
                         },
                         {
                             xtype: 'button',
@@ -110,7 +111,8 @@ Ext.define('Uni.view.window.Confirmation', {
                             text: me.secondConfirmText,
                             ui: me.confirmBtnUi,
                             handler: me.confirmation,
-                            margin: '0 0 0 7'
+                            margin: '0 0 0 7',
+                            itemId: 'confirm2-button'
                         },
                         {
                             xtype: 'button',
@@ -119,7 +121,8 @@ Ext.define('Uni.view.window.Confirmation', {
                             scope: me,
                             text: me.cancelText,
                             ui: 'link',
-                            handler: me.cancellation
+                            handler: me.cancellation,
+                            itemId: 'cancel-button'
                         }
                     ]
                 }
@@ -140,7 +143,8 @@ Ext.define('Uni.view.window.Confirmation', {
                             text: me.cancelText,
                             ui: 'link',
                             margin: '0 0 0 ' + (me.iconWidth - 7),
-                            handler: me.cancellation
+                            handler: me.cancellation,
+                            itemId: 'cancel-button'
                         }
                     ]
                 }
@@ -161,7 +165,8 @@ Ext.define('Uni.view.window.Confirmation', {
                             text: me.confirmText,
                             ui: me.confirmBtnUi,
                             handler: me.confirmation,
-                            margin: '0 0 0 ' + me.iconWidth
+                            margin: '0 0 0 ' + me.iconWidth,
+                            itemId: 'confirm-button'
                         },
                         {
                             xtype: 'button',
@@ -170,7 +175,8 @@ Ext.define('Uni.view.window.Confirmation', {
                             scope: me,
                             text: me.cancelText,
                             ui: 'link',
-                            handler: me.cancellation
+                            handler: me.cancellation,
+                            itemId: 'cancel-button'
                         }
                     ]
                 }
