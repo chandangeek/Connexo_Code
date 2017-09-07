@@ -30,6 +30,9 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.data.kpi.rest.RegisteredDevicesKpiInfo;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -96,6 +99,7 @@ public class ResourceHelper {
     private final DeviceMessageService deviceMessageService;
     private final ProtocolPluggableService protocolPluggableService;
     private final DataCollectionKpiService dataCollectionKpiService;
+    private final RegisteredDevicesKpiService registeredDevicesKpiService;
     private final EstimationService estimationService;
     private final MasterDataService masterDataService;
     private final MdcPropertyUtils mdcPropertyUtils;
@@ -112,7 +116,7 @@ public class ResourceHelper {
     public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory,
                           DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService,
                           MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService,
-                          ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService,
+                          ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, RegisteredDevicesKpiService registeredDevicesKpiService, EstimationService estimationService,
                           MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService,
                           TopologyService topologyService, NlsService nlsService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                           MeteringService meteringService, MultiElementDeviceService multiElementDeviceService, ValidationService validationService) {
@@ -128,6 +132,7 @@ public class ResourceHelper {
         this.deviceMessageService = deviceMessageService;
         this.protocolPluggableService = protocolPluggableService;
         this.dataCollectionKpiService = dataCollectionKpiService;
+        this.registeredDevicesKpiService = registeredDevicesKpiService;
         this.estimationService = estimationService;
         this.masterDataService = masterDataService;
         this.mdcPropertyUtils = mdcPropertyUtils;
@@ -448,6 +453,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No DeviceProtocolPluggableClass with id " + id, Response.Status.NOT_FOUND));
     }
 
+    public RegisteredDevicesKpi findRegisteredDevicesKpiByIdOrThrowException(long id) {
+        return registeredDevicesKpiService.findRegisteredDevicesKpi(id)
+                .orElseThrow(() -> new WebApplicationException("No DeviceProtocolPluggableClass with id " + id, Response.Status.NOT_FOUND));
+    }
+
     public Long getCurrentDataCollectionKpiVersion(long id) {
         return dataCollectionKpiService.findDataCollectionKpi(id).map(DataCollectionKpi::getVersion).orElse(null);
     }
@@ -461,6 +471,17 @@ public class ResourceHelper {
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.deviceGroup.name)
                         .withActualVersion(() -> getCurrentDataCollectionKpiVersion(info.id))
                         .supplier());
+    }
+
+    public RegisteredDevicesKpi lockRegisteredDevicesKpiOrThrowException(RegisteredDevicesKpiInfo info) {
+        return getLockedRegisteredDevicesKpi(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.deviceGroup.name)
+                        .withActualVersion(() -> getCurrentDataCollectionKpiVersion(info.id))
+                        .supplier());
+    }
+
+    public Optional<RegisteredDevicesKpi> getLockedRegisteredDevicesKpi(long id, long version) {
+        return registeredDevicesKpiService.findAndLockRegisteredDevicesKpiByIdAndVersion(id, version);
     }
 
     public Long getCurrentEstimationRuleSetVersion(long id) {
