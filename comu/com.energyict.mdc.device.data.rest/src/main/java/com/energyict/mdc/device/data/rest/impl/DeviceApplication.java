@@ -35,6 +35,7 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
@@ -62,6 +63,7 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
 import com.energyict.mdc.device.data.kpi.rest.KpiResource;
@@ -167,6 +169,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile MdcPropertyUtils mdcPropertyUtils;
     private volatile IssueActionService issueActionService;
     private volatile IssueInfoFactoryService issueInfoFactoryService;
+    private volatile OrmService ormService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -312,6 +315,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setIssueInfoFactoryService(IssueInfoFactoryService issueInfoFactoryService) {
         this.issueInfoFactoryService = issueInfoFactoryService;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
     }
 
     @Reference
@@ -640,6 +648,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(TimeOfUseInfoFactory.class).to(TimeOfUseInfoFactory.class);
             bind(MeterActivationInfoFactory.class).to(MeterActivationInfoFactory.class);
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
+            bind(ormService).to(OrmService.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(ChannelInfoFactory.class).to(ChannelInfoFactory.class);
             bind(ReadingQualityInfoFactory.class).to(ReadingQualityInfoFactory.class);
