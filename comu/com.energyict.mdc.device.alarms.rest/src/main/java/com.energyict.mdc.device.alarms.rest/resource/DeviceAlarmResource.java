@@ -14,6 +14,7 @@ import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
+import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
@@ -59,6 +60,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 
@@ -92,7 +94,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         }
         List<? extends DeviceAlarm> deviceAlarms = finder.find();
         List<DeviceAlarmInfo> deviceAlarmInfos = deviceAlarms.stream()
-                .map(deviceAlarmInfoFactory::asInfo)
+                .map(alm -> deviceAlarmInfoFactory.asInfo(alm, DeviceInfo.class))
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", deviceAlarmInfos, queryParams);
     }
@@ -103,7 +105,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getAlarmById(@PathParam("id") long id) {
         Optional<? extends DeviceAlarm> deviceAlarm = getDeviceAlarmService().findAlarm(id);
-        return deviceAlarm.map(i -> Response.ok().entity(deviceAlarmInfoFactory.asInfo(i)).build())
+        return deviceAlarm.map(alm -> entity(deviceAlarmInfoFactory.from(alm)).build())
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 

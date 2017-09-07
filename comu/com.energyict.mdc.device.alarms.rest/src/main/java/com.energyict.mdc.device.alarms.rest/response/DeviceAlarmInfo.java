@@ -5,12 +5,14 @@
 package com.energyict.mdc.device.alarms.rest.response;
 
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
+import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
+import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 
 import java.util.List;
 
-public class DeviceAlarmInfo {
+public class DeviceAlarmInfo<T extends DeviceInfo> extends IssueInfo<T, DeviceAlarm> {
 
     public long id;
     public String alarmId;
@@ -29,7 +31,8 @@ public class DeviceAlarmInfo {
     public IdWithNameInfo logBook;
     public List<RelatedEventsInfo> relatedEvents;
 
-    public DeviceAlarmInfo(DeviceAlarm deviceAlarm){
+    public DeviceAlarmInfo(DeviceAlarm deviceAlarm, Class<T> deviceInfoClass){
+        super(deviceAlarm,deviceInfoClass);
         this.id = deviceAlarm.getId();
         this.alarmId = deviceAlarm.getIssueId();
         this.reason = new IdWithNameInfo(deviceAlarm.getReason().getKey(), deviceAlarm.getReason().getName());

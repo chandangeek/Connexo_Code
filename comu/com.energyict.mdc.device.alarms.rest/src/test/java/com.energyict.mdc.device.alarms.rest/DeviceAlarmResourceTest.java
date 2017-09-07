@@ -30,17 +30,15 @@ import org.mockito.Matchers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DeviceAlarmResourceTest extends DeviceAlarmApplicationTest{
+public class DeviceAlarmResourceTest extends DeviceAlarmApplicationTest {
 
     @Test
     public void testGetAlarmById() {
-        when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.empty());
         Optional<DeviceAlarm> alarm = Optional.of(getDefaultAlarm());
         doReturn(alarm).when(deviceAlarmService).findAlarm(1);
 
@@ -57,8 +55,7 @@ public class DeviceAlarmResourceTest extends DeviceAlarmApplicationTest{
     }
 
     @Test
-    public void testGetAllAlarms(){
-        when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.empty());
+    public void testGetAllAlarms() {
         Finder<? extends DeviceAlarm> alarmFinder = mock(Finder.class);
         doReturn(alarmFinder).when(deviceAlarmService).findAlarms(any(DeviceAlarmFilter.class), anyVararg());
         List<? extends DeviceAlarm> alarms = Collections.singletonList(getDefaultAlarm());

@@ -45,7 +45,6 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
 
     private volatile TransactionService transactionService;
     private volatile DeviceAlarmService deviceAlarmService;
-    private volatile DeviceService deviceService;
     private volatile LogBookService logBookService;
     private volatile MeteringService meteringService;
     private volatile UserService userService;
@@ -141,11 +140,6 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     }
 
     @Reference
-    public void setDeviceService(DeviceService deviceService) {
-        this.deviceService = deviceService;
-    }
-
-    @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
         this.issueActionService = issueService.getIssueActionService();
@@ -180,7 +174,6 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
         protected void configure() {
             bind(transactionService).to(TransactionService.class);
             bind(deviceAlarmService).to(DeviceAlarmService.class);
-            bind(deviceService).to(DeviceService.class);
             bind(DeviceAlarmInfoFactory.class).to(DeviceAlarmInfoFactory.class);
             bind(logBookService).to(LogBookService.class);
             bind(issueService).to(IssueService.class);

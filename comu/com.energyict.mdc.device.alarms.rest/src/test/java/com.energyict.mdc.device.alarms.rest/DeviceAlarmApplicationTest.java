@@ -50,7 +50,6 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -89,8 +88,6 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
 
     private final Instant now = ZonedDateTime.of(2016, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant();
 
-    @Mock
-    DeviceService deviceService;
     @Mock
     DeviceAlarmService deviceAlarmService;
     @Mock
@@ -151,7 +148,6 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         when(issueService.getIssueAssignmentService()).thenReturn(issueAssignmentService);
 
         deviceAlarmApplication.setTransactionService(transactionService);
-        deviceAlarmApplication.setDeviceService(deviceService);
         deviceAlarmApplication.setDeviceAlarmService(deviceAlarmService);
         deviceAlarmApplication.setLogBookService(logBookService);
         deviceAlarmApplication.setMeteringService(meteringService);
