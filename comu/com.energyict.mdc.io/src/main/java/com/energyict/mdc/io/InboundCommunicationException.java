@@ -17,7 +17,7 @@ public class InboundCommunicationException extends ComServerRuntimeException {
      * @param cause the actual cause of the exception
      */
     public InboundCommunicationException(MessageSeed messageSeed, IOException cause) {
-        super(messageSeed, cause);
+        super(cause, messageSeed);
     }
 
     /**
@@ -26,7 +26,7 @@ public class InboundCommunicationException extends ComServerRuntimeException {
      * @param cause the actual cause of the exception
      */
     public InboundCommunicationException(MessageSeed messageSeed, Exception cause) {
-        super(messageSeed, cause);
+        super(cause, messageSeed);
     }
 
 }
