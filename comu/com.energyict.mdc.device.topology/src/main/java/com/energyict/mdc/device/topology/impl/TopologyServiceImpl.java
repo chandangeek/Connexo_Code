@@ -64,6 +64,7 @@ import com.energyict.mdc.device.topology.impl.utils.Utils;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -91,6 +92,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
@@ -153,7 +155,9 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     public void activate(BundleContext bundleContext) {
         createRealServices();
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
+                version(10, 2), V10_2SimpleUpgrader.class,
+                version(10, 4), UpgraderV10_4.class));
         this.registerRealServices(bundleContext);
     }
 
