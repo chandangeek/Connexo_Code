@@ -2516,6 +2516,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceType.getName()).thenReturn(name + "DeviceType");
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getName()).thenReturn(name + "DeviceConfig");
+        when(deviceConfiguration.canActAsGateway()).thenReturn(true);
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getSerialNumber()).thenReturn("123456789");
