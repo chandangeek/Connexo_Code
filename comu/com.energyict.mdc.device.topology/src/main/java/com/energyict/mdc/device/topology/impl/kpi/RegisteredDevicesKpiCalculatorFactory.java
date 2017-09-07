@@ -28,7 +28,6 @@ public class RegisteredDevicesKpiCalculatorFactory implements MessageHandlerFact
     private volatile RegisteredDevicesKpiService registeredDevicesKpiService;
     private volatile TopologyService topologyService;
     private volatile DeviceService deviceService;
-    private volatile Clock clock;
 
     // For OSGi framework only
     public RegisteredDevicesKpiCalculatorFactory() {super();}
@@ -39,14 +38,13 @@ public class RegisteredDevicesKpiCalculatorFactory implements MessageHandlerFact
         this();
         this.setTaskService(taskService);
         this.setRegisteredDevicesKpiService(registeredDevicesKpiService);
-        this.setClock(clock);
         this.setDeviceService(deviceService);
     }
 
     @Override
     public MessageHandler newMessageHandler() {
         return this.taskService.createMessageHandler(
-                new RegisteredDevicesKpiCalculator(registeredDevicesKpiService, deviceService, topologyService, clock));
+                new RegisteredDevicesKpiCalculator(registeredDevicesKpiService, deviceService, topologyService));
     }
 
     @Reference
@@ -57,11 +55,6 @@ public class RegisteredDevicesKpiCalculatorFactory implements MessageHandlerFact
     @Reference
     public void setRegisteredDevicesKpiService(RegisteredDevicesKpiService registeredDevicesKpiService) {
         this.registeredDevicesKpiService = registeredDevicesKpiService;
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
     }
 
     @Reference

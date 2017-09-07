@@ -29,11 +29,9 @@ public class RegisteredDevicesKpiCalculator implements TaskExecutor {
     private final RegisteredDevicesKpiService registeredDevicesKpiService;
     private final TopologyService topologyService;
     private final DeviceService deviceService;
-    private final Clock clock;
 
-    public RegisteredDevicesKpiCalculator(RegisteredDevicesKpiService registeredDevicesKpiService, DeviceService deviceService, TopologyService topologyService, Clock clock) {
+    public RegisteredDevicesKpiCalculator(RegisteredDevicesKpiService registeredDevicesKpiService, DeviceService deviceService, TopologyService topologyService) {
         this.registeredDevicesKpiService = registeredDevicesKpiService;
-        this.clock = clock;
         this.deviceService = deviceService;
         this.topologyService = topologyService;
     }
@@ -47,7 +45,7 @@ public class RegisteredDevicesKpiCalculator implements TaskExecutor {
             Optional<RegisteredDevicesKpi> registeredDevicesKpi = registeredDevicesKpiService.findRegisteredDevicesKpi(id);
             if(registeredDevicesKpi.isPresent()) {
                 RegisteredDevicesKpiImpl kpi = (RegisteredDevicesKpiImpl) registeredDevicesKpi.get();
-                Instant now = clock.instant();
+                Instant now = taskOccurrence.getTriggerTime();
                 long maxNumber = kpi.getDeviceGroup().getMemberCount(now);
                 List<String> deviceGroupMrids = kpi.getDeviceGroup().getMembers(now).stream().map(IdentifiedObject::getMRID).collect(Collectors.toList());
                 long registered = deviceService.deviceQuery().select(Where.where("mRID").in(deviceGroupMrids)).stream()
