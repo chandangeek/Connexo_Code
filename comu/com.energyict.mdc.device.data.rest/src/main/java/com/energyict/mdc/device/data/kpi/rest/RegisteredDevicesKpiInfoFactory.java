@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data.kpi.rest;
 
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;

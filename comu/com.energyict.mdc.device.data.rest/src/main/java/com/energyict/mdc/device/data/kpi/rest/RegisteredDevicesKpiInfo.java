@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.kpi.rest;
 
+import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
 import java.time.Instant;
