@@ -39,7 +39,7 @@ public class TranslationKeys implements TranslationKeyProvider, MessageSeedProvi
     }
 
     public enum Labels implements TranslationKey {
-        USAGEPOINT_FILE_IMPORTER(UsagePointsImporterFactory.NAME, "Usage Point Importer [STD]"),
+        USAGEPOINT_FILE_IMPORTER(UsagePointsImporterFactory.NAME, "Usage point importer [STD]"),
         USAGEPOINT_MESSAGE_SUBSCRIBER(UsagePointFileImporterMessageHandler.SUBSCRIBER_NAME, "Handle usage point import"),
         // Properties translations
         DATA_IMPORTER_DELIMITER("delimiter", "Delimiter"),
