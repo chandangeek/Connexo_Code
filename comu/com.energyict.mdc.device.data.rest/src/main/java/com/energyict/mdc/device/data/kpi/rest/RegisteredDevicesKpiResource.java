@@ -10,6 +10,9 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
 import com.energyict.mdc.device.data.rest.impl.ResourceHelper;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -30,7 +33,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -119,5 +124,23 @@ public class RegisteredDevicesKpiResource {
         kpi.updateTarget(info.target);
 
         return Response.ok(registeredDevicesKpiInfoFactory.from(registeredDevicesKpiService.findRegisteredDevicesKpi(id).get())).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/groups")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getAvailableDeviceGroups(@BeanParam JsonQueryParameters queryParameters) {
+        List<EndDeviceGroup> allGroups = meteringGroupsService.getEndDeviceGroupQuery().select(Condition.TRUE, Order.ascending("upper(name)"));
+        List<Long> usedGroupIds =
+                registeredDevicesKpiService
+                        .findAllRegisteredDevicesKpis()
+                        .stream()
+                        .map(RegisteredDevicesKpi::getDeviceGroup)
+                        .map(HasId::getId)
+                        .collect(Collectors.toList());
+        allGroups.removeIf(group -> usedGroupIds.contains(group.getId()));
+        return Response.ok(PagedInfoList.fromPagedList("deviceGroups", allGroups.stream()
+                .map(gr -> new LongIdWithNameInfo(gr.getId(), gr.getName())).collect(Collectors.toList()), queryParameters)).build();
     }
 }
