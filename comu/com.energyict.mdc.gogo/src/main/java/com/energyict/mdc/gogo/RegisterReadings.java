@@ -30,6 +30,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -60,6 +61,7 @@ public class RegisterReadings {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
+    private Clock clock;
     private DateTimeFormatter printDateFormat;
     private DateTimeFormatter parseDateFormat;
     private Random random;
@@ -93,6 +95,11 @@ public class RegisterReadings {
     @SuppressWarnings("unused")
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @SuppressWarnings("unused")
@@ -167,7 +174,7 @@ public class RegisterReadings {
                 addDeviceEvent(
                         device.getName(),
                         raisedOnEvent,
-                        parseDateFormat.format(ZonedDateTime.now().minusMinutes(1L)),
+                        parseDateFormat.format(ZonedDateTime.now(clock).minusDays(1).minusHours(1).minusMinutes(1)),
                         device.getmRID(),
                         "TamperingEvent",
                         "TamperingEventAlias",
