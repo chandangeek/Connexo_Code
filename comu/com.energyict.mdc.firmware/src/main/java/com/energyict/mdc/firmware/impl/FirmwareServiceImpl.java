@@ -78,10 +78,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -223,7 +221,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                    return Optional.of(deviceMessageIdList.get(0));
                 }else{
                     if (firmwareVersion != null && firmwareVersion.getImageIdentifier() == null){
-                       return Stream.of(DeviceMessageId.values()).filter(x-> (x.dbValue() >= 5000 && x.dbValue() < 6000 && !DeviceMessageId.needsImageIdentifier().contains(x))).findFirst();
+                        return deviceMessageIdList.stream().filter(deviceMessageId -> !DeviceMessageId.needsImageIdentifier().contains(deviceMessageId)).findFirst();
                     }else {
                         return deviceMessageIdList.stream().filter(DeviceMessageId.needsImageIdentifier()::contains).findFirst();
                     }
