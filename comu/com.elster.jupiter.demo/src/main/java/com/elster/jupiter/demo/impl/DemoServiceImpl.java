@@ -42,6 +42,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -126,6 +127,7 @@ public class DemoServiceImpl {
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
     private volatile ConnectionTaskService connectionTaskService;
+    private volatile CommunicationTaskService communicationTaskService;
     private volatile SchedulingService schedulingService;
     private volatile LicenseService licenseService;
     private volatile DataModel dataModel;
@@ -182,6 +184,7 @@ public class DemoServiceImpl {
             DeviceConfigurationService deviceConfigurationService,
             DeviceService deviceService,
             ConnectionTaskService connectionTaskService,
+            CommunicationTaskService communicationTaskService,
             SchedulingService schedulingService,
             LicenseService licenseService,
             OrmService ormService,
@@ -228,6 +231,7 @@ public class DemoServiceImpl {
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceService(deviceService);
         setConnectionTaskService(connectionTaskService);
+        setCommunicationTaskService(communicationTaskService);
         setSchedulingService(schedulingService);
         setLicenseService(licenseService);
         setOrmService(ormService);
@@ -283,6 +287,7 @@ public class DemoServiceImpl {
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
+                bind(CommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(SchedulingService.class).toInstance(schedulingService);
                 bind(LicenseService.class).toInstance(licenseService);
                 bind(DataModel.class).toInstance(dataModel);
@@ -406,6 +411,12 @@ public class DemoServiceImpl {
     public final void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
         this.connectionTaskService = connectionTaskService;
     }
+
+    @Reference
+     @SuppressWarnings("unused")
+     public final void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+     }
 
     @Reference
     @SuppressWarnings("unused")
