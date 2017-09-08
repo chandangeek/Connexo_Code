@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -19,7 +20,11 @@ import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
 import com.energyict.mdc.device.data.rest.impl.ResourceHelper;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiFrequency;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiScore;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
+
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -33,10 +38,18 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -100,6 +113,61 @@ public class RegisteredDevicesKpiResource {
     public RegisteredDevicesKpiInfo getKpiById(@PathParam("id") long id) {
         RegisteredDevicesKpi registeredDevicesKpi = resourceHelper.findRegisteredDevicesKpiByIdOrThrowException(id);
         return registeredDevicesKpiInfoFactory.from(registeredDevicesKpi);
+    }
+
+    @GET
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{id}/data")
+    public Response getKpiData(@PathParam("id") long id, @BeanParam JsonQueryFilter filter) {
+        RegisteredDevicesKpi registeredDevicesKpi = resourceHelper.findRegisteredDevicesKpiByIdOrThrowException(id);
+        Optional<Range<Instant>> range;
+        if (filter.hasProperty("start") && filter.hasProperty("end")) {
+            Instant start = filter.getInstant("start");
+            Instant end = filter.getInstant("end");
+            range = Optional.of(Range.closed(start, end));
+        } else {
+            range = calculateRange(registeredDevicesKpi);
+        }
+        List<RegisteredDevicesKpiScore> scores = new ArrayList<>();
+        if (range.isPresent()) {
+            scores = registeredDevicesKpi.getScores(range.get());
+        }
+        List<RegisteredDevicesKpiGraphInfo> infos = scores.stream()
+                .sorted()
+                .map(score -> new RegisteredDevicesKpiGraphInfo(score, registeredDevicesKpi.getTarget()))
+                .collect(Collectors.toList());
+        return Response.ok(infos).build();
+    }
+
+    private Optional<Range<Instant>> calculateRange(RegisteredDevicesKpi registeredDevicesKpi) {
+        Optional<Instant> latestCalculation = registeredDevicesKpi.getLatestCalculation();
+        if (latestCalculation.isPresent()) {
+            TemporalAmount frequency = registeredDevicesKpi.getFrequency();
+            Optional<RegisteredDevicesKpiFrequency> registeredDevicesKpiFrequency = RegisteredDevicesKpiFrequency.valueOf(frequency);
+            if (registeredDevicesKpiFrequency.isPresent()) {
+                RegisteredDevicesKpiFrequency freq = registeredDevicesKpiFrequency.get();
+                Range<Instant> range;
+                switch (freq) {
+                    case FIFTEEN_MINUTES:
+                    case FOUR_HOURS:
+                        range = Range.closed(latestCalculation.get().minus(1, ChronoUnit.DAYS), latestCalculation.get());
+                        break;
+                    case TWELVE_HOURS:
+                        range = Range.closed(latestCalculation.get().minus(7, ChronoUnit.DAYS), latestCalculation.get());
+                        break;
+                    case ONE_DAY:
+                        range = Range.closed(latestCalculation.get().minus(30, ChronoUnit.DAYS), latestCalculation.get());
+                        break;
+                    default:
+                        range = Range.closed(latestCalculation.get().minus(1, ChronoUnit.DAYS), latestCalculation.get());
+                        break;
+                }
+                return Optional.of(range);
+            }
+        }
+        return Optional.empty();
     }
 
     @DELETE
