@@ -299,9 +299,12 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             deviceTypeCombo = me.down('#firmware-campaign-device-type'),
             firmwareTypeRadioGroup = me.down('#firmware-type'),
             deviceGroupComboContainer = me.down('#firmware-campaign-device-group-field-container'),
+            deviceGroupCombo = me.down('#firmware-campaign-device-group'),
             managementOptionRadioGroup = me.down('#firmware-management-option'),
             deviceTypeId = campaignRecord.get('deviceType').id,
             hideDeviceGroupComboAndSetDeviceType = function() {
+                deviceGroupCombo.allowBlank = true;
+                deviceGroupComboContainer.allowBlank = true;
                 deviceGroupComboContainer.hide();
                 deviceTypeCombo.setDisabled(true);
                 deviceTypeCombo.setValue(deviceTypeId);
