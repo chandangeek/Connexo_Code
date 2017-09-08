@@ -32,7 +32,7 @@ public enum TranslationKeys implements TranslationKey {
     ACTION_ISSUE_ASSIGNED("action.issue.assigned", "Issue assigned"),
     ACTION_ISSUE_COMMENTED("action.issue.commented", "Issue commented"),
     ACTION_ISSUE_UNASSIGNED("action.issue.unassigned", "Issue unassigned"),
-    ACTION_WEBSERVICE_NOTIFICATION_CALLED("issue.action.webServiceNotification", "Web service notification called"),
+    ACTION_WEBSERVICE_NOTIFICATION_CALLED("issue.action.webServiceNotificationCalled", "Web service notification called"),
     ACTION_WEBSERVICE_NOTIFICATION("issue.action.webServiceNotification", "Web service notification"),
     ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE("issue.action.webServiceNotification.closeIssue", "Close issue with status ‘Won’t fix’");
 

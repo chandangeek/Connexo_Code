@@ -140,6 +140,10 @@ public class WebServiceNotificationAction extends AbstractIssueAction {
     private EndPoint[] getPossibleStatuses() {
         return endPointConfigurationService.findEndPointConfigurations().stream()
                 .filter(EndPointConfiguration::isActive)
+                .filter(endPointConfiguration ->
+                        ((IssueServiceImpl) issueService).getIssueWebServiceClients().stream()
+                                .filter(issueWebServiceClient1 -> issueWebServiceClient1.getWebServiceName().compareTo(endPointConfiguration.getWebServiceName()) == 0)
+                                .count() > 0)
                 .map(EndPoint::new).toArray(EndPoint[]::new);
     }
 
