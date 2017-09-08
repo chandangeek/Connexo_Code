@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.topology.rest.demo.layer;
 
 import com.elster.jupiter.fsm.Stage;
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
@@ -23,7 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Having the devices within the same network topology in different life cycle states
+ * Having the devices within the same network topology in different life cycle states (in 'Operational Stage') (=Active, Inactive)
  * Copyrights EnergyICT
  * Date: 31/08/2017
  * Time: 15:08
