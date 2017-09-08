@@ -137,6 +137,10 @@ public class WebServiceNotificationAlarmAction extends AbstractIssueAction {
     private EndPoint[] getPossibleStatuses() {
         return endPointConfigurationService.findEndPointConfigurations().stream()
                 .filter(EndPointConfiguration::isActive)
+                .filter(endPointConfiguration ->
+                        ((DeviceAlarmServiceImpl) deviceAlarmService).getIssueWebServiceClients().stream()
+                                .filter(issueWebServiceClient1 -> issueWebServiceClient1.getWebServiceName().compareTo(endPointConfiguration.getWebServiceName()) == 0)
+                                .count() > 0)
                 .map(EndPoint::new).toArray(EndPoint[]::new);
     }
 
@@ -155,7 +159,7 @@ public class WebServiceNotificationAlarmAction extends AbstractIssueAction {
         return issue == null;
     }
 
-    static class EndPoint extends HasIdAndName {
+    public static class EndPoint extends HasIdAndName {
 
         private EndPointConfiguration endPointConfiguration;
 
