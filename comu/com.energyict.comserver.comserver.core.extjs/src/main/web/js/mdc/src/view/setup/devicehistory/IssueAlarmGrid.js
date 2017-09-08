@@ -31,16 +31,28 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
 
         me.columns = [
             {
+                itemId: 'issues-grid-id',
+                header: Uni.I18n.translate('general.title.issueId', 'MDC', 'ID'),
+                dataIndex: 'itemId',
+                flex: 1
+            },
+            {
                 itemId: 'issues-grid-type',
                 header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
-                dataIndex: 'issueType_name',
+                dataIndex: 'itemType',
                 flex: 1.2
             },
             {
-                itemId: 'issues-grid-update',
-                header: Uni.I18n.translate('general.update', 'MDC', 'Update'),
-                dataIndex: 'title',
+                itemId: 'issues-grid-reason',
+                header: Uni.I18n.translate('general.update', 'MDC', 'Reason'),
+                dataIndex: 'reason',
                 flex: 2
+            },
+            {
+                itemId: 'issue-grid-priority',
+                header: Uni.I18n.translate('general.title.priority', 'MDC', 'Priority'),
+                dataIndex: 'priorityValue',
+                flex: 1
             },
             {
                 itemId: 'issues-grid-created',
@@ -54,7 +66,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
             {
                 itemId: 'issues-grid-status',
                 header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
-                dataIndex: 'status_name',
+                dataIndex: 'status',
                 flex: 1
             },
             {

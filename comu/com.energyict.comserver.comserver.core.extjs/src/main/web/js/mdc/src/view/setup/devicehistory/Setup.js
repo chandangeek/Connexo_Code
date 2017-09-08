@@ -97,7 +97,7 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                                         itemId: 'issues-alarm-filter'
                                     },
                                     {
-                                        store: 'Isu.store.Issues',
+                                        store: 'Mdc.store.device.IssuesAlarms',
                                         xtype: 'issues-alarms-grid',
                                         itemId: 'issues-alarms-grid'
                                     },

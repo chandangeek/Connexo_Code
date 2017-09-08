@@ -6,12 +6,16 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'issues-alarm-filter',
     isOverviewFilter: false,
-    store: 'Isu.store.Issues',
+    store: 'Mdc.store.device.IssuesAlarms',
 
     requires: [
         'Isu.store.IssueTypes',
         'Isu.store.IssueStatuses',
-        'Isu.store.IssueReasons'
+        'Isu.store.IssueReasons',
+        'Mdc.view.setup.devicehistory.IssueAlarmReasons',
+        'Mdc.store.device.IssuesAlarms'
+
+
     ],
 
     initComponent: function () {
@@ -29,18 +33,18 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmFilter', {
                 store: 'Isu.store.IssueTypes'
             },
             {
-                type: 'combobox',
+                type: 'issue-alarm-reasons',
+                //type: 'combobox',
                 itemId: 'issue-reason-filter',
                 dataIndex: 'reason',
                 emptyText: Uni.I18n.translate('general.reason', 'MDC', 'Reason'),
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'id',
-                store: 'Isu.store.IssueReasons'
+                //store: 'Isu.store.IssueReasons'
             },
             {
                 type: 'interval',
-
                 dataIndex: 'startInterval',
                 dataIndexFrom: 'startIntervalFrom',
                 dataIndexTo: 'startIntervalTo',
@@ -151,5 +155,14 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmFilter', {
         if (field.getRawValue()) {
             field.setValue(field.lastSelection);
         }
+    },
+
+    getFilterType: function (type) {
+        if (type == 'issue-alarm-reasons') {
+            return 'Mdc.view.setup.devicehistory.IssueAlarmReasons';
+        }
+        return Mdc.view.setup.devicehistory.IssueAlarmFilter.superclass.getFilterType.call(this, type);
     }
+
+
 });

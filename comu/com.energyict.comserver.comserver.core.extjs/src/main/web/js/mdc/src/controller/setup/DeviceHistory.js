@@ -23,7 +23,8 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         'Mdc.customattributesonvaluesobjects.store.DeviceCustomAttributeSets',
         'Mdc.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnDevice',
         'Mdc.store.device.MeterActivations',
-        'Isu.store.Issues'
+        'Isu.store.Issues',
+        'Mdc.store.device.IssuesAlarms'
     ],
 
     models: [
@@ -48,8 +49,10 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
             router = me.getController('Uni.controller.history.Router'),
-            view;
+            view,
+            issuesAlarmsStore = me.getStore('Mdc.store.device.IssuesAlarms');
 
+        issuesAlarmsStore.getProxy().setUrl(deviceId);
         deviceModel.load(deviceId, {
             success: function (device) {
                 view = Ext.widget('device-history-setup', {
@@ -76,10 +79,12 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             lifeCycleHistoryStore = me.getStore('Mdc.store.DeviceLifeCycleStatesHistory'),
             firmwareTab = me.getPage().down('#device-history-firmware-tab'),
             firmwareHistoryPanel = Ext.widget('device-history-firmware-panel'),
-            firmwareHistoryStore = me.getStore('Mdc.store.DeviceFirmwareHistory');
-
+            firmwareHistoryStore = me.getStore('Mdc.store.DeviceFirmwareHistory'),
+            issuesAlarmsStore = me.getStore('Mdc.store.device.IssuesAlarms');
 
         me.getPage().setLoading();
+        Ext.apply(issuesAlarmsStore.getProxy().extraParams, routerArguments);
+        issuesAlarmsStore.load();
         lifeCycleTab.add(lifeCyclePanel);
         lifeCycleDataView.bindStore(lifeCycleHistoryStore);
         Ext.apply(lifeCycleHistoryStore.getProxy().extraParams, routerArguments);

@@ -24,11 +24,11 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
 
         me.tools = [
             {
-                // xtype: 'uni-button-action',
+                xtype: 'uni-button-action',
                 itemId: 'issues-preview-actions-button',
                 privileges: Ext.Array.merge(Isu.privileges.Issue.adminDevice, Isu.privileges.Device.viewDeviceCommunication),
-                /*menu: {
-                 // xtype: 'issues-action-menu',
+                menu1: {
+                    xtype: 'issues-action-menu',
                  itemId: 'issues-overview-action-menu',
                  router: me.router
                  },
@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
                  click: function () {
                  this.showMenu();
                  }
-                 }*/
+                 }
             }
         ];
 
@@ -102,6 +102,8 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
                         fieldLabel: Uni.I18n.translate('general.title.status', 'MDC', 'Status'),
                         name: 'status',
                         renderer: function (value) {
+                            this.setVisible(!this.isVisible());
+
                             return value.name ? value.name : '-';
                         }
                     },
