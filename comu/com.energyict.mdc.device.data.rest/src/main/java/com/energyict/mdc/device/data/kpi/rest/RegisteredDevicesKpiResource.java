@@ -28,7 +28,6 @@ import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -38,16 +37,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.Duration;
 import java.time.Instant;
-import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -95,14 +90,21 @@ public class RegisteredDevicesKpiResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getKpis(@BeanParam JsonQueryParameters queryParameters) {
-        List<RegisteredDevicesKpiInfo> collection = registeredDevicesKpiService.registeredDevicesKpiFinder()
-                .from(queryParameters)
-                .stream()
-                .map(registeredDevicesKpiInfoFactory::from)
-                .collect(toList());
-
-        return PagedInfoList.fromPagedList("kpis", collection, queryParameters);
+    public Response getKpis(@BeanParam JsonQueryParameters queryParameters) {
+        if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
+            List<RegisteredDevicesKpiInfo> collection = registeredDevicesKpiService.registeredDevicesKpiFinder()
+                    .from(queryParameters)
+                    .stream()
+                    .map(registeredDevicesKpiInfoFactory::from)
+                    .collect(toList());
+            return Response.ok(PagedInfoList.fromPagedList("kpis", collection, queryParameters)).build();
+        } else {
+            List<IdWithNameInfo> infos = registeredDevicesKpiService.findAllRegisteredDevicesKpis()
+                    .stream()
+                    .map(kpi -> new IdWithNameInfo(kpi.getId(), kpi.getDeviceGroup().getName()))
+                    .collect(toList());
+            return Response.ok(infos).build();
+        }
     }
 
     @GET
