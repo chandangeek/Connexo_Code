@@ -37,6 +37,11 @@ public class RegisteredDevicesKpiScoreImpl implements RegisteredDevicesKpiScore 
     }
 
     @Override
+    public long getTarget(int target) {
+        return Math.round(getTotal().divide(BigDecimal.valueOf(100)).multiply(BigDecimal.valueOf(target)).doubleValue());
+    }
+
+    @Override
     public int compareTo(RegisteredDevicesKpiScore other) {
         return this.getTimestamp().compareTo(other.getTimestamp());
     }
