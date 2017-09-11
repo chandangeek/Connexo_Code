@@ -230,6 +230,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     PkiService pkiService;
     MdcPropertyUtils mdcPropertyUtils;
     @Mock
+    protected
     RegisteredDevicesKpiService registeredDevicesKpiService;
 
     @Mock

@@ -18,7 +18,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
 import com.energyict.mdc.device.data.rest.impl.ResourceHelper;
-import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.topology.kpi.Privileges;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiFrequency;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiScore;
@@ -70,6 +70,7 @@ public class RegisteredDevicesKpiResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE})
     public Response createKpi(RegisteredDevicesKpiInfo kpiInfo) {
         EndDeviceGroup endDeviceGroup = null;
         if (kpiInfo.deviceGroup != null && kpiInfo.deviceGroup.id != null) {
@@ -90,6 +91,7 @@ public class RegisteredDevicesKpiResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE, Privileges.Constants.VIEW})
     public Response getKpis(@BeanParam JsonQueryParameters queryParameters) {
         if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
             List<RegisteredDevicesKpiInfo> collection = registeredDevicesKpiService.registeredDevicesKpiFinder()
@@ -112,6 +114,7 @@ public class RegisteredDevicesKpiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE, Privileges.Constants.VIEW})
     public RegisteredDevicesKpiInfo getKpiById(@PathParam("id") long id) {
         RegisteredDevicesKpi registeredDevicesKpi = resourceHelper.findRegisteredDevicesKpiByIdOrThrowException(id);
         return registeredDevicesKpiInfoFactory.from(registeredDevicesKpi);
@@ -122,6 +125,9 @@ public class RegisteredDevicesKpiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}/data")
+    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION,
+            com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION,
+            com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,})
     public Response getKpiData(@PathParam("id") long id, @BeanParam JsonQueryFilter filter) {
         RegisteredDevicesKpi registeredDevicesKpi = resourceHelper.findRegisteredDevicesKpiByIdOrThrowException(id);
         Optional<Range<Instant>> range;
@@ -177,7 +183,7 @@ public class RegisteredDevicesKpiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
-    @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE})
     public Response deleteKpi(@PathParam("id") long id, RegisteredDevicesKpiInfo info) {
         info.id = id;
         resourceHelper.lockRegisteredDevicesKpiOrThrowException(info).delete();
@@ -189,6 +195,7 @@ public class RegisteredDevicesKpiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE})
     public Response updateKpi(@PathParam("id") long id, RegisteredDevicesKpiInfo info) {
         info.id = id;
         RegisteredDevicesKpi kpi = resourceHelper.lockRegisteredDevicesKpiOrThrowException(info);
@@ -201,6 +208,7 @@ public class RegisteredDevicesKpiResource {
     @GET
     @Transactional
     @Path("/groups")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getAvailableDeviceGroups(@BeanParam JsonQueryParameters queryParameters) {
         List<EndDeviceGroup> allGroups = meteringGroupsService.getEndDeviceGroupQuery().select(Condition.TRUE, Order.ascending("upper(name)"));

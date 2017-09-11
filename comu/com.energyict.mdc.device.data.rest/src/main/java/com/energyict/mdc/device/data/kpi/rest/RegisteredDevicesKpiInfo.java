@@ -13,7 +13,7 @@ public class RegisteredDevicesKpiInfo {
     public Long id;
     public LongIdWithNameInfo deviceGroup;
     public TemporalExpressionInfo frequency;
-    public int target;
+    public long target;
     public Instant latestCalculationDate;
     public long version;
 }

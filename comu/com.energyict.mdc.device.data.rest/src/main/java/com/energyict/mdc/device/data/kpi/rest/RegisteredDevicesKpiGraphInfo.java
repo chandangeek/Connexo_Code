@@ -14,7 +14,7 @@ public class RegisteredDevicesKpiGraphInfo {
     public long total;
     public long registered;
 
-    public RegisteredDevicesKpiGraphInfo(RegisteredDevicesKpiScore score, int target) {
+    public RegisteredDevicesKpiGraphInfo(RegisteredDevicesKpiScore score, long target) {
         this.timestamp = score.getTimestamp();
         this.target = score.getTarget(target);
         this.total = score.getTotal().longValue();
