@@ -30,6 +30,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
@@ -81,6 +82,7 @@ public class RegisteredDevicesKpiImpl implements RegisteredDevicesKpi {
     private Reference<Kpi> kpi = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private Reference<EndDeviceGroup> deviceGroup = ValueReference.absent();
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private transient TemporalAmount frequency;
     private Reference<RecurrentTask> kpiTask = ValueReference.absent();
 
