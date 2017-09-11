@@ -33,5 +33,5 @@ public interface RegisteredDevicesKpiScore extends Comparable<RegisteredDevicesK
 
     BigDecimal getRegistered();
 
-    long getTarget(int target);
+    long getTarget(long target);
 }

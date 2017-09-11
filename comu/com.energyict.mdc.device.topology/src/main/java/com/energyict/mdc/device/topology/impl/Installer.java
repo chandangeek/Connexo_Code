@@ -13,9 +13,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.UserService;
 
-import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.kpi.Privileges;
 import com.energyict.mdc.device.topology.impl.kpi.RegisteredDevicesKpiCalculatorFactory;
 import com.energyict.mdc.device.topology.impl.kpi.TranslationKeys;
 
@@ -33,14 +34,16 @@ public class Installer implements FullInstaller {
 
     private final DataModel dataModel;
     private final MessageService messageService;
+    private final UserService userService;
     private final Logger logger = Logger.getLogger(Installer.class.getName());
     public final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     @Inject
-    Installer(DataModel dataModel, MessageService messageService) {
+    Installer(DataModel dataModel, MessageService messageService, UserService userService) {
         super();
         this.dataModel = dataModel;
         this.messageService = messageService;
+        this.userService = userService;
     }
 
     @Override
@@ -51,6 +54,7 @@ public class Installer implements FullInstaller {
                 this::createMessageHandlers,
                 logger
         );
+        addPrivileges();
     }
 
     private void createMessageHandlers() {
@@ -75,6 +79,16 @@ public class Installer implements FullInstaller {
                 destinationSpecOptional.get().subscribe(subscriberKey, TopologyService.COMPONENT_NAME, Layer.DOMAIN);
             }
         }
+    }
+
+    private void addPrivileges() {
+        userService.buildResource()
+                .component(TopologyService.COMPONENT_NAME)
+                .name(Privileges.RESOURCE_REGISTERED_DEVICES_KPI.getKey())
+                .description(Privileges.RESOURCE_REGISTERED_DEVICES_KPI_DESCRIPTION.getKey())
+                .addPrivilege(Privileges.ADMINISTRATE_REGISTERED_DEVICES_KPI.getKey()).add()
+                .addPrivilege(Privileges.VIEW_REGISTERED_DEVICES_KPI.getKey()).add()
+                .create();
     }
 
 }

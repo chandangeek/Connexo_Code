@@ -21,7 +21,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.time.ScheduleExpression;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.device.topology.impl.MessageSeeds;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiScore;
 
@@ -30,7 +30,6 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
@@ -38,8 +37,9 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
+@MustHaveUniqueEndDeviceGroup(message= "{" + MessageSeeds.Keys.DEVICE_GROUP_MUST_BE_UNIQUE + "}", groups={Save.Create.class, Save.Update.class})
+@MustHaveValidFrequency(message= "{" + MessageSeeds.Keys.FREQUENCY_MUST_BE_VALID + "}", groups={Save.Update.class})
 public class RegisteredDevicesKpiImpl implements RegisteredDevicesKpi {
 
     private static final String REGISTERED_DEVICES_KPI_NAME_SUFFIX = " - Registered devices KPI";
@@ -75,13 +75,12 @@ public class RegisteredDevicesKpiImpl implements RegisteredDevicesKpi {
     private Instant createTime;
     private Instant modTime;
 
-    @Min(value = 0, groups = {Save.Create.class, Save.Update.class})
-    @Max(value = 100, groups = {Save.Create.class, Save.Update.class})
-    private int target = 0;
+    @Min(value = 0, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.TARGET_MUST_BE_VALID + "}")
+    @Max(value = 100, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.TARGET_MUST_BE_VALID + "}")
+    private long target = 0;
     private Reference<Kpi> kpi = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private Reference<EndDeviceGroup> deviceGroup = ValueReference.absent();
-    @NotNull(message = MessageSeeds.Keys.FIELD_REQUIRED, groups = {Save.Create.class, Save.Update.class})
     private transient TemporalAmount frequency;
     private Reference<RecurrentTask> kpiTask = ValueReference.absent();
 
@@ -102,13 +101,12 @@ public class RegisteredDevicesKpiImpl implements RegisteredDevicesKpi {
         return this;
     }
 
-    public void setTarget(int target) {
+    public void setTarget(long target) {
         this.target = target;
     }
 
     public void save() {
         if (this.getId() == 0) {
-            // Save myself first (without validation) so that the payload of the recurrent task can contain my ID
             Save.CREATE.save(this.dataModel, this);
         }
         if (!this.kpi.isPresent()) {
@@ -116,7 +114,6 @@ public class RegisteredDevicesKpiImpl implements RegisteredDevicesKpi {
         }
         // Now save the KPIs and the recurrent task
         this.saveKpiAndTask();
-        // Update myself (with validation this time) to set the KPIs and the recurrent task
         Save.UPDATE.save(this.dataModel, this);
     }
 
@@ -158,7 +155,6 @@ public class RegisteredDevicesKpiImpl implements RegisteredDevicesKpi {
         }
     }
 
-    @Override
     public void setFrequency(TemporalAmount frequency) {
         this.frequency = frequency;
     }
@@ -179,7 +175,7 @@ public class RegisteredDevicesKpiImpl implements RegisteredDevicesKpi {
     }
 
     @Override
-    public int getTarget() {
+    public long getTarget() {
         return target;
     }
 
@@ -217,9 +213,13 @@ public class RegisteredDevicesKpiImpl implements RegisteredDevicesKpi {
     }
 
     @Override
-    public void updateTarget(int target) {
+    public void updateTarget(long target) {
         this.target = target;
         this.save();
+    }
+
+    public boolean hasDeviceGroup() {
+        return this.deviceGroup.isPresent();
     }
 
     private RegisteredDevicesKpiScore newScore(Instant timestamp, KpiEntry total, KpiEntry registered) {

@@ -16,8 +16,6 @@ import java.util.Optional;
 
 public interface RegisteredDevicesKpi extends HasId {
 
-    void setFrequency(TemporalAmount frequency);
-
     TemporalAmount getFrequency();
 
     long getVersion();
@@ -29,7 +27,7 @@ public interface RegisteredDevicesKpi extends HasId {
      */
     EndDeviceGroup getDeviceGroup();
 
-    int getTarget();
+    long getTarget();
 
     void delete();
 
@@ -40,5 +38,5 @@ public interface RegisteredDevicesKpi extends HasId {
      */
     Optional<Instant> getLatestCalculation();
 
-    void updateTarget(int target);
+    void updateTarget(long target);
 }

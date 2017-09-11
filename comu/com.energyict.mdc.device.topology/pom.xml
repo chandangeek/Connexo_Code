@@ -117,6 +117,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>kpi</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>users</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -161,11 +165,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>users</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

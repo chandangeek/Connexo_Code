@@ -51,6 +51,14 @@ public interface RegisteredDevicesKpiService {
      */
     Optional<RegisteredDevicesKpi> findAndLockRegisteredDevicesKpiByIdAndVersion(long id, long version);
 
+    /**
+     * Finds the {@link RegisteredDevicesKpi} for the specified {@link EndDeviceGroup}.
+     *
+     * @param group The QueryEndDeviceGroup
+     * @return The RegisteredDevicesKpi
+     */
+    Optional<RegisteredDevicesKpi> findRegisteredDevicesKpi(EndDeviceGroup group);
+
     interface RegisteredDevicesKpiBuilder {
 
         /**
@@ -67,7 +75,7 @@ public interface RegisteredDevicesKpiService {
          *
          * @return The RegisteredDevicesKpiBuilder
          */
-        RegisteredDevicesKpiBuilder target(int target);
+        RegisteredDevicesKpiBuilder target(long target);
 
         /**
          * Completes the builder and returns the newly

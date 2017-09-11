@@ -59,6 +59,12 @@ public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiServ
     }
 
     @Override
+    public Optional<RegisteredDevicesKpi> findRegisteredDevicesKpi(EndDeviceGroup group) {
+        return this.dataModel.mapper(RegisteredDevicesKpi.class).getUnique(RegisteredDevicesKpiImpl.Fields.END_DEVICE_GROUP
+                .fieldName(), group);
+    }
+
+    @Override
     public String getComponentName() {
         return TopologyService.COMPONENT_NAME;
     }
@@ -87,7 +93,7 @@ public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiServ
         }
 
         @Override
-        public RegisteredDevicesKpiBuilder target(int target) {
+        public RegisteredDevicesKpiBuilder target(long target) {
             underConstruction.setTarget(target);
             return this;
         }
