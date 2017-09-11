@@ -455,7 +455,7 @@ public class ResourceHelper {
 
     public RegisteredDevicesKpi findRegisteredDevicesKpiByIdOrThrowException(long id) {
         return registeredDevicesKpiService.findRegisteredDevicesKpi(id)
-                .orElseThrow(() -> new WebApplicationException("No DeviceProtocolPluggableClass with id " + id, Response.Status.NOT_FOUND));
+                .orElseThrow(() -> new WebApplicationException("No RegisteredDevicesKpi with id " + id, Response.Status.NOT_FOUND));
     }
 
     public Long getCurrentDataCollectionKpiVersion(long id) {
