@@ -125,7 +125,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.securityaccessors.controller.SecurityAccessors',
         'Mdc.securityaccessors.controller.DeviceSecurityAccessors',
         'Mdc.controller.setup.DeviceRegisterValidation',
-        'Mdc.commands.controller.Commands'
+        'Mdc.commands.controller.Commands',
+        'Mdc.registereddevices.controller.RegisteredDevices'
     ],
 
     stores: [
@@ -276,12 +277,6 @@ Ext.define('Mdc.controller.Main', {
                             route: 'communicationtasks'
                         },
                         {
-                            text: Uni.I18n.translate('general.dataCollectionKpis', 'MDC', 'Data collection KPIs'),
-                            href: '#/administration/datacollectionkpis',
-                            privileges: Mdc.privileges.DataCollectionKpi.view,
-                            route: 'datacollectionkpis'
-                        },
-                        {
                             text: Uni.I18n.translate('general.commandLimitationRules', 'MDC', 'Command limitation rules'),
                             href: '#/administration/commandrules',
                             privileges: Mdc.privileges.CommandLimitationRules.view,
@@ -289,6 +284,21 @@ Ext.define('Mdc.controller.Main', {
                         }
                     ]
                 });
+
+                Uni.store.PortalItems.add(
+                    Ext.create('Uni.model.PortalItem', {
+                        title: Uni.I18n.translate('general.KPIs', 'MDC', 'KPIs'),
+                        portal: 'administration',
+                        items: [
+                            {
+                                text: Uni.I18n.translate('general.dataCollectionKpis', 'MDC', 'Data collection KPIs'),
+                                href: '#/administration/datacollectionkpis',
+                                privileges: Mdc.privileges.DataCollectionKpi.view,
+                                route: 'datacollectionkpis'
+                            }
+                        ]
+                    })
+                );
 
             }
             if (deviceCommunicationItem !== null) {
@@ -382,5 +392,52 @@ Ext.define('Mdc.controller.Main', {
             );
         }
 
+        if (Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication)) {
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.workspace', 'MDC', 'Workspace'),
+                glyph: 'workspace',
+                portal: 'workspace',
+                index: 30
+            }));
+
+            Uni.store.PortalItems.add(
+                Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.dataCommunication', 'MDC', 'Data communication'),
+                    portal: 'workspace',
+                    route: 'regdevices',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('title.registeredDevices', 'MDC', 'Registered devices'),
+                            itemId: 'mdc-workspace-registered-devices-link',
+                            href: '#/workspace/regdevices'
+                        }
+                    ]
+                })
+            );
+        }
+
+        if (true/*TODO: I have "Registered devices KPI > View registered devices KPI" privilege*/) {
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
+                portal: 'administration',
+                glyph: 'settings',
+                index: 10
+            }));
+
+            Uni.store.PortalItems.add(
+                Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.KPIs', 'MDC', 'KPIs'),
+                    portal: 'administration',
+                    route: 'regdeviceskpis',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('title.registeredDevicesKPIs', 'MDC', 'Registered devices KPIs'),
+                            itemId: 'mdc-workspace-registered-devices-link',
+                            href: '#/administration/regdeviceskpis'
+                        }
+                    ]
+                })
+            );
+        }
     }
 });
