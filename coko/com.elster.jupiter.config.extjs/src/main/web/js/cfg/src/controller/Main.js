@@ -71,35 +71,41 @@ Ext.define('Cfg.controller.Main', {
 
             Uni.store.MenuItems.add(menuItem);
 
-            var portalItem1 = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.dataValidation', 'CFG', 'Data validation'),
-                portal: 'administration',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.validationRuleSets', 'CFG', 'Validation rule sets'),
-                        href: '#/administration/validation/rulesets',
-                        itemId: 'lnk-validation-rule-sets',
-                        privileges: Cfg.privileges.Validation.view
-                    },
-                    {
-                        text: Uni.I18n.translate('validationTasks.general.validationTasks', 'CFG', 'Validation tasks'),
-                        href: '#/administration/validationtasks',
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'),
-                        itemId: 'lnk-validation-tasks',
-                        privileges: Cfg.privileges.Validation.view
-                    },
-                    {
-                        text: validationKpiRoute.getTitle(),
-                        href: validationKpiRoute.buildUrl(),
-                        itemId: 'lnk-data-validation-kpis',
-                        privileges: Cfg.privileges.Validation.viewOrAdministerDataQuality
-                    }
-                ]
-            });
-
+            Uni.store.PortalItems.add(
+                Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.dataValidation', 'CFG', 'Data validation'),
+                    portal: 'administration',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('general.validationRuleSets', 'CFG', 'Validation rule sets'),
+                            href: '#/administration/validation/rulesets',
+                            itemId: 'lnk-validation-rule-sets',
+                            privileges: Cfg.privileges.Validation.view
+                        },
+                        {
+                            text: Uni.I18n.translate('validationTasks.general.validationTasks', 'CFG', 'Validation tasks'),
+                            href: '#/administration/validationtasks',
+                            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'),
+                            itemId: 'lnk-validation-tasks',
+                            privileges: Cfg.privileges.Validation.view
+                        }
+                    ]
+                })
+            );
 
             Uni.store.PortalItems.add(
-                portalItem1
+                Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.KPIs', 'CFG', 'KPIs'),
+                    portal: 'administration',
+                    items: [
+                        {
+                            text: validationKpiRoute.getTitle(),
+                            href: validationKpiRoute.buildUrl(),
+                            itemId: 'lnk-data-validation-kpis',
+                            privileges: Cfg.privileges.Validation.viewOrAdministerDataQuality
+                        }
+                    ]
+                })
             );
         }
     },
