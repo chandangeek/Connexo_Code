@@ -28,6 +28,8 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.PassphraseFactory;
@@ -39,6 +41,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
@@ -162,6 +165,8 @@ public class DemoServiceImpl {
     private volatile PkiService pkiService;
     private volatile PassphraseFactory passphraseFactory;
     private volatile TopologyService topologyService;
+    private volatile NlsService nlsService;
+    private volatile DeviceAlarmService deviceAlarmService;
 
     private Injector injector;
     private boolean reThrowEx = false;
@@ -216,7 +221,9 @@ public class DemoServiceImpl {
             DataQualityKpiService dataQualityKpiService,
             PkiService pkiService,
             PassphraseFactory passphraseFactory,
-            TopologyService topologyService) {
+            TopologyService topologyService,
+            NlsService nlsService,
+            DeviceAlarmService deviceAlarmService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -265,6 +272,8 @@ public class DemoServiceImpl {
         setPkiService(pkiService);
         setPassphraseFactory(passphraseFactory);
         setTopologyService(topologyService);
+        setNlsService(nlsService);
+        setDeviceAlarmService(deviceAlarmService);
         activate();
         reThrowEx = true;
     }
@@ -323,6 +332,8 @@ public class DemoServiceImpl {
                 bind(DataQualityKpiService.class).toInstance(dataQualityKpiService);
                 bind(PkiService.class).toInstance(pkiService);
                 bind(TopologyService.class).toInstance(topologyService);
+                bind(NlsService.class).toInstance(nlsService);
+                bind(DeviceAlarmService.class).toInstance(deviceAlarmService);
             }
         });
         Builders.initWith(this.injector);
@@ -604,6 +615,15 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
+    }
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
+    }
+
+    @Reference
+    public void setDeviceAlarmService(DeviceAlarmService deviceAlarmService) {
+        this.deviceAlarmService = deviceAlarmService;
     }
 
     private void executeTransaction(Runnable toRunInsideTransaction) {
