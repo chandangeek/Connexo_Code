@@ -7,7 +7,7 @@ package com.energyict.mdc.device.topology.impl.kpi;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
-    REGISTERD_DEVICES_KPI_CALCULATOR(RegisteredDevicesKpiCalculatorFactory.TASK_SUBSCRIBER, RegisteredDevicesKpiCalculatorFactory.TASK_SUBSCRIBER_DISPLAYNAME),
+    REGISTERED_DEVICES_KPI_CALCULATOR(RegisteredDevicesKpiCalculatorFactory.TASK_SUBSCRIBER, RegisteredDevicesKpiCalculatorFactory.TASK_SUBSCRIBER_DISPLAYNAME),
     ;
 
     private String key;

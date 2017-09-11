@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.impl.ServerTopologyService;
+import com.energyict.mdc.device.topology.kpi.Privileges;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 
@@ -22,6 +23,9 @@ import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiService, TranslationKeyProvider {
 
@@ -76,7 +80,11 @@ public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiServ
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
+        return Stream.of(
+                Arrays.stream(TranslationKeys.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     private class RegisteredDevicesKpiBuilderImpl implements RegisteredDevicesKpiBuilder {

@@ -8,8 +8,8 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum Privileges implements TranslationKey {
     //Resources
-    RESOURCE_REGISTERED_DEVICES_KPI("registerereddeviceskpi", "Registered devices KPI"),
-    RESOURCE_REGISTERED_DEVICES_KPI_DESCRIPTION("registerereddeviceskpi.description", "Manage Registered devices KPIs"),
+    RESOURCE_REGISTERED_DEVICES_KPI("registereddeviceskpi", "Registered devices KPI"),
+    RESOURCE_REGISTERED_DEVICES_KPI_DESCRIPTION("registereddeviceskpi.description", "Manage registered devices KPIs"),
 
     //Privileges
     ADMINISTRATE_REGISTERED_DEVICES_KPI(Constants.ADMINISTRATE, "Administrate"),
