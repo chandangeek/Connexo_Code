@@ -35,7 +35,7 @@ public enum Privileges implements TranslationKey {
     }
 
     public interface Constants {
-        String ADMINISTRATE = "registerereddeviceskpi.privileges.administrate";
-        String VIEW = "registerereddeviceskpi.privileges.view";
+        String ADMINISTRATE = "registereddeviceskpi.privileges.administrate";
+        String VIEW = "registereddeviceskpi.privileges.view";
     }
 }
