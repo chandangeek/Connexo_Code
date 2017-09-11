@@ -39,6 +39,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
@@ -238,6 +239,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     static SecurityContext securityContext;
     @Mock
     IssueInfoFactoryService issueInfoFactoryService;
+    @Mock
+    OrmService ormService;
 
     protected ChannelInfoFactory channelInfoFactory;
     ReadingTypeInfoFactory readingTypeInfoFactory;
@@ -346,6 +349,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setObisCodeDescriptor(obisCodeDescriptor);
         application.setPkiService(pkiService);
         application.setIssueInfoFactoryService(issueInfoFactoryService);
+        application.setOrmService(ormService);
         return application;
     }
 
