@@ -300,7 +300,6 @@ public class DashboardServiceImplTest {
     public void testComTaskExecutionsDeviceTypeBreakdownWithoutDeviceTypes() {
         Finder<DeviceType> finder = mock(Finder.class);
         when(finder.find()).thenReturn(Collections.<DeviceType>emptyList());
-        when(finder.from(any())).thenReturn(finder);
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
 
         // Business methods
