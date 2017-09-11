@@ -368,6 +368,8 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         when(alarm.getModTime()).thenReturn(Instant.EPOCH);
         when(alarm.getVersion()).thenReturn(1L);
         when(alarm.getDeviceAlarmRelatedEvents()).thenReturn(events);
+        when(alarm.getSnoozeDateTime()).thenReturn(Optional.of(Instant.EPOCH));
+        when(alarm.getDevice().getLocation()).thenReturn(Optional.empty());
 
         when(alarm.getPriority()).thenReturn(com.elster.jupiter.issue.share.Priority.DEFAULT);
         return alarm;
