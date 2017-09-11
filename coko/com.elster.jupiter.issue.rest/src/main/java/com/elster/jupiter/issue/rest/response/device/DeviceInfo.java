@@ -110,6 +110,22 @@ public class DeviceInfo {
         }
     }
 
+    public String getmRID() {
+        return mRID;
+    }
+
+    public void setmRID(String mRID) {
+        this.mRID = mRID;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
     private String getFormattedLocation(EndDevice endDevice){
         Optional<Location> location = endDevice.getLocation();
         String formattedLocation = "";
