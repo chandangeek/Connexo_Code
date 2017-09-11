@@ -151,6 +151,10 @@ class MdcAppPrivileges {
                 com.energyict.mdc.device.lifecycle.config.Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE,
                 com.energyict.mdc.device.lifecycle.config.Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE,
 
+                //REGISTERED DEVICES KPI
+                com.energyict.mdc.device.topology.kpi.Privileges.Constants.ADMINISTRATE,
+                com.energyict.mdc.device.topology.kpi.Privileges.Constants.VIEW,
+
                 //com.elster.jupiter.metering.security - usage points
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_ANY_USAGEPOINT,
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_OWN_USAGEPOINT,
