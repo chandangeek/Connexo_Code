@@ -498,6 +498,10 @@ public class DeviceResource {
         Optional<Device> currentGateway = topologyService.getPhysicalGateway(device);
         if (!currentGateway.isPresent() || !currentGateway.get().getName().equals(gatewayName)) {
             Device newGateway = resourceHelper.findDeviceByNameOrThrowException(gatewayName);
+            if (!newGateway.getDeviceConfiguration().canActAsGateway()) {
+                throw exceptionFactory.newException(MessageSeeds.MASTER_DEVICE_CANNOT_ACT_AS_GATEWAY, gatewayName);
+            }
+
             topologyService.setPhysicalGateway(device, newGateway);
         }
     }

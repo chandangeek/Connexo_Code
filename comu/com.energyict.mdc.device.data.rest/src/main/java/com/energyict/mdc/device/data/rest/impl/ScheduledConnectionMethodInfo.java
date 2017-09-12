@@ -32,7 +32,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     }
 
     public ScheduledConnectionMethodInfo(ScheduledConnectionTask scheduledConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
-        super(scheduledConnectionTask, uriInfo, mdcPropertyUtils);
+        super(scheduledConnectionTask, uriInfo, mdcPropertyUtils, thesaurus);
         connectionStrategyInfo.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
         connectionStrategyInfo.localizedValue = ConnectionStrategyTranslationKeys.translationFor(scheduledConnectionTask.getConnectionStrategy(), thesaurus);
         this.numberOfSimultaneousConnections = scheduledConnectionTask.getNumberOfSimultaneousConnections();
