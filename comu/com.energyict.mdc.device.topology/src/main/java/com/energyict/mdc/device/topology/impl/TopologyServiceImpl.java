@@ -165,7 +165,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     private void createRealServices() {
-        this.registeredDevicesKpiService = new RegisteredDevicesKpiServiceImpl(this);
+        this.registeredDevicesKpiService = new RegisteredDevicesKpiServiceImpl(this, clock);
     }
 
     private void registerRealServices(BundleContext bundleContext) {
@@ -987,6 +987,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     @Override
     public TopologyTimeline getPysicalTopologyTimeline(Device device) {
         return TopologyTimelineImpl.merge(this.findPhysicallyReferencingDevicesFor(device, Range.all()));
+    }
+
+    @Override
+    public TopologyTimeline getPysicalTopologyTimeline(Device device, Range<Instant> range) {
+        return TopologyTimelineImpl.merge(this.findPhysicallyReferencingDevicesFor(device, range));
     }
 
     @Override

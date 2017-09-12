@@ -15,7 +15,6 @@ interface TimeDurationFactory<T extends TemporalAmount> {
 
     TimeDuration from(TemporalAmount temporalAmount);
 
-
     class TimeDurationFromDurationFactory implements TimeDurationFactory {
         private Stream<TimeDurationFactory> factories;
 

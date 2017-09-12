@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum RegisteredDevicesKpiFrequency {
+    FIVE_MINUTES(Duration.of(5, ChronoUnit.MINUTES)),
     FIFTEEN_MINUTES(Duration.of(15, ChronoUnit.MINUTES)),
     FOUR_HOURS(Duration.of(4, ChronoUnit.HOURS)),
     TWELVE_HOURS(Duration.of(12, ChronoUnit.HOURS)),
@@ -25,7 +26,7 @@ public enum RegisteredDevicesKpiFrequency {
         this.frequency = frequency;
     }
 
-    private TemporalAmount getFrequency() {
+    public TemporalAmount getFrequency() {
         return frequency;
     }
 

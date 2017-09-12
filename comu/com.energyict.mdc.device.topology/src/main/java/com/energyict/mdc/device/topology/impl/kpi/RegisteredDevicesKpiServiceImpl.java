@@ -11,17 +11,35 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.util.time.ScheduleExpression;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.TopologyTimeline;
+import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.device.topology.impl.ServerTopologyService;
 import com.energyict.mdc.device.topology.kpi.Privileges;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiFrequency;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiScore;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 
 
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.Period;
+import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -30,10 +48,14 @@ import java.util.stream.Stream;
 public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiService, TranslationKeyProvider {
 
     private DataModel dataModel;
+    private TopologyService topologyService;
+    private Clock clock;
 
     @Inject
-    public RegisteredDevicesKpiServiceImpl(ServerTopologyService topologyService) {
+    public RegisteredDevicesKpiServiceImpl(ServerTopologyService topologyService, Clock clock) {
+        this.topologyService = topologyService;
         this.dataModel = topologyService.dataModel();
+        this.clock = clock;
     }
 
     @Override
@@ -48,7 +70,7 @@ public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiServ
 
     @Override
     public Finder<RegisteredDevicesKpi> registeredDevicesKpiFinder() {
-        return DefaultFinder.of(RegisteredDevicesKpi.class, this.dataModel, EndDeviceGroup.class).defaultSortColumn(RegisteredDevicesKpiImpl.Fields.END_DEVICE_GROUP.fieldName()+".name");
+        return DefaultFinder.of(RegisteredDevicesKpi.class, this.dataModel, EndDeviceGroup.class).defaultSortColumn(RegisteredDevicesKpiImpl.Fields.END_DEVICE_GROUP.fieldName() + ".name");
     }
 
     @Override
@@ -66,6 +88,40 @@ public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiServ
     public Optional<RegisteredDevicesKpi> findRegisteredDevicesKpi(EndDeviceGroup group) {
         return this.dataModel.mapper(RegisteredDevicesKpi.class).getUnique(RegisteredDevicesKpiImpl.Fields.END_DEVICE_GROUP
                 .fieldName(), group);
+    }
+
+    @Override
+    public List<RegisteredDevicesKpiScore> getScores(Device gateway, Range<Instant> interval, RegisteredDevicesKpiFrequency frequency) {
+        List<RegisteredDevicesKpiScore> scores = new ArrayList<>();
+        ScheduleExpression expression = getTemporalExpression(frequency.getFrequency());
+        Optional<ZonedDateTime> zonedDateTime = expression.nextOccurrence(ZonedDateTime.ofInstant(interval.lowerEndpoint(), clock.getZone()));
+        ZonedDateTime startTime = zonedDateTime.get();
+        Map<Range<Instant>, Integer> map = new HashMap<>();
+        List<TopologyTimeslice> slices = topologyService.getPysicalTopologyTimeline(gateway, interval).getSlices();
+        while(!startTime.toInstant().isAfter(interval.upperEndpoint())) {
+            ZonedDateTime finalStartTime = startTime;
+            Optional<TopologyTimeslice> slice = slices.stream()
+                    .filter(topologyTimeslice -> topologyTimeslice.getPeriod().contains(finalStartTime.toInstant()))
+                    .findAny();
+            int numberOfDevices = 0;
+            if(slice.isPresent()) {
+                numberOfDevices = slice.get().getDevices().size();
+            }
+            scores.add(new RegisteredDevicesKpiScoreImpl(startTime.toInstant(), BigDecimal.valueOf(numberOfDevices)));
+            startTime = expression.nextOccurrence(startTime).get();
+        }
+        return scores;
+    }
+
+    private ScheduleExpression getTemporalExpression(TemporalAmount frequency) {
+
+        if (frequency instanceof Duration) {
+            Duration duration = (Duration) frequency;
+            return new TemporalExpression(new TimeDurationFactory.TimeDurationFromDurationFactory().from(duration));
+        } else {
+            Period period = (Period) frequency;
+            return new TemporalExpression(new TimeDurationFactory.TimeDurationFromPeriodFactory().from(period));
+        }
     }
 
     @Override

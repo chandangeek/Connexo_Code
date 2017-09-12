@@ -7,8 +7,12 @@ package com.energyict.mdc.device.topology.kpi;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 
-import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.device.data.Device;
 
+import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Optional;
@@ -58,6 +62,16 @@ public interface RegisteredDevicesKpiService {
      * @return The RegisteredDevicesKpi
      */
     Optional<RegisteredDevicesKpi> findRegisteredDevicesKpi(EndDeviceGroup group);
+
+    /**
+     * Gets the scores for a gateway for a certain interval and a certain frequency
+     * @param gateway the gateway to find the scores for
+     * @param interval the interval to find the scores for
+     * @param frequency the frequency you want to see the scores in
+     * @return a list of {@link RegisteredDevicesKpiScore}
+     */
+    List<RegisteredDevicesKpiScore> getScores(Device gateway, Range<Instant> interval, RegisteredDevicesKpiFrequency frequency);
+
 
     interface RegisteredDevicesKpiBuilder {
 

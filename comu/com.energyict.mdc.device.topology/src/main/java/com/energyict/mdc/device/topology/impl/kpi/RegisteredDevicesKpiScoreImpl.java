@@ -11,12 +11,17 @@ import java.time.Instant;
 
 public class RegisteredDevicesKpiScoreImpl implements RegisteredDevicesKpiScore {
     private final Instant timestamp;
-    private final BigDecimal total;
+    private BigDecimal total;
     private final BigDecimal registered;
 
     public RegisteredDevicesKpiScoreImpl(Instant timestamp, BigDecimal total, BigDecimal registered) {
         this.timestamp = timestamp;
         this.total = total;
+        this.registered = registered;
+    }
+
+    public RegisteredDevicesKpiScoreImpl(Instant timestamp, BigDecimal registered) {
+        this.timestamp = timestamp;
         this.registered = registered;
     }
 

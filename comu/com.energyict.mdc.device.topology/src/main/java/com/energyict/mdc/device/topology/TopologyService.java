@@ -90,6 +90,17 @@ public interface TopologyService {
     TopologyTimeline getPysicalTopologyTimeline(Device device);
 
     /**
+     * Gets the {@link TopologyTimeline} of the devices that are
+     * directly physically connected to the specified gateway for a certain range
+     *
+     * @param device The gateway
+     * @param range The range
+     * @return The TopologyTimeline
+     * @see #getPhysicalGateway(Device)
+     */
+    TopologyTimeline getPysicalTopologyTimeline(Device device, Range<Instant> range);
+
+    /**
      * Gets the most recent additions to the {@link TopologyTimeline}
      * of the devices that are directly physically connected to the specified gateway.
      *
