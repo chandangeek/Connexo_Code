@@ -7,6 +7,7 @@ package com.elster.jupiter.issue.impl.module;
 import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
+import com.elster.jupiter.issue.impl.tasks.IssueSnoozeHandlerFactory;
 import com.elster.jupiter.nls.TranslationKey;
 
 /**
@@ -18,6 +19,7 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum TranslationKeys implements TranslationKey {
 
     ISSUE_STATUS_OPEN("issue.status.open", "Created"),
+    ISSUE_STATUS_SNOOZED("issue.status.snoozed", "Snoozed"),
     ISSUE_STATUS_RESOLVED("issue.status.resolved", "Resolved"),
     ISSUE_STATUS_WONT_FIX("issue.status.wont.fix", "Won''t fix"), // intentionally two '
     ISSUE_STATUS_IN_PROGRESS("issue.status.in.progress", "Ongoing"),
@@ -29,10 +31,14 @@ public enum TranslationKeys implements TranslationKey {
     COMMENTACTION_PROPERTY_COMMENT(CommentIssueAction.ISSUE_COMMENT, "Comment"),
     UNASSIGNED(DatabaseConst.UNASSIGNED, "Unassigned"),
     SUBSCRIBER_NAME(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER, IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DISPLAYNAME),
+    ISSUE_SNOOZE_SUBSCRIBER_NAME (IssueSnoozeHandlerFactory.ISSUE_SNOOZE_TASK_SUBSCRIBER, IssueSnoozeHandlerFactory.ISSUE_SNOOZE_TASK_DISPLAYNAME),
     ACTION_ISSUE_ASSIGNED("action.issue.assigned", "Issue assigned"),
     ACTION_ISSUE_COMMENTED("action.issue.commented", "Issue commented"),
-    ACTION_ISSUE_UNASSIGNED("action.issue.unassigned", "Issue unassigned");
-
+    ACTION_ISSUE_SNOOZED("action.issue.snoozed", "Snoozed"),
+    ACTION_ISSUE_UNASSIGNED("action.issue.unassigned", "Issue unassigned"),
+    ACTION_WEBSERVICE_NOTIFICATION_CALLED("issue.action.webServiceNotification", "Web service notification called"),
+    ACTION_WEBSERVICE_NOTIFICATION("issue.action.webServiceNotification", "Web service notification"),
+    ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE("issue.action.webServiceNotification.close", "Close issue");
 
     private final String key;
     private final String defaultFormat;

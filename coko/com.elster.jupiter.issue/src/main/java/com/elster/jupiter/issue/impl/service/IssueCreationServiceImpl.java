@@ -29,6 +29,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.events.EventService;
@@ -70,6 +71,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     private volatile IssueService issueService;
     private volatile EventService eventService;
     private volatile Optional<User> batchUser;
+    private volatile EndPointConfigurationService endPointConfigurationService;
 
     private volatile KnowledgeBase knowledgeBase;
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
@@ -89,6 +91,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             KnowledgeBuilderFactoryService knowledgeBuilderFactoryService,
             KnowledgeBaseFactoryService knowledgeBaseFactoryService,
             KieResources resourceFactoryService,
+            EndPointConfigurationService endPointConfigurationService,
             Thesaurus thesaurus,
             EventService eventService) {
         this.dataModel = dataModel;
@@ -99,6 +102,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         this.knowledgeBuilderFactoryService = knowledgeBuilderFactoryService;
         this.resourceFactoryService = resourceFactoryService;
         this.thesaurus = thesaurus;
+        this.endPointConfigurationService = endPointConfigurationService;
         this.eventService = eventService;
     }
 

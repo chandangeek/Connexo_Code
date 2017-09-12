@@ -5,10 +5,13 @@
 package com.elster.jupiter.issue.impl.module;
 
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
+import com.elster.jupiter.issue.impl.actions.WebServiceNotificationAction;
 import com.elster.jupiter.issue.impl.database.CreateIssueViewOperation;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
+import com.elster.jupiter.issue.impl.tasks.IssueSnoozeHandlerFactory;
 import com.elster.jupiter.issue.security.Privileges;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
@@ -16,9 +19,11 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -37,21 +42,27 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private static final String ISSUE_OVERDUE_TASK_SCHEDULE = "0 0/1 * 1/1 * ? *";
     private static final int ISSUE_OVERDUE_TASK_RETRY_DELAY = 60;
 
+    private static final String ISSUE_SNOOZE_TASK_NAME = "IssueSnoozeTask";
+    private static final String ISSUE_SNOOZE_TASK_SCHEDULE = "0 0/1 * 1/1 * ? *";
+    private static final int ISSUE_SNOOZE_TASK_RETRY_DELAY = 60;
+
     private final DataModel dataModel;
     private final IssueService issueService;
     private final IssueActionService issueActionService;
     private final MessageService messageService;
     private final TaskService taskService;
     private final UserService userService;
+    private final EndPointConfigurationService endPointConfigurationService;
 
     @Inject
-    public Installer(DataModel dataModel, IssueService issueService, MessageService messageService, TaskService taskService, UserService userService) {
+    public Installer(DataModel dataModel, IssueService issueService, MessageService messageService, TaskService taskService, UserService userService, EndPointConfigurationService endPointConfigurationService) {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.userService = userService;
         this.issueActionService = issueService.getIssueActionService();
         this.messageService = messageService;
         this.taskService = taskService;
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     @Override
@@ -70,6 +81,12 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         doTry(
                 "overdue task",
                 this::createIssueOverdueTask,
+                logger
+        );
+        doTry(
+
+                "snooze task",
+                this::createIssueSnoozeTask,
                 logger
         );
         doTry(
@@ -110,20 +127,39 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private void createStatuses() {
         issueService.createStatus(IssueStatus.OPEN, false, TranslationKeys.ISSUE_STATUS_OPEN);
         issueService.createStatus(IssueStatus.IN_PROGRESS, false, TranslationKeys.ISSUE_STATUS_IN_PROGRESS);
+        issueService.createStatus(IssueStatus.SNOOZED, false, TranslationKeys.ISSUE_STATUS_SNOOZED);
         issueService.createStatus(IssueStatus.RESOLVED, true, TranslationKeys.ISSUE_STATUS_RESOLVED);
         issueService.createStatus(IssueStatus.WONT_FIX, true, TranslationKeys.ISSUE_STATUS_WONT_FIX);
     }
 
     private void createIssueOverdueTask() {
+
+        createActionTask(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DESTINATION,
+                ISSUE_OVERDUE_TASK_RETRY_DELAY,
+                TranslationKeys.SUBSCRIBER_NAME,
+                ISSUE_OVERDUE_TASK_NAME,
+                ISSUE_OVERDUE_TASK_SCHEDULE);
+    }
+
+    private void createIssueSnoozeTask() {
+        createActionTask(IssueSnoozeHandlerFactory.ISSUE_SNOOZE_TASK_DESTINATION,
+                ISSUE_SNOOZE_TASK_RETRY_DELAY,
+                TranslationKeys.ISSUE_SNOOZE_SUBSCRIBER_NAME,
+                ISSUE_SNOOZE_TASK_NAME,
+                ISSUE_SNOOZE_TASK_SCHEDULE);
+    }
+
+
+    private void createActionTask(String destinationSpecName, int destinationSpecRetryDelay, TranslationKey subscriberSpecName, String taskName, String taskSchedule) {
         DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get()
-                .createDestinationSpec(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DESTINATION, ISSUE_OVERDUE_TASK_RETRY_DELAY);
+                .createDestinationSpec(destinationSpecName, destinationSpecRetryDelay);
         destination.activate();
-        destination.subscribe(TranslationKeys.SUBSCRIBER_NAME, IssueService.COMPONENT_NAME, Layer.DOMAIN);
+        destination.subscribe(subscriberSpecName, IssueService.COMPONENT_NAME, Layer.DOMAIN);
 
         taskService.newBuilder()
                 .setApplication("Admin")
-                .setName(ISSUE_OVERDUE_TASK_NAME)
-                .setScheduleExpressionString(ISSUE_OVERDUE_TASK_SCHEDULE)
+                .setName(taskName)
+                .setScheduleExpressionString(taskSchedule)
                 .setDestination(destination)
                 .setPayLoad("payload")
                 .scheduleImmediately(true)
@@ -133,6 +169,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private void createActionTypes() {
         IssueType type = null;
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignIssueAction.class.getName(), type);
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, WebServiceNotificationAction.class.getName(), type, CreationRuleActionPhase.CREATE);
     }
 
 }
