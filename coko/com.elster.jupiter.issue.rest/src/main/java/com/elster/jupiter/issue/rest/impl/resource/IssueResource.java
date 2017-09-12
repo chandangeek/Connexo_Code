@@ -24,6 +24,7 @@ import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
 import com.elster.jupiter.issue.rest.response.IssueInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
+import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
@@ -127,6 +128,16 @@ public class IssueResource extends BaseResource {
             }
         }
         return PagedInfoList.fromPagedList("data", issueInfos, queryParams);
+    }
+
+    @GET @Transactional
+    @Path("/{id}")
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public IssueInfo getIssueById(@PathParam("id") long id) {
+        Optional<? extends Issue> issue = getIssueService().findIssue(id);
+        return issue.map(isu -> issueInfoFactory.asInfo(isu,DeviceInfo.class))
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     @GET
