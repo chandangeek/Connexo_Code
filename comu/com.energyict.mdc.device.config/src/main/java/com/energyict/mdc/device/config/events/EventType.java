@@ -71,10 +71,36 @@ public enum EventType {
             return eventTypeBuilder.shouldPublish();
         }
     },
+    COMTASKENABLEMENT_SWITCH_ON_CONNECTION_FUNCTION("comtaskenablement/SWITCH_ON_CF") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            eventTypeBuilder.withProperty("comTaskEnablementId", ValueType.LONG, "comTaskEnablementId");
+            eventTypeBuilder.withProperty("newConnectionFunctionId", ValueType.LONG, "newConnectionFunctionId");
+            return eventTypeBuilder;
+        }
+
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
     COMTASKENABLEMENT_SWITCH_OFF_DEFAULT("comtaskenablement/SWITCH_OFF_DEFAULT") {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             eventTypeBuilder.withProperty("comTaskEnablementId", ValueType.LONG, "comTaskEnablementId");
+            return eventTypeBuilder;
+        }
+
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
+    COMTASKENABLEMENT_SWITCH_OFF_CONNECTION_FUNCTION("comtaskenablement/SWITCH_OFF_CF") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            eventTypeBuilder.withProperty("comTaskEnablementId", ValueType.LONG, "comTaskEnablementId");
+            eventTypeBuilder.withProperty("oldConnectionFunctionId", ValueType.LONG, "oldConnectionFunctionId");
             return eventTypeBuilder;
         }
 
@@ -96,11 +122,65 @@ public enum EventType {
             return eventTypeBuilder.shouldPublish();
         }
     },
+    COMTASKENABLEMENT_SWITCH_FROM_DEFAULT_TO_CONNECTION_FUNCTION("comtaskenablement/SWITCH_FROM_DEFAULT_TO_CF") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            eventTypeBuilder.withProperty("comTaskEnablementId", ValueType.LONG, "comTaskEnablementId");
+            eventTypeBuilder.withProperty("newConnectionFunctionId", ValueType.LONG, "newConnectionFunctionId");
+            return eventTypeBuilder;
+        }
+
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
     COMTASKENABLEMENT_SWITCH_FROM_TASK_TO_DEFAULT("comtaskenablement/SWITCH_FROM_TASK_TO_DEFAULT") {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             eventTypeBuilder.withProperty("comTaskEnablementId", ValueType.LONG, "comTaskEnablementId");
             eventTypeBuilder.withProperty("partialConnectionTaskId", ValueType.LONG, "partialConnectionTaskId");
+            return eventTypeBuilder;
+        }
+
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
+    COMTASKENABLEMENT_SWITCH_FROM_TASK_TO_CONNECTION_FUNCTION("comtaskenablement/SWITCH_FROM_TASK_TO_CF") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            eventTypeBuilder.withProperty("comTaskEnablementId", ValueType.LONG, "comTaskEnablementId");
+            eventTypeBuilder.withProperty("oldPartialConnectionTaskId", ValueType.LONG, "oldPartialConnectionTaskId");
+            eventTypeBuilder.withProperty("newConnectionFunctionId", ValueType.LONG, "newConnectionFunctionId");
+            return eventTypeBuilder;
+        }
+
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
+    COMTASKENABLEMENT_SWITCH_FROM_CONNECTION_FUNCTION_TO_DEFAULT("comtaskenablement/SWITCH_FROM_CF_TO_DEFAULT") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            eventTypeBuilder.withProperty("comTaskEnablementId", ValueType.LONG, "comTaskEnablementId");
+            eventTypeBuilder.withProperty("oldConnectionFunctionId", ValueType.LONG, "oldConnectionFunctionId");
+            return eventTypeBuilder;
+        }
+
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
+    COMTASKENABLEMENT_SWITCH_FROM_CONNECTION_FUNCTION_TO_TASK("comtaskenablement/SWITCH_FROM_CF_TO_TASK") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            eventTypeBuilder.withProperty("comTaskEnablementId", ValueType.LONG, "comTaskEnablementId");
+            eventTypeBuilder.withProperty("oldConnectionFunctionId", ValueType.LONG, "oldConnectionFunctionId");
+            eventTypeBuilder.withProperty("newPartialConnectionTaskId", ValueType.LONG, "newPartialConnectionTaskId");
             return eventTypeBuilder;
         }
 
@@ -115,6 +195,20 @@ public enum EventType {
             eventTypeBuilder.withProperty("comTaskEnablementId", ValueType.LONG, "comTaskEnablementId");
             eventTypeBuilder.withProperty("oldPartialConnectionTaskId", ValueType.LONG, "oldPartialConnectionTaskId");
             eventTypeBuilder.withProperty("newPartialConnectionTaskId", ValueType.LONG, "newPartialConnectionTaskId");
+            return eventTypeBuilder;
+        }
+
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
+    COMTASKENABLEMENT_SWITCH_BETWEEN_CONNECTION_FUNCTIONS("comtaskenablement/SWITCH_BETWEEN_CFS") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            eventTypeBuilder.withProperty("comTaskEnablementId", ValueType.LONG, "comTaskEnablementId");
+            eventTypeBuilder.withProperty("oldConnectionFunctionId", ValueType.LONG, "oldConnectionFunctionId");
+            eventTypeBuilder.withProperty("newConnectionFunctionId", ValueType.LONG, "newConnectionFunctionId");
             return eventTypeBuilder;
         }
 
@@ -165,36 +259,15 @@ public enum EventType {
     PROTOCOLCONFIGURATIONPROPS_VALIDATEDELETE("protocolconfigurationprops/VALIDATEDELETE"),
     PROTOCOLCONFIGURATIONPROPS_VALIDATEREMOVE_ONE("protocolconfigurationprops/VALIDATE_REMOVE_ONE"),
     PARTIAL_INBOUND_CONNECTION_TASK_CREATED("partialinboundconnectiontask/CREATED"),
-    PARTIAL_INBOUND_CONNECTION_TASK_UPDATED("partialinboundconnectiontask/UPDATED") {
-        @Override
-        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
-            super.addCustomProperties(eventTypeBuilder);
-            eventTypeBuilder.withProperty("addedOrRemovedRequiredProperties", ValueType.STRING, "addedOrRemovedRequiredPropertiesAsString");
-            return eventTypeBuilder;
-        }
-    },
+    PARTIAL_INBOUND_CONNECTION_TASK_UPDATED("partialinboundconnectiontask/UPDATED"),
     PARTIAL_INBOUND_CONNECTION_TASK_VALIDATE_DELETE("partialinboundconnectiontask/VALIDATE_DELETE"),
     PARTIAL_INBOUND_CONNECTION_TASK_DELETED("partialinboundconnectiontask/DELETED"),
     PARTIAL_SCHEDULED_CONNECTION_TASK_CREATED("partialscheduledconnectiontask/CREATED"),
-    PARTIAL_SCHEDULED_CONNECTION_TASK_UPDATED("partialscheduledconnectiontask/UPDATED") {
-        @Override
-        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
-            super.addCustomProperties(eventTypeBuilder);
-            eventTypeBuilder.withProperty("addedOrRemovedRequiredProperties", ValueType.STRING, "addedOrRemovedRequiredPropertiesAsString");
-            return eventTypeBuilder;
-        }
-    },
+    PARTIAL_SCHEDULED_CONNECTION_TASK_UPDATED("partialscheduledconnectiontask/UPDATED"),
     PARTIAL_SCHEDULED_CONNECTION_TASK_VALIDATE_DELETE("partialscheduledconnectiontask/VALIDATE_DELETE"),
     PARTIAL_SCHEDULED_CONNECTION_TASK_DELETED("partialscheduledconnectiontask/DELETED"),
     PARTIAL_CONNECTION_INITIATION_TASK_CREATED("partialconnectioninitiationtask/CREATED"),
-    PARTIAL_CONNECTION_INITIATION_TASK_UPDATED("partialconnectioninitiationtask/UPDATED") {
-        @Override
-        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
-            super.addCustomProperties(eventTypeBuilder);
-            eventTypeBuilder.withProperty("addedOrRemovedRequiredProperties", ValueType.STRING, "addedOrRemovedRequiredPropertiesAsString");
-            return eventTypeBuilder;
-        }
-    },
+    PARTIAL_CONNECTION_INITIATION_TASK_UPDATED("partialconnectioninitiationtask/UPDATED"),
     PARTIAL_CONNECTION_INITIATION_TASK_DELETED("partialconnectioninitiationtask/DELETED"),
     PARTIAL_CONNECTION_INITIATION_TASK_VALIDATE_DELETE("partialconnectioninitiationtask/VALIDATE_DELETE"),
     DEVICE_COMMUNICATION_CONFIGURATION_CREATED("devicecommunicationconfiguration/CREATED"),

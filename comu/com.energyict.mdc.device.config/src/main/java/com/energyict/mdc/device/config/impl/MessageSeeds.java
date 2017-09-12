@@ -176,7 +176,11 @@ public enum MessageSeeds implements MessageSeed {
     SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC(15023, Keys.SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC, "The security setting does not contain a specification for this attribute", Level.SEVERE),
     SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING(15024, Keys.SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING, "This field is required", Level.SEVERE),
     KEY_ACCESSOR_CAN_NOT_BE_DELETED(15025, "CanNotDeleteKeyAccessor", "Security accessor could not be removed because the device type still has active device configurations"),
-    EXCESSIVE_TIME_DURATION(15026, Keys.EXCESSIVE_TIME_DURATION, "Validity period must be shorter than or equal to 30 years.");
+    EXCESSIVE_TIME_DURATION(15026, Keys.EXCESSIVE_TIME_DURATION, "Validity period must be shorter than or equal to 30 years."),
+    CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL(15027, Keys.CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL, "The connection function is not supported by the device protocol"),
+    CONNECTION_FUNCTION_UNIQUE(15028, Keys.CONNECTION_FUNCTION_UNIQUE, "The provided connection function is already used on another connection method"),
+    COM_TASK_ENABLEMENT_CANNOT_USE_CONNECTION_FUNCTION_AND_PARTIAL_CONNECTION_TASK(15029, Keys.COM_TASK_ENABLEMENT_CANNOT_USE_CONNECTION_FUNCTION_AND_PARTIAL_CONNECTION_TASK, "When a partial connection task is specified, you can''t use the connection function"),
+    ;
 
     private final int number;
     private final String key;
@@ -271,6 +275,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COM_TASK_ENABLEMENT_CONFIGURATION_REQUIRED = "comTaskEnablement.configuration.required";
         public static final String COM_TASK_ENABLEMENT_SECURITY_PROPERTY_SET_REQUIRED = "comTaskEnablement.securityPropertySet.required";
         public static final String COM_TASK_ENABLEMENT_CANNOT_USE_DEFAULT_AND_PARTIAL_CONNECTION_TASK = "comTaskEnablement.cannotUseDefault";
+        public static final String COM_TASK_ENABLEMENT_CANNOT_USE_CONNECTION_FUNCTION_AND_PARTIAL_CONNECTION_TASK = "comTaskEnablement.cannotUseConnectionFunction";
         public static final String COM_TASK_ENABLEMENT_PRIORITY_RANGE = "comTaskEnablement.invalidPriority";
         public static final String COM_TASK_ENABLEMENT_PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_MUST_BE_FROM_SAME_CONFIGURATION = "comTaskEnablement.protocolDialectConfigurationProperties.fromSameConfiguration";
         public static final String COM_TASK_ENABLEMENT_SECURITY_PROPERTY_SET_MUST_BE_FROM_SAME_CONFIGURATION = "comTaskEnablement.securityPropertySet.fromSameConfiguration";
@@ -305,6 +310,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC = "securityPropertySet.property.not.in.spec";
         public static final String SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING = "securityPropertySet.required.property.missing";
         public static final String EXCESSIVE_TIME_DURATION = "excessiveTimeDuration";
+        public static final String CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL = "ConnectionFunction.not.supported.by.deviceProtocol";
+        public static final String CONNECTION_FUNCTION_UNIQUE = "ConnectionFunction.unique";
     }
 
 }

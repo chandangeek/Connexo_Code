@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.PartialConnectionTaskBuilder;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import java.util.HashMap;
@@ -26,6 +27,7 @@ abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortPool, U 
     Map<String, Object> properties = new HashMap<>();
     private final EventService eventService;
     private ProtocolDialectConfigurationProperties protocolDialectProperties;
+    private ConnectionFunction connectionFunction;
 
     @SuppressWarnings("unchecked")
     AbstractPartialConnectionTaskBuilder(EventService eventService, Class<?> selfType, DataModel dataModel, DeviceConfigurationImpl configuration) {
@@ -66,10 +68,17 @@ abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortPool, U 
     }
 
     @Override
+    public S connectionFunction(ConnectionFunction connectionFunction) {
+        this.connectionFunction = connectionFunction;
+        return myself;
+    }
+
+    @Override
     public U build() {
         U instance = newInstance();
         instance.setName(name);
         instance.setConnectionTypePluggableClass(connectionTypePluggableClass);
+        instance.setConnectionFunction(connectionFunction);
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
             instance.setProperty(entry.getKey(), entry.getValue());
         }

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.config;
 
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.tasks.ComTask;
 
 import aQute.bnd.annotation.ProviderType;
@@ -20,29 +21,32 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface ComTaskEnablementBuilder {
 
-    ComTaskEnablementBuilder setIgnoreNextExecutionSpecsForInbound (boolean flag);
+    ComTaskEnablementBuilder setIgnoreNextExecutionSpecsForInbound(boolean flag);
 
     /**
      * Sets the {@link com.energyict.mdc.device.config.PartialConnectionTask} that specifies
-     * the preferred way to setup a connection for the enabled {@link ComTask}.
-     * Note that when you set this, you cannot specify to use the default ConnectionTask.
+     * the preferred way to setup a connection for the enabled {@link ComTask}.<br/>
+     * Note that when you set this, you cannot specify to use the default ConnectionTask
+     * nor to rely on connection function.
      *
      * @param partialConnectionTask The PartialConnectionTask
      * @return The ComTaskEnablementBuilder
      * @see ComTaskEnablement#setPartialConnectionTask(PartialConnectionTask)
      */
-     ComTaskEnablementBuilder setPartialConnectionTask(PartialConnectionTask partialConnectionTask);
+    ComTaskEnablementBuilder setPartialConnectionTask(PartialConnectionTask partialConnectionTask);
 
     /**
      * Sets the flag that indicates if the execution of the related {@link ComTask}
      * on a Device of the related {@link com.energyict.mdc.device.config.DeviceConfiguration}
-     * should use the default ConnectionTask configured on that Device.
+     * should use the default ConnectionTask configured on that Device.<br/>
+     * Note that when you set this, you cannot specify to use a specific partial connection task
+     * nor to rely on connection function.
      *
      * @param flagValue The flag, <code>true</code> indicates that the default connection task should be used
      * @return The ComTaskEnablementBuilder
      * @see ComTaskEnablement#useDefaultConnectionTask(boolean)
      */
-     ComTaskEnablementBuilder useDefaultConnectionTask(boolean flagValue);
+    ComTaskEnablementBuilder useDefaultConnectionTask(boolean flagValue);
 
     /**
      * Gets the preferred execution priority for the execution
@@ -55,7 +59,18 @@ public interface ComTaskEnablementBuilder {
      * @return The ComTaskEnablementBuilder
      * @see ComTaskEnablement#setPriority(int)
      */
-     ComTaskEnablementBuilder setPriority(int priority);
+    ComTaskEnablementBuilder setPriority(int priority);
+
+    /**
+     * Sets the {@link ConnectionFunction} of the {@link ComTaskEnablement}<br/>
+     * Note that when you set this, you cannot specify to use a specific partial connection task
+     * nor to use the default connection task.
+     *
+     * @param connectionFunction the ConnectionFunction
+     * @return The ComTaskEnablementBuilder
+     * @see ComTaskEnablement#setConnectionFunction(ConnectionFunction)
+     */
+    ComTaskEnablementBuilder setConnectionFunction(ConnectionFunction connectionFunction);
 
     /**
      * Completes the building process, i.e. enables the {@link com.energyict.mdc.tasks.ComTask}
@@ -63,5 +78,5 @@ public interface ComTaskEnablementBuilder {
      *
      * @return The ComTaskEnablement
      */
-     ComTaskEnablement add();
+    ComTaskEnablement add();
 }

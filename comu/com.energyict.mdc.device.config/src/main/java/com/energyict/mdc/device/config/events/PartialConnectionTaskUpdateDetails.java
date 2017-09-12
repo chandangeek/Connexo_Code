@@ -5,10 +5,12 @@
 package com.energyict.mdc.device.config.events;
 
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models the information that is published when
@@ -25,14 +27,14 @@ public interface PartialConnectionTaskUpdateDetails {
      *
      * @return The unique identifier
      */
-    public long getId();
+    long getId();
 
     /**
      * Gets the {@link PartialConnectionTask} that was updated.
      *
      * @return The PartialConnectionTask
      */
-    public PartialConnectionTask getPartialConnectionTask();
+    PartialConnectionTask getPartialConnectionTask();
 
     /**
      * Gets the list of required properties that were
@@ -40,14 +42,13 @@ public interface PartialConnectionTaskUpdateDetails {
      *
      * @return The list of required properties
      */
-    public List<String> getAddedOrRemovedRequiredProperties();
+    List<String> getAddedOrRemovedRequiredProperties();
 
     /**
-     * Gets the comma separated list of required properties
-     * that were added or removed during the update session.
+     * Gets the previous {@link ConnectionFunction} of the {@link PartialConnectionTask}
      *
-     * @return The comma separated list of required properties
+     * @return the previous ConnectionFunction
      */
-    public String getAddedOrRemovedRequiredPropertiesAsString();
+    Optional<ConnectionFunction> getPreviousConnectionFunction();
 
 }

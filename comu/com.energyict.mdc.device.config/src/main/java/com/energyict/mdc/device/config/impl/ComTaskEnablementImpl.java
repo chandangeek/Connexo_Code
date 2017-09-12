@@ -13,13 +13,21 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.tasks.ComTask;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -32,7 +40,9 @@ import static com.elster.jupiter.util.Checks.is;
  */
 @ComTaskIsEnabledOnlyOncePerConfiguration(groups = {Save.Create.class})
 @NoPartialConnectionTaskWhenDefaultIsUsed(groups = {Save.Create.class, Save.Update.class})
+@NoPartialConnectionTaskWhenConnectionFunctionIsUsed(groups = {Save.Create.class, Save.Update.class})
 @SecurityPropertySetMustBeFromSameConfiguration(groups = {Save.Create.class, Save.Update.class})
+@ConsumableConnectionFunctionMustBeSupportedByTheDeviceProtocol(groups = {Save.Create.class, Save.Update.class})
 public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement> implements ServerComTaskEnablement, PersistenceAware {
 
     enum Fields {
@@ -70,6 +80,8 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     @Valid
     private Reference<PartialConnectionTask> partialConnectionTask = ValueReference.absent();
     private boolean suspended;
+    private long connectionFunctionDbValue;
+    private Optional<ConnectionFunction> connectionFunction = Optional.empty();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -242,6 +254,11 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     public Optional<PartialConnectionTask> getPartialConnectionTask() {
         if (this.usesDefaultConnectionTask) {
             return getDeviceConfiguration().getPartialConnectionTasks().stream().filter(PartialConnectionTask::isDefault).findFirst();
+        } else if (this.getConnectionFunction().isPresent()) {
+            return getDeviceConfiguration().getPartialConnectionTasks()
+                    .stream()
+                    .filter(ct -> ct.getConnectionFunction().isPresent() && ct.getConnectionFunction().get().getId() == this.getConnectionFunction().get().getId())
+                    .findFirst();
         }
         return this.partialConnectionTask.getOptional();
     }
@@ -253,6 +270,28 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
 
     private void doSetPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
         this.partialConnectionTask.set(partialConnectionTask);
+    }
+
+    @Override
+    public Optional<ConnectionFunction> getConnectionFunction() {
+        if (!this.connectionFunction.isPresent() && this.connectionFunctionDbValue != 0) {
+            Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
+            List<ConnectionFunction> supportedConnectionFunctions = deviceProtocolPluggableClass.isPresent()
+                    ? deviceProtocolPluggableClass.get().getConsumableConnectionFunctions()
+                    : Collections.emptyList();
+            this.connectionFunction = supportedConnectionFunctions.stream().filter(cf -> cf.getId() == this.connectionFunctionDbValue).findFirst();
+        }
+        return this.connectionFunction;
+    }
+
+    private void doSetConnectionFunction(ConnectionFunction connectionFunction) {
+        this.connectionFunction = Optional.ofNullable(connectionFunction);
+        this.connectionFunctionDbValue = connectionFunction != null ? connectionFunction.getId() : 0;
+    }
+
+    @Override
+    public void setConnectionFunction(ConnectionFunction connectionFunction) {
+        this.saveStrategy = this.saveStrategy.setConnectionFunction(connectionFunction);
     }
 
     @Override
@@ -270,8 +309,9 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
 
         SaveStrategy useDefaultConnectionTask(boolean flagValue);
 
-        SaveStrategy setPriority(int priority);
+        SaveStrategy setConnectionFunction(ConnectionFunction connectionFunction);
 
+        SaveStrategy setPriority(int priority);
     }
 
     /**
@@ -298,6 +338,11 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         @Override
         public SaveStrategy useDefaultConnectionTask(boolean flagValue) {
             return new ChangeConnectionStrategy(flagValue, this);
+        }
+
+        @Override
+        public SaveStrategy setConnectionFunction(ConnectionFunction connectionFunction) {
+            return new ChangeConnectionStrategy(connectionFunction, this);
         }
 
         @Override
@@ -346,6 +391,12 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         }
 
         @Override
+        public SaveStrategy setConnectionFunction(ConnectionFunction connectionFunction) {
+            this.remainder = this.remainder.setConnectionFunction(connectionFunction);
+            return this;
+        }
+
+        @Override
         public SaveStrategy setPriority(int priority) {
             this.newPriority = priority;
             return this;
@@ -376,24 +427,41 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         private SaveStrategy remainder;
         private boolean usedDefaultPreviously;
         private boolean useDefaultNow;
+        private Optional<ConnectionFunction> previousConnectionFunction;
+        private Optional<ConnectionFunction> newConnectionFunction;
         private Optional<PartialConnectionTask> previousPartialConnectionTask;
         private Optional<PartialConnectionTask> newPartialConnectionTask;
 
         private ChangeConnectionStrategy(boolean useDefault, SaveStrategy remainder) {
             super();
             this.remainder = remainder;
-            this.useDefaultNow = useDefault;
             this.usedDefaultPreviously = ComTaskEnablementImpl.this.usesDefaultConnectionTask();
+            this.previousConnectionFunction = ComTaskEnablementImpl.this.getConnectionFunction();
             this.previousPartialConnectionTask = ComTaskEnablementImpl.this.partialConnectionTask.getOptional();
+            this.useDefaultNow = useDefault;
+            this.newConnectionFunction = Optional.empty();
+            this.newPartialConnectionTask = Optional.empty();
+        }
+
+        private ChangeConnectionStrategy(ConnectionFunction connectionFunction, SaveStrategy remainder) {
+            super();
+            this.remainder = remainder;
+            this.usedDefaultPreviously = ComTaskEnablementImpl.this.usesDefaultConnectionTask();
+            this.previousConnectionFunction = ComTaskEnablementImpl.this.getConnectionFunction();
+            this.previousPartialConnectionTask = ComTaskEnablementImpl.this.partialConnectionTask.getOptional();
+            this.useDefaultNow = false;
+            this.newConnectionFunction = Optional.of(connectionFunction);
             this.newPartialConnectionTask = Optional.empty();
         }
 
         private ChangeConnectionStrategy(PartialConnectionTask partialConnectionTask, SaveStrategy remainder) {
             super();
             this.remainder = remainder;
-            this.useDefaultNow = false;
             this.usedDefaultPreviously = ComTaskEnablementImpl.this.usesDefaultConnectionTask();
+            this.previousConnectionFunction = ComTaskEnablementImpl.this.getConnectionFunction();
             this.previousPartialConnectionTask = ComTaskEnablementImpl.this.partialConnectionTask.getOptional();
+            this.useDefaultNow = false;
+            this.newConnectionFunction = Optional.empty();
             this.newPartialConnectionTask = Optional.ofNullable(partialConnectionTask);
         }
 
@@ -406,6 +474,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         @Override
         public SaveStrategy setPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
             this.useDefaultNow = false;
+            this.newConnectionFunction = Optional.empty();
             this.newPartialConnectionTask = Optional.of(partialConnectionTask);
             return this;
         }
@@ -413,12 +482,23 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         @Override
         public SaveStrategy useDefaultConnectionTask(boolean flagValue) {
             this.useDefaultNow = flagValue;
+            this.newConnectionFunction = Optional.empty();
+            this.newPartialConnectionTask = Optional.empty();
+            return this;
+        }
+
+        @Override
+        public SaveStrategy setConnectionFunction(ConnectionFunction connectionFunction) {
+            this.useDefaultNow = false;
+            this.newConnectionFunction = Optional.of(connectionFunction);
+            this.newPartialConnectionTask = Optional.empty();
             return this;
         }
 
         @Override
         public void prepare() {
             ComTaskEnablementImpl.this.setUsesDefaultConnectionTask(this.useDefaultNow);
+            ComTaskEnablementImpl.this.doSetConnectionFunction(this.newConnectionFunction.orElse(null));
             ComTaskEnablementImpl.this.doSetPartialConnectionTask(this.newPartialConnectionTask.orElse(null));
             this.remainder.prepare();
         }
@@ -432,75 +512,82 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         private void postEvent() {
             if (this.usedDefaultPreviously) {
                 this.postEventWhenUsingDefaultBefore();
+            } else if (this.previousConnectionFunction.isPresent()) {
+                this.postEventWhenUsingConnectionFunctionBefore();
+            } else if (this.previousPartialConnectionTask.isPresent()) {
+                this.postEventWhenUsingSpecificTaskBefore();
             } else {
-                this.postEventWhenNotUsingDefaultBefore();
+                this.postEventWhenUsingNothingBefore();
             }
         }
 
         private void postEventWhenUsingDefaultBefore() {
             if (!this.useDefaultNow) {
-                // Are we using a specific task or not?
-                if (this.newPartialConnectionTask.isPresent()) {
+                if (this.newConnectionFunction.isPresent()) {
+                    // Using default before but using connection function now
+                    this.postEvent(new SwitchFromDefaultConnectionToConnectionFunctionEventData(ComTaskEnablementImpl.this, this.newConnectionFunction.get()));
+                } else if (this.newPartialConnectionTask.isPresent()) {
                     // Using default before but using a specific task now
                     this.postEvent(new SwitchFromDefaultConnectionToPartialConnectionTaskEventData(ComTaskEnablementImpl.this, this.newPartialConnectionTask.get()));
                 } else {
                     // Simply switching off using the default
                     this.postEvent(new SwitchOffUsingDefaultConnectionEventData(ComTaskEnablementImpl.this));
                 }
-            } else {
-                // Still using the default, no changes, no event to post
-            }
+            } // Else we are still using the default, so no changes and no event to post
         }
 
-        private void postEventWhenNotUsingDefaultBefore() {
+        private void postEventWhenUsingConnectionFunctionBefore() {
             if (this.useDefaultNow) {
-                // Not using default before but we are now
-                this.postEventWhenNotUsingDefaultBeforeButWeAreNow();
+                // Using connection function before but using default task now
+                this.postEvent(new SwitchFromConnectionFunctionToDefaultConnectionEventData(ComTaskEnablementImpl.this, this.previousConnectionFunction.get()));
+            } else if (this.newConnectionFunction.isPresent()) {
+                // Using connection function before and using connection function now
+                if (this.previousConnectionFunction.get().getId() != this.newConnectionFunction.get().getId()) {
+                    // Switching between different connection functions
+                    this.postEvent(new SwitchBetweenConnectionFunctionsEventData(ComTaskEnablementImpl.this, this.previousConnectionFunction.get(), this.newConnectionFunction.get()));
+                } // Else we are still using the same connection function, so no changes and no event to post
+            } else if (this.newPartialConnectionTask.isPresent()) {
+                // Using connection function before but using specific task now
+                this.postEvent(new SwitchFromConnectionFunctionToPartialConnectionTaskEventData(ComTaskEnablementImpl.this, this.previousConnectionFunction.get(), this.newPartialConnectionTask.get()));
             } else {
-                // Not using default before and we are not using default now
-                this.postEventWhenStillNotUsingDefault();
+                // Switching off usage of connection function
+                this.postEvent(new SwitchOffUsingConnectionFunctionEventData(ComTaskEnablementImpl.this, this.previousConnectionFunction.get()));
             }
         }
 
-        private void postEventWhenNotUsingDefaultBeforeButWeAreNow() {
-            // Was there a preferred connection task before?
-            if (this.previousPartialConnectionTask.isPresent()) {
-                // Switching off usage of preferred connection task and using default
+        private void postEventWhenUsingSpecificTaskBefore() {
+            if (this.useDefaultNow) {
+                // Using specific task before but using default task now
                 this.postEvent(new SwitchFromPartialConnectionTaskToDefaultConnectionEventData(ComTaskEnablementImpl.this, this.previousPartialConnectionTask.get()));
+            } else if (this.newConnectionFunction.isPresent()) {
+                // Using specific task before but using connection function now
+                this.postEvent(new SwitchFromPartialConnectionTaskToConnectionFunctionEventData(ComTaskEnablementImpl.this, this.previousPartialConnectionTask.get(), this.newConnectionFunction.get()));
+            } else if (this.newPartialConnectionTask.isPresent()) {
+                if (this.differentPartialConnectionTasks(this.previousPartialConnectionTask.get(), this.newPartialConnectionTask.get())) {
+                    // switching between different preferred connection tasks
+                    this.postEvent(
+                            new SwitchBetweenPartialConnectionTasksEventData(
+                                    ComTaskEnablementImpl.this,
+                                    this.previousPartialConnectionTask.get(),
+                                    this.newPartialConnectionTask.get()));
+                } // Else we are still using the same partial connection task, so no changes and no event to post
             } else {
-                // Simply switching on usage of default connection task
-                this.postEvent(new SwitchOnUsingDefaultConnectionEventData(ComTaskEnablementImpl.this));
+                // Switching off usage of preferred connection task
+                this.postEvent(new RemovePartialConnectionTaskEventData(ComTaskEnablementImpl.this, this.previousPartialConnectionTask.get()));
             }
         }
 
-        private void postEventWhenStillNotUsingDefault() {
-            // Must have a new PartialConnectionTask
-            if (this.previousPartialConnectionTask.isPresent()) {
-                if (this.newPartialConnectionTask.isPresent()) {
-                    if (this.differentPartialConnectionTasks(this.previousPartialConnectionTask.get(), this.newPartialConnectionTask.get())) {
-                        // switching between different preferred connection tasks
-                        this.postEvent(
-                                new SwitchBetweenPartialConnectionTasksEventData(
-                                        ComTaskEnablementImpl.this,
-                                        this.previousPartialConnectionTask.get(),
-                                        this.newPartialConnectionTask.get()));
-                    } else {
-                        // Still using the same partial connection task, no changes, no event to post
-                        return;
-                    }
-                } else {
-                    // Switching off usage of preferred connection task and using default
-                    this.postEvent(new RemovePartialConnectionTaskEventData(ComTaskEnablementImpl.this, this.previousPartialConnectionTask.get()));
-                }
-            } else {
-                if (this.newPartialConnectionTask.isPresent()) {
-                    // Starting to use preferred connection task without changes to the default flag
-                    this.postEvent(new StartUsingPartialConnectionTaskEventData(ComTaskEnablementImpl.this, this.newPartialConnectionTask.get()));
-                } else {
-                    // Still not using the default, no changes, no event to post
-                    return;
-                }
-            }
+        private void postEventWhenUsingNothingBefore() {
+            if (this.useDefaultNow) {
+                // Using default task now
+                this.postEvent(new SwitchOnUsingDefaultConnectionEventData(ComTaskEnablementImpl.this));
+            } else if (this.newConnectionFunction.isPresent()) {
+                // Using using connection function now
+                this.postEvent(new SwitchOnUsingConnectionFunctionEventData(ComTaskEnablementImpl.this, this.newConnectionFunction.get()));
+            } else if (this.newPartialConnectionTask.isPresent()) {
+                // Starting to use preferred connection task
+                this.postEvent(new StartUsingPartialConnectionTaskEventData(ComTaskEnablementImpl.this, this.newPartialConnectionTask.get()));
+            } // Else previous and new are missing, so we remain without task, so no changes and no event to post
         }
 
         private boolean differentPartialConnectionTasks(PartialConnectionTask previousPartialConnectionTask, PartialConnectionTask newPartialConnectionTask) {
@@ -510,7 +597,6 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         private void postEvent(ConnectionStrategyChangeEventData eventData) {
             eventData.publish(getEventService());
         }
-
     }
 
     @Override
@@ -518,8 +604,10 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         ComTaskEnablementBuilder builder = deviceConfiguration.enableComTask(getComTask(), getCorrespondingSecuritySetFromOtherDeviceConfig(deviceConfiguration));
         builder.setIgnoreNextExecutionSpecsForInbound(isIgnoreNextExecutionSpecsForInbound());
         builder.setPriority(getPriority());
-        if(usesDefaultConnectionTask()){
+        if (usesDefaultConnectionTask()) {
             builder.useDefaultConnectionTask(usesDefaultConnectionTask());
+        } else if (getConnectionFunction().isPresent()) {
+            builder.setConnectionFunction(getConnectionFunction().get());
         } else {
             builder.setPartialConnectionTask(getCorrespondingPartialConnectionTaskFromOtherDeviceConfig(deviceConfiguration));
         }
@@ -528,9 +616,11 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
 
     private PartialConnectionTask getCorrespondingPartialConnectionTaskFromOtherDeviceConfig(DeviceConfiguration deviceConfiguration) {
         PartialConnectionTask correspondingPartialConnectionTask = null;
-        if(getPartialConnectionTask().isPresent()){
-            correspondingPartialConnectionTask = deviceConfiguration.getPartialConnectionTasks().stream().filter(pct ->
-            pct.getName().equals(getPartialConnectionTask().get().getName())).findFirst().orElse(null);
+        if (getPartialConnectionTask().isPresent()) {
+            correspondingPartialConnectionTask = deviceConfiguration.getPartialConnectionTasks()
+                    .stream()
+                    .filter(pct -> pct.getName().equals(getPartialConnectionTask().get().getName()))
+                    .findFirst().orElse(null);
         }
         return correspondingPartialConnectionTask;
     }
@@ -539,9 +629,9 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         SecurityPropertySet correspondingSecurityPropertySet = null;
         if (getSecurityPropertySet() != null) {
             correspondingSecurityPropertySet = deviceConfiguration.getSecurityPropertySets().stream().filter(sps ->
-                            sps.getName().equals(getSecurityPropertySet().getName())
-                                    && sps.getEncryptionDeviceAccessLevel().getId() == getSecurityPropertySet().getEncryptionDeviceAccessLevel().getId()
-                                    && sps.getAuthenticationDeviceAccessLevel().getId() == getSecurityPropertySet().getAuthenticationDeviceAccessLevel().getId()
+                    sps.getName().equals(getSecurityPropertySet().getName())
+                            && sps.getEncryptionDeviceAccessLevel().getId() == getSecurityPropertySet().getEncryptionDeviceAccessLevel().getId()
+                            && sps.getAuthenticationDeviceAccessLevel().getId() == getSecurityPropertySet().getAuthenticationDeviceAccessLevel().getId()
             ).findFirst().orElse(null);
         }
         return correspondingSecurityPropertySet;

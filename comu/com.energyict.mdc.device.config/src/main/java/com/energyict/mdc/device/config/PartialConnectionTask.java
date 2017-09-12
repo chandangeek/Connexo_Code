@@ -6,14 +6,16 @@ package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.upl.TypedProperties;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Partial version of a ConnectionTask when it comes to
@@ -38,7 +40,7 @@ public interface PartialConnectionTask extends HasName, HasId {
      *
      * @return The ComPortPool
      */
-    ComPortPool getComPortPool ();
+    ComPortPool getComPortPool();
 
     /**
      * Tests if this PartialConnectionTask is marked as the default
@@ -78,7 +80,7 @@ public interface PartialConnectionTask extends HasName, HasId {
      *
      * @return The DeviceConfiguration
      */
-    DeviceConfiguration getConfiguration ();
+    DeviceConfiguration getConfiguration();
 
     /**
      * Gets the {@link ConnectionType} that knows exactly how to connect
@@ -94,7 +96,7 @@ public interface PartialConnectionTask extends HasName, HasId {
      *
      * @return The ConnectionTypePluggableClass
      */
-    ConnectionTypePluggableClass getPluggableClass ();
+    ConnectionTypePluggableClass getPluggableClass();
 
     void save();
 
@@ -116,5 +118,15 @@ public interface PartialConnectionTask extends HasName, HasId {
     ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
 
     void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
+
+    /**
+     * Gets an optional containing the {@link ConnectionFunction} for this {@link PartialConnectionTask}
+     * or else an empty optional in case no function is provided
+     *
+     * @return the {@link ConnectionFunction}
+     */
+    Optional<ConnectionFunction> getConnectionFunction();
+
+    void setConnectionFunction(ConnectionFunction connectionFunction);
 
 }
