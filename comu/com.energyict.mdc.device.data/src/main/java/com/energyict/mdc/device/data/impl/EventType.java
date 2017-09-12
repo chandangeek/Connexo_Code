@@ -22,6 +22,8 @@ public enum EventType {
     CONNECTIONTASK_UPDATED("connectiontask/UPDATED"),
     CONNECTIONTASK_SETASDEFAULT("connectiontask/SETASDEFAULT"),
     CONNECTIONTASK_CLEARDEFAULT("connectiontask/CLEARDEFAULT"),
+    CONNECTIONTASK_SETASCONNECTIONFUNCTION("connectiontask/SETASFUNCTION"),
+    CONNECTIONTASK_CLEARCONNECTIONFUNCTION("connectiontask/CLEARFUNCTION"),
     CONNECTIONTASK_CHECK_ALL_ACTIVE("connectiontask/CHECKALLACTIVE") {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {

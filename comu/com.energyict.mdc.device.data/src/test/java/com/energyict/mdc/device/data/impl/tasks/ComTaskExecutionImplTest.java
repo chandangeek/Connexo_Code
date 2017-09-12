@@ -54,10 +54,42 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
         // Asserts
         assertThat(comTaskExecution).isNotNull();
-        assertThat(comTaskExecution.getNextExecutionSpecs().isPresent()).isFalse();
+        assertThat(comTaskExecution.getNextExecutionSpecs()).isEmpty();
         assertThat(comTaskExecution.getDevice().getId()).isEqualTo(device.getId());
         assertThat(comTaskExecution.getConnectionTask()).isEmpty();
         assertThat(comTaskExecution.usesDefaultConnectionTask()).isTrue();
+        assertThat(comTaskExecution.getExecutingComPort()).isNull();
+        assertThat(comTaskExecution.getCurrentTryCount()).isEqualTo(1);
+        assertThat(comTaskExecution.getExecutionStartedTimestamp()).isNull();
+        assertThat(comTaskExecution.getLastExecutionStartTimestamp()).isNull();
+        assertThat(comTaskExecution.getNextExecutionTimestamp()).isNull();
+        assertThat(comTaskExecution.getMaxNumberOfTries()).isEqualTo(maxNrOfTries);
+        assertThat(comTaskExecution.getObsoleteDate()).isNull();
+        assertThat(comTaskExecution.getPlannedPriority()).isEqualTo(comTaskEnablementPriority);
+        assertThat(comTaskExecution.isAdHoc()).isTrue();
+        assertThat(comTaskExecution.usesSharedSchedule()).isFalse();
+        assertThat(comTaskExecution.isExecuting()).isFalse();
+        assertThat(comTaskExecution.isIgnoreNextExecutionSpecsForInbound()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void createAdHocUsingConnectionFunctionWithoutViolationsTest() {
+        ComTaskEnablement comTaskEnablement = enableComTask(connectionFunction1);
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations", Instant.now());
+
+        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+
+        // Asserts
+        assertThat(comTaskExecution).isNotNull();
+        assertThat(comTaskExecution.getNextExecutionSpecs()).isEmpty();
+        assertThat(comTaskExecution.getDevice().getId()).isEqualTo(device.getId());
+        assertThat(comTaskExecution.getConnectionTask()).isEmpty();
+        assertThat(comTaskExecution.usesDefaultConnectionTask()).isFalse();
+        assertThat(comTaskExecution.getConnectionFunction()).isPresent();
+        assertThat(comTaskExecution.getConnectionFunction().get()).isEqualTo(connectionFunction1);
         assertThat(comTaskExecution.getExecutingComPort()).isNull();
         assertThat(comTaskExecution.getCurrentTryCount()).isEqualTo(1);
         assertThat(comTaskExecution.getExecutionStartedTimestamp()).isNull();
@@ -84,10 +116,45 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
         // Asserts
         ComTaskExecution reloadedComTaskExecution = this.reloadComTaskExecution(device, comTaskExecution);
-        assertThat(reloadedComTaskExecution.getNextExecutionSpecs().isPresent()).isTrue();
+        assertThat(reloadedComTaskExecution.getNextExecutionSpecs()).isPresent();
         assertThat(reloadedComTaskExecution.getNextExecutionSpecs().get().getId()).isEqualTo(comTaskExecution.getNextExecutionSpecs().get().getId());
         assertThat(reloadedComTaskExecution.isAdHoc()).isFalse();
         assertThat(reloadedComTaskExecution.usesSharedSchedule()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void createScheduledUsingConnectionFunctionWithoutViolations() {
+        ComTaskEnablement comTaskEnablement = enableComTask(connectionFunction2);
+        ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "createWithComSchedule", "createWithComSchedule", Instant.now());
+        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+
+        // Asserts
+        ComTaskExecution reloadedComTaskExecution = this.reloadComTaskExecution(device, comTaskExecution);
+        assertThat(reloadedComTaskExecution.getNextExecutionSpecs()).isPresent();
+        assertThat(reloadedComTaskExecution.getNextExecutionSpecs().get().getId()).isEqualTo(comTaskExecution.getNextExecutionSpecs().get().getId());
+        assertThat(reloadedComTaskExecution.isAdHoc()).isFalse();
+        assertThat(reloadedComTaskExecution.usesSharedSchedule()).isTrue();
+        assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
+        assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isFalse();
+        assertThat(((ComTaskExecutionImpl) reloadedComTaskExecution).connectionFunctionDbValue).isEqualTo(2);
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL + "}")
+    public void createScheduledUsingInvalidConnectionFunction() {
+        ComTaskEnablement comTaskEnablement = enableComTask(connectionFunction3);
+        ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "createWithComSchedule", "createWithComSchedule", Instant.now());
+        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+
+        // Asserts: see expected ExpectedConstraintViolation
     }
 
     @Test
@@ -123,7 +190,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.delete();
 
         // Asserts
-        assertThat(inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecId).isPresent()).isFalse();
+        assertThat(inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecId)).isEmpty();
     }
 
     @Test
@@ -210,6 +277,51 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         // Asserts
         ComTaskExecution reloadedComTaskExecution = reloadComTaskExecution(device, comTaskExecution);
         assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void useConnectionFunctionOnBuilderTest() {
+        ComTaskEnablement comTaskEnablement = enableComTask(false);
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "BuilderTest", "BuilderTest", Instant.now());
+        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
+
+        // Business method
+        comTaskExecutionBuilder.useDefaultConnectionTask(true);
+        comTaskExecutionBuilder.setConnectionFunction(connectionFunction1);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+
+        // Asserts
+        assertThat(comTaskExecution.usesDefaultConnectionTask()).isFalse();
+        assertThat(comTaskExecution.getConnectionTask()).isEmpty();
+        assertThat(comTaskExecution.getConnectionFunction()).isPresent();
+        assertThat(comTaskExecution.getConnectionFunction().get()).isEqualTo(connectionFunction1);
+    }
+
+    @Test
+    @Transactional
+    public void useConnectionFunctionOnUpdaterTest() {
+        ComTaskEnablement comTaskEnablement = enableComTask(true);
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations", Instant.now());
+
+        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
+        comTaskExecutionBuilder.connectionTask(createASAPConnectionStandardTask(device));
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+
+        ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.setConnectionFunction(connectionFunction2);
+
+        // Business method
+        comTaskExecutionUpdater.update();
+        // device.save();
+
+        // Asserts
+        ComTaskExecution reloadedComTaskExecution = reloadComTaskExecution(device, comTaskExecution);
+        assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isFalse();
+        assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
+        assertThat(((ComTaskExecutionImpl) reloadedComTaskExecution).connectionFunctionDbValue).isEqualTo(2);
     }
 
     @Test

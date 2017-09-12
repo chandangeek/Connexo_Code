@@ -15,6 +15,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -24,6 +25,7 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -49,6 +51,16 @@ public interface CommunicationTaskService {
      * @return The List of ComTaskExecution
      */
     List<ComTaskExecution> findComTaskExecutionsWithDefaultConnectionTask(Device device);
+
+    /**
+     * Gets all {@link ComTaskExecution}s of the specified {@link Device}
+     * that are using the specified {@link ConnectionFunction}
+     *
+     * @param device The Device
+     * @param connectionFunction the ConnectionFunction
+     * @return The List of ComTaskExecution
+     */
+    List<ComTaskExecution> findComTaskExecutionsWithConnectionFunction(Device device, ConnectionFunction connectionFunction);
 
     TimeDuration releaseTimedOutComTasks(ComServer comServer);
 
@@ -142,6 +154,15 @@ public interface CommunicationTaskService {
     List<ComTaskExecution> findComTaskExecutionsByComScheduleWithinRange(ComSchedule comSchedule, long minId, long maxId);
 
     List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device);
+
+    /**
+     * Finds all the ComTaskExecutions which are using a ConnectionFunction
+     * as a map of <ConnectionFunction, List<ComTaskExecution>>
+     *
+     * @param device the Device for which to search for
+     * @return a map containing the list of ComTaskExecutions per ConnectionFunction
+     */
+    Map<ConnectionFunction,List<ComTaskExecution>> findComTasksUsingConnectionFunction(Device device);
 
     Fetcher<ComTaskExecution> getPlannedComTaskExecutionsFor(OutboundComPort comPort);
 

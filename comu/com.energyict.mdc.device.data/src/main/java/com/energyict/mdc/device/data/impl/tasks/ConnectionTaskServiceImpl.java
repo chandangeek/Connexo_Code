@@ -9,10 +9,12 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -39,6 +41,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -187,7 +190,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public List<ConnectionTask> findAllConnectionTasksByDevice(Device device) {
-        return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).find(ConnectionTaskFields.DEVICE.fieldName(), device.getId());
+        return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).find(ConnectionTaskFields.DEVICE.fieldName(), device);
     }
 
     @Override
@@ -214,6 +217,15 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         else {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public Optional<ConnectionTask> findConnectionTaskByDeviceAndConnectionFunction(Device device, ConnectionFunction connectionFunction) {
+        return findAllConnectionTasksByDevice(device)
+                .stream()
+                .filter(Predicates.not(ConnectionTask::isObsolete))
+                .filter(ct -> ct.getPartialConnectionTask().getConnectionFunction().isPresent() && ct.getPartialConnectionTask().getConnectionFunction().get().getId() == connectionFunction.getId())
+                .findFirst();
     }
 
     @Override
@@ -289,7 +301,10 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     private void clearOldDefault(Device device, ConnectionTaskImpl newDefaultConnectionTask) {
-        List<ConnectionTask> connectionTasks = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).find(ConnectionTaskFields.DEVICE.fieldName(), device);
+        Condition condition = where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
+                          and(where("isDefault").isEqualTo(true)).
+                          and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
+        List<ConnectionTask> connectionTasks = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
         connectionTasks
                 .stream()
                 .filter(connectionTask -> isPreviousDefault(newDefaultConnectionTask, connectionTask))
@@ -309,6 +324,17 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         return connectionTask.isDefault()
                 && ((newDefaultConnectionTask == null)
                 || (connectionTask.getId() != newDefaultConnectionTask.getId()));
+    }
+
+    @Override
+    public void setConnectionTaskHavingConnectionFunction(ConnectionTask<?, ?> connectionTask, Optional<ConnectionFunction> oldConnectionFunction) {
+        clearConnectionTaskConnectionFunction(connectionTask, oldConnectionFunction);
+        this.eventService.postEvent(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION.topic(), connectionTask);
+    }
+
+    @Override
+    public void clearConnectionTaskConnectionFunction(ConnectionTask<?, ?> connectionTask, Optional<ConnectionFunction> oldConnectionFunction) {
+        oldConnectionFunction.ifPresent(connectionFunction -> this.eventService.postEvent(EventType.CONNECTIONTASK_CLEARCONNECTIONFUNCTION.topic(), Pair.of(connectionTask, connectionFunction)));
     }
 
     @Override

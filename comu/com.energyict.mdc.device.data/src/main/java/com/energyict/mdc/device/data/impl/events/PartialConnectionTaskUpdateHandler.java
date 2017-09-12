@@ -8,13 +8,14 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,20 +57,31 @@ public class PartialConnectionTaskUpdateHandler extends EventHandler<LocalEvent>
         String topic = event.getType().getTopic();
         Matcher matcher = TOPIC.matcher(topic);
         if (matcher.matches()) {
-            String removedProperties = this.getRemovedProperties(event);
-            if (!Checks.is(removedProperties).empty()) {
+            PartialConnectionTaskUpdateDetails updateDetails = (PartialConnectionTaskUpdateDetails) event.getSource();
+            if (!updateDetails.getAddedOrRemovedRequiredProperties().isEmpty()) {
                 // At least one required property was removed, so post event
-                PartialConnectionTaskUpdateDetails updateDetails = (PartialConnectionTaskUpdateDetails) event.getSource();
                 StartConnectionTasksRevalidationAfterPropertyRemoval
                     .forPublishing(this.messageService)
                     .with(updateDetails.getId())
                     .publish();
             }
+
+            if (connectionFunctionWasUpdated(updateDetails.getPartialConnectionTask(), updateDetails.getPreviousConnectionFunction())) {
+                StartConnectionTasksRevalidationAfterConnectionFunctionModification
+                    .forPublishing(this.messageService)
+                    .with(updateDetails.getId(), updateDetails.getPreviousConnectionFunction().isPresent() ? updateDetails.getPreviousConnectionFunction().get().getId() : 0)
+                    .publish();
+            }
         }
     }
 
-    private String getRemovedProperties(LocalEvent event) {
-        return (String) event.toOsgiEvent().getProperty("addedOrRemovedRequiredProperties");
+    private boolean connectionFunctionWasUpdated(PartialConnectionTask partialConnectionTask, Optional<ConnectionFunction> previousConnectionFunction) {
+        Optional<ConnectionFunction> currentConnectionFunction = partialConnectionTask.getConnectionFunction();
+        if (previousConnectionFunction.isPresent() && currentConnectionFunction.isPresent()) {
+            return previousConnectionFunction.get().getId() != currentConnectionFunction.get().getId(); // Or in other words: both are present, but the function has changed
+        } else {
+            return previousConnectionFunction.isPresent() || currentConnectionFunction.isPresent(); // Or in other words: removed or added the function
+        }                                                                                           // Returns false (no update) when both are missing
     }
 
 }

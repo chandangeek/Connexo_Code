@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  * that depend on a partial connection task that has had
  * at least one of its required properties removed.
  * It will query all target connection tasks
- * and group them in sets of 100 and publish
+ * and group them in sets of 250 and publish
  * a {@link RevalidateConnectionTasksAfterPropertyRemoval}
  * message for each set.
  *
