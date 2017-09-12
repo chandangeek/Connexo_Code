@@ -7,6 +7,7 @@ package com.energyict.mdc.issue.datavalidation.impl;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
@@ -30,6 +31,8 @@ public class OpenIssueEqualsContractTest extends EqualsContractTest {
     IssueService issueService;
     @Mock
     IssueDataValidationService issueDataValidationService;
+    @Mock
+    Thesaurus thesaurus;
 
     OpenIssueImpl baseIssue;
     OpenIssueDataValidationImpl issueDataValidation;
@@ -37,7 +40,7 @@ public class OpenIssueEqualsContractTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (issueDataValidation == null) {
-            baseIssue = new OpenIssueImpl(dataModel, issueService, Clock.systemDefaultZone());
+            baseIssue = new OpenIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
             baseIssue.setId(ID);
             issueDataValidation = new OpenIssueDataValidationImpl(dataModel, issueDataValidationService);
             issueDataValidation.setIssue(baseIssue);
@@ -47,7 +50,7 @@ public class OpenIssueEqualsContractTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        OpenIssueImpl baseIssue = new OpenIssueImpl(dataModel, issueService, Clock.systemDefaultZone());
+        OpenIssueImpl baseIssue = new OpenIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
         baseIssue.setId(ID);
         OpenIssueDataValidationImpl issueDataValidation = new OpenIssueDataValidationImpl(dataModel, issueDataValidationService);
         issueDataValidation.setIssue(baseIssue);
@@ -56,7 +59,7 @@ public class OpenIssueEqualsContractTest extends EqualsContractTest {
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        OpenIssueImpl baseIssue = new OpenIssueImpl(dataModel, issueService, Clock.systemDefaultZone());
+        OpenIssueImpl baseIssue = new OpenIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
         baseIssue.setId(OTHER_ID);
         OpenIssueDataValidationImpl issueDataValidation = new OpenIssueDataValidationImpl(dataModel, issueDataValidationService);
         issueDataValidation.setIssue(baseIssue);
