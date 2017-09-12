@@ -16,6 +16,8 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
 import com.energyict.mdc.device.data.rest.impl.ResourceHelper;
 import com.energyict.mdc.device.topology.kpi.Privileges;
@@ -39,6 +41,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
@@ -56,14 +59,18 @@ public class RegisteredDevicesKpiResource {
     private final ExceptionFactory exceptionFactory;
     private final RegisteredDevicesKpiInfoFactory registeredDevicesKpiInfoFactory;
     private final ResourceHelper resourceHelper;
+    private final DeviceService deviceService;
+    private final Clock clock;
 
     @Inject
-    public RegisteredDevicesKpiResource(RegisteredDevicesKpiService registeredDevicesKpiService, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory, RegisteredDevicesKpiInfoFactory registeredDevicesKpiInfoFactory, ResourceHelper resourceHelper) {
+    public RegisteredDevicesKpiResource(RegisteredDevicesKpiService registeredDevicesKpiService, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory, RegisteredDevicesKpiInfoFactory registeredDevicesKpiInfoFactory, ResourceHelper resourceHelper, DeviceService deviceService, Clock clock) {
         this.registeredDevicesKpiService = registeredDevicesKpiService;
         this.meteringGroupsService = meteringGroupsService;
         this.exceptionFactory = exceptionFactory;
         this.registeredDevicesKpiInfoFactory = registeredDevicesKpiInfoFactory;
         this.resourceHelper = resourceHelper;
+        this.deviceService = deviceService;
+        this.clock = clock;
     }
 
     @POST
@@ -136,7 +143,7 @@ public class RegisteredDevicesKpiResource {
             Instant end = filter.getInstant("end");
             range = Optional.of(Range.closed(start, end));
         } else {
-            range = calculateRange(registeredDevicesKpi);
+            range = calculateRange(registeredDevicesKpi.getLatestCalculation(), registeredDevicesKpi.getFrequency());
         }
         List<RegisteredDevicesKpiScore> scores = new ArrayList<>();
         if (range.isPresent()) {
@@ -149,10 +156,8 @@ public class RegisteredDevicesKpiResource {
         return Response.ok(infos).build();
     }
 
-    private Optional<Range<Instant>> calculateRange(RegisteredDevicesKpi registeredDevicesKpi) {
-        Optional<Instant> latestCalculation = registeredDevicesKpi.getLatestCalculation();
+    private Optional<Range<Instant>> calculateRange(Optional<Instant> latestCalculation, TemporalAmount frequency) {
         if (latestCalculation.isPresent()) {
-            TemporalAmount frequency = registeredDevicesKpi.getFrequency();
             Optional<RegisteredDevicesKpiFrequency> registeredDevicesKpiFrequency = RegisteredDevicesKpiFrequency.valueOf(frequency);
             if (registeredDevicesKpiFrequency.isPresent()) {
                 RegisteredDevicesKpiFrequency freq = registeredDevicesKpiFrequency.get();
@@ -222,5 +227,30 @@ public class RegisteredDevicesKpiResource {
         allGroups.removeIf(group -> usedGroupIds.contains(group.getId()));
         return Response.ok(PagedInfoList.fromPagedList("deviceGroups", allGroups.stream()
                 .map(gr -> new LongIdWithNameInfo(gr.getId(), gr.getName())).collect(Collectors.toList()), queryParameters)).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/gateway/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getKpiForGateway(@PathParam("id") long id, @BeanParam JsonQueryFilter filter) {
+        Device device = deviceService.findDeviceById(id).orElseThrow(() -> exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_DEVICE_ID));
+        Optional<Range<Instant>> range;
+        List<RegisteredDevicesKpiScore> scores = new ArrayList<>();
+        if (filter.hasProperty("start") && filter.hasProperty("end")) {
+            Instant start = filter.getInstant("start");
+            Instant end = filter.getInstant("end");
+            range = Optional.of(Range.closed(start, end));
+        } else {
+            range = calculateRange(Optional.of(Instant.now(clock)), RegisteredDevicesKpiFrequency.FIFTEEN_MINUTES.getFrequency());
+        }
+        if (range.isPresent()) {
+            scores = registeredDevicesKpiService.getScores(device, range.get(), RegisteredDevicesKpiFrequency.FIFTEEN_MINUTES);
+        }
+        List<RegisteredDevicesKpiGraphInfo> infos = scores.stream()
+                .sorted()
+                .map(RegisteredDevicesKpiGraphInfo::new)
+                .collect(Collectors.toList());
+        return Response.ok(infos).build();
     }
 }
