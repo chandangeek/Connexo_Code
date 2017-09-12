@@ -85,6 +85,13 @@ Ext.define('Isu.view.issues.bulk.Step2', {
                                 name: 'operation',
                                 inputValue: 'setpriority',
                                 privileges: Isu.privileges.Issue.action
+                            },
+                            {
+                                itemId: 'Snooze',
+                                boxLabel: Uni.I18n.translate('issue.snooze', 'ISU', 'Snooze'),
+                                name: 'operation',
+                                inputValue: 'snooze',
+                                privileges: Isu.privileges.Issue.action
                             }
                         ]
                     }

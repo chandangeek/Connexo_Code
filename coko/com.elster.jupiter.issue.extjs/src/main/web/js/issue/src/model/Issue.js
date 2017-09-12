@@ -29,6 +29,16 @@ Ext.define('Isu.model.Issue', {
         {name: 'workGroupAssignee', type: 'auto'},
         {name: 'userAssignee', type: 'auto'},
         {name: 'reason', type: 'auto'},
+        {name: 'snoozedDateTime', type:'auto'},
+        {
+            name: 'statusDetail',
+            convert: function (value, rec) {
+                if (rec.get('status').id == 'status.snoozed')
+                    return Ext.String.format(Uni.I18n.translate('issue.snoozeReasonDetail', 'ISU', '{0} has been snoozed until {1}'),
+                        rec.get('issueId'), Uni.DateTime.formatDateTimeShort(new Date(rec.getData().snoozedDateTime)));
+                return '';
+            }
+        },
         {name: 'device', type: 'auto'},
         {name: 'issueId', type: 'string'},
         {name: 'issueType_name', persist: false, mapping: 'issueType.name'},

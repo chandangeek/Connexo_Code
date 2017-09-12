@@ -86,6 +86,9 @@ Ext.define('Isu.controller.IssueDetail', {
                         widget.down('#issue-detail-form').loadRecord(record);
                     }
                     Ext.resumeLayouts(true);
+                    var subEl = new Ext.get('issue-status-field-sub-tpl');
+                    subEl.setHTML(record.get('statusDetail'));
+
                     if ((typeof me.getActionMenu === "function") && me.getActionMenu()) {
                         me.getActionMenu().record = record;
                     }

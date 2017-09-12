@@ -152,6 +152,13 @@ Ext.define('Isu.controller.IssuesOverview', {
         var me = this,
             preview = me.getPreview(),
             previewActionMenu = me.getPreviewActionMenu();
+        if (preview.itemId.startsWith('alarm')) {
+            var subEl = new Ext.get('alarm-status-field-sub-tpl');
+        }
+        else {
+            var subEl = new Ext.get('issue-status-field-sub-tpl');
+        }
+        subEl.setHTML(record.get('statusDetail'));
         Ext.getStore('Isu.store.Clipboard').set('issue', record);
         Ext.getStore('Isu.store.Clipboard').set('latest-issues-filter', Uni.util.QueryString.getQueryStringValues(false));
         Ext.suspendLayouts();
@@ -160,6 +167,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         if (previewActionMenu) {
             previewActionMenu.record = record;
         }
+
         preview.setTitle(Ext.String.htmlEncode(record.get('title')));
         Ext.resumeLayouts(true);
     },

@@ -7,7 +7,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
 
     views: [
         'Isu.view.issues.ActionView',
-        'Isu.view.issues.AssignIssue'
+        'Isu.view.issues.AssignIssue',
+        'Isu.view.issues.Snooze'
     ],
 
     stores: [
@@ -81,7 +82,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                         form.issue = issueRecord;
 
                         //todo: this definitely should be refactored. BE should send action button translation instead of this splitting
-                        if (form.title === 'Close issue' || form.title === 'Close alarm' || form.title === 'Notify user' || form.title === 'Assign issue' || form.title === 'Assign alarm') {
+                        if (form.title === 'Close issue' || form.title === 'Close alarm' || form.title === 'Notify user' || form.title === 'Assign issue' || form.title === 'Assign alarm' || form.title === "Snooze") {
                             form.down('#issue-action-apply').setText(form.title.split(' ')[0]);
                         }
                     }
@@ -140,6 +141,10 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             failure: function (record, operation) {
                 var responseText = Ext.decode(operation.response.responseText, true);
 
+                var response = options.response,
+                    errors = Ext.decode(response.responseText, true),
+                    wizard = me.getWizard();
+
                 if (operation.response.status === 400 && responseText.errors && !actionRecord) {
                     errorPanel.show();
                     basicForm.markInvalid(responseText.errors);
@@ -148,6 +153,10 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                     window.location.href = backUrl;
                     me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('issues.applyAction.failureTitle', 'ISU', 'Couldn\'t perform your action'), actionRecord.get('issue').title + '.' + responseText.actions[0].message, responseText.actions[0].errorCode);
                 }
+                if (errors && Ext.isArray(errors.errors) && !Ext.isEmpty(errors.errors)) {
+                    wizard.markInvalid(errors.errors);
+                }
+
             },
             callback: function () {
                 mainView.setLoading(false);

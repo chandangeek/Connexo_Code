@@ -78,6 +78,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
         if (item && item.isMenuItem) {
             if (!item.menu || !me.ignoreParentClicks) {
                 item.onClick(e);
+                me.snoozeCheck(item);
             } else {
                 e.stopEvent();
             }
@@ -130,6 +131,9 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 case 'Set priority':
                     privileges = Isu.privileges.Issue.canDoAction();
                     break;
+                case 'Snooze':
+                    privileges = Isu.privileges.Issue.canDoAction();
+                    break;
             }
 
             var menuItem = {
@@ -156,6 +160,136 @@ Ext.define('Isu.view.issues.ActionMenu', {
         });
     },
 
+    onCheck: function (getConfirmationWindow) {
+        var me = this,
+            confWindow = getConfirmationWindow(),
+            progressbar = confWindow.insert(2, {
+                xtype: 'progressbar',
+                itemId: 'snooze-progressbar',
+                margin: '5 0 15 0'
+            });
+
+        progressbar.wait({
+            duration: 10000,
+            fn: Ext.bind(me.onTooLongOperation, me, [confWindow, {
+                title: Uni.I18n.translate('issue.snooze.timeout.title1', 'ISU', 'Snooze request takes longer than expected'),
+                msg: Uni.I18n.translate('issue.snooze.timeout.message', 'ISU', 'Snooze request takes longer than expected and will continue in the background.')
+            }])
+        });
+
+        me.doOperation(confWindow, Uni.I18n.translate('snooze.successMsg', 'ISU', 'Snooze successful'), 'snooze');
+    },
+
+    doOperation: function (confirmationWindow, successMessage, action) {
+        var me = this,
+            router = me.router,
+            updatedData;
+
+        updatedData = {
+
+            issue: {
+                id: me.record.getData().id,
+                version: me.record.getData().version
+            },
+
+            snoozeDateTime: confirmationWindow.down('#issue-snooze-until-date').getValue().getTime()
+        };
+
+        Ext.Ajax.request({
+            url: '/api/isu/issues/snooze',
+            method: 'PUT',
+            jsonData: Ext.encode(updatedData),
+            success: function (response) {
+                confirmationWindow.close();
+                me.fireEvent('acknowledge', successMessage);
+                router.getRoute().forward(null, Ext.Object.fromQueryString(router.getQueryString()));
+            },
+            failure: function (response) {
+                var json = Ext.decode(response.responseText, true);
+                if (json && json.errors) {
+                    confirmationWindow.down('#snooze-progressbar').reset(true);
+                    confirmationWindow.down('#issue-snooze-until-date').markInvalid(json.errors[0].msg);
+
+                }
+            }
+        });
+    },
+
+    onTooLongOperation: function (confirmationWindow, errorMessageConfig) {
+        var errorMessage = Ext.widget('messagebox', {
+            closeAction: 'destroy',
+            buttons: [
+                {
+                    text: Uni.I18n.translate('general.close', 'ISU', 'Close'),
+                    ui: 'remove',
+                    handler: function () {
+                        this.up('window').close();
+                    }
+                }
+            ]
+        });
+
+        Ext.suspendLayouts();
+        confirmationWindow.close();
+        errorMessage.show(Ext.apply({
+            ui: 'notification-error',
+            modal: false,
+            icon: Ext.MessageBox.ERROR
+        }, errorMessageConfig));
+        Ext.resumeLayouts(true);
+    },
+
+
+    snoozeCheck: function (item) {
+        if (item.action === "snooze") {
+            var me = this,
+                issueId = me.record.getId(),
+                issueType = me.record.get('issueType').uid,
+                router = this.router,
+                snoozedDateTime;
+
+            if (me.record.get('status').id == 'status.snoozed') {
+                snoozedDateTime = new Date(me.record.get('snoozedDateTime'));
+            }
+            else {
+                var tomorrowMidnight = new Date();
+                tomorrowMidnight.setHours(24, 0, 0, 1);
+                snoozedDateTime = tomorrowMidnight;
+            }
+
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                itemId: 'snooze-snoozeConfirmationWindow',
+                confirmText: Uni.I18n.translate('issue.snooze', 'ISU', 'Snooze'),
+                closeAction: 'destroy',
+                green: true,
+                confirmation: Ext.bind(this.onCheck, this, [getConfirmationWindow])
+            })
+            ;
+
+            confirmationWindow.insert(1, {
+                xtype: 'snooze-date',
+                itemId: 'issue-sel-snooze-run',
+                defaultDate: snoozedDateTime,
+                padding: '-10 0 0 45'
+            });
+            confirmationWindow.insert(1, {
+                itemId: 'snooze-now-window-errors',
+                xtype: 'label',
+                margin: '0 0 10 50',
+                hidden: true
+            });
+            confirmationWindow.show({
+                title: Uni.I18n.translate('issue.snoozeNow', 'ISU', "Snooze '{0}'?",
+                    this.record.getData().title, false)
+            });
+
+            function getConfirmationWindow() {
+                return confirmationWindow;
+            }
+        }
+    },
+
+
     addPredefinedActions: function () {
         var me = this,
             issueId = me.record.getId(),
@@ -170,11 +304,18 @@ Ext.define('Isu.view.issues.ActionMenu', {
         assignIssueToMe.hidden = (me.record.get('userId') == me.currentUserId);
         assignIssueToMe.record = me.record;
 
+
         var unassign = predefinedItems.filter(function (menu) {
             return menu.action === 'unassign';
         })[0];
         unassign.hidden = (me.record.get('userId') != me.currentUserId);
         unassign.record = me.record;
+
+        var snoozeVisible = predefinedItems.filter(function (menu) {
+            return menu.action === 'snooze';
+        })[0];
+        snoozeVisible.hidden = ((me.record.getData().status.id == 'status.resolved') || (me.record.getData().status.id == 'status.wont.fix'));
+        snoozeVisible.record = me.record;
 
         // add predefined actions
         if (predefinedItems && predefinedItems.length) {
@@ -317,6 +458,13 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 itemId: 'unassign',
                 section: me.SECTION_ACTION,
                 hidden: true
+            },
+            {
+                text: Uni.I18n.translate('issues.actionMenu.snooze', 'ISU', 'Snooze'),
+                privileges: Isu.privileges.Issue.action,
+                action: 'snooze',
+                itemId: 'snooze-date',
+                section: me.SECTION_ACTION,
             },
             {
                 text: Uni.I18n.translate('issues.actionMenu.addComment', 'ISU', 'Add comment'),

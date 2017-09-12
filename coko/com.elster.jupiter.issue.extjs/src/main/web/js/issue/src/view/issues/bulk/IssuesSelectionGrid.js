@@ -23,15 +23,22 @@ Ext.define('Isu.view.issues.bulk.IssuesSelectionGrid', {
     columns: {
         items: [
             {
-                itemId: 'issues-grid-id',
-                header: Uni.I18n.translate('general.title.issueId', 'ISU', 'ID'),
-                dataIndex: 'issueId'
-            },
-            {
                 itemId: 'issues-grid-title',
                 header: Uni.I18n.translate('general.title.issue', 'ISU', 'Issue'),
                 dataIndex: 'title',
                 flex: 2
+            },
+            {
+                itemId: 'issues-grid-type',
+                header: Uni.I18n.translate('general.type', 'ISU', 'Type'),
+                dataIndex: 'issueType_name',
+                flex: 1.2
+            },
+            {
+                itemId: 'issues-grid-priority',
+                header: Uni.I18n.translate('general.priority', 'ISU', 'Priority'),
+                dataIndex: 'priority',
+                flex: 1
             },
             {
                 itemId: 'issues-grid-due-date',

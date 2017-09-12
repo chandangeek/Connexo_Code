@@ -62,6 +62,10 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                 change: this.onStep3RadiogroupSetPriorityChangeEvent,
                 afterrender: this.getDefaultSetPriorityStatus
             },
+            'bulk-browse bulk-wizard bulk-step3 snooze-bulk-form radiogroup': {
+                change: this.onStep3RadiogroupSnoozeChangeEvent,
+                afterrender: this.getDefaultSnoozeStatus
+            },
             'bulk-browse bulk-step4': {
                 beforeactivate: this.beforeStep4
             },
@@ -134,6 +138,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         widget.down('#retry-comtask-now-radio').setVisible(me.dataCollectionActivated);
         widget.down('#retry-connection-radio').setVisible(me.dataCollectionActivated);
         widget.down('#SetPriority').setVisible(me.dataCollectionActivated);
+        widget.down('#Snooze').setVisible(me.dataCollectionActivated);
         grid = widget.down('bulk-step1').down('issues-selection-grid');
         grid.reconfigure(issuesStore);
         grid.filterParams = Ext.clone(filter);
@@ -271,6 +276,11 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                 step5panelText = Uni.I18n.translate('issues.processing.setpriority', 'ISU', 'Setting priority for {0} issue(s). Please wait...',
                     (requestData.allIssues ? Uni.I18n.translate('general.all', 'ISU', 'all') : requestData.issues.length));
                 break;
+            case 'snooze':
+                step5panelText = Uni.I18n.translate('issues.processing.snooze', 'ISU', 'Snooze {0} issue(s). Please wait...',
+                    (requestData.allIssues ? Uni.I18n.translate('general.all', 'ISU', 'all') : requestData.issues.length));
+                requestUrl = '/api/isu/issues/bulksnooze';
+                break;
             default:
                 requestUrl = '/api/idc/issues/' + operation;
                 step5panelText = Uni.I18n.translate('issues.processing.default', 'ISU', 'Processing {0} issue(s). Please wait...',
@@ -294,7 +304,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             timeout: 120000,
             success: function (response) {
                   var obj;
-                   if(operation!='setpriority') {
+                if (operation != 'setpriority') {
                      obj = Ext.decode(response.responseText).data;
                    }
                    else {
@@ -379,6 +389,16 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
                             }
                             break;
+                        case 'snooze':
+                            if (successCount > 0) {
+                                if (record.get('allIssues')) {
+                                    successMessage = Uni.I18n.translatePlural('issues.snooze.successAllIssues.result', successCount, 'ISU', '-', '<h3>Successfully snoozed all issues</h3><br>', '<h3>Successfully snoozed for all issues</h3><br>');
+                                } else {
+                                    successMessage = Uni.I18n.translatePlural('issues.snooze.successSelectedIssues.result', successCount, 'ISU', '-', '<h3>Successfully snoozed selected issue(s)</h3><br>', '<h3>Successfully snoozed selected issue(s)</h3><br>');
+                                }
+
+                            }
+                            break;
                     }
                 }
 
@@ -451,6 +471,14 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                             }
                             if (failedCount > 0) {
                                 failedMessage = Uni.I18n.translatePlural('issues.setpriority.failed.results', failedCount, 'ISU', '-', '<h3 style="color: #eb5642">Unable to set priority for one issue</h3><br>', '<h3 style="color: #eb5642">Unable to set priority for {0} issues</h3><br>') + failList;
+                            }
+                            break;
+                        case 'snooze':
+                            if (warnCount > 0) {
+                                warnMessage = Uni.I18n.translatePlural('issues.snooze.unable.results', warnCount, 'ISU', '-', '<h3 style="color: #eb5642">Unable to snooze one issue</h3><br>', '<h3 style="color: #eb5642">Unable to snooze {0} issues</h3><br>') + warnList;
+                            }
+                            if (failedCount > 0) {
+                                failedMessage = Uni.I18n.translatePlural('issues.snooze.failed.results', failedCount, 'ISU', '-', '<h3 style="color: #eb5642">Unable to snooze one issue</h3><br>', '<h3 style="color: #eb5642">Unable to snooze for {0} issues</h3><br>') + failList;
                             }
                             break;
                     }
@@ -566,6 +594,9 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             case 'setpriority' :
                 requestData.priority = bulkStoreRecord.get('priority');
                 break;
+            case 'snooze' :
+                requestData.snoozeDateTime = bulkStoreRecord.get('snooze').getTime();
+                break;
         }
 
         requestData.comment = bulkStoreRecord.get('comment');
@@ -620,6 +651,13 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         record.commit();
     },
 
+    onStep3RadiogroupSnoozeChangeEvent: function (radiogroup, newValue, oldValue) {
+        var record = this.getBulkRecord();
+        record.set('status', newValue.status);
+        record.set('statusName', radiogroup.getChecked()[0].boxLabel);
+        record.commit();
+    },
+
     getDefaultStep2Operation: function () {
         var formPanel = this.getPage().down('bulk-wizard').down('bulk-step2').down('panel'),
             default_operation = formPanel.down('radiogroup').getValue().operation,
@@ -638,6 +676,14 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
     getDefaultSetPriorityStatus: function () {
         var formPanel = this.getPage().down('bulk-wizard').down('bulk-step3').down('set-priority-form'),
+            default_status = formPanel.down('radiogroup').getValue().status,
+            record = this.getBulkRecord();
+        record.set('status', default_status);
+        record.commit();
+    },
+
+    getDefaultSnoozeStatus: function () {
+        var formPanel = this.getPage().down('bulk-wizard').down('bulk-step3').down('snooze-bulk-form'),
             default_status = formPanel.down('radiogroup').getValue().status,
             record = this.getBulkRecord();
         record.set('status', default_status);
@@ -688,6 +734,13 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                 break;
             case 'setpriority':
                 view ='set-priority-form';
+                widget = Ext.widget(view, {
+                    labelWidth: 120,
+                    controlsWidth: 500
+                });
+                break;
+            case 'snooze':
+                view = 'snooze-bulk-form';
                 widget = Ext.widget(view, {
                     labelWidth: 120,
                     controlsWidth: 500
@@ -820,9 +873,19 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     message = Uni.I18n.translatePlural('issues.selectedIssues.setPriority.withCount', record.get('issues').length, 'ISU', '-', '<h3>Set priority for one issue?</h3><br>', '<h3>Set priority for {0} issues?</h3><br>')
                         + Uni.I18n.translate('issues.selectedIssues.setPriority','ISU', 'The priority of the selected issue(s) will be set to {0}', [formPanel.down("#priority-label").text]);
                 }
+                break;
+            case 'snooze':
+                record.set('snooze', formPanel.down("#issue-snooze-until-date").getValue());
+                if (record.get('allIssues')) {
+                    message = Uni.I18n.translate('issues.allIssues.snooze.title', 'ISU', '<h3>Snooze all issues?</h3><br>')
+                        + Uni.I18n.translate('issues.allIssues.snooze', 'ISU', 'All issues will be snoozed ');
+                } else {
+                    message = Uni.I18n.translatePlural('issues.selectedIssues.snooze.withCount', record.get('issues').length, 'ISU', '-', '<h3>Snooze one issue?</h3><br>', '<h3>Snooze {0} issues?</h3><br>')
+                        + Uni.I18n.translate('issues.selectedIssues.snooze', 'ISU', 'The selected issue(s) will be snoozed ');
+                }
         }
 
-        if (formPanel && (operation!='setpriority')) {
+        if (formPanel && (operation != 'setpriority') && (operation != 'snooze')) {
             record.set('comment', formPanel.down('textarea').getValue().trim());
         }
 
