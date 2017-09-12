@@ -97,7 +97,7 @@ public class CloseIssueAction extends AbstractIssueAction {
     }
 
     private Status[] getPossibleStatuses() {
-        List<IssueStatus> statuses = issueService.query(IssueStatus.class).select(Where.where("isHistorical").isEqualTo(Boolean.TRUE));
+        List<IssueStatus> statuses = issueService.query(IssueStatus.class).select((Where.where("isHistorical").isEqualTo(Boolean.TRUE)));
         return statuses.stream().map(Status::new).toArray(Status[]::new);
     }
 
@@ -108,7 +108,7 @@ public class CloseIssueAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicable(Issue issue) {
-        return super.isApplicable(issue) && IssueStatus.OPEN.equals(issue.getStatus().getKey());
+        return super.isApplicable(issue) && (IssueStatus.OPEN.equals(issue.getStatus().getKey()) || IssueStatus.SNOOZED.equals(issue.getStatus().getKey()));
     }
 
     @Override
