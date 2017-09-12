@@ -60,6 +60,7 @@ import com.energyict.mdc.device.topology.impl.utils.ChannelDataTransferor;
 import com.energyict.mdc.device.topology.impl.utils.DeviceEventInfo;
 import com.energyict.mdc.device.topology.impl.utils.MeteringChannelProvider;
 import com.energyict.mdc.device.topology.impl.utils.Utils;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -198,6 +199,58 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
+    public void setOrUpdateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(Device device, ConnectionTask connectionTask) {
+        if (connectionTask.getPartialConnectionTask().getConnectionFunction().isPresent()) {
+            ConnectionFunction connectionFunction = connectionTask.getPartialConnectionTask().getConnectionFunction().get();
+            List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithConnectionFunctionForCompleteTopology(device, connectionFunction);
+            for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+                ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
+                comTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction(connectionTask);
+                comTaskExecutionUpdater.update();
+            }
+        }
+    }
+
+    @Override
+    public void recalculateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(Device device, ConnectionFunction connectionFunction) {
+        List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithConnectionFunctionForCompleteTopology(device, connectionFunction);
+        Optional<ConnectionTask> connectionTaskOptional = this.findConnectionTaskWithConnectionFunctionForTopology(device, connectionFunction);
+
+        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+            ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            if (connectionTaskOptional.isPresent()) {
+                comTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction(connectionTaskOptional.get());
+            } else {
+                comTaskExecutionUpdater.setConnectionFunction(connectionFunction); // Set to use a ConnectionFunction not used on any ConnectionTask
+            }
+            comTaskExecutionUpdater.update();
+        }
+    }
+
+    private List<ComTaskExecution> findComTaskExecutionsWithConnectionFunctionForCompleteTopology(Device device, ConnectionFunction connectionFunction) {
+        List<ComTaskExecution> scheduledComTasks = new ArrayList<>();
+        this.collectComTaskWithConnectionFunctionForCompleteTopology(device, scheduledComTasks, connectionFunction);
+        return scheduledComTasks;
+    }
+
+    private void collectComTaskWithConnectionFunctionForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks, ConnectionFunction connectionFunction) {
+        List<ComTaskExecution> comTaskExecutions = this.communicationTaskService.findComTaskExecutionsWithConnectionFunction(device, connectionFunction);
+        scheduledComTasks.addAll(comTaskExecutions);
+        for (Device slave : this.findPhysicalConnectedDevices(device)) {
+            this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(slave, scheduledComTasks);
+        }
+    }
+
+    @Override
+    public List<ConnectionTask<?, ?>> findAllConnectionTasksForTopology(Device device) {
+        List<ConnectionTask<?, ?>> allConnectionTasks = new ArrayList<>(device.getConnectionTasks()); // Should be a mutable list
+        Optional<Device> physicalGateway = this.getPhysicalGateway(device);
+        physicalGateway.ifPresent(gateway -> allConnectionTasks.addAll(this.findAllConnectionTasksForTopology(gateway)));
+
+        return allConnectionTasks;
+    }
+
+    @Override
     public Optional<ConnectionTask> findDefaultConnectionTaskForTopology(final Device device) {
         Optional<ConnectionTask> connectionTask = this.connectionTaskService.findDefaultConnectionTaskForDevice(device);
         if (connectionTask.isPresent()) {
@@ -208,6 +261,23 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             Optional<Device> physicalGateway = this.getPhysicalGateway(device);
             if (physicalGateway.isPresent()) {
                 return this.findDefaultConnectionTaskForTopology(physicalGateway.get());
+            } else {
+                return Optional.empty();
+            }
+        }
+    }
+
+    @Override
+    public Optional<ConnectionTask> findConnectionTaskWithConnectionFunctionForTopology(Device device, ConnectionFunction connectionFunction) {
+        Optional<ConnectionTask> connectionTask = this.connectionTaskService.findConnectionTaskByDeviceAndConnectionFunction(device, connectionFunction);
+        if (connectionTask.isPresent()) {
+            return connectionTask;
+        } else {
+            /* No matching ConnectionTask found on the device,
+            * let's try the physical gateway if there is one. */
+            Optional<Device> physicalGateway = this.getPhysicalGateway(device);
+            if (physicalGateway.isPresent()) {
+                return this.findConnectionTaskWithConnectionFunctionForTopology(physicalGateway.get(), connectionFunction);
             } else {
                 return Optional.empty();
             }
@@ -768,18 +838,39 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     public void slaveTopologyChanged(Device slave, Optional<Device> gateway) {
         List<ComTaskExecution> comTasksForDefaultConnectionTask = this.communicationTaskService.findComTasksByDefaultConnectionTask(slave);
+        Map<ConnectionFunction, List<ComTaskExecution>> comTasksUsingConnectionFunction = this.communicationTaskService.findComTasksUsingConnectionFunction(slave);
         if (gateway.isPresent()) {
             this.updateComTasksToUseNewDefaultConnectionTask(slave, comTasksForDefaultConnectionTask);
+            this.updateComTasksToUseNewConnectionTaskBasedOnConnectionFunction(slave, comTasksUsingConnectionFunction);
         } else {
             this.updateComTasksToUseNonExistingDefaultConnectionTask(comTasksForDefaultConnectionTask);
+            this.updateComTasksToUseNonExistingConnectionTaskBasedOnConnectionFunction(comTasksUsingConnectionFunction);
         }
     }
 
     private void updateComTasksToUseNewDefaultConnectionTask(Device slave, List<ComTaskExecution> comTasksForDefaultConnectionTask) {
-        this.findDefaultConnectionTaskForTopology(slave).ifPresent(dct -> {
-            for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
+        Optional<ConnectionTask> defaultConnectionTaskForTopology = this.findDefaultConnectionTaskForTopology(slave);
+        for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
+            ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            if (defaultConnectionTaskForTopology.isPresent()) {
+                comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTaskForTopology.get());
+            } else {
+                comTaskExecutionUpdater.useDefaultConnectionTask(true);
+            }
+            comTaskExecutionUpdater.update();
+        }
+    }
+
+    private void updateComTasksToUseNewConnectionTaskBasedOnConnectionFunction(Device slave, Map<ConnectionFunction, List<ComTaskExecution>> comTasksUsingConnectionFunction) {
+        comTasksUsingConnectionFunction.forEach((connectionFunction, affectedComTaskExecutions) -> {
+            Optional<ConnectionTask> connectionTaskOptional = this.findConnectionTaskWithConnectionFunctionForTopology(slave, connectionFunction);
+            for (ComTaskExecution comTaskExecution : affectedComTaskExecutions) {
                 ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
-                comTaskExecutionUpdater.useDefaultConnectionTask(dct);
+                if (connectionTaskOptional.isPresent()) {
+                    comTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction(connectionTaskOptional.get());
+                } else {
+                    comTaskExecutionUpdater.setConnectionFunction(connectionFunction);
+                }
                 comTaskExecutionUpdater.update();
             }
         });
@@ -788,8 +879,17 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private void updateComTasksToUseNonExistingDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
         for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
             ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
-            comTaskExecutionUpdater.connectionTask(null);
             comTaskExecutionUpdater.useDefaultConnectionTask(true);
+            comTaskExecutionUpdater.update();
+        }
+    }
+
+    private void updateComTasksToUseNonExistingConnectionTaskBasedOnConnectionFunction(Map<ConnectionFunction, List<ComTaskExecution>> comTasksUsingConnectionFunction) {
+        List<ComTaskExecution> allComtaskExecutions = new ArrayList<>();
+        comTasksUsingConnectionFunction.values().stream().forEach(allComtaskExecutions::addAll);
+        for (ComTaskExecution comTaskExecution : allComtaskExecutions) {
+            ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getUpdater();
+            comTaskExecutionUpdater.setConnectionFunction(comTaskExecution.getConnectionFunction().orElse(null));
             comTaskExecutionUpdater.update();
         }
     }
