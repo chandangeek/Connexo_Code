@@ -103,9 +103,9 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     @Path("/{id}")
     @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response getAlarmById(@PathParam("id") long id) {
+    public DeviceAlarmInfo getAlarmById(@PathParam("id") long id) {
         Optional<? extends DeviceAlarm> deviceAlarm = getDeviceAlarmService().findAlarm(id);
-        return deviceAlarm.map(alm -> entity(deviceAlarmInfoFactory.from(alm)).build())
+        return deviceAlarm.map(alm -> deviceAlarmInfoFactory.asInfo(alm, DeviceInfo.class))
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 

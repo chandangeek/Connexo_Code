@@ -42,8 +42,7 @@ public class DeviceAlarmResourceTest extends DeviceAlarmApplicationTest {
         Optional<DeviceAlarm> alarm = Optional.of(getDefaultAlarm());
         doReturn(alarm).when(deviceAlarmService).findAlarm(1);
 
-        Map<?, ?> map = target("/alarms/1").request().get(Map.class);
-        Map<?, ?> alarmMap = (Map<?, ?>) map.get("data");
+        Map<?, ?> alarmMap = target("/alarms/1").request().get(Map.class);
         assertDefaultAlarmMap(alarmMap);
     }
 
