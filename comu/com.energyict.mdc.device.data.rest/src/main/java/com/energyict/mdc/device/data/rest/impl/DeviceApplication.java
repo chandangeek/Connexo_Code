@@ -20,6 +20,8 @@ import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueAssignmentService;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
@@ -168,8 +170,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile PkiService pkiService;
     private volatile MdcPropertyUtils mdcPropertyUtils;
     private volatile IssueActionService issueActionService;
+    private volatile IssueCreationService issueCreationService;
+    private volatile IssueAssignmentService issueAssignmentService;
     private volatile IssueInfoFactoryService issueInfoFactoryService;
     private volatile OrmService ormService;
+
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -290,6 +295,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
         this.issueActionService = issueService.getIssueActionService();
+        this.issueCreationService = issueService.getIssueCreationService();
+        this.issueAssignmentService = issueService.getIssueAssignmentService();
     }
 
     @Reference

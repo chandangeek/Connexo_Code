@@ -6,8 +6,10 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
+import com.elster.jupiter.issue.rest.response.IssueReasonInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.share.IssueFilter;
@@ -28,7 +30,8 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -42,12 +45,22 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
+import static com.elster.jupiter.issue.security.Privileges.Constants.ACTION_ISSUE;
+import static com.elster.jupiter.issue.security.Privileges.Constants.ASSIGN_ISSUE;
+import static com.elster.jupiter.issue.security.Privileges.Constants.CLOSE_ISSUE;
+import static com.elster.jupiter.issue.security.Privileges.Constants.COMMENT_ISSUE;
+import static com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ISSUE;
+import static com.energyict.mdc.device.alarms.security.Privileges.Constants.ACTION_ALARM;
+import static com.energyict.mdc.device.alarms.security.Privileges.Constants.ASSIGN_ALARM;
+import static com.energyict.mdc.device.alarms.security.Privileges.Constants.CLOSE_ALARM;
+import static com.energyict.mdc.device.alarms.security.Privileges.Constants.COMMENT_ALARM;
+import static com.energyict.mdc.device.alarms.security.Privileges.Constants.VIEW_ALARM;
+
 
 public class DeviceHistoryResource {
 
@@ -111,7 +124,7 @@ public class DeviceHistoryResource {
     @Transactional
     @Path("/issuesandalarms")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ISSUE, com.elster.jupiter.issue.security.Privileges.Constants.ASSIGN_ISSUE, com.elster.jupiter.issue.security.Privileges.Constants.CLOSE_ISSUE, com.elster.jupiter.issue.security.Privileges.Constants.COMMENT_ISSUE, com.elster.jupiter.issue.security.Privileges.Constants.ACTION_ISSUE})
+    @RolesAllowed({VIEW_ISSUE, ASSIGN_ISSUE, CLOSE_ISSUE, COMMENT_ISSUE, ACTION_ISSUE, VIEW_ALARM, ASSIGN_ALARM, CLOSE_ALARM, COMMENT_ALARM, ACTION_ALARM})
     public PagedInfoList getAllIssues(@BeanParam com.elster.jupiter.issue.rest.resource.StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
         //validateMandatory(params, START, LIMIT);
 
@@ -130,6 +143,24 @@ public class DeviceHistoryResource {
             }
         }
         return PagedInfoList.fromPagedList("data", issueInfos, queryParams);
+    }
+
+    @GET
+    @Path("/issueandalarmreasons")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({VIEW_ISSUE, ASSIGN_ISSUE, CLOSE_ISSUE, COMMENT_ISSUE, ACTION_ISSUE, VIEW_ALARM, ASSIGN_ALARM, CLOSE_ALARM, COMMENT_ALARM, ACTION_ALARM})
+    public Response getReasons(@BeanParam StandardParametersBean params) {
+        Query<IssueReason> query = issueService.query(IssueReason.class);
+        List<IssueReason> reasons = query.select(Condition.TRUE).stream()
+                .sorted(Comparator.<IssueReason, String>comparing(reason -> reason.getIssueType().getPrefix()
+                ).thenComparing(IssueReason::getName,
+                        String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
+        if (params.getFirst("like") != null) {
+            reasons = reasons.stream().filter(reason -> reason.getName().toLowerCase().contains(params.getFirst("like").toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+        return Response.ok().entity(reasons.stream().map(ReasonInfo::new).collect(Collectors.toList())).build();
     }
 
     private void validateMandatory(StandardParametersBean params, String... mandatoryParameters) {
@@ -159,7 +190,8 @@ public class DeviceHistoryResource {
             eagerClasses.addAll(Arrays.asList(eagers));
         }
         eagerClasses.addAll(Arrays.asList(IssueReason.class, IssueType.class));
-        return DefaultFinder.of((Class<Issue>) eagerClasses.remove(0), condition, ormService.getDataModel(IssueService.COMPONENT_NAME).orElseThrow(IllegalStateException::new), eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
+        return DefaultFinder.of((Class<Issue>) eagerClasses.remove(0), condition, ormService.getDataModel(IssueService.COMPONENT_NAME)
+                .orElseThrow(IllegalStateException::new), eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
     }
 
     private List<Class<?>> determineMainApiClass(IssueFilter filter) {
@@ -173,6 +205,19 @@ public class DeviceHistoryResource {
             eagerClasses.add(Issue.class);
         }
         return eagerClasses;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private class ReasonInfo extends IssueReasonInfo {
+        public String issueType;
+
+        public ReasonInfo(IssueReason reason) {
+            super(reason);
+            this.issueType = reason.getIssueType().getPrefix();
+        }
+
+        public ReasonInfo() {
+        }
     }
 
 }

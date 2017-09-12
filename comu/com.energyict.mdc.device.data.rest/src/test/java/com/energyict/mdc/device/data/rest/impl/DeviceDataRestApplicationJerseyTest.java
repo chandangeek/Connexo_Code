@@ -27,6 +27,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -39,6 +40,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.PropertySpec;
@@ -241,6 +243,10 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     IssueInfoFactoryService issueInfoFactoryService;
     @Mock
     OrmService ormService;
+    @Mock
+    DataModel dataModel;
+    @Mock
+    IssueActionService issueActionService;
 
     protected ChannelInfoFactory channelInfoFactory;
     ReadingTypeInfoFactory readingTypeInfoFactory;
@@ -256,6 +262,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
 
     @Before
     public void setup() {
+        when(ormService.getDataModel(anyString())).thenReturn(Optional.empty());
         when(obisCodeDescriptor.describe(any(ObisCode.class))).thenReturn("obisCodeDescription");
         readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
         channelInfoFactory = new ChannelInfoFactory(clock, topologyService, readingTypeInfoFactory);
@@ -296,6 +303,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
                 return classes;
             }
         };
+        when(issueService.getIssueActionService()).thenReturn(issueActionService);
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setMasterDataService(masterDataService);
