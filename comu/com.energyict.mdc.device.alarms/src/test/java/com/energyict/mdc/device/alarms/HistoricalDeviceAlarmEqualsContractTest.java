@@ -8,6 +8,7 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.issue.impl.records.HistoricalIssueImpl;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.alarms.impl.records.HistoricalDeviceAlarmImpl;
 
 import java.time.Clock;
@@ -29,6 +30,8 @@ public class HistoricalDeviceAlarmEqualsContractTest extends EqualsContractTest 
     IssueService issueService;
     @Mock
     DeviceAlarmService deviceAlarmService;
+    @Mock
+    Thesaurus thesaurus;
 
     HistoricalIssueImpl baseIssue;
     HistoricalDeviceAlarmImpl historicalDeviceAlarm;
@@ -36,7 +39,7 @@ public class HistoricalDeviceAlarmEqualsContractTest extends EqualsContractTest 
     @Override
     protected Object getInstanceA() {
         if (historicalDeviceAlarm == null) {
-            baseIssue = new HistoricalIssueImpl(dataModel, issueService, Clock.systemDefaultZone());
+            baseIssue = new HistoricalIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
             baseIssue.setId(ID);
             historicalDeviceAlarm = new HistoricalDeviceAlarmImpl(dataModel, deviceAlarmService);
             historicalDeviceAlarm.setIssue(baseIssue);
@@ -46,7 +49,7 @@ public class HistoricalDeviceAlarmEqualsContractTest extends EqualsContractTest 
 
     @Override
     protected Object getInstanceEqualToA() {
-        HistoricalIssueImpl baseIssue = new HistoricalIssueImpl(dataModel, issueService, Clock.systemDefaultZone());
+        HistoricalIssueImpl baseIssue = new HistoricalIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
         baseIssue.setId(ID);
         HistoricalDeviceAlarmImpl historicalDeviceAlarm = new HistoricalDeviceAlarmImpl(dataModel, deviceAlarmService);
         historicalDeviceAlarm.setIssue(baseIssue);
@@ -55,7 +58,7 @@ public class HistoricalDeviceAlarmEqualsContractTest extends EqualsContractTest 
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        HistoricalIssueImpl baseIssue = new HistoricalIssueImpl(dataModel, issueService, Clock.systemDefaultZone());
+        HistoricalIssueImpl baseIssue = new HistoricalIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
         baseIssue.setId(OTHER_ID);
         HistoricalDeviceAlarmImpl historicalDeviceAlarm = new HistoricalDeviceAlarmImpl(dataModel, deviceAlarmService);
         historicalDeviceAlarm.setIssue(baseIssue);
