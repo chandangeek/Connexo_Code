@@ -40,6 +40,7 @@ import java.util.Optional;
 
 import org.mockito.Mock;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -173,7 +174,7 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
     }
 
     protected OpenIssueDataCollection mockIssue(long id, IssueReason reason, IssueStatus status, IssueAssignee assingee, Meter meter) {
-        OpenIssueDataCollection issue = mock(OpenIssueDataCollection.class);
+        OpenIssueDataCollection issue = mock(OpenIssueDataCollection.class, RETURNS_DEEP_STUBS);
         when(issue.getId()).thenReturn(id);
         when(issue.getReason()).thenReturn(reason);
         when(issue.getStatus()).thenReturn(status);
@@ -186,6 +187,7 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         when(issue.getVersion()).thenReturn(1L);
         when(issue.getPriority()).thenReturn(Priority.DEFAULT);
         when(issue.getSnoozeDateTime()).thenReturn(Optional.empty());
+        when(issue.getDevice().getLocation()).thenReturn(Optional.empty());
         return issue;
     }
  }
