@@ -6,14 +6,9 @@ package com.energyict.mdc.issue.issue.datacollection.rest;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmServer;
-import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
-import com.elster.jupiter.issue.rest.request.EntityReference;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.rest.IssueProcessInfos;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Map;
@@ -50,7 +45,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
     }
 
     @Test
-    public void testGetProcesses(){
+    public void testGetProcesses() {
         BpmServer bpmServer = mock(BpmServer.class);
         BpmProcessDefinition bpmProcessDefinition = mock(BpmProcessDefinition.class);
 
@@ -106,7 +101,10 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
                 "    }\n" +
                 "  ]\n" +
                 "}");
-        IssueProcessInfos issueProcessInfos = target("/issues/1/processes").queryParam("variableid", "issueid").queryParam("variablevalue", "1").request().get(IssueProcessInfos.class);
+        IssueProcessInfos issueProcessInfos = target("/issues/1/processes").queryParam("variableid", "issueid")
+                .queryParam("variablevalue", "1")
+                .request()
+                .get(IssueProcessInfos.class);
 
         assertThat(issueProcessInfos.processes.size()).isEqualTo(3);
         assertThat(issueProcessInfos.processes.get(0).name).isEqualTo("Name01");
