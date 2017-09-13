@@ -83,24 +83,29 @@ import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ValueType;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.*;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLRequestSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLResponseSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLSecuritySuiteLevelAdapter;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.properties.ValueFactory;
-import com.energyict.mdc.upl.security.*;
+import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.security.RequestSecurityLevel;
+import com.energyict.mdc.upl.security.ResponseSecurityLevel;
+import com.energyict.mdc.upl.security.SecuritySuite;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.fest.assertions.api.Assertions;
-import org.junit.*;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -110,11 +115,23 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
@@ -286,11 +303,11 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
     public void initializeMocks() throws InvalidValueException {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.of(deviceProtocolPluggableClass));
-        when(protocolPluggableService.adapt(any(SecuritySuite.class))).thenAnswer(invocationOnMock -> new UPLSecuritySuiteLevelAdapter(((SecuritySuite) invocationOnMock.getArguments()[0])));
-        when(protocolPluggableService.adapt(any(AuthenticationDeviceAccessLevel.class))).thenAnswer(invocationOnMock -> new UPLAuthenticationLevelAdapter(((AuthenticationDeviceAccessLevel) invocationOnMock.getArguments()[0])));
-        when(protocolPluggableService.adapt(any(EncryptionDeviceAccessLevel.class))).thenAnswer(invocationOnMock -> new UPLEncryptionLevelAdapter(((EncryptionDeviceAccessLevel) invocationOnMock.getArguments()[0])));
-        when(protocolPluggableService.adapt(any(RequestSecurityLevel.class))).thenAnswer(invocationOnMock -> new UPLRequestSecurityLevelAdapter(((RequestSecurityLevel) invocationOnMock.getArguments()[0])));
-        when(protocolPluggableService.adapt(any(ResponseSecurityLevel.class))).thenAnswer(invocationOnMock -> new UPLResponseSecurityLevelAdapter(((ResponseSecurityLevel) invocationOnMock.getArguments()[0])));
+        when(protocolPluggableService.adapt(any(SecuritySuite.class))).thenAnswer(invocationOnMock -> UPLSecuritySuiteLevelAdapter.adaptTo(((SecuritySuite) invocationOnMock.getArguments()[0])));
+        when(protocolPluggableService.adapt(any(AuthenticationDeviceAccessLevel.class))).thenAnswer(invocationOnMock -> UPLAuthenticationLevelAdapter.adaptTo(((AuthenticationDeviceAccessLevel) invocationOnMock.getArguments()[0])));
+        when(protocolPluggableService.adapt(any(EncryptionDeviceAccessLevel.class))).thenAnswer(invocationOnMock -> UPLEncryptionLevelAdapter.adaptTo(((EncryptionDeviceAccessLevel) invocationOnMock.getArguments()[0])));
+        when(protocolPluggableService.adapt(any(RequestSecurityLevel.class))).thenAnswer(invocationOnMock -> UPLRequestSecurityLevelAdapter.adaptTo(((RequestSecurityLevel) invocationOnMock.getArguments()[0])));
+        when(protocolPluggableService.adapt(any(ResponseSecurityLevel.class))).thenAnswer(invocationOnMock -> UPLResponseSecurityLevelAdapter.adaptTo(((ResponseSecurityLevel) invocationOnMock.getArguments()[0])));
         when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.empty());
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authLevel, authLevel2));
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encLevel));

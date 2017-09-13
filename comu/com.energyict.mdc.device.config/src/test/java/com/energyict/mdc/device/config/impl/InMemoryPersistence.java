@@ -86,6 +86,7 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -299,11 +300,11 @@ public class InMemoryPersistence {
 
             when(protocolPluggableService.adapt(any(AuthenticationDeviceAccessLevel.class))).thenAnswer(invocation -> {
                 Object[] args = invocation.getArguments();
-                return new UPLAuthenticationLevelAdapter((AuthenticationDeviceAccessLevel) args[0]);
+                return UPLAuthenticationLevelAdapter.adaptTo((AuthenticationDeviceAccessLevel) args[0]);
             });
             when(protocolPluggableService.adapt(any(EncryptionDeviceAccessLevel.class))).thenAnswer(invocation -> {
                 Object[] args = invocation.getArguments();
-                return new UPLEncryptionLevelAdapter((EncryptionDeviceAccessLevel) args[0]);
+                return UPLEncryptionLevelAdapter.adaptTo((EncryptionDeviceAccessLevel) args[0]);
             });
         }
         this.licenseService = mock(LicenseService.class);

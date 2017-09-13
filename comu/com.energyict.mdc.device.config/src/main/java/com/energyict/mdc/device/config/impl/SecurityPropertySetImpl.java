@@ -288,7 +288,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Override
     public Optional<PropertySpec> getClientSecurityPropertySpec() {
         return getDeviceProtocol().getClientSecurityPropertySpec().isPresent()
-                ? Optional.of(new UPLToConnexoPropertySpecAdapter(getDeviceProtocol().getClientSecurityPropertySpec().get()))
+                ? Optional.of(UPLToConnexoPropertySpecAdapter.adaptTo(getDeviceProtocol().getClientSecurityPropertySpec().get()))
                 : Optional.empty();
     }
 
@@ -828,7 +828,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         @Override
         public boolean isValid(SecurityPropertySetImpl value, ConstraintValidatorContext context) {
             if (value.getDeviceProtocol().getClientSecurityPropertySpec().isPresent()) {
-                PropertySpec clientPropertySpec = new UPLToConnexoPropertySpecAdapter(value.getDeviceProtocol().getClientSecurityPropertySpec().get());
+                PropertySpec clientPropertySpec = UPLToConnexoPropertySpecAdapter.adaptTo(value.getDeviceProtocol().getClientSecurityPropertySpec().get());
                 try {
                     if (!clientPropertySpec.validateValue(value.getClient())) {
                         context.disableDefaultConstraintViolation();
