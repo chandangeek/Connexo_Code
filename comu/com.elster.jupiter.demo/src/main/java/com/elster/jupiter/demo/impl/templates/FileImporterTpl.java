@@ -36,21 +36,21 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
             return properties;
         }
     },
-    CONNECTION_ATTRIBUTES_IMPORTER("Import connection attributes", "ConnectionAttributesImportFactory", "connectionattributes"){
+    CONNECTION_ATTRIBUTES_IMPORTER("Import connection attributes", "ConnectionAttributesImportFactory", "connectionattributes") {
         protected Map<String, Object> getImporterProperties() {
             Map<String, Object> properties = super.getImporterProperties();
             properties.put("DeviceDataFileImporterFactory.numberFormat", defaultNumberFormat());
             return properties;
         }
     },
-    SECURITY_ATTRIBUTES_IMPORTER("Import security attributes", "SecurityAttributesImportFactory", "securityattributes"){
+    SECURITY_ATTRIBUTES_IMPORTER("Import security attributes", "SecurityAttributesImportFactory", "securityattributes") {
         protected Map<String, Object> getImporterProperties() {
             Map<String, Object> properties = super.getImporterProperties();
             properties.put("DeviceDataFileImporterFactory.numberFormat", defaultNumberFormat());
             return properties;
         }
     },
-    DEVICE_ACTIVATION_DEACTIVATION_IMPORTER("Activation Deactivation", "DeviceActivationDeactivationImportFactory", "devicelifecycle", "activation deactivation"){
+    DEVICE_ACTIVATION_DEACTIVATION_IMPORTER("Activation Deactivation", "DeviceActivationDeactivationImportFactory", "devicelifecycle", "activation deactivation") {
         protected Map<String, Object> getImporterProperties() {
             Map<String, Object> properties = super.getImporterProperties();
             properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
@@ -58,7 +58,7 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
             return properties;
         }
     },
-    DEVICE_COMMISSIONING_IMPORTER("Commissioning", "DeviceCommissioningImportFactory", "devicelifecycle", "commissioning"){
+    DEVICE_COMMISSIONING_IMPORTER("Commissioning", "DeviceCommissioningImportFactory", "devicelifecycle", "commissioning") {
         protected Map<String, Object> getImporterProperties() {
             Map<String, Object> properties = super.getImporterProperties();
             properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
@@ -66,11 +66,11 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
             return properties;
         }
     },
-    DEVICE_DECOMMISSIONG_IMPORTER("Decommissioning", "DeviceDecommissioningImportFactory", "devicelifecycle", "decommissioning"){
+    DEVICE_DECOMMISSIONG_IMPORTER("Decommissioning", "DeviceDecommissioningImportFactory", "devicelifecycle", "decommissioning") {
         protected Map<String, Object> getImporterProperties() {
             Map<String, Object> properties = super.getImporterProperties();
             properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
-            properties.put("DeviceDataFileImporterFactory.timeZone",defaultTimeZoneNotation());
+            properties.put("DeviceDataFileImporterFactory.timeZone", defaultTimeZoneNotation());
             return properties;
         }
     },
@@ -92,6 +92,26 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
         @Override
         protected String pathMatcher() {
             return "*.xml";
+        }
+    },
+    USAGE_POINT_IMPORTER("Usage point", "UsagePointFileImporterFactory", "usagepoint") {
+        protected Map<String, Object> getImporterProperties() {
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("MeteringFileImporterFactory.delimiter", ";");
+            properties.put("MeteringFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
+            properties.put("MeteringFileImporterFactory.timeZone", defaultTimeZoneNotation());
+            properties.put("MeteringFileImporterFactory.numberFormat", defaultNumberFormat());
+            return properties;
+        }
+    },
+    SYNTHETIC_LOAD_PROFILES_IMPORTER("Synthetic load profiles", "SyntheticLoadProfileImporterFactory", "syntheticloadprofiles") {
+        protected Map<String, Object> getImporterProperties() {
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("SyntheticLoadProfileImporterFactory.delimiter", ";");
+            properties.put("SyntheticLoadProfileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
+            properties.put("SyntheticLoadProfileImporterFactory.timeZone", defaultTimeZoneNotation());
+            properties.put("SyntheticLoadProfileImporterFactory.numberFormat", defaultNumberFormat());
+            return properties;
         }
     };
 
@@ -127,14 +147,15 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
     @Override
     public ImportScheduleBuilder get(ImportScheduleBuilder builder) {
         builder.withName(importerName)
-               .withFileImporterFactoryName(factoryName)
+                .withFileImporterFactoryName(factoryName)
                 .withPathMatcher(this.pathMatcher())
-               .withScheduleExpression(DEFAULT_SCHEDULED_EXPRESSION)
-               .withImportDirectory(importBasePath.toString())
-               .withInProcessDirectory(importBasePath.resolve(DEFAULT_PROCESSING_DIRECTORY).toString())
-               .withSuccessDirectory(importBasePath.resolve(DEFAULT_SUCCESS_DIRECTORY).toString())
-               .withFailureDirectory(importBasePath.resolve(DEFAULT_FAILURE_DIRECTORY).toString())
-               .withProperties(getImporterProperties());
+                .withScheduleExpression(DEFAULT_SCHEDULED_EXPRESSION)
+                .withImportDirectory(importBasePath.toString())
+                .withInProcessDirectory(importBasePath.resolve(DEFAULT_PROCESSING_DIRECTORY).toString())
+                .withSuccessDirectory(importBasePath.resolve(DEFAULT_SUCCESS_DIRECTORY).toString())
+                .withFailureDirectory(importBasePath.resolve(DEFAULT_FAILURE_DIRECTORY).toString())
+                .withActiveInUI(true)
+                .withProperties(getImporterProperties());
         return builder;
     }
 
@@ -143,24 +164,24 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
     }
 
     private static String defaultTimeZoneNotation() {
-        int rawOffset =  TimeZone.getDefault().getRawOffset();
+        int rawOffset = TimeZone.getDefault().getRawOffset();
         long hours = TimeUnit.MILLISECONDS.toHours(rawOffset);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(rawOffset) - TimeUnit.HOURS.toMinutes(hours);
         return String.format("GMT%s%02d:%02d", rawOffset >= 0 ? "+" : "-", hours, minutes);
     }
 
     private static HasIdAndName defaultNumberFormat() {
-        return  new HasIdAndName() {
-                        @Override
-                        public Object getId() {
-                            return "FORMAT3";
-                        }
+        return new HasIdAndName() {
+            @Override
+            public Object getId() {
+                return "FORMAT3";
+            }
 
-                        @Override
-                        public String getName() {
-                            return "123456789.012";
-                        }
-                    };
+            @Override
+            public String getName() {
+                return "123456789.012";
+            }
+        };
     }
 
 }

@@ -11,8 +11,9 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 
 public enum EstimationRuleSetTpl implements Template<EstimationRuleSet, EstimationRuleSetBuilder> {
 
-    RESIDENTIAL_CUSTOMERS("Residential customers", "Set with rules regarding residential customers"),
-    RESIDENTIAL_CUSTOMERS_STRICT("Residential customers strict", "Set with strict rules regarding residential customers");
+    RESIDENTIAL_CUSTOMERS("Residential electricity", "Set with rules regarding residential electricity customers"),
+    RESIDENTIAL_GAS("Residential gas", "Set with rules regarding residential gas customers"),
+    RESIDENTIAL_WATER("Residential water", "Set with rules regarding residential water customers");
 
     private String name;
     private String description;
