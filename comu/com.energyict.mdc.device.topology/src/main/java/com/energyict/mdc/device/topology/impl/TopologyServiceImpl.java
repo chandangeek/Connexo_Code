@@ -990,8 +990,9 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
-    public TopologyTimeline getPysicalTopologyTimeline(Device device, Range<Instant> range) {
-        return TopologyTimelineImpl.merge(this.findPhysicallyReferencingDevicesFor(device, range));
+    public List<PhysicalGatewayReference> getPhysyicalGatewayReferencesFor(Device device, Range<Instant> range) {
+        Condition condition = this.getDevicesInTopologyInIntervalCondition(device, range);
+        return this.dataModel.mapper(PhysicalGatewayReference.class).select(condition);
     }
 
     @Override

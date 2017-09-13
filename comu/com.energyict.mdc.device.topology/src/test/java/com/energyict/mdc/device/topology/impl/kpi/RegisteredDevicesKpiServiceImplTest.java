@@ -17,7 +17,6 @@ import com.energyict.mdc.device.topology.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 
-
 import java.util.Optional;
 
 import org.junit.After;
