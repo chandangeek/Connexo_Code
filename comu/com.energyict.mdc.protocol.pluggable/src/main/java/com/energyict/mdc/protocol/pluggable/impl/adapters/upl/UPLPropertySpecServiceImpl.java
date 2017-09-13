@@ -25,6 +25,7 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.StringLookup;
+
 import com.energyict.obis.ObisCode;
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
@@ -245,12 +246,12 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
         @Override
         public PropertySpecBuilderWizard.ThesaurusBased<T> named(TranslationKey nameTranslationKey) {
-            return new ThesaurusBasedAdapter<>(this.actual.named(new ConnexoTranslationKeyAdapter(nameTranslationKey)), this.thesaurus);
+            return new ThesaurusBasedAdapter<>(this.actual.named(ConnexoTranslationKeyAdapter.adaptTo(nameTranslationKey)), this.thesaurus);
         }
 
         @Override
         public PropertySpecBuilderWizard.ThesaurusBased<T> named(String name, TranslationKey displayNameTranslationKey) {
-            return new ThesaurusBasedAdapter<>(this.actual.named(name, new ConnexoTranslationKeyAdapter(displayNameTranslationKey)), this.thesaurus);
+            return new ThesaurusBasedAdapter<>(this.actual.named(name, ConnexoTranslationKeyAdapter.adaptTo(displayNameTranslationKey)), this.thesaurus);
         }
 
         @Override
@@ -270,7 +271,7 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
         @Override
         public PropertySpecBuilder<T> describedAs(TranslationKey descriptionTranslationKey) {
-            this.actual.describedAs(new ConnexoTranslationKeyAdapter(descriptionTranslationKey));
+            this.actual.describedAs(ConnexoTranslationKeyAdapter.adaptTo(descriptionTranslationKey));
             return new PropertySpecBuilderAdapter<>(this.actual.fromThesaurus(this.thesaurus));
         }
 
@@ -300,12 +301,12 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
         @Override
         public PropertySpecBuilderWizard.ThesaurusBased<Duration> named(TranslationKey nameTranslationKey) {
-            return new DurationThesaurusBasedAdapter(this.actual.named(new ConnexoTranslationKeyAdapter(nameTranslationKey)), this.thesaurus);
+            return new DurationThesaurusBasedAdapter(this.actual.named(ConnexoTranslationKeyAdapter.adaptTo(nameTranslationKey)), this.thesaurus);
         }
 
         @Override
         public PropertySpecBuilderWizard.ThesaurusBased<Duration> named(String name, TranslationKey displayNameTranslationKey) {
-            return new DurationThesaurusBasedAdapter(this.actual.named(name, new ConnexoTranslationKeyAdapter(displayNameTranslationKey)), thesaurus);
+            return new DurationThesaurusBasedAdapter(this.actual.named(name, ConnexoTranslationKeyAdapter.adaptTo(displayNameTranslationKey)), thesaurus);
         }
 
         @Override
@@ -325,7 +326,7 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
         @Override
         public PropertySpecBuilder<Duration> describedAs(TranslationKey descriptionTranslationKey) {
-            this.actual.describedAs(new ConnexoTranslationKeyAdapter(descriptionTranslationKey));
+            this.actual.describedAs(ConnexoTranslationKeyAdapter.adaptTo(descriptionTranslationKey));
             return new DurationPropertySpecBuilderAdapter(this.actual.fromThesaurus(this.thesaurus));
         }
     }
@@ -354,12 +355,12 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
         @Override
         public PropertySpecBuilderWizard.ThesaurusBased<TemporalAmount> named(TranslationKey nameTranslationKey) {
-            return new TemporalAmountThesaurusBasedAdapter(this.actual.named(new ConnexoTranslationKeyAdapter(nameTranslationKey)), this.thesaurus);
+            return new TemporalAmountThesaurusBasedAdapter(this.actual.named(ConnexoTranslationKeyAdapter.adaptTo(nameTranslationKey)), this.thesaurus);
         }
 
         @Override
         public PropertySpecBuilderWizard.ThesaurusBased<TemporalAmount> named(String name, TranslationKey displayNameTranslationKey) {
-            return new TemporalAmountThesaurusBasedAdapter(this.actual.named(name, new ConnexoTranslationKeyAdapter(displayNameTranslationKey)), thesaurus);
+            return new TemporalAmountThesaurusBasedAdapter(this.actual.named(name, ConnexoTranslationKeyAdapter.adaptTo(displayNameTranslationKey)), thesaurus);
         }
 
         @Override
@@ -379,7 +380,7 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
         @Override
         public PropertySpecBuilder<TemporalAmount> describedAs(TranslationKey descriptionTranslationKey) {
-            this.actual.describedAs(new ConnexoTranslationKeyAdapter(descriptionTranslationKey));
+            this.actual.describedAs(ConnexoTranslationKeyAdapter.adaptTo(descriptionTranslationKey));
             return new TemporalAmountPropertySpecBuilderAdapter(this.actual.fromThesaurus(this.thesaurus));
         }
     }
@@ -460,7 +461,7 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
         @Override
         public PropertySpec finish() {
-            return new ConnexoToUPLPropertSpecAdapter(this.actual.finish());
+            return ConnexoToUPLPropertSpecAdapter.adaptTo(this.actual.finish());
         }
     }
 }

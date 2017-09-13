@@ -23,8 +23,20 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 public class UPLToConnexoPropertySpecAdapter implements PropertySpec {
     private final com.energyict.mdc.upl.properties.PropertySpec actual;
 
-    public UPLToConnexoPropertySpecAdapter(com.energyict.mdc.upl.properties.PropertySpec actual) {
+    public static PropertySpec adaptTo(com.energyict.mdc.upl.properties.PropertySpec actual) {
+        if (actual instanceof ConnexoToUPLPropertSpecAdapter) {
+            return ((ConnexoToUPLPropertSpecAdapter) actual).getConnexoPropertySpec();
+        } else {
+            return new UPLToConnexoPropertySpecAdapter(actual);
+        }
+    }
+
+    private UPLToConnexoPropertySpecAdapter(com.energyict.mdc.upl.properties.PropertySpec actual) {
         this.actual = actual;
+    }
+
+    public com.energyict.mdc.upl.properties.PropertySpec getUplPropertySpec() {
+        return actual;
     }
 
     @Override
@@ -44,12 +56,7 @@ public class UPLToConnexoPropertySpecAdapter implements PropertySpec {
 
     @Override
     public ValueFactory getValueFactory() {
-        com.energyict.mdc.upl.properties.ValueFactory valueFactory = this.actual.getValueFactory();
-        if (valueFactory instanceof ConnexoToUPLValueFactoryAdapter) {
-            return ((ConnexoToUPLValueFactoryAdapter) valueFactory).getActual();
-        } else {
-            return new UPLToConnexoValueFactoryAdapter(valueFactory);
-        }
+        return UPLToConnexoValueFactoryAdapter.adaptTo(this.actual.getValueFactory());
     }
 
     @Override
@@ -94,13 +101,13 @@ public class UPLToConnexoPropertySpecAdapter implements PropertySpec {
         if (possibleValues == null) {
             return null;
         } else {
-            return new UPLToConnexoPropetySpecPossibleValuesAdapter(this.actual.getPossibleValues());
+            return UPLToConnexoPropertySpecPossibleValuesAdapter.adaptTo(this.actual.getPossibleValues());
         }
     }
 
     @Override
     public int hashCode() {
-        return actual.hashCode();
+        return actual != null ? actual.hashCode() : 0;
     }
 
     @Override

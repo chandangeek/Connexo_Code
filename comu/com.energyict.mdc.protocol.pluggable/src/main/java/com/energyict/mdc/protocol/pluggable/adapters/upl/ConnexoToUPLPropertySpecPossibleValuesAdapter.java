@@ -11,11 +11,24 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-12-09 (11:44)
  */
-public class PossibleValuesAdapter implements PropertySpecPossibleValues {
+public class ConnexoToUPLPropertySpecPossibleValuesAdapter implements PropertySpecPossibleValues {
+
     private final com.elster.jupiter.properties.PropertySpecPossibleValues actual;
 
-    PossibleValuesAdapter(com.elster.jupiter.properties.PropertySpecPossibleValues actual) {
+    public static PropertySpecPossibleValues adaptTo(com.elster.jupiter.properties.PropertySpecPossibleValues actual) {
+        if (actual instanceof UPLToConnexoPropertySpecPossibleValuesAdapter) {
+            return ((UPLToConnexoPropertySpecPossibleValuesAdapter) actual).getUplPropertySpecPossibleValues();
+        } else {
+            return new ConnexoToUPLPropertySpecPossibleValuesAdapter(actual);
+        }
+    }
+
+    private ConnexoToUPLPropertySpecPossibleValuesAdapter(com.elster.jupiter.properties.PropertySpecPossibleValues actual) {
         this.actual = actual;
+    }
+
+    public com.elster.jupiter.properties.PropertySpecPossibleValues getConnexoPropertySpecPossibleValues() {
+        return actual;
     }
 
     @Override
@@ -63,4 +76,17 @@ public class PossibleValuesAdapter implements PropertySpecPossibleValues {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ConnexoToUPLPropertySpecPossibleValuesAdapter) {
+            return actual.equals(((ConnexoToUPLPropertySpecPossibleValuesAdapter) o).actual);
+        } else {
+            return actual.equals(o);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return actual != null ? actual.hashCode() : 0;
+    }
 }

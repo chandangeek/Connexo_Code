@@ -17,8 +17,20 @@ public class UPLToConnexoValueFactoryAdapter implements ValueFactory {
 
     private final com.energyict.mdc.upl.properties.ValueFactory actual;
 
-    public UPLToConnexoValueFactoryAdapter(com.energyict.mdc.upl.properties.ValueFactory actual) {
+    public static ValueFactory adaptTo(com.energyict.mdc.upl.properties.ValueFactory actual) {
+        if (actual instanceof ConnexoToUPLValueFactoryAdapter) {
+            return ((ConnexoToUPLValueFactoryAdapter) actual).getConnexoValueFactory();
+        } else {
+            return new UPLToConnexoValueFactoryAdapter(actual);
+        }
+    }
+
+    private UPLToConnexoValueFactoryAdapter(com.energyict.mdc.upl.properties.ValueFactory actual) {
         this.actual = actual;
+    }
+
+    public com.energyict.mdc.upl.properties.ValueFactory getUplValueFactory() {
+        return actual;
     }
 
     @Override
@@ -68,4 +80,17 @@ public class UPLToConnexoValueFactoryAdapter implements ValueFactory {
         return ValueType.fromUPLClassName(this.actual.getValueTypeName()).getConnexoSqlType();
     }
 
+    @Override
+    public int hashCode() {
+        return actual != null ? actual.hashCode() : 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof UPLToConnexoValueFactoryAdapter) {
+             return actual.equals(((UPLToConnexoValueFactoryAdapter) o).actual);
+         } else {
+             return actual.equals(o);
+         }
+    }
 }

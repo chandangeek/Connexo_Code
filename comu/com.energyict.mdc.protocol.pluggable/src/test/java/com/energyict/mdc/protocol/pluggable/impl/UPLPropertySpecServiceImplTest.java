@@ -120,7 +120,7 @@ public class UPLPropertySpecServiceImplTest {
                 com.elster.jupiter.nls.NlsMessageFormat messageFormat1 = mock(com.elster.jupiter.nls.NlsMessageFormat.class);
                 ConnexoTranslationKeyAdapter adapter = (ConnexoTranslationKeyAdapter) invocation.getArguments()[0];
                 if (adapter != null) {
-                    TranslationKey uplTranslationKey = adapter.getActual();
+                    TranslationKey uplTranslationKey = adapter.getUplTranslationKey();
                     when(messageFormat1.format(anyVararg())).thenReturn(uplTranslationKey.getDefaultFormat());
                 }
                 return messageFormat1;

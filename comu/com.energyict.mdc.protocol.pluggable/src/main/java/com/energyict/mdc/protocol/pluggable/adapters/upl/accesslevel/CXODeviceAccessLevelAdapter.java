@@ -17,10 +17,14 @@ import java.util.stream.Collectors;
  */
 public class CXODeviceAccessLevelAdapter implements DeviceAccessLevel {
 
-    private final com.energyict.mdc.protocol.api.security.DeviceAccessLevel cxoDeviceAccessLevel;
+    protected final com.energyict.mdc.protocol.api.security.DeviceAccessLevel cxoDeviceAccessLevel;
 
     public CXODeviceAccessLevelAdapter(com.energyict.mdc.protocol.api.security.DeviceAccessLevel cxoDeviceAccessLevel) {
         this.cxoDeviceAccessLevel = cxoDeviceAccessLevel;
+    }
+
+    public com.energyict.mdc.protocol.api.security.DeviceAccessLevel getConnexoDeviceAccessLevel() {
+        return cxoDeviceAccessLevel;
     }
 
     @Override
@@ -41,7 +45,7 @@ public class CXODeviceAccessLevelAdapter implements DeviceAccessLevel {
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return cxoDeviceAccessLevel.getSecurityProperties().stream()
-                .map(ConnexoToUPLPropertSpecAdapter::new)
+                .map(ConnexoToUPLPropertSpecAdapter::adaptTo)
                 .collect(Collectors.toList());
     }
 

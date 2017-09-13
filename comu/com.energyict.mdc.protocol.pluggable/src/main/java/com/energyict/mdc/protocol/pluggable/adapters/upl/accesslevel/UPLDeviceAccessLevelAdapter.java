@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 
 import java.util.List;
@@ -24,6 +23,10 @@ public class UPLDeviceAccessLevelAdapter implements DeviceAccessLevel {
         this.uplDeviceAccessLevel = uplDeviceAccessLevel;
     }
 
+    public com.energyict.mdc.upl.security.DeviceAccessLevel getUplDeviceAccessLevel() {
+        return uplDeviceAccessLevel;
+    }
+
     @Override
     public int getId() {
         return uplDeviceAccessLevel.getId();
@@ -37,16 +40,8 @@ public class UPLDeviceAccessLevelAdapter implements DeviceAccessLevel {
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return uplDeviceAccessLevel.getSecurityProperties().stream()
-                .map(this::toConnexo)
+                .map(UPLToConnexoPropertySpecAdapter::adaptTo)
                 .collect(Collectors.toList());
-    }
-
-    private PropertySpec toConnexo(com.energyict.mdc.upl.properties.PropertySpec propertySpec) {
-        if (propertySpec instanceof ConnexoToUPLPropertSpecAdapter) {
-            return ((ConnexoToUPLPropertSpecAdapter) propertySpec).getConnexoPropertySpec();
-        } else {
-            return new UPLToConnexoPropertySpecAdapter(propertySpec);
-        }
     }
 
     @Override

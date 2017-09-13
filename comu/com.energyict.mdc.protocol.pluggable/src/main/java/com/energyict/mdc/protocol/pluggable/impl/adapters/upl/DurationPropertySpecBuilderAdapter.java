@@ -90,6 +90,6 @@ class DurationPropertySpecBuilderAdapter implements PropertySpecBuilder<Duration
 
     @Override
     public PropertySpec finish() {
-        return new ConnexoToUPLPropertSpecAdapter(this.actual.finish());
+        return ConnexoToUPLPropertSpecAdapter.adaptTo(this.actual.finish());
     }
 }

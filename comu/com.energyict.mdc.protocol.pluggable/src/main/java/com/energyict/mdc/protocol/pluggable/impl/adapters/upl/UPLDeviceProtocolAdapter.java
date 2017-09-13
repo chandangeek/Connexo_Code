@@ -284,7 +284,7 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return new ArrayList<>(this.deviceProtocol.getUPLPropertySpecs().stream().map(UPLToConnexoPropertySpecAdapter::new).collect(Collectors.toList()));
+        return new ArrayList<>(this.deviceProtocol.getUPLPropertySpecs().stream().map(UPLToConnexoPropertySpecAdapter::adaptTo).collect(Collectors.toList()));
     }
 
     @Override

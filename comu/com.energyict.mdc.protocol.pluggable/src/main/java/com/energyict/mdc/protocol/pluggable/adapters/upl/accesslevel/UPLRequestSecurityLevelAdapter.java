@@ -9,7 +9,15 @@ import com.energyict.mdc.upl.security.DeviceAccessLevel;
  */
 public class UPLRequestSecurityLevelAdapter extends UPLDeviceAccessLevelAdapter implements RequestSecurityLevel {
 
-    public UPLRequestSecurityLevelAdapter(DeviceAccessLevel uplDeviceAccessLevel) {
+    public static RequestSecurityLevel adaptTo(DeviceAccessLevel uplDeviceAccessLevel) {
+        if (uplDeviceAccessLevel instanceof CXORequestSecurityLevelAdapter) {
+            return (RequestSecurityLevel) ((CXORequestSecurityLevelAdapter) uplDeviceAccessLevel).getConnexoDeviceAccessLevel();
+        } else {
+            return new UPLRequestSecurityLevelAdapter(uplDeviceAccessLevel);
+        }
+    }
+
+    private UPLRequestSecurityLevelAdapter(DeviceAccessLevel uplDeviceAccessLevel) {
         super(uplDeviceAccessLevel);
     }
 }

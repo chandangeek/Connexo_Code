@@ -14,37 +14,56 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- *
- *
  * @author khe
  * @since 3/01/2017 - 16:05
  */
 public class CXOSecuritySuiteAdapter extends CXODeviceAccessLevelAdapter implements SecuritySuite {
 
-    private final com.energyict.mdc.protocol.api.security.SecuritySuite securitySuite;
+    public static SecuritySuite adaptTo(com.energyict.mdc.protocol.api.security.SecuritySuite connexoSecuritySuite) {
+        if (connexoSecuritySuite instanceof UPLSecuritySuiteLevelAdapter) {
+            return (SecuritySuite) ((UPLSecuritySuiteLevelAdapter) connexoSecuritySuite).getUplDeviceAccessLevel();
+        } else {
+            return new CXOSecuritySuiteAdapter(connexoSecuritySuite);
+        }
+    }
 
-    public CXOSecuritySuiteAdapter(com.energyict.mdc.protocol.api.security.SecuritySuite securitySuite) {
-        super(securitySuite);
-        this.securitySuite = securitySuite;
+    private CXOSecuritySuiteAdapter(com.energyict.mdc.protocol.api.security.SecuritySuite connexoSecuritySuite) {
+        super(connexoSecuritySuite);
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return securitySuite.getEncryptionAccessLevels().stream().map(CXOEncryptionLevelAdapter::new).collect(Collectors.toList());
+        return ((com.energyict.mdc.protocol.api.security.SecuritySuite) this.cxoDeviceAccessLevel)
+                .getEncryptionAccessLevels()
+                .stream()
+                .map(CXOEncryptionLevelAdapter::adaptTo)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return securitySuite.getAuthenticationAccessLevels().stream().map(CXOAuthenticationLevelAdapter::new).collect(Collectors.toList());
+        return ((com.energyict.mdc.protocol.api.security.SecuritySuite) this.cxoDeviceAccessLevel)
+                .getAuthenticationAccessLevels()
+                .stream()
+                .map(CXOAuthenticationLevelAdapter::adaptTo)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<RequestSecurityLevel> getRequestSecurityLevels() {
-        return securitySuite.getRequestSecurityLevels().stream().map(CXORequestSecurityLevelAdapter::new).collect(Collectors.toList());
+        return ((com.energyict.mdc.protocol.api.security.SecuritySuite) this.cxoDeviceAccessLevel)
+                .getRequestSecurityLevels()
+                .stream()
+                .map(CXORequestSecurityLevelAdapter::adaptTo)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<ResponseSecurityLevel> getResponseSecurityLevels() {
-        return securitySuite.getResponseSecurityLevels().stream().map(CXOResponseSecurityLevelAdapter::new).collect(Collectors.toList());
+        return ((com.energyict.mdc.protocol.api.security.SecuritySuite) this.cxoDeviceAccessLevel)
+                .getResponseSecurityLevels()
+                .stream()
+                .map(CXOResponseSecurityLevelAdapter::adaptTo)
+                .collect(Collectors.toList());
     }
 }

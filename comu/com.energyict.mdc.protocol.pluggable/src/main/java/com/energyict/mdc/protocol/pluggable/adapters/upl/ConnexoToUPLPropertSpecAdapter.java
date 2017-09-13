@@ -19,7 +19,15 @@ import java.util.Optional;
 public class ConnexoToUPLPropertSpecAdapter implements PropertySpec {
     private final com.elster.jupiter.properties.PropertySpec actual;
 
-    public ConnexoToUPLPropertSpecAdapter(com.elster.jupiter.properties.PropertySpec actual) {
+    public static PropertySpec adaptTo(com.elster.jupiter.properties.PropertySpec actual) {
+        if (actual instanceof UPLToConnexoPropertySpecAdapter) {
+            return ((UPLToConnexoPropertySpecAdapter) actual).getUplPropertySpec();
+        } else {
+            return new ConnexoToUPLPropertSpecAdapter(actual);
+        }
+    }
+
+    private ConnexoToUPLPropertSpecAdapter(com.elster.jupiter.properties.PropertySpec actual) {
         this.actual = actual;
     }
 
@@ -69,7 +77,7 @@ public class ConnexoToUPLPropertSpecAdapter implements PropertySpec {
     @Override
     public PropertySpecPossibleValues getPossibleValues() {
         com.elster.jupiter.properties.PropertySpecPossibleValues possibleValues = this.actual.getPossibleValues();
-        return possibleValues == null ? null : new PossibleValuesAdapter(possibleValues);
+        return possibleValues == null ? null : ConnexoToUPLPropertySpecPossibleValuesAdapter.adaptTo(possibleValues);
     }
 
     @Override
@@ -79,12 +87,12 @@ public class ConnexoToUPLPropertSpecAdapter implements PropertySpec {
 
     @Override
     public ValueFactory getValueFactory() {
-        return ConnexoToUPLValueFactoryAdapter.adapt(this.actual.getValueFactory());
+        return ConnexoToUPLValueFactoryAdapter.adaptTo(this.actual.getValueFactory());
     }
 
     @Override
     public int hashCode() {
-        return actual.hashCode();
+        return actual != null ? actual.hashCode() : 0;
     }
 
     @Override

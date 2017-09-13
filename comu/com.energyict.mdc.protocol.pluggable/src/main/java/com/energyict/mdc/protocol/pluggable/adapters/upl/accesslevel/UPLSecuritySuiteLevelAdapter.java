@@ -15,7 +15,15 @@ import java.util.stream.Collectors;
  */
 public class UPLSecuritySuiteLevelAdapter extends UPLDeviceAccessLevelAdapter implements SecuritySuite {
 
-    public UPLSecuritySuiteLevelAdapter(com.energyict.mdc.upl.security.SecuritySuite uplSecuritySuite) {
+    public static SecuritySuite adaptTo(com.energyict.mdc.upl.security.SecuritySuite uplSecuritySuite) {
+        if (uplSecuritySuite instanceof CXOSecuritySuiteAdapter) {
+            return (SecuritySuite) ((CXOSecuritySuiteAdapter) uplSecuritySuite).getConnexoDeviceAccessLevel();
+        } else {
+            return new UPLSecuritySuiteLevelAdapter(uplSecuritySuite);
+        }
+    }
+
+    private UPLSecuritySuiteLevelAdapter(com.energyict.mdc.upl.security.SecuritySuite uplSecuritySuite) {
         super(uplSecuritySuite);
     }
 
@@ -24,7 +32,7 @@ public class UPLSecuritySuiteLevelAdapter extends UPLDeviceAccessLevelAdapter im
         return ((com.energyict.mdc.upl.security.SecuritySuite) this.uplDeviceAccessLevel)
                 .getEncryptionAccessLevels()
                 .stream()
-                .map(UPLEncryptionLevelAdapter::new)
+                .map(UPLEncryptionLevelAdapter::adaptTo)
                 .collect(Collectors.toList());
     }
 
@@ -33,7 +41,7 @@ public class UPLSecuritySuiteLevelAdapter extends UPLDeviceAccessLevelAdapter im
         return ((com.energyict.mdc.upl.security.SecuritySuite) this.uplDeviceAccessLevel)
                 .getAuthenticationAccessLevels()
                 .stream()
-                .map(UPLAuthenticationLevelAdapter::new)
+                .map(UPLAuthenticationLevelAdapter::adaptTo)
                 .collect(Collectors.toList());
     }
 
@@ -42,7 +50,7 @@ public class UPLSecuritySuiteLevelAdapter extends UPLDeviceAccessLevelAdapter im
         return ((com.energyict.mdc.upl.security.SecuritySuite) this.uplDeviceAccessLevel)
                 .getRequestSecurityLevels()
                 .stream()
-                .map(UPLRequestSecurityLevelAdapter::new)
+                .map(UPLRequestSecurityLevelAdapter::adaptTo)
                 .collect(Collectors.toList());
     }
 
@@ -51,7 +59,7 @@ public class UPLSecuritySuiteLevelAdapter extends UPLDeviceAccessLevelAdapter im
         return ((com.energyict.mdc.upl.security.SecuritySuite) this.uplDeviceAccessLevel)
                 .getResponseSecurityLevels()
                 .stream()
-                .map(UPLResponseSecurityLevelAdapter::new)
+                .map(UPLResponseSecurityLevelAdapter::adaptTo)
                 .collect(Collectors.toList());
     }
 }

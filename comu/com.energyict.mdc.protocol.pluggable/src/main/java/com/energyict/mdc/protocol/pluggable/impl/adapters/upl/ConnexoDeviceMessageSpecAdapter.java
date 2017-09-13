@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLDeviceMessageSpecAdapter;
 import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -25,16 +26,24 @@ public class ConnexoDeviceMessageSpecAdapter implements com.energyict.mdc.upl.me
 
     private final DeviceMessageSpec cxoDeviceMessageSpec;
 
-    public ConnexoDeviceMessageSpecAdapter(DeviceMessageSpec cxoDeviceMessageSpec) {
+    public static com.energyict.mdc.upl.messages.DeviceMessageSpec adaptTo(DeviceMessageSpec cxoDeviceMessageSpec) {
+        if (cxoDeviceMessageSpec instanceof UPLDeviceMessageSpecAdapter) {
+            return ((UPLDeviceMessageSpecAdapter) cxoDeviceMessageSpec).getUplDeviceMessageSpec();
+        } else {
+            return new ConnexoDeviceMessageSpecAdapter(cxoDeviceMessageSpec);
+        }
+    }
+
+    private ConnexoDeviceMessageSpecAdapter(DeviceMessageSpec cxoDeviceMessageSpec) {
         this.cxoDeviceMessageSpec = cxoDeviceMessageSpec;
     }
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return new ConnexoDeviceMessageCategoryAdapter(cxoDeviceMessageSpec.getCategory());
+        return ConnexoDeviceMessageCategoryAdapter.adaptTo(cxoDeviceMessageSpec.getCategory());
     }
 
-    public DeviceMessageSpec getCxoDeviceMessageSpec() {
+    public DeviceMessageSpec getConnexoDeviceMessageSpec() {
         return cxoDeviceMessageSpec;
     }
 
@@ -66,7 +75,7 @@ public class ConnexoDeviceMessageSpecAdapter implements com.energyict.mdc.upl.me
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return cxoDeviceMessageSpec.getPropertySpecs().stream()
-                .map(ConnexoToUPLPropertSpecAdapter::new)
+                .map(ConnexoToUPLPropertSpecAdapter::adaptTo)
                 .collect(Collectors.toList());
     }
 
@@ -81,6 +90,6 @@ public class ConnexoDeviceMessageSpecAdapter implements com.energyict.mdc.upl.me
 
     @Override
     public int hashCode() {
-        return cxoDeviceMessageSpec.hashCode();
+        return cxoDeviceMessageSpec != null ? cxoDeviceMessageSpec.hashCode() : 0;
     }
 }

@@ -89,19 +89,19 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    new ConnexoToUPLPropertSpecAdapter(
+                    ConnexoToUPLPropertSpecAdapter.adaptTo(
                             propertySpecService
                             .stringSpec()
                             .named(FIRST, FIRST)
                             .describedAs(FIRST)
                             .finish()),
-                    new ConnexoToUPLPropertSpecAdapter(
+                    ConnexoToUPLPropertSpecAdapter.adaptTo(
                             propertySpecService
                             .stringSpec()
                             .named(SECOND, SECOND)
                             .describedAs(SECOND)
                             .finish()),
-                    new ConnexoToUPLPropertSpecAdapter(
+                    ConnexoToUPLPropertSpecAdapter.adaptTo(
                             propertySpecService
                             .stringSpec()
                             .named(THIRD, THIRD)
@@ -131,19 +131,19 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    new ConnexoToUPLPropertSpecAdapter(
+                    ConnexoToUPLPropertSpecAdapter.adaptTo(
                             propertySpecService
                             .stringSpec()
                             .named(FIRST, FIRST)
                             .describedAs(FIRST)
                             .finish()                     ),
-                    new ConnexoToUPLPropertSpecAdapter(
+                    ConnexoToUPLPropertSpecAdapter.adaptTo(
                             propertySpecService
                             .stringSpec()
                             .named(SECOND, SECOND)
                             .describedAs(SECOND)
                             .finish()                    ),
-                    new ConnexoToUPLPropertSpecAdapter(
+                    ConnexoToUPLPropertSpecAdapter.adaptTo(
                             propertySpecService
                             .stringSpec()
                             .named(THIRD, THIRD)

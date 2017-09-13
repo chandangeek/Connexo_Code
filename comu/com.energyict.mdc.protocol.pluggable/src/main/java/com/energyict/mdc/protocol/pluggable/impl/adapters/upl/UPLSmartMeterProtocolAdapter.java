@@ -1,13 +1,14 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MeterEvent;
@@ -52,7 +53,7 @@ public class UPLSmartMeterProtocolAdapter implements SmartMeterProtocol, UPLProt
         return this.actual.getUPLPropertySpecs()
                 .stream()
                 .filter(com.energyict.mdc.upl.properties.PropertySpec::isRequired)
-                .map(UPLToConnexoPropertySpecAdapter::new)
+                .map(UPLToConnexoPropertySpecAdapter::adaptTo)
                 .collect(Collectors.toList());
     }
 
@@ -61,7 +62,7 @@ public class UPLSmartMeterProtocolAdapter implements SmartMeterProtocol, UPLProt
         return this.actual.getUPLPropertySpecs()
                 .stream()
                 .filter((propertySpec) -> !propertySpec.isRequired())
-                .map(UPLToConnexoPropertySpecAdapter::new)
+                .map(UPLToConnexoPropertySpecAdapter::adaptTo)
                 .collect(Collectors.toList());
     }
 

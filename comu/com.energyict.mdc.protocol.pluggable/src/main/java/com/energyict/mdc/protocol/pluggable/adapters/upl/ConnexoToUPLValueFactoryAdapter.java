@@ -12,15 +12,19 @@ import com.energyict.mdc.upl.properties.ValueFactory;
 public class ConnexoToUPLValueFactoryAdapter implements ValueFactory {
     private final com.elster.jupiter.properties.ValueFactory actual;
 
+    public static ValueFactory adaptTo(com.elster.jupiter.properties.ValueFactory actual) {
+        if (actual instanceof UPLToConnexoValueFactoryAdapter) {
+            return ((UPLToConnexoValueFactoryAdapter) actual).getUplValueFactory();
+        } else {
+            return new ConnexoToUPLValueFactoryAdapter(actual);
+        }
+    }
+
     private ConnexoToUPLValueFactoryAdapter(com.elster.jupiter.properties.ValueFactory actual) {
         this.actual = actual;
     }
 
-    public static ConnexoToUPLValueFactoryAdapter adapt(com.elster.jupiter.properties.ValueFactory actual) {
-        return new ConnexoToUPLValueFactoryAdapter(actual);
-    }
-
-    public com.elster.jupiter.properties.ValueFactory getActual() {
+    public com.elster.jupiter.properties.ValueFactory getConnexoValueFactory() {
         return actual;
     }
 
@@ -63,4 +67,17 @@ public class ConnexoToUPLValueFactoryAdapter implements ValueFactory {
         return this.actual.valueFromDatabase(databaseValue);
     }
 
+    @Override
+    public int hashCode() {
+        return actual != null ? actual.hashCode() : 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ConnexoToUPLValueFactoryAdapter) {
+            return actual.equals(((ConnexoToUPLValueFactoryAdapter) o).actual);
+        } else {
+            return actual.equals(o);
+        }
+    }
 }

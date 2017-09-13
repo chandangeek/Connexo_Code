@@ -71,7 +71,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistrati
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLDeviceMessageSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
@@ -879,47 +878,47 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
 
     @Override
     public PropertySpec adapt(com.energyict.mdc.upl.properties.PropertySpec uplPropertySpec) {
-        return new UPLToConnexoPropertySpecAdapter(uplPropertySpec);
+        return UPLToConnexoPropertySpecAdapter.adaptTo(uplPropertySpec);
     }
 
     @Override
     public com.energyict.mdc.upl.properties.PropertySpec adapt(PropertySpec propertySpec) {
-        return new ConnexoToUPLPropertSpecAdapter(propertySpec);
+        return ConnexoToUPLPropertSpecAdapter.adaptTo(propertySpec);
     }
 
     @Override
     public AuthenticationDeviceAccessLevel adapt(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel uplLevel) {
-        return new UPLAuthenticationLevelAdapter(uplLevel);
+        return UPLAuthenticationLevelAdapter.adaptTo(uplLevel);
     }
 
     @Override
     public EncryptionDeviceAccessLevel adapt(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel uplLevel) {
-        return new UPLEncryptionLevelAdapter(uplLevel);
+        return UPLEncryptionLevelAdapter.adaptTo(uplLevel);
     }
 
     @Override
     public SecuritySuite adapt(com.energyict.mdc.upl.security.SecuritySuite uplLevel) {
-        return new UPLSecuritySuiteLevelAdapter(uplLevel);
+        return UPLSecuritySuiteLevelAdapter.adaptTo(uplLevel);
     }
 
     @Override
     public RequestSecurityLevel adapt(com.energyict.mdc.upl.security.RequestSecurityLevel uplLevel) {
-        return new UPLRequestSecurityLevelAdapter(uplLevel);
+        return UPLRequestSecurityLevelAdapter.adaptTo(uplLevel);
     }
 
     @Override
     public ResponseSecurityLevel adapt(com.energyict.mdc.upl.security.ResponseSecurityLevel uplLevel) {
-        return new UPLResponseSecurityLevelAdapter(uplLevel);
+        return UPLResponseSecurityLevelAdapter.adaptTo(uplLevel);
     }
 
     @Override
     public com.energyict.mdc.upl.messages.DeviceMessageCategory adapt(DeviceMessageCategory connexoCategory) {
-        return new ConnexoDeviceMessageCategoryAdapter(connexoCategory);
+        return ConnexoDeviceMessageCategoryAdapter.adaptTo(connexoCategory);
     }
 
     @Override
     public com.energyict.mdc.upl.messages.DeviceMessageSpec adapt(DeviceMessageSpec connexoSpec) {
-        return connexoSpec instanceof UPLDeviceMessageSpecAdapter ? ((UPLDeviceMessageSpecAdapter) connexoSpec).getUplDeviceMessageSpec() : new ConnexoDeviceMessageSpecAdapter(connexoSpec);
+        return ConnexoDeviceMessageSpecAdapter.adaptTo(connexoSpec);
     }
 
     @Override

@@ -11,7 +11,15 @@ import com.energyict.mdc.upl.security.DeviceAccessLevel;
  */
 public class UPLEncryptionLevelAdapter extends UPLDeviceAccessLevelAdapter implements EncryptionDeviceAccessLevel {
 
-    public UPLEncryptionLevelAdapter(DeviceAccessLevel uplDeviceAccessLevel) {
+    public static EncryptionDeviceAccessLevel adaptTo(DeviceAccessLevel uplDeviceAccessLevel) {
+        if (uplDeviceAccessLevel instanceof CXOEncryptionLevelAdapter) {
+            return (EncryptionDeviceAccessLevel) ((CXOEncryptionLevelAdapter) uplDeviceAccessLevel).getConnexoDeviceAccessLevel();
+        } else {
+            return new UPLEncryptionLevelAdapter(uplDeviceAccessLevel);
+        }
+    }
+
+    private UPLEncryptionLevelAdapter(DeviceAccessLevel uplDeviceAccessLevel) {
         super(uplDeviceAccessLevel);
     }
 }

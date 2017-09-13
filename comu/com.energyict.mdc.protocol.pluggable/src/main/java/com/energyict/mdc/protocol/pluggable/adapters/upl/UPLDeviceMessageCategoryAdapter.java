@@ -2,10 +2,9 @@ package com.energyict.mdc.protocol.pluggable.adapters.upl;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageCategoryAdapter;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -20,8 +19,20 @@ public class UPLDeviceMessageCategoryAdapter implements DeviceMessageCategory {
 
     private final com.energyict.mdc.upl.messages.DeviceMessageCategory uplDeviceMessageCategory;
 
-    public UPLDeviceMessageCategoryAdapter(com.energyict.mdc.upl.messages.DeviceMessageCategory uplDeviceMessageCategory) {
+    public static DeviceMessageCategory adaptTo(com.energyict.mdc.upl.messages.DeviceMessageCategory uplDeviceMessageCategory) {
+        if (uplDeviceMessageCategory instanceof ConnexoDeviceMessageCategoryAdapter) {
+            return ((ConnexoDeviceMessageCategoryAdapter) uplDeviceMessageCategory).getConnexoDeviceMessageCategory();
+        } else {
+            return new UPLDeviceMessageCategoryAdapter(uplDeviceMessageCategory);
+        }
+    }
+
+    private UPLDeviceMessageCategoryAdapter(com.energyict.mdc.upl.messages.DeviceMessageCategory uplDeviceMessageCategory) {
         this.uplDeviceMessageCategory = uplDeviceMessageCategory;
+    }
+
+    public com.energyict.mdc.upl.messages.DeviceMessageCategory getUplDeviceMessageCategory() {
+        return uplDeviceMessageCategory;
     }
 
     @Override
@@ -42,12 +53,8 @@ public class UPLDeviceMessageCategoryAdapter implements DeviceMessageCategory {
     @Override
     public List<DeviceMessageSpec> getMessageSpecifications() {
         return uplDeviceMessageCategory.getMessageSpecifications().stream()
-                .map(adaptDeviceMessageSpec())
+                .map(UPLDeviceMessageSpecAdapter::adaptTo)
                 .collect(Collectors.toList());
-    }
-
-    private Function<com.energyict.mdc.upl.messages.DeviceMessageSpec, DeviceMessageSpec> adaptDeviceMessageSpec() {
-        return uplDeviceMessageSpec -> uplDeviceMessageSpec instanceof ConnexoDeviceMessageSpecAdapter ? ((ConnexoDeviceMessageSpecAdapter) uplDeviceMessageSpec).getCxoDeviceMessageSpec() : new UPLDeviceMessageSpecAdapter(uplDeviceMessageSpec);
     }
 
     @Override
@@ -61,6 +68,6 @@ public class UPLDeviceMessageCategoryAdapter implements DeviceMessageCategory {
 
     @Override
     public int hashCode() {
-        return uplDeviceMessageCategory.hashCode();
+        return uplDeviceMessageCategory != null ? uplDeviceMessageCategory.hashCode() : 0;
     }
 }

@@ -226,7 +226,7 @@ public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapte
         return this.actual.getUPLPropertySpecs()
                 .stream()
                 .filter(com.energyict.mdc.upl.properties.PropertySpec::isRequired)
-                .map(UPLToConnexoPropertySpecAdapter::new)
+                .map(UPLToConnexoPropertySpecAdapter::adaptTo)
                 .collect(Collectors.toList());
     }
 
@@ -235,7 +235,7 @@ public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapte
         return this.actual.getUPLPropertySpecs()
                 .stream()
                 .filter((propertySpec) -> !propertySpec.isRequired())
-                .map(UPLToConnexoPropertySpecAdapter::new)
+                .map(UPLToConnexoPropertySpecAdapter::adaptTo)
                 .collect(Collectors.toList());
     }
 

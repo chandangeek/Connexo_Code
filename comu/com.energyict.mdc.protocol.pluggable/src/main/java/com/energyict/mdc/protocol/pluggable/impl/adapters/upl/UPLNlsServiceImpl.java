@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -52,7 +53,7 @@ public class UPLNlsServiceImpl implements NlsService {
 
     @Override
     public Thesaurus getThesaurus(String id) {
-        return new UPLThesaurusAdapter(this.actual.getThesaurus(id, Layer.DOMAIN));
+        return UPLThesaurusAdapter.adaptTo(this.actual.getThesaurus(id, Layer.DOMAIN));
     }
 
 }

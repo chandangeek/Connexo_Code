@@ -4,6 +4,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +21,15 @@ public class UPLDeviceMessageSpecAdapter implements DeviceMessageSpec {
 
     private final com.energyict.mdc.upl.messages.DeviceMessageSpec uplDeviceMessageSpec;
 
-    public UPLDeviceMessageSpecAdapter(com.energyict.mdc.upl.messages.DeviceMessageSpec uplDeviceMessageSpec) {
+    public static DeviceMessageSpec adaptTo(com.energyict.mdc.upl.messages.DeviceMessageSpec uplDeviceMessageSpec) {
+        if (uplDeviceMessageSpec instanceof ConnexoDeviceMessageSpecAdapter) {
+            return ((ConnexoDeviceMessageSpecAdapter) uplDeviceMessageSpec).getConnexoDeviceMessageSpec();
+        } else {
+            return new UPLDeviceMessageSpecAdapter(uplDeviceMessageSpec);
+        }
+    }
+
+    private UPLDeviceMessageSpecAdapter(com.energyict.mdc.upl.messages.DeviceMessageSpec uplDeviceMessageSpec) {
         this.uplDeviceMessageSpec = uplDeviceMessageSpec;
     }
 
@@ -30,7 +39,7 @@ public class UPLDeviceMessageSpecAdapter implements DeviceMessageSpec {
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return new UPLDeviceMessageCategoryAdapter(uplDeviceMessageSpec.getCategory());
+        return UPLDeviceMessageCategoryAdapter.adaptTo(uplDeviceMessageSpec.getCategory());
     }
 
     @Override
@@ -46,7 +55,7 @@ public class UPLDeviceMessageSpecAdapter implements DeviceMessageSpec {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return uplDeviceMessageSpec.getPropertySpecs().stream()
-                .map(UPLToConnexoPropertySpecAdapter::new)
+                .map(UPLToConnexoPropertySpecAdapter::adaptTo)
                 .collect(Collectors.toList());
     }
 
@@ -61,6 +70,6 @@ public class UPLDeviceMessageSpecAdapter implements DeviceMessageSpec {
 
     @Override
     public int hashCode() {
-        return uplDeviceMessageSpec.hashCode();
+        return uplDeviceMessageSpec != null ? uplDeviceMessageSpec.hashCode() : 0;
     }
 }

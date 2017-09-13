@@ -15,16 +15,29 @@ import java.util.Map;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-28 (11:02)
  */
-class ConnexoThesaurusAdapter implements com.elster.jupiter.nls.Thesaurus {
+public class ConnexoThesaurusAdapter implements com.elster.jupiter.nls.Thesaurus {
+
     private final Thesaurus actual;
 
-    ConnexoThesaurusAdapter(Thesaurus actual) {
+    public static com.elster.jupiter.nls.Thesaurus adaptTo(Thesaurus actual) {
+        if (actual instanceof UPLThesaurusAdapter) {
+            return ((UPLThesaurusAdapter) actual).getConnexoThesaurus();
+        } else {
+            return new ConnexoThesaurusAdapter(actual);
+        }
+    }
+
+    private ConnexoThesaurusAdapter(Thesaurus actual) {
         this.actual = actual;
+    }
+
+    public Thesaurus getUplThesaurus() {
+        return actual;
     }
 
     @Override
     public NlsMessageFormat getFormat(com.elster.jupiter.nls.TranslationKey key) {
-        return new ConnexoNlsMessageFormatAdapter(this.actual.getFormat(new UPLTranslationKeyAdapter(key)));
+        return ConnexoNlsMessageFormatAdapter.adaptTo(this.actual.getFormat(UPLTranslationKeyAdapter.adaptTo(key)));
     }
 
     @Override
@@ -75,5 +88,19 @@ class ConnexoThesaurusAdapter implements com.elster.jupiter.nls.Thesaurus {
     @Override
     public String interpolate(String s, Context context, Locale locale) {
         throw new UnsupportedOperationException("Adapter between universal protocol thesaurus and Connexo thesaurus does not support interpolate(String, Context, Locale) because protocols are not aware of this method and should therefore not be capable of calling it.");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ConnexoThesaurusAdapter) {
+            return actual.equals(((ConnexoThesaurusAdapter) o).actual);
+        } else {
+            return actual.equals(o);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return actual != null ? actual.hashCode() : 0;
     }
 }
