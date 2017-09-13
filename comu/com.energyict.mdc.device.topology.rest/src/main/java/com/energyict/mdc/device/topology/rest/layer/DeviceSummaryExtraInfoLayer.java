@@ -67,6 +67,8 @@ public class DeviceSummaryExtraInfoLayer extends AbstractGraphLayer<Device> {
         List<String> failedComTaskNames = device.getComTaskExecutions().stream().filter(ComTaskExecution::isLastExecutionFailed).map(ComTaskExecution::getComTask).map(ComTask::getName).collect(Collectors.toList());
         if (!failedComTaskNames.isEmpty()) {
             setProperty(PropertyNames.FAILED_COM_TASKS.getPropertyName(), failedComTaskNames);
+        } else {
+            setProperty(PropertyNames.FAILED_COM_TASKS.getPropertyName(), null);
         }
         return propertyMap();
     }
