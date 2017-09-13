@@ -88,6 +88,12 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         }
     },
 
+    initComponent: function() {
+        this.activeLayers = [];
+        this.freshNodes = [];
+        this.callParent(arguments);
+    },
+
     initCanvas: function (me) {
         var me = this;
 
