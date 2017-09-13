@@ -23,7 +23,6 @@ public class RegisteredDevicesKpiGraphInfo {
 
     public RegisteredDevicesKpiGraphInfo(RegisteredDevicesKpiScore score) {
         this.timestamp = score.getTimestamp();
-        this.total = score.getTotal().longValue();
         this.registered = score.getRegistered().longValue();
     }
 }
