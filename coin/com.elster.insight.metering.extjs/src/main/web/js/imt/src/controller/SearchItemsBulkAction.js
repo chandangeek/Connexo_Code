@@ -325,7 +325,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
 
         if (me.operation === 'addCalendar') {
             Ext.each(me.devices, function (item) {
-                devicesMRID.push(item.get('mRID'));
+                devicesMRID.push(item.get('name'));
             });
             request.action = me.operation;
             if (me.allDevices) {
