@@ -19,7 +19,6 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.InboundComPortPool;
@@ -27,6 +26,7 @@ import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -35,15 +35,17 @@ import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpec
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import org.junit.Before;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
+
+import org.junit.Before;
 
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.mock;
@@ -60,7 +62,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     protected String COM_TASK_NAME = "TheNameOfMyComTask";
     protected int maxNrOfTries = 27;
     protected int comTaskEnablementPriority = 213;
-    private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
+    protected ConnectionFunction connectionFunction1, connectionFunction2, connectionFunction3;
 
     protected static OutboundComPortPool createOutboundIpComPortPool(String name) {
         OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
@@ -76,6 +78,16 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         inboundComPortPool.setActive(true);
         inboundComPortPool.update();
         return inboundComPortPool;
+    }
+
+    @Before
+    @Override
+    public void initializeMocks() {
+        super.initializeMocks();
+        connectionFunction1 = mockConnectionFunction(1, "CF1", "CF 1");
+        connectionFunction2 = mockConnectionFunction(2, "CF2", "CF 2");
+        connectionFunction3 = mockConnectionFunction(3, "CF3", "CF 3");
+        when(deviceProtocolPluggableClass.getConsumableConnectionFunctions()).thenReturn(Arrays.asList(connectionFunction1, connectionFunction2));
     }
 
     @Before
@@ -97,10 +109,21 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         return enableComTask(useDefault, COM_TASK_NAME);
     }
 
+    protected ComTaskEnablement enableComTask(ConnectionFunction connectionFunction) {
+        return enableComTask(false, connectionFunction, COM_TASK_NAME);
+    }
+
     protected ComTaskEnablement enableComTask(boolean useDefault, String comTaskName) {
+        return enableComTask(useDefault, null, comTaskName);
+    }
+
+    protected ComTaskEnablement enableComTask(boolean useDefault, ConnectionFunction connectionFunction, String comTaskName) {
         ComTask comTaskWithBasicCheck = createComTaskWithBasicCheck(comTaskName);
         ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTaskWithBasicCheck, this.securityPropertySet);
         builder.useDefaultConnectionTask(useDefault);
+        if (!useDefault && connectionFunction != null) {
+            builder.setConnectionFunction(connectionFunction);
+        }
         builder.setPriority(this.comTaskEnablementPriority);
         return builder.add();
     }
@@ -269,6 +292,14 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         calendar.set(years, months, days, hours, minutes, seconds);
         calendar.set(Calendar.MILLISECOND, millis);
         return calendar.getTime().toInstant();
+    }
+
+    private ConnectionFunction mockConnectionFunction(long id, String name, String localizedName) {
+        ConnectionFunction connectionFunction = mock(ConnectionFunction.class);
+        when(connectionFunction.getId()).thenReturn(id);
+        when(connectionFunction.getConnectionFunctionName()).thenReturn(name);
+        when(connectionFunction.getConnectionFunctionDisplayName()).thenReturn(localizedName);
+        return connectionFunction;
     }
 
     class PartialConnectionTaskProtocolDialect implements DeviceProtocolDialect {

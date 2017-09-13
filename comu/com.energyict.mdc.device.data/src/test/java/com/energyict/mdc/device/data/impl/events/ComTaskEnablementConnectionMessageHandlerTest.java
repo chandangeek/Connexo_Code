@@ -10,10 +10,13 @@ import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.tasks.ComTask;
 
 import org.osgi.service.event.EventConstants;
@@ -50,11 +53,17 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
     private static final long COMTASK_ENABLEMENT_ID = COMTASK_ID + 1;
     private static final long PARTIAL_CONNECTION_TASK_ID1 = COMTASK_ENABLEMENT_ID + 1;
     private static final long PARTIAL_CONNECTION_TASK_ID2 = PARTIAL_CONNECTION_TASK_ID1 + 1;
+    private static final long CONNECTION_FUNCTION_ID1 = 123L;
+    private static final long CONNECTION_FUNCTION_ID2 = 124L;
 
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private DeviceConfiguration deviceConfiguration;
+    @Mock
+    private DeviceType deviceType;
+    @Mock
+    private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     private ComTask comTask;
     @Mock
@@ -64,13 +73,23 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
     @Mock
     private PartialConnectionTask partialConnectionTask2;
     @Mock
+    private ConnectionFunction connectionFunction1;
+    @Mock
+    private ConnectionFunction connectionFunction2;
+    @Mock
     private ServerCommunicationTaskService communicationTaskService;
 
     private JsonService jsonService = new JsonServiceImpl();
 
     @Before
     public void initializeMocks() {
+        when(connectionFunction1.getId()).thenReturn(CONNECTION_FUNCTION_ID1);
+        when(connectionFunction2.getId()).thenReturn(CONNECTION_FUNCTION_ID2);
         when(this.deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
+        when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
+        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
+        when(deviceProtocolPluggableClass.getConsumableConnectionFunctions()).thenReturn(Arrays.asList(connectionFunction1, connectionFunction2));
+
         when(this.comTask.getId()).thenReturn(COMTASK_ID);
         when(this.comTaskEnablement.getId()).thenReturn(COMTASK_ENABLEMENT_ID);
         when(this.comTaskEnablement.getComTask()).thenReturn(this.comTask);
@@ -141,6 +160,42 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
     }
 
     @Test
+    public void testSwitchOnUsingConnectionFunctionEventData() {
+        Map<String, Object> messageProperties = new HashMap<>();
+        messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
+        messageProperties.put("newConnectionFunctionId", CONNECTION_FUNCTION_ID1);
+        messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
+        messageProperties.put(EventConstants.EVENT_TOPIC, EventType.COMTASKENABLEMENT_SWITCH_ON_CONNECTION_FUNCTION.topic());
+        String payload = this.getJsonService().serialize(messageProperties);
+        Message message = mock(Message.class);
+        when(message.getPayload()).thenReturn(payload.getBytes());
+
+        // Business method
+        this.newHandler().process(message);
+
+        // Asserts
+        verify(this.communicationTaskService).switchOnConnectionFunction(this.comTask, this.deviceConfiguration, this.connectionFunction1);
+    }
+
+    @Test
+    public void testSwitchOffUsingConnectionFunctionEventData() {
+        Map<String, Object> messageProperties = new HashMap<>();
+        messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
+        messageProperties.put("oldConnectionFunctionId", CONNECTION_FUNCTION_ID1);
+        messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
+        messageProperties.put(EventConstants.EVENT_TOPIC, EventType.COMTASKENABLEMENT_SWITCH_OFF_CONNECTION_FUNCTION.topic());
+        String payload = this.getJsonService().serialize(messageProperties);
+        Message message = mock(Message.class);
+        when(message.getPayload()).thenReturn(payload.getBytes());
+
+        // Business method
+        this.newHandler().process(message);
+
+        // Asserts
+        verify(this.communicationTaskService).switchOffConnectionFunction(this.comTask, this.deviceConfiguration, this.connectionFunction1);
+    }
+
+    @Test
     public void testSwitchFromDefaultToTask() {
         Map<String, Object> messageProperties = new HashMap<>();
         messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
@@ -156,6 +211,24 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
 
         // Asserts
         verify(this.communicationTaskService).switchFromDefaultConnectionTaskToPreferredConnectionTask(this.comTask, this.deviceConfiguration, this.partialConnectionTask1);
+    }
+
+    @Test
+    public void testSwitchFromDefaultToConnectionFunction() {
+        Map<String, Object> messageProperties = new HashMap<>();
+        messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
+        messageProperties.put("newConnectionFunctionId", CONNECTION_FUNCTION_ID1);
+        messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
+        messageProperties.put(EventConstants.EVENT_TOPIC, EventType.COMTASKENABLEMENT_SWITCH_FROM_DEFAULT_TO_CONNECTION_FUNCTION.topic());
+        String payload = this.getJsonService().serialize(messageProperties);
+        Message message = mock(Message.class);
+        when(message.getPayload()).thenReturn(payload.getBytes());
+
+        // Business method
+        this.newHandler().process(message);
+
+        // Asserts
+        verify(this.communicationTaskService).switchFromDefaultConnectionTaskToConnectionFunction(this.comTask, this.deviceConfiguration, this.connectionFunction1);
     }
 
     @Test
@@ -177,6 +250,63 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
     }
 
     @Test
+    public void testSwitchFromTaskToConnectionFunction() {
+        Map<String, Object> messageProperties = new HashMap<>();
+        messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
+        messageProperties.put("oldPartialConnectionTaskId", PARTIAL_CONNECTION_TASK_ID1);
+        messageProperties.put("newConnectionFunctionId", CONNECTION_FUNCTION_ID1);
+        messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
+        messageProperties.put(EventConstants.EVENT_TOPIC, EventType.COMTASKENABLEMENT_SWITCH_FROM_TASK_TO_CONNECTION_FUNCTION.topic());
+        String payload = this.getJsonService().serialize(messageProperties);
+        Message message = mock(Message.class);
+        when(message.getPayload()).thenReturn(payload.getBytes());
+
+        // Business method
+        this.newHandler().process(message);
+
+        // Asserts
+        verify(this.communicationTaskService).switchFromPreferredConnectionTaskToConnectionFunction(this.comTask, this.deviceConfiguration, this.partialConnectionTask1, this.connectionFunction1);
+    }
+
+
+   @Test
+    public void testSwitchFromConnectionFunctionToDefault() {
+        Map<String, Object> messageProperties = new HashMap<>();
+        messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
+        messageProperties.put("oldConnectionFunctionId", CONNECTION_FUNCTION_ID1);
+        messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
+        messageProperties.put(EventConstants.EVENT_TOPIC, EventType.COMTASKENABLEMENT_SWITCH_FROM_CONNECTION_FUNCTION_TO_DEFAULT.topic());
+        String payload = this.getJsonService().serialize(messageProperties);
+        Message message = mock(Message.class);
+        when(message.getPayload()).thenReturn(payload.getBytes());
+
+        // Business method
+        this.newHandler().process(message);
+
+        // Asserts
+        verify(this.communicationTaskService).switchFromConnectionFunctionToDefault(this.comTask, this.deviceConfiguration, this.connectionFunction1);
+    }
+
+    @Test
+    public void testSwitchFromConnectionFunctionToTask() {
+        Map<String, Object> messageProperties = new HashMap<>();
+        messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
+        messageProperties.put("oldConnectionFunctionId", CONNECTION_FUNCTION_ID1);
+        messageProperties.put("newPartialConnectionTaskId", PARTIAL_CONNECTION_TASK_ID1);
+        messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
+        messageProperties.put(EventConstants.EVENT_TOPIC, EventType.COMTASKENABLEMENT_SWITCH_FROM_CONNECTION_FUNCTION_TO_TASK.topic());
+        String payload = this.getJsonService().serialize(messageProperties);
+        Message message = mock(Message.class);
+        when(message.getPayload()).thenReturn(payload.getBytes());
+
+        // Business method
+        this.newHandler().process(message);
+
+        // Asserts
+        verify(this.communicationTaskService).switchFromConnectionFunctionToPreferredConnectionTask(this.comTask, this.deviceConfiguration, this.connectionFunction1, this.partialConnectionTask1);
+    }
+
+    @Test
     public void testSwitchBetweenTasks() {
         Map<String, Object> messageProperties = new HashMap<>();
         messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
@@ -195,6 +325,25 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
         verify(this.communicationTaskService).preferredConnectionTaskChanged(this.comTask, this.deviceConfiguration, this.partialConnectionTask1, this.partialConnectionTask2);
     }
 
+  @Test
+    public void testSwitchBetweenConnectionFunctions() {
+        Map<String, Object> messageProperties = new HashMap<>();
+        messageProperties.put("comTaskEnablementId", COMTASK_ENABLEMENT_ID);
+        messageProperties.put("oldConnectionFunctionId", CONNECTION_FUNCTION_ID1);
+        messageProperties.put("newConnectionFunctionId", CONNECTION_FUNCTION_ID2);
+        messageProperties.put(EventConstants.TIMESTAMP, new Date().getTime());
+        messageProperties.put(EventConstants.EVENT_TOPIC, EventType.COMTASKENABLEMENT_SWITCH_BETWEEN_CONNECTION_FUNCTIONS.topic());
+        String payload = this.getJsonService().serialize(messageProperties);
+        Message message = mock(Message.class);
+        when(message.getPayload()).thenReturn(payload.getBytes());
+
+        // Business method
+        this.newHandler().process(message);
+
+        // Asserts
+        verify(this.communicationTaskService).preferredConnectionFunctionChanged(this.comTask, this.deviceConfiguration, this.connectionFunction1, this.connectionFunction2);
+    }
+
     @Test
     public void testStartUsingTask() {
         Map<String, Object> messageProperties = new HashMap<>();
@@ -210,7 +359,7 @@ public class ComTaskEnablementConnectionMessageHandlerTest {
         this.newHandler().process(message);
 
         // Asserts
-        verify(this.communicationTaskService).switchFromDefaultConnectionTaskToPreferredConnectionTask(this.comTask, this.deviceConfiguration, this.partialConnectionTask2);
+        verify(this.communicationTaskService).switchOnPreferredConnectionTask(this.comTask, this.deviceConfiguration, this.partialConnectionTask2);
     }
 
     @Test

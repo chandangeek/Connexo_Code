@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.tasks;
 
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.tasks.ComTask;
 
 import aQute.bnd.annotation.ProviderType;
@@ -15,6 +16,8 @@ import aQute.bnd.annotation.ProviderType;
 public interface ComTaskExecutionBuilder {
 
     ComTaskExecutionBuilder useDefaultConnectionTask(boolean useDefaultConnectionTask);
+
+    ComTaskExecutionBuilder setConnectionFunction(ConnectionFunction connectionFunction);
 
     /**
      * Explicitly setting a ConnectionTask will result in NOT using the default connectionTask.
@@ -34,10 +37,10 @@ public interface ComTaskExecutionBuilder {
     ComTaskExecutionBuilder ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
 
     // For adhoc comtaskExecutions
-    public ComTaskExecutionBuilder scheduleNow();
+    ComTaskExecutionBuilder scheduleNow();
 
     // For adhoc comtaskExecutions
-    public ComTaskExecutionBuilder runNow();
+    ComTaskExecutionBuilder runNow();
 
     /**
      * Temporarily disables scheduling of the related {@link ComTask},
@@ -49,7 +52,7 @@ public interface ComTaskExecutionBuilder {
      * Note that putting a CommunicationTask that is not scheduled or is already on hold
      * will not cause any errors and will in fact be ignored.
      */
-    public void putOnHold ();
+    void putOnHold();
 
     /**
      * Resumes the execution of this CommunicationTask, which is the reverse
@@ -57,7 +60,7 @@ public interface ComTaskExecutionBuilder {
      * Note that resuming a CommunicationTask that has not been put on hold
      * will not cause any errors and will in fact be ignored.
      */
-    public void resume ();
+    void resume();
 
     /**
      * Creates the actual ComTaskExecution with the objects set in the builder.
