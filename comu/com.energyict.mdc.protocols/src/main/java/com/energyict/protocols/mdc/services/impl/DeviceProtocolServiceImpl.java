@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.protocol.api.adapters.ConnexoTranslationKeyAdapter;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
@@ -201,29 +202,8 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
                 Stream.of(com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys.values()),
                 Stream.of(com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys.values()))
                 .flatMap(Function.identity())
-                .map(com.energyict.mdc.upl.nls.TranslationKey.class::cast)
-                .map(ConnexoTranslationKeyAdapter::new)
+                .map(com.energyict.mdc.upl.nls.TranslationKey.class::cast) // Downcast the generic type to TranslationKey (to avoid problems at runtime)
+                .map(ConnexoTranslationKeyAdapter::adaptTo)
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * Adapter between UPL TranslationKey and Connexo TranslationKey.
-     */
-    private static class ConnexoTranslationKeyAdapter implements com.elster.jupiter.nls.TranslationKey {
-        private final com.energyict.mdc.upl.nls.TranslationKey actual;
-
-        ConnexoTranslationKeyAdapter(com.energyict.mdc.upl.nls.TranslationKey actual) {
-            this.actual = actual;
-        }
-
-        @Override
-        public String getKey() {
-            return this.actual.getKey();
-        }
-
-        @Override
-        public String getDefaultFormat() {
-            return this.actual.getDefaultFormat();
-        }
     }
 }

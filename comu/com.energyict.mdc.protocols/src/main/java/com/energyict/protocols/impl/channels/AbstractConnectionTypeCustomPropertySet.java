@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -55,7 +56,7 @@ public abstract class AbstractConnectionTypeCustomPropertySet {
         return getConnectionTypeSupport()
                 .getUPLPropertySpecs()
                 .stream()
-                .map(UPLToConnexoPropertySpecAdapter::new)
+                .map(UPLToConnexoPropertySpecAdapter::adaptTo)
                 .collect(Collectors.toList());
     }
 
