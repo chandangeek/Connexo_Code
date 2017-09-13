@@ -26,6 +26,7 @@ import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
 import com.elster.jupiter.demo.impl.commands.CreateMetrologyConfigurationsCommand;
 import com.elster.jupiter.demo.impl.commands.CreateMultiElementDeviceSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateNetworkTopologyCommand;
 import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
 import com.elster.jupiter.demo.impl.commands.CreatePowerUserCommand;
 import com.elster.jupiter.demo.impl.commands.CreateRegisterDeviceCommand;
@@ -200,10 +201,8 @@ public class DemoServiceImpl {
     private volatile PkiService pkiService;
     private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile PassphraseFactory passphraseFactory;
-    private volatile TopologyService topologyService;
     private volatile NlsService nlsService;
     private volatile DeviceAlarmService deviceAlarmService;
-
     private volatile TopologyService topologyService;
 
     private Injector injector;
@@ -264,7 +263,7 @@ public class DemoServiceImpl {
             PassphraseFactory passphraseFactory,
             TopologyService topologyService,
             NlsService nlsService,
-            DeviceAlarmService deviceAlarmService) {
+            DeviceAlarmService deviceAlarmService,
             UsagePointConfigurationService usagePointConfigurationService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
