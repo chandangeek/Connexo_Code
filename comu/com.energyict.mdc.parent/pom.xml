@@ -282,7 +282,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.firmware</artifactId>
-                <version>3.1.0${revision}</version>
+                <version>4.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -396,7 +396,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.protocols.api</artifactId>
-                <version>4.1.0${revision}</version>
+                <version>5.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -701,7 +701,6 @@
         <profile>
             <id>test-mdc-bundles</id>
             <modules>
-                <module>../com.elster.jupiter.demo</module>
                 <module>../com.energyict.mdc.device.cps.examples</module>
                 <module>../com.energyict.mdc.protocols.test</module>
                 <module>../com.energyict.mdc.servicecall.examples</module>
