@@ -7,12 +7,10 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
-import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
@@ -393,7 +391,7 @@ public class SecurityPropertySetResource {
         if (deviceType.getDeviceProtocolPluggableClass().isPresent()) {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceType.getDeviceProtocolPluggableClass().get();
             if (deviceProtocolPluggableClass.getDeviceProtocol().getClientSecurityPropertySpec().isPresent()) {
-                return Optional.of(new UPLToConnexoPropertySpecAdapter(deviceProtocolPluggableClass.getDeviceProtocol().getClientSecurityPropertySpec().get()));
+                return Optional.of(UPLToConnexoPropertySpecAdapter.adaptTo(deviceProtocolPluggableClass.getDeviceProtocol().getClientSecurityPropertySpec().get()));
             }
         }
         return Optional.empty();
