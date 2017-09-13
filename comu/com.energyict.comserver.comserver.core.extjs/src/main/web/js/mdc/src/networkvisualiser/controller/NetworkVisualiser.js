@@ -253,7 +253,6 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
                             }
                             break;
                         case 'failedComTasks':
-                            graphDataPropertyValue = undefined;
                             if (Ext.isArray(graphDataPropertyValue)) {
                                 if (graphDataPropertyValue.length > 1) {
                                     var formattedResult = '';
