@@ -31,11 +31,12 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import org.junit.Before;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.junit.Before;
 
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.mock;
@@ -190,7 +191,7 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
 
         @Override
         public List<PropertySpec> getUPLPropertySpecs() {
-            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::adaptTo).collect(Collectors.toList());
         }
 
         @Override
