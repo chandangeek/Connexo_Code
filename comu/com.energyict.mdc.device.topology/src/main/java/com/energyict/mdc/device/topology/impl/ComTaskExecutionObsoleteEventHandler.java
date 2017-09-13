@@ -9,9 +9,11 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -20,9 +22,12 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
- * Listens for "make obsolete" events of {@link ComTaskExecution}s that are marked
- * to use the default {@link ConnectionTask} of a {@link com.energyict.mdc.device.data.Device} topology
- * that is currently executing because the default ConnectionTask is in use.
+ * Listens for "make obsolete" events of {@link ComTaskExecution}s that are marked to use either
+ * <ul>
+ *     <li>the default {@link ConnectionTask}</li>
+ *     <li>the {@link ConnectionTask} with corresponding {@link ConnectionFunction}</li>
+ * </ul>
+ * of a {@link Device} topology that is currently executing.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-05 (14:28)
@@ -56,21 +61,24 @@ public class ComTaskExecutionObsoleteEventHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         ComTaskExecution comTaskExecution = (ComTaskExecution) localEvent.getSource();
-        if (comTaskExecution.usesDefaultConnectionTask()) {
+        if (comTaskExecution.usesDefaultConnectionTask() || comTaskExecution.getConnectionFunction().isPresent()) {
             this.handle(comTaskExecution);
         }
         else {
-            LOGGER.fine("Ignoring creation event since the ComTaskExecution is not configured to use the default");
+            LOGGER.fine("Ignoring creation event since the ComTaskExecution is not configured to use the default or to use a connection function");
         }
     }
 
     private void handle(ComTaskExecution comTaskExecution) {
         Optional<ConnectionTask> defaultConnectionTask = this.findDefaultConnectionTaskForTopology(comTaskExecution);
-        defaultConnectionTask
+        Optional<ConnectionTask> connectionTaskBasedOnConnectionFunction = this.findConnectionTaskBasedOnConnectionFunction(comTaskExecution);
+
+        final Optional<ConnectionTask> connectionTask = defaultConnectionTask.isPresent() ? defaultConnectionTask : connectionTaskBasedOnConnectionFunction;
+        connectionTask
             .map(ConnectionTask::getExecutingComServer)
             .ifPresent(cs -> {
                 throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(
-                        comTaskExecution, defaultConnectionTask.get().getExecutingComServer(),
+                        comTaskExecution, connectionTask.get().getExecutingComServer(),
                         this.thesaurus,
                         MessageSeeds.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE);
             });
@@ -78,6 +86,12 @@ public class ComTaskExecutionObsoleteEventHandler implements TopicHandler {
 
     private Optional<ConnectionTask> findDefaultConnectionTaskForTopology(ComTaskExecution comTaskExecution) {
         return this.topologyService.findDefaultConnectionTaskForTopology(comTaskExecution.getDevice());
+    }
+
+    private Optional<ConnectionTask> findConnectionTaskBasedOnConnectionFunction(ComTaskExecution comTaskExecution) {
+        return comTaskExecution.getConnectionFunction().isPresent()
+                ? this.topologyService.findConnectionTaskWithConnectionFunctionForTopology(comTaskExecution.getDevice(), comTaskExecution.getConnectionFunction().get())
+                : Optional.empty();
     }
 
     @Reference
@@ -90,5 +104,4 @@ public class ComTaskExecutionObsoleteEventHandler implements TopicHandler {
     public void setTopologyService(ServerTopologyService topologyService) {
         this.topologyService = topologyService;
     }
-
 }

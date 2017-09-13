@@ -9,9 +9,15 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.G3CommunicationPath;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
@@ -22,15 +28,15 @@ import com.energyict.mdc.device.topology.PhaseInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
+
 import com.google.common.collect.Range;
-import org.assertj.core.api.Condition;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,9 +45,22 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.assertj.core.api.Condition;
+import org.junit.After;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 /**
  * Tests the {@link TopologyServiceImpl} component.
@@ -50,6 +69,13 @@ import static org.mockito.Mockito.when;
  * @since 2014-12-05 (10:00)
  */
 public class TopologyServiceImplTest extends PersistenceIntegrationTest {
+
+    @After
+    public void tearDown() throws Exception {
+        // Make sure the services are set back to the inMemoryPersistece ones (as some tests inject a mocked service)
+        ((TopologyServiceImpl) getTopologyService()).setCommunicationTaskService(inMemoryPersistence.getCommunicationTaskService());
+        ((TopologyServiceImpl) getTopologyService()).setConnectionTaskService(inMemoryPersistence.getConnectionTaskService());
+    }
 
     @Test
     @Transactional
@@ -190,7 +216,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device device1 = this.getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID, Instant.now());
         device1.save();
         this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
-        Device device2 = this.getDeviceService().newDevice(deviceConfiguration, "Origin2", MRID+"2", Instant.now());
+        Device device2 = this.getDeviceService().newDevice(deviceConfiguration, "Origin2", MRID + "2", Instant.now());
         device2.save();
         this.getTopologyService().setPhysicalGateway(device2, physicalMaster);
 
@@ -254,7 +280,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void findDownstreamDevicesAfterSettingToOtherPhysicalGatewayTest() {
-        Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster","pm");
+        Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster", "pm");
         Device otherPhysicalMaster = createSimpleDeviceWithName("OtherPhysicalMaster", "opm");
         Device device1 = this.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1", Instant.now());
         device1.save();
@@ -433,8 +459,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
                 assertThat(neighbor.getModulation()).isEqualTo(Modulation.D8PSK);
                 assertThat(neighbor.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
                 assertThat(neighbor.isEffectiveAt(initialTimestamp)).isTrue();
-            }
-            else {
+            } else {
                 assertThat(neighbor.getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
                 assertThat(neighbor.getModulation()).isEqualTo(Modulation.CBPSK);
                 assertThat(neighbor.getPhaseInfo()).isEqualTo(PhaseInfo.DEGREE180);
@@ -958,8 +983,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
             if (neighbor.getNeighbor().getId() == neighbor1.getId()) {
                 assertThat(neighbor.isEffectiveAt(fromDateForExistingNeighbors)).isTrue();
                 assertThat(neighbor.isEffectiveAt(fromDateForAddedNeighbor)).isTrue();
-            }
-            else {
+            } else {
                 assertThat(neighbor.isEffectiveAt(fromDateForExistingNeighbors)).isFalse();
                 assertThat(neighbor.isEffectiveAt(fromDateForAddedNeighbor)).isTrue();
             }
@@ -968,7 +992,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test(expected = IllegalStateException.class)
     @Transactional
-    public void completeTwice () {
+    public void completeTwice() {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
         Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
@@ -1223,7 +1247,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(strict=false, messageId = "{" + MessageSeeds.Keys.DEVICE_CANNOT_BE_DATA_LOGGER_FOR_ITSELF + "}")
+    @ExpectedConstraintViolation(strict = false, messageId = "{" + MessageSeeds.Keys.DEVICE_CANNOT_BE_DATA_LOGGER_FOR_ITSELF + "}")
     public void setDataLoggerGatewaySameAsOriginDeviceTest() {
         Device slave = createSlaveDevice("Data Logger");
 
@@ -1233,7 +1257,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(strict=false, messageId = "{" + MessageSeeds.Keys.NOT_A_DATALOGGER_SLAVE_DEVICE + "}")
+    @ExpectedConstraintViolation(strict = false, messageId = "{" + MessageSeeds.Keys.NOT_A_DATALOGGER_SLAVE_DEVICE + "}")
     public void originNotADataLoggerTest() {
         Device slave = createSimpleDeviceWithName("Not a datalogger slave");
         Device datalogger = createDataLoggerDevice("Data logger enabled");
@@ -1243,7 +1267,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(strict=false, messageId = "{" + MessageSeeds.Keys.GATEWAY_NOT_DATALOGGER_ENABLED + "}")
+    @ExpectedConstraintViolation(strict = false, messageId = "{" + MessageSeeds.Keys.GATEWAY_NOT_DATALOGGER_ENABLED + "}")
     public void setNotDataLoggerEnabledGatewayTest() {
         Device slave = createSlaveDevice("Slave");
         Device datalogger = createSimpleDeviceWithName("Data logger");
@@ -1264,7 +1288,9 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         slaveDataLoggerRegisterMap.put(slave.getRegisters().get(0), dataLogger.getRegisters().get(0));
         this.getTopologyService().setDataLogger(slave, dataLogger, now, Collections.emptyMap(), slaveDataLoggerRegisterMap);
 
-        List<DataLoggerReferenceImpl> gatewayReferences = ((ServerTopologyService) this.getTopologyService()).dataModel().query(DataLoggerReferenceImpl.class).select(com.elster.jupiter.util.conditions.Condition.TRUE);
+        List<DataLoggerReferenceImpl> gatewayReferences = ((ServerTopologyService) this.getTopologyService()).dataModel()
+                .query(DataLoggerReferenceImpl.class)
+                .select(com.elster.jupiter.util.conditions.Condition.TRUE);
         assertThat(gatewayReferences).hasSize(1);
         assertThat(gatewayReferences.get(0)).isInstanceOf(DataLoggerReferenceImpl.class);
         DataLoggerReferenceImpl dataLoggerReference = gatewayReferences.get(0);
@@ -1495,6 +1521,181 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(getDeviceService().findAllDevices(notLinkedToMasterDevices).stream().count()).isEqualTo(1);
     }
 
+    @Test
+    @Transactional
+    public void setOrUpdateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopologyTest() {
+        Device device = createSimpleDevice();
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
+        ConnectionFunction connectionFunction = mock(ConnectionFunction.class);
+        when(partialConnectionTask.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
+        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
+        ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
+        ComTaskExecutionUpdater comTaskExecutionUpdater = mock(ComTaskExecutionUpdater.class);
+        when(comTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction(connectionTask)).thenReturn(comTaskExecutionUpdater);
+        when(comTaskExecution1.getUpdater()).thenReturn(comTaskExecutionUpdater);
+        when(comTaskExecution2.getUpdater()).thenReturn(comTaskExecutionUpdater);
+        CommunicationTaskService communicationTaskService = mock(CommunicationTaskService.class);
+        when(communicationTaskService.findComTaskExecutionsWithConnectionFunction(device, connectionFunction)).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
+
+        TopologyService topologyService = this.getTopologyService();
+        ((TopologyServiceImpl) topologyService).setCommunicationTaskService(communicationTaskService);
+
+        // Business method
+        ((TopologyServiceImpl) topologyService).setOrUpdateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(device, connectionTask);
+
+        // Asserts
+        verify(comTaskExecutionUpdater, times(2)).useConnectionTaskBasedOnConnectionFunction(connectionTask);
+        verify(comTaskExecutionUpdater, times(2)).update();
+    }
+
+    @Test
+    @Transactional
+    public void clearConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopologyTest() {
+        Device device = createSimpleDevice();
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
+        ConnectionFunction connectionFunction = mock(ConnectionFunction.class);
+        when(partialConnectionTask.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
+        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
+        ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
+        ComTaskExecutionUpdater comTaskExecutionUpdater = mock(ComTaskExecutionUpdater.class);
+        when(comTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction(connectionTask)).thenReturn(comTaskExecutionUpdater);
+        when(comTaskExecution1.getUpdater()).thenReturn(comTaskExecutionUpdater);
+        when(comTaskExecution2.getUpdater()).thenReturn(comTaskExecutionUpdater);
+        CommunicationTaskService communicationTaskService = mock(CommunicationTaskService.class);
+        when(communicationTaskService.findComTaskExecutionsWithConnectionFunction(device, connectionFunction)).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
+
+        TopologyService topologyService = this.getTopologyService();
+        ((TopologyServiceImpl) topologyService).setCommunicationTaskService(communicationTaskService);
+
+        // Business method
+        ((TopologyServiceImpl) topologyService).recalculateConnectionTaskHavingConnectionFunctionOnComTasksInDeviceTopology(device, connectionFunction);
+
+        // Asserts
+        verify(comTaskExecutionUpdater, times(2)).setConnectionFunction(connectionFunction);
+        verify(comTaskExecutionUpdater, times(2)).update();
+    }
+
+    @Test
+    @Transactional
+    public void slaveTopologyChangedToNonExistingMaster() {
+        Device device = createSimpleDevice();
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
+        ConnectionFunction connectionFunction = mock(ConnectionFunction.class);
+        when(partialConnectionTask.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
+        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
+        ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
+        ComTaskExecution comTaskExecution3 = mock(ComTaskExecution.class);
+        when(comTaskExecution1.getConnectionFunction()).thenReturn(Optional.empty());
+        when(comTaskExecution2.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
+        when(comTaskExecution3.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
+        ComTaskExecutionUpdater comTaskExecutionUpdater1 = getComTaskExecutionUpdater(connectionTask, comTaskExecution1);
+        ComTaskExecutionUpdater comTaskExecutionUpdater2 = getComTaskExecutionUpdater(connectionTask, comTaskExecution2, comTaskExecution3);
+        CommunicationTaskService communicationTaskService = mock(CommunicationTaskService.class);
+
+        when(communicationTaskService.findComTasksByDefaultConnectionTask(device)).thenReturn(Collections.singletonList(comTaskExecution1));
+        Map<ConnectionFunction, List<ComTaskExecution>> connectionFunctionListMap = new HashMap<>();
+        connectionFunctionListMap.put(connectionFunction, Arrays.asList(comTaskExecution2, comTaskExecution3));
+        when(communicationTaskService.findComTasksUsingConnectionFunction(device)).thenReturn(connectionFunctionListMap);
+
+        TopologyService topologyService = this.getTopologyService();
+        ((TopologyServiceImpl) topologyService).setCommunicationTaskService(communicationTaskService);
+
+        // Business method
+        ((TopologyServiceImpl) topologyService).slaveTopologyChanged(device, Optional.empty());
+
+        // Asserts
+        verify(comTaskExecutionUpdater1, times(1)).useDefaultConnectionTask(true);
+        verify(comTaskExecutionUpdater1, never()).setConnectionFunction(any());
+        verify(comTaskExecutionUpdater2, times(2)).setConnectionFunction(connectionFunction);
+        verify(comTaskExecutionUpdater2, never()).useDefaultConnectionTask(anyBoolean());
+    }
+
+    @Test
+    @Transactional
+    public void slaveTopologyChangedToExistingMaster() {
+        Device device = createSimpleDeviceWithName("SlaveDevice");
+        Device masterDevice = createSimpleDeviceWithName("NewMasterDevice");
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
+        ConnectionFunction connectionFunction = mock(ConnectionFunction.class);
+        when(partialConnectionTask.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
+        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
+        ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
+        ComTaskExecution comTaskExecution3 = mock(ComTaskExecution.class);
+        when(comTaskExecution1.getConnectionFunction()).thenReturn(Optional.empty());
+        when(comTaskExecution2.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
+        when(comTaskExecution3.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
+        ComTaskExecutionUpdater comTaskExecutionUpdater1 = getComTaskExecutionUpdater(connectionTask, comTaskExecution1);
+        ComTaskExecutionUpdater comTaskExecutionUpdater2 = getComTaskExecutionUpdater(connectionTask, comTaskExecution2, comTaskExecution3);
+
+        CommunicationTaskService communicationTaskService = mock(CommunicationTaskService.class);
+        when(communicationTaskService.findComTasksByDefaultConnectionTask(device)).thenReturn(Collections.singletonList(comTaskExecution1));
+        Map<ConnectionFunction, List<ComTaskExecution>> connectionFunctionListMap = new HashMap<>();
+        connectionFunctionListMap.put(connectionFunction, Arrays.asList(comTaskExecution2, comTaskExecution3));
+        when(communicationTaskService.findComTasksUsingConnectionFunction(device)).thenReturn(connectionFunctionListMap);
+        ConnectionTaskService connectionTaskSerivce = mock(ConnectionTaskService.class);
+        when(connectionTaskSerivce.findDefaultConnectionTaskForDevice(device)).thenReturn(Optional.empty());
+        when(connectionTaskSerivce.findConnectionTaskByDeviceAndConnectionFunction(device, connectionFunction)).thenReturn(Optional.of(connectionTask));
+
+        TopologyService topologyService = this.getTopologyService();
+        ((TopologyServiceImpl) topologyService).setCommunicationTaskService(communicationTaskService);
+        ((TopologyServiceImpl) topologyService).setConnectionTaskService(connectionTaskSerivce);
+
+
+        // Business method
+        ((TopologyServiceImpl) topologyService).slaveTopologyChanged(device, Optional.of(masterDevice));
+
+        // Asserts
+        verify(comTaskExecutionUpdater1, times(1)).useDefaultConnectionTask(true);
+        verify(comTaskExecutionUpdater1, never()).setConnectionFunction(any());
+        verify(comTaskExecutionUpdater2, never()).setConnectionFunction(connectionFunction);
+        verify(comTaskExecutionUpdater2, times(2)).useConnectionTaskBasedOnConnectionFunction(connectionTask);
+        verify(comTaskExecutionUpdater2, never()).useDefaultConnectionTask(anyBoolean());
+    }
+
+    @Test
+    @Transactional
+    public void findAllConnectionTasksForTopologyTest() throws Exception {
+        Device device = spy(createSimpleDeviceWithName("SlaveDevice"));
+        Device masterDevice = spy(createSimpleDeviceWithName("MasterDevice"));
+        ConnectionTask masterConnectionTask1 = mock(ConnectionTask.class);
+        ConnectionTask masterConnectionTask2 = mock(ConnectionTask.class);
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+
+        when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
+        when(masterDevice.getConnectionTasks()).thenReturn(Arrays.asList(masterConnectionTask1, masterConnectionTask2));
+
+        TopologyService topologyService = spy(getTopologyService());
+        doReturn(Optional.of(masterDevice)).when(topologyService).getPhysicalGateway(device);
+        topologyService.setPhysicalGateway(device, masterDevice);
+
+
+        // Business method
+        List<ConnectionTask<?, ?>> connectionTasks = topologyService.findAllConnectionTasksForTopology(device);
+
+        // Asserts
+        assertThat(connectionTasks.size()).isEqualTo(3);
+        assertThat(connectionTasks).containsExactly(connectionTask, masterConnectionTask1, masterConnectionTask2);
+    }
+
+    private ComTaskExecutionUpdater getComTaskExecutionUpdater(ConnectionTask connectionTask, ComTaskExecution... comTaskExecutions) {
+        ComTaskExecutionUpdater comTaskExecutionUpdater = mock(ComTaskExecutionUpdater.class);
+        when(comTaskExecutionUpdater.useDefaultConnectionTask(true)).thenReturn(comTaskExecutionUpdater);
+        when(comTaskExecutionUpdater.useConnectionTaskBasedOnConnectionFunction(connectionTask)).thenReturn(comTaskExecutionUpdater);
+        when(comTaskExecutionUpdater.setConnectionFunction(connectionTask.getPartialConnectionTask().getConnectionFunction().get())).thenReturn(comTaskExecutionUpdater);
+        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+            when(comTaskExecution.getUpdater()).thenReturn(comTaskExecutionUpdater);
+        }
+        return comTaskExecutionUpdater;
+    }
+
     private ServerDeviceService getDeviceService() {
         return inMemoryPersistence.getDeviceService();
     }
@@ -1502,5 +1703,4 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     private TopologyService getTopologyService() {
         return inMemoryPersistence.getTopologyService();
     }
-
 }
