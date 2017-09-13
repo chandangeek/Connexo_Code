@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
@@ -23,8 +24,8 @@ public class InboundConnectionMethodInfo extends ConnectionMethodInfo<InboundCon
     public InboundConnectionMethodInfo() {
     }
 
-    public InboundConnectionMethodInfo(InboundConnectionTask partialInboundConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
-        super(partialInboundConnectionTask, uriInfo, mdcPropertyUtils);
+    public InboundConnectionMethodInfo(InboundConnectionTask partialInboundConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
+        super(partialInboundConnectionTask, uriInfo, mdcPropertyUtils, thesaurus);
     }
 
     @Override
