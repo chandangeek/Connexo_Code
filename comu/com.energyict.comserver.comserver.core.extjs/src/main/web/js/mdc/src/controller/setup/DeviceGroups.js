@@ -28,9 +28,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         'DevicesOfDeviceGroup'
     ],
 
-    mixins: [
-
-    ],
+    mixins: [],
 
     refs: [
         {ref: 'page', selector: 'deviceGroupSetup'},
@@ -86,6 +84,8 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
     previewDeviceGroup: function (grid, record) {
         var deviceGroups = this.getDeviceGroupsGrid().getSelectionModel().getSelection();
         if (deviceGroups.length == 1) {
+            this.getDeviceGroupPreview().down('uni-button-action').setVisible(Mdc.privileges.DeviceGroup.canAdministrateDeviceOfEnumeratedGroup() || Mdc.privileges.DeviceGroup.canAdministrateDeviceOfEnumeratedGroup())
+
             var deviceGroup = deviceGroups[0];
             this.getDeviceGroupPreviewForm().loadRecord(deviceGroup);
             this.getDeviceGroupPreview().setTitle(Ext.String.htmlEncode(deviceGroup.get('name')));
@@ -94,7 +94,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         }
     },
 
-    translateCriteriaName: function(criteriaName) {
+    translateCriteriaName: function (criteriaName) {
         if (criteriaName == 'deviceConfiguration.deviceType.name') {
             criteriaName = Uni.I18n.translate('general.deviceType', 'MDC', 'Device type')
         }
@@ -114,7 +114,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         location.href = "#devices";
     },
 
-    updateCriteria: function(record) {
+    updateCriteria: function (record) {
         var me = this,
             func = function (menuItem) {
                 if (Mdc.privileges.DeviceGroup.canAdministrateDeviceGroup()) {
@@ -132,11 +132,12 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         });
         if (!record.get('dynamic')) {
             Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
-                if (Mdc.privileges.DeviceGroup.canAdministrateDeviceOfEnumeratedGroup()) { item.show(); }
+                if (Mdc.privileges.DeviceGroup.canAdministrateDeviceOfEnumeratedGroup()) {
+                    item.show();
+                }
             });
         }
     },
-
 
 
     showDevicegroupDetailsView: function (currentDeviceGroupId) {
@@ -153,7 +154,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             router: router
         });
         var domainsStore = service.getSearchDomainsStore();
-        domainsStore.load(function(){
+        domainsStore.load(function () {
             service.applyState({
                 domain: 'com.energyict.mdc.device.data.Device',
                 filters: [{
@@ -186,7 +187,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         });
     },
 
-    getDeviceCount: function(){
+    getDeviceCount: function () {
         var me = this;
         me.fireEvent('loadingcount');
         Ext.Ajax.suspendEvent('requestexception');
@@ -216,7 +217,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                     ],
                     listeners: {
                         beforeclose: {
-                            fn: function(){
+                            fn: function () {
                                 me.getCountButton().setDisabled(true);
                                 me.getCountButton().up('panel').setLoading(false);
                             }
@@ -236,7 +237,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         });
     },
 
-    updateActionMenuVisibility: function(record) {
+    updateActionMenuVisibility: function (record) {
         var actionMenu = this.getDeviceGroupDetailsActionMenu();
         var removeItem = this.getRemoveDeviceGroupMenuItem();
         var editItem = this.getEditDeviceGroupMenuItem();
@@ -292,7 +293,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('deviceGroup.remove.msg', 'MDC', 'This device group will no longer be available.'),
-            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[record.data.name]),
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", [record.data.name]),
             fn: function (state) {
                 if (state === 'confirm') {
                     record.destroy({

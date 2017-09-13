@@ -94,13 +94,13 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                     renderer: function(value){
                                         if(value!==''){
                                             if(!this.up('form').getRecord().data.connectionDefinedOnDevice){
-                                                return '<tpl data-qtip=\''+ Uni.I18n.translate('deviceCommunicationTask.connectionNotDefinedOnDevice', 'MDC', 'This connection method is not defined on the device yet') + '\'><span class="icon-target ct-result ct-failure" style="display:inline-block; color:rgba(255, 0, 0, 0.3);"></span><span style="position: relative; left:5px;">' + Ext.String.htmlEncode(value) + '</span></tpl>'
+                                                return '<tpl><span data-qtip=\''+ Uni.I18n.translate('deviceCommunicationTask.connectionNotDefinedOnDevice', 'MDC', 'This connection method is not defined on the device yet')+ '\' class="icon-target ct-result ct-failure" style="display:inline-block; color:rgba(255, 0, 0, 0.3);"></span><span style="position:relative; margin-left:5px;">' + Ext.String.htmlEncode(value) + '</span></tpl>'
                                             } else {
                                                 return Ext.String.htmlEncode(value);
                                             }
                                         }
 
-                                    }
+                                    },
 
                                 },
                                 {

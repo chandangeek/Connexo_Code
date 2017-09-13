@@ -139,7 +139,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                         queryMode: 'local',
                         displayField: 'name',
                         valueField: 'id',
-                        emptyText: Uni.I18n.translate('communicationtasks.form.selectPartialConnectionTask', 'MDC', 'Use the default connection method'),
+                        emptyText: Uni.I18n.translate('communicationtasks.form.selectDefaultPartialConnectionTask', 'MDC', 'Use the default connection method'),
                         forceSelection: true,
                         editable: false,
                         msgTarget: 'under',

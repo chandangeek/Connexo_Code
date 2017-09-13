@@ -5,7 +5,9 @@ Ext.define('Mdc.commands.model.Command', {
     extend: 'Mdc.model.DeviceCommand',
     fields: [
         {
-            name:'deviceType'
+            name: 'deviceType',
+            useNull: true,
+            persist:false
         },
         {
             name:'deviceTypeAndConfiguration',
@@ -17,5 +19,14 @@ Ext.define('Mdc.commands.model.Command', {
                 return res;
             }
         }
-    ]
+    ],
+
+    proxy: {
+        type: 'rest',
+        url: '/api/ddr/devicemessages',
+
+        reader: {
+            type: 'json'
+        }
+    }
 });

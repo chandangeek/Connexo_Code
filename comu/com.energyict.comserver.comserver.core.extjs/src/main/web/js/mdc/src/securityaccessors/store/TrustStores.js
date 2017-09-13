@@ -4,7 +4,8 @@
 Ext.define('Mdc.securityaccessors.store.TrustStores', {
     extend: 'Ext.data.Store',
     model: 'Mdc.securityaccessors.model.TrustStore',
-    autoLoad: true,
+    //I took these privileges from the REST resource -> we were getting a 403 otherwise when the user didn't have these rights
+    autoLoad: Mdc.privileges.DeviceType.canAdministrate(),
     proxy: {
         type: 'rest',
         url: '/api/dtc/truststores',
