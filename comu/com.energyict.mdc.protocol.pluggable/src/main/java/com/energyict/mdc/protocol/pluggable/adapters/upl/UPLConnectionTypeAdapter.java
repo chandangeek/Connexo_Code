@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.UnableToLoadCustomP
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.util.List;
@@ -128,5 +129,19 @@ public class UPLConnectionTypeAdapter implements com.energyict.mdc.protocol.api.
         } catch (PropertyValidationException e) {
             throw new NestedPropertyValidationException(e);
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UPLConnectionTypeAdapter) {
+            return uplConnectionType.equals(((UPLConnectionTypeAdapter) obj).uplConnectionType);
+        } else {
+            return uplConnectionType.equals(obj);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return uplConnectionType != null ? uplConnectionType.hashCode() : 0;
     }
 }

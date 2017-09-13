@@ -172,4 +172,18 @@ public class UPLOfflineDeviceAdapter implements OfflineDevice {
     public boolean firmwareVersionManagementAllowed() {
         return uplOfflineDevice.firmwareVersionManagementAllowed();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UPLOfflineDeviceAdapter) {
+            return uplOfflineDevice.equals(((UPLOfflineDeviceAdapter) obj).uplOfflineDevice);
+        } else {
+            return uplOfflineDevice.equals(obj);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return uplOfflineDevice != null ? uplOfflineDevice.hashCode() : 0;
+    }
 }

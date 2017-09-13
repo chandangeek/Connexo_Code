@@ -67,4 +67,18 @@ public class UPLDeviceProtocolDialectAdapter implements DeviceProtocolDialect {
     public String getDeviceProtocolDialectDisplayName() {
         return uplDeviceProtocolDialect.getDeviceProtocolDialectDisplayName();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UPLDeviceProtocolDialectAdapter) {
+            return uplDeviceProtocolDialect.equals(((UPLDeviceProtocolDialectAdapter) obj).uplDeviceProtocolDialect);
+        } else {
+            return uplDeviceProtocolDialect.equals(obj);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return uplDeviceProtocolDialect != null ? uplDeviceProtocolDialect.hashCode() : 0;
+    }
 }

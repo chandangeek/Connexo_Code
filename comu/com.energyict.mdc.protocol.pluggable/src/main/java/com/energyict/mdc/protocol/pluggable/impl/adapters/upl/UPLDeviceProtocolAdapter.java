@@ -303,6 +303,20 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
         return deviceProtocol.supportsCommunicationFirmwareVersion();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UPLDeviceProtocolAdapter) {
+            return deviceProtocol.equals(((UPLDeviceProtocolAdapter) obj).deviceProtocol);
+        } else {
+            return deviceProtocol.equals(obj);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+       return deviceProtocol != null ? deviceProtocol.hashCode() : 0;
+    }
+
     public static final class Services {
         private final com.energyict.mdc.upl.DeviceProtocol deviceProtocol;
 

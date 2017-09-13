@@ -249,6 +249,20 @@ public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapte
         return this.actual.getProtocolDescription();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UPLMeterProtocolAdapter) {
+            return actual.equals(((UPLMeterProtocolAdapter) obj).actual);
+        } else {
+            return actual.equals(obj);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return actual != null ? actual.hashCode() : 0;
+    }
+
     /**
      * Provides an implementation for the {@link CachingProtocol} interface
      * when the actual MeterProtocol implements the {@link com.energyict.mdc.upl.cache.CachingProtocol}

@@ -51,7 +51,7 @@ public class CXODeviceAccessLevelAdapter implements DeviceAccessLevel {
 
     @Override
     public int hashCode() {
-        return cxoDeviceAccessLevel.hashCode();
+        return cxoDeviceAccessLevel != null ? cxoDeviceAccessLevel.hashCode() : 0;
     }
 
     @Override

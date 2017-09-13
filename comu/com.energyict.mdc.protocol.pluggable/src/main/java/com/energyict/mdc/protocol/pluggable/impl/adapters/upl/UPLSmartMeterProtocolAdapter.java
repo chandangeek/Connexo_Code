@@ -170,4 +170,18 @@ public class UPLSmartMeterProtocolAdapter implements SmartMeterProtocol, UPLProt
     public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         this.actual.setUPLProperties(properties);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UPLSmartMeterProtocolAdapter) {
+            return actual.equals(((UPLSmartMeterProtocolAdapter) obj).actual);
+        } else {
+            return actual.equals(obj);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return actual != null ? actual.hashCode() : 0;
+    }
 }

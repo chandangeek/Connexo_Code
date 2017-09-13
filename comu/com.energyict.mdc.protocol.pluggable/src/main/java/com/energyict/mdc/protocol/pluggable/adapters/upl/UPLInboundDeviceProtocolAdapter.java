@@ -108,4 +108,18 @@ public class UPLInboundDeviceProtocolAdapter implements InboundDeviceProtocol {
             throw new NestedPropertyValidationException(e);
         }
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UPLInboundDeviceProtocolAdapter) {
+            return uplInboundDeviceProtocol.equals(((UPLInboundDeviceProtocolAdapter) obj).uplInboundDeviceProtocol);
+        } else {
+            return uplInboundDeviceProtocol.equals(obj);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return uplInboundDeviceProtocol != null ? uplInboundDeviceProtocol.hashCode() : 0;
+    }
 }

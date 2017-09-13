@@ -46,7 +46,7 @@ public class UPLDeviceAccessLevelAdapter implements DeviceAccessLevel {
 
     @Override
     public int hashCode() {
-        return uplDeviceAccessLevel.hashCode();
+        return uplDeviceAccessLevel != null ? uplDeviceAccessLevel.hashCode() : 0;
     }
 
     @Override
