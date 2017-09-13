@@ -8,6 +8,9 @@ Ext.define('Imt.purpose.model.DataExportTask', {
         {name: 'id', type: 'number', useNull: true},
         {name: 'name', type: 'string'},
         {name: 'schedule', type: 'auto', defaultValue: null},
+        {name: 'nextRun', defaultValue: null},
+        {name: 'usagePointGroup',defaultValue: null},
+        {name: 'metrologyPurpose', defaultValue: null},
         {name: 'recurrence', type: 'auto'}
     ],
 
