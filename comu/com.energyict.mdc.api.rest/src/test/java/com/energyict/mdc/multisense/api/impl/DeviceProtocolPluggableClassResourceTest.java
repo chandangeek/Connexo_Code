@@ -49,7 +49,7 @@ public class DeviceProtocolPluggableClassResourceTest extends MultisensePublicAp
                 Collections.singletonList(responseSecurityLevel),
                 Arrays.asList(connectionFunction_1, connectionFunction_2),
                 Arrays.asList(connectionFunction_2, connectionFunction_3));
-        com.energyict.mdc.upl.properties.PropertySpec clientPropertySpec = new ConnexoToUPLPropertSpecAdapter(mockBigDecimalPropertySpec());
+        com.energyict.mdc.upl.properties.PropertySpec clientPropertySpec = ConnexoToUPLPropertSpecAdapter.adaptTo(mockBigDecimalPropertySpec());
         Optional<com.energyict.mdc.upl.properties.PropertySpec> optionalClientPropertySpec = Optional.of(clientPropertySpec);
         when(pluggableClass.getDeviceProtocol().getClientSecurityPropertySpec()).thenReturn(optionalClientPropertySpec);
         Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = mockFinder(Collections.singletonList(pluggableClass));

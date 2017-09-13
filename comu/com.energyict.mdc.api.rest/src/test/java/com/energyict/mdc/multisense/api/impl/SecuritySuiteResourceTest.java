@@ -54,7 +54,7 @@ public class SecuritySuiteResourceTest extends MultisensePublicApiJerseyTest {
     @Test
     public void testGetSingleSecuritySuiteWithFields() throws Exception {
         DeviceProtocolPluggableClass pluggableClass = mockPluggableClass(77, "WebRTU", "1.2.3.4");
-        com.energyict.mdc.upl.security.SecuritySuite accessLevel = new CXOSecuritySuiteAdapter(mockSecuritySuite(3));
+        com.energyict.mdc.upl.security.SecuritySuite accessLevel = CXOSecuritySuiteAdapter.adaptTo(mockSecuritySuite(3));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class, withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Collections.singletonList(accessLevel));
 

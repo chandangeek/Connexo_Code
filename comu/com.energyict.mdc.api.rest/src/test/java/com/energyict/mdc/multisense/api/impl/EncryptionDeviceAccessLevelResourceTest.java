@@ -47,7 +47,7 @@ public class EncryptionDeviceAccessLevelResourceTest extends MultisensePublicApi
     @Test
     public void testGetSingleEncryptionDeviceAccessLevelWithFields() throws Exception {
         DeviceProtocolPluggableClass pluggableClass = mockPluggableClass(77, "WebRTU", "1.2.3.4");
-        com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel accessLevel = new CXOEncryptionLevelAdapter(mockEncryptionAccessLevel(3));
+        com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel accessLevel = CXOEncryptionLevelAdapter.adaptTo(mockEncryptionAccessLevel(3));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(accessLevel));
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);

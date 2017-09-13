@@ -55,7 +55,7 @@ public class ResponseSecurityDeviceAccessLevelResourceTest extends MultisensePub
     @Test
     public void testGetSingleResponseSecurityDeviceAccessLevelWithFields() throws Exception {
         DeviceProtocolPluggableClass pluggableClass = mockPluggableClass(77, "WebRTU", "1.2.3.4");
-        com.energyict.mdc.upl.security.ResponseSecurityLevel accessLevel = new CXOResponseSecurityLevelAdapter(mockResponseSecurityDeviceAccessLevel(3));
+        com.energyict.mdc.upl.security.ResponseSecurityLevel accessLevel = CXOResponseSecurityLevelAdapter.adaptTo(mockResponseSecurityDeviceAccessLevel(3));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class, withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getResponseSecurityLevels()).thenReturn(Collections.singletonList(accessLevel));
 

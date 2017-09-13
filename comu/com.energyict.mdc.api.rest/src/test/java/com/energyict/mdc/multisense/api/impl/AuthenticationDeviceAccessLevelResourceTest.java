@@ -51,7 +51,7 @@ public class AuthenticationDeviceAccessLevelResourceTest extends MultisensePubli
         AuthenticationDeviceAccessLevel accessLevel = mockAuthenticationAccessLevel(3);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         List<AuthenticationDeviceAccessLevel> authenticationDeviceAccessLevels = Collections.singletonList(accessLevel);
-        List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> adaptedLevels = authenticationDeviceAccessLevels.stream().map(CXOAuthenticationLevelAdapter::new).collect(Collectors.toList());
+        List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> adaptedLevels = authenticationDeviceAccessLevels.stream().map(CXOAuthenticationLevelAdapter::adaptTo).collect(Collectors.toList());
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(adaptedLevels);
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         Response response = target("/pluggableclasses/77/authenticationaccesslevels/3").queryParam("fields", "id").queryParam("limit", 10).request().get();

@@ -232,23 +232,23 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         protocolPluggableService = mock(ProtocolPluggableService.class);
         when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class))).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
-            return new UPLAuthenticationLevelAdapter((com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel) args[0]);
+            return UPLAuthenticationLevelAdapter.adaptTo((com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel) args[0]);
         });
         when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class))).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
-            return new UPLEncryptionLevelAdapter((com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel) args[0]);
+            return UPLEncryptionLevelAdapter.adaptTo((com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel) args[0]);
         });
         when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.SecuritySuite.class))).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
-            return new UPLSecuritySuiteLevelAdapter((com.energyict.mdc.upl.security.SecuritySuite) args[0]);
+            return UPLSecuritySuiteLevelAdapter.adaptTo((com.energyict.mdc.upl.security.SecuritySuite) args[0]);
         });
         when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.RequestSecurityLevel.class))).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
-            return new UPLRequestSecurityLevelAdapter((com.energyict.mdc.upl.security.RequestSecurityLevel) args[0]);
+            return UPLRequestSecurityLevelAdapter.adaptTo((com.energyict.mdc.upl.security.RequestSecurityLevel) args[0]);
         });
         when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.ResponseSecurityLevel.class))).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
-            return new UPLResponseSecurityLevelAdapter((com.energyict.mdc.upl.security.ResponseSecurityLevel) args[0]);
+            return UPLResponseSecurityLevelAdapter.adaptTo((com.energyict.mdc.upl.security.ResponseSecurityLevel) args[0]);
         });
     }
 
@@ -684,11 +684,11 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getVersion()).thenReturn(version);
         when(protocolPluggableService.findDeviceProtocolPluggableClass(id)).thenReturn(Optional.of(mock));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class, withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
-        List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> adaptedAuthLevels = authAccessLvls.stream().map(CXOAuthenticationLevelAdapter::new).collect(Collectors.toList());
-        List<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel> adaptedEncrLevels = encAccessLvls.stream().map(CXOEncryptionLevelAdapter::new).collect(Collectors.toList());
-        List<com.energyict.mdc.upl.security.SecuritySuite> adaptedSecuritySuites = securitySuites.stream().map(CXOSecuritySuiteAdapter::new).collect(Collectors.toList());
-        List<com.energyict.mdc.upl.security.RequestSecurityLevel> adaptedRequestSecurityLevels = requestSecurityLvls.stream().map(CXORequestSecurityLevelAdapter::new).collect(Collectors.toList());
-        List<com.energyict.mdc.upl.security.ResponseSecurityLevel> adaptedResponseSecurityLevels = responseSecurityLevels.stream().map(CXOResponseSecurityLevelAdapter::new).collect(Collectors.toList());
+        List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> adaptedAuthLevels = authAccessLvls.stream().map(CXOAuthenticationLevelAdapter::adaptTo).collect(Collectors.toList());
+        List<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel> adaptedEncrLevels = encAccessLvls.stream().map(CXOEncryptionLevelAdapter::adaptTo).collect(Collectors.toList());
+        List<com.energyict.mdc.upl.security.SecuritySuite> adaptedSecuritySuites = securitySuites.stream().map(CXOSecuritySuiteAdapter::adaptTo).collect(Collectors.toList());
+        List<com.energyict.mdc.upl.security.RequestSecurityLevel> adaptedRequestSecurityLevels = requestSecurityLvls.stream().map(CXORequestSecurityLevelAdapter::adaptTo).collect(Collectors.toList());
+        List<com.energyict.mdc.upl.security.ResponseSecurityLevel> adaptedResponseSecurityLevels = responseSecurityLevels.stream().map(CXOResponseSecurityLevelAdapter::adaptTo).collect(Collectors.toList());
 
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(adaptedAuthLevels);
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(adaptedEncrLevels);

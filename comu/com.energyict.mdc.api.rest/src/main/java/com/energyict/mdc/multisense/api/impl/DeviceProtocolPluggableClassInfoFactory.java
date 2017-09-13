@@ -176,7 +176,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
 
     private PropertyInfo getClientAsPropertyInfo(Optional<PropertySpec> clientPropertySpec) {
         if (clientPropertySpec.isPresent()) {
-            return mdcPropertyUtils.convertPropertySpecToPropertyInfo(new UPLToConnexoPropertySpecAdapter(clientPropertySpec.get()), "");
+            return mdcPropertyUtils.convertPropertySpecToPropertyInfo(UPLToConnexoPropertySpecAdapter.adaptTo(clientPropertySpec.get()), "");
         } else {
             return null;
         }
