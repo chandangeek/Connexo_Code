@@ -20,6 +20,7 @@ Ext.define('Dal.privileges.Alarm', {
     closeOrAssing: ['privilege.close.alarm', 'privilege.assign.alarm'],
     comment: ['privilege.comment.alarm'],
     assign: ['privilege.assign.alarm'],
+    snooze: ['privilege.snooze.alarm'],
     action: ['privilege.action.alarm'],
     close: ['privilege.close.alarm'],
     setPriority: ['privilege.setPriority.alarm'],
@@ -68,6 +69,9 @@ Ext.define('Dal.privileges.Alarm', {
     },
     canAssign: function () {
         return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.assign);
+    },
+    canSnooze: function () {
+        return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.snooze);
     },
     canDoAction: function () {
         return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.action);
