@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.dlms.common;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.properties.AbstractPropertySpec;
 
@@ -24,18 +25,19 @@ public class ObisCodePropertySpec extends AbstractPropertySpec {
 
     @Override
     public boolean validateValue(Object value) throws PropertyValidationException {
+        boolean isInvalid = false;
         if (this.isRequired() && value == null) {
             throw MissingPropertyException.forName(this.getName());
+        } else if (value instanceof ObisCode) {
+            isInvalid = ((ObisCode) value).isInvalid();
         } else if (value instanceof String) {
-            try {
-                ObisCode.fromString((String) value);
-                return true;
-            } catch (IllegalArgumentException e) {
-                throw InvalidPropertyException.forNameAndValue(this.getName(), value);
-            }
-        } else {
-            throw InvalidPropertyException.forNameAndValue(this.getName(), value);
+            isInvalid = ObisCode.fromString((String) value).isInvalid();
         }
+
+        if (isInvalid) {
+            throw InvalidPropertyException.forNameAndValue(this.getDisplayName(), value);
+        }
+        return true;
     }
 
     @Override
@@ -46,12 +48,15 @@ public class ObisCodePropertySpec extends AbstractPropertySpec {
     private static class ValueFactory implements com.energyict.mdc.upl.properties.ValueFactory {
         @Override
         public Object fromStringValue(String stringValue) {
-            return ObisCode.fromString(stringValue);
+            ObisCode obisCode = ObisCode.fromString(stringValue);
+            return obisCode.isInvalid() ? "Invalid" : obisCode;
         }
 
         @Override
         public String toStringValue(Object object) {
-            return this.toStringValue((ObisCode) object);
+            return object instanceof ObisCode
+                    ? this.toStringValue((ObisCode) object)
+                    : object.toString();
         }
 
         private String toStringValue(ObisCode obisCode) {
@@ -73,5 +78,4 @@ public class ObisCodePropertySpec extends AbstractPropertySpec {
             return this.fromStringValue((String) databaseValue);
         }
     }
-
 }

@@ -36,7 +36,9 @@ public enum DeviceProtocolDialectTranslationKeys implements TranslationKey {
     EDMI_TCP_DIALECT_NAME("EdmiTcpDialect", "EDMI TCP dialect"),
     EDMI_UDP_DIALECT_NAME("EdmiUdpDialect", "EDMI UDP dialect"),
     EDMI_MODEM_DIALECT_NAME("EdmiModemDialect", "EDMI modem dialect"),
-    NO_PARAMETERS_PROTOCOL_DIALECT_NAME("NoParamsDialect", "Default with no properties");
+    NO_PARAMETERS_PROTOCOL_DIALECT_NAME("NoParamsDialect", "Default with no properties"),
+    SDK_SAMPLE_DEVICE_ALARM_DIALECT_NAME("SDKDeviceAlarmDialect", "SDK dialect for device alarm testing");
+
 
     private final String defaultTranslation;
     private String uniqueName;

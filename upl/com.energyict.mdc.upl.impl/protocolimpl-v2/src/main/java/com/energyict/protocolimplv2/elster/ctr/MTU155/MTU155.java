@@ -38,6 +38,7 @@ import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.offline.OfflineCalendar;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
@@ -467,22 +468,15 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
 
     private Optional<String> toCalendarName(int tariffSchemaId) {
         if (tariffSchemaId > 0) {
-            return this.toCalendarName(String.valueOf(tariffSchemaId));
+            return this.offlineDevice
+                    .getCalendars()
+                    .stream()
+                    .filter(each -> each.getId() == tariffSchemaId)
+                    .findFirst()
+                    .map(OfflineCalendar::getName);
         } else {
             return Optional.empty();
         }
-    }
-
-    private Optional<String> toCalendarName(String tariffSchemaId) {
-        return Optional.of(tariffSchemaId);
-
-        //TODO uncomment the code below when OfflineCalendar is available on OfflineDevice
-/*        return this.offlineDevice
-                .getCalendars()
-                .stream()
-                .filter(each -> each.getMRID().equals(tariffSchemaId))
-                .findFirst()
-                .map(OfflineCalendar::getName);*/
     }
 
     @Override

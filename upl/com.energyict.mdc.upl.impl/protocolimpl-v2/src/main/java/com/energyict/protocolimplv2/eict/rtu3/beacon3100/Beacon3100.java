@@ -5,6 +5,7 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.tasks.DeviceConnectionFunction;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceFunction;
@@ -16,6 +17,7 @@ import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UPLConnectionFunction;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.Issue;
@@ -546,6 +548,16 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
         return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER, DeviceProtocolCapabilities.PROTOCOL_SESSION);
+    }
+
+    @Override
+    public List<UPLConnectionFunction> getConsumableConnectionFunctions() {
+        return Arrays.asList(DeviceConnectionFunction.MIRROR, DeviceConnectionFunction.GATEWAY);
+    }
+
+    @Override
+    public List<UPLConnectionFunction> getProvidedConnectionFunctions() {
+        return Arrays.asList(DeviceConnectionFunction.MIRROR, DeviceConnectionFunction.GATEWAY);
     }
 
     @Override

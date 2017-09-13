@@ -35,6 +35,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DLMS_LOGSTRUCTURE_DESCRIPTION("upl.property.elster.dlms.logStructure.description", "Log structure"),
     DLMS_OC_INTERVALPROFILE("upl.property.elster.dlms.ocIntervalProfile", "Obiscode interval profile"),
     DLMS_OC_INTERVALPROFILE_DESCRIPTION("upl.property.elster.dlms.ocIntervalProfile.description", "Obiscode interval profile"),
+    DLMS_OC_LOGPROFILE("upl.property.elster.dlms.ocLogProfile", "Obiscode log profile"),
+    DLMS_OC_LOGPROFILE_DESCRIPTION("upl.property.elster.dlms.ocLogProfile.description", "Obiscode log profile"),
     DLMS_MAX_PDU_SIZE("upl.property.elster.dlms.maxPduSize", "Max PDU size"),
     DLMS_MAX_PDU_SIZE_DESCRIPTION("upl.property.elster.dlms.maxPduSize.description", "Max PDU size"),
     DLMS_ARCHIVE_STRUCTURE_VERSION("upl.property.elster.dlms.archiveStructureVersion", "Archive structure version"),

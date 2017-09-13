@@ -63,8 +63,8 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(ContactorDeviceMessage.CONTACTOR_OPEN), new SimpleTagMessageEntry("DisconnectMain"))
                 .put(messageSpec(ContactorDeviceMessage.CLOSE_RELAY), new AdvancedTagMessageEntry("ConnectRelay"))
                 .put(messageSpec(ContactorDeviceMessage.OPEN_RELAY), new AdvancedTagMessageEntry("DisconnectRelay"))
-                .put(messageSpec(ClockDeviceMessage.SET_TIMEZONE), new MultipleAttributeMessageEntry("DisconnectRelay", "GMT offset (in hours)"))
 
+                .put(messageSpec(ClockDeviceMessage.SET_TIMEZONE_OFFSET), new MultipleAttributeMessageEntry("SetTimeZone", "GMT offset (in hours)"))
                 .put(messageSpec(ActivityCalendarDeviceMessage.WRITE_CONTRACTS_FROM_XML_USERFILE), new SimpleValueMessageEntry("WriteContracts"))
 
                 .put(messageSpec(LoadBalanceDeviceMessage.WriteControlThresholds), new MultipleAttributeMessageEntry("WriteControlThresholds", "Threshold 1 (unit W)", "Threshold 2 (unit W)", "Threshold 3 (unit W)", "Threshold 4 (unit W)", "Threshold 5 (unit W)", "Threshold 6 (unit W)", "ActivationDate"))

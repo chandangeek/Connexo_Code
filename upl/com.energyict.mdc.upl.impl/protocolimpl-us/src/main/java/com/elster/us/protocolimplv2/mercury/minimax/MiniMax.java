@@ -667,13 +667,13 @@ public class MiniMax implements DeviceProtocol {
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> list) {
         // Not implemented
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         // Not implemented
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
