@@ -29,6 +29,7 @@ import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
@@ -63,10 +64,12 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
@@ -141,14 +144,16 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private volatile IssueActionService issueActionService;
     private volatile IssueAssignmentService issueAssignmentService;
     private volatile IssueCreationService issueCreationService;
-
+    private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile UpgradeService upgradeService;
     private volatile Clock clock;
 
     private final Map<String, IssueActionFactory> issueActionFactories = new ConcurrentHashMap<>();
     private final Map<String, CreationRuleTemplate> creationRuleTemplates = new ConcurrentHashMap<>();
     private final List<IssueProvider> issueProviders = new ArrayList<>();
+    private final List<IssueWebServiceClient> issueWebServiceClients = new ArrayList<>();
     private final List<IssueCreationValidator> issueCreationValidators = new CopyOnWriteArrayList<>();
+    private IssueWebServiceClient issueWebServiceClient;
 
 
     public IssueServiceImpl() {
@@ -167,6 +172,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                             KieResources resourceFactoryService,
                             TransactionService transactionService,
                             ThreadPrincipalService threadPrincipalService,
+                            EndPointConfigurationService endPointConfigurationService,
                             UpgradeService upgradeService, Clock clock) {
         setOrmService(ormService);
         setQueryService(queryService);
@@ -182,7 +188,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         setThreadPrincipalService(threadPrincipalService);
         setUpgradeService(upgradeService);
         setClock(clock);
-
+        setEndPointConfigurationService(endPointConfigurationService);
         activate();
     }
 
@@ -211,6 +217,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 bind(IssueAssignmentService.class).to(IssueAssignmentServiceImpl.class).in(Scopes.SINGLETON);
                 bind(IssueCreationService.class).to(IssueCreationServiceImpl.class).in(Scopes.SINGLETON);
                 bind(Clock.class).toInstance(clock);
+                bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
             }
         });
         issueCreationService = dataModel.getInstance(IssueCreationService.class);
@@ -221,7 +228,9 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class, version(10, 3), UpgraderV10_3.class
+                        version(10, 2), UpgraderV10_2.class,
+                        version(10, 3), UpgraderV10_3.class,
+                        version(10,4), V10_4SimpleUpgrader.class
                 ));
     }
 
@@ -298,6 +307,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -402,6 +416,19 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Override
     public List<IssueProvider> getIssueProviders() {
         return Collections.unmodifiableList(this.issueProviders);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addIssueWebServiceClient(IssueWebServiceClient issueWebServiceClient) {
+        issueWebServiceClients.add(issueWebServiceClient);
+    }
+
+    public void removeIssueWebServiceClient(IssueWebServiceClient issueWebServiceClient) {
+        issueWebServiceClients.remove(issueWebServiceClient);
+    }
+
+    public List<IssueWebServiceClient> getIssueWebServiceClients() {
+        return Collections.unmodifiableList(this.issueWebServiceClients);
     }
 
     @Override
@@ -658,6 +685,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         SqlBuilder userWhereClause = new SqlBuilder();
         userWhereClause.append("WHERE " + TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_USER_ID + " = ");
         userWhereClause.addLong(user.getId());
+        userWhereClause.append(" AND ");
+        userWhereClause.append(getActiveIssueStatusCondition(Stream.of(IssueStatus.OPEN, IssueStatus.IN_PROGRESS).collect(Collectors.toList())));
         return userWhereClause;
     }
 
@@ -668,7 +697,19 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         workGroupWithoutUserWhereClause.append(TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_WORKGROUP_ID + " IN ( ");
         workGroupWithoutUserWhereClause.append(user.getWorkGroups().isEmpty() ? "NULL" : user.getWorkGroups().stream().map(WorkGroup::getId).map(String::valueOf).collect(Collectors.joining(", ")));
         workGroupWithoutUserWhereClause.append(" ) ");
+        workGroupWithoutUserWhereClause.append(" AND ");
+        workGroupWithoutUserWhereClause.append(getActiveIssueStatusCondition(Stream.of(IssueStatus.OPEN, IssueStatus.IN_PROGRESS).collect(Collectors.toList())));
         return workGroupWithoutUserWhereClause;
+    }
+
+    private String getActiveIssueStatusCondition(List<String> statuses) {
+        StringBuffer activeIssueStatusCondition = new StringBuffer();
+        activeIssueStatusCondition.append(TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_STATUS_ID + " IN (");
+        activeIssueStatusCondition.append(statuses.stream()
+                .map((status) -> "'" + status + "'")
+                .collect(Collectors.joining(", ")));
+        activeIssueStatusCondition.append(" ) ");
+        return activeIssueStatusCondition.toString();
     }
 
     private Map<IssueTypes, Long> count(SqlBuilder sqlBuilder) {

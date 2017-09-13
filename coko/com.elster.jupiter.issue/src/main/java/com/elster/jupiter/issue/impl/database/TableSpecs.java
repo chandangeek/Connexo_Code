@@ -103,6 +103,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_REASON_
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_REASON_COLUMN_TYPE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_REASON_FK_TO_ISSUE_TYPE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_REASON_PK_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_SNOOZEDATETIME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_STATUS_COLUMN_IS_HISTORICAL;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_STATUS_COLUMN_KEY;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_STATUS_COLUMN_TRANSLATION;
@@ -447,6 +448,12 @@ public enum TableSpecs {
                     .installValue(String.valueOf(Instant.EPOCH.toEpochMilli()))
                     .add()
                     .since(Version.version(10, 3));
+            table.column(ISSUE_SNOOZEDATETIME)
+                    .number()
+                    .conversion(NUMBER2INSTANT)
+                    .map("snoozeDateTime")
+                    .add()
+                    .since(Version.version(10, 4));
             table.partitionOn(createdDateTimeColumn);
             table.primaryKey(pkKey).on(idColumn).add();
             if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH) {
