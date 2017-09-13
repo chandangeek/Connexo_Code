@@ -7,7 +7,6 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -18,6 +17,7 @@ import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpec
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -233,7 +233,7 @@ public class TestProtocol implements DeviceProtocol {
 
             @Override
             public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-                return Arrays.asList(new ConnexoToUPLPropertSpecAdapter(getPasswordPropertySpec()), new ConnexoToUPLPropertSpecAdapter(getUserNamePropertySpec()));
+                return Arrays.asList(ConnexoToUPLPropertSpecAdapter.adaptTo(getPasswordPropertySpec()), ConnexoToUPLPropertSpecAdapter.adaptTo(getUserNamePropertySpec()));
             }
         });
     }
