@@ -9,8 +9,12 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevices', {
     requires: [
         'Mdc.registereddevices.view.RegisteredDevicesGraph',
         'Uni.grid.FilterPanelTop',
-        'Mdc.store.DeviceGroupsNoPaging'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Mdc.registereddevices.store.AvailableKPIs',
+        'Mdc.privileges.RegisteredDevicesKpi'
     ],
+
+    data: undefined,
 
     initComponent: function () {
         var me = this;
@@ -21,6 +25,23 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevices', {
                 ui: 'large',
                 title: Uni.I18n.translate('general.registeredDevices', 'MDC', 'Registered devices'),
                 items: [
+                    {
+                        xtype: 'no-items-found-panel',
+                        itemId: 'mdc-registered-devices-view-no-kpis',
+                        hidden: true,
+                        title: Uni.I18n.translate('registeredDevicesKPIs.empty.title', 'MDC', 'No registered devices KPIs found'),
+                        reasons: [
+                            Uni.I18n.translate('registeredDevicesKPIs.empty.list.item1', 'MDC', 'No registered devices KPIs have been defined yet.')
+                        ],
+                        stepItems: [
+                            {
+                                text: Uni.I18n.translate('registeredDevicesKPIs.add', 'MDC', 'Add registered devices KPI'),
+                                itemId: 'mdc-registered-devices-view-add-kpi',
+                                action: 'addRegisteredDevicesKpi',
+                                privileges: Mdc.privileges.RegisteredDevicesKpi.admin
+                            }
+                        ]
+                    },
                     {
                         xtype: 'uni-grid-filterpaneltop',
                         itemId: 'mdc-registered-devices-filters',
@@ -33,7 +54,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevices', {
                                 multiSelect: false,
                                 displayField: 'name',
                                 valueField: 'id',
-                                store: 'Mdc.store.DeviceGroupsNoPaging'
+                                store: 'Mdc.registereddevices.store.AvailableKPIs'
                             },
                             {
                                 type: 'interval',
@@ -46,7 +67,9 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevices', {
                         ]
                     },
                     {
-                        xtype: 'registered-devices-graph'
+                        xtype: 'registered-devices-graph',
+                        itemId: 'mdc-registered-devices-graph',
+                        data: me.data
                     }
                 ]
             }

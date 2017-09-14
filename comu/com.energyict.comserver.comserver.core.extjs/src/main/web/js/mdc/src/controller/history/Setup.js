@@ -2454,21 +2454,21 @@ Ext.define('Mdc.controller.history.Setup', {
                     regdeviceskpis: {
                         title: Uni.I18n.translate('general.registeredDevicesKPIs', 'MDC', 'Registered devices KPIs'),
                         route: 'regdeviceskpis',
-                        // privileges: Mdc.privileges.DataCollectionKpi.view,
+                        privileges: Mdc.privileges.RegisteredDevicesKpi.view,
                         controller: 'Mdc.registereddevices.controller.RegisteredDevices',
                         action: 'showRegisteredDevicesKpis',
                         items: {
                             add: {
                                 title: Uni.I18n.translate('registeredDevicesKPIs.add', 'MDC', 'Add registered devices KPI'),
                                 route: 'add',
-                                // privileges: Mdc.privileges.DataCollectionKpi.admin,
+                                privileges: Mdc.privileges.RegisteredDevicesKpi.admin,
                                 controller: 'Mdc.registereddevices.controller.RegisteredDevices',
                                 action: 'showEditKPIView'
                             },
                             edit: {
                                 title: Uni.I18n.translate('registeredDevicesKPIs.edit', 'MDC', 'Edit registered devices KPI'),
                                 route: '{id}/edit',
-                                // privileges: Mdc.privileges.DataCollectionKpi.admin,
+                                privileges: Mdc.privileges.RegisteredDevicesKpi.admin,
                                 controller: 'Mdc.registereddevices.controller.RegisteredDevices',
                                 action: 'showEditKPIView',
                                 callback: function (route) {

@@ -8,6 +8,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesKPIs', {
     requires: [
         'Mdc.registereddevices.view.RegisteredDevicesKPIsGrid',
         'Mdc.registereddevices.view.RegisteredDevicesKPIPreview',
+        'Mdc.privileges.RegisteredDevicesKpi',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
@@ -36,7 +37,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesKPIs', {
                                 text: Uni.I18n.translate('registeredDevicesKPIs.add', 'MDC', 'Add registered devices KPI'),
                                 itemId: 'mdc-no-registered-devices-kpis-add',
                                 action: 'addRegisteredDevicesKpi',
-                                // privileges: Mdc.privileges.DataCollectionKpi.admin
+                                privileges: Mdc.privileges.RegisteredDevicesKpi.admin
                             }
                         ]
                     },

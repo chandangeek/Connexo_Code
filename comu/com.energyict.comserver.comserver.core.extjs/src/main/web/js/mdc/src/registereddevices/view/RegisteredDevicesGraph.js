@@ -31,6 +31,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
     columnBorderColor: '#FFFFFF',
     gridLineColor: '#D2D2D2',
     labelColor: '#686868',
+    data: undefined,
 
     initComponent: function () {
         this.callParent(arguments);
@@ -173,57 +174,52 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
                     groupPadding: 0,
                     shadow: false,
                     animation: false,
-                    pointStart: Date.UTC(2017, 8, 1, 10), // = 12:00 GMT
-                    pointInterval: 3600 * 250, // 15 min
-                    pointRange: 3600 * 250 // make the columns as broad as the interval
+                    // pointStart: Date.UTC(2017, 8, 1, 10), // = 12:00 GMT
+                    // pointInterval: 3600 * 250, // 15 min
+                    // pointRange: 3600 * 250 // make the columns as broad as the interval
                 },
-                line: {
-                    pointStart: Date.UTC(2017, 8, 1, 10), // = 12:00 GMT
-                    pointInterval: 3600 * 250 // 15 min
-                },
+                // line: {
+                //     pointStart: Date.UTC(2017, 8, 1, 10), // = 12:00 GMT
+                //     pointInterval: 3600 * 250 // 15 min
+                // },
                 series: {
                     showInNavigator: true
                 }
             },
 
-            series: me.createDataSeries(me.record)
+            series: me.createDataSeries(me.data)
         });
     },
 
-    createDataSeries: function(record) {
-        return [
-            {
-                name: 'registeredDevices',
-                data: [ 21, 32, 43, 50, 55, 60, 65, 70, 74, 75,
-                        76, 78, 80, 81, 82, 83, 85, 86, 87, 88,
-                        90, 100, 105, 110, 110, 110, 110, 110, 110, 110,
-                        110, 110, 110, 110, 110, 110, 110, 110, 110, 110,
-                        110, 110, 110, 110
-                ]
-            },
-            {
-                name: Uni.I18n.translate('general.totalAmountOfDevices', 'MDC', 'Total amount of devices'),
-                type: 'line',
-                data: [ 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-                        110, 110, 110, 110, 110, 110, 110, 110, 110, 110,
-                        110, 110, 110, 110, 110, 110, 110, 110, 110, 110,
-                        110, 110, 110, 110, 110, 110, 110, 110, 110, 110,
-                        110, 110, 110, 110
-                ],
-                color: this.totalColor
-            },
-            {
-                name: Uni.I18n.translate('general.target', 'MDC', 'Target'),
-                type: 'line',
-                data: [ 95, 95, 95, 95, 95, 95, 95, 95, 95, 95,
-                        104, 104, 104, 104, 104, 104, 104, 104, 104, 104,
-                        104, 104, 104, 104, 104, 104, 104, 104, 104, 104,
-                        104, 104, 104, 104, 104, 104, 104, 104, 104, 104,
-                        104, 104, 104, 104
-                ],
-                color: this.targetColor
-            }
+    createDataSeries: function(records) {
+        var seriesRegistered = {},
+            seriesTotal = {},
+            seriesTarget = {},
+            series = [];
 
-        ];
+        seriesRegistered['name'] = 'registeredDevices';
+        seriesRegistered['data'] = [];
+
+        seriesTotal['name'] = Uni.I18n.translate('general.totalAmountOfDevices', 'MDC', 'Total amount of devices');
+        seriesTotal['color'] = this.totalColor;
+        seriesTotal['type'] = 'line';
+        seriesTotal['data'] = [];
+
+        seriesTarget['name'] = Uni.I18n.translate('general.target', 'MDC', 'Target');
+        seriesTarget['color'] = this.targetColor;
+        seriesTarget['type'] = 'line';
+        seriesTarget['data'] = [];
+
+        // Convert the records into graph data
+        Ext.Array.forEach(records, function(record) {
+            seriesRegistered['data'].push([record.get('timestamp'), record.get('registered')]);
+            seriesTotal['data'].push([record.get('timestamp'), record.get('total')]);
+            seriesTarget['data'].push([record.get('timestamp'), record.get('target')]);
+        });
+
+        series.push(seriesRegistered);
+        series.push(seriesTotal);
+        series.push(seriesTarget);
+        return series;
     }
 });

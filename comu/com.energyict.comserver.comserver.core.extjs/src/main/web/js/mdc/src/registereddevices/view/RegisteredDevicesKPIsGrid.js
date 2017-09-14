@@ -8,7 +8,8 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesKPIsGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.registereddevices.store.RegisteredDevicesKPIs',
-        'Mdc.registereddevices.view.ActionMenu'
+        'Mdc.registereddevices.view.ActionMenu',
+        'Mdc.privileges.RegisteredDevicesKpi'
     ],
     store: 'Mdc.registereddevices.store.RegisteredDevicesKPIs',
     initComponent: function () {
@@ -61,7 +62,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesKPIsGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 width: 120,
-                // privileges: Mdc.privileges.DataCollectionKpi.admin,
+                privileges: Mdc.privileges.RegisteredDevicesKpi.admin,
                 menu: {
                     xtype: 'registered-devices-kpi-action-menu',
                     itemId: 'mdc-grid-registered-devices-kpi-action-menu'
@@ -81,7 +82,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesKPIsGrid', {
                     {
                         xtype: 'button',
                         itemId: 'mdc-grid-registered-devices-kpi-add',
-                        // privileges: Mdc.privileges.DataCollectionKpi.admin,
+                        privileges: Mdc.privileges.RegisteredDevicesKpi.admin,
                         text: Uni.I18n.translate('registeredDevicesKPIs.add', 'MDC', 'Add registered devices KPI'),
                         action: 'addRegisteredDevicesKpi'
                     }

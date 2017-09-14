@@ -12,7 +12,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.dynamicprivileges.Stores',
         'Uni.property.controller.Registry',
         'Mdc.property.UsagePoint',
-        'Mdc.dynamicprivileges.DeviceTypeCapability'
+        'Mdc.dynamicprivileges.DeviceTypeCapability',
+        'Mdc.privileges.RegisteredDevicesKpi'
     ],
 
     controllers: [
@@ -416,7 +417,7 @@ Ext.define('Mdc.controller.Main', {
             );
         }
 
-        if (true/*TODO: I have "Registered devices KPI > View registered devices KPI" privilege*/) {
+        if (Mdc.privileges.RegisteredDevicesKpi.canView()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
                 portal: 'administration',
@@ -433,6 +434,7 @@ Ext.define('Mdc.controller.Main', {
                         {
                             text: Uni.I18n.translate('title.registeredDevicesKPIs', 'MDC', 'Registered devices KPIs'),
                             itemId: 'mdc-workspace-registered-devices-link',
+                            privileges: Mdc.privileges.RegisteredDevicesKpi.view,
                             href: '#/administration/regdeviceskpis'
                         }
                     ]

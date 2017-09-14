@@ -13,13 +13,17 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
 
     models: [
         'Mdc.registereddevices.model.RegisteredDevicesKPI',
-        'Mdc.registereddevices.model.AvailableDeviceGroup'
+        'Mdc.registereddevices.model.AvailableDeviceGroup',
+        'Mdc.registereddevices.model.AvailableKPI',
+        'Mdc.registereddevices.model.RegisteredDevicesKPIsData'
     ],
 
     stores: [
+        'Mdc.registereddevices.store.RegisteredDevicesKPIFrequencies',
         'Mdc.registereddevices.store.RegisteredDevicesKPIs',
         'Mdc.registereddevices.store.AvailableDeviceGroups',
-        'Mdc.registereddevices.store.RegisteredDevicesKPIFrequencies'
+        'Mdc.registereddevices.store.AvailableKPIs',
+        'Mdc.registereddevices.store.RegisteredDevicesKPIsData'
     ],
 
     refs: [
@@ -41,6 +45,9 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
             'registered-devices-kpis-view #mdc-no-registered-devices-kpis-add': {
                 click: this.moveToAddPage
             },
+            'registered-devices-view #mdc-registered-devices-view-add-kpi' : {
+                click: this.moveToAddPage
+            },
             'registered-devices-kpi-action-menu': {
                 click: this.chooseAction
             },
@@ -55,9 +62,28 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
 
     showRegisteredDevices: function() {
         var me = this,
-            widget = Ext.widget('registered-devices-view');
+            widget = Ext.widget('registered-devices-view'),
+            kpiStore = widget.down('#mdc-registered-devices-device-group-filter').getStore(),
+            kpiDataStore = Ext.getStore('Mdc.registereddevices.store.RegisteredDevicesKPIsData');
 
-        me.getApplication().fireEvent('changecontentevent', widget);
+        kpiStore.load(function(records) {
+            if (records.length === 0) {
+                widget.down('#mdc-registered-devices-view-no-kpis').show();
+                widget.down('#mdc-registered-devices-filters').hide();
+                widget.down('#mdc-registered-devices-graph').hide();
+                me.getApplication().fireEvent('changecontentevent', widget);
+            } else {
+                widget.down('#mdc-registered-devices-device-group-filter').setValue(records[0].get('id'));
+                widget.down('#mdc-registered-devices-view-no-kpis').hide();
+                widget.down('#mdc-registered-devices-filters').show();
+                widget.down('#mdc-registered-devices-graph').show();
+                kpiDataStore.getProxy().setUrl(records[0].get('id'));
+                kpiDataStore.load(function(records) {
+                    widget.down('#mdc-registered-devices-graph').data = records;
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                });
+            }
+        });
     },
 
     showRegisteredDevicesKpis: function() {
@@ -120,6 +146,9 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
                 } else {
                     if (deviceGroupStore.getCount() > 0) {
                         form.loadRecord(Ext.create(kpiModel));
+                        if (deviceGroupStore.getCount() === 1) {
+                            deviceGroupCombo.setValue(deviceGroupStore.getAt(0).get('id'));
+                        }
                     } else {
                         Ext.suspendLayouts();
                         deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('general.noDeviceGroup', 'MDC', 'No device group defined yet.') +  '</span>' );
@@ -201,7 +230,7 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
             router = me.getController('Uni.controller.history.Router');
 
         switch (item.action) {
-            case 'changeTarget':
+            case 'edit':
                 router.getRoute('administration/regdeviceskpis/edit').forward({id: menu.record.get('id')});
                 break;
             case 'remove':

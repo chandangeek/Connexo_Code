@@ -6,13 +6,14 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesKPIPreview', {
     frame: true,
     alias: 'widget.registered-devices-kpi-preview',
     requires: [
-        'Mdc.registereddevices.view.ActionMenu'
+        'Mdc.registereddevices.view.ActionMenu',
+        'Mdc.privileges.RegisteredDevicesKpi'
     ],
 
     tools: [
         {
             xtype: 'uni-button-action',
-            // privileges: Mdc.privileges.DataCollectionKpi.admin,
+            privileges: Mdc.privileges.RegisteredDevicesKpi.admin,
             menu: {
                 xtype: 'registered-devices-kpi-action-menu',
                 itemId: 'mdc-registered-devices-kpi-details-action-menu'

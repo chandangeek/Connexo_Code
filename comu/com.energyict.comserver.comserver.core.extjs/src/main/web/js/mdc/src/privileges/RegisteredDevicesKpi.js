@@ -6,12 +6,12 @@ Ext.define('Mdc.privileges.RegisteredDevicesKpi', {
         'Uni.Auth'
     ],
     singleton: true,
-    view: ['privilege.administer.dataCollectionKpi', 'privilege.view.dataCollectionKpi'],
-    admin: ['privilege.administer.dataCollectionKpi'],
+    view: ['registereddeviceskpi.privileges.administrate', 'registereddeviceskpi.privileges.view'],
+    admin: ['registereddeviceskpi.privileges.administrate'],
     all: function () {
-        return Ext.Array.merge(Mdc.privileges.DataCollectionKpi.view, Mdc.privileges.DataCollectionKpi.admin);
+        return Ext.Array.merge(Mdc.privileges.RegisteredDevicesKpi.view, Mdc.privileges.RegisteredDevicesKpi.admin);
     },
     canView: function () {
-        return Uni.Auth.checkPrivileges(Mdc.privileges.DataCollectionKpi.view);
+        return Uni.Auth.checkPrivileges(Mdc.privileges.RegisteredDevicesKpi.view);
     }
 });

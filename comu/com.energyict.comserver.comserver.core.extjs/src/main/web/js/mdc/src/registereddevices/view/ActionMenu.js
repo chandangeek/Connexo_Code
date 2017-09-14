@@ -8,8 +8,8 @@ Ext.define('Mdc.registereddevices.view.ActionMenu', {
     initComponent: function () {
         this.items = [
             {
-                text: Uni.I18n.translate('general.changeTarget', 'MDC', 'Change target'),
-                action: 'changeTarget',
+                text: Uni.I18n.translate('general.edi', 'MDC', 'Edit'),
+                action: 'edit',
                 section: this.SECTION_EDIT
             },
             {
