@@ -21,4 +21,6 @@ public interface SmartMeterProtocolAdapter extends DeviceProtocol, DeviceProtoco
 
     SmartMeterProtocol getSmartMeterProtocol();
 
+    com.energyict.mdc.upl.SmartMeterProtocol getUplSmartMeterProtocol();
+
 }

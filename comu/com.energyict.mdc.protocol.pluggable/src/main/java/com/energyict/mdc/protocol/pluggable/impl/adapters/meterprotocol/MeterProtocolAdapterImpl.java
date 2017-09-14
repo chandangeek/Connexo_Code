@@ -589,11 +589,13 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         return getUplMeterProtocol().getClass();
     }
 
+    @Override
     public MeterProtocol getMeterProtocol() {
         return meterProtocol;
     }
 
-    private com.energyict.mdc.upl.MeterProtocol getUplMeterProtocol() {
+    @Override
+    public com.energyict.mdc.upl.MeterProtocol getUplMeterProtocol() {
         return (this.meterProtocol instanceof UPLProtocolAdapter)
                     ? (com.energyict.mdc.upl.MeterProtocol) ((UPLProtocolAdapter) this.meterProtocol).getActual()
                     : this.meterProtocol;
@@ -620,9 +622,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         CollectedBreakerStatus breakerStatusCollectedData = this.collectedDataFactory.createBreakerStatusCollectedData(this.offlineDevice.getDeviceIdentifier());
         try {
             Optional<BreakerStatus> breakerStatus = this.getMeterProtocol().getBreakerStatus();
-            if (breakerStatus.isPresent()) {
-                breakerStatusCollectedData.setBreakerStatus(breakerStatus.get());
-            }
+            breakerStatus.ifPresent(breakerStatusCollectedData::setBreakerStatus);
         } catch (IOException e) {
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }

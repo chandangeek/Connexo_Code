@@ -543,11 +543,13 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
         return super.getSupportedConnectionTypes();
     }
 
+    @Override
     public SmartMeterProtocol getSmartMeterProtocol() {
         return meterProtocol;
     }
 
-    private com.energyict.mdc.upl.SmartMeterProtocol getUplSmartMeterProtocol() {
+    @Override
+    public com.energyict.mdc.upl.SmartMeterProtocol getUplSmartMeterProtocol() {
         return (this.meterProtocol instanceof UPLProtocolAdapter)
                 ? (com.energyict.mdc.upl.SmartMeterProtocol) ((UPLProtocolAdapter) this.meterProtocol).getActual()
                 : this.meterProtocol;
@@ -587,9 +589,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
         CollectedBreakerStatus breakerStatusCollectedData = this.collectedDataFactory.createBreakerStatusCollectedData(this.offlineDevice.getDeviceIdentifier());
         try {
             Optional<BreakerStatus> breakerStatus = this.getSmartMeterProtocol().getBreakerStatus();
-            if (breakerStatus.isPresent()) {
-                breakerStatusCollectedData.setBreakerStatus(breakerStatus.get());
-            }
+            breakerStatus.ifPresent(breakerStatusCollectedData::setBreakerStatus);
         } catch (IOException e) {
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
