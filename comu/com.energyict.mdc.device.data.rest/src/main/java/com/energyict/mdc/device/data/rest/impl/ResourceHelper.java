@@ -30,7 +30,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.data.kpi.rest.RegisteredDevicesKpiInfo;
+import com.energyict.mdc.device.data.kpi.rest.impl.RegisteredDevicesKpiInfo;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.upl.TypedProperties;

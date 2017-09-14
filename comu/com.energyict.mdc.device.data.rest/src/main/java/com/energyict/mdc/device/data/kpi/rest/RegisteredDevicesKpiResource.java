@@ -7,7 +7,6 @@ package com.energyict.mdc.device.data.kpi.rest;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.LongIdWithNameInfo;
@@ -18,6 +17,9 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.kpi.rest.impl.RegisteredDeviceKpiGroupInfo;
+import com.energyict.mdc.device.data.kpi.rest.impl.RegisteredDevicesKpiGraphInfo;
+import com.energyict.mdc.device.data.kpi.rest.impl.RegisteredDevicesKpiInfo;
 import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
 import com.energyict.mdc.device.data.rest.impl.ResourceHelper;
 import com.energyict.mdc.device.topology.kpi.Privileges;
@@ -108,9 +110,9 @@ public class RegisteredDevicesKpiResource {
                     .collect(toList());
             return Response.ok(PagedInfoList.fromPagedList("kpis", collection, queryParameters)).build();
         } else {
-            List<IdWithNameInfo> infos = registeredDevicesKpiService.findAllRegisteredDevicesKpis()
+            List<RegisteredDeviceKpiGroupInfo> infos = registeredDevicesKpiService.findAllRegisteredDevicesKpis()
                     .stream()
-                    .map(kpi -> new IdWithNameInfo(kpi.getId(), kpi.getDeviceGroup().getName()))
+                    .map(RegisteredDeviceKpiGroupInfo::new)
                     .collect(toList());
             return Response.ok(infos).build();
         }
