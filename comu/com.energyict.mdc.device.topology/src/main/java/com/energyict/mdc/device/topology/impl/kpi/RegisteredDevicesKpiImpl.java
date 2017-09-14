@@ -82,7 +82,7 @@ public class RegisteredDevicesKpiImpl implements RegisteredDevicesKpi {
     private Reference<Kpi> kpi = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private Reference<EndDeviceGroup> deviceGroup = ValueReference.absent();
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    @NotNull(groups = {Save.Create.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private transient TemporalAmount frequency;
     private Reference<RecurrentTask> kpiTask = ValueReference.absent();
 
@@ -110,12 +110,9 @@ public class RegisteredDevicesKpiImpl implements RegisteredDevicesKpi {
     public void save() {
         if (this.getId() == 0) {
             Save.CREATE.save(this.dataModel, this);
-        }
-        if (!this.kpi.isPresent()) {
             newKpi();
+            this.saveKpiAndTask();
         }
-        // Now save the KPIs and the recurrent task
-        this.saveKpiAndTask();
         Save.UPDATE.save(this.dataModel, this);
     }
 
