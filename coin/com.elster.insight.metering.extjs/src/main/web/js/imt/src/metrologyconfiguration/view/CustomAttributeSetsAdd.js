@@ -9,7 +9,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsAdd', {
     requires: [
         'Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu',
         'Imt.customattributesets.view.SelectionGrid',
-        'Imt.metrologyconfiguration.store.CustomAttributeSets',
+        'Imt.metrologyconfiguration.store.CustomAttributeSetsUnpaged',
         'Uni.view.container.EmptyGridContainer'
     ],
     router: null,
@@ -28,7 +28,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsAdd', {
                 grid: {
                     xtype: 'cas-selection-grid',
                     itemId: 'cas-selection-grid',
-                    store: 'Imt.metrologyconfiguration.store.CustomAttributeSets',
+                    store: 'Imt.metrologyconfiguration.store.CustomAttributeSetsUnpaged',
                     buttonAlign: 'left',
                     listeners: {
                         selectionchange: function (grid) {

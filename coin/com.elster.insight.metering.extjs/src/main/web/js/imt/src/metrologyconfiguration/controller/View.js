@@ -21,6 +21,9 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
         'Imt.metrologyconfiguration.view.CustomAttributeSets',
         'Imt.metrologyconfiguration.view.CustomAttributeSetsAdd'
     ],
+    stores: [
+        'Imt.metrologyconfiguration.store.CustomAttributeSetsUnpaged'
+    ],
     refs: [
         {ref: 'attributesPanel', selector: '#metrology-configuration-attributes-panel'},
         {ref: 'purposePreview', selector: '#metrology-configuration-setup #purpose-preview'},
@@ -142,7 +145,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
-            store = me.getStore('Imt.metrologyconfiguration.store.CustomAttributeSets'),
+            store = me.getStore('Imt.metrologyconfiguration.store.CustomAttributeSetsUnpaged'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
         pageMainContent.setLoading(true);
