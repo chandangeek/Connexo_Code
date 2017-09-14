@@ -69,6 +69,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
@@ -225,7 +226,9 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class, version(10, 3), UpgraderV10_3.class
+                        version(10, 2), UpgraderV10_2.class,
+                        version(10, 3), UpgraderV10_3.class,
+                        version(10,4), V10_4SimpleUpgrader.class
                 ));
     }
 
@@ -680,6 +683,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         SqlBuilder userWhereClause = new SqlBuilder();
         userWhereClause.append("WHERE " + TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_USER_ID + " = ");
         userWhereClause.addLong(user.getId());
+        userWhereClause.append(" AND ");
+        userWhereClause.append(getActiveIssueStatusCondition(Stream.of(IssueStatus.OPEN, IssueStatus.IN_PROGRESS).collect(Collectors.toList())));
         return userWhereClause;
     }
 
@@ -690,7 +695,19 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         workGroupWithoutUserWhereClause.append(TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_WORKGROUP_ID + " IN ( ");
         workGroupWithoutUserWhereClause.append(user.getWorkGroups().isEmpty() ? "NULL" : user.getWorkGroups().stream().map(WorkGroup::getId).map(String::valueOf).collect(Collectors.joining(", ")));
         workGroupWithoutUserWhereClause.append(" ) ");
+        workGroupWithoutUserWhereClause.append(" AND ");
+        workGroupWithoutUserWhereClause.append(getActiveIssueStatusCondition(Stream.of(IssueStatus.OPEN, IssueStatus.IN_PROGRESS).collect(Collectors.toList())));
         return workGroupWithoutUserWhereClause;
+    }
+
+    private String getActiveIssueStatusCondition(List<String> statuses) {
+        StringBuffer activeIssueStatusCondition = new StringBuffer();
+        activeIssueStatusCondition.append(TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_STATUS_ID + " IN (");
+        activeIssueStatusCondition.append(statuses.stream()
+                .map((status) -> "'" + status + "'")
+                .collect(Collectors.joining(", ")));
+        activeIssueStatusCondition.append(" ) ");
+        return activeIssueStatusCondition.toString();
     }
 
     private Map<IssueTypes, Long> count(SqlBuilder sqlBuilder) {

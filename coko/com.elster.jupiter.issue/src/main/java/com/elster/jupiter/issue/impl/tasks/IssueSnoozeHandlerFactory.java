@@ -4,11 +4,6 @@
 
 package com.elster.jupiter.issue.impl.tasks;
 
-import javax.inject.Inject;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
@@ -18,17 +13,21 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.TaskService;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
 import java.time.Clock;
 
-@Component(name="com.elster.jupiter.issue.tasks.IssueOverdueHandlerFactory",
+@Component(name="com.elster.jupiter.issue.tasks.IssueSnoozeHandlerFactory",
         service = MessageHandlerFactory.class,
-        property = {"subscriber=" + IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER,
-                "destination=" + IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DESTINATION},
+        property = {"subscriber=" + IssueSnoozeHandlerFactory.ISSUE_SNOOZE_TASK_SUBSCRIBER,
+                "destination=" + IssueSnoozeHandlerFactory.ISSUE_SNOOZE_TASK_DESTINATION},
         immediate = true)
-public class IssueOverdueHandlerFactory implements MessageHandlerFactory{
-    public static final String ISSUE_OVERDUE_TASK_DESTINATION = "IssueOverdueTopic";
-    public static final String ISSUE_OVERDUE_TASK_SUBSCRIBER = "IssueOverdueSubscriber";
-    public static final String ISSUE_OVERDUE_TASK_DISPLAYNAME = "Handle overdue issues";
+public class IssueSnoozeHandlerFactory implements MessageHandlerFactory{
+    public static final String ISSUE_SNOOZE_TASK_DESTINATION = "IssueSnoozeTopic";
+    public static final String ISSUE_SNOOZE_TASK_SUBSCRIBER = "IssueSnoozeSubscriber";
+    public static final String ISSUE_SNOOZE_TASK_DISPLAYNAME = "Handle snoozed issues";
 
     private volatile IssueService issueService;
     private volatile TaskService taskService;
@@ -36,10 +35,10 @@ public class IssueOverdueHandlerFactory implements MessageHandlerFactory{
     private volatile IssueActionService issueActionService;
     private volatile Clock clock;
 
-    public IssueOverdueHandlerFactory(){}
+    public IssueSnoozeHandlerFactory(){}
 
     @Inject
-    public IssueOverdueHandlerFactory(
+    public IssueSnoozeHandlerFactory(
             TaskService taskService,
             IssueService issueService,
             NlsService nlsService) {
@@ -50,7 +49,7 @@ public class IssueOverdueHandlerFactory implements MessageHandlerFactory{
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new IssueOverdueHandler(issueService, thesaurus, issueActionService, clock));
+        return taskService.createMessageHandler(new IssueSnoozeHandler(issueService, thesaurus, issueActionService, clock));
     }
 
     @Reference

@@ -71,4 +71,10 @@ public interface Issue extends Entity {
 
     void setCreateDateTime(Instant dateTime);
 
+    Optional<Instant> getSnoozeDateTime();
+
+    void snooze(Instant snoozeDateTime);
+
+    void clearSnooze();
+
 }
