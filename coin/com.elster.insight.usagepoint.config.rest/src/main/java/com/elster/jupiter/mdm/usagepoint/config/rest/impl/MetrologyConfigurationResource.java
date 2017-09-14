@@ -343,7 +343,7 @@ public class MetrologyConfigurationResource {
     @Path("/{id}/custompropertysets")
     @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getMetrologyConfigCustomPropertySets(@PathParam("id") long id,
+    public Response getMetrologyConfigCustomPropertySets(@PathParam("id") long id,
                                                               @QueryParam("linked") @DefaultValue("true") boolean linked,
                                                               @BeanParam JsonQueryParameters queryParameters) {
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
@@ -368,12 +368,16 @@ public class MetrologyConfigurationResource {
                     .filter(cps -> !assignedCPSIds.contains(cps.getCustomPropertySet().getId()))
                     .filter(cps -> !serviceCatCPSIds.contains(cps.getCustomPropertySet().getId()));
         }
-        List<?> infos = customPropertySets
+        List<CustomPropertySetInfo> infos = customPropertySets
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .sorted((a, b) -> a.getCustomPropertySet().getName().compareToIgnoreCase(b.getCustomPropertySet().getName()))
                 .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
                 .collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("customPropertySets", infos, queryParameters);
+        if(queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
+            return Response.ok(PagedInfoList.fromCompleteList("customPropertySets", infos, queryParameters)).build();
+        } else {
+            return Response.ok(infos).build();
+        }
     }
 
     @PUT
