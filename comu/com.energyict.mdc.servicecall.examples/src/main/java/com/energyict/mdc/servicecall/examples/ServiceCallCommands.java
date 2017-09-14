@@ -506,7 +506,7 @@ public class ServiceCallCommands {
 
     private void addTargetObject(String object, ServiceCallBuilder serviceCallBuilder) {
         if (!"".equals(object)) {
-            if (object.startsWith("UP")) {
+            if (object.startsWith("SUPE")) {
                 Optional<UsagePoint> usagePoint = meteringService.findUsagePointByName(object);
                 usagePoint.ifPresent(serviceCallBuilder::targetObject);
             }
