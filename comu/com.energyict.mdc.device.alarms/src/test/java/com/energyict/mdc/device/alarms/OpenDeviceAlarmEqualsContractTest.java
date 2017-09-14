@@ -8,6 +8,7 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
 
 import java.time.Clock;
@@ -29,6 +30,8 @@ public class OpenDeviceAlarmEqualsContractTest extends EqualsContractTest {
     IssueService issueService;
     @Mock
     DeviceAlarmService deviceAlarmService;
+    @Mock
+    Thesaurus thesaurus;
 
     OpenIssueImpl baseIssue;
     OpenDeviceAlarmImpl deviceAlarm;
@@ -36,7 +39,7 @@ public class OpenDeviceAlarmEqualsContractTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (deviceAlarm == null) {
-            baseIssue = new OpenIssueImpl(dataModel, issueService, Clock.systemDefaultZone());
+            baseIssue = new OpenIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
             baseIssue.setId(ID);
             deviceAlarm = new OpenDeviceAlarmImpl(dataModel, deviceAlarmService);
             deviceAlarm.setIssue(baseIssue);
@@ -46,7 +49,7 @@ public class OpenDeviceAlarmEqualsContractTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        OpenIssueImpl baseIssue = new OpenIssueImpl(dataModel, issueService, Clock.systemDefaultZone());
+        OpenIssueImpl baseIssue = new OpenIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
         baseIssue.setId(ID);
         OpenDeviceAlarmImpl deviceAlarm = new OpenDeviceAlarmImpl(dataModel, deviceAlarmService);
         deviceAlarm.setIssue(baseIssue);
@@ -55,7 +58,7 @@ public class OpenDeviceAlarmEqualsContractTest extends EqualsContractTest {
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        OpenIssueImpl baseIssue = new OpenIssueImpl(dataModel, issueService, Clock.systemDefaultZone());
+        OpenIssueImpl baseIssue = new OpenIssueImpl(dataModel, issueService, Clock.systemDefaultZone(), thesaurus);
         baseIssue.setId(OTHER_ID);
         OpenDeviceAlarmImpl deviceAlarm = new OpenDeviceAlarmImpl(dataModel, deviceAlarmService);
         deviceAlarm.setIssue(baseIssue);
