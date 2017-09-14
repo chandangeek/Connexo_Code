@@ -13,6 +13,9 @@ Ext.define('Imt.purpose.store.ExportTasks', {
         reader: {
             type: 'json',
             root: 'dataExportTasks'
-        }
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });
