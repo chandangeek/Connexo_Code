@@ -15,6 +15,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -59,9 +61,11 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.device.topology.impl.kpi.RegisteredDevicesKpiServiceImpl;
+import com.energyict.mdc.device.topology.impl.kpi.TranslationKeys;
 import com.energyict.mdc.device.topology.impl.utils.ChannelDataTransferor;
 import com.energyict.mdc.device.topology.impl.utils.MeteringChannelProvider;
 import com.energyict.mdc.device.topology.impl.utils.Utils;
+import com.energyict.mdc.device.topology.kpi.Privileges;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
 
@@ -85,7 +89,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -102,8 +108,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-05 (10:40)
  */
-@Component(name = "com.energyict.mdc.device.topology", service = {TopologyService.class, ServerTopologyService.class, MessageSeedProvider.class}, property = "name=" + TopologyService.COMPONENT_NAME)
-public class TopologyServiceImpl implements ServerTopologyService, MessageSeedProvider {
+@Component(name = "com.energyict.mdc.device.topology", service = {TopologyService.class, ServerTopologyService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + TopologyService.COMPONENT_NAME)
+public class TopologyServiceImpl implements ServerTopologyService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -145,8 +151,22 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Stream.of(
+                Arrays.stream(TranslationKeys.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override

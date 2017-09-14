@@ -49,7 +49,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiService, TranslationKeyProvider {
+public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiService {
 
     private DataModel dataModel;
     private TopologyService topologyService;
@@ -138,25 +138,6 @@ public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiServ
             Period period = (Period) frequency;
             return new TemporalExpression(new TimeDurationFactory.TimeDurationFromPeriodFactory().from(period));
         }
-    }
-
-    @Override
-    public String getComponentName() {
-        return TopologyService.COMPONENT_NAME;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.DOMAIN;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        return Stream.of(
-                Arrays.stream(TranslationKeys.values()),
-                Arrays.stream(Privileges.values()))
-                .flatMap(Function.identity())
-                .collect(Collectors.toList());
     }
 
     private class RegisteredDevicesKpiBuilderImpl implements RegisteredDevicesKpiBuilder {
