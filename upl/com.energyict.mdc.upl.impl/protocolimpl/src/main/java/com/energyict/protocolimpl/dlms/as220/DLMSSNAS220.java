@@ -35,12 +35,14 @@ import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityPolicy;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -53,6 +55,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -686,4 +689,25 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         return this.readPlcLogbook;
     }
 
+    @Override
+    public Optional<String> getActiveCalendarName() throws IOException {
+        ActivityCalendar activityCalendar = this.getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        String calendarName = activityCalendar.readCalendarNameActive().stringValue();
+        if (calendarName != null && !calendarName.isEmpty()) {
+            return Optional.of(calendarName);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<String> getPassiveCalendarName() throws IOException {
+        ActivityCalendar activityCalendar = this.getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        String calendarName = activityCalendar.readCalendarNamePassive().stringValue();
+        if (calendarName != null && !calendarName.isEmpty()) {
+            return Optional.of(calendarName);
+        } else {
+            return Optional.empty();
+        }
+    }
 }

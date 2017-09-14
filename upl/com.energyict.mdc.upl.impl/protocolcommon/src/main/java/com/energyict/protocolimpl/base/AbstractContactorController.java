@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import java.io.IOException;
 
@@ -47,7 +48,7 @@ public abstract class AbstractContactorController implements ContactorController
 		throw new UnsupportedException("com.energyict.protocolimpl.base.AbstractContactorController.doDisconnect() not implemented.");
 	}
 
-	public ContactorState getContactorState() throws IOException {
+	public BreakerStatus getContactorState() throws IOException {
 		throw new UnsupportedException("com.energyict.protocolimpl.base.AbstractContactorController.getContactorState() not implemented.");
 	}
 

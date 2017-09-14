@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
@@ -36,6 +37,7 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.base.DataDumpParser;
 import com.energyict.protocolimpl.base.DataParseException;
 import com.energyict.protocolimpl.base.DataParser;
@@ -69,6 +71,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -1051,6 +1054,12 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     public int getLimitMaxNrOfDays() {
         return limitMaxNrOfDays;
+    }
+
+    @Override
+    public Optional<BreakerStatus> getBreakerStatus() throws IOException {
+    	ContactorController cc = new A1440ContactorController(this);
+    	return Optional.of(cc.getContactorState());
     }
 
 }

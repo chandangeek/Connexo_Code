@@ -1,12 +1,14 @@
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
-import java.io.IOException;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.AbstractContactorController;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
+
+import java.io.IOException;
 
 /**
  * This class is used to change the valve state of an G-Meter connected to the AS220 device
@@ -62,8 +64,8 @@ public class GasValveController extends AbstractContactorController {
 	/**
 	 * {@inheritDoc}
 	 */
-	public ContactorState getContactorState() throws IOException {
-		return ContactorState.values()[getGasDevice().getCosemObjectFactory().getDisconnector(getGasDevice().getMeterConfig().
+	public BreakerStatus getContactorState() throws IOException {
+		return BreakerStatus.values()[getGasDevice().getCosemObjectFactory().getDisconnector(getGasDevice().getMeterConfig().
 				getMbusDisconnectControl(getGasDevice().getPhysicalAddress()).getObisCode()).getControlState().getValue()];
 	}
 

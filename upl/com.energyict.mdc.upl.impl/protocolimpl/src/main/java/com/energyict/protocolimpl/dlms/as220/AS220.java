@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.cosem.DataAccessResultException;
@@ -17,9 +18,11 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.base.ObiscodeMapper;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.base.SubMessageProtocol;
+import com.energyict.protocolimpl.dlms.as220.emeter.AS220ContactorController;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.as220.emeter.EMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
@@ -34,6 +37,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author kvds, jme
@@ -385,4 +389,9 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
         return iInterval;
     }
 
+    @Override
+    public Optional<BreakerStatus> getBreakerStatus() throws IOException {
+    	ContactorController cc = new AS220ContactorController(this);
+    	return Optional.of(cc.getContactorState());
+    }
 }

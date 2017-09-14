@@ -11,6 +11,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -31,12 +32,14 @@ import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeterMessaging;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GasRegister;
+import com.energyict.protocolimpl.dlms.as220.gmeter.GasValveController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
@@ -181,7 +184,7 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
             RegisterValue registerValue = gasRegister.getRegisterValue(oc);
             return ProtocolTools.setRegisterValueObisCode(registerValue, obisCode);
         } else if (obisCode.equals(ObisCode.fromString("0.0.24.4.129.255"))) {
-            ContactorController.ContactorState cs = getgMeter().getGasValveController().getContactorState();
+            BreakerStatus cs = getgMeter().getGasValveController().getContactorState();
             return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, cs.name());
         } else {
             throw new NoSuchRegisterException(obisCode.toString() + " is not supported.");
@@ -261,4 +264,9 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
         return this.messaging;
     }
 
+    @Override
+    public Optional<BreakerStatus> getBreakerStatus() throws IOException {
+    	ContactorController cc = new GasValveController(this);
+    	return Optional.of(cc.getContactorState());
+    }
 }

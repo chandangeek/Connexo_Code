@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.base;
 
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+
 import java.io.IOException;
 
 /**
@@ -7,8 +9,6 @@ import java.io.IOException;
  * @author jme
  */
 public interface ContactorController {
-
-	enum ContactorState{DISCONNECTED, CONNECTED, ARMED, UNKNOWN};
 
 	/**
 	 * This command tries to switch off (disconnect) the contactor in the device.
@@ -34,6 +34,6 @@ public interface ContactorController {
 	 * This command tries to read the state of the contactor in the device.
 	 * @throws IOException
 	 */
-	ContactorState getContactorState() throws IOException;
+	BreakerStatus getContactorState() throws IOException;
 
 }

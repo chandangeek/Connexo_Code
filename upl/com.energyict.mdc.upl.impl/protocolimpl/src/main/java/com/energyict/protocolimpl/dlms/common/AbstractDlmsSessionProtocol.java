@@ -14,6 +14,7 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -30,6 +31,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -198,4 +200,25 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
         return new RegisterInfo(obisCode.toString());
     }
 
+    @Override
+    public Optional<String> getActiveCalendarName() throws IOException {
+        ActivityCalendar activityCalendar = this.getSession().getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        String calendarName = activityCalendar.readCalendarNameActive().stringValue();
+        if (calendarName != null && !calendarName.isEmpty()) {
+            return Optional.of(calendarName);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<String> getPassiveCalendarName() throws IOException {
+        ActivityCalendar activityCalendar = this.getSession().getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        String calendarName = activityCalendar.readCalendarNamePassive().stringValue();
+        if (calendarName != null && !calendarName.isEmpty()) {
+            return Optional.of(calendarName);
+        } else {
+            return Optional.empty();
+        }
+    }
 }
