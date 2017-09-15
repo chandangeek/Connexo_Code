@@ -14,6 +14,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
@@ -31,13 +32,16 @@ import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.google.common.collect.ImmutableList;
+import org.json.JSONObject;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -83,7 +87,7 @@ public class WebServiceNotificationAlarmAction extends AbstractIssueAction {
                     if (alarmWebServiceClient1.call(issue, endPointConfig)) {
                         closeAlarm.ifPresent(close -> {
                             if (close == true) {
-                                ((OpenIssue) issue).close(issueService.findStatus(IssueStatus.WONT_FIX).get());
+                                ((OpenIssue) issue).close(issueService.findStatus(IssueStatus.FORWARDED).get());
                             }
                         });
                     }
@@ -125,12 +129,15 @@ public class WebServiceNotificationAlarmAction extends AbstractIssueAction {
                         .markExhaustive()
                         .finish());
 
-        builder.add(getPropertySpecService()
-                .specForValuesOf(new BooleanFactory())
-                .named(CLOSE, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM)
-                .describedAs(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM)
-                .fromThesaurus(getThesaurus())
-                .finish());
+        Map<String, String> description = new HashMap<>();
+        description.put("tooltip", getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM_DESCRIPTION).format());
+
+        BasicPropertySpec closeItem = new BasicPropertySpec(new BooleanFactory());
+        closeItem.setName(CLOSE);
+        closeItem.setDisplayName(getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM).format());
+        closeItem.setDescription(new JSONObject(description).toString());
+        builder.add(closeItem);
+
         return builder.build();
     }
 
