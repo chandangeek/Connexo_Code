@@ -86,6 +86,7 @@ public class TopologyTimelineImpl implements TopologyTimeline {
         return this.slices
                 .stream()
                 .filter(s -> this.contains(s, device))
+                .sorted((s1, s2) -> s2.getPeriod().lowerEndpoint().compareTo(s1.getPeriod().lowerEndpoint()))
                 .findFirst()
                 .map(s -> s.getPeriod().lowerEndpoint());
     }

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -22,16 +23,21 @@ public class Installer implements FullInstaller {
 
     private final DataModel dataModel;
     private final Logger logger = Logger.getLogger(Installer.class.getName());
+    private final EventService eventService;
 
     @Inject
-    Installer(DataModel dataModel) {
+    Installer(DataModel dataModel, EventService eventService) {
         super();
         this.dataModel = dataModel;
+        this.eventService = eventService;
     }
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
+        for(EventType eventType: EventType.values()) {
+            eventType.createIfNotExists(eventService);
+        }
     }
 
 }

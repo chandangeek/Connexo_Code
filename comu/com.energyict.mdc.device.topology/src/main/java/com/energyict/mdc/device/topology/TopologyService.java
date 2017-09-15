@@ -415,6 +415,14 @@ public interface TopologyService {
 
     List<Pair<Register, Range<Instant>>> getDataLoggerRegisterTimeLine(Register register, Range<Instant> intervalReg);
 
+    /**
+     * Returns the x last physical gateways of a certain device
+     * @param slave the device to find the gateways for
+     * @param numberOfDevices number of gateways that we need
+     * @return a Stream of physical gateway references
+     */
+    Stream<PhysicalGatewayReference> getLastPhysicalGateways(Device slave, int numberOfDevices);
+
     interface G3CommunicationPathSegmentBuilder {
 
         /**
