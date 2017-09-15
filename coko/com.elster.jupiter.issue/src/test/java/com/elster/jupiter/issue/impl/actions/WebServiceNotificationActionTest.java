@@ -65,7 +65,7 @@ public class WebServiceNotificationActionTest extends BaseTest {
         ((IssueServiceImpl) issueService).addIssueWebServiceClient(issueWebServiceClient);
         IssueActionResult actionResult = action.initAndValidate(properties).execute(issue);
 
-        assertThat(issue.getStatus().getKey()).isEqualToIgnoringCase(IssueStatus.WONT_FIX);
+        assertThat(issue.getStatus().getKey()).isEqualToIgnoringCase(IssueStatus.FORWARDED);
         assertThat(issue.getStatus().isHistorical()).isTrue();
         assertThat(actionResult.isSuccess()).isTrue();
     }

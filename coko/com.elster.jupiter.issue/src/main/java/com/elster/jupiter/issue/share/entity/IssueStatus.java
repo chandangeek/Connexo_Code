@@ -14,6 +14,7 @@ public interface IssueStatus extends Entity {
     String WONT_FIX = "status.wont.fix";
     String IN_PROGRESS = "status.in.progress";
     String SNOOZED = "status.snoozed";
+    String FORWARDED = "status.forwarded";
 
     String getKey();
 

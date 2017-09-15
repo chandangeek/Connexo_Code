@@ -22,6 +22,7 @@ public enum TranslationKeys implements TranslationKey {
     ISSUE_STATUS_SNOOZED("issue.status.snoozed", "Snoozed"),
     ISSUE_STATUS_RESOLVED("issue.status.resolved", "Resolved"),
     ISSUE_STATUS_WONT_FIX("issue.status.wont.fix", "Won''t fix"), // intentionally two '
+    ISSUE_STATUS_FORWARDED("issue.status.forwarded", "Forwarded"),
     ISSUE_STATUS_IN_PROGRESS("issue.status.in.progress", "Ongoing"),
     ACTION_ASSIGN_ISSUE("issue.action.assignIssue", "Assign issue"),
     ACTION_COMMENT_ISSUE("issue.action.commentIssue", "Comment issue"),
@@ -38,7 +39,8 @@ public enum TranslationKeys implements TranslationKey {
     ACTION_ISSUE_UNASSIGNED("action.issue.unassigned", "Issue unassigned"),
     ACTION_WEBSERVICE_NOTIFICATION_CALLED("issue.action.webServiceNotificationCalled", "Web service notification called"),
     ACTION_WEBSERVICE_NOTIFICATION("issue.action.webServiceNotification", "Web service notification"),
-    ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE("issue.action.webServiceNotification.closeIssue", "Close issue with status ‘Won’t fix’");
+    ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE("issue.action.webServiceNotification.forwarded", "Close issue with status ‘Forwarded’"),
+    ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE_DESCRIPTION("issue.action.webServiceNotification.closeIssue.description", "Select to remove the issue from operational screens in Connexo (e.g. dashboard, overviews...). It will receive the status 'Forwarded'.");
 
     private final String key;
     private final String defaultFormat;
