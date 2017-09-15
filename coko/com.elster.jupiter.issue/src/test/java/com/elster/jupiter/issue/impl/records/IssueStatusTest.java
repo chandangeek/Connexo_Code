@@ -18,15 +18,15 @@ import com.elster.jupiter.util.conditions.Condition;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssueStatusTest extends BaseTest{
-    private static final int DEFAULT_STATUS_COUNT = 5;
+    private static final int DEFAULT_STATUS_COUNT = 6;
 
     @Test
     public void checkDefaultStatuses(){
