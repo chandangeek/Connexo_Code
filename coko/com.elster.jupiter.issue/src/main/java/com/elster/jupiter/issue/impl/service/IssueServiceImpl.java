@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.impl.IssueFilterImpl;
 import com.elster.jupiter.issue.impl.IssueGroupFilterImpl;
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
@@ -92,6 +93,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -130,6 +132,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private volatile MeteringService meteringService;
     private volatile MessageService messageService;
     private volatile TaskService taskService;
+    private volatile EventService eventService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile NlsService nlsService;
@@ -173,7 +176,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                             TransactionService transactionService,
                             ThreadPrincipalService threadPrincipalService,
                             EndPointConfigurationService endPointConfigurationService,
-                            UpgradeService upgradeService, Clock clock) {
+                            UpgradeService upgradeService, Clock clock, EventService eventService) {
         setOrmService(ormService);
         setQueryService(queryService);
         setUserService(userService);
@@ -189,6 +192,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         setUpgradeService(upgradeService);
         setClock(clock);
         setEndPointConfigurationService(endPointConfigurationService);
+        setEventService(eventService);
         activate();
     }
 
@@ -217,6 +221,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 bind(IssueAssignmentService.class).to(IssueAssignmentServiceImpl.class).in(Scopes.SINGLETON);
                 bind(IssueCreationService.class).to(IssueCreationServiceImpl.class).in(Scopes.SINGLETON);
                 bind(Clock.class).toInstance(clock);
+                bind(EventService.class).toInstance(eventService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
             }
         });
@@ -312,6 +317,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Reference
     public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
         this.endPointConfigurationService = endPointConfigurationService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
