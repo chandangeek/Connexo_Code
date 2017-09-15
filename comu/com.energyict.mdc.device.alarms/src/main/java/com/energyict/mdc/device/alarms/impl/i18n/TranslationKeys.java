@@ -35,7 +35,7 @@ public enum TranslationKeys implements TranslationKey {
     ACTION_WEBSERVICE_NOTIFICATION_CALLED("alarm.action.webServiceNotificationCalled", "Web service notification called"),
     ACTION_WEBSERVICE_NOTIFICATION("alarm.action.webServiceNotification", "Web service notification"),
     ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM("alarm.action.webServiceNotificationAlarm.forwarded", "Close alarm with status ‘Forwarded’"),
-    ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM_DESCRIPTION("alarm.action.webServiceNotification.closeAlarm.description", "Select to remove the alarm from operational screens in Connexo (e.g. dashboard, overviews...). It will receive the status 'Forwarded'.");
+    ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM_DESCRIPTION("alarm.action.webServiceNotification.close.description", "Select to remove the alarm from operational screens in Connexo (e.g. dashboard, overviews, what''s going on). It will receive the status ''Forwarded''.");
 
 
     private final String key;
