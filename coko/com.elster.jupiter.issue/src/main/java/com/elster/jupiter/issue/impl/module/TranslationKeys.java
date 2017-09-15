@@ -40,7 +40,7 @@ public enum TranslationKeys implements TranslationKey {
     ACTION_WEBSERVICE_NOTIFICATION_CALLED("issue.action.webServiceNotificationCalled", "Web service notification called"),
     ACTION_WEBSERVICE_NOTIFICATION("issue.action.webServiceNotification", "Web service notification"),
     ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE("issue.action.webServiceNotification.forwarded", "Close issue with status ‘Forwarded’"),
-    ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE_DESCRIPTION("issue.action.webServiceNotification.closeIssue.description", "Select to remove the issue from operational screens in Connexo (e.g. dashboard, overviews...). It will receive the status 'Forwarded'.");
+    ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE_DESCRIPTION("issue.action.webServiceNotification.close.description", "Select to remove the issue from operational screens in Connexo (e.g. dashboard, overviews, what''s going on). It will receive the status ''Forwarded''.");
 
     private final String key;
     private final String defaultFormat;
