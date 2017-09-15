@@ -99,6 +99,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.TopologyTimeline;
+import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.device.topology.impl.DataLoggerLinkException;
 import com.energyict.mdc.device.topology.impl.DataLoggerReferenceImpl;
 import com.energyict.mdc.engine.config.InboundComPortPool;
@@ -1351,10 +1352,16 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device slave5 = mockDeviceForTopologyTest("slave5", gateway);
         Device slave6 = mockDeviceForTopologyTest("slave6", gateway);
         Device slave7 = mockDeviceForTopologyTest("slave7", gateway);
-        Set<Device> slaves = new HashSet<>(Arrays.asList(slave5, slave2, slave7, slave4, slave1, slave6, slave3));
+        List<Device> slavesList = Arrays.asList(slave5, slave2, slave7, slave4, slave1, slave6, slave3);
+        Set<Device> slavesSet = new HashSet<>(slavesList);
 
         TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
-        when(topologyTimeline.getAllDevices()).thenReturn(slaves);
+        TopologyTimeslice slice = mock(TopologyTimeslice.class);
+        Range<Instant> range = Range.atLeast(NOW.minus(1, ChronoUnit.DAYS));
+        when(topologyTimeline.getSlices()).thenReturn(Collections.singletonList(slice));
+        when(slice.getDevices()).thenReturn(slavesList);
+        when(slice.getPeriod()).thenReturn(range);
+        when(topologyTimeline.getAllDevices()).thenReturn(slavesSet);
         when(topologyTimeline.mostRecentlyAddedOn(slave1)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave3)).thenReturn(Optional.of(Instant.ofEpochMilli(30L)));
@@ -1378,12 +1385,18 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device slave1 = mockDeviceForTopologyTest("SimpleStringName", gateway);
         Device slave2 = mockDeviceForTopologyTest("123456789", gateway);
         when(slave2.getSerialNumber()).thenReturn(null);
-        Set<Device> slaves = new HashSet<>(Arrays.asList(slave1, slave2));
+        List<Device> slavesList = Arrays.asList(slave1, slave2);
+        Set<Device> slaves = new HashSet<>(slavesList);
 
         int limit = 10;
         DeviceTopology deviceTopology = mock(DeviceTopology.class);
 
         TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
+        TopologyTimeslice slice = mock(TopologyTimeslice.class);
+        Range<Instant> range = Range.atLeast(NOW.minus(1, ChronoUnit.DAYS));
+        when(topologyTimeline.getSlices()).thenReturn(Collections.singletonList(slice));
+        when(slice.getDevices()).thenReturn(slavesList);
+        when(slice.getPeriod()).thenReturn(range);
         when(topologyTimeline.getAllDevices()).thenReturn(slaves);
         when(topologyTimeline.mostRecentlyAddedOn(slave1)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
@@ -1445,7 +1458,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device slave1 = mockDeviceForTopologyTest("SimpleStringName", gateway);
         Device slave2 = mockDeviceForTopologyTest("123456789", gateway);
         when(slave2.getSerialNumber()).thenReturn(null);
-        Set<Device> slaves = new HashSet<>(Arrays.asList(slave1, slave2));
+        List<Device> slavesList = Arrays.asList(slave1, slave2);
+        Set<Device> slaves = new HashSet<>(slavesList);
         int limit = 10;
 
         DeviceTopology deviceTopology = mock(DeviceTopology.class);
@@ -1453,7 +1467,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyTimeline.getAllDevices()).thenReturn(slaves);
         when(topologyTimeline.mostRecentlyAddedOn(slave1)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
-
+        TopologyTimeslice slice = mock(TopologyTimeslice.class);
+        Range<Instant> range = Range.atLeast(NOW.minus(1, ChronoUnit.DAYS));
+        when(topologyTimeline.getSlices()).thenReturn(Collections.singletonList(slice));
+        when(slice.getDevices()).thenReturn(slavesList);
+        when(slice.getPeriod()).thenReturn(range);
         when(deviceTopology.timelined()).thenReturn(topologyTimeline);
 
         when(deviceService.findDeviceByName("gateway")).thenReturn(Optional.of(gateway));
@@ -1516,7 +1534,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device slave5 = mockDeviceForTopologyTest("slave5", gateway);
         Device slave6 = mockDeviceForTopologyTest("slave6", gateway);
         Device slave7 = mockDeviceForTopologyTest("slave7", gateway);
-        Set<Device> slaves = new HashSet<>(Arrays.asList(slave3, slave4, slave5, slave6, slave7));
+        List<Device> slavesList = Arrays.asList(slave3, slave4, slave5, slave6, slave7);
+        Set<Device> slaves = new HashSet<>(slavesList);
         DeviceTopology deviceTopology = mock(DeviceTopology.class);
         when(deviceService.findDeviceByName("gateway")).thenReturn(Optional.of(gateway));
         when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
@@ -1532,6 +1551,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyTimeline.mostRecentlyAddedOn(slave7)).thenReturn(Optional.of(Instant.ofEpochMilli(70L)));
         when(deviceTopology.timelined()).thenReturn(topologyTimeline);
         when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+        TopologyTimeslice slice = mock(TopologyTimeslice.class);
+        Range<Instant> range = Range.atLeast(NOW.minus(1, ChronoUnit.DAYS));
+        when(topologyTimeline.getSlices()).thenReturn(Collections.singletonList(slice));
+        when(slice.getDevices()).thenReturn(slavesList);
+        when(slice.getPeriod()).thenReturn(range);
 
         List<DeviceTopologyInfo> infos = DeviceTopologyInfo.from(topologyTimeline, deviceLifeCycleConfigurationService);
 

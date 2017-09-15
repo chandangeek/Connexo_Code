@@ -36,6 +36,7 @@ public class DeviceMessageInfo {
     public VersionInfo<String> parent;
     public IdWithNameInfo deviceConfiguration;
     public IdWithNameInfo deviceType;
+    public boolean trigger;
 
     public DeviceMessageInfo() {
     }
