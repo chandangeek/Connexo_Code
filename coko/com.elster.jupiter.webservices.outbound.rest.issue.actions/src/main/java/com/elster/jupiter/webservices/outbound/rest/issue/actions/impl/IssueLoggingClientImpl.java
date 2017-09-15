@@ -29,12 +29,14 @@ public class IssueLoggingClientImpl implements IssueWebServiceClient {
     public boolean call(Issue issue, EndPointConfiguration endPointConfiguration)
     {
         try {
-
             StringBuilder comment = new StringBuilder();
-            comment.append("Issue generated: ");
+            comment.append(issue.getIssueId() + " generated: ");
             comment.append("for " + issue.getDevice().getName() + " device; ");
             comment.append("issue created on " + issue.getCreateDateTime().toString());
             LOGGER.log(Level.INFO, comment.toString());
+
+            // add comment
+            issue.addComment(String.format("%s has been forwarded to the remote system.", issue.getIssueId()), issue.getAssignee().getUser());
         } catch (RuntimeException e) {
             return false;
         }
