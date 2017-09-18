@@ -4,7 +4,9 @@
 
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
+import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.mdc.upl.ServletBasedInboundDeviceProtocol;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -14,15 +16,16 @@ import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocol.exception.identifier.NotFoundException;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
 import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
 
 import javax.servlet.http.HttpServletRequest;
@@ -128,7 +131,12 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
      * @return the sms object
      */
     private byte[] readParameters(HttpServletRequest request) {
-        setDeviceIdentifier(new CTRPhoneNumberDeviceIdentifier(checkParameter(request.getParameter(SENDER), SENDER)));
+        setDeviceIdentifier(
+                new DeviceIdentifierByConnectionTypeAndProperty(
+                        InboundProximusSmsConnectionType.class,
+                        InboundProximusSmsConnectionType.DEVICE_PHONE_NUMBER_PROPERTY_NAME,
+                        checkParameter(request.getParameter(SENDER), SENDER))
+        );
         String auth = checkParameter(request.getParameter(AUTH), AUTH);
         String source = checkParameter(request.getParameter(SOURCE), SOURCE);
 

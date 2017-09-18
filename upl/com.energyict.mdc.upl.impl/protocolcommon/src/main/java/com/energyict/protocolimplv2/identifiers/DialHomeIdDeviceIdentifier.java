@@ -23,9 +23,9 @@ public class DialHomeIdDeviceIdentifier implements FindMultipleDevices {
     private final String callHomeID;
 
     /**
-     * Constructor only to be used by JSON (de)marshalling
+     * Constructor only to be used by JSON (de)marshalling or in unit tests
      */
-    private DialHomeIdDeviceIdentifier() {
+    public DialHomeIdDeviceIdentifier() {
         callHomeID = "";
     }
 

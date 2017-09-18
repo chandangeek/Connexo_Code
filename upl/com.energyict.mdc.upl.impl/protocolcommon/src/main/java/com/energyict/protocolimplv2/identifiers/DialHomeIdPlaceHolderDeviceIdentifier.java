@@ -22,9 +22,9 @@ public class DialHomeIdPlaceHolderDeviceIdentifier implements FindMultipleDevice
     private final CallHomeIdPlaceHolder callHomeIdPlaceHolder;
 
     /**
-     * Constructor only to be used by JSON (de)marshalling
+     * Constructor only to be used by JSON (de)marshalling or in unit tests
      */
-    private DialHomeIdPlaceHolderDeviceIdentifier() {
+    public DialHomeIdPlaceHolderDeviceIdentifier() {
         callHomeIdPlaceHolder = new CallHomeIdPlaceHolder();
     }
 

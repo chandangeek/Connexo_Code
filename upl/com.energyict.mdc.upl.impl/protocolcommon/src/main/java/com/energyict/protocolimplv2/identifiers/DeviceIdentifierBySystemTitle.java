@@ -27,9 +27,9 @@ public class DeviceIdentifierBySystemTitle implements FindMultipleDevices {
     private final String systemTitle;
 
     /**
-     * Constructor only to be used by JSON (de)marshalling
+     * Constructor only to be used by JSON (de)marshalling or in unit tests
      */
-    private DeviceIdentifierBySystemTitle() {
+    public DeviceIdentifierBySystemTitle() {
         systemTitle = "";
     }
 
@@ -56,7 +56,7 @@ public class DeviceIdentifierBySystemTitle implements FindMultipleDevices {
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
         @Override
         public String getTypeName() {
-            return "systemTitle";
+            return "SystemTitle";
         }
 
         @Override

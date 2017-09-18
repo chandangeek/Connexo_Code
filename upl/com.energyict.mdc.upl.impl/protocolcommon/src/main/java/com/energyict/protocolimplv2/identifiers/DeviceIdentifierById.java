@@ -22,9 +22,9 @@ public class DeviceIdentifierById implements DeviceIdentifier {
     private int id;
 
     /**
-     * Constructor only to be used by JSON (de)marshalling
+     * Constructor only to be used by JSON (de)marshalling or in unit tests
      */
-    private DeviceIdentifierById() {
+    public DeviceIdentifierById() {
     }
 
     public DeviceIdentifierById(int id) {
@@ -74,7 +74,7 @@ public class DeviceIdentifierById implements DeviceIdentifier {
 
         @Override
         public Set<String> getRoles() {
-            return new HashSet<>(Collections.singletonList("databaseVakye"));
+            return new HashSet<>(Collections.singletonList("databaseValue"));
         }
 
         @Override

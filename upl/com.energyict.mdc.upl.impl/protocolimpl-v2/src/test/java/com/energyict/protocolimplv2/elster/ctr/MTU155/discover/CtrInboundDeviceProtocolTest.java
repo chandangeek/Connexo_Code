@@ -3,16 +3,19 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 import com.energyict.mdc.upl.InboundDeviceProtocol;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.GPRSFrame;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
+import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -49,7 +52,7 @@ public class CtrInboundDeviceProtocolTest {
         DeviceIdentifier deviceIdentifier = inboundDeviceProtocol.getDeviceIdentifier();
 
         assertEquals(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER, discoverResultType);
-        assertTrue(deviceIdentifier instanceof CTRDialHomeIdDeviceIdentifier);
-        assertEquals("device with call home id 66554433221100", deviceIdentifier.toString());
+        assertTrue(deviceIdentifier instanceof DeviceIdentifierByConnectionTypeAndProperty);
+        assertEquals("device having connection type 'CTRInboundDialHomeIdConnectionType', property 'callHomeId' and value '66554433221100'", deviceIdentifier.toString());
     }
 }

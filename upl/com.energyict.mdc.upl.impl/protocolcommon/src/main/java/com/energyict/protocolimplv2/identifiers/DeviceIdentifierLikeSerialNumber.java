@@ -26,9 +26,9 @@ public class DeviceIdentifierLikeSerialNumber implements FindMultipleDevices {
     private String serialNumber;
 
     /**
-     * Constructor only to be used by JSON (de)marshalling
+     * Constructor only to be used by JSON (de)marshalling or in unit tests
      */
-    private DeviceIdentifierLikeSerialNumber() {
+    public DeviceIdentifierLikeSerialNumber() {
     }
 
     public DeviceIdentifierLikeSerialNumber(String serialNumber) {

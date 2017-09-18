@@ -1,10 +1,12 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
+import com.energyict.mdc.channels.ip.CTRInboundDialHomeIdConnectionType;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -14,6 +16,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +79,7 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
     }
 
     protected void setCallHomeID(String callHomeID) {
-        this.deviceIdentifier = new CTRDialHomeIdDeviceIdentifier(callHomeID);
+        this.deviceIdentifier = new DeviceIdentifierByConnectionTypeAndProperty(CTRInboundDialHomeIdConnectionType.class, LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, callHomeID);
     }
 
     private RequestFactory getRequestFactory() {
