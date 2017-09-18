@@ -8,7 +8,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceBySerialNumber;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
@@ -101,7 +101,7 @@ public class OfflineLogBookImplTest {
         LogBookSpec logBookSpec = getMockedLogBookSpec(logBookType);
         Device device = getMockedDevice();
         LogBook logBook = getMockedLogBook(logBookType, logBookSpec, device);
-        DeviceIdentifierForAlreadyKnownDeviceBySerialNumber deviceIdentifierForAlreadyKnownDevice = new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(device);
+        DeviceIdentifierForAlreadyKnownDevice deviceIdentifierForAlreadyKnownDevice = new DeviceIdentifierForAlreadyKnownDevice(device);
         when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(Device.class))).thenReturn(deviceIdentifierForAlreadyKnownDevice);
 
         //Business Methods

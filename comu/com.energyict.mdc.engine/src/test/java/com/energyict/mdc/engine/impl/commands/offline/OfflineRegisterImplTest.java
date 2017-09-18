@@ -9,7 +9,7 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceBySerialNumber;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -146,7 +146,7 @@ public class OfflineRegisterImplTest {
         Device device = getMockedDevice();
         Register register = getMockedRegister(device);
 
-        DeviceIdentifierForAlreadyKnownDeviceBySerialNumber deviceIdentifierForAlreadyKnownDevice = new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(device);
+        DeviceIdentifierForAlreadyKnownDevice deviceIdentifierForAlreadyKnownDevice = new DeviceIdentifierForAlreadyKnownDevice(device);
         when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(Device.class))).thenReturn(deviceIdentifierForAlreadyKnownDevice);
 
         OfflineRegisterImpl offlineRegister = new OfflineRegisterImpl(register, identificationService);
