@@ -29,7 +29,7 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(deviceMessage.getDevice());
+        return new DeviceIdentifierForAlreadyKnownDevice(deviceMessage.getDevice());
     }
 
     @Override

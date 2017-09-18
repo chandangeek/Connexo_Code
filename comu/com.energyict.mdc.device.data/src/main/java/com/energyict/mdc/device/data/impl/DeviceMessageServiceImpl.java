@@ -19,7 +19,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
-import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
@@ -27,6 +26,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
@@ -46,7 +46,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
 import static java.util.stream.Collectors.toList;
 
-class DeviceMessageServiceImpl implements DeviceMessageService {
+class DeviceMessageServiceImpl implements ServerDeviceMessageService {
 
     private final DeviceDataModelService deviceDataModelService;
     private final ThreadPrincipalService threadPrincipalService;
@@ -60,6 +60,12 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
         this.threadPrincipalService = threadPrincipalService;
         this.meteringGroupsService = meteringGroupsService;
         this.clock = clock;
+        Services.deviceMessageFinder(this);
+    }
+
+    @Override
+    public Optional<com.energyict.mdc.upl.messages.DeviceMessage> find(MessageIdentifier identifier) {
+        return this.findDeviceMessageByIdentifier(identifier).map(com.energyict.mdc.upl.messages.DeviceMessage.class::cast);
     }
 
     @Override
@@ -134,6 +140,7 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
         if (threadPrincipalService.getPrincipal() instanceof User) {
             User currentUser = (User) threadPrincipalService.getPrincipal();
             if (currentUser != null) {
+
                 Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = deviceConfiguration.getDeviceMessageEnablements()
                         .stream()
                         .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId))
@@ -184,27 +191,27 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
     private List<Condition> getReleaseDateConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {
         List<Condition> releaseDateConditions = new ArrayList<>();
         deviceMessageQueryFilter.getReleaseDateStart().ifPresent(date ->
-            releaseDateConditions.add(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isGreaterThanOrEqual(date)));
+                releaseDateConditions.add(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isGreaterThanOrEqual(date)));
         deviceMessageQueryFilter.getReleaseDateEnd().ifPresent(date ->
-            releaseDateConditions.add(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isLessThanOrEqual(date)));
+                releaseDateConditions.add(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isLessThanOrEqual(date)));
         return releaseDateConditions;
     }
 
     private List<Condition> getSentDateConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {
         List<Condition> sentDateConditions = new ArrayList<>();
         deviceMessageQueryFilter.getSentDateStart().ifPresent(date ->
-            sentDateConditions.add(Where.where(DeviceMessageImpl.Fields.SENTDATE.fieldName()).isGreaterThanOrEqual(date)));
+                sentDateConditions.add(Where.where(DeviceMessageImpl.Fields.SENTDATE.fieldName()).isGreaterThanOrEqual(date)));
         deviceMessageQueryFilter.getSentDateEnd().ifPresent(date ->
-            sentDateConditions.add(Where.where(DeviceMessageImpl.Fields.SENTDATE.fieldName()).isLessThanOrEqual(date)));
+                sentDateConditions.add(Where.where(DeviceMessageImpl.Fields.SENTDATE.fieldName()).isLessThanOrEqual(date)));
         return sentDateConditions;
     }
 
     private List<Condition> getCreationDateConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {
         List<Condition> creationDateConditions = new ArrayList<>();
         deviceMessageQueryFilter.getCreationDateStart().ifPresent(date ->
-            creationDateConditions.add(Where.where(DeviceMessageImpl.Fields.CREATIONDATE.fieldName()).isGreaterThanOrEqual(date)));
+                creationDateConditions.add(Where.where(DeviceMessageImpl.Fields.CREATIONDATE.fieldName()).isGreaterThanOrEqual(date)));
         deviceMessageQueryFilter.getCreationDateEnd().ifPresent(date ->
-            creationDateConditions.add(Where.where(DeviceMessageImpl.Fields.CREATIONDATE.fieldName()).isLessThanOrEqual(date)));
+                creationDateConditions.add(Where.where(DeviceMessageImpl.Fields.CREATIONDATE.fieldName()).isLessThanOrEqual(date)));
         return creationDateConditions;
     }
 
@@ -218,7 +225,7 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
         if (deviceMessageStatuses.contains(DeviceMessageStatus.WAITING)) {
             messageStatusConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).isEqualTo(DeviceMessageStatus.WAITING)
                     .and(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isNull()
-                    .or(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isGreaterThanOrEqual(this.clock.instant()))));
+                            .or(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isGreaterThanOrEqual(this.clock.instant()))));
         }
         ArrayList<DeviceMessageStatus> reducedDeviceMessageStatuses = new ArrayList<>(deviceMessageStatuses);
         reducedDeviceMessageStatuses.remove(DeviceMessageStatus.WAITING);

@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
 /**
  * Adds behavior to {@link LogBookService} that is specific
@@ -13,5 +14,5 @@ import com.energyict.mdc.device.data.LogBookService;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-03 (11:05)
  */
-public interface ServerLogBookService extends LogBookService {
+public interface ServerLogBookService extends LogBookService, LogBookIdentifier.Finder {
 }

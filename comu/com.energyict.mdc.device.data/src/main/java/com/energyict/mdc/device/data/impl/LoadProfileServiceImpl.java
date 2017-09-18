@@ -8,6 +8,7 @@ import com.elster.jupiter.util.streams.Currying;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
@@ -32,6 +33,7 @@ public class LoadProfileServiceImpl implements ServerLoadProfileService {
 
     // For OSGi purpose
     public LoadProfileServiceImpl() {
+        Services.loadProfileFinder(this);
     }
 
     // For testing purposes
@@ -54,6 +56,11 @@ public class LoadProfileServiceImpl implements ServerLoadProfileService {
     @Override
     public Optional<LoadProfile> findAndLockLoadProfileByIdAndVersion(long id, long version) {
         return this.deviceDataModelService.dataModel().mapper(LoadProfile.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Optional<com.energyict.mdc.upl.meterdata.LoadProfile> find(LoadProfileIdentifier identifier) {
+        return this.findByIdentifier(identifier).map(com.energyict.mdc.upl.meterdata.LoadProfile.class::cast);
     }
 
     @Override

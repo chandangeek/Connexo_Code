@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.RegisterService;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
@@ -20,16 +21,22 @@ import static com.elster.jupiter.util.streams.Currying.use;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-23 (12:46)
  */
-public class RegisterServiceImpl implements RegisterService {
+public class RegisterServiceImpl implements ServerRegisterService {
     private final DeviceDataModelService deviceDataModelService;
 
     @Inject
     public RegisterServiceImpl(DeviceDataModelService deviceDataModelService) {
         this.deviceDataModelService = deviceDataModelService;
+        Services.registerFinder(this);
     }
 
     @Override
-    public Optional<Register> find(RegisterIdentifier identifier) {
+    public Optional<com.energyict.mdc.upl.meterdata.Register> find(RegisterIdentifier identifier) {
+        return this.findByIdentifier(identifier).map(com.energyict.mdc.upl.meterdata.Register.class::cast);
+    }
+
+    @Override
+    public Optional<Register> findByIdentifier(RegisterIdentifier identifier) {
         try {
             Optional<Device> device = deviceDataModelService.deviceService().findDeviceByIdentifier(identifier.getDeviceIdentifier());
             return device.flatMap(device1 -> this.find(identifier.forIntrospection(), device1));

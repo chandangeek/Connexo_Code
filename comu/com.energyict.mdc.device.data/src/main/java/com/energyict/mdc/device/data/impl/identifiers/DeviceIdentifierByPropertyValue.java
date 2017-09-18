@@ -15,7 +15,7 @@ import java.util.Set;
 
 /**
  * Provides an implementation for the DeviceIdentifier interface,
- * The device can be found based on the given propertyname and propertyvalue.
+ * The device can be found based on the given property name and property value.
  * Note that multiple devices can be found with the provided combinations
  */
 @XmlRootElement
@@ -25,15 +25,15 @@ public class DeviceIdentifierByPropertyValue implements DeviceIdentifier, FindMu
     private String propertyValue;
 
     /**
-     * Constructor only to be used by JSON (de)marshalling
+     * Constructor only to be used by JSON (de)marshalling or in unit tests
      */
     public DeviceIdentifierByPropertyValue() {
     }
 
-    public DeviceIdentifierByPropertyValue(String propertyName, String callHomeId) {
+    public DeviceIdentifierByPropertyValue(String propertyName, String propertyValue) {
         this();
         this.propertyName = propertyName;
-        this.propertyValue = callHomeId;
+        this.propertyValue = propertyValue;
     }
 
     @Override

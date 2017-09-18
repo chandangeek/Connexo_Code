@@ -3,8 +3,10 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import com.energyict.obis.ObisCode;
 
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -26,12 +28,20 @@ public class RegisterIdentifierByAlreadyKnownRegister implements RegisterIdentif
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(register.getDevice());
+        return new DeviceIdentifierForAlreadyKnownDevice(register.getDevice());
     }
 
     @Override
     public ObisCode getRegisterObisCode() {
         return register.getDeviceObisCode();
+    }
+
+    @Override
+    public String toString() {
+        return MessageFormat.format(
+                "register with OBIS code ''{0}'' on device with name ''{1}''",
+                register.getDeviceObisCode(),
+                register.getDevice().getName());
     }
 
     @Override

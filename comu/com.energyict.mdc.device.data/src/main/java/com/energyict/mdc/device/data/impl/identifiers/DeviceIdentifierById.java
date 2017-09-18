@@ -24,7 +24,7 @@ public final class DeviceIdentifierById implements DeviceIdentifier {
     private long id;
 
     /**
-     * Constructor only to be used by JSON (de)marshalling
+     * Constructor only to be used by JSON (de)marshalling or in unit tests
      */
     public DeviceIdentifierById() {
     }

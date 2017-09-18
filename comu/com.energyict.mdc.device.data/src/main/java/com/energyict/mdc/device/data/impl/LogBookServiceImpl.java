@@ -7,9 +7,11 @@ package com.energyict.mdc.device.data.impl;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+
 import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
@@ -32,6 +34,7 @@ public class LogBookServiceImpl implements ServerLogBookService {
     public LogBookServiceImpl(DeviceDataModelService deviceDataModelService) {
         super();
         this.deviceDataModelService = deviceDataModelService;
+        Services.logBookFinder(this);
     }
 
     @Override
@@ -42,6 +45,11 @@ public class LogBookServiceImpl implements ServerLogBookService {
     @Override
     public List<LogBook> findLogBooksByDevice(Device device) {
         return this.deviceDataModelService.dataModel().mapper(LogBook.class).find("device", device);
+    }
+
+    @Override
+    public Optional<com.energyict.mdc.upl.meterdata.LogBook> find(LogBookIdentifier identifier) {
+        return this.findByIdentifier(identifier).map(com.energyict.mdc.upl.meterdata.LogBook.class::cast);
     }
 
     @Override

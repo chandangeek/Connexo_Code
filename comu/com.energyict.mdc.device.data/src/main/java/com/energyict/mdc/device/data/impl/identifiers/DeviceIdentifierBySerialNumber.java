@@ -30,7 +30,7 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
     private String serialNumber;
 
     /**
-     * Constructor only to be used by JSON (de)marshalling
+     * Constructor only to be used by JSON (de)marshalling or in unit tests
      */
     public DeviceIdentifierBySerialNumber() {
     }
