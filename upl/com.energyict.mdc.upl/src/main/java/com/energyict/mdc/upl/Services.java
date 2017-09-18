@@ -16,6 +16,10 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -48,12 +52,16 @@ public class Services {
     private static AtomicReference<DeviceMessageFileExtractor> DEVICE_MESSAGE_FILE_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<TariffCalendarExtractor> TARIFF_CALENDAR_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<TariffCalendarFinder> TARIFF_CALENDAR_FINDER = new AtomicReference<>();
-    private static AtomicReference<DeviceMessageFileFinder> DEVICE_MESSAGE_FINDER = new AtomicReference<>();
+    private static AtomicReference<DeviceMessageFileFinder> DEVICE_MESSAGE_FILE_FINDER = new AtomicReference<>();
     private static AtomicReference<CollectedDataFactory> COLLECTED_DATA_FACTORY = new AtomicReference<>();
     private static AtomicReference<IssueFactory> ISSUE_FACTORY = new AtomicReference<>();
     private static AtomicReference<Formatter> FORMATTER = new AtomicReference<>();
     private static AtomicReference<CertificateWrapperExtractor> CERTIFICATE_WRAPPER_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<DeviceIdentifier.Finder> DEVICE_FINDER = new AtomicReference<>();
+    private static AtomicReference<LoadProfileIdentifier.Finder> LOADPROFILE_FINDER = new AtomicReference<>();
+    private static AtomicReference<LogBookIdentifier.Finder> LOGBOOK_FINDER = new AtomicReference<>();
+    private static AtomicReference<RegisterIdentifier.Finder> REGISTER_FINDER = new AtomicReference<>();
+    private static AtomicReference<MessageIdentifier.Finder> DEVICE_MESSAGE_FINDER = new AtomicReference<>();
     private static AtomicReference<KeyAccessorTypeExtractor> KEY_ACCESSOR_TYPE_EXTRACTOR = new AtomicReference<>();
 
     public static Object serviceOfType(Class serviceType) {
@@ -243,11 +251,11 @@ public class Services {
     }
 
     public static DeviceMessageFileFinder deviceMessageFileFinder() {
-        return DEVICE_MESSAGE_FINDER.get();
+        return DEVICE_MESSAGE_FILE_FINDER.get();
     }
 
     public static void deviceMessageFileFinder(DeviceMessageFileFinder finder) {
-        DEVICE_MESSAGE_FINDER.set(finder);
+        DEVICE_MESSAGE_FILE_FINDER.set(finder);
     }
 
     public static CollectedDataFactory collectedDataFactory() {
@@ -280,6 +288,38 @@ public class Services {
 
     public static void deviceFinder(DeviceIdentifier.Finder deviceFinder) {
         DEVICE_FINDER.set(deviceFinder);
+    }
+
+    public static LoadProfileIdentifier.Finder loadProfileFinder() {
+        return LOADPROFILE_FINDER.get();
+    }
+
+    public static void loadProfileFinder(LoadProfileIdentifier.Finder loadProfileFinder) {
+        LOADPROFILE_FINDER.set(loadProfileFinder);
+    }
+
+    public static LogBookIdentifier.Finder logBookFinder() {
+        return LOGBOOK_FINDER.get();
+    }
+
+    public static void logBookFinder(LogBookIdentifier.Finder logbookFinder) {
+        LOGBOOK_FINDER.set(logbookFinder);
+    }
+
+    public static RegisterIdentifier.Finder registerFinder() {
+        return REGISTER_FINDER.get();
+    }
+
+    public static void registerFinder(RegisterIdentifier.Finder registerFinder) {
+        REGISTER_FINDER.set(registerFinder);
+    }
+
+    public static MessageIdentifier.Finder deviceMessageFinder() {
+        return DEVICE_MESSAGE_FINDER.get();
+    }
+
+    public static void deviceMessageFinder(MessageIdentifier.Finder deviceMessageFinder) {
+        DEVICE_MESSAGE_FINDER.set(deviceMessageFinder);
     }
 
     public static KeyAccessorTypeExtractor keyAccessorTypeExtractor() {

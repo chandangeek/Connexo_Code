@@ -1,8 +1,10 @@
 package com.energyict.mdc.upl.meterdata.identifiers;
 
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 
-import java.util.Arrays;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Provides functionality to uniquely identify a {@link DeviceMessage}.
@@ -14,13 +16,17 @@ import java.util.Arrays;
  * <tr><td>Actual</td><td>databaseValue -&gt; the message's database identifier<br>actual -&gt; the device message<br>device -&gt; the {@link DeviceIdentifier device's identifier}</td></tr>
  * </table>
  * <p>
- *
+ * <p>
  * Date: 22/03/13
  * Time: 8:59
  */
 public interface MessageIdentifier extends Identifier {
 
     DeviceIdentifier getDeviceIdentifier();
+
+    interface Finder {
+        Optional<DeviceMessage> find(MessageIdentifier identifier);
+    }
 
     /**
      * Start of fluent API to check if the specified MessageIdentifier
@@ -46,43 +52,30 @@ public interface MessageIdentifier extends Identifier {
         }
 
         public boolean equalTo(MessageIdentifier other) {
-            Introspector subjectIntrospector = this.subject.forIntrospection();
-            Introspector otherIntrospector = other.forIntrospection();
-            switch (otherIntrospector.getTypeName()) {
-                case "DatabaseId": // Intentional fall-through
-                case "Actual": {
-                    if ("DeviceIdentifierAndProtocolInfoParts".equals(subjectIntrospector.getTypeName())) {
-                        // Best option is to compare the device identifier
-                        DeviceIdentifier subjectDeviceIdentifier = this.subject.getDeviceIdentifier();
-                        DeviceIdentifier otherDeviceIdentifier = other.getDeviceIdentifier();
-                        return DeviceIdentifier.is(subjectDeviceIdentifier).equalTo(otherDeviceIdentifier);
-                    } else {
-                        Number otherDatabaseValue = (Number) otherIntrospector.getValue("databaseValue");
-                        Number subjectDatabaseValue = (Number) subjectIntrospector.getValue("databaseValue");
-                        return subjectDatabaseValue.equals(otherDatabaseValue);
-                    }
-                }
-                case "DeviceIdentifierAndProtocolInfoParts": {
-                    if ("DeviceIdentifierAndProtocolInfoParts".equals(subjectIntrospector.getTypeName())) {
-                        DeviceIdentifier subjectDeviceIdentifier = this.subject.getDeviceIdentifier();
-                        String[] subjectProtocolInfo = (String[]) subjectIntrospector.getValue("protocolInfo");
-                        DeviceIdentifier otherDeviceIdentifier = other.getDeviceIdentifier();
-                        String[] otherProtocolInfo = (String[]) otherIntrospector.getValue("protocolInfo");
-                        return DeviceIdentifier.is(subjectDeviceIdentifier).equalTo(otherDeviceIdentifier)
-                            && Arrays.equals(subjectProtocolInfo, otherProtocolInfo);
-                    } else {
-                        // Best option is to compare the device identifier
-                        DeviceIdentifier subjectDeviceIdentifier = this.subject.getDeviceIdentifier();
-                        DeviceIdentifier otherDeviceIdentifier = other.getDeviceIdentifier();
-                        return DeviceIdentifier.is(subjectDeviceIdentifier).equalTo(otherDeviceIdentifier);
-                    }
-                }
-                default: {
-                    return this.subject.equals(other);
-                }
+            if (this.subject.forIntrospection().getTypeName().equals(other.forIntrospection().getTypeName())) {
+                return sameMessage(this.subject, other, this.subject.forIntrospection().getRoles());
+            } else {
+                return sameMessage(this.subject, other);
             }
         }
 
-    }
+        private boolean sameMessage(MessageIdentifier id1, MessageIdentifier id2, Set<String> roles) {
+            if (id1.forIntrospection().getTypeName().equals(id2.forIntrospection().getTypeName())) {
+                return id1.forIntrospection().roleEqualsTo(id2.forIntrospection(), roles);
+            } else {
+                return sameMessage(id1, id2);
+            }
+        }
 
+        private boolean sameMessage(MessageIdentifier id1, MessageIdentifier id2) {
+            if (Services.deviceMessageFinder() != null) {
+                Optional<DeviceMessage> m1 = Services.deviceMessageFinder().find(id1);
+                Optional<DeviceMessage> m2 = Services.deviceMessageFinder().find(id2);
+                return m1.isPresent() && m2.isPresent() && m1.get().equals(m2.get());
+            } else {
+                // Avoid NullPointerException in beacon context
+                return false;
+            }
+        }
+    }
 }

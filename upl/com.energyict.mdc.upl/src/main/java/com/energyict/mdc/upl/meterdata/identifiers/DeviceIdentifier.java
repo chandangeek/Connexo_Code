@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.Device;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Identifies a device that started inbound communication.
@@ -17,10 +18,22 @@ import java.util.Optional;
  * <tr><td>LikeSerialNumber</td><td>serialNumberGrepPattern -&gt; the grep pattern to match the device's serial number</td></tr>
  * <tr><td>DatabaseId</td><td>databaseValue -&gt; the device's database identifier</td></tr>
  * <tr><td>CallHomeId</td><td>callHomeId -&gt; the device's callHomeId property</td></tr>
- * <tr><td>PhoneNumber</td><td>phoneNumber -&gt; the device's phoneNumber property value<br>connectionTypeClass -&gt; the connection type class that defines the phoneNumber property<br>propertyName -&gt; the name of the connection type's property that holds the phone number value</td></tr>
+ * <tr><td>SystemTitle</td><td>systemTitle -&gt; the device's systemTitle property</td></tr>
+ * <tr><td>PropertyBased</td><td>propertyName -&gt; the name of the general property<br>
+ * propertyValue -&gt; the value of the general protocol property</td></tr>
+ * <tr><td>ConnectionTypePropertyBased</td><td>connectionTypeClass -&gt; the connection type class that defines the property<br>
+ * propertyName -&gt; the name of the connection type's property<br>
+ * propertyValue -&gt; the value of the connection type's property</td></tr>
  * <tr><td>mRID</td><td>databaseValue -&gt; the device's mRID property</td></tr>
- * <tr><td>Actual</td><td>databaseValue -&gt; the device's database identifier<br>actual -&gt; the device</td></tr>
+ * <tr><td>Actual</td><td>databaseValue -&gt; the device's database identifier<br>
+ * actual -&gt; the device</td></tr>
  * </table>
+ * <p>
+ * <b>Remark:</b> when introducing a new type of DeviceIdentifier, please don't forget to
+ * <ul>
+ * <li>extend method {@link DeviceIdentityChecker#equalTo(DeviceIdentifier)} accordingly</li>
+ * <li>add a new test case to com.energyict.mdc.device.data.impl.DeviceIdentifierResolvingTest</li>
+ * </ul>
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-12 (10:56)
@@ -56,8 +69,8 @@ public interface DeviceIdentifier extends Identifier {
 
         /**
          * Checks if this DeviceIdentifier represents the same {@link Device}
-         * as the other DeviceIdentifier.
-         * <strong>Note:</strong> be very carefull when using this directly in
+         * as the other DeviceIdentifier.<br>
+         * <b>Note:</b> be very careful when using this directly in
          * protocol code that is likely to be run on embedded devices
          * such as the beacon because the Services class may not
          * have been initialized in that environment.
@@ -66,33 +79,14 @@ public interface DeviceIdentifier extends Identifier {
          * @return <code>true</code> iff this DeviceIdentifier represents the same Device as the other DeviceIdentifier
          */
         public boolean equalTo(DeviceIdentifier other) {
-            switch (other.forIntrospection().getTypeName()) {
-                case "DataBaseId": // Intentional fall-through
-                case "mRID": {
-                    return sameDevice(this.subject, other, "databaseValue");
-                }
-                case "Actual": {
-                    return sameDevice(this.subject, other, "actual");
-                }
-                case "CallHomeId": {
-                    return sameDevice(this.subject, other, "callHomeId");
-                }
-                case "PhoneNumber": {
-                    return sameDevice(this.subject, other, "phoneNumber");
-                }
-                case "SerialNumber": {
-                    return sameDevice(this.subject, other, "serialNumber");
-                }
-                case "LikeSerialNumber": {
-                    return sameDevice(this.subject, other, "serialNumberGrepPattern");
-                }
-                default: {
-                    return this.subject.equals(other);
-                }
+            if (this.subject.forIntrospection().getTypeName().equals(other.forIntrospection().getTypeName())) {
+                return sameDevice(this.subject, other, this.subject.forIntrospection().getRoles());
+            } else {
+                return sameDevice(this.subject, other);
             }
         }
 
-        private boolean sameDevice(DeviceIdentifier id1, DeviceIdentifier id2, String... roles) {
+        private boolean sameDevice(DeviceIdentifier id1, DeviceIdentifier id2, Set<String> roles) {
             if (id1.forIntrospection().getTypeName().equals(id2.forIntrospection().getTypeName())) {
                 return id1.forIntrospection().roleEqualsTo(id2.forIntrospection(), roles);
             } else {
@@ -104,17 +98,11 @@ public interface DeviceIdentifier extends Identifier {
             if (Services.deviceFinder() != null) {
                 Optional<Device> device1 = Services.deviceFinder().find(id1);
                 Optional<Device> device2 = Services.deviceFinder().find(id2);
-                if (device1.isPresent() && device2.isPresent()) {
-                    return device1.get().equals(device2.get());
-                } else {
-                    return false;
-                }
+                return device1.isPresent() && device2.isPresent() && device1.get().equals(device2.get());
             } else {
                 // Avoid NullPointerException in beacon context
                 return false;
             }
         }
-
     }
-
 }

@@ -1,8 +1,12 @@
 package com.energyict.mdc.upl.meterdata.identifiers;
 
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 
 import com.energyict.obis.ObisCode;
+
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Provides functionality to identify a specific LoadProfile of a Device.
@@ -18,7 +22,7 @@ import com.energyict.obis.ObisCode;
  * <tr><td>Actual</td><td>databaseValue -&gt; the load profile's database identifier<br>actual -&gt; the load profile</td></tr>
  * </table>
  * <p/>
- *
+ * <p>
  * Date: 15/10/12
  * Time: 14:01
  */
@@ -27,6 +31,10 @@ public interface LoadProfileIdentifier extends Identifier {
     ObisCode getProfileObisCode();
 
     DeviceIdentifier getDeviceIdentifier();
+
+    interface Finder {
+        Optional<LoadProfile> find(LoadProfileIdentifier identifier);
+    }
 
     /**
      * Start of fluent API to check if the specified LoadProfileIdentifier
@@ -51,48 +59,31 @@ public interface LoadProfileIdentifier extends Identifier {
             this.subject = subject;
         }
 
-        boolean equalTo(LoadProfileIdentifier other) {
-            Introspector subjectIntrospector = this.subject.forIntrospection();
-            Introspector otherIntrospector = other.forIntrospection();
-            switch (otherIntrospector.getTypeName()) {
-                case "DatabaseId": // Intentional fall-through
-                case "DeviceIdentifierAndObisCode": {
-                    if ("Actual".equals(subjectIntrospector.getTypeName())) {
-                        LoadProfile subjectLoadProfile = (LoadProfile) subjectIntrospector.getValue("actual");
-                        DeviceIdentifier deviceIdentifier = (DeviceIdentifier) otherIntrospector.getValue("device");
-                        ObisCode obisCode = (ObisCode) otherIntrospector.getValue("obisCode");
-                        return DeviceIdentifier.is(deviceIdentifier).equalTo(subjectLoadProfile.getDeviceIdentifier())
-                            && obisCode.equals(subjectLoadProfile.getObisCode());
-                    } else {
-                        return subjectIntrospector.roleEqualsTo(otherIntrospector, "device", "obisCode");
-                    }
-                }
-                case "FirstLoadProfileOnDevice": {
-                    if ("Actual".equals(subjectIntrospector.getTypeName())) {
-                        LoadProfile otherLoadProfile = (LoadProfile) otherIntrospector.getValue("actual");
-                        return DeviceIdentifier.is(otherLoadProfile.getDeviceIdentifier()).equalTo((DeviceIdentifier) subjectIntrospector.getValue("device"));
-                    } else {
-                        return subjectIntrospector.roleEqualsTo(otherIntrospector, "device");
-                    }
-                }
-                case "Actual": {
-                    LoadProfile otherLoadProfile = (LoadProfile) otherIntrospector.getValue("actual");
-                    if ("Actual".equals(subjectIntrospector.getTypeName())) {
-                        LoadProfile subjectLoadProfile = (LoadProfile) subjectIntrospector.getValue("actual");
-                        return subjectLoadProfile.equals(otherLoadProfile);
-                    } else {
-                        DeviceIdentifier deviceIdentifier = (DeviceIdentifier) subjectIntrospector.getValue("device");
-                        ObisCode obisCode = (ObisCode) subjectIntrospector.getValue("obisCode");
-                        return DeviceIdentifier.is(deviceIdentifier).equalTo(otherLoadProfile.getDeviceIdentifier())
-                            && obisCode.equals(otherLoadProfile.getObisCode());
-                    }
-                }
-                default: {
-                    return this.subject.equals(other);
-                }
+        public boolean equalTo(LoadProfileIdentifier other) {
+            if (this.subject.forIntrospection().getTypeName().equals(other.forIntrospection().getTypeName())) {
+                return sameLoadProfile(this.subject, other, this.subject.forIntrospection().getRoles());
+            } else {
+                return sameLoadProfile(this.subject, other);
             }
         }
 
-    }
+        private boolean sameLoadProfile(LoadProfileIdentifier id1, LoadProfileIdentifier id2, Set<String> roles) {
+            if (id1.forIntrospection().getTypeName().equals(id2.forIntrospection().getTypeName())) {
+                return id1.forIntrospection().roleEqualsTo(id2.forIntrospection(), roles);
+            } else {
+                return sameLoadProfile(id1, id2);
+            }
+        }
 
+        private boolean sameLoadProfile(LoadProfileIdentifier id1, LoadProfileIdentifier id2) {
+            if (Services.loadProfileFinder() != null) {
+                Optional<LoadProfile> lp1 = Services.loadProfileFinder().find(id1);
+                Optional<LoadProfile> lp2 = Services.loadProfileFinder().find(id2);
+                return lp1.isPresent() && lp2.isPresent() && lp1.get().equals(lp2.get());
+            } else {
+                // Avoid NullPointerException in beacon context
+                return false;
+            }
+        }
+    }
 }

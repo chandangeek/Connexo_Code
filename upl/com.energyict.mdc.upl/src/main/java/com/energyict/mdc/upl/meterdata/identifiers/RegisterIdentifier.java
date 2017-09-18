@@ -1,10 +1,13 @@
 package com.energyict.mdc.upl.meterdata.identifiers;
 
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.Register;
 
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Provides functionality to identify a {@link Register}.
@@ -34,6 +37,10 @@ public interface RegisterIdentifier extends Identifier {
 
     DeviceIdentifier getDeviceIdentifier();
 
+    interface Finder {
+        Optional<Register> find(RegisterIdentifier identifier);
+    }
+
     /**
      * Start of fluent API to check if the specified RegisterIdentifier
      * represents the same Register as another RegisterIdentifier.
@@ -57,46 +64,31 @@ public interface RegisterIdentifier extends Identifier {
             this.subject = subject;
         }
 
-        boolean equalTo(RegisterIdentifier other) {
-            Introspector subjectIntrospector = this.subject.forIntrospection();
-            Introspector otherIntrospector = other.forIntrospection();
-            switch (otherIntrospector.getTypeName()) {
-                case "DatabaseId": // Intentional fall-through
-                case "PrimeRegisterForChannel": // Intentional fall-through
-                case "DeviceIdentifierAndObisCode": {
-                    DeviceIdentifier otherDeviceIdentifier = other.getDeviceIdentifier();
-                    ObisCode otherObisCode = other.getRegisterObisCode();
-                    if ("Actual".equals(subjectIntrospector.getTypeName())) {
-                        Register subject = (Register) subjectIntrospector.getValue("actual");
-                        return DeviceIdentifier.is(subject.getDeviceIdentifier()).equalTo(otherDeviceIdentifier)
-                            && subject.getObisCode().equals(otherObisCode);
-                    } else {
-                        DeviceIdentifier subjectIdentifier = this.subject.getDeviceIdentifier();
-                        ObisCode subjectObisCode = this.subject.getRegisterObisCode();
-                        return DeviceIdentifier.is(subjectIdentifier).equalTo(otherDeviceIdentifier)
-                            && subjectObisCode.equals(otherObisCode);
-                    }
-                }
-                case "Actual": {
-                    Register otherRegister = (Register) otherIntrospector.getValue("actual");
-                    if ("Actual".equals(subjectIntrospector.getTypeName())) {
-                        Register subject = (Register) subjectIntrospector.getValue("actual");
-                        return subject.equals(otherRegister);
-                    } else {
-                        DeviceIdentifier otherDeviceIdentifier = otherRegister.getDeviceIdentifier();
-                        ObisCode otherObisCode = otherRegister.getObisCode();
-                        DeviceIdentifier subjectIdentifier = this.subject.getDeviceIdentifier();
-                        ObisCode subjectObisCode = this.subject.getRegisterObisCode();
-                        return DeviceIdentifier.is(subjectIdentifier).equalTo(otherDeviceIdentifier)
-                            && subjectObisCode.equals(otherObisCode);
-                    }
-                }
-                default: {
-                    return this.subject.equals(other);
-                }
+        public boolean equalTo(RegisterIdentifier other) {
+            if (this.subject.forIntrospection().getTypeName().equals(other.forIntrospection().getTypeName())) {
+                return sameRegister(this.subject, other, this.subject.forIntrospection().getRoles());
+            } else {
+                return sameRegister(this.subject, other);
             }
         }
 
-    }
+        private boolean sameRegister(RegisterIdentifier id1, RegisterIdentifier id2, Set<String> roles) {
+            if (id1.forIntrospection().getTypeName().equals(id2.forIntrospection().getTypeName())) {
+                return id1.forIntrospection().roleEqualsTo(id2.forIntrospection(), roles);
+            } else {
+                return sameRegister(id1, id2);
+            }
+        }
 
+        private boolean sameRegister(RegisterIdentifier id1, RegisterIdentifier id2) {
+            if (Services.registerFinder() != null) {
+                Optional<Register> r1 = Services.registerFinder().find(id1);
+                Optional<Register> r2 = Services.registerFinder().find(id2);
+                return r1.isPresent() && r2.isPresent() && r1.get().equals(r2.get());
+            } else {
+                // Avoid NullPointerException in beacon context
+                return false;
+            }
+        }
+    }
 }

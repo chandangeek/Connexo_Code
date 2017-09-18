@@ -1,7 +1,6 @@
 package com.energyict.mdc.upl.meterdata.identifiers;
 
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * Introspects identifier type information.
@@ -48,9 +47,9 @@ public interface Introspector {
      * @param roles The roles
      * @return <code>true</code> iff the values of all the roles of this and the other Introspector are equals
      */
-    default boolean roleEqualsTo(Introspector other, String... roles) {
+    default boolean roleEqualsTo(Introspector other, Set<String> roles) {
         try {
-            return Stream.of(roles).allMatch(role -> this.getValue(role).equals(other.getValue(role)));
+            return roles.stream().allMatch(role -> this.getValue(role).equals(other.getValue(role)));
         } catch (IllegalArgumentException e) {
             return false;
         }

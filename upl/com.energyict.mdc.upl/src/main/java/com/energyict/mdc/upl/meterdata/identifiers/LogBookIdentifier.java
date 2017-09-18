@@ -1,10 +1,13 @@
 package com.energyict.mdc.upl.meterdata.identifiers;
 
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.LogBook;
 
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Provides functionality to identify a specific {@link LogBook} of a Device.
@@ -18,7 +21,7 @@ import javax.xml.bind.annotation.XmlAttribute;
  * <tr><td>Actual</td><td>databaseValue -&gt; the log book's database identifier<br>actual -&gt; the log book</td></tr>
  * </table>
  * <p/>
- *
+ * <p>
  * Date: 16/10/12
  * Time: 8:32
  */
@@ -33,6 +36,10 @@ public interface LogBookIdentifier extends Identifier {
     ObisCode getLogBookObisCode();
 
     DeviceIdentifier getDeviceIdentifier();
+
+    interface Finder {
+        Optional<LogBook> find(LogBookIdentifier identifier);
+    }
 
     /**
      * Start of fluent API to check if the specified LogBookIdentifier
@@ -58,10 +65,30 @@ public interface LogBookIdentifier extends Identifier {
         }
 
         public boolean equalTo(LogBookIdentifier other) {
-            return DeviceIdentifier.is(this.subject.getDeviceIdentifier()).equalTo(other.getDeviceIdentifier())
-                && this.subject.getLogBookObisCode().equals(other.getLogBookObisCode());
+            if (this.subject.forIntrospection().getTypeName().equals(other.forIntrospection().getTypeName())) {
+                return sameLogBook(this.subject, other, this.subject.forIntrospection().getRoles());
+            } else {
+                return sameLogBook(this.subject, other);
+            }
         }
 
-    }
+        private boolean sameLogBook(LogBookIdentifier id1, LogBookIdentifier id2, Set<String> roles) {
+            if (id1.forIntrospection().getTypeName().equals(id2.forIntrospection().getTypeName())) {
+                return id1.forIntrospection().roleEqualsTo(id2.forIntrospection(), roles);
+            } else {
+                return sameLogBook(id1, id2);
+            }
+        }
 
+        private boolean sameLogBook(LogBookIdentifier id1, LogBookIdentifier id2) {
+            if (Services.logBookFinder() != null) {
+                Optional<LogBook> lb1 = Services.logBookFinder().find(id1);
+                Optional<LogBook> lb2 = Services.logBookFinder().find(id2);
+                return lb1.isPresent() && lb2.isPresent() && lb1.get().equals(lb2.get());
+            } else {
+                // Avoid NullPointerException in beacon context
+                return false;
+            }
+        }
+    }
 }
