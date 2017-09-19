@@ -71,9 +71,8 @@ public class DataVaultSymmetricKeyImporter implements DeviceSecretImporter {
     }
 
     private PlaintextSymmetricKey createPlaintextSymmetricKeyWrapper(byte[] bytes) {
-        PlaintextSymmetricKeyImpl instance = dataModel.getInstance(PlaintextSymmetricKeyImpl.class);
+        PlaintextSymmetricKey instance = (PlaintextSymmetricKey) pkiService.newSymmetricKeyWrapper(keyAccessorType);
         SecretKeySpec secretKeySpec = new SecretKeySpec(bytes, keyAccessorType.getKeyType().getKeyAlgorithm());
-        instance.init(keyAccessorType.getKeyType(), keyAccessorType.getDuration().get());
         instance.setKey(secretKeySpec);
         return instance;
     }
