@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
@@ -19,7 +20,13 @@ import static com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigura
  */
 public enum EventType {
 
-    START_BPM("bpm/START");
+    START_BPM("bpm/START"),
+    DEVICE_LIFECYCLE_UPDATE("dlc/update"){
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    };
 
     private final String topic;
 
@@ -33,13 +40,15 @@ public enum EventType {
 
     @TransactionRequired
     void install(EventService eventService) {
-        eventService.buildEventTypeWithTopic(topic())
+        EventTypeBuilder builder = eventService.buildEventTypeWithTopic(topic())
                 .name(name())
                 .component(DeviceLifeCycleConfigurationService.COMPONENT_NAME)
                 .category("Crud")
-                .scope("System")
-                .shouldNotPublish()
-                .create();
+                .scope("System");
+        this.shouldPublish(builder).create();
     }
 
+    EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+        return eventTypeBuilder.shouldNotPublish();
+    }
 }
