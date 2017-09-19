@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl.devices.shipment.secure;
 
+import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
@@ -32,6 +33,7 @@ import java.util.logging.StreamHandler;
 import java.util.stream.Stream;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -150,19 +152,46 @@ public class SecureDeviceShipmentImporterTest {
             secureDeviceShipmentImporter.process(fileImportOccurrence);
             fail("Importer should have failed for unknown device type");
         } catch (Exception e) {
-            assertThat(e.getLocalizedMessage()).isEqualTo("The device type 'Beacon-3100/SM765' required by the importer could not be found");
+            assertThat(e.getLocalizedMessage()).isEqualTo("Can't process file: the device type 'Beacon-3100/SM765' required by the importer could not be found");
         }
 
         List<String> logMessages = testHandler.getLogMessages();
         assertThat(logMessages).contains(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
-        assertThat(logMessages).contains("The device type 'Beacon-3100/SM765' required by the importer could not be found");
+        assertThat(logMessages).contains("Can't process file: the device type 'Beacon-3100/SM765' required by the importer could not be found");
+    }
+
+    @Test
+    public void importBeaconShipmentFileWithoutDefaultDeviceConfig() throws Exception {
+        DeviceType deviceType = mock(DeviceType.class);
+
+        when(deviceConfigurationService.findDeviceTypeByName("Beacon-3100/SM765")).thenReturn(Optional.empty());
+
+        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, pkiService);
+        when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("example-shipment-file-v1.5.xml"));
+
+        try {
+            secureDeviceShipmentImporter.process(fileImportOccurrence);
+            fail("Importer should have failed for unknown device type");
+        } catch (Exception e) {
+            assertThat(e.getLocalizedMessage()).isEqualTo("Can't process file: the device type 'Beacon-3100/SM765' required by the importer could not be found");
+        }
+
+        List<String> logMessages = testHandler.getLogMessages();
+        assertThat(logMessages).contains(MessageSeeds.SIGNATURE_OF_THE_SHIPMENT_FILE_VERIFIED_SUCCESSFULLY.getDefaultFormat());
+        assertThat(logMessages).contains("Can't process file: the device type 'Beacon-3100/SM765' required by the importer could not be found");
     }
 
     @Test
     public void importShipmentFileMeters() throws Exception {
         SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, pkiService);
         when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("Shipment file example - meters.xml"));
-        secureDeviceShipmentImporter.process(fileImportOccurrence);
+
+        try {
+            secureDeviceShipmentImporter.process(fileImportOccurrence);
+            fail("Expected XmlValidationFailedException");
+        } catch (XmlValidationFailedException e) {
+            // ok
+        }
     }
 
     class SimpleNlsMessageFormat implements NlsMessageFormat {

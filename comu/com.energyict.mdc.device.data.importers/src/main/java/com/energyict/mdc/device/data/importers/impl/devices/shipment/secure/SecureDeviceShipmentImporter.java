@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.pki.SymmetricAlgorithm;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.pki.KeyImportFailedException;
@@ -264,7 +265,9 @@ public class SecureDeviceShipmentImporter implements FileImporter {
     private String getSymmetricAlgorithm(NamedEncryptedDataType deviceKey) throws
             KeyImportFailedException {
         if (deviceKey.getEncryptionMethod() != null && deviceKey.getEncryptionMethod().getAlgorithm() != null) {
-            return deviceKey.getEncryptionMethod().getAlgorithm();
+            return pkiService.getSymmetricAlgorithm(deviceKey.getEncryptionMethod().getAlgorithm())
+                    .map(SymmetricAlgorithm::getCipherName)
+                    .orElse(DEFAULT_SYMMETRIC_ALGORITHM);
         } else {
             return DEFAULT_SYMMETRIC_ALGORITHM;
         }
