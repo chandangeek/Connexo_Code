@@ -11,7 +11,8 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevices', {
         'Uni.grid.FilterPanelTop',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.registereddevices.store.AvailableKPIs',
-        'Mdc.privileges.RegisteredDevicesKpi'
+        'Mdc.privileges.RegisteredDevicesKpi',
+        'Mdc.registereddevices.store.RegisteredDevicesKPIsData'
     ],
 
     data: undefined,
@@ -45,24 +46,32 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevices', {
                     {
                         xtype: 'uni-grid-filterpaneltop',
                         itemId: 'mdc-registered-devices-filters',
+                        store: 'Mdc.registereddevices.store.RegisteredDevicesKPIsData',
                         filters: [
                             {
                                 type: 'combobox',
+                                editable: false,
                                 itemId: 'mdc-registered-devices-device-group-filter',
-                                dataIndex: 'deviceGroups',
+                                dataIndex: 'kpiId',
                                 emptyText: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group'),
                                 multiSelect: false,
                                 displayField: 'name',
                                 valueField: 'id',
-                                store: 'Mdc.registereddevices.store.AvailableKPIs'
+                                store: 'Mdc.registereddevices.store.AvailableKPIs',
+                                listeners: {
+                                    'select': function(combo, selectedRecord) {
+                                        me.down('#mdc-registered-devices-filters').down('#filter-apply-all').fireEvent('click');
+                                    }
+                                }
                             },
                             {
                                 type: 'interval',
                                 itemId: 'mdc-registered-devices-period-filter',
                                 dataIndex: 'period',
-                                dataIndexFrom: 'periodStart',
-                                dataIndexTo: 'periodEnd',
-                                text: Uni.I18n.translate('general.period', 'MDC', 'Period')
+                                dataIndexFrom: 'start',
+                                dataIndexTo: 'end',
+                                text: Uni.I18n.translate('general.period', 'MDC', 'Period'),
+                                fromAndToValueRequired: true
                             }
                         ]
                     },
@@ -75,5 +84,12 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevices', {
             }
         ];
         me.callParent(arguments);
+        me.on('boxready', me.onBoxReady, me);
+    },
+
+    onBoxReady: function() {
+        this.down('#mdc-registered-devices-filters').down('#filter-clear-all').hide();
+        this.down('#mdc-registered-devices-filters').down('#filter-apply-all').hide();
+        this.down('#mdc-registered-devices-filters').down('#filter-apply-all').fireEvent('click');
     }
 });

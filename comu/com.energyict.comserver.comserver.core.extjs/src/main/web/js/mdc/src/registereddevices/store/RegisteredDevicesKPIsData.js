@@ -10,15 +10,11 @@ Ext.define('Mdc.registereddevices.store.RegisteredDevicesKPIsData', {
     storeId: 'RegisteredDevicesKPIsData',
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/registereddevkpis/{kpiId}/data',
+        url: '/api/ddr/registereddevkpis/kpidata',
 
         pageParam: false,
         startParam: false,
-        limitParam: false,
-
-        setUrl: function (kpiId) {
-            this.url = this.urlTpl.replace('{kpiId}', kpiId);
-        }
+        limitParam: false
     }
 });
 

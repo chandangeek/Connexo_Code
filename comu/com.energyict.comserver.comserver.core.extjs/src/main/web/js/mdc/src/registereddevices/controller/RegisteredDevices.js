@@ -31,7 +31,8 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
         {ref: 'kpiPreviewForm', selector: '#mdc-registered-devices-kpi-details-form'},
         {ref: 'kpiPreviewContainer', selector: '#mdc-registered-devices-kpi-preview'},
         {ref: 'kpisGrid', selector: 'registered-devices-kpis-grid'},
-        {ref: 'kpisOverview', selector: 'registered-devices-kpis-view'}
+        {ref: 'kpisOverview', selector: 'registered-devices-kpis-view'},
+        {ref: 'registeredDevicesView', selector: 'registered-devices-view'}
     ],
 
     init: function () {
@@ -56,6 +57,9 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
             },
             'registered-devices-kpi-addedit #mdc-registered-devices-kpi-add-addEditButton': {
                 click: this.onAddClicked
+            },
+            'registered-devices-view': {
+                beforedestroy: this.onDestroyRegisteredDevicesView
             }
         });
     },
@@ -66,24 +70,54 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
             kpiStore = widget.down('#mdc-registered-devices-device-group-filter').getStore(),
             kpiDataStore = Ext.getStore('Mdc.registereddevices.store.RegisteredDevicesKPIsData');
 
-        kpiStore.load(function(records) {
-            if (records.length === 0) {
+        kpiStore.load(function(kpiRecords) {
+            if (kpiRecords.length === 0) {
                 widget.down('#mdc-registered-devices-view-no-kpis').show();
                 widget.down('#mdc-registered-devices-filters').hide();
                 widget.down('#mdc-registered-devices-graph').hide();
-                me.getApplication().fireEvent('changecontentevent', widget);
             } else {
-                widget.down('#mdc-registered-devices-device-group-filter').setValue(records[0].get('id'));
+                widget.down('#mdc-registered-devices-device-group-filter').setValue(kpiRecords[0].get('id'));
                 widget.down('#mdc-registered-devices-view-no-kpis').hide();
                 widget.down('#mdc-registered-devices-filters').show();
                 widget.down('#mdc-registered-devices-graph').show();
-                kpiDataStore.getProxy().setUrl(records[0].get('id'));
-                kpiDataStore.load(function(records) {
-                    widget.down('#mdc-registered-devices-graph').data = records;
-                    me.getApplication().fireEvent('changecontentevent', widget);
-                });
             }
+            me.getApplication().fireEvent('changecontentevent', widget);
+            kpiDataStore.on('load', me.onLoadKPIDataStore, me);
         });
+    },
+
+    onLoadKPIDataStore: function(store, records) {
+        var me = this,
+            deviceGroupCombo = me.getRegisteredDevicesView().down('#mdc-registered-devices-device-group-filter'),
+            kpiStore = me.getRegisteredDevicesView().down('#mdc-registered-devices-device-group-filter').getStore(),
+            indexInStore = kpiStore.findExact('id', deviceGroupCombo.getValue()),
+            storeRecord = indexInStore === -1 ? null : kpiStore.getAt(indexInStore),
+            graph = me.getRegisteredDevicesView().down('#mdc-registered-devices-graph');
+
+        if (storeRecord && graph) {
+            graph.data = records;
+            graph.period = me.getRegisteredDevicesView().down('#mdc-registered-devices-period-filter').getParamValue();
+            graph.frequency = me.determineFrequency(storeRecord);
+            graph.drawGraph();
+        }
+    },
+
+    determineFrequency: function(record) {
+        var freq = record.get('frequency') ? record.get('frequency').every : undefined;
+        if (freq) {
+            if (freq.timeUnit === 'minutes') {
+                return '15m'
+            } else if (freq.timeUnit === 'hours') {
+                if (freq.count === 4) {
+                    return '4h';
+                } else if (freq.count === 12) {
+                    return '12h';
+                }
+            } else if (freq.timeUnit === 'days') {
+                return '1d'
+            }
+        }
+        return undefined;
     },
 
     showRegisteredDevicesKpis: function() {
@@ -267,8 +301,12 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
                 overview.setLoading(false);
             }
         });
-    }
+    },
 
+    onDestroyRegisteredDevicesView: function() {
+        kpiDataStore = Ext.getStore('Mdc.registereddevices.store.RegisteredDevicesKPIsData');
+        kpiDataStore.un('load', this.onDestroyRegisteredDevicesView);
+    }
 
 });
 

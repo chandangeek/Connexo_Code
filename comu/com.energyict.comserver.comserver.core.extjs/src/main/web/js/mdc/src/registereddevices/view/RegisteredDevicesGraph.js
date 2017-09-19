@@ -31,14 +31,16 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
     columnBorderColor: '#FFFFFF',
     gridLineColor: '#D2D2D2',
     labelColor: '#686868',
-    data: undefined,
+    data: [],
+    frequency: undefined, // as a string
+    period: undefined,
 
     initComponent: function () {
         this.callParent(arguments);
         this.down('#mdc-registered-devices-graphContainer').on('boxready', this.drawGraph, this);
     },
 
-    drawGraph: function(container, width) {
+    drawGraph: function() {
         var me = this;
 
         me.chart = new Highcharts.StockChart({
@@ -46,8 +48,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
             chart: {
                 type: 'column',
                 height: 750,
-                width: width,
-                renderTo: container.el.dom
+                renderTo: me.down('#mdc-registered-devices-graphContainer').el.dom
             },
             title: {
                 text: null
@@ -173,7 +174,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
                     borderColor: me.columnBorderColor,
                     groupPadding: 0,
                     shadow: false,
-                    animation: false,
+                    // animation: false
                     // pointStart: Date.UTC(2017, 8, 1, 10), // = 12:00 GMT
                     // pointInterval: 3600 * 250, // 15 min
                     // pointRange: 3600 * 250 // make the columns as broad as the interval
@@ -192,7 +193,12 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
     },
 
     createDataSeries: function(records) {
-        var seriesRegistered = {},
+        if (Ext.isEmpty(records)) {
+            return;
+        }
+        
+        var me = this,
+            seriesRegistered = {},
             seriesTotal = {},
             seriesTarget = {},
             series = [];
@@ -211,10 +217,55 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
         seriesTarget['data'] = [];
 
         // Convert the records into graph data
+        var start = undefined;
+        if (records.length > 0) {
+            if (me.frequency === '12h' && records.length < 12) {
+                start = moment(records[records.length - 1].get('timestamp')).subtract(7, 'days').valueOf();
+            } else if (me.frequency === '1d' && records.length < 30) {
+                start = moment(records[records.length - 1].get('timestamp')).subtract(30, 'days').valueOf();
+            } else {
+                start = moment(records[records.length - 1].get('timestamp')).subtract(1, 'days').valueOf();
+            }
+            if (me.period) {
+                start = parseInt(me.period.split('-')[0]);
+            }
+        }
+
+        var frequencyInMillis = 0;
+        switch (this.frequency) {
+            case '15m':
+                frequencyInMillis = 15*60*1000;
+                break;
+            case '4h':
+                frequencyInMillis = 4*3600*1000;
+                break;
+            case '12h':
+                frequencyInMillis = 12*3600*1000;
+                break;
+            case '1d':
+                frequencyInMillis = 24*3600*1000;
+                break;
+        }
+
         Ext.Array.forEach(records, function(record) {
-            seriesRegistered['data'].push([record.get('timestamp'), record.get('registered')]);
-            seriesTotal['data'].push([record.get('timestamp'), record.get('total')]);
-            seriesTarget['data'].push([record.get('timestamp'), record.get('target')]);
+            var timestamp = record.get('timestamp');
+            if (timestamp != start) {
+                while (start < timestamp) {
+                    seriesRegistered['data'].push([start, 0]);
+                    start += frequencyInMillis;
+                }
+                if (start === timestamp) {
+                    seriesRegistered['data'].push([timestamp, record.get('registered')]);
+                    seriesTotal['data'].push([timestamp, record.get('total')]);
+                    seriesTarget['data'].push([timestamp, record.get('target')]);
+                    start += frequencyInMillis;
+                }
+            } else {
+                seriesRegistered['data'].push([timestamp, record.get('registered')]);
+                seriesTotal['data'].push([timestamp, record.get('total')]);
+                seriesTarget['data'].push([timestamp, record.get('target')]);
+                start += frequencyInMillis;
+            }
         });
 
         series.push(seriesRegistered);

@@ -8,6 +8,11 @@ Ext.define('Mdc.registereddevices.store.AvailableKPIs', {
     ],
     model: 'Mdc.registereddevices.model.AvailableKPI',
     storeId: 'RegisteredDevicesKPIAvailableKPIs',
+    autoload: false,
+    sorters: [{
+        property: 'name',
+        direction: 'ASC'
+    }],
     proxy: {
         type: 'rest',
         url: '../../api/ddr/registereddevkpis',
