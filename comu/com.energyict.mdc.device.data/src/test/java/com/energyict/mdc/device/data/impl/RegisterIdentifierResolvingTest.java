@@ -67,7 +67,7 @@ public class RegisterIdentifierResolvingTest extends PersistenceIntegrationTest 
 
     @Test
     @Transactional
-    public void testMatchingIntrospectorResolvingForAllKnownDeviceIdentifierImplementations() throws Exception {
+    public void testMatchingIntrospectorResolvingForAllKnownRegisterIdentifierImplementations() throws Exception {
         Reflections reflections = new Reflections("com.energyict");
         List<Class<? extends RegisterIdentifier>> registerIdentifierClasses = new ArrayList<>(reflections.getSubTypesOf(RegisterIdentifier.class));
         for (Class<? extends RegisterIdentifier> aClass : registerIdentifierClasses) {

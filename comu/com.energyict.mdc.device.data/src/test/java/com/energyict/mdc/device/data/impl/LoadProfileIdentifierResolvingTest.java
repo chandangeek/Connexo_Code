@@ -69,7 +69,7 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
 
     @Test
     @Transactional
-    public void testMatchingIntrospectorResolvingForAllKnownDeviceIdentifierImplementations() throws Exception {
+    public void testMatchingIntrospectorResolvingForAllKnownLoadProfileIdentifierImplementations() throws Exception {
         Reflections reflections = new Reflections("com.energyict");
         List<Class<? extends LoadProfileIdentifier>> identifierClasses = new ArrayList<>(reflections.getSubTypesOf(LoadProfileIdentifier.class));
         for (Class<? extends LoadProfileIdentifier> aClass : identifierClasses) {
@@ -77,7 +77,7 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
             Optional<LoadProfileServiceImpl.IntrospectorTypes> matchingIntrospectorType = LoadProfileServiceImpl.IntrospectorTypes.forName(introspector.getTypeName());
             assertThat(matchingIntrospectorType)
                     .as("No matching introspector found in LoadProfileServiceImpl.IntrospectorTypes for type " + introspector.getTypeName() +
-                            ". Please add corresponding entry and make sure it is used inside RegisterServiceImpl#find.")
+                            ". Please add corresponding entry and make sure it is used inside LoadProfileServiceImpl#doFind.")
                     .isPresent();
             assertThat(introspector.getRoles()).containsOnlyElementsOf(matchingIntrospectorType.get().getRoles()); // If not present, than above assert should already have failed
         }
