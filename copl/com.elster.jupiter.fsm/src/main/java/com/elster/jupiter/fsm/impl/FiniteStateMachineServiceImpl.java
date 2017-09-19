@@ -138,7 +138,8 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         dataModel.register(this.getModule());
         upgradeService.register(identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class,
-                version(10, 3), V10_3SimpleUpgrader.class
+                version(10, 3), V10_3SimpleUpgrader.class,
+                version(10, 4), UpgraderV10_4.class
         ));
         registrationHandler.ready();
     }

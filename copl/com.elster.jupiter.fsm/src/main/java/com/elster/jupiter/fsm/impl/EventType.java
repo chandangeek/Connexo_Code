@@ -17,6 +17,12 @@ import com.elster.jupiter.orm.TransactionRequired;
  */
 public enum EventType {
 
+    FSM_UPDATED("UPDATED"){
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
     TRIGGER_EVENT("event/TRIGGER"),
     CHANGE_EVENT("event/CHANGE"),
     START_BPM("bpm/state/START");

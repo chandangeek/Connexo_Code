@@ -6,6 +6,7 @@ package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
@@ -58,8 +59,8 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
         TRANSITIONS("transitions"),
         STAGE_SET("stageSet");
 
-        private final String javaFieldName;
 
+        private final String javaFieldName;
         Fields(String javaFieldName) {
             this.javaFieldName = javaFieldName;
         }
@@ -67,12 +68,14 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
         public String fieldName() {
             return javaFieldName;
         }
+
     }
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final Publisher publisher;
+    private final EventService eventService;
 
     @SuppressWarnings("unused")
     private long id;
@@ -96,12 +99,13 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     private Instant modTime;
 
     @Inject
-    public FiniteStateMachineImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock, Publisher publisher) {
+    public FiniteStateMachineImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock, Publisher publisher, EventService eventService) {
         super();
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.publisher = publisher;
+        this.eventService = eventService;
     }
 
     public FiniteStateMachineImpl initialize(String name) {
@@ -272,6 +276,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     @Override
     public void update() {
         Save.UPDATE.save(this.dataModel, this);
+        this.eventService.postEvent(EventType.FSM_UPDATED.topic(),this);
         invalidateCache();
     }
 
