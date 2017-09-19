@@ -240,7 +240,7 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
 
     @Override
     public ManufacturerInformation getManufacturerInformation() {
-        throw CodingException.unsupportedMethod(this.getClass(), "getManufacturerInformation");
+        return null;
     }
 
     @Override

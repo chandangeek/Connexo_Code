@@ -402,7 +402,7 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
 
     @Override
     public DeviceFunction getDeviceFunction() {
-        return null;
+        return DeviceFunction.NONE;
     }
 
     @Override

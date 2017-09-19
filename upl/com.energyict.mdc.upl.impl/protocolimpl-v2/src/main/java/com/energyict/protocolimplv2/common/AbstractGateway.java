@@ -1,10 +1,16 @@
 package com.energyict.protocolimplv2.common;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -15,9 +21,11 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolcommon.exceptions.CodingException;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,9 +42,16 @@ import java.util.Optional;
  */
 public abstract class AbstractGateway implements DeviceProtocol {
 
+    private CollectedDataFactory collectedDataFactory;
+    private OfflineDevice offlineDevice;
+
+    public AbstractGateway(CollectedDataFactory collectedDataFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+    }
+
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        // Do nothing
+        this.offlineDevice = offlineDevice;
     }
 
     @Override
@@ -130,5 +145,30 @@ public abstract class AbstractGateway implements DeviceProtocol {
     @Override
     public CollectedTopology getDeviceTopology() {
         throw CodingException.unsupportedMethod(this.getClass(), "getDeviceTopology");
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        return this.collectedDataFactory.createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return this.collectedDataFactory.createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        return this.collectedDataFactory.createFirmwareVersionsCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 }

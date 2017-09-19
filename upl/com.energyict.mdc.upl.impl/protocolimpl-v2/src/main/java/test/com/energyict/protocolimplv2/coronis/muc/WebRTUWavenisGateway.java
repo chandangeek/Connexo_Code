@@ -4,18 +4,13 @@ import com.energyict.mdc.channels.ip.socket.ServerWavenisGatewayComChannel;
 import com.energyict.mdc.channels.ip.socket.WavenisGatewayComChannel;
 import com.energyict.mdc.channels.ip.socket.WavenisGatewayConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
-import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
@@ -74,6 +69,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     private final Converter converter;
 
     public WebRTUWavenisGateway(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+        super(collectedDataFactory);
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.propertySpecService = propertySpecService;
@@ -258,30 +254,5 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     @Override
     public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         return getSecuritySupport().getSecurityPropertySpec(name);
-    }
-
-    @Override
-    public DeviceFunction getDeviceFunction() {
-        return DeviceFunction.NONE;
-    }
-
-    @Override
-    public ManufacturerInformation getManufacturerInformation() {
-        return null;
-    }
-
-    @Override
-    public CollectedCalendar getCollectedCalendar() {
-        return null;
-    }
-
-    @Override
-    public CollectedBreakerStatus getBreakerStatus() {
-        return null;
-    }
-
-    @Override
-    public CollectedFirmwareVersion getFirmwareVersions() {
-        return null;
     }
 }

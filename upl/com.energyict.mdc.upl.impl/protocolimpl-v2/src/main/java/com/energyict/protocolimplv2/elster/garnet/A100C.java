@@ -1,12 +1,7 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.mdc.upl.DeviceFunction;
-import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -16,6 +11,7 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocolimplv2.common.AbstractMbusDevice;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
@@ -93,30 +89,5 @@ public class A100C extends AbstractMbusDevice {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         // Ignore since there are not properties
-    }
-
-    @Override
-    public DeviceFunction getDeviceFunction() {
-        return DeviceFunction.NONE;
-    }
-
-    @Override
-    public ManufacturerInformation getManufacturerInformation() {
-        return null;
-    }
-
-    @Override
-    public CollectedCalendar getCollectedCalendar() {
-        return null;
-    }
-
-    @Override
-    public CollectedBreakerStatus getBreakerStatus() {
-        return null;
-    }
-
-    @Override
-    public CollectedFirmwareVersion getFirmwareVersions() {
-        return null;
     }
 }

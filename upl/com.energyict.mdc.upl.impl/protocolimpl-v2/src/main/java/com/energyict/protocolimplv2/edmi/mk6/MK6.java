@@ -415,7 +415,7 @@ public class MK6 implements DeviceProtocol, CommandLineProtocol {
 
     @Override
     public DeviceFunction getDeviceFunction() {
-        return null;
+        return DeviceFunction.NONE;
     }
 
     @Override

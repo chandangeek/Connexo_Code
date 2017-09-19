@@ -345,7 +345,7 @@ public class SEL implements DeviceProtocol {
 
     @Override
     public DeviceFunction getDeviceFunction() {
-        return null;
+        return DeviceFunction.NONE;
     }
 
     @Override

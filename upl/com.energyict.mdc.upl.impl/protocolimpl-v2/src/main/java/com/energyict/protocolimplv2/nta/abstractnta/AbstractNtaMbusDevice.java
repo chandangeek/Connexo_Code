@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -15,7 +17,10 @@ import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -309,5 +314,30 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SerialNum
     @Override
     public CollectedTopology getDeviceTopology() {
         throw CodingException.unsupportedMethod(this.getClass(), "getDeviceTopology");
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        throw CodingException.unsupportedMethod(this.getClass(), "getCollectedCalendar");
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        throw CodingException.unsupportedMethod(this.getClass(), "getBreakerStatus");
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        throw CodingException.unsupportedMethod(this.getClass(), "getFirmwareVersions");
     }
 }

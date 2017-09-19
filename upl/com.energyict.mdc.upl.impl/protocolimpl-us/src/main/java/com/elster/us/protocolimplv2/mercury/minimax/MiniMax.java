@@ -801,17 +801,16 @@ public class MiniMax implements DeviceProtocol {
 
     @Override
     public CollectedCalendar getCollectedCalendar() {
-        return null;
+        return this.collectedDataFactory.createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
-        return null;
+        return this.collectedDataFactory.createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
-        return null;
+        return this.collectedDataFactory.createFirmwareVersionsCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
-
 }

@@ -13,6 +13,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -32,6 +33,7 @@ import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 
 import java.util.Collections;
 import java.util.Date;
@@ -44,9 +46,16 @@ import java.util.Optional;
  */
 public class SampleProtocol implements DeviceProtocol {
 
+    private final CollectedDataFactory collectedDataFactory;
+    private OfflineDevice offlineDevice;
+
+    public SampleProtocol(CollectedDataFactory collectedDataFactory) {
+        this.collectedDataFactory = collectedDataFactory;
+    }
+
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-
+        this.offlineDevice = offlineDevice;
     }
 
     @Override
@@ -231,16 +240,16 @@ public class SampleProtocol implements DeviceProtocol {
 
     @Override
     public CollectedCalendar getCollectedCalendar() {
-        return null;
+        return this.collectedDataFactory.createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
-        return null;
+        return this.collectedDataFactory.createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
-        return null;
+        return this.collectedDataFactory.createFirmwareVersionsCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 }

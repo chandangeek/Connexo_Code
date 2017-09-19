@@ -8,15 +8,11 @@ import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
-import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
-import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -43,7 +39,8 @@ public class TransparentGateway extends AbstractGateway {
     private DeviceProtocolSecurityCapabilities securitySupport;
     private final PropertySpecService propertySpecService;
 
-    public TransparentGateway(PropertySpecService propertySpecService) {
+    public TransparentGateway(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory) {
+        super(collectedDataFactory);
         this.propertySpecService = propertySpecService;
     }
 
@@ -143,30 +140,5 @@ public class TransparentGateway extends AbstractGateway {
             this.securitySupport = new NoSecuritySupport();
         }
         return this.securitySupport;
-    }
-
-    @Override
-    public DeviceFunction getDeviceFunction() {
-        return DeviceFunction.NONE;
-    }
-
-    @Override
-    public ManufacturerInformation getManufacturerInformation() {
-        return null;
-    }
-
-    @Override
-    public CollectedCalendar getCollectedCalendar() {
-        return null;
-    }
-
-    @Override
-    public CollectedBreakerStatus getBreakerStatus() {
-        return null;
-    }
-
-    @Override
-    public CollectedFirmwareVersion getFirmwareVersions() {
-        return null;
     }
 }

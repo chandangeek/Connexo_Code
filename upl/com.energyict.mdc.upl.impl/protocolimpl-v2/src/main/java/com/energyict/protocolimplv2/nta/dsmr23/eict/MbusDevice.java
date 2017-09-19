@@ -1,17 +1,12 @@
 package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
-import com.energyict.mdc.upl.DeviceFunction;
-import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -60,30 +55,5 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public DeviceFunction getDeviceFunction() {
-        return DeviceFunction.NONE;
-    }
-
-    @Override
-    public ManufacturerInformation getManufacturerInformation() {
-        return null;
-    }
-
-    @Override
-    public CollectedCalendar getCollectedCalendar() {
-        return null;
-    }
-
-    @Override
-    public CollectedBreakerStatus getBreakerStatus() {
-        return null;
-    }
-
-    @Override
-    public CollectedFirmwareVersion getFirmwareVersions() {
-        return null;
     }
 }

@@ -384,7 +384,6 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
 
         CollectedCalendar calendarCollectedData = this.collectedDataFactory.createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
         calendarCollectedData.setFailureInformation(ResultType.NotSupported, warning);
-
         return calendarCollectedData;
     }
 
