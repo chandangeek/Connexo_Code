@@ -459,21 +459,24 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     @Override
     public CollectedCalendar getCollectedCalendar() {
         CollectedCalendar collectedCalendar = this.collectedDataFactory.createCalendarCollectedData(getDeviceIdentifier());
-        this.toCalendarName(this.getRequestFactory().getIdentificationStructure().getIdPT().getValue()[0].getIntValue())
+        this.toCalendarName(this.getRequestFactory().getIdentificationStructure().getIdPT().getValue()[0].getIntValue() & 0xFF) // Last byte contains the identifier (in range 1 - 255)
                 .ifPresent(collectedCalendar::setActiveCalendar);
-        this.toCalendarName(this.getRequestFactory().getIdentificationStructure().getIdPT().getValue()[2].getIntValue())
+        this.toCalendarName(this.getRequestFactory().getIdentificationStructure().getIdPT().getValue()[2].getIntValue() & 0xFF)
                 .ifPresent(collectedCalendar::setPassiveCalendar);
         return collectedCalendar;
     }
 
     private Optional<String> toCalendarName(int tariffSchemaId) {
         if (tariffSchemaId > 0) {
-            return this.offlineDevice
-                    .getCalendars()
-                    .stream()
-                    .filter(each -> each.getId() == tariffSchemaId)
-                    .findFirst()
-                    .map(OfflineCalendar::getName);
+            return Optional.of(
+                    this.offlineDevice
+                            .getCalendars()
+                            .stream()
+                            .filter(each -> each.getName().endsWith("_".concat(String.valueOf(tariffSchemaId)))) // In Connexo, the tariff calendar should be defined with a name according to format  [codetablename_XXX]
+                            .findFirst()                                                                         // in which the XXX part should be tariff identifier (in range 1 - 255)
+                            .map(OfflineCalendar::getName)                                                       // If this was not respected, upload of the calendar will fail (see CodeObjectValidator#validateCodeObjectProperties)
+                            .orElse(String.valueOf(tariffSchemaId)) // Else - as backup - use the tariffSchemaId as calendar name
+            );
         } else {
             return Optional.empty();
         }
