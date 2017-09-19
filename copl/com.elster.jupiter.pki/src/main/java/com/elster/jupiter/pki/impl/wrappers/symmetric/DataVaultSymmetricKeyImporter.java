@@ -63,7 +63,7 @@ public class DataVaultSymmetricKeyImporter implements DeviceSecretImporter {
                 PlaintextSymmetricKey instance = createPlaintextSymmetricKeyWrapper(decryptedDeviceKey);
                 return instance;
             } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException e) {
-                throw new KeyImportFailedException(thesaurus, MessageSeeds.DEVICE_KEY_IMPORT_FAILED, e);
+                throw new KeyImportFailedException(thesaurus, MessageSeeds.DEVICE_KEY_IMPORT_FAILED, e.getLocalizedMessage());
             }
         } else {
             throw new KeyImportFailedException(thesaurus, MessageSeeds.INCORRECT_IMPORT_KEY, certificateAlias.get());
@@ -71,8 +71,9 @@ public class DataVaultSymmetricKeyImporter implements DeviceSecretImporter {
     }
 
     private PlaintextSymmetricKey createPlaintextSymmetricKeyWrapper(byte[] bytes) {
-        PlaintextSymmetricKey instance = dataModel.getInstance(PlaintextSymmetricKey.class);
+        PlaintextSymmetricKeyImpl instance = dataModel.getInstance(PlaintextSymmetricKeyImpl.class);
         SecretKeySpec secretKeySpec = new SecretKeySpec(bytes, keyAccessorType.getKeyType().getKeyAlgorithm());
+        instance.init(keyAccessorType.getKeyType(), keyAccessorType.getDuration().get());
         instance.setKey(secretKeySpec);
         return instance;
     }

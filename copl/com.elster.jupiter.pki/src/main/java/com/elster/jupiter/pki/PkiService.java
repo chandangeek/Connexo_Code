@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * This is the main interface towards the PKI bundle. It provides access for the main PKI procedures.
+ * This is the main interface for security management. It provides access for the HSM & datavault keys, trust store, key types,
  */
 @ProviderType
 public interface PkiService {
@@ -221,6 +221,26 @@ public interface PkiService {
      * @return All Certificates and ClientCertificates, TrustedCertificates will not be part of the list.
      */
     Finder<CertificateWrapper> findAllCertificates();
+
+
+    /**
+     * Used by the secure shipment importer, this method allows the importer to determine which algorithm is to be used
+     * for which encryption method.
+     * Connexo has only a single algorithm by default:
+     *    http://www.w3.org/2001/04/xmlenc#aes256-cbc (identifier) -> algorithm AES/CBC/PKCS5PADDING with key length 32.
+     * Custom mappings can be added using the method registerSymmetricAlgorithm()
+     * @param identifier The identifier as found in the XMLSEC file.
+     * @return The {@link SymmetricAlgorithm} associated with this identifier, or Optional.empty() if there is none.
+     */
+    Optional<SymmetricAlgorithm> getSymmetricAlgorithm(String identifier);
+
+    /**
+     * Shipment importer used the SymmetricAlgorithm to determine which java algortihm is to be used for which XML algorithm identifier.
+     * This method can be used to add additional algorithms. The identifier of the SymmetricAlgorithm is used as key,
+     * therefore, existing mappings can be overridden as well.
+     * @param symmetricAlgorithm The SymmetricAlgorithm to register. The identifier will be used as id.
+     */
+    void registerSymmetricAlgorithm(SymmetricAlgorithm symmetricAlgorithm);
 
     /**
      * List all known aliases from the certificate store that match the search filter.

@@ -55,6 +55,8 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     private final Map<String, SymmetricKeyFactory> symmetricKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, PassphraseFactory> passphraseFactories = new ConcurrentHashMap<>();
 
+    private final Map<String, SymmetricAlgorithm> symmetricAlgorithmMap = new ConcurrentHashMap<>();
+
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
     private volatile Thesaurus thesaurus;
@@ -68,6 +70,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     public PkiServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
                           DataVaultService dataVaultService, PropertySpecService propertySpecService,
                           EventService eventService, UserService userService) {
+        this();
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -80,7 +83,22 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
 
     // OSGi constructor
     public PkiServiceImpl() {
+        registerSymmetricAlgorithm(new SymmetricAlgorithm() {
+            @Override
+            public String getCipherName() {
+                return "AES/CBC/PKCS5PADDING";
+            }
 
+            @Override
+            public String getIdentifier() {
+                return "http://www.w3.org/2001/04/xmlenc#aes256-cbc";
+            }
+
+            @Override
+            public int getKeyLength() {
+                return 32;
+            }
+        });
     }
 
     @Override
@@ -447,6 +465,18 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         return DefaultFinder.of(CertificateWrapper.class,
                 where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)),
                 getDataModel()).sorted(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName(), true);
+    }
+
+    @Override
+    public Optional<SymmetricAlgorithm> getSymmetricAlgorithm(String identifier) {
+        return symmetricAlgorithmMap.containsKey(identifier) ?
+                Optional.of(symmetricAlgorithmMap.get(identifier)) :
+                Optional.empty();
+    }
+
+    @Override
+    public void registerSymmetricAlgorithm(SymmetricAlgorithm symmetricAlgorithm) {
+        symmetricAlgorithmMap.put(symmetricAlgorithm.getIdentifier(), new SymmetricAlgorithmImpl(symmetricAlgorithm));
     }
 
     @Override

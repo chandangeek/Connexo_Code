@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
  */
 
-package com.elster.jupiter.pki.impl.gogo;
+package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -15,7 +15,7 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.stream.Stream;
 
 @Component(name = "ProtocolsKeyTypeInitializer", immediate = true)
-public class ProtocolsKeyTypeInitializer {
+public class ProtocolsSecurityAccessorTypesInitializer {
     private PkiService pkiService;
     private TransactionService transactionService;
 
