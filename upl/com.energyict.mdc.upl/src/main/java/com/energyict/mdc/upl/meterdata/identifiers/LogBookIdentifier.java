@@ -20,7 +20,9 @@ import java.util.Set;
  * <tr><td>DeviceIdentifierAndObisCode</td><td>device -&gt; the {@link DeviceIdentifier device's identifier}<br>obisCode -&gt; the ObisCode</td></tr>
  * <tr><td>Actual</td><td>databaseValue -&gt; the log book's database identifier<br>actual -&gt; the log book</td></tr>
  * </table>
- * <p/>
+ * <b>Remark:</b><br>
+ * when introducing a new type of LogBookIdentifier, please don't forget to
+ * add a new test case to com.energyict.mdc.device.data.impl.LogBookIdentifierResolvingTest
  * <p>
  * Date: 16/10/12
  * Time: 8:32

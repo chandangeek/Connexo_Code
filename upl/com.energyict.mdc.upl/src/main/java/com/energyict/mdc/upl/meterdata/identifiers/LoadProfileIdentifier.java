@@ -21,7 +21,9 @@ import java.util.Set;
  * <tr><td>FirstLoadProfileOnDevice</td><td>device -&gt; the {@link DeviceIdentifier device's identifier}<br>obisCode -&gt; the ObisCode</td></tr>
  * <tr><td>Actual</td><td>databaseValue -&gt; the load profile's database identifier<br>actual -&gt; the load profile</td></tr>
  * </table>
- * <p/>
+ * <b>Remark:</b><br>
+ * when introducing a new type of LoadProfileIdentifier, please don't forget to
+ * add a new test case to com.energyict.mdc.device.data.impl.LoadProfileIdentifierResolvingTest
  * <p>
  * Date: 15/10/12
  * Time: 14:01
