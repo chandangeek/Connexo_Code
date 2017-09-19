@@ -29,12 +29,9 @@ import java.util.Set;
  * actual -&gt; the device</td></tr>
  * </table>
  * <p>
- * <b>Remark:</b> when introducing a new type of DeviceIdentifier, please don't forget to
- * <ul>
- * <li>extend method {@link DeviceIdentityChecker#equalTo(DeviceIdentifier)} accordingly</li>
- * <li>add a new test case to com.energyict.mdc.device.data.impl.DeviceIdentifierResolvingTest</li>
- * </ul>
- *
+ * <b>Remark:</b><br> when introducing a new type of DeviceIdentifier, please don't forget to
+ * add a new test case to com.energyict.mdc.device.data.impl.DeviceIdentifierResolvingTest
+ * <p>
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-12 (10:56)
  */

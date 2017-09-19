@@ -14,13 +14,15 @@ import java.util.Set;
  * Below is a list of currently known type names:
  * <table>
  * <tr><th>type name</th><th>comprising parts and their roles</th></tr>
- * <tr><td>DatabaseId</td><td>databaseValue -&gt; the register's database identifier<br>device -&gt; the {@link DeviceIdentifier register's identifier}<br>obisCode -&gt; the ObisCode</td></tr>
- * <tr><td>DeviceIdentifierAndObisCode</td><td>device -&gt; the {@link DeviceIdentifier register's identifier}<br>obisCode -&gt; the ObisCode</td></tr>
- * <tr><td>PrimeRegisterForChannel</td><td>device -&gt; the {@link DeviceIdentifier register's identifier}<br>channelIndex -&gt; the channel index<br>obisCode -&gt; the ObisCode</td></tr>
- * <tr><td>Actual</td><td>databaseValue -&gt; the register's database identifier<br>register -&gt; the register<br>actual -&gt; the register</td></tr>
+ * <tr><td>DatabaseId</td><td>databaseValue -&gt; the register's database identifier<br>device -&gt; the {@link DeviceIdentifier register's device identifier}<br>obisCode -&gt; the ObisCode</td></tr>
+ * <tr><td>DeviceIdentifierAndObisCode</td><td>device -&gt; the {@link DeviceIdentifier register's device identifier}<br>obisCode -&gt; the ObisCode</td></tr>
+ * <tr><td>PrimeRegisterForChannel</td><td>device -&gt; the {@link DeviceIdentifier register's device identifier}<br>channelIndex -&gt; the channel index<br>obisCode -&gt; the ObisCode</td></tr>
+ * <tr><td>Actual</td><td>actual -&gt; the register</td></tr>
  * </table>
- * <p/>
- *
+ * <b>Remark:</b><br>
+ * when introducing a new type of RegisterIdentifier, please don't forget to
+ * add a new test case to com.energyict.mdc.device.data.impl.RegisterIdentifierResolvingTest
+ * <p>
  * Date: 15/10/12
  * Time: 13:51
  */
