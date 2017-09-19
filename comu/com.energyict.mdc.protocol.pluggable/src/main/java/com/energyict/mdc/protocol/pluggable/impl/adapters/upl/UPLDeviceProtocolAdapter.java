@@ -96,12 +96,12 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
 
     @Override
     public DeviceFunction getDeviceFunction() {
-        return deviceProtocol.getDeviceFunction(); //TODO?
+        return deviceProtocol.getDeviceFunction();
     }
 
     @Override
     public ManufacturerInformation getManufacturerInformation() {
-        return deviceProtocol.getManufacturerInformation(); //TODO?
+        return deviceProtocol.getManufacturerInformation();
     }
 
     @Override

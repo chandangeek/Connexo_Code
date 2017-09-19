@@ -282,7 +282,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     @Override
     public DeviceFunction getDeviceFunction() {
-        return null;
+        return DeviceFunction.METER;    //TODO: is this correct?
     }
 
     @Override
