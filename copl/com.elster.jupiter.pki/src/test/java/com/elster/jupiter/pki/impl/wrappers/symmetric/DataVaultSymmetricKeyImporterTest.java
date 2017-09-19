@@ -31,8 +31,6 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.time.Clock;
-import java.time.Duration;
-import java.time.Period;
 import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Locale;
@@ -43,7 +41,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
@@ -138,7 +135,7 @@ public class DataVaultSymmetricKeyImporterTest {
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
         when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
         when(keyType.getKeyAlgorithm()).thenReturn(ASYMMETRIC_ALGORITHM);
-        DeviceSecretImporter deviceKeyImporter = new DataVaultSymmetricKeyImporter(keyAccessorType, thesaurus, pkiService, Optional.of("ImportKey"), dataModel);
+        DeviceSecretImporter deviceKeyImporter = new DataVaultSymmetricKeyImporter(keyAccessorType, thesaurus, pkiService, Optional.of("ImportKey"));
         PlaintextSymmetricKey plaintextSymmetricKeyWrapper = mock(PlaintextSymmetricKey.class);
         when(pkiService.newSymmetricKeyWrapper(keyAccessorType)).thenReturn(plaintextSymmetricKeyWrapper);
         SecurityValueWrapper securityValueWrapper = deviceKeyImporter.importSecret(encryptedDeviceSecret, iv, encryptedWrapKey, SYMMETRIC_ALGORITHM, ASYMMETRIC_ALGORITHM);

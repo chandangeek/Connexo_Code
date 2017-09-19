@@ -86,7 +86,7 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory {
 
     @Override
     public DeviceSecretImporter getDeviceKeyImporter(KeyAccessorType keyAccessorType) {
-        return new DataVaultSymmetricKeyImporter(keyAccessorType, thesaurus, pkiService, certificateAlias, dataModel);
+        return new DataVaultSymmetricKeyImporter(keyAccessorType, thesaurus, pkiService, certificateAlias);
     }
 
 }

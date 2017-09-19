@@ -35,14 +35,12 @@ public class DataVaultSymmetricKeyImporter implements DeviceSecretImporter {
     private final Thesaurus thesaurus;
     private final PkiService pkiService;
     private final Optional<String> certificateAlias;
-    private final DataModel dataModel;
 
-    public DataVaultSymmetricKeyImporter(KeyAccessorType keyAccessorType, Thesaurus thesaurus, PkiService pkiService, Optional<String> certificateAlias, DataModel dataModel) {
+    public DataVaultSymmetricKeyImporter(KeyAccessorType keyAccessorType, Thesaurus thesaurus, PkiService pkiService, Optional<String> certificateAlias) {
         this.keyAccessorType = keyAccessorType;
         this.thesaurus = thesaurus;
         this.pkiService = pkiService;
         this.certificateAlias = certificateAlias;
-        this.dataModel = dataModel;
     }
 
     @Override
