@@ -10,6 +10,7 @@ import com.energyict.mdc.device.alarms.impl.actions.CloseDeviceAlarmAction;
 
 public enum TranslationKeys implements TranslationKey {
     AQ_DEVICE_ALARM_EVENT_SUBSC(ModuleConstants.AQ_DEVICE_ALARM_EVENT_SUBSC, ModuleConstants.AQ_DEVICE_ALARM_EVENT_DISPLAYNAME),
+    DEVICE_TYPES_CHANGES_EVENT_SUBSC(ModuleConstants.DEVICE_TYPES_CHANGES_SUBSC, ModuleConstants.DEVICE_TYPES_CHANGES_DISPLAYNAME),
     END_DEVICE_EVENT_CREATED(ModuleConstants.END_DEVICE_EVENT_CREATED, "EndDeviceEvent"),
     BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION(ModuleConstants.BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION, "Create an alarm based on device events"),
     BASIC_TEMPLATE_DEVICE_ALARM_NAME(ModuleConstants.BASIC_TEMPLATE_DEVICE_ALARM_NAME, "Device alarm template"),

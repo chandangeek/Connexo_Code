@@ -37,6 +37,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -54,6 +55,7 @@ import com.energyict.mdc.device.alarms.impl.database.groups.DeviceAlarmGroupOper
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import com.energyict.mdc.device.alarms.impl.install.Installer;
+import com.energyict.mdc.device.alarms.impl.install.UpgraderV10_4;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
 import com.energyict.mdc.device.alarms.security.Privileges;
 import com.energyict.mdc.device.data.DeviceService;
@@ -151,7 +153,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 bind(BpmService.class).toInstance(bpmService);
             }
         });
-        upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, Collections.singletonMap(Version.version(10,4), UpgraderV10_4.class));
     }
 
     @Reference

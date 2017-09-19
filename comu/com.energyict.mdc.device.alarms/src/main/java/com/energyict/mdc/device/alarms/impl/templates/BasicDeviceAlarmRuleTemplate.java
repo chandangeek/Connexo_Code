@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.mdc.device.alarms.BasicDeviceAlarmRuleTemplate",
         property = {"name=" + BasicDeviceAlarmRuleTemplate.NAME},
-        service = CreationRuleTemplate.class,
+        service = {CreationRuleTemplate.class, BasicDeviceAlarmRuleTemplate.class},
         immediate = true)
 public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private static final Logger LOG = Logger.getLogger(BasicDeviceAlarmRuleTemplate.class.getName());
@@ -82,6 +82,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private static final String RAISE_EVENT_PROPS_DEFAULT_VALUE = "0:0:0";
     private static final List<String> RAISE_EVENT_PROPS_POSSIBLE_VALUES = Arrays.asList("0:0:0", "1:0:0", "1:0:1", "1:1:0", "1:1:1");
 
+    private List<DeviceLifeCycleInDeviceTypeInfo> deviceLifeCycleInDeviceTypes = new ArrayList<>();
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile TimeService timeService;
@@ -214,13 +215,10 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        List<DeviceLifeCycleInDeviceTypeInfo> list = new ArrayList<>();
-        deviceConfigurationService.findAllDeviceTypes()
-                .find().stream()
-                .sorted(Comparator.comparing(DeviceType::getId))
-                .forEach(deviceType -> list.add(new DeviceLifeCycleInDeviceTypeInfo(deviceType, deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
-                        .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()), deviceLifeCycleConfigurationService)));
-        DeviceLifeCycleInDeviceTypeInfo[] deviceLifeCycleInDeviceTypepossibleValues = list.stream().toArray(DeviceLifeCycleInDeviceTypeInfo[]::new);
+        if(deviceLifeCycleInDeviceTypes.isEmpty()) {
+            clearAndRecalculateCache();
+        }
+        DeviceLifeCycleInDeviceTypeInfo[] deviceLifeCycleInDeviceTypepossibleValues = deviceLifeCycleInDeviceTypes.stream().toArray(DeviceLifeCycleInDeviceTypeInfo[]::new);
         RaiseEventPropsInfo[] raiseEventPropsPossibleValues = RAISE_EVENT_PROPS_POSSIBLE_VALUES.stream()
                 .map(RaiseEventPropsInfo::new)
                 .toArray(RaiseEventPropsInfo[]::new);
@@ -310,6 +308,15 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             return OpenDeviceAlarm.class.cast(openIssue);
         }
         return openIssue;
+    }
+
+    public void clearAndRecalculateCache() {
+        deviceLifeCycleInDeviceTypes.clear();
+        deviceConfigurationService.findAllDeviceTypes()
+                .find().stream()
+                .sorted(Comparator.comparing(DeviceType::getId))
+                .forEach(deviceType -> deviceLifeCycleInDeviceTypes.add(new DeviceLifeCycleInDeviceTypeInfo(deviceType, deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
+                        .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()), deviceLifeCycleConfigurationService)));
     }
 
     private class EventTypeInfoValueFactory implements ValueFactory<HasIdAndName>, EndDeviceEventTypePropertyFactory {
