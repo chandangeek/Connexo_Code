@@ -82,7 +82,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     @NotNull(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
     private TimeDuration maximumFutureEffectiveTimeShift = EffectiveTimeShift.FUTURE.defaultValue();
     @NotNull(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
-    private TimeDuration maximumPastEffectiveTimeShift = EffectiveTimeShift.PAST.defaultValue();
+    private TimeDuration maximumPastEffectiveTimeShift;
     @Valid
     private List<AuthorizedAction> actions = new ArrayList<>();
     private List<AuthorizedActionImpl> updated = new ArrayList<>();
