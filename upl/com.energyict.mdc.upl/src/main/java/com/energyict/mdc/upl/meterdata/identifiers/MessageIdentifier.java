@@ -15,7 +15,9 @@ import java.util.Set;
  * <tr><td>DeviceIdentifierAndProtocolInfoParts</td><td>device -&gt; the {@link DeviceIdentifier device's identifier}<br>protocolInfo -&gt; protocol specific information in the form of String[]</td></tr>
  * <tr><td>Actual</td><td>databaseValue -&gt; the message's database identifier<br>actual -&gt; the device message<br>device -&gt; the {@link DeviceIdentifier device's identifier}</td></tr>
  * </table>
- * <p>
+ * <b>Remark:</b><br>
+ * when introducing a new type of MessageIdentifier, please don't forget to
+ * add a new test case to com.energyict.mdc.device.data.impl.MessageIdentifierResolvingTest
  * <p>
  * Date: 22/03/13
  * Time: 8:59
