@@ -113,6 +113,7 @@ public class RegisteredDevicesKpiResource {
             List<RegisteredDeviceKpiGroupInfo> infos = registeredDevicesKpiService.findAllRegisteredDevicesKpis()
                     .stream()
                     .map(RegisteredDeviceKpiGroupInfo::new)
+                    .sorted((info1, info2) -> info1.name.compareToIgnoreCase(info2.name))
                     .collect(toList());
             return Response.ok(infos).build();
         }
@@ -133,12 +134,13 @@ public class RegisteredDevicesKpiResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Path("/{id}/data")
+    @Path("/kpidata")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION,
             com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION,
             com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,})
-    public Response getKpiData(@PathParam("id") long id, @BeanParam JsonQueryFilter filter) {
-        RegisteredDevicesKpi registeredDevicesKpi = resourceHelper.findRegisteredDevicesKpiByIdOrThrowException(id);
+    public Response getKpiData(@BeanParam JsonQueryFilter filter) {
+        RegisteredDevicesKpi registeredDevicesKpi = resourceHelper.findRegisteredDevicesKpiByIdOrThrowException(
+                filter.hasProperty("kpiId") ? filter.getLong("kpiId") : 0);
         Optional<Range<Instant>> range;
         if (filter.hasProperty("start") && filter.hasProperty("end")) {
             Instant start = filter.getInstant("start");
