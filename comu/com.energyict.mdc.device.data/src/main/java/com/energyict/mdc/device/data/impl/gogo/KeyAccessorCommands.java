@@ -8,6 +8,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PlaintextPassphrase;
@@ -59,6 +60,7 @@ import static java.util.stream.Collectors.toList;
         property = {
                 "osgi.command.scope=ka",
                 "osgi.command.function=keyAccessors",
+                "osgi.command.function=importDeviceCertificateWithKey",
                 "osgi.command.function=importCertificateWithKey",
                 "osgi.command.function=generateCSR",
                 "osgi.command.function=truststores",
@@ -172,11 +174,47 @@ public class KeyAccessorCommands {
     }
 
     public void importCertificateWithKey() {
-        System.out.println("Usage: importCertificateWithKey <device name> <cert accessor type name> <pkcs#12 file>  <password> <alias>");
-        System.out.println("e.g. : importCertificateWithKey ABC123 \"TLS SUITE 2\" tls.pkcs12 foo123 mycert");
+        System.out.println("Usage: importCertificateWithKey <certstore alias> <pkcs#12 file>  <password> <alias>");
+        System.out.println("e.g. : importCertificateWithKey 'MDC' tls.pkcs12 foo123 mycert");
     }
 
-    public void importCertificateWithKey(String deviceName, String certKatName, String pkcs12Name, String pkcs12Password, String alias)
+    public void importCertificateWithKey(String certificateAlias, String pkcs12Name, String pkcs12Password, String alias)
+            throws KeyStoreException, IOException, CertificateException,
+            NoSuchAlgorithmException, UnrecoverableKeyException {
+
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            KeyType keyType = pkiService.getKeyType("RSA 1024")
+                    .orElseThrow(() -> new RuntimeException("No such key type: RSA 1024"));
+
+            KeyStore pkcs12 = KeyStore.getInstance("pkcs12");
+            pkcs12.load(new FileInputStream(pkcs12Name), pkcs12Password.toCharArray());
+            Certificate certificate = pkcs12.getCertificate(alias);
+            if (certificate==null) {
+                throw new RuntimeException("The keystore does not contain a certificate with alias "+alias);
+            }
+            Key key = pkcs12.getKey(alias, pkcs12Password.toCharArray());
+            if (key==null) {
+                throw new RuntimeException("The keystore does not contain a key with alias "+alias);
+            }
+            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(keyType, "DataVault")
+                    .alias(certificateAlias).add();
+            clientCertificateWrapper.setCertificate((X509Certificate) certificate);
+            PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) clientCertificateWrapper.getPrivateKeyWrapper();
+            privateKeyWrapper.setPrivateKey((PrivateKey) key);
+            privateKeyWrapper.save();
+
+            context.commit();
+        }
+    }
+
+    public void importDeviceCertificateWithKey() {
+        System.out.println("Usage: importDeviceCertificateWithKey <device name> <cert accessor type name> <pkcs#12 file>  <password> <alias>");
+        System.out.println("e.g. : importDeviceCertificateWithKey ABC123 \"TLS SUITE 2\" tls.pkcs12 foo123 mycert");
+    }
+
+    public void importDeviceCertificateWithKey(String deviceName, String certKatName, String pkcs12Name, String pkcs12Password, String alias)
             throws KeyStoreException, IOException, CertificateException,
                         NoSuchAlgorithmException, UnrecoverableKeyException {
 
