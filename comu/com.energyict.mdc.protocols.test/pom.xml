@@ -20,13 +20,6 @@
         Contains license service for all the test protocols
     </description>
 
-    <properties>
-        <protocols.version>1.1.0${revision}</protocols.version>
-        <protocol.mockito.version>1.9.0</protocol.mockito.version>
-        <proguard.maven.version>2.0.11</proguard.maven.version>
-        <proguard.version>5.2</proguard.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
