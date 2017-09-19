@@ -13,14 +13,18 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- *
- *
  * @author khe
  * @since 8/12/2016 - 16:04
  */
 public class RegisterIdentifierByAlreadyKnownRegister implements RegisterIdentifier {
 
     private final Register register;
+
+    // For JSON serialization only or in unit tests
+    @SuppressWarnings("unused")
+    public RegisterIdentifierByAlreadyKnownRegister() {
+        register = null;
+    }
 
     public RegisterIdentifierByAlreadyKnownRegister(com.energyict.mdc.upl.meterdata.Register register) {
         this.register = (Register) register;    //Downcast to the Connexo Register
@@ -54,7 +58,7 @@ public class RegisterIdentifierByAlreadyKnownRegister implements RegisterIdentif
         }
         RegisterIdentifierByAlreadyKnownRegister that = (RegisterIdentifierByAlreadyKnownRegister) o;
         return (register.getDevice().getId() == that.register.getDevice().getId())
-            && (register.getRegisterSpecId() == that.register.getRegisterSpecId());
+                && (register.getRegisterSpecId() == that.register.getRegisterSpecId());
     }
 
     @Override
