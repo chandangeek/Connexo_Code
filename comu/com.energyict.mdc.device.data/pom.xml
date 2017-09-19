@@ -24,8 +24,6 @@
 
     <properties>
         <argLine>-Xmx2g -Xms512m -Djava.util.logging.config.file=../copl/com.elster.jupiter.parent/junit-logging.properties</argLine>
-        <protocols.version>1.1.0${revision}</protocols.version>
-        <reflections.version>0.9.10</reflections.version>
     </properties>
 
     <dependencies>
@@ -356,7 +354,6 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>${reflections.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
