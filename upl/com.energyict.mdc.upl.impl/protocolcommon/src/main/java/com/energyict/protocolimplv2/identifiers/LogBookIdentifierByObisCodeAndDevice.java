@@ -26,8 +26,8 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
     private DeviceIdentifier deviceIdentifier;
     private ObisCode logBookObisCode;
 
-    // For JSON serialization only
-    private LogBookIdentifierByObisCodeAndDevice() {
+    // For JSON serialization only or in unit tests
+    public LogBookIdentifierByObisCodeAndDevice() {
         super();
     }
 
