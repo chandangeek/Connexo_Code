@@ -7,7 +7,7 @@ import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -66,13 +66,15 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
 
         @Override
         public Set<String> getRoles() {
-            return new HashSet<>(Collections.singletonList("device"));
+            return new HashSet<>(Arrays.asList("device", "obisCode"));
         }
 
         @Override
         public Object getValue(String role) {
             if ("device".equals(role)) {
                 return getDeviceIdentifier();
+            } else if ("obisCode".equals(role)) {
+                return getProfileObisCode();
             } else {
                 throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
             }

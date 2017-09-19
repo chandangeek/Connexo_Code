@@ -23,7 +23,7 @@ import java.util.Set;
 @XmlRootElement
 public class LoadProfileIdentifierById implements LoadProfileIdentifier {
 
-    private final int loadProfileId;
+    private final long loadProfileId;
     private final ObisCode profileObisCode;
     private final DeviceIdentifier deviceIdentifier;
 
@@ -35,7 +35,7 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
         this.deviceIdentifier = null;
     }
 
-    public LoadProfileIdentifierById(int loadProfileId, ObisCode profileObisCode, DeviceIdentifier deviceIdentifier) {
+    public LoadProfileIdentifierById(long loadProfileId, ObisCode profileObisCode, DeviceIdentifier deviceIdentifier) {
         super();
         this.loadProfileId = loadProfileId;
         this.profileObisCode = profileObisCode;
@@ -54,7 +54,7 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
     }
 
     @XmlAttribute
-    public int getLoadProfileId() {
+    public long getLoadProfileId() {
         return loadProfileId;
     }
 
