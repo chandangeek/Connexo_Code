@@ -27,9 +27,9 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     private final ObisCode registerObisCode;
     private final DeviceIdentifier deviceIdentifier;
 
-    // For JSON serialization only
+    // For JSON serialization only or in unit tests
     @SuppressWarnings("unused")
-    private RegisterDataIdentifierByObisCodeAndDevice() {
+    public RegisterDataIdentifierByObisCodeAndDevice() {
         this.registerObisCode = null;
         this.deviceIdentifier = new NullDeviceIdentifier();
     }

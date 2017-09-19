@@ -27,9 +27,9 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
     private final int channelIndex;
     private final DeviceIdentifier deviceIdentifier;
 
-    // For JSON serialization only
+    // For JSON serialization only or in unit tests
     @SuppressWarnings("unused")
-    private PrimeRegisterForChannelIdentifier() {
+    public  PrimeRegisterForChannelIdentifier() {
         this.registerObisCode = null;
         this.channelIndex = 0;
         this.deviceIdentifier = null;
