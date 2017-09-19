@@ -23,6 +23,12 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
 
     private final DeviceMessage deviceMessage;
 
+    // For JSON serialization only or in unit tests
+    @SuppressWarnings("unused")
+    public DeviceMessageIdentifierForAlreadyKnownMessage() {
+        this.deviceMessage = null;
+    }
+
     public DeviceMessageIdentifierForAlreadyKnownMessage(DeviceMessage deviceMessage) {
         this.deviceMessage = deviceMessage;
     }
