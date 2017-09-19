@@ -21,9 +21,9 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
     private final int messageId;
     private final DeviceIdentifier deviceIdentifier;
 
-    // For JSON serialization only
+    // For JSON serialization only  or in unit tests
     @SuppressWarnings("unused")
-    private DeviceMessageIdentifierById() {
+    public DeviceMessageIdentifierById() {
         messageId = -1;
         deviceIdentifier = null;
     }

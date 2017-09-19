@@ -25,9 +25,9 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
     private final DeviceIdentifier deviceIdentifier;
     private final String[] messageProtocolInfoParts;
 
-    // For JSON serialization only
+    // For JSON serialization only or in unit tests
     @SuppressWarnings("unused")
-    private DeviceMessageIdentifierByDeviceAndProtocolInfoParts() {
+    public DeviceMessageIdentifierByDeviceAndProtocolInfoParts() {
         deviceIdentifier = new NullDeviceIdentifier();
         messageProtocolInfoParts = new String[0];
     }
