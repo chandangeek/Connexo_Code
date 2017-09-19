@@ -156,7 +156,8 @@ public class SecureDeviceShipmentImporter implements FileImporter {
         verifySignature(inputStreamProvider.get(), publicKey, logger);
         DeviceCreator deviceCreator = getDeviceCreator(shipment);
 
-        importDevices(shipment, deviceCreator, logger);
+        int importDevices = importDevices(shipment, deviceCreator, logger);
+        fileImportOccurrence.markSuccess(thesaurus.getFormat(MessageSeeds.IMPORT_COMPLETED).format(importDevices));
     }
 
     private DeviceCreator getDeviceCreator(Shipment shipment) {
@@ -175,7 +176,8 @@ public class SecureDeviceShipmentImporter implements FileImporter {
         return deviceCreator;
     }
 
-    private void importDevices(Shipment shipment, DeviceCreator deviceCreator, Logger logger) {
+    private int importDevices(Shipment shipment, DeviceCreator deviceCreator, Logger logger) {
+        int deviceCount = 0;
         DeviceType deviceType = findDeviceType(shipment);
         Map<String, WrapKey> wrapKeyMap = createWrapKeyMap(shipment);
 
@@ -202,11 +204,13 @@ public class SecureDeviceShipmentImporter implements FileImporter {
 
                 postProcessDevice(device, xmlDevice, shipment, logger);
                 log(logger, MessageSeeds.IMPORTED_DEVICE, deviceName);
+                deviceCount++;
             } catch (Exception e) {
                 log(logger, MessageSeeds.IMPORT_FAILED_FOR_DEVICE, deviceName, e);
                 throw e;
             }
         }
+        return deviceCount;
     }
 
     private void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, Map<String, WrapKey> wrapKeyMap, Logger logger) {

@@ -98,7 +98,7 @@ public enum MessageSeeds implements MessageSeed {
     INITIALIZATION_VECTOR_ERROR(531, "NoIV", "IV not found in encrypted key", Level.SEVERE),
     IMPORTED_DEVICE(532, "ImportedDevice", "Device ''{0}'' imported successfully", Level.INFO),
     ACTUAL_VALUE_ALREADY_EXISTS(533, "ActualValueAlreadyExists", "Can''t process device ''{1}'': security accessor ''{0}'' already as an 'active' value.", Level.WARNING),
-    ;
+    IMPORT_COMPLETED(534, "ImportSuccesful", "The device import completed, a total of {0} devices have been created", Level.INFO);
 
 
 
