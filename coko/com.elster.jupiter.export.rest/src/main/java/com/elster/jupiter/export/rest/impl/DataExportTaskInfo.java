@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.export.rest.impl;
 
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -29,4 +30,15 @@ public class DataExportTaskInfo {
     public List<DestinationInfo> destinations = new ArrayList<>();
     public long version;
     public int logLevel = Level.WARNING.intValue();
+
+    public long getUsagePointGroupId(){
+        return ((Number)standardDataSelector.usagePointGroup.id).longValue();
+    }
+
+    public long getMetrologyPurposeId(){
+        return standardDataSelector.purpose.id;
+    }
+    public List<ReadingTypeInfo>  getReadingTypes() {
+        return standardDataSelector.readingTypes;
+    }
 }
