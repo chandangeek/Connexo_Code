@@ -97,7 +97,7 @@ public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiServ
     @Override
     public List<RegisteredDevicesKpiScore> getScores(Device gateway, Range<Instant> interval, RegisteredDevicesKpiFrequency frequency) {
         ScheduleExpression expression = getTemporalExpression(frequency.getFrequency());
-        Optional<ZonedDateTime> zonedDateTime = expression.nextOccurrence(ZonedDateTime.ofInstant(interval.lowerEndpoint(), clock.getZone()));
+        Optional<ZonedDateTime> zonedDateTime = expression.nextOccurrence(ZonedDateTime.ofInstant(interval.lowerEndpoint().minus(frequency.getFrequency()), clock.getZone()));
         ZonedDateTime startTime = zonedDateTime.get();
         List<PhysicalGatewayReference> gatewayReferences = topologyService.getPhysyicalGatewayReferencesFor(gateway, interval);
         Map<Instant, Integer> countPerInstant = getInstantsMap(interval, expression, startTime);
@@ -111,7 +111,6 @@ public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiServ
     }
 
     private Map<Instant, Integer> getInstantsMap(Range<Instant> interval, ScheduleExpression expression, ZonedDateTime startTime) {
-        startTime = expression.nextOccurrence(startTime).get();
         Map<Instant, Integer> numberPerInstant = new HashMap<>();
         while (!startTime.toInstant().isAfter(interval.upperEndpoint())) {
             numberPerInstant.put(startTime.toInstant(), 0);
