@@ -63,22 +63,8 @@ Ext.define('Dal.view.ActionMenu', {
 
     onCheck: function (getConfirmationWindow) {
         var me = this,
-            confWindow = getConfirmationWindow(),
-            progressbar = confWindow.insert(2, {
-                xtype: 'progressbar',
-                itemId: 'snooze-progressbar',
-                margin: '5 0 15 0'
-            });
-
-        progressbar.wait({
-            duration: 10000,
-            fn: Ext.bind(me.onTooLongOperation, me, [confWindow, {
-                title: Uni.I18n.translate('issue.snooze.timeout.title1', 'DAL', 'Snooze request takes longer than expected'),
-                msg: Uni.I18n.translate('issue.snooze.timeout.message', 'DAL', 'Snooze request takes longer than expected and will continue in the background.')
-            }])
-        });
-
-        me.doOperation(confWindow, Uni.I18n.translate('snooze.successMsg', 'DAL', 'Snooze successful'), 'snooze');
+            confWindow = getConfirmationWindow();
+        me.doOperation(confWindow, Uni.I18n.translate('snooze.acknowledgment.snoozed', 'DAL', 'Alarm snoozed'), 'snooze');
     },
 
     doOperation: function (confirmationWindow, successMessage, action) {
@@ -102,13 +88,12 @@ Ext.define('Dal.view.ActionMenu', {
             jsonData: Ext.encode(updatedData),
             success: function (response) {
                 confirmationWindow.close();
-                me.fireEvent('acknowledge', successMessage);
+                router.getApplication().fireEvent('acknowledge', successMessage);
                 router.getRoute().forward(null, Ext.Object.fromQueryString(router.getQueryString()));
             },
             failure: function (response) {
                 var json = Ext.decode(response.responseText, true);
                 if (json && json.errors) {
-                    confirmationWindow.down('#snooze-progressbar').reset(true);
                     confirmationWindow.down('#issue-snooze-until-date').markInvalid(json.errors[0].msg);
 
                 }
