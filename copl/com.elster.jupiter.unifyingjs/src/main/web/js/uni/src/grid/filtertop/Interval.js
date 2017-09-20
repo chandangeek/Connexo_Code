@@ -315,7 +315,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         ui: 'action',
                                         action: 'apply',
                                         text: Uni.I18n.translate('general.apply', 'UNI', 'Apply'),
-                                        disabled: me.fromAndToValueRequired ? (me.defaultFromDate && me.defaultToDate ? false : true) : !me.defaultFromDate && !me.defaultToDate
+                                        disabled: me.fromAndToValueRequired ? (me.defaultFromDate && me.defaultToDate ? false : true) : false
                                     },
                                     {
                                         xtype: 'button',
@@ -565,9 +565,9 @@ Ext.define('Uni.grid.filtertop.Interval', {
             me.getClearButton().setDisabled(false);
         }
 
-        var enabledBecauseOfFrom = !Ext.isEmpty(currentFromDate),
-            enabledBecauseOfTo = !Ext.isEmpty(currentToDate);
-        me.getApplyButton().setDisabled( me.fromAndToValueRequired ? !enabledBecauseOfFrom || !enabledBecauseOfTo : !enabledBecauseOfFrom && !enabledBecauseOfTo );
+        if (me.fromAndToValueRequired) {
+            me.getApplyButton().setDisabled( Ext.isEmpty(currentFromDate) || Ext.isEmpty(currentToDate) );
+        }
     },
 
     getChooseIntervalButton: function () {
