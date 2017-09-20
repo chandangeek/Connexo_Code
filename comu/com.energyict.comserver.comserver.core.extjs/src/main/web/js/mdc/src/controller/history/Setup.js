@@ -1204,6 +1204,12 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
                             filter: 'Bpm.monitorprocesses.model.HistoryProcessesFilter',
                             action: 'showDeviceProcesses'
+                        },
+                        regdevices: {
+                            title: Uni.I18n.translate('title.registeredDevices', 'MDC', 'Registered devices'),
+                            route: 'regdevices',
+                            controller: 'Mdc.registereddevices.controller.RegisteredDevices',
+                            action: 'showRegisteredDevicesOnGateway'
                         }
                     }
                 }

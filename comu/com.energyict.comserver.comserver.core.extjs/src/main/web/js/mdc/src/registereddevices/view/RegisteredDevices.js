@@ -72,7 +72,8 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevices', {
                                 dataIndexFrom: 'start',
                                 dataIndexTo: 'end',
                                 text: Uni.I18n.translate('general.period', 'MDC', 'Period'),
-                                fromAndToValueRequired: true
+                                fromAndToValueRequired: true,
+                                maxValue: new Date()
                             }
                         ]
                     },

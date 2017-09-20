@@ -34,6 +34,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
     data: [],
     frequency: undefined, // as a string
     period: undefined,
+    showTargetAndTotal: true,
 
     initComponent: function () {
         this.callParent(arguments);
@@ -168,21 +169,15 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
             plotOptions: {
                 column: {
                     color: me.columnColor,
-                    stacking: 'normal',
+                    dataGrouping: {
+                        enabled: false
+                    },
                     pointPadding: 0,
                     borderWidth: 1,
                     borderColor: me.columnBorderColor,
                     groupPadding: 0,
-                    shadow: false,
-                    // animation: false
-                    // pointStart: Date.UTC(2017, 8, 1, 10), // = 12:00 GMT
-                    // pointInterval: 3600 * 250, // 15 min
-                    // pointRange: 3600 * 250 // make the columns as broad as the interval
+                    shadow: false
                 },
-                // line: {
-                //     pointStart: Date.UTC(2017, 8, 1, 10), // = 12:00 GMT
-                //     pointInterval: 3600 * 250 // 15 min
-                // },
                 series: {
                     showInNavigator: true
                 }
@@ -206,28 +201,48 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
         seriesRegistered['name'] = 'registeredDevices';
         seriesRegistered['data'] = [];
 
-        seriesTotal['name'] = Uni.I18n.translate('general.totalAmountOfDevices', 'MDC', 'Total amount of devices');
-        seriesTotal['color'] = this.totalColor;
-        seriesTotal['type'] = 'line';
-        seriesTotal['data'] = [];
+        if (me.showTargetAndTotal) {
+            seriesTotal['name'] = Uni.I18n.translate('general.totalAmountOfDevices', 'MDC', 'Total amount of devices');
+            seriesTotal['color'] = this.totalColor;
+            seriesTotal['type'] = 'line';
+            seriesTotal['data'] = [];
 
-        seriesTarget['name'] = Uni.I18n.translate('general.target', 'MDC', 'Target');
-        seriesTarget['color'] = this.targetColor;
-        seriesTarget['type'] = 'line';
-        seriesTarget['data'] = [];
+            seriesTarget['name'] = Uni.I18n.translate('general.target', 'MDC', 'Target');
+            seriesTarget['color'] = this.targetColor;
+            seriesTarget['type'] = 'line';
+            seriesTarget['data'] = [];
+        }
 
         // Convert the records into graph data
         var start = undefined;
         if (records.length > 0) {
-            if (me.frequency === '12h' && records.length < 12) {
-                start = moment(records[records.length - 1].get('timestamp')).subtract(7, 'days').valueOf();
-            } else if (me.frequency === '1d' && records.length < 30) {
-                start = moment(records[records.length - 1].get('timestamp')).subtract(30, 'days').valueOf();
-            } else {
-                start = moment(records[records.length - 1].get('timestamp')).subtract(1, 'days').valueOf();
+            switch(me.frequency) {
+                case '1d':
+                    if (records.length < 31) {
+                        start = moment(records[records.length - 1].get('timestamp')).subtract(30, 'days').valueOf();
+                    }
+                    break;
+                case '12h':
+                    if (records.length < 15) {
+                        start = moment(records[records.length - 1].get('timestamp')).subtract(7, 'days').valueOf();
+                    }
+                    break;
+                case '4h':
+                    if (records.length < 7) {
+                        start = moment(records[records.length - 1].get('timestamp')).subtract(1, 'days').valueOf();
+                    }
+                    break;
+                case '15m':
+                    if (records.length < 97) {
+                        start = moment(records[records.length - 1].get('timestamp')).subtract(1, 'days').valueOf();
+                    }
+                    break;
             }
             if (me.period) {
                 start = parseInt(me.period.split('-')[0]);
+                if (start > records[0].get('timestamp')) {
+                    start = records[0].get('timestamp');
+                }
             }
         }
 
@@ -247,6 +262,9 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
                 break;
         }
 
+        if (Ext.isEmpty(start)) {
+            start = records[0].get('timestamp');
+        }
         Ext.Array.forEach(records, function(record) {
             var timestamp = record.get('timestamp');
             if (timestamp != start) {
@@ -256,21 +274,27 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
                 }
                 if (start === timestamp) {
                     seriesRegistered['data'].push([timestamp, record.get('registered')]);
-                    seriesTotal['data'].push([timestamp, record.get('total')]);
-                    seriesTarget['data'].push([timestamp, record.get('target')]);
+                    if (me.showTargetAndTotal) {
+                        seriesTotal['data'].push([timestamp, record.get('total')]);
+                        seriesTarget['data'].push([timestamp, record.get('target')]);
+                    }
                     start += frequencyInMillis;
                 }
             } else {
                 seriesRegistered['data'].push([timestamp, record.get('registered')]);
-                seriesTotal['data'].push([timestamp, record.get('total')]);
-                seriesTarget['data'].push([timestamp, record.get('target')]);
+                if (me.showTargetAndTotal) {
+                    seriesTotal['data'].push([timestamp, record.get('total')]);
+                    seriesTarget['data'].push([timestamp, record.get('target')]);
+                }
                 start += frequencyInMillis;
             }
         });
 
         series.push(seriesRegistered);
-        series.push(seriesTotal);
-        series.push(seriesTarget);
+        if (me.showTargetAndTotal) {
+            series.push(seriesTotal);
+            series.push(seriesTarget);
+        }
         return series;
     }
 });

@@ -6,6 +6,7 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
 
     views: [
         'Mdc.registereddevices.view.RegisteredDevices',
+        'Mdc.registereddevices.view.RegisteredDevicesOnGateway',
         'Mdc.registereddevices.view.RegisteredDevicesKPIs',
         'Mdc.registereddevices.view.AddEditView',
         'Mdc.registereddevices.view.ActionMenu'
@@ -13,9 +14,11 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
 
     models: [
         'Mdc.registereddevices.model.RegisteredDevicesKPI',
+        'Mdc.registereddevices.model.RegisteredDevicesOnGateway',
         'Mdc.registereddevices.model.AvailableDeviceGroup',
         'Mdc.registereddevices.model.AvailableKPI',
-        'Mdc.registereddevices.model.RegisteredDevicesKPIsData'
+        'Mdc.registereddevices.model.RegisteredDevicesKPIsData',
+        'Mdc.model.Device'
     ],
 
     stores: [
@@ -23,7 +26,8 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
         'Mdc.registereddevices.store.RegisteredDevicesKPIs',
         'Mdc.registereddevices.store.AvailableDeviceGroups',
         'Mdc.registereddevices.store.AvailableKPIs',
-        'Mdc.registereddevices.store.RegisteredDevicesKPIsData'
+        'Mdc.registereddevices.store.RegisteredDevicesKPIsData',
+        'Mdc.registereddevices.store.RegisteredDevicesOnGateway'
     ],
 
     refs: [
@@ -32,7 +36,8 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
         {ref: 'kpiPreviewContainer', selector: '#mdc-registered-devices-kpi-preview'},
         {ref: 'kpisGrid', selector: 'registered-devices-kpis-grid'},
         {ref: 'kpisOverview', selector: 'registered-devices-kpis-view'},
-        {ref: 'registeredDevicesView', selector: 'registered-devices-view'}
+        {ref: 'registeredDevicesView', selector: 'registered-devices-view'},
+        {ref: 'registeredDevicesOnGatewayView', selector: 'registered-devices-on-gateway-view'}
     ],
 
     init: function () {
@@ -101,10 +106,10 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
 
         if (records.length === 0) {
             registeredDevicesView.down('#mdc-registered-devices-view-no-data').show();
-            registeredDevicesView.down('#mdc-registered-devices-graph').hide();
+            graph.hide();
         } else if (storeRecord && graph) {
             registeredDevicesView.down('#mdc-registered-devices-view-no-data').hide();
-            registeredDevicesView.down('#mdc-registered-devices-graph').show();
+            graph.show();
             graph.data = records;
             graph.period = me.getRegisteredDevicesView().down('#mdc-registered-devices-period-filter').getParamValue();
             graph.frequency = me.determineFrequency(storeRecord);
@@ -316,7 +321,57 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
     onDestroyRegisteredDevicesView: function() {
         kpiDataStore = Ext.getStore('Mdc.registereddevices.store.RegisteredDevicesKPIsData');
         kpiDataStore.un('load', this.onDestroyRegisteredDevicesView);
-    }
+    },
 
+    showRegisteredDevicesOnGateway: function(deviceName) {
+        var me = this,
+            widget = undefined,
+            kpiDataStore = Ext.getStore('Mdc.registereddevices.store.RegisteredDevicesOnGateway');
+
+        kpiDataStore.getProxy().setUrl(deviceName);
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceName, {
+            success: function (record) {
+                widget = Ext.widget('registered-devices-on-gateway-view', {device: record});
+                if (Ext.isEmpty(widget.down('#mdc-registered-devices-on-gateway-frequency-combo').getValue())) {
+                    widget.down('#mdc-registered-devices-on-gateway-frequency-combo').setValue('1days');
+                }
+                me.getApplication().fireEvent('loadDevice', record);
+                me.getApplication().fireEvent('changecontentevent', widget);
+                kpiDataStore.on('load', me.onLoadDataStore, me);
+            }
+        });
+    },
+
+    onLoadDataStore: function(store, records) {
+        var me = this,
+            registeredDevicesView = me.getRegisteredDevicesOnGatewayView(),
+            frequencyCombo = registeredDevicesView.down('#mdc-registered-devices-on-gateway-frequency-combo'),
+            frequencyStore = frequencyCombo.getStore(),
+            indexInStore = frequencyStore.findExact('id', frequencyCombo.getValue()),
+            frequencyRecord = indexInStore === -1 ? null : frequencyStore.getAt(indexInStore),
+            graph = registeredDevicesView.down('#mdc-registered-devices-graph');
+
+        if (frequencyRecord && graph) {
+            registeredDevicesView.down('#mdc-registered-devices-graph').show();
+            graph.showTargetAndTotal = false;
+            graph.data = records;
+            graph.period = me.getRegisteredDevicesOnGatewayView().down('#mdc-registered-devices-on-gateway-period-filter').getParamValue();
+            switch(frequencyRecord.get('id')) {
+                case '15minutes':
+                    graph.frequency = '15m';
+                    break;
+                case '4hours':
+                    graph.frequency = '4h';
+                    break;
+                case '12hours':
+                    graph.frequency = '12h';
+                    break;
+                case '1days':
+                default:
+                    graph.frequency = '1d';
+            }
+            graph.drawGraph();
+        }
+    }
 });
 
