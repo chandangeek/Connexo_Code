@@ -73,11 +73,15 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
         kpiStore.load(function(kpiRecords) {
             if (kpiRecords.length === 0) {
                 widget.down('#mdc-registered-devices-view-no-kpis').show();
+                widget.down('#mdc-registered-devices-view-no-data').hide();
                 widget.down('#mdc-registered-devices-filters').hide();
                 widget.down('#mdc-registered-devices-graph').hide();
             } else {
-                widget.down('#mdc-registered-devices-device-group-filter').setValue(kpiRecords[0].get('id'));
+                if (Ext.isEmpty(widget.down('#mdc-registered-devices-device-group-filter').getValue())) {
+                    widget.down('#mdc-registered-devices-device-group-filter').setValue(kpiRecords[0].get('id'));
+                }
                 widget.down('#mdc-registered-devices-view-no-kpis').hide();
+                widget.down('#mdc-registered-devices-view-no-data').hide();
                 widget.down('#mdc-registered-devices-filters').show();
                 widget.down('#mdc-registered-devices-graph').show();
             }
@@ -88,13 +92,19 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
 
     onLoadKPIDataStore: function(store, records) {
         var me = this,
-            deviceGroupCombo = me.getRegisteredDevicesView().down('#mdc-registered-devices-device-group-filter'),
-            kpiStore = me.getRegisteredDevicesView().down('#mdc-registered-devices-device-group-filter').getStore(),
+            registeredDevicesView = me.getRegisteredDevicesView(),
+            deviceGroupCombo = registeredDevicesView.down('#mdc-registered-devices-device-group-filter'),
+            kpiStore = registeredDevicesView.down('#mdc-registered-devices-device-group-filter').getStore(),
             indexInStore = kpiStore.findExact('id', deviceGroupCombo.getValue()),
             storeRecord = indexInStore === -1 ? null : kpiStore.getAt(indexInStore),
-            graph = me.getRegisteredDevicesView().down('#mdc-registered-devices-graph');
+            graph = registeredDevicesView.down('#mdc-registered-devices-graph');
 
-        if (storeRecord && graph) {
+        if (records.length === 0) {
+            registeredDevicesView.down('#mdc-registered-devices-view-no-data').show();
+            registeredDevicesView.down('#mdc-registered-devices-graph').hide();
+        } else if (storeRecord && graph) {
+            registeredDevicesView.down('#mdc-registered-devices-view-no-data').hide();
+            registeredDevicesView.down('#mdc-registered-devices-graph').show();
             graph.data = records;
             graph.period = me.getRegisteredDevicesView().down('#mdc-registered-devices-period-filter').getParamValue();
             graph.frequency = me.determineFrequency(storeRecord);

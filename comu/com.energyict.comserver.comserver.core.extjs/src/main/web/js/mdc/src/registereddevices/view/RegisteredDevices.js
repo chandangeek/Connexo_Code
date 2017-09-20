@@ -10,6 +10,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevices', {
         'Mdc.registereddevices.view.RegisteredDevicesGraph',
         'Uni.grid.FilterPanelTop',
         'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.util.FormInfoMessage',
         'Mdc.registereddevices.store.AvailableKPIs',
         'Mdc.privileges.RegisteredDevicesKpi',
         'Mdc.registereddevices.store.RegisteredDevicesKPIsData'
@@ -74,6 +75,11 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevices', {
                                 fromAndToValueRequired: true
                             }
                         ]
+                    },
+                    {
+                        xtype: 'uni-form-info-message',
+                        itemId: 'mdc-registered-devices-view-no-data',
+                        text: Uni.I18n.translate('registeredDevicesKPIs.noData', 'MDC', 'No KPI data to show.')
                     },
                     {
                         xtype: 'registered-devices-graph',
