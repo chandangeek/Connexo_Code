@@ -21,13 +21,19 @@ import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.export.security.Privileges;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
@@ -45,6 +51,8 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.transaction.CommitException;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.streams.Functions;
@@ -73,7 +81,11 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -125,7 +137,76 @@ public class DataExportTaskResource {
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("dataExportTasks", infos, queryParameters);
     }
+    private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
+        Set<ReadingType> readingTypes = new LinkedHashSet<>();
+        usagePoint.getMeterActivations()
+                .stream()
+                .map(MeterActivation::getReadingTypes)
+                .flatMap(Collection::stream)
+                .forEach(readingTypes::add);
+        return readingTypes;
+    }
 
+    @GET
+    @Path("/usagepoint/{usagePointId}/{purposeId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
+    public PagedInfoList getDataExportTasksOnUsagePointAndPurpose(@BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode, @PathParam("usagePointId") String usagePointId,@PathParam("purposeId") long purposeId) {
+        String applicationName = getApplicationNameFromCode(appCode);
+
+
+        Optional<UsagePoint> usagePoint = meteringService.findUsagePointByName(usagePointId);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint.get());
+        MetrologyContract metrologyContract = findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, purposeId);
+
+        ReadingTypeInfos readingTypeInfos = new ReadingTypeInfos(collectReadingTypes(usagePoint.get()));
+
+
+        ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(applicationName);
+        List<DataExportTaskInfo> infos = finder.stream()
+                .map(dataExportTaskInfoFactory::asInfoWithMinimalHistory)
+                .collect(Collectors.toList());
+        List<DataExportTaskInfo>filteredTasks = new ArrayList<>();
+        for(DataExportTaskInfo dataExportTaskInfo: infos){
+            Optional<UsagePointGroup> group = meteringGroupsService.findUsagePointGroup(((Number)dataExportTaskInfo.standardDataSelector.usagePointGroup.id).longValue());
+
+            if((group.isPresent() && isMember(usagePoint.get(), group.get())) &&
+               metrologyContract.getMetrologyPurpose().getId()== dataExportTaskInfo.standardDataSelector.purpose.id &&
+               containsAtLeastOneReadingType(readingTypeInfos.readingTypes, dataExportTaskInfo.standardDataSelector.readingTypes)){
+                filteredTasks.add(dataExportTaskInfo);
+            }
+        }
+
+        return PagedInfoList.fromPagedList("dataExportTasks", filteredTasks, queryParameters);
+    }
+
+    private boolean containsAtLeastOneReadingType(List<ReadingTypeInfo> readingTypesFromUsagePoint, List<ReadingTypeInfo> readingTypesFromExportTask) {
+        for(ReadingTypeInfo rtFromExportTask:readingTypesFromExportTask){
+            for(ReadingTypeInfo rtFromUsagePoint:readingTypesFromUsagePoint) {
+                if (rtFromExportTask.mRID == rtFromUsagePoint.mRID) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    private boolean isMember(UsagePoint usagePoint, UsagePointGroup usagePointGroup) {
+        return !meteringService.getUsagePointQuery()
+                .select(Where.where("id").isEqualTo(usagePoint.getId())
+                        .and(ListOperator.IN.contains(usagePointGroup.toSubQuery("id"), "id")), 1, 1)
+                .isEmpty();
+    }
+
+    public EffectiveMetrologyConfigurationOnUsagePoint findEffectiveMetrologyConfigurationByUsagePointOrThrowException(UsagePoint usagePoint) {
+        return usagePoint.getCurrentEffectiveMetrologyConfiguration().orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    public MetrologyContract findMetrologyContractOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, long contractId) {
+        return effectiveMC.getMetrologyConfiguration().getContracts().stream()
+                .filter(contract -> contract.getId() == contractId).findAny().orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
 
     @GET
     @Path("/history")
