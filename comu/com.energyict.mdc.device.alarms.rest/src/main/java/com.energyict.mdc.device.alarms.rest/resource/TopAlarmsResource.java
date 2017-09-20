@@ -6,6 +6,7 @@ package com.energyict.mdc.device.alarms.rest.resource;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -23,10 +24,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -50,12 +53,18 @@ public class TopAlarmsResource extends BaseAlarmResource {
                 .select(where(ISSUE_TYPE).isEqualTo(alarmType))
                 .stream()
                 .collect(Collectors.toList());
+        List<IssueStatus> statuses = new ArrayList<>();
+        Stream.of(IssueStatus.IN_PROGRESS, IssueStatus.OPEN)
+                .forEach(status -> getIssueService().findStatus(status).ifPresent(statuses::add));
         Query<OpenIssue> alarmQuery = getIssueService().query(OpenIssue.class, IssueReason.class, IssueType.class);
+
         Condition conditionAlarm = where("reason").in(issueReasons);
+        Condition conditionStatus = where("status").in(statuses);
         Condition conditionUser = where("user").isEqualTo(currentUser);
         Condition conditionNullUser = where("user").isNull();
         Condition conditionWG = where("workGroup").in(currentUser.getWorkGroups());
-        List<OpenIssue> alarms = alarmQuery.select(conditionAlarm.and(conditionUser.or(conditionNullUser.and(conditionWG))), 1, 5, Order.ascending("priorityTotal")
+        List<OpenIssue> alarms = alarmQuery.select(conditionAlarm.and(conditionStatus)
+                .and(conditionUser.or(conditionNullUser.and(conditionWG))), 1, 5, Order.ascending("priorityTotal")
                 .ascending("dueDate")
                 .ascending("reason"));
         Optional<Long> alarmTotalUserAssignedCount = getIssueService().getUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
