@@ -235,21 +235,39 @@ public class RegisteredDevicesKpiResource {
 
     @GET
     @Transactional
-    @Path("/gateway/{id}")
+    @Path("/gateway/{name}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response getKpiForGateway(@PathParam("id") long id, @BeanParam JsonQueryFilter filter) {
-        Device device = deviceService.findDeviceById(id).orElseThrow(() -> exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_DEVICE_ID));
+    public Response getKpiForGateway(@PathParam("name") String name, @BeanParam JsonQueryFilter filter) {
+        Device device = deviceService.findDeviceByName(name).orElseThrow(() -> exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_DEVICE));
         Optional<Range<Instant>> range;
         List<RegisteredDevicesKpiScore> scores = new ArrayList<>();
+        RegisteredDevicesKpiFrequency frequency = RegisteredDevicesKpiFrequency.FIFTEEN_MINUTES;
+        if (filter.hasProperty("frequency")) {
+            switch(filter.getString("frequency")) {
+                case "15minutes":
+                    frequency = RegisteredDevicesKpiFrequency.FIFTEEN_MINUTES;
+                    break;
+                case "4hours":
+                    frequency = RegisteredDevicesKpiFrequency.FOUR_HOURS;
+                    break;
+                case "12hours":
+                    frequency = RegisteredDevicesKpiFrequency.TWELVE_HOURS;
+                    break;
+                case "1days":
+                default:
+                    frequency = RegisteredDevicesKpiFrequency.ONE_DAY;
+                    break;
+            }
+        }
         if (filter.hasProperty("start") && filter.hasProperty("end")) {
             Instant start = filter.getInstant("start");
             Instant end = filter.getInstant("end");
             range = Optional.of(Range.closed(start, end));
         } else {
-            range = calculateRange(Optional.of(Instant.now(clock)), RegisteredDevicesKpiFrequency.FIFTEEN_MINUTES.getFrequency());
+            range = calculateRange(Optional.of(Instant.now(clock)), frequency.getFrequency());
         }
         if (range.isPresent()) {
-            scores = registeredDevicesKpiService.getScores(device, range.get(), RegisteredDevicesKpiFrequency.FIFTEEN_MINUTES);
+            scores = registeredDevicesKpiService.getScores(device, range.get(), frequency);
         }
         List<RegisteredDevicesKpiGraphInfo> infos = scores.stream()
                 .sorted()
