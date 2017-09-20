@@ -86,6 +86,7 @@ Ext.define('Uni.view.widget.WorkList', {
             var comboWorkTypes = header.down('#cbo-work-types');
             comboWorkTypes.bindStore(me.workListTypesStore);
             comboWorkTypes.select(me.workListTypesStore.first().get('name'));
+            me.loadWorkList(me.workListTypesStore.first());
         }
 
         me.setTitle('<h3>' + me.configuration.title + '</h3>');
