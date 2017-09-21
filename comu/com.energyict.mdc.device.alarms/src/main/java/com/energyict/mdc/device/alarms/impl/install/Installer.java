@@ -16,6 +16,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
@@ -29,6 +30,7 @@ import com.energyict.mdc.device.alarms.impl.ModuleConstants;
 import com.energyict.mdc.device.alarms.impl.actions.AssignDeviceAlarmAction;
 import com.energyict.mdc.device.alarms.impl.actions.CloseDeviceAlarmAction;
 import com.energyict.mdc.device.alarms.impl.actions.StartProcessAlarmAction;
+import com.energyict.mdc.device.alarms.impl.actions.WebServiceNotificationAlarmAction;
 import com.energyict.mdc.device.alarms.impl.database.CreateDeviceAlarmViewOperation;
 import com.energyict.mdc.device.alarms.impl.event.DeviceAlarmEventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
@@ -61,9 +63,10 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final EventService eventService;
     private final UserService userService;
     private final TimeService timeService;
+    private final EndPointConfigurationService endPointConfigurationService;
 
     @Inject
-    public Installer(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, MessageService messageService, EventService eventService, UserService userService, TimeService timeService) {
+    public Installer(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, MessageService messageService, EventService eventService, UserService userService, TimeService timeService, EndPointConfigurationService endPointConfigurationService) {
         this.issueService = issueService;
         this.issueActionService = issueActionService;
         this.messageService = messageService;
@@ -71,6 +74,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         this.eventService = eventService;
         this.userService = userService;
         this.timeService = timeService;
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     @Override
@@ -157,6 +161,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         issueActionService.createActionType(DeviceAlarmActionsFactory.ID, AssignDeviceAlarmAction.class.getName(), deviceAlarmType, null);
         issueActionService.createActionType(DeviceAlarmActionsFactory.ID, StartProcessAlarmAction.class.getName(), deviceAlarmType, null);
         issueActionService.createActionType(DeviceAlarmActionsFactory.ID, CloseDeviceAlarmAction.class.getName(), deviceAlarmType, CreationRuleActionPhase.NOT_APPLICABLE);
+        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, WebServiceNotificationAlarmAction.class.getName(), deviceAlarmType, CreationRuleActionPhase.CREATE);
     }
 
     private void createRelativePeriodCategory() {

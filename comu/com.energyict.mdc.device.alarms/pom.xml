@@ -132,6 +132,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bpm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>soap.whiteboard.cxf</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -309,7 +313,7 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>soap.whiteboard.cxf</artifactId>
+            <artifactId>rest.util</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

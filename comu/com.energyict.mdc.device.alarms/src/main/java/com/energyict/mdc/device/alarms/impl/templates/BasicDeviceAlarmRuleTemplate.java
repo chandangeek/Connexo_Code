@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.alarms.impl.templates;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
@@ -160,6 +161,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "import com.energyict.mdc.device.alarms.event.DeviceAlarmEvent;\n" +
 
                 "global java.util.logging.Logger LOGGER;\n" +
+                "global com.elster.jupiter.events.EventService eventService;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Basic clearing event device alarm rule @{ruleId}\"\n" +
                 "when\n" +
