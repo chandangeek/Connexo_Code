@@ -215,6 +215,12 @@ Ext.define('Uni.controller.history.Router', {
                 } else {
                     window.location.assign(url);
                 }
+            },
+
+            forwardInNewTab: function(arguments, queryParams) {
+                var url = this.buildUrl(arguments, queryParams),
+                    newWindow = window.open(url, '_blank');
+                newWindow.focus();
             }
         });
 

@@ -41,7 +41,20 @@ Ext.define('Uni.property.view.property.Base', {
     fieldLabel: '',
     required: false,
 
+    extraCmp: {
+        xtype: 'button',
+        tooltip: '',
+        text: '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;"></span>',
+        disabled: true, // to avoid a hand cursor
+        ui: 'blank',
+        itemId: 'tooltip-info',
+        shadow: false,
+        margin: '5 0 0 10',
+        width: 16,
+        hidden: true
+    },
     items: [
+
         {
             xtype: 'uni-edit-button'
         },
@@ -172,6 +185,7 @@ Ext.define('Uni.property.view.property.Base', {
             this.setValue(value);
             this.updateResetButton();
             this.updateEditButton();
+            this.setDescription(property.get('description'));
         }
     },
 
@@ -549,6 +563,28 @@ Ext.define('Uni.property.view.property.Base', {
      */
     getValueAsDisplayString: function (value) {
         return value;
+    },
+
+    /**
+     * set other properties
+     */
+    setDescription: function (descriptions) {
+        var me = this;
+        try {
+            var decoded = Ext.decode(descriptions, true);
+            if (decoded) {
+                var tooltip = decoded.tooltip;
+                if (tooltip) {
+                    var tooltipBtn = me.down('#tooltip-info');
+                    Ext.suspendLayouts();
+                    tooltipBtn.setVisible(true);
+                    tooltipBtn.setTooltip(tooltip);
+                    Ext.resumeLayouts(true);
+                }
+            }
+        } catch (e) {
+            return false;
+        }
     }
 
 });

@@ -10,6 +10,7 @@ Ext.define('Uni.property.model.Property', {
     fields: [
         {name: 'key', type: 'string'},
         {name: 'name', type: 'string'},
+        {name: 'description', type: 'string'},
         {name: 'required', type: 'boolean'},
         {name: 'value', persist: false},
         {name: 'default', persist: false},
