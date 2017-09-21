@@ -28,6 +28,11 @@ public class SpyEventService implements EventService {
     }
 
     @Override
+    public void postEvent(String topic, Object source, long delay) {
+        eventService.postEvent(topic, source, delay);
+    }
+
+    @Override
     @TransactionRequired
     public EventTypeBuilder buildEventTypeWithTopic(String topic) {
         return eventService.buildEventTypeWithTopic(topic);
