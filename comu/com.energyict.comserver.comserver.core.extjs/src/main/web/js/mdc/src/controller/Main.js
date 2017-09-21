@@ -125,7 +125,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.securityaccessors.controller.SecurityAccessors',
         'Mdc.securityaccessors.controller.DeviceSecurityAccessors',
         'Mdc.controller.setup.DeviceRegisterValidation',
-        'Mdc.commands.controller.Commands'
+        'Mdc.commands.controller.Commands',
+        'Mdc.networkvisualiser.controller.NetworkVisualiser'
     ],
 
     stores: [
