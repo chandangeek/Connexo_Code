@@ -80,7 +80,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevices', {
                     {
                         xtype: 'uni-form-info-message',
                         itemId: 'mdc-registered-devices-view-no-data',
-                        text: Uni.I18n.translate('registeredDevicesKPIs.noData', 'MDC', 'No KPI data to show.')
+                        text: Uni.I18n.translate('registeredDevicesKPIs.noData', 'MDC', 'This registered devices KPI has no data yet.')
                     },
                     {
                         xtype: 'registered-devices-graph',
