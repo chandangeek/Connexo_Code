@@ -28,7 +28,7 @@ public interface EventService {
     void postEvent(String topic, Object source);
 
     /*
-     * Does the same thing as postEvent but adds a delay an amount of time.
+     * Does the same thing as postEvent but adds a delay an amount of time (in seconds).
      * Delay only works if shouldPublish is true in the eventtopic.
      * Only works for Advanced oracle queues
      */
