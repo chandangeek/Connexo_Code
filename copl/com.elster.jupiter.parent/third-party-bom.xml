@@ -446,6 +446,11 @@
                 <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
                 <version>1.4_3</version>
             </dependency>
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>0.9.10</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
