@@ -265,10 +265,11 @@ public class IssueImpl extends EntityImpl implements Issue {
     public void snooze(Instant snoozeDateTime) {
         IssueStatus openIssueStatus = issueService.findStatus(IssueStatus.OPEN).orElse(null);
         IssueStatus snoozedIssueStaus = issueService.findStatus(IssueStatus.SNOOZED).orElse(null);
+        IssueStatus ongoingIssueStatus = issueService.findStatus(IssueStatus.IN_PROGRESS).orElse(null);
         if (snoozeDateTime != null &&
                 openIssueStatus != null &&
                 snoozedIssueStaus != null &&
-                (this.getStatus().equals(openIssueStatus) || this.getStatus().equals(snoozedIssueStaus))) {
+                (this.getStatus().equals(openIssueStatus) || this.getStatus().equals(ongoingIssueStatus) || this.getStatus().equals(snoozedIssueStaus))) {
             this.snoozeDateTime = snoozeDateTime;
             this.setStatus(snoozedIssueStaus);
         } else {
