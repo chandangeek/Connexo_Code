@@ -118,8 +118,8 @@ public class DataExportTaskResource {
     public PagedInfoList getDataExportTasks(@BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         String applicationName = getApplicationNameFromCode(appCode);
         ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(applicationName);
-        queryParameters.getStart().ifPresent(finder::setStart);
-        queryParameters.getLimit().ifPresent(finder::setLimit);
+        finder.setStart(queryParameters.getStart().orElse(0));
+        finder.setLimit(queryParameters.getLimit().orElse(0) + 1);
         List<DataExportTaskInfo> infos = finder.stream()
                 .map(dataExportTaskInfoFactory::asInfoWithMinimalHistory)
                 .collect(Collectors.toList());
