@@ -11,6 +11,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.event.DeviceAlarmEventHandlerFactory;
 import com.energyict.mdc.device.data.DeviceService;
@@ -32,6 +33,8 @@ public class DeviceAlarmModule extends AbstractModule {
         requireBinding(NlsService.class);
         requireBinding(DeviceService.class);
         requireBinding(PropertySpecService.class);
+        requireBinding(EndPointConfigurationService.class);
+
         bind(DeviceAlarmService.class).to(DeviceAlarmServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceAlarmEventHandlerFactory.class).in(Scopes.SINGLETON);
     }

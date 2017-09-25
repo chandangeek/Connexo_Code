@@ -142,8 +142,10 @@ public abstract class BaseTest {
 
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    protected static EndPointConfigurationService endPointConfigurationService;
 
-    private static IssueService issueService;
+    protected static IssueService issueService;
+    protected static DeviceAlarmService deviceAlarmService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -172,7 +174,8 @@ public abstract class BaseTest {
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
 
-            bind(EndPointConfigurationService.class).toInstance(mock(EndPointConfigurationService.class));
+            endPointConfigurationService = mock(EndPointConfigurationService.class);
+            bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
         }
     }
 
@@ -239,7 +242,7 @@ public abstract class BaseTest {
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(MasterDataService.class);
-            injector.getInstance(DeviceAlarmService.class);
+            deviceAlarmService = injector.getInstance(DeviceAlarmService.class);
             injector.getInstance(TimeService.class);
             injector.getInstance(BpmService.class);
             issueService = injector.getInstance(IssueService.class);

@@ -32,7 +32,12 @@ public enum TranslationKeys implements TranslationKey {
     CLEARING_EVENTS(ModuleConstants.CLEARING_EVENTS, "Cleared on event types"),
     DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES(ModuleConstants.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, "Device lifecycle state in device type "),
     ALARM_RELATIVE_PERIOD_CATEGORY(ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY, "Device alarm"),
-    ALARM_REASON_UNKNOWN(ModuleConstants.ALARM_REASON_UNKNOWN, "Alarm Reason Unknown");
+    ALARM_REASON_UNKNOWN(ModuleConstants.ALARM_REASON_UNKNOWN, "Alarm Reason Unknown"),
+    ACTION_WEBSERVICE_NOTIFICATION_CALLED("alarm.action.webServiceNotificationCalled", "Web service notification called"),
+    ACTION_WEBSERVICE_NOTIFICATION("alarm.action.webServiceNotification", "Web service notification"),
+    ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM("alarm.action.webServiceNotificationAlarm.closeAlarm", "Close alarm"),
+    ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM_DESCRIPTION("alarm.action.webServiceNotification.close.description", "Select to remove the alarm from operational screens in Connexo (e.g. dashboard, overviews, what''s going on). It will receive the status ''Forwarded''.");
+
 
     private final String key;
     private final String defaultFormat;
