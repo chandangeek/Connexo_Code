@@ -72,6 +72,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>issue</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.energyict</groupId>
@@ -146,11 +150,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pubsub</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>time</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

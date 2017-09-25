@@ -66,7 +66,7 @@ public class Installer implements FullInstaller {
             setDataCollectionReasons(issueType);
         }, "issue reasons and action types", logger);
         run(this::publishEvents, "event publishing", logger);
-
+        run(this::createEventTypes, "create event types", logger);
     }
 
     private void publishEvents() {
@@ -100,9 +100,22 @@ public class Installer implements FullInstaller {
                             .like("com/energyict/mdc/connectiontask/%")
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/data/device/CREATED")
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE"))
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/topology/UNREGISTEREDFROMGATEWAY"))
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/topology/REGISTEREDTOGATEWAY"))
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE"))));
+            destinationSpec.subscribe(
+                    TranslationKeys.AQ_DELAYED_ISSUE_SUBSC,
+                    IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN,
+                    whereCorrelationId().isEqualTo("com/energyict/mdc/issue/datacollection/UNREGISTEREDFROMGATEWAYDELAYED"));
         } catch (DuplicateSubscriberNameException e) {
             // subscriber already exists, ignoring
+        }
+    }
+
+
+    private void createEventTypes() {
+        for (com.energyict.mdc.issue.datacollection.impl.event.EventType eventType : com.energyict.mdc.issue.datacollection.impl.event.EventType.values()) {
+            eventType.createIfNotExists(eventService);
         }
     }
 
@@ -130,6 +143,9 @@ public class Installer implements FullInstaller {
         issueService.createReason(ModuleConstants.REASON_TYME_SYNC_FAILED, issueType,
                 TranslationKeys.ISSUE_REASON_TIME_SYNC_FAILED, TranslationKeys.ISSUE_REASON_DESCRIPTION_TIME_SYNC_FAILED);
         issueActionService.createActionType(DataCollectionActionsFactory.ID, CloseIssueAction.class.getName(), issueType, CreationRuleActionPhase.OVERDUE);
+
+        issueService.createReason(ModuleConstants.REASON_UNREGISTERED_DEVICE, issueType,
+                TranslationKeys.ISSUE_REASON_UNREGISTERED_DEVICE, TranslationKeys.ISSUE_REASON_DESCRIPTION_UNREGISTERED_DEVICE);
     }
 
     private void run(Runnable runnable, String explanation, Logger logger) {

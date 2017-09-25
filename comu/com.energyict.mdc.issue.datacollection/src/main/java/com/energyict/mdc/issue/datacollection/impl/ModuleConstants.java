@@ -15,12 +15,16 @@ public final class ModuleConstants {
     public static final String REASON_CONNECTION_FAILED = "reason.connection.failed";
     public static final String REASON_POWER_OUTAGE = "reason.power.outage";
     public static final String REASON_TYME_SYNC_FAILED = "reason.tyme.sync.failed";
+    public static final String REASON_UNREGISTERED_DEVICE = "reason.unregistered.device";
 
     public static final String AQ_DATA_COLLECTION_EVENT_SUBSC = "IssueCreationDC";
     public static final String AQ_DATA_COLLECTION_EVENT_DISPLAYNAME = "Create data collection issues";
+    public static final String AQ_DELAYED_ISSUE_SUBSC = "DelayedIssueDC";
+    public static final String AQ_DELAYED_ISSUE_DISPLAYNAME = "Create data collection issues with a delay";
 
     public static final String DEVICE_IDENTIFIER = "deviceIdentifier";
     public static final String MASTER_DEVICE_IDENTIFIER = "masterDeviceId";
+    public static final String GATEWAY_IDENTIFIER = "gatewayIdentifier";
     public static final String EVENT_IDENTIFIER = "eventIdentifier";
     public static final String FAILED_TASK_IDS = "failedTaskIDs";
     public static final String SKIPPED_TASK_IDS = "skippedTaskIDs";

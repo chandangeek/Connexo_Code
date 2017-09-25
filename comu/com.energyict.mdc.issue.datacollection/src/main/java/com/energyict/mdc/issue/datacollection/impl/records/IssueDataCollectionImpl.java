@@ -37,6 +37,7 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     private Reference<ConnectionTask> connectionTask = ValueReference.absent();
     private Reference<ComSession> comSession = ValueReference.absent();
     private String deviceMRID;
+    private String lastGatewayMRID;
     private Instant firstConnectionAttemptTimestamp;
     private Instant lastConnectionAttemptTimestamp;
     private long connectionAttempt;
@@ -197,6 +198,22 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
+    public Optional<Instant> getSnoozeDateTime() {
+        return getBaseIssue().getSnoozeDateTime();
+    }
+
+    @Override
+    public void snooze(Instant snoozeDateTime) {
+        getBaseIssue().snooze(snoozeDateTime);
+
+    }
+
+    @Override
+    public void clearSnooze() {
+        getBaseIssue().clearSnooze();
+    }
+
+    @Override
     public Instant getCreateDateTime() {
         return getBaseIssue().getCreateDateTime();
     }
@@ -239,6 +256,16 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     @Override
     public void setDeviceIdentification(String deviceIdentification) {
         this.deviceMRID = deviceIdentification;
+    }
+
+    @Override
+    public String getLastGatewayIdentification() {
+        return lastGatewayMRID;
+    }
+
+    @Override
+    public void setLastGatewayIdentification(String gatewayIdentification) {
+        this.lastGatewayMRID = gatewayIdentification;
     }
 
     @Override

@@ -70,6 +70,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServi
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -249,6 +250,10 @@ public abstract class BaseTest {
 
     protected CommunicationTaskService getCommunicationTaskService() {
         return injector.getInstance(CommunicationTaskService.class);
+    }
+
+    protected ConnectionTaskService getConnectionTaskService() {
+        return injector.getInstance(ConnectionTaskService.class);
     }
 
     protected Thesaurus getThesaurus() {

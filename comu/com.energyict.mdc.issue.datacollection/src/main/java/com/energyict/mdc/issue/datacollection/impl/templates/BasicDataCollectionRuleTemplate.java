@@ -32,6 +32,12 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 
+import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.CONNECTION_LOST;
+import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE;
+import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.UNABLE_TO_CONNECT;
+import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.UNKNOWN_INBOUND_DEVICE;
+import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.UNKNOWN_OUTBOUND_DEVICE;
+
 @Component(name = "com.energyict.mdc.issue.datacollection.BasicDatacollectionRuleTemplate",
         property = {"name=" + BasicDataCollectionRuleTemplate.NAME},
         service = CreationRuleTemplate.class,
@@ -97,6 +103,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
         return "package com.energyict.mdc.issue.datacollection\n" +
                 "import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;\n" +
                 "global java.util.logging.Logger LOGGER;\n" +
+                "global com.elster.jupiter.events.EventService eventService;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Basic datacollection rule @{ruleId}\"\n" +
                 "when\n" +
@@ -141,7 +148,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        EventTypes eventTypes = new EventTypes(getThesaurus(), DataCollectionEventDescription.values());
+        EventTypes eventTypes = new EventTypes(getThesaurus(), CONNECTION_LOST, DEVICE_COMMUNICATION_FAILURE, UNABLE_TO_CONNECT, UNKNOWN_INBOUND_DEVICE, UNKNOWN_OUTBOUND_DEVICE);
         builder.add(propertySpecService
                 .specForValuesOf(new EventTypeValueFactory(eventTypes))
                 .named(EVENTTYPE, TranslationKeys.PARAMETER_NAME_EVENT_TYPE)
