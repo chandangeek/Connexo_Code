@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.DLMSConnectionException;
@@ -59,12 +60,14 @@ public class BroadcastUpgrade {
     private final Beacon3100Messaging beacon3100Messaging;
     private final PropertySpecService propertySpecService;
     private final ObjectMapperService objectMapperService;
+    private final NlsService nlsService ;
     private final CertificateWrapperExtractor certificateWrapperExtractor;
 
-    public BroadcastUpgrade(Beacon3100Messaging beacon3100Messaging, PropertySpecService propertySpecService, ObjectMapperService objectMapperService, CertificateWrapperExtractor certificateWrapperExtractor) {
+    public BroadcastUpgrade(Beacon3100Messaging beacon3100Messaging, PropertySpecService propertySpecService, ObjectMapperService objectMapperService, NlsService nlsService, CertificateWrapperExtractor certificateWrapperExtractor) {
         this.beacon3100Messaging = beacon3100Messaging;
         this.propertySpecService = propertySpecService;
         this.objectMapperService = objectMapperService;
+        this.nlsService = nlsService;
         this.certificateWrapperExtractor = certificateWrapperExtractor;
     }
 
@@ -163,7 +166,7 @@ public class BroadcastUpgrade {
         }
 
         //Create an unconfirmed dlms session to an AM540 device, to generate the action requests (APDU) for the block transfer.
-        final AM540Properties blockTransferProperties = new AM540Properties(this.propertySpecService);
+        final AM540Properties blockTransferProperties = new AM540Properties(this.propertySpecService, this.nlsService);
         blockTransferProperties.getProperties().setProperty(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, BigDecimal.ONE);
         blockTransferProperties.getProperties().setProperty(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, BigDecimal.ONE);
         blockTransferProperties.getProperties().setProperty(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
@@ -289,7 +292,7 @@ public class BroadcastUpgrade {
     }
 
     private DlmsSession createUnicastSessionToSlave(DeviceInfo slaveDeviceInfo) {
-        final AM540Properties am540Properties = new AM540Properties(this.propertySpecService);
+        final AM540Properties am540Properties = new AM540Properties(this.propertySpecService, this.nlsService);
         am540Properties.addProperties(slaveDeviceInfo.getGeneralProperties());
         am540Properties.addProperties(slaveDeviceInfo.getDialectProperties());
         final DeviceProtocolSecurityPropertySetImpl securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(slaveDeviceInfo.getSecurityPropertySet(), slaveDeviceInfo.getSecurityProperties());

@@ -208,7 +208,7 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList(new NoParamsDeviceProtocolDialect());
+        return Collections.singletonList(new NoParamsDeviceProtocolDialect(nlsService));
     }
 
     @Override

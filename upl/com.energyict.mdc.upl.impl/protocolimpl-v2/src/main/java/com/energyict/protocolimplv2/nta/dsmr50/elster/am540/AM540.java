@@ -411,7 +411,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(this.propertySpecService), new TcpDeviceProtocolDialect(this.propertySpecService));
+        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(this.propertySpecService, this.nlsService), new TcpDeviceProtocolDialect(this.propertySpecService, this.nlsService));
     }
 
     @Override

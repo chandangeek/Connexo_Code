@@ -21,6 +21,7 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -60,6 +61,8 @@ public abstract class AbstractMbusDevice implements DeviceProtocol, SerialNumber
     private final DeviceProtocol meterProtocol;
 
     public abstract DeviceMessageSupport getDeviceMessageSupport();
+
+    public abstract NlsService getNlsService();
 
     protected AbstractMbusDevice(DeviceProtocol meterProtocol) {
         this.meterProtocol = meterProtocol;
@@ -108,7 +111,7 @@ public abstract class AbstractMbusDevice implements DeviceProtocol, SerialNumber
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect());
+        return Collections.singletonList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect(getNlsService()));
     }
 
     /**

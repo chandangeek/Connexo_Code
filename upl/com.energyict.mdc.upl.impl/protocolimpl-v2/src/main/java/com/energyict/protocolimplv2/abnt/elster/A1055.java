@@ -156,9 +156,9 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.asList(
-                new AbntSerialDeviceProtocolDialect(this.propertySpecService),
-                new AbntOpticalDeviceProtocolDialect(this.propertySpecService),
-                new AbntTransparentTCPDeviceProtocolDialect(this.propertySpecService));
+                new AbntSerialDeviceProtocolDialect(this.propertySpecService, this.nlsService),
+                new AbntOpticalDeviceProtocolDialect(this.propertySpecService, this.nlsService),
+                new AbntTransparentTCPDeviceProtocolDialect(this.propertySpecService, this.nlsService));
     }
 
     @Override

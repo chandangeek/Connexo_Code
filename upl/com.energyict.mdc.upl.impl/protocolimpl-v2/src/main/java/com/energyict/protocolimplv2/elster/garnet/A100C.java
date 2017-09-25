@@ -32,7 +32,7 @@ public class A100C extends AbstractMbusDevice {
     private final Converter converter;
 
     public A100C(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
-        super(new GarnetConcentrator(propertySpecService, collectedDataFactory, issueFactory));
+        super(new GarnetConcentrator(propertySpecService, collectedDataFactory, issueFactory, nlsService));
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
@@ -44,6 +44,11 @@ public class A100C extends AbstractMbusDevice {
             EMeterMessaging = new EMeterMessaging(this, propertySpecService, nlsService, converter);
         }
         return EMeterMessaging;
+    }
+
+    @Override
+    public NlsService getNlsService() {
+        return nlsService;
     }
 
     /**

@@ -27,6 +27,7 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -71,11 +72,13 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
     private final PropertySpecService propertySpecService;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
+    private final NlsService nlsService;
 
-    public GarnetConcentrator(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public GarnetConcentrator(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
+        this.nlsService = nlsService;
     }
 
     public PropertySpecService getPropertySpecService() {
@@ -224,7 +227,7 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.asList(new TcpDeviceProtocolDialect(this.propertySpecService), new SerialDeviceProtocolDialect(this.propertySpecService));
+        return Arrays.asList(new TcpDeviceProtocolDialect(this.propertySpecService, this.nlsService), new SerialDeviceProtocolDialect(this.propertySpecService, this.nlsService));
     }
 
     @Override

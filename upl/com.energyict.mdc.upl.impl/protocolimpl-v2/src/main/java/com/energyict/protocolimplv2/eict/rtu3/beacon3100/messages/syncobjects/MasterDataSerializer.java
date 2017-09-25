@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
@@ -69,13 +70,15 @@ public class MasterDataSerializer {
 
     private final ObjectMapperService objectMapperService;
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
     private final DeviceMasterDataExtractor extractor;
 
-    public MasterDataSerializer(ObjectMapperService objectMapperService, PropertySpecService propertySpecService, DeviceMasterDataExtractor extractor, Beacon3100Properties beacon3100Properties) {
+    public MasterDataSerializer(ObjectMapperService objectMapperService, PropertySpecService propertySpecService, DeviceMasterDataExtractor extractor, Beacon3100Properties beacon3100Properties, NlsService nlsService) {
         this.objectMapperService = objectMapperService;
         this.propertySpecService = propertySpecService;
         this.extractor = extractor;
         this.beacon3100Properties = beacon3100Properties;
+        this.nlsService = nlsService;
     }
 
     public MulticastSerializer multicastSerializer() {
@@ -651,7 +654,7 @@ public class MasterDataSerializer {
      * Note that we specifically use the gateway TCP dialect of the Beacon3100 protocol for this.
      */
     private void addDefaultDialectValuesIfNecessary(TypedProperties dialectProperties) {
-        DeviceProtocolDialect theActualDialect = new GatewayTcpDeviceProtocolDialect(this.propertySpecService);
+        DeviceProtocolDialect theActualDialect = new GatewayTcpDeviceProtocolDialect(this.propertySpecService, this.nlsService);
         for (PropertySpec propertySpec : theActualDialect.getUPLPropertySpecs()) {
             if (!dialectProperties.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
                 dialectProperties.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());

@@ -227,9 +227,9 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.asList(
-                (DeviceProtocolDialect) new SerialDeviceProtocolDialect(this.getPropertySpecService()), // HDLC.
-                new TcpDeviceProtocolDialect(this.getPropertySpecService()), // Gateway.
-                new MirrorTcpDeviceProtocolDialect(this.getPropertySpecService())); // Mirror.
+                (DeviceProtocolDialect) new SerialDeviceProtocolDialect(this.getPropertySpecService(), getNlsService()), // HDLC.
+                new TcpDeviceProtocolDialect(this.getPropertySpecService(), getNlsService()), // Gateway.
+                new MirrorTcpDeviceProtocolDialect(this.getPropertySpecService(), getNlsService())); // Mirror.
     }
 
     @Override
@@ -400,7 +400,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
         // construct a temporary session with 0:0 security and clientId=16 (public)
         final TypedProperties publicProperties = TypedProperties.copyOf(getDlmsSessionProperties().getProperties());
         publicProperties.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT));
-        final AM540Properties publicClientProperties = new AM540Properties(this.getPropertySpecService());
+        final AM540Properties publicClientProperties = new AM540Properties(this.getPropertySpecService(), this.getNlsService());
         publicClientProperties.addProperties(publicProperties);
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(BigDecimal.valueOf(PUBLIC_CLIENT), 0, 0, 0, 0, 0, publicProperties));    //SecurityLevel 0:0
 
@@ -536,7 +536,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     protected AM540Properties getNewInstanceOfProperties() {
-        return new AM540Properties(this.getPropertySpecService());
+        return new AM540Properties(this.getPropertySpecService(), getNlsService());
     }
 
     @Override

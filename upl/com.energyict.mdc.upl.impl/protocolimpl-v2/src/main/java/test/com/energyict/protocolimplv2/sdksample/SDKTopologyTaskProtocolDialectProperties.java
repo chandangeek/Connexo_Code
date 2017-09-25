@@ -1,5 +1,7 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
@@ -21,8 +23,12 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     public static final String slaveOneSerialNumberPropertyName = "SlaveOneSerialNumber";
     public static final String slaveTwoSerialNumberPropertyName = "SlaveTwoSerialNumber";
 
-    public SDKTopologyTaskProtocolDialectProperties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public SDKTopologyTaskProtocolDialectProperties(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
+    }
+
+    public SDKTopologyTaskProtocolDialectProperties(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
@@ -32,7 +38,7 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return "SDK dialect for topology testing";
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.SDK_SAMPLE_TOPOLOGY_DIALECT_NAME).format();
     }
 
     @Override
@@ -43,10 +49,10 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     }
 
     private PropertySpec getSlaveOneSerialNumber() {
-        return UPLPropertySpecFactory.specBuilder(slaveOneSerialNumberPropertyName, false, PropertyTranslationKeys.SDKSAMPLE_SLAVE_ONE_SERIAL_NUMBER, propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(slaveOneSerialNumberPropertyName, false, PropertyTranslationKeys.SDKSAMPLE_SLAVE_ONE_SERIAL_NUMBER, getPropertySpecService()::stringSpec).finish();
     }
 
     public PropertySpec getSlaveTwoSerialNumber() {
-        return UPLPropertySpecFactory.specBuilder(slaveTwoSerialNumberPropertyName, false, PropertyTranslationKeys.SDKSAMPLE_SLAVE_TWO_SERIAL_NUMBER, propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(slaveTwoSerialNumberPropertyName, false, PropertyTranslationKeys.SDKSAMPLE_SLAVE_TWO_SERIAL_NUMBER, getPropertySpecService()::stringSpec).finish();
     }
 }

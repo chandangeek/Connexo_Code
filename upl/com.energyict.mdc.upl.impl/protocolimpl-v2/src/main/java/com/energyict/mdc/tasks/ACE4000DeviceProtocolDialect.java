@@ -1,6 +1,8 @@
 package com.energyict.mdc.tasks;
 
 import com.energyict.mdc.upl.DeviceProtocol;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
@@ -30,8 +32,12 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal("30000");
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal("3");
 
-    public ACE4000DeviceProtocolDialect(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public ACE4000DeviceProtocolDialect(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
+    }
+
+    public ACE4000DeviceProtocolDialect(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
@@ -41,7 +47,7 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return "ACE 4000";
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.ACE4000_DEVICE_PROTOCOL_DIALECT_NAME).format();
     }
 
     @Override
@@ -60,7 +66,7 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     }
 
     protected PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue, TranslationKey translationKey) {
-        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.propertySpecService::bigDecimalSpec);
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, getPropertySpecService()::bigDecimalSpec);
         specBuilder.setDefaultValue(defaultValue);
         return specBuilder.finish();
     }

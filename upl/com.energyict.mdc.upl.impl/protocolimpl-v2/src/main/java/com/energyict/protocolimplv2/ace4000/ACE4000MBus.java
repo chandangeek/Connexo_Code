@@ -73,6 +73,6 @@ public class ACE4000MBus extends ACE4000Outbound {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList(new NoParamsDeviceProtocolDialect());
+        return Collections.singletonList(new NoParamsDeviceProtocolDialect(getNlsService()));
     }
 }

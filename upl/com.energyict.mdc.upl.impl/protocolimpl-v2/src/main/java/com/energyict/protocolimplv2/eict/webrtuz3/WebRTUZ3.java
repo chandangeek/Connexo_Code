@@ -196,8 +196,8 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.asList(
-                new TcpDeviceProtocolDialect(this.getPropertySpecService()),
-                new SerialDeviceProtocolDialect(this.getPropertySpecService()));
+                new TcpDeviceProtocolDialect(this.getPropertySpecService(), nlsService),
+                new SerialDeviceProtocolDialect(this.getPropertySpecService(), nlsService));
     }
 
     @Override

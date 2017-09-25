@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.edmi.dialects;
 
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
@@ -24,8 +26,12 @@ public class UdpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     public static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(10);
     public static final Duration DEFAULT_FORCED_DELAY = Duration.ofMillis(0);
 
-    public UdpDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public UdpDeviceProtocolDialect(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
+    }
+
+    public UdpDeviceProtocolDialect(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
@@ -44,23 +50,23 @@ public class UdpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return "UDP";
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.EDMI_UDP_DIALECT_NAME).format();
     }
 
     protected PropertySpec retriesPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.RETRIES, false, PropertyTranslationKeys.V2_ELSTER_RETRIES, propertySpecService::bigDecimalSpec)
+        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.RETRIES, false, PropertyTranslationKeys.V2_ELSTER_RETRIES, getPropertySpecService()::bigDecimalSpec)
                 .setDefaultValue(DEFAULT_RETRIES)
                 .finish();
     }
 
     protected PropertySpec timeoutPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.TIMEOUT, false, PropertyTranslationKeys.V2_ELSTER_TIMEOUT, propertySpecService::durationSpec)
+        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.TIMEOUT, false, PropertyTranslationKeys.V2_ELSTER_TIMEOUT, getPropertySpecService()::durationSpec)
                 .setDefaultValue(DEFAULT_TIMEOUT)
                 .finish();
     }
 
     protected PropertySpec forcedDelayPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.FORCED_DELAY, false, PropertyTranslationKeys.V2_ELSTER_FORCED_DELAY, propertySpecService::durationSpec)
+        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.FORCED_DELAY, false, PropertyTranslationKeys.V2_ELSTER_FORCED_DELAY, getPropertySpecService()::durationSpec)
                 .setDefaultValue(DEFAULT_FORCED_DELAY)
                 .finish();
     }

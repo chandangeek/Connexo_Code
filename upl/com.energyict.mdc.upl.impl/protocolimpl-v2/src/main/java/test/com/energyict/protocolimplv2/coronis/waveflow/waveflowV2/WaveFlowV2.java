@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
@@ -27,8 +28,8 @@ public class WaveFlowV2 extends WaveFlow {
     private ProfileDataReader profileDataReader;
     private EventReader eventReader;
 
-    public WaveFlowV2(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService) {
-        super(collectedDataFactory, issueFactory, propertySpecService);
+    public WaveFlowV2(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService) {
+        super(collectedDataFactory, issueFactory, propertySpecService, nlsService);
         isV1 = false;
         isV210 = false;
     }

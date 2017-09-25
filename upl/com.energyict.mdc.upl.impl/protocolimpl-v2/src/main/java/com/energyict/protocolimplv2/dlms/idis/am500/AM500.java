@@ -331,7 +331,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList(new NoParamsDeviceProtocolDialect());
+        return Collections.singletonList(new NoParamsDeviceProtocolDialect(getNlsService()));
     }
 
     @Override

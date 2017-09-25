@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.abnt.common.dialects;
 
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
@@ -17,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Models a {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for a Serial connection type
+ * Models a {@link com.energyict.mdc.upl.DeviceProtocolDialect} for a Serial connection type
  * (SioSerialConnectionType, RxTxSerialConnectionType)
  *
  * @author sva
@@ -30,8 +32,12 @@ public class AbntSerialDeviceProtocolDialect extends AbstractDeviceProtocolDiale
     public static final Duration DEFAULT_FORCED_DELAY = Duration.ofMillis(100);
     public static final Duration DEFAULT_DELAY_AFTER_ERROR = Duration.ofMillis(250);
 
-    public AbntSerialDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public AbntSerialDeviceProtocolDialect(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
+    }
+
+    public AbntSerialDeviceProtocolDialect(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
@@ -51,7 +57,7 @@ public class AbntSerialDeviceProtocolDialect extends AbstractDeviceProtocolDiale
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return "Serial";
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.ABNT_SERIAL_DIALECT_NAME).format();
     }
 
     protected PropertySpec retriesPropertySpec() {
@@ -71,13 +77,13 @@ public class AbntSerialDeviceProtocolDialect extends AbstractDeviceProtocolDiale
     }
 
     private PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue, TranslationKey translationKey) {
-        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.propertySpecService::bigDecimalSpec);
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, getPropertySpecService()::bigDecimalSpec);
         specBuilder.setDefaultValue(defaultValue);
         return specBuilder.finish();
     }
 
     private PropertySpec durationSpec(String name, boolean required, Duration defaultValue, TranslationKey translationKey) {
-        PropertySpecBuilder<Duration> durationPropertySpecBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.propertySpecService::durationSpec);
+        PropertySpecBuilder<Duration> durationPropertySpecBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, getPropertySpecService()::durationSpec);
         durationPropertySpecBuilder.setDefaultValue(defaultValue);
         return durationPropertySpecBuilder.finish();
     }

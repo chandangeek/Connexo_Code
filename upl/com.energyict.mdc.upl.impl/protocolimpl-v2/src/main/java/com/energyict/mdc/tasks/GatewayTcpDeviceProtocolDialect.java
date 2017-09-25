@@ -1,5 +1,8 @@
 package com.energyict.mdc.tasks;
 
+import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -21,7 +24,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.ROUND_TRIP_CORREC
 import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEOUT;
 
 /**
- * Models a {@link DeviceProtocolDialect} for a TCP connection type to a Beacon 3100, that acts as a tranparent gateway to a connected PLC G3 e-meter.
+ * Models a {@link DeviceProtocolDialect} for a TCP connection type to a Beacon 3100, that acts as a transparent gateway to a connected PLC G3 e-meter.
  * Note that, using this dialect, the protocol will read out the actual meter (using the Beacon as a gateway).
  *
  * @author khe
@@ -30,8 +33,12 @@ public class GatewayTcpDeviceProtocolDialect extends AbstractDeviceProtocolDiale
 
     public static final int DEFAULT_TCP_TIMEOUT = 30;
 
-    public GatewayTcpDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public GatewayTcpDeviceProtocolDialect(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
+    }
+
+   public GatewayTcpDeviceProtocolDialect(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
@@ -41,7 +48,7 @@ public class GatewayTcpDeviceProtocolDialect extends AbstractDeviceProtocolDiale
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return "Beacon Gateway TCP DLMS";
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME).format();
     }
 
     @Override
@@ -67,14 +74,14 @@ public class GatewayTcpDeviceProtocolDialect extends AbstractDeviceProtocolDiale
 
     private PropertySpec bigDecimalSpec(String name, BigDecimal defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, translationKey, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(name, false, translationKey, getPropertySpecService()::bigDecimalSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }
 
     private PropertySpec durationSpec(String name, Duration defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, translationKey, this.propertySpecService::durationSpec)
+                .specBuilder(name, false, translationKey, getPropertySpecService()::durationSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }

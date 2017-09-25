@@ -149,7 +149,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> dialects = new ArrayList<>();
-        dialects.add(new NoParamsDeviceProtocolDialect());
+        dialects.add(new NoParamsDeviceProtocolDialect(nlsService));
         return dialects;
     }
 

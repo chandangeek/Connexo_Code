@@ -1,5 +1,7 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
@@ -23,8 +25,12 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
      */
     public final String doSomeThingPropertyName = "DoSomeThing";
 
-    public SDKStandardDeviceProtocolDialectProperties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public SDKStandardDeviceProtocolDialectProperties(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
+    }
+
+    public SDKStandardDeviceProtocolDialectProperties(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
@@ -34,7 +40,7 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return "SDK dialect (default)";
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.SDK_SAMPLE_STANDARD_DEVICE_PROTOCOL_DIALECT_NAME).format();
     }
 
     @Override
@@ -43,7 +49,7 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
     }
 
     private PropertySpec getDoSomeThingPropertySpec() {
-        return propertySpecService
+        return getPropertySpecService()
                 .booleanSpec()
                 .named(doSomeThingPropertyName, doSomeThingPropertyName)
                 .describedAs("Description for " + doSomeThingPropertyName)

@@ -277,7 +277,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList(new TcpDeviceProtocolDialect(this.propertySpecService));
+        return Collections.singletonList(new TcpDeviceProtocolDialect(this.propertySpecService, this.nlsService));
     }
 
     @Override

@@ -20,6 +20,7 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
@@ -80,13 +81,15 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.3.43.0.0.255");
     private static final BigDecimal PUBLIC_CLIENT = BigDecimal.valueOf(16);
+    private final NlsService nlsService;
 
     private RegisterFactory registerFactory;
     private LogBookFactory logBookFactory;
     private ProfileDataFactory profileDataFactory;
 
-    public AS330D(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public AS330D(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService) {
         super(propertySpecService, collectedDataFactory, issueFactory);
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -343,7 +346,7 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList(new NoParamsDeviceProtocolDialect());   //Dialect properties are managed by the master protocol
+        return Collections.singletonList(new NoParamsDeviceProtocolDialect(nlsService));   //Dialect properties are managed by the master protocol
     }
 
     @Override

@@ -501,8 +501,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     @Override
     public Optional<String> prepareMessageContext(com.energyict.mdc.upl.meterdata.Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
-
-        MasterDataSerializer masterDataSerializer = new MasterDataSerializer(this.objectMapperService, this.propertySpecService, this.deviceMasterDataExtractor, getBeacon3100Properties());
+        MasterDataSerializer masterDataSerializer = new MasterDataSerializer(this.objectMapperService, this.propertySpecService, this.deviceMasterDataExtractor, getBeacon3100Properties(), nlsService);
         MulticastSerializer multicastSerializer = masterDataSerializer.multicastSerializer();
 
 
@@ -580,7 +579,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.RemoveMetersFromBlackList)) {
                         collectedMessage = removeMetersFromBlackList(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.BroadcastFirmwareUpgrade)) {
-                        collectedMessage = new BroadcastUpgrade(this, this.propertySpecService, objectMapperService, this.certificateWrapperExtractor).broadcastFirmware(pendingMessage, collectedMessage);
+                        collectedMessage = new BroadcastUpgrade(this, this.propertySpecService, objectMapperService, nlsService, this.certificateWrapperExtractor).broadcastFirmware(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
                         upgradeFirmware(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
@@ -1631,7 +1630,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private MasterDataSync getMasterDataSync() {
         if (masterDataSync == null) {
-            masterDataSync = new MasterDataSync(this, objectMapperService, this.getIssueFactory(), propertySpecService, deviceMasterDataExtractor);
+            masterDataSync = new MasterDataSync(this, objectMapperService, this.getIssueFactory(), propertySpecService, deviceMasterDataExtractor, nlsService);
         }
         return masterDataSync;
     }

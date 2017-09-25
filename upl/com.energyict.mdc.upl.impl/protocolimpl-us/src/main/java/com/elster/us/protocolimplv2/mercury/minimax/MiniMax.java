@@ -25,6 +25,7 @@ import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -117,18 +118,19 @@ public class MiniMax implements DeviceProtocol {
     private MiniMaxProperties properties;
     private final NoOrPasswordSecuritySupport securitySupport;
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final CollectedDataFactory collectedDataFactory;
 
     private OfflineDevice offlineDevice;
-
     private List<ObisCode> channelObisCodes;
 
     private Logger logger = Logger.getLogger(this.getClass().getName());
-    private final CollectedDataFactory collectedDataFactory;
 
-    public MiniMax(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory) {
+    public MiniMax(PropertySpecService propertySpecService, NlsService nlsService, CollectedDataFactory collectedDataFactory) {
         this.propertySpecService = propertySpecService;
         this.properties = new MiniMaxProperties(propertySpecService);
         this.securitySupport = new NoOrPasswordSecuritySupport(propertySpecService);
+        this.nlsService = nlsService;
         this.collectedDataFactory = collectedDataFactory;
     }
 
@@ -701,7 +703,7 @@ public class MiniMax implements DeviceProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> dialect = new ArrayList<>();
-        dialect.add(new MiniMaxTcpDeviceProtocolDialect(this.propertySpecService));
+        dialect.add(new MiniMaxTcpDeviceProtocolDialect(this.propertySpecService, this.nlsService));
         return dialect;
     }
 

@@ -55,10 +55,10 @@ public class AM132 extends AM540 {
         List<DeviceProtocolDialect> supportedProtocolDialects = new ArrayList<>();
 
         // support of direct serial connection for optical probe
-        supportedProtocolDialects.add(new SerialDeviceProtocolDialect(getPropertySpecService()));
+        supportedProtocolDialects.add(new SerialDeviceProtocolDialect(getPropertySpecService(), getNlsService()));
 
         // support of TcpIp connection for normal GPRS connection
-        supportedProtocolDialects.add(new TcpDeviceProtocolDialect(getPropertySpecService()));
+        supportedProtocolDialects.add(new TcpDeviceProtocolDialect(getPropertySpecService(), getNlsService()));
 
         return supportedProtocolDialects;
     }
@@ -84,7 +84,7 @@ public class AM132 extends AM540 {
 
     @Override
     protected AM132Properties getNewInstanceOfProperties() {
-        return new AM132Properties(getPropertySpecService());
+        return new AM132Properties(getPropertySpecService(), getNlsService());
     }
 
 

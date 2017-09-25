@@ -1,8 +1,5 @@
 package com.energyict.protocolimplv2.edp;
 
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
@@ -38,6 +35,10 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.ProtocolExceptionReference;
@@ -50,10 +51,7 @@ import com.energyict.protocolimplv2.edp.messages.EDPMessaging;
 import com.energyict.protocolimplv2.edp.registers.RegisterReader;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
-import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -232,7 +230,7 @@ public class CX20009 extends AbstractDlmsProtocol implements MigrateFromV1Protoc
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(this.getPropertySpecService()), new TcpDeviceProtocolDialect(this.getPropertySpecService()));
+        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(this.getPropertySpecService(), this.nlsService), new TcpDeviceProtocolDialect(this.getPropertySpecService(), this.nlsService));
     }
 
     @Override

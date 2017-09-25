@@ -253,7 +253,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList(new ACE4000DeviceProtocolDialect(this.getPropertySpecService()));
+        return Collections.singletonList(new ACE4000DeviceProtocolDialect(this.getPropertySpecService(), nlsService));
     }
 
     @Override
@@ -329,6 +329,10 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
             logger = Logger.getLogger(this.getClass().getName());
         }
         return logger;
+    }
+
+    public NlsService getNlsService() {
+        return nlsService;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.energyict.mdc.tasks;
 
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -30,8 +32,12 @@ public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     public static final int DEFAULT_TCP_TIMEOUT = 30;
 
-    public TcpDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public TcpDeviceProtocolDialect(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
+    }
+
+    public TcpDeviceProtocolDialect(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
@@ -41,7 +47,7 @@ public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return "TCP DLMS";
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.TCP_DLMS_PROTOCOL_DIALECT_NAME).format();
     }
 
     @Override
@@ -67,14 +73,14 @@ public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     private PropertySpec bigDecimalSpec (String name, BigDecimal defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, translationKey, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(name, false, translationKey, getPropertySpecService()::bigDecimalSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }
 
     private PropertySpec durationSpec (String name, Duration defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, translationKey, this.propertySpecService::durationSpec)
+                .specBuilder(name, false, translationKey, getPropertySpecService()::durationSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }

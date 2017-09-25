@@ -25,10 +25,12 @@ public class EMeter extends AbstractDlmsSlaveProtocol {
 
     private final AbstractDlmsProtocol masterProtocol;
     private final WebRTUZ3EMeterMessaging eMeterMessaging;
+    private final NlsService nlsService;
 
     public EMeter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         this.masterProtocol = new WebRTUZ3(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, calendarExtractor, numberLookupExtractor, keyAccessorTypeExtractor);
         this.eMeterMessaging = new WebRTUZ3EMeterMessaging(masterProtocol, propertySpecService, nlsService, converter);
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -47,5 +49,10 @@ public class EMeter extends AbstractDlmsSlaveProtocol {
 
     protected DeviceMessageSupport getDeviceMessageSupport() {
         return eMeterMessaging;
+    }
+
+    @Override
+    protected NlsService getNlsService() {
+        return nlsService;
     }
 }

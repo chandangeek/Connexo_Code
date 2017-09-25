@@ -13,6 +13,7 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -38,10 +39,12 @@ public class TransparentGateway extends AbstractGateway {
 
     private DeviceProtocolSecurityCapabilities securitySupport;
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
-    public TransparentGateway(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory) {
+    public TransparentGateway(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, NlsService nlsService) {
         super(collectedDataFactory);
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -69,9 +72,9 @@ public class TransparentGateway extends AbstractGateway {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.<DeviceProtocolDialect>asList(
-                new NoParamsDeviceProtocolDialect(),
-                new SerialDeviceProtocolDialect(this.propertySpecService),
-                new TcpDeviceProtocolDialect(this.propertySpecService)
+                new NoParamsDeviceProtocolDialect(this.nlsService),
+                new SerialDeviceProtocolDialect(this.propertySpecService, this.nlsService),
+                new TcpDeviceProtocolDialect(this.propertySpecService, this.nlsService)
         );
     }
 

@@ -1,5 +1,8 @@
 package com.energyict.mdc.tasks;
 
+import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -13,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
-* Models a {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for the CTR protocol.
+* Models a {@link DeviceProtocolDialect} for the CTR protocol.
 *
 * @author sva
 * @since 16/10/12 (113:25)
@@ -30,8 +33,12 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     public static final String SEND_END_OF_SESSION_PROPERTY_NAME = "SendEndOfSession";
     public static final String MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME = "MaxAllowedInvalidProfileResponses";
 
-    public CTRDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public CTRDeviceProtocolDialect(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
+    }
+
+    public CTRDeviceProtocolDialect(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
@@ -41,7 +48,7 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return "CTR";
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.CTR_DEVICE_PROTOCOL_DIALECT_NAME).format();
     }
 
     private PropertySpec timeoutPropertySpec() {
@@ -74,13 +81,13 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     private PropertySpec bigDecimalSpec (String name, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                    .specBuilder(name, false, translationKey, this.propertySpecService::bigDecimalSpec)
+                    .specBuilder(name, false, translationKey, getPropertySpecService()::bigDecimalSpec)
                     .finish();
     }
 
     private PropertySpec booleanSpec (String name, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                    .specBuilder(name, false, translationKey, this.propertySpecService::booleanSpec)
+                    .specBuilder(name, false, translationKey, getPropertySpecService()::booleanSpec)
                     .finish();
     }
 

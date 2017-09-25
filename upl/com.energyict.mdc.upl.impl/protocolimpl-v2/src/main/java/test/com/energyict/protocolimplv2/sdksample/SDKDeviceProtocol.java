@@ -25,6 +25,7 @@ import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.messages.DeviceMessage;
@@ -60,7 +61,6 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimpl.properties.Temporals;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
@@ -415,14 +415,14 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.<DeviceProtocolDialect>asList(
-                new SDKLoadProfileProtocolDialectProperties(propertySpecService),
-                new SDKStandardDeviceProtocolDialectProperties(propertySpecService),
-                new SDKTimeDeviceProtocolDialectProperties(propertySpecService),
-                new SDKTopologyTaskProtocolDialectProperties(propertySpecService),
-                new SDKFirmwareTaskProtocolDialectProperties(propertySpecService),
-                new SDKCalendarTaskProtocolDialectProperties(propertySpecService),
-                new SDKBreakerTaskProtocolDialectProperties(propertySpecService),
-                new SDKDeviceAlarmProtocolDialectProperties(propertySpecService)
+                new SDKLoadProfileProtocolDialectProperties(propertySpecService, nlsService),
+                new SDKStandardDeviceProtocolDialectProperties(propertySpecService, nlsService),
+                new SDKTimeDeviceProtocolDialectProperties(propertySpecService, nlsService),
+                new SDKTopologyTaskProtocolDialectProperties(propertySpecService, nlsService),
+                new SDKFirmwareTaskProtocolDialectProperties(propertySpecService, nlsService),
+                new SDKCalendarTaskProtocolDialectProperties(propertySpecService, nlsService),
+                new SDKBreakerTaskProtocolDialectProperties(propertySpecService, nlsService),
+                new SDKDeviceAlarmProtocolDialectProperties(propertySpecService, nlsService)
         );
     }
 

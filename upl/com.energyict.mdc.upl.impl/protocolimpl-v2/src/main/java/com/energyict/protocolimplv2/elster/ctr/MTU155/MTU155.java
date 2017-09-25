@@ -250,7 +250,7 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> dialects = new ArrayList<>(1);
-        dialects.add(new CTRDeviceProtocolDialect(this.propertySpecService));
+        dialects.add(new CTRDeviceProtocolDialect(this.propertySpecService, this.nlsService));
         return dialects;
     }
 

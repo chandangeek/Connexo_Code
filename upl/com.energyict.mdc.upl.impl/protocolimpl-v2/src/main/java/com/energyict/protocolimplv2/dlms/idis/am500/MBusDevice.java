@@ -28,10 +28,12 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
 
     private final AbstractDlmsProtocol masterProtocol;
     private final IDISMBusMessaging idisMBusMessaging;
+    private final NlsService nlsService;
 
     public MBusDevice(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         masterProtocol = new AM500(propertySpecService, collectedDataFactory, issueFactory, nlsService, converter, calendarExtractor, messageFileExtractor, keyAccessorTypeExtractor);
         idisMBusMessaging = new IDISMBusMessaging(masterProtocol, propertySpecService, nlsService, converter, keyAccessorTypeExtractor);
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -50,5 +52,10 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
 
     protected DeviceMessageSupport getDeviceMessageSupport() {
         return idisMBusMessaging;
+    }
+
+    @Override
+    protected NlsService getNlsService() {
+        return nlsService;
     }
 }

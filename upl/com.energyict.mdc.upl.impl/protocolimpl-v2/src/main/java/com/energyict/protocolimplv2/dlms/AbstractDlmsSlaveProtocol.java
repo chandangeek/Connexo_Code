@@ -21,6 +21,7 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -56,6 +57,8 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
 
     protected abstract DeviceMessageSupport getDeviceMessageSupport();
 
+    protected abstract NlsService getNlsService();
+
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
         return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SLAVE);
@@ -78,7 +81,7 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect());
+        return Collections.singletonList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect(getNlsService()));
     }
 
     @Override

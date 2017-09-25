@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.CipheringType;
@@ -29,9 +30,11 @@ public class AM540Properties extends IDISProperties {
 
     private static final int PUBLIC_CLIENT_MAC_ADDRESS = 16;
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
-    public AM540Properties(PropertySpecService propertySpecService) {
+    public AM540Properties(PropertySpecService propertySpecService, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -124,7 +127,7 @@ public class AM540Properties extends IDISProperties {
         if (dialectName == null) {
             return false;
         }
-        MirrorTcpDeviceProtocolDialect dialect = new MirrorTcpDeviceProtocolDialect(this.propertySpecService);
+        MirrorTcpDeviceProtocolDialect dialect = new MirrorTcpDeviceProtocolDialect(this.propertySpecService, this.nlsService);
         // for compatibility with ProtocolTester - here the protocol dialect is the "display name"
         return dialect.getDeviceProtocolDialectDisplayName().equals(dialectName) || dialect.getDeviceProtocolDialectName().equals(dialectName);
     }

@@ -25,10 +25,12 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
 
     private final AbstractDlmsProtocol masterProtocol;
     private final WebRTUZ3MBusMessaging mBusMessaging;
+    private final NlsService nlsService;
 
     public MBusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         masterProtocol = new WebRTUZ3(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, calendarExtractor, numberLookupExtractor, keyAccessorTypeExtractor);
         mBusMessaging = new WebRTUZ3MBusMessaging(masterProtocol, propertySpecService, nlsService, converter, keyAccessorTypeExtractor);
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -47,5 +49,10 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
 
     protected DeviceMessageSupport getDeviceMessageSupport() {
         return mBusMessaging;
+    }
+
+    @Override
+    protected NlsService getNlsService() {
+        return nlsService;
     }
 }

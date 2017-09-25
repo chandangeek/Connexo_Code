@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.abnt.common.dialects;
 
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -16,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Models a {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for a transparent TCP connection type
+ * Models a {@link com.energyict.mdc.upl.DeviceProtocolDialect} for a transparent TCP connection type
  * (SioOpticalConnectionType, RxTxOpticalConnectionType)
  *
  * @author sva
@@ -29,18 +31,22 @@ public class AbntTransparentTCPDeviceProtocolDialect extends AbstractDeviceProto
     public static final Duration DEFAULT_FORCED_DELAY = Duration.ofMillis(0);
     public static final Duration DEFAULT_DELAY_AFTER_ERROR = Duration.ofMillis(250);
 
-    public AbntTransparentTCPDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public AbntTransparentTCPDeviceProtocolDialect(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
+    }
+
+    public AbntTransparentTCPDeviceProtocolDialect(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectTranslationKeys.ABNT_SERIAL_DIALECT_NAME.getName();
+        return DeviceProtocolDialectTranslationKeys.ABNT_TRANSPARENT_DIALECT_NAME.getName();
     }
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return "Transparent TCP";
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.ABNT_TRANSPARENT_DIALECT_NAME).format();
     }
 
     @Override
@@ -71,14 +77,14 @@ public class AbntTransparentTCPDeviceProtocolDialect extends AbstractDeviceProto
 
     private PropertySpec bigDecimalSpec (String name, BigDecimal defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, translationKey, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(name, false, translationKey, getPropertySpecService()::bigDecimalSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }
 
     private PropertySpec durationSpec (String name, Duration defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, translationKey, this.propertySpecService::durationSpec)
+                .specBuilder(name, false, translationKey, getPropertySpecService()::durationSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }

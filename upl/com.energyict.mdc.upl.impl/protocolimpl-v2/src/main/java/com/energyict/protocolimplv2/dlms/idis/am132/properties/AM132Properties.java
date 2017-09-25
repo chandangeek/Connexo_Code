@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.dlms.idis.am132.properties;
 
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 
 /**
@@ -8,8 +10,8 @@ import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
  */
 public class AM132Properties extends AM540Properties {
 
-    public AM132Properties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public AM132Properties(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
     }
 
     @Override

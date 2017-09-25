@@ -139,7 +139,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SerialNum
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect());
+        return Collections.singletonList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect(getNlsService()));
     }
 
     /**

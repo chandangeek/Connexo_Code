@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -23,6 +24,7 @@ import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -42,7 +44,6 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.protocolimpl.properties.Temporals;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
@@ -84,11 +85,13 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
     private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
 
-    protected WaveFlow(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService) {
+    protected WaveFlow(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService) {
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.propertySpecService = propertySpecService;
+        this.nlsService = nlsService;
     }
 
     protected CollectedDataFactory getCollectedDataFactory() {
@@ -326,7 +329,7 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> dialects = new ArrayList<>();
-        dialects.add(new NoParamsDeviceProtocolDialect());
+        dialects.add(new NoParamsDeviceProtocolDialect(nlsService));
         return dialects;
     }
 

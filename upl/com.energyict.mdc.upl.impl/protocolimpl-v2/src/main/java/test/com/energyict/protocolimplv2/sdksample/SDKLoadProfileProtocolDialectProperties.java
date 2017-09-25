@@ -1,5 +1,7 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
@@ -25,8 +27,12 @@ public class SDKLoadProfileProtocolDialectProperties extends AbstractDeviceProto
      */
     public static final String notSupportedLoadProfileObisCodePropertyName = "NotSupportedLoadProfile";
 
-    public SDKLoadProfileProtocolDialectProperties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public SDKLoadProfileProtocolDialectProperties(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
+    }
+
+    public SDKLoadProfileProtocolDialectProperties(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
@@ -36,7 +42,7 @@ public class SDKLoadProfileProtocolDialectProperties extends AbstractDeviceProto
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return "SDK dialect for loadProfile testing";
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.SDK_SAMPLE_LOAD_PROFILE_DEVICE_PROTOCOL_DIALECT_NAME).format();
     }
 
     @Override
@@ -45,6 +51,6 @@ public class SDKLoadProfileProtocolDialectProperties extends AbstractDeviceProto
     }
 
     private PropertySpec getNotSupportedLoadProfileObisCodePropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(notSupportedLoadProfileObisCodePropertyName, false, PropertyTranslationKeys.SDKSAMPLE_NOT_SUPPORTED_LOADPROFILE_OBISCODE, propertySpecService::obisCodeSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(notSupportedLoadProfileObisCodePropertyName, false, PropertyTranslationKeys.SDKSAMPLE_NOT_SUPPORTED_LOADPROFILE_OBISCODE, getPropertySpecService()::obisCodeSpec).finish();
     }
 }

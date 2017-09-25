@@ -1,5 +1,8 @@
 package com.energyict.mdc.tasks;
 
+import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -22,8 +25,12 @@ public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
     public static final String PORT_LOG_LEVEL_PROPERTY = "PortLogLevel";
     public static final String DEFAULT_LOG_LEVEL = "INFO";
 
-    public EiWebPlusDialect(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public EiWebPlusDialect(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
+    }
+
+    public EiWebPlusDialect(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
@@ -33,7 +40,7 @@ public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return "EIWebPlus dialect";
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.EIWEBPLUS_DIALECT_NAME).format();
     }
 
     @Override
@@ -67,7 +74,7 @@ public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
 
     private PropertySpec stringSpec(String name, String defaultValue, TranslationKey translationKey, String... otherValues) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, translationKey, this.propertySpecService::stringSpec)
+                .specBuilder(name, false, translationKey, getPropertySpecService()::stringSpec)
                 .setDefaultValue(defaultValue)
                 .addValues(otherValues)
                 .markExhaustive()

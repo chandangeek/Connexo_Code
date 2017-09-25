@@ -1,5 +1,7 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -23,8 +25,12 @@ public class SDKBreakerTaskProtocolDialectProperties extends AbstractDeviceProto
     private static final String DISCONNECTED = "disconnected";
     private static final String ARMED = "armed";
 
-    public SDKBreakerTaskProtocolDialectProperties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public SDKBreakerTaskProtocolDialectProperties(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
+    }
+
+    public SDKBreakerTaskProtocolDialectProperties(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
@@ -34,14 +40,14 @@ public class SDKBreakerTaskProtocolDialectProperties extends AbstractDeviceProto
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return "SDK dialect for breaker testing";
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.SDK_SAMPLE_BREAKER).format();
     }
 
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory
-                        .specBuilder(breakerStatus, false, PropertyTranslationKeys.SDKSAMPLE_BREAKER_STATUS, this.propertySpecService::stringSpec)
+                        .specBuilder(breakerStatus, false, PropertyTranslationKeys.SDKSAMPLE_BREAKER_STATUS, getPropertySpecService()::stringSpec)
                         .addValues(CONNECTED, DISCONNECTED, ARMED)
                         .markExhaustive()
                         .setDefaultValue(CONNECTED)

@@ -24,6 +24,7 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -66,14 +67,17 @@ public class SEL implements DeviceProtocol {
     private SELConnection connection;
     private final PropertySpecService propertySpecService;
     private final CollectedDataFactory collectedDataFactory;
+    private final NlsService nlsService;
+
     private SELProperties properties;
     private OfflineDevice offlineDevice;
     Logger logger = Logger.getLogger(this.getClass().getName());
     private LoadProfileBuilder loadProfileBuilder;
 
-    public SEL(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory) {
+    public SEL(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
         this.collectedDataFactory = collectedDataFactory;
+        this.nlsService = nlsService;
     }
 
     public SELConnection getConnection() {
@@ -212,7 +216,7 @@ public class SEL implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.<DeviceProtocolDialect>singletonList(new NoParamsDeviceProtocolDialect());
+        return Collections.<DeviceProtocolDialect>singletonList(new NoParamsDeviceProtocolDialect(nlsService));
     }
 
     @Override

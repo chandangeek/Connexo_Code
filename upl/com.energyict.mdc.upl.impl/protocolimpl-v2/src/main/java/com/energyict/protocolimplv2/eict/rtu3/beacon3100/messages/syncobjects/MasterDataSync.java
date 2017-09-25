@@ -1,13 +1,5 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.ClientTypeManager;
-import com.energyict.dlms.cosem.ConcentratorSetup;
-import com.energyict.dlms.cosem.DeviceTypeManager;
-import com.energyict.dlms.cosem.ScheduleManager;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ObjectMapperService;
@@ -18,7 +10,17 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.ClientTypeManager;
+import com.energyict.dlms.cosem.ConcentratorSetup;
+import com.energyict.dlms.cosem.DeviceTypeManager;
+import com.energyict.dlms.cosem.ScheduleManager;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
@@ -50,17 +52,19 @@ public class MasterDataSync {
     private final IssueFactory issueFactory;
     private final PropertySpecService propertySpecService;
     private final DeviceMasterDataExtractor deviceMasterDataExtractor;
+    private final NlsService nlsService;
 
     protected StringBuilder info = new StringBuilder();
 
     protected DeviceMessageStatus syncStatus = null;
 
-    public MasterDataSync(Beacon3100Messaging beacon3100Messaging, ObjectMapperService objectMapperService, IssueFactory issueFactory, PropertySpecService propertySpecService, DeviceMasterDataExtractor deviceMasterDataExtractor) {
+    public MasterDataSync(Beacon3100Messaging beacon3100Messaging, ObjectMapperService objectMapperService, IssueFactory issueFactory, PropertySpecService propertySpecService, DeviceMasterDataExtractor deviceMasterDataExtractor, NlsService nlsService) {
         this.beacon3100Messaging = beacon3100Messaging;
         this.objectMapperService = objectMapperService;
         this.issueFactory = issueFactory;
         this.propertySpecService = propertySpecService;
         this.deviceMasterDataExtractor = deviceMasterDataExtractor;
+        this.nlsService = nlsService;
     }
 
     /**
@@ -444,7 +448,7 @@ public class MasterDataSync {
     }
 
     private MasterDataSerializer newMasterDataSerializer() {
-        return new MasterDataSerializer(objectMapperService, propertySpecService, deviceMasterDataExtractor, getBeacon3100Properties());
+        return new MasterDataSerializer(objectMapperService, propertySpecService, deviceMasterDataExtractor, getBeacon3100Properties(), nlsService);
     }
 
     private Beacon3100Properties getBeacon3100Properties() {

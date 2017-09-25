@@ -1,5 +1,7 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
@@ -21,8 +23,12 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
     public static final String CLOCK_OFFSET_TO_WRITE_PROPERTY_NAME = "ClockOffsetWhenReading";
     public static final String CLOCK_OFFSET_TO_READ_PROPERTY_NAME = "ClockOffsetWhenWriting";
 
-    public SDKTimeDeviceProtocolDialectProperties(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public SDKTimeDeviceProtocolDialectProperties(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
+    }
+
+    public SDKTimeDeviceProtocolDialectProperties(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
@@ -32,7 +38,7 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return "SDK dialect for time testing";
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.SDK_SAMPLE_TIME_DEVICE_PROTOCOL_DIALECT_NAME).format();
     }
 
     @Override
@@ -51,7 +57,7 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
     }
 
     private PropertySpec durationPropertySpec(String name) {
-        return propertySpecService
+        return getPropertySpecService()
                 .durationSpec()
                 .named(name, name)
                 .describedAs("Description for " + name)

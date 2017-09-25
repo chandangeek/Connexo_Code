@@ -1,5 +1,8 @@
 package com.energyict.mdc.tasks;
 
+import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
@@ -28,10 +31,13 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEOUT;
 public class MirrorTcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     public static final Duration DEFAULT_TCP_TIMEOUT = Duration.ofSeconds(30);
-    public static final String BEACON_DC_MIRROR_TCP_DLMS = "Beacon DC Mirror TCP DLMS";
 
-    public MirrorTcpDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public MirrorTcpDeviceProtocolDialect(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
+    }
+
+    public MirrorTcpDeviceProtocolDialect(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
@@ -41,7 +47,7 @@ public class MirrorTcpDeviceProtocolDialect extends AbstractDeviceProtocolDialec
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return BEACON_DC_MIRROR_TCP_DLMS;
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.BEACON_MIRROR_TCP_DLMS_PROTOCOL_DIALECT_NAME).format();
     }
 
     @Override
@@ -63,21 +69,21 @@ public class MirrorTcpDeviceProtocolDialect extends AbstractDeviceProtocolDialec
      */
     protected PropertySpec retriesPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(RETRIES, false, PropertyTranslationKeys.V2_TASKS_RETRIES, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(RETRIES, false, PropertyTranslationKeys.V2_TASKS_RETRIES, getPropertySpecService()::bigDecimalSpec)
                 .setDefaultValue(BigDecimal.ZERO)
                 .finish();
     }
 
     protected PropertySpec timeoutPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(TIMEOUT, false, PropertyTranslationKeys.V2_TASKS_RETRIES, this.propertySpecService::durationSpec)
+                .specBuilder(TIMEOUT, false, PropertyTranslationKeys.V2_TASKS_RETRIES, getPropertySpecService()::durationSpec)
                 .setDefaultValue(DEFAULT_TCP_TIMEOUT)
                 .finish();
     }
 
     protected PropertySpec roundTripCorrectionPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.V2_TASKS_ROUNDTRIPCORRECTION, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.V2_TASKS_ROUNDTRIPCORRECTION, getPropertySpecService()::bigDecimalSpec)
                 .setDefaultValue(DEFAULT_ROUND_TRIP_CORRECTION)
                 .finish();
     }

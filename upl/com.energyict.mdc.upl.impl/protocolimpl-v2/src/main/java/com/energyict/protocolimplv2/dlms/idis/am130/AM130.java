@@ -117,7 +117,7 @@ public class AM130 extends AM500 {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList(new TcpDeviceProtocolDialect(this.getPropertySpecService()));
+        return Collections.singletonList(new TcpDeviceProtocolDialect(this.getPropertySpecService(), this.getNlsService()));
     }
 
     @Override

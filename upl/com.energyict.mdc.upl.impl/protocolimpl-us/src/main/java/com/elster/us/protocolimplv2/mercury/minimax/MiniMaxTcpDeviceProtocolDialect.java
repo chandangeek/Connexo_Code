@@ -1,10 +1,14 @@
 package com.elster.us.protocolimplv2.mercury.minimax;
 
-import com.elster.us.nls.PropertyTranslationKeys;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.elster.us.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.math.BigDecimal;
@@ -27,18 +31,22 @@ public class MiniMaxTcpDeviceProtocolDialect extends AbstractDeviceProtocolDiale
     public static final long DEFAULT_TCP_TIMEOUT = 30;
     public static final int DEFAULT_ROUND_TRIP_CORRECTION = 0;
 
-    public MiniMaxTcpDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public MiniMaxTcpDeviceProtocolDialect(PropertySpecService propertySpecService, NlsService nlsService) {
+        super(propertySpecService, nlsService);
+    }
+
+    public MiniMaxTcpDeviceProtocolDialect(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return "TcpMercuryDialect";
+        return DeviceProtocolDialectTranslationKeys.TCP_MERCURY_DIALECT_NAME.getName();
     }
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return "TCP/IP";
+        return getThesaurus().getFormat(DeviceProtocolDialectTranslationKeys.TCP_MERCURY_DIALECT_NAME).format();
     }
 
     @Override
@@ -52,21 +60,21 @@ public class MiniMaxTcpDeviceProtocolDialect extends AbstractDeviceProtocolDiale
 
     private PropertySpec retriesPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(RETRIES, false, PropertyTranslationKeys.MERCURY_RETRIES, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(RETRIES, false, PropertyTranslationKeys.MERCURY_RETRIES, getPropertySpecService()::bigDecimalSpec)
                 .setDefaultValue(new BigDecimal(3))
                 .finish();
     }
 
     private PropertySpec timeoutPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(TIMEOUT, false, PropertyTranslationKeys.MERCURY_TIMEOUT, this.propertySpecService::durationSpec)
+                .specBuilder(TIMEOUT, false, PropertyTranslationKeys.MERCURY_TIMEOUT, getPropertySpecService()::durationSpec)
                 .setDefaultValue(Duration.ofSeconds(DEFAULT_TCP_TIMEOUT))
                 .finish();
     }
 
     private PropertySpec roundTripCorrectionPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.MERCURY_ROUND_TRIP_CORRECTION, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.MERCURY_ROUND_TRIP_CORRECTION, getPropertySpecService()::bigDecimalSpec)
                 .setDefaultValue(new BigDecimal(DEFAULT_ROUND_TRIP_CORRECTION))
                 .finish();
     }

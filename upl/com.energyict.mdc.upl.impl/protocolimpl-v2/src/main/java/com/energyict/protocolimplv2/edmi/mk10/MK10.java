@@ -28,6 +28,7 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -87,11 +88,13 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
     private final PropertySpecService propertySpecService;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
+    private final NlsService nlsService;
 
-    public MK10(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public MK10(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -143,9 +146,9 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> result = new ArrayList<>();
-        result.add(new TcpDeviceProtocolDialect(propertySpecService));
-        result.add(new UdpDeviceProtocolDialect(propertySpecService));
-        result.add(new ModemDeviceProtocolDialect(propertySpecService));
+        result.add(new TcpDeviceProtocolDialect(propertySpecService, this.nlsService));
+        result.add(new UdpDeviceProtocolDialect(propertySpecService, this.nlsService));
+        result.add(new ModemDeviceProtocolDialect(propertySpecService, this.nlsService));
         return result;
     }
 
