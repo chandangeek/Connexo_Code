@@ -19,15 +19,16 @@ Ext.define('Dal.view.bulk.AlarmsSelectionGrid', {
     columns: {
         items: [
             {
-                itemId: 'alarms-grid-id',
-                header: Uni.I18n.translate('general.title.alarmBulkId', 'DAL', 'ID'),
-                dataIndex: 'alarmId'
-            },
-            {
                 itemId: 'alarms-grid-title',
                 header: Uni.I18n.translate('general.title.alarm', 'DAL', 'Alarm'),
                 dataIndex: 'title',
                 flex: 2
+            },
+            {
+                itemId: 'alarms-grid-priority',
+                header: Uni.I18n.translate('general.priority', 'DAL', 'Priority'),
+                dataIndex: 'priority',
+                flex: 1
             },
             {
                 itemId: 'alarms-grid-due-date',
@@ -43,6 +44,12 @@ Ext.define('Dal.view.bulk.AlarmsSelectionGrid', {
                 header: Uni.I18n.translate('general.status', 'DAL', 'Status'),
                 dataIndex: 'status_name',
                 width: 100
+            },
+            {
+                itemId: 'alarms-grid-cleared',
+                header: Uni.I18n.translate('general.cleared', 'DAL', 'Cleared'),
+                dataIndex: 'cleared',
+                flex: 1
             },
             {
                 itemId: 'alarms-grid-workgroup-assignee',
@@ -64,6 +71,7 @@ Ext.define('Dal.view.bulk.AlarmsSelectionGrid', {
             }
         ]
     },
+
 
     initComponent: function () {
         this.callParent(arguments);
