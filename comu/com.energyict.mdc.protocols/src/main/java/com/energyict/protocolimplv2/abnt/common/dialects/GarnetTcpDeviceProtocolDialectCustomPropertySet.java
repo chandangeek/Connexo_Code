@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
 
 import javax.inject.Inject;
@@ -29,7 +30,7 @@ public class GarnetTcpDeviceProtocolDialectCustomPropertySet extends AbstractDia
     }
 
     @Override
-    protected DeviceProtocolDialect getDeviceProtocolDialect() {
-        return new com.energyict.protocolimplv2.elster.garnet.TcpDeviceProtocolDialect(propertySpecService);
+    public DeviceProtocolDialect getDeviceProtocolDialect() {
+        return new com.energyict.protocolimplv2.elster.garnet.TcpDeviceProtocolDialect(propertySpecService, getUplThesaurus());
     }
 }

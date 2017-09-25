@@ -33,8 +33,8 @@ class SDKDeviceAlarmDialectCustomPropertySet extends AbstractDialectCustomProper
     }
 
     @Override
-    protected DeviceProtocolDialect getDeviceProtocolDialect() {
-        return new SDKDeviceAlarmProtocolDialectProperties(propertySpecService);
+    public DeviceProtocolDialect getDeviceProtocolDialect() {
+        return new SDKDeviceAlarmProtocolDialectProperties(propertySpecService, getUplThesaurus());
     }
 }
 

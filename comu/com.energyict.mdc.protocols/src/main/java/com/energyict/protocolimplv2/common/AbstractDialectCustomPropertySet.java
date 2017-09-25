@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLThesaurusAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 public abstract class AbstractDialectCustomPropertySet {
 
     protected volatile PropertySpecService propertySpecService;
-    private volatile Thesaurus thesaurus;
+    protected volatile Thesaurus thesaurus;
 
     @Inject
     public AbstractDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
@@ -44,10 +45,22 @@ public abstract class AbstractDialectCustomPropertySet {
         this.propertySpecService = propertySpecService;
     }
 
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    public Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
+    public com.energyict.mdc.upl.nls.Thesaurus getUplThesaurus() {
+        return UPLThesaurusAdapter.adaptTo(thesaurus);
+    }
+
     /**
      * The dialect class from the 9.1 protocol code, providing the property specs.
      */
-    protected abstract com.energyict.mdc.upl.DeviceProtocolDialect getDeviceProtocolDialect();
+    public abstract com.energyict.mdc.upl.DeviceProtocolDialect getDeviceProtocolDialect();
 
     public List<PropertySpec> getPropertySpecs() {
         //The property specs of this dialect are provided by the 9.1 protocol code.

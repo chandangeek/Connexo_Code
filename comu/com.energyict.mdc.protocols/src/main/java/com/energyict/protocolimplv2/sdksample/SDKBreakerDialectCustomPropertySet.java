@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
 import test.com.energyict.protocolimplv2.sdksample.SDKBreakerTaskProtocolDialectProperties;
 
@@ -29,8 +30,8 @@ class SDKBreakerDialectCustomPropertySet extends AbstractDialectCustomPropertySe
     }
 
     @Override
-    protected DeviceProtocolDialect getDeviceProtocolDialect() {
-        return new SDKBreakerTaskProtocolDialectProperties(propertySpecService);
+    public DeviceProtocolDialect getDeviceProtocolDialect() {
+        return new SDKBreakerTaskProtocolDialectProperties(propertySpecService, getUplThesaurus());
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
 
 import javax.inject.Inject;
@@ -33,7 +34,7 @@ public class MirrorTcpDeviceProtocolDialectCustomPropertySet extends AbstractDia
     }
 
     @Override
-    protected DeviceProtocolDialect getDeviceProtocolDialect() {
-        return new MirrorTcpDeviceProtocolDialect(propertySpecService);
+    public DeviceProtocolDialect getDeviceProtocolDialect() {
+        return new MirrorTcpDeviceProtocolDialect(propertySpecService, getUplThesaurus());
     }
 }

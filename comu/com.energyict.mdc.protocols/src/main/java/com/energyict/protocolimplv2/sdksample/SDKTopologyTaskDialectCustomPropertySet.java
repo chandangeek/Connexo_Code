@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
 import test.com.energyict.protocolimplv2.sdksample.SDKTopologyTaskProtocolDialectProperties;
 
@@ -34,7 +35,7 @@ class SDKTopologyTaskDialectCustomPropertySet extends AbstractDialectCustomPrope
     }
 
     @Override
-    protected DeviceProtocolDialect getDeviceProtocolDialect() {
-        return new SDKTopologyTaskProtocolDialectProperties(propertySpecService);
+    public DeviceProtocolDialect getDeviceProtocolDialect() {
+        return new SDKTopologyTaskProtocolDialectProperties(propertySpecService, getUplThesaurus());
     }
 }

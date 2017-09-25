@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.tasks.CTRDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
 
 import javax.inject.Inject;
@@ -34,7 +35,7 @@ public class CTRDeviceProtocolDialectCustomPropertySet extends AbstractDialectCu
     }
 
     @Override
-    protected DeviceProtocolDialect getDeviceProtocolDialect() {
-        return new CTRDeviceProtocolDialect(propertySpecService);
+    public DeviceProtocolDialect getDeviceProtocolDialect() {
+        return new CTRDeviceProtocolDialect(propertySpecService, getUplThesaurus());
     }
 }

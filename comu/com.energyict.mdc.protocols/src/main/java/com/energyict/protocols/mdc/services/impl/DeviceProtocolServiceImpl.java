@@ -64,13 +64,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     public void setRuntimeEnvironment(RuntimeEnvironment runtimeEnvironment) {
     }
 
-    //TODO refactor the ObjectMapperService away, not needed as a service
-/*
-    @Reference
-    public void setObjectMapperService(ObjectMapperService objectMapperService) {
-    }
-*/
-
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
     }
