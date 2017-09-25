@@ -9,10 +9,12 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface IssueStatus extends Entity {
 
-    public static final String OPEN = "status.open";
-    public static final String RESOLVED = "status.resolved";
-    public static final String WONT_FIX = "status.wont.fix";
-    public static final String IN_PROGRESS = "status.in.progress";
+    String OPEN = "status.open";
+    String RESOLVED = "status.resolved";
+    String WONT_FIX = "status.wont.fix";
+    String IN_PROGRESS = "status.in.progress";
+    String SNOOZED = "status.snoozed";
+    String FORWARDED = "status.forwarded";
 
     String getKey();
 

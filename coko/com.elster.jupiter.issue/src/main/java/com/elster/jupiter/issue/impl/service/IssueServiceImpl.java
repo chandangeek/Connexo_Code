@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.impl.IssueFilterImpl;
 import com.elster.jupiter.issue.impl.IssueGroupFilterImpl;
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
@@ -69,6 +70,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
@@ -91,6 +93,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -129,6 +132,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private volatile MeteringService meteringService;
     private volatile MessageService messageService;
     private volatile TaskService taskService;
+    private volatile EventService eventService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile NlsService nlsService;
@@ -152,8 +156,6 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private final List<IssueProvider> issueProviders = new ArrayList<>();
     private final List<IssueWebServiceClient> issueWebServiceClients = new ArrayList<>();
     private final List<IssueCreationValidator> issueCreationValidators = new CopyOnWriteArrayList<>();
-    private IssueWebServiceClient issueWebServiceClient;
-
 
     public IssueServiceImpl() {
     }
@@ -172,7 +174,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                             TransactionService transactionService,
                             ThreadPrincipalService threadPrincipalService,
                             EndPointConfigurationService endPointConfigurationService,
-                            UpgradeService upgradeService, Clock clock) {
+                            UpgradeService upgradeService, Clock clock, EventService eventService) {
         setOrmService(ormService);
         setQueryService(queryService);
         setUserService(userService);
@@ -188,6 +190,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         setUpgradeService(upgradeService);
         setClock(clock);
         setEndPointConfigurationService(endPointConfigurationService);
+        setEventService(eventService);
         activate();
     }
 
@@ -216,6 +219,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 bind(IssueAssignmentService.class).to(IssueAssignmentServiceImpl.class).in(Scopes.SINGLETON);
                 bind(IssueCreationService.class).to(IssueCreationServiceImpl.class).in(Scopes.SINGLETON);
                 bind(Clock.class).toInstance(clock);
+                bind(EventService.class).toInstance(eventService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
             }
         });
@@ -227,7 +231,9 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class, version(10, 3), UpgraderV10_3.class
+                        version(10, 2), UpgraderV10_2.class,
+                        version(10, 3), UpgraderV10_3.class,
+                        version(10,4), V10_4SimpleUpgrader.class
                 ));
     }
 
@@ -309,6 +315,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Reference
     public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
         this.endPointConfigurationService = endPointConfigurationService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -682,6 +693,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         SqlBuilder userWhereClause = new SqlBuilder();
         userWhereClause.append("WHERE " + TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_USER_ID + " = ");
         userWhereClause.addLong(user.getId());
+        userWhereClause.append(" AND ");
+        userWhereClause.append(getActiveIssueStatusCondition(Stream.of(IssueStatus.OPEN, IssueStatus.IN_PROGRESS).collect(Collectors.toList())));
         return userWhereClause;
     }
 
@@ -692,7 +705,19 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         workGroupWithoutUserWhereClause.append(TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_WORKGROUP_ID + " IN ( ");
         workGroupWithoutUserWhereClause.append(user.getWorkGroups().isEmpty() ? "NULL" : user.getWorkGroups().stream().map(WorkGroup::getId).map(String::valueOf).collect(Collectors.joining(", ")));
         workGroupWithoutUserWhereClause.append(" ) ");
+        workGroupWithoutUserWhereClause.append(" AND ");
+        workGroupWithoutUserWhereClause.append(getActiveIssueStatusCondition(Stream.of(IssueStatus.OPEN, IssueStatus.IN_PROGRESS).collect(Collectors.toList())));
         return workGroupWithoutUserWhereClause;
+    }
+
+    private String getActiveIssueStatusCondition(List<String> statuses) {
+        StringBuffer activeIssueStatusCondition = new StringBuffer();
+        activeIssueStatusCondition.append(TableSpecs.ISU_ISSUE_OPEN.name() + "." + DatabaseConst.ISSUE_COLUMN_STATUS_ID + " IN (");
+        activeIssueStatusCondition.append(statuses.stream()
+                .map((status) -> "'" + status + "'")
+                .collect(Collectors.joining(", ")));
+        activeIssueStatusCondition.append(" ) ");
+        return activeIssueStatusCondition.toString();
     }
 
     private Map<IssueTypes, Long> count(SqlBuilder sqlBuilder) {

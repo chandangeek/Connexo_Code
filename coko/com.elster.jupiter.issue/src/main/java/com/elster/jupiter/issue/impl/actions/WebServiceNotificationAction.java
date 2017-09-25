@@ -18,6 +18,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
@@ -32,13 +33,16 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableList;
+import org.json.JSONObject;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class WebServiceNotificationAction extends AbstractIssueAction {
@@ -81,7 +85,7 @@ public class WebServiceNotificationAction extends AbstractIssueAction {
                     if (issueWebServiceClient1.call(issue, endPointConfig)) {
                         closeIssue.ifPresent(close -> {
                             if (close == true) {
-                                ((OpenIssue) issue).close(issueService.findStatus(IssueStatus.WONT_FIX).get());
+                                ((OpenIssue) issue).close(issueService.findStatus(IssueStatus.FORWARDED).get());
                             }
                         });
                     }
@@ -128,18 +132,25 @@ public class WebServiceNotificationAction extends AbstractIssueAction {
                         .markExhaustive()
                         .finish());
 
-        builder.add(getPropertySpecService()
-                .specForValuesOf(new BooleanFactory())
-                .named(CLOSE, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE)
-                .describedAs(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE)
-                .fromThesaurus(getThesaurus())
-                .finish());
+        Map<String, String> description = new HashMap<>();
+        description.put("tooltip", getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE_DESCRIPTION).format());
+
+        BasicPropertySpec closeItem = new BasicPropertySpec(new BooleanFactory());
+        closeItem.setName(CLOSE);
+        closeItem.setDisplayName(getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE).format());
+        closeItem.setDescription(new JSONObject(description).toString());
+        builder.add(closeItem);
+
         return builder.build();
     }
 
     private EndPoint[] getPossibleStatuses() {
         return endPointConfigurationService.findEndPointConfigurations().stream()
                 .filter(EndPointConfiguration::isActive)
+                .filter(endPointConfiguration ->
+                        ((IssueServiceImpl) issueService).getIssueWebServiceClients().stream()
+                                .filter(issueWebServiceClient1 -> issueWebServiceClient1.getWebServiceName().compareTo(endPointConfiguration.getWebServiceName()) == 0)
+                                .count() > 0)
                 .map(EndPoint::new).toArray(EndPoint[]::new);
     }
 

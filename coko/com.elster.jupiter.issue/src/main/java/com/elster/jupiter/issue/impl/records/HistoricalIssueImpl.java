@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
@@ -16,8 +17,8 @@ import java.time.Clock;
 public final class HistoricalIssueImpl extends IssueImpl implements HistoricalIssue {
 
     @Inject
-    public HistoricalIssueImpl(DataModel dataModel, IssueService issueService, Clock clock) {
-        super(dataModel, issueService, clock);
+    public HistoricalIssueImpl(DataModel dataModel, IssueService issueService, Clock clock, Thesaurus thesaurus) {
+        super(dataModel, issueService, clock, thesaurus);
     }
 
     void copy(OpenIssue issue) {
