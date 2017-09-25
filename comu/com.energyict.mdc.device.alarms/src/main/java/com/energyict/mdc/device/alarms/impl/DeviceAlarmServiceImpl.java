@@ -13,6 +13,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
@@ -37,6 +38,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -50,6 +52,7 @@ import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.impl.database.TableSpecs;
+import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_4;
 import com.energyict.mdc.device.alarms.impl.database.groups.DeviceAlarmGroupOperation;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
@@ -58,10 +61,13 @@ import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
 import com.energyict.mdc.device.alarms.security.Privileges;
 import com.energyict.mdc.device.data.DeviceService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -74,6 +80,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -95,6 +102,8 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     private volatile MeteringService meteringService;
     private volatile TimeService timeService;
     private volatile BpmService bpmService;
+    private volatile EndPointConfigurationService endPointConfigurationService;
+    private final List<IssueWebServiceClient> alarmWebServiceClients = new ArrayList<>();
 
     // For OSGi framework
     public DeviceAlarmServiceImpl() {
@@ -113,6 +122,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                                   UserService userService,
                                   MeteringService meteringService,
                                   BpmService bpmService,
+                                  EndPointConfigurationService endPointConfigurationService,
                                   TimeService timeService) {
         this();
         setMessageService(messageService);
@@ -127,7 +137,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         setMeteringService(meteringService);
         setTimeService(timeService);
         setBpmService(bpmService);
-
+        setEndPointConfigurationService(endPointConfigurationService);
         activate();
     }
 
@@ -149,9 +159,12 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 bind(UserService.class).toInstance(userService);
                 bind(TimeService.class).toInstance(timeService);
                 bind(BpmService.class).toInstance(bpmService);
+                bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
             }
         });
-        upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
+                version(10, 4), UpgraderV10_4.class
+        ));
     }
 
     @Reference
@@ -219,6 +232,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         this.upgradeService = upgradeService;
     }
 
+    @Reference
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
+    }
+
     @Override
     public Optional<? extends DeviceAlarm> findAlarm(long id) {
         Optional<OpenDeviceAlarm> issue = findOpenAlarm(id);
@@ -280,6 +298,19 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         }
         return DefaultFinder.of((Class<DeviceAlarm>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses
                 .size()]));
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addIssueWebServiceClient(IssueWebServiceClient issueWebServiceClient) {
+        alarmWebServiceClients.add(issueWebServiceClient);
+    }
+
+    public void removeIssueWebServiceClient(IssueWebServiceClient issueWebServiceClient) {
+        alarmWebServiceClients.remove(issueWebServiceClient);
+    }
+
+    public List<IssueWebServiceClient> getIssueWebServiceClients() {
+        return Collections.unmodifiableList(this.alarmWebServiceClients);
     }
 
     @Override
