@@ -7,8 +7,8 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -35,10 +35,6 @@ public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
 
     private PropertySpec callHomeIdPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, true, PropertyTranslationKeys.CTR_INBOUND_DIAL_HOME_ID, this.propertySpecService::stringSpec).finish();
-    }
-
-    protected String callHomeIdPropertyValue() {
-        return (String) this.getProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
     }
 
     @Override
