@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class V10_4SimpleUpgrader implements Upgrader {
     public static final Version VERSION = Version.version(10, 4);
-    public static final Map<Version, Class<? extends Upgrader>> V10_3_UPGRADER = ImmutableMap.of(VERSION, V10_4SimpleUpgrader.class);
+    public static final Map<Version, Class<? extends Upgrader>> V10_4_UPGRADER = ImmutableMap.of(VERSION, V10_4SimpleUpgrader.class);
     private final DataModel dataModel;
 
     @Inject
