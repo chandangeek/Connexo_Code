@@ -427,6 +427,12 @@ Ext.define('Isu.controller.IssueDetail', {
                     router: router
                 });
                 break;
+            case 'reason.unregistered.device':
+                form = Ext.widget('meter-registration-issue-details-form', {
+                   itemId: 'meter-registration-issue-details-form',
+                   router: router
+                });
+                break;
             default:
                 form = Ext.widget('default-issue-details-form', {
                     itemId: 'default-issue-details-form',
