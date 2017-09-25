@@ -174,6 +174,18 @@ public interface PkiService {
     ClientCertificateWrapperBuilder newClientCertificateWrapper(KeyType clientCertificateKeyType, String keyEncryptionMethod);
 
     /**
+     * Create a new Keypair wrapper. A keypair wrapper contains a public and private key, without certificate.
+     * @param alias The keypair will be known by an alias. The alias will need to be unique in the keypair store.
+     * @param keyType The KeyType describes the key (RSA, DSA, EC) and the specific parameters.
+     * @param keyEncryptionMethod The KeyEncryptionMethod describes which wrapper will be used to store the private key
+     * (DataVault being the Connexo default)
+     * @return a newly created KeypairWrapper, containing an empty
+     */
+    KeypairWrapper newKeypairWrapper(String alias, KeyType keyType, String keyEncryptionMethod);
+
+    KeypairWrapper newPublicKeyWrapper(String alias, KeyType keyType);
+
+    /**
      * Returns the client certificate known by the provided alias
      * @param alias
      * @return The {@link ClientCertificateWrapper} known by the alias, empty if not found
@@ -243,6 +255,11 @@ public interface PkiService {
     public interface ClientCertificateWrapperBuilder {
         ClientCertificateWrapperBuilder alias(String alias);
         ClientCertificateWrapper add();
+    }
+
+    public interface KeypairWrapperBuilder {
+        KeypairWrapperBuilder alias(String alias);
+        KeypairWrapper add();
     }
 
     public interface CertificateTypeBuilder {

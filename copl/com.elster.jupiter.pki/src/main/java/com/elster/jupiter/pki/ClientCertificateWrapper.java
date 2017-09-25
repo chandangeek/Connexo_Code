@@ -21,7 +21,7 @@ public interface ClientCertificateWrapper extends RequestableCertificateWrapper 
     PrivateKeyWrapper getPrivateKeyWrapper();
 
     /**
-     * Obtain the key type of this certifictae wrapper. The key type describes the signing algorithm for this certificate.
+     * Obtain the key type of this certificate wrapper. The key type describes the signing algorithm for this certificate.
      * @return KeyType
      */
     KeyType getKeyType();

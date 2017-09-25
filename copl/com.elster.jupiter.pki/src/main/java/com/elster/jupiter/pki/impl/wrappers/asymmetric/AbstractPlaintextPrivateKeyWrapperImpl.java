@@ -104,13 +104,13 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
         return encryptedPrivateKey;
     }
 
-    protected KeyType getKeyType() {
+    public KeyType getKeyType() {
         return keyTypeReference.get();
     }
 
     @Override
     public Optional<Instant> getExpirationTime() {
-        return Optional.ofNullable(expirationTime); // TODO provide link to certificate to determine expiration
+        return Optional.ofNullable(expirationTime);
     }
 
     @Override

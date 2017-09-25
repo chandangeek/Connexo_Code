@@ -71,6 +71,13 @@ public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValu
      * KeyTypes/KeyAccessorTypes)
      * Note that not all key encryption methods will permit automatic renewal.
      */
-    public void generateValue();
+    void generateValue();
+
+    /**
+     * Get the KeyType describing the private key.
+     * The KeyType will describe the key algorithm.
+     * @return
+     */
+    KeyType getKeyType();
 
 }
