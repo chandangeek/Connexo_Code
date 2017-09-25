@@ -1,5 +1,12 @@
-package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
+package com.energyict.mdc.protocol.pluggable.adapters.upl;
+
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoThesaurusAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoTranslationKeyAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLNlsMessageFormatAdapter;
 import com.energyict.mdc.upl.nls.NlsMessageFormat;
 import com.energyict.mdc.upl.nls.Thesaurus;
 import com.energyict.mdc.upl.nls.TranslationKey;

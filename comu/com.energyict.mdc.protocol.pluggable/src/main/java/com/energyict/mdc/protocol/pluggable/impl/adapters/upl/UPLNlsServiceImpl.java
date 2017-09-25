@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.elster.jupiter.nls.Layer;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLThesaurusAdapter;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.Thesaurus;

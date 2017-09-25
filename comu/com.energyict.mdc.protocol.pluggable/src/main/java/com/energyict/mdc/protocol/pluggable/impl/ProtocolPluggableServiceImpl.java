@@ -336,7 +336,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         }
     }
 
-    private List<LicensedProtocol> getAllKnownProtocols(){
+    private List<LicensedProtocol> getAllKnownProtocols() {
         List<LicensedProtocol> protocols = new ArrayList<>();
         for (LicensedProtocolService licensedProtocolService : this.licensedProtocolServices) {
             protocols.addAll(licensedProtocolService.getAllKnownProtocols());

@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLThesaurusAdapter;
 import com.energyict.mdc.upl.nls.Thesaurus;
 
 import java.time.format.DateTimeFormatter;
