@@ -303,7 +303,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private HasIdAndName getRelativePeriodWithCount() {
         RelativePeriod relativePeriod = timeService.findRelativePeriodByName("Last 7 days").isPresent() ? timeService.findRelativePeriodByName("Last 7 days")
                 .get() : timeService.getAllRelativePeriod();
-        int occurrenceCount = new Random().nextInt(5);
+        int occurrenceCount = 1;
 
         return new HasIdAndName() {
             @Override

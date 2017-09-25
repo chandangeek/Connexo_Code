@@ -26,6 +26,7 @@ import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
 import com.elster.jupiter.demo.impl.commands.CreateMetrologyConfigurationsCommand;
 import com.elster.jupiter.demo.impl.commands.CreateMultiElementDeviceSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateNetworkTopologyCommand;
 import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
 import com.elster.jupiter.demo.impl.commands.CreatePowerUserCommand;
 import com.elster.jupiter.demo.impl.commands.CreateRegisterDeviceCommand;
@@ -57,6 +58,8 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.PassphraseFactory;
@@ -71,9 +74,11 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.command.CommandRuleService;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -141,7 +146,8 @@ import java.time.Clock;
         "osgi.command.function=createDefaultAlarmRule",
         "osgi.command.function=createMetrologyConfigurations",
         "osgi.command.function=createPowerUser",
-        "osgi.command.function=createRegisterDevice"
+        "osgi.command.function=createRegisterDevice",
+        "osgi.command.function=createNetworkTopology"
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -157,6 +163,7 @@ public class DemoServiceImpl {
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
     private volatile ConnectionTaskService connectionTaskService;
+    private volatile CommunicationTaskService communicationTaskService;
     private volatile SchedulingService schedulingService;
     private volatile LicenseService licenseService;
     private volatile DataModel dataModel;
@@ -194,7 +201,8 @@ public class DemoServiceImpl {
     private volatile PkiService pkiService;
     private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile PassphraseFactory passphraseFactory;
-
+    private volatile NlsService nlsService;
+    private volatile DeviceAlarmService deviceAlarmService;
     private volatile TopologyService topologyService;
 
     private Injector injector;
@@ -218,6 +226,7 @@ public class DemoServiceImpl {
             DeviceConfigurationService deviceConfigurationService,
             DeviceService deviceService,
             ConnectionTaskService connectionTaskService,
+            CommunicationTaskService communicationTaskService,
             SchedulingService schedulingService,
             LicenseService licenseService,
             OrmService ormService,
@@ -248,11 +257,13 @@ public class DemoServiceImpl {
             com.elster.jupiter.tasks.TaskService platformTaskService,
             CommandRuleService commandRuleService,
             DataQualityKpiService dataQualityKpiService,
-            TopologyService topologyService,
             UsagePointLifeCycleService usagePointLifeCycleService,
             UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
             PkiService pkiService,
             PassphraseFactory passphraseFactory,
+            TopologyService topologyService,
+            NlsService nlsService,
+            DeviceAlarmService deviceAlarmService,
             UsagePointConfigurationService usagePointConfigurationService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
@@ -268,6 +279,7 @@ public class DemoServiceImpl {
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceService(deviceService);
         setConnectionTaskService(connectionTaskService);
+        setCommunicationTaskService(communicationTaskService);
         setSchedulingService(schedulingService);
         setLicenseService(licenseService);
         setOrmService(ormService);
@@ -304,6 +316,9 @@ public class DemoServiceImpl {
         setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
         setPkiService(pkiService);
         setPassphraseFactory(passphraseFactory);
+        setTopologyService(topologyService);
+        setNlsService(nlsService);
+        setDeviceAlarmService(deviceAlarmService);
         setUsagePointConfigurationService(usagePointConfigurationService);
         activate();
         reThrowEx = true;
@@ -327,6 +342,7 @@ public class DemoServiceImpl {
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
+                bind(CommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(SchedulingService.class).toInstance(schedulingService);
                 bind(LicenseService.class).toInstance(licenseService);
                 bind(DataModel.class).toInstance(dataModel);
@@ -365,6 +381,9 @@ public class DemoServiceImpl {
                 bind(UsagePointLifeCycleService.class).toInstance(usagePointLifeCycleService);
                 bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
                 bind(PkiService.class).toInstance(pkiService);
+                bind(TopologyService.class).toInstance(topologyService);
+                bind(NlsService.class).toInstance(nlsService);
+                bind(DeviceAlarmService.class).toInstance(deviceAlarmService);
                 bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
             }
         });
@@ -456,6 +475,12 @@ public class DemoServiceImpl {
     }
 
     @Reference
+     @SuppressWarnings("unused")
+     public final void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+     }
+
+    @Reference
     @SuppressWarnings("unused")
     public final void setSchedulingService(SchedulingService schedulingService) {
         this.schedulingService = schedulingService;
@@ -545,11 +570,6 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public final void setFavoritesService(FavoritesService favoritesService) {
         this.favoritesService = favoritesService;
-    }
-
-    @Reference
-    public void setTopologyService(TopologyService topologyService) {
-        this.topologyService = topologyService;
     }
 
     @Reference
@@ -658,6 +678,21 @@ public class DemoServiceImpl {
     }
 
     @Reference
+    @SuppressWarnings("unused")
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
+    }
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
+    }
+
+    @Reference
+    public void setDeviceAlarmService(DeviceAlarmService deviceAlarmService) {
+        this.deviceAlarmService = deviceAlarmService;
+    }
+
+    @Reference
     public void setUsagePointConfigurationService(UsagePointConfigurationService usagePointConfigurationService) {
         this.usagePointConfigurationService = usagePointConfigurationService;
     }
@@ -731,6 +766,17 @@ public class DemoServiceImpl {
             }
             command.run();
         });
+    }
+
+    @SuppressWarnings("unused")
+    public void createNetworkTopology(String rootDeviceName, int childcount, int levelcount) {
+        CreateNetworkTopologyCommand command = injector.getInstance(CreateNetworkTopologyCommand.class);
+        if (!Strings.isNullOrEmpty(rootDeviceName)) {
+            command.setGatewayMrid(rootDeviceName);
+        }
+        command.setDeviceCount(childcount);
+        command.setLevelCount(levelcount);
+        command.runInTransaction();
     }
 
     @SuppressWarnings("unused")

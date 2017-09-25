@@ -321,6 +321,10 @@
             <artifactId>mdm.usagepoint.config</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.topology.rest</artifactId>
+        </dependency>
         <!-- TESTS -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
