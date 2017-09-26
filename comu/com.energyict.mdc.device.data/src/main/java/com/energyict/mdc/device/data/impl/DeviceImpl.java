@@ -451,7 +451,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     void postSave() {
-        getDeviceService().findDevicesByConnectionTypeAndProperty(null, "host", "me");
         if (this.meter.isPresent() && !getName().equals(this.meter.get().getName())) {
             this.meter.get().setName(getName());
             this.meter.get().update();
