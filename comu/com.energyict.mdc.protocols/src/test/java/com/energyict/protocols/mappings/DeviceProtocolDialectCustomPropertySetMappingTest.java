@@ -37,6 +37,7 @@ public class DeviceProtocolDialectCustomPropertySetMappingTest {
     public void testDeviceProtocolDialectCustomPropertySetExistence() throws Exception {
         testForPrefix("com.energyict");
         testForPrefix("com.elster");
+//        testForPrefix("test.com.energyict");  // TODO: re-enable once the dialects of the SDK protocols have their proper DialectCustomPropertySet defined
     }
 
     private void testForPrefix(String prefix) throws InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException, NoSuchMethodException {
@@ -65,12 +66,14 @@ public class DeviceProtocolDialectCustomPropertySetMappingTest {
             dialectClasses.remove(dialectClass);
         }
 
-        assertThat(dialectClasses).as("Encountered device protocol dialect(s) without proper custom property support: " + asString(dialectClasses)).isEmpty();
+        if (!dialectClasses.isEmpty()) {
+            throw new AssertionError("Encountered device protocol dialect(s) without proper custom property support:\r\n" + asString(dialectClasses));
+        }
     }
 
     private String asString(List<Class<? extends AbstractDeviceProtocolDialect>> dialectClasses) {
         StringBuilder builder = new StringBuilder();
-        dialectClasses.forEach(dClass -> builder.append(dClass.getName()).append(", "));
-        return builder.substring(0, builder.lastIndexOf(", "));
+        dialectClasses.forEach(dClass -> builder.append("\t").append(dClass.getName()).append("\r\n"));
+        return builder.toString();
     }
 }
