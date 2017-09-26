@@ -101,7 +101,6 @@ import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.impl.MdcPropertyUtilsImpl;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -221,34 +220,32 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     ThreadPrincipalService threadPrincipalService;
     @Mock
     MeteringGroupsService meteringGroupsService;
-    MdcPropertyUtils mdcPropertyUtils;
 
     static ProtocolPluggableService protocolPluggableService;
     static PropertyValueInfoService propertyValueInfoService;
-
 
     @BeforeClass
     public static void before() {
         protocolPluggableService = mock(ProtocolPluggableService.class);
         when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class))).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
-            return UPLAuthenticationLevelAdapter.adaptTo((com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel) args[0]);
+            return UPLAuthenticationLevelAdapter.adaptTo((com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel) args[0], null);
         });
         when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class))).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
-            return UPLEncryptionLevelAdapter.adaptTo((com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel) args[0]);
+            return UPLEncryptionLevelAdapter.adaptTo((com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel) args[0], null);
         });
         when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.SecuritySuite.class))).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
-            return UPLSecuritySuiteLevelAdapter.adaptTo((com.energyict.mdc.upl.security.SecuritySuite) args[0]);
+            return UPLSecuritySuiteLevelAdapter.adaptTo((com.energyict.mdc.upl.security.SecuritySuite) args[0], null);
         });
         when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.RequestSecurityLevel.class))).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
-            return UPLRequestSecurityLevelAdapter.adaptTo((com.energyict.mdc.upl.security.RequestSecurityLevel) args[0]);
+            return UPLRequestSecurityLevelAdapter.adaptTo((com.energyict.mdc.upl.security.RequestSecurityLevel) args[0], null);
         });
         when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.ResponseSecurityLevel.class))).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
-            return UPLResponseSecurityLevelAdapter.adaptTo((com.energyict.mdc.upl.security.ResponseSecurityLevel) args[0]);
+            return UPLResponseSecurityLevelAdapter.adaptTo((com.energyict.mdc.upl.security.ResponseSecurityLevel) args[0], null);
         });
     }
 
