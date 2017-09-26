@@ -56,6 +56,7 @@ import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -2694,6 +2695,30 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         enableComTask(comTask1);
         enableComTask(comTask2);
     }
+
+    @Test
+    @Transactional
+    public void newScheduledComTaskExecutionTest(){
+        ComTask task1 = mock(ComTask.class);
+        when(task1.getId()).thenReturn(1000L);
+        ComTask task2 = mock(ComTask.class);
+        when(task1.getId()).thenReturn(2000L);
+        ComTask task3 = mock(ComTask.class);
+        when(task1.getId()).thenReturn(3000L);
+
+        SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
+        when(securityPropertySet.getId()).thenReturn(3L);
+        when(securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        createComTaskWithStatusInformation();
+
+        ComSchedule mockedSchedule = mock(ComSchedule.class);
+        when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(task1, task2, task3));
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, inMemoryPersistence.getClock().instant());
+        device.newScheduledComTaskExecution(mockedSchedule).add();
+
+    }
+
 
     private void enableComTask(ComTask comTask1) {
         deviceConfiguration.enableComTask(comTask1, this.securityPropertySet)
