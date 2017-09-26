@@ -124,13 +124,16 @@ Ext.define('Dal.view.Preview', {
                     {
                         itemId: 'alarm-logbook',
                         fieldLabel: Uni.I18n.translate('general.title.logbook', 'DAL', 'Logbook'),
-                        name: 'logbook',
+                        name: 'logBook',
                         renderer: function (value, metaData, record) {
                             var url = '',
                                 result = '-';
 
                             if (value && Dal.privileges.Alarm.canViewLogbook()) {
-                                url = me.router.getRoute('devices/device/logbooks/logbookdata').buildUrl({deviceId: record.get('id'), logbookId: value.id});
+                                url = me.router.getRoute('devices/device/logbooks/logbookdata').buildUrl({
+                                    deviceId: me.getRecord('device').get('deviceName'),
+                                    logbookId: value.id
+                                });
                                 result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>';
                             } else if (value) {
                                 result = value.name;

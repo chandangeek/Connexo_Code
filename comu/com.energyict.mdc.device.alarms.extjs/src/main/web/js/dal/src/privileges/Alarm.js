@@ -9,7 +9,7 @@ Ext.define('Dal.privileges.Alarm', {
     singleton: true,
 
     viewDeviceCommunication: ['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication'],
-    viewLogbook: ['Mdc.privileges.MasterData.view'],
+    viewLogbook: Mdc.privileges.MasterData.view,
     viewUsagePoint: ['privilege.view.anyUsagePoint', 'privilege.view.ownUsagePoint', 'privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
     viewAdminProcesses: ['privilege.view.bpm', 'privilege.administrate.bpm'],
     viewAdminAlarm: ['privilege.view.alarm', 'privilege.comment.alarm', 'privilege.close.alarm', 'privilege.assign.alarm', 'privilege.action.alarm'],
