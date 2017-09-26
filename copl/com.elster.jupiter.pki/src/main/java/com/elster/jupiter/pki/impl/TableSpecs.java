@@ -150,6 +150,7 @@ public enum TableSpecs {
             Column keyTypeColumn = table.column("KEYTYPE")
                     .number()
                     .add();
+            table.primaryKey("PK_PKI_KEYPAIR").on(id).add();
             table.foreignKey("PKI_FK_PUBKEY_KEYTYPE").on(keyTypeColumn)
                     .references(KeyTypeImpl.class)
 //                    .composition() // Due to bug CXO-5905

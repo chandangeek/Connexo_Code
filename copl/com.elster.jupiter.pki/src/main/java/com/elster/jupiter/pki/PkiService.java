@@ -228,6 +228,12 @@ public interface PkiService {
     Finder<CertificateWrapper> findAllCertificates();
 
     /**
+     * Returns a finder for all Keypairs in the Keypair-store.
+     * @return
+     */
+    Finder<KeypairWrapper> findAllKeypairs();
+
+    /**
      * List all known aliases from the certificate store that match the search filter.
      * @see {https://confluence.eict.vpdc/pages/viewpage.action?spaceKey=JDG&title=Filter}
      * @see {https://confluence.eict.vpdc/pages/viewpage.action?spaceKey=JDG&title=Forms+and+form+elements}

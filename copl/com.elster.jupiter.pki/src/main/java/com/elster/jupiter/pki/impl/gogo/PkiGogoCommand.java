@@ -23,7 +23,8 @@ import static java.util.stream.Collectors.toList;
         property = {"osgi.command.scope=pki",
                 "osgi.command.function=keytypes",
                 "osgi.command.function=certificateStore",
-                "osgi.command.function=deleteCertificate"
+                "osgi.command.function=deleteCertificate",
+                "osgi.command.function=keypairs"
         },
         immediate = true)
 public class PkiGogoCommand {
@@ -84,6 +85,15 @@ public class PkiGogoCommand {
                     .delete();
             context.commit();
         }
+    }
+
+    public void keypairs() {
+        List<List<?>> lists = pkiService.findAllKeypairs()
+                .stream()
+                .map(keypair -> Arrays.asList(keypair.getAlias(), keypair.getKeyType()
+                        .getKeyAlgorithm(), keypair.getPublicKey().isPresent(), keypair.hasPrivateKey()))
+                .collect(toList());
+        MYSQL_PRINT.printTableWithHeader(Arrays.asList("Alias", "KeyType", "PublicKey", "PrivateKey"), lists);
     }
 
 }

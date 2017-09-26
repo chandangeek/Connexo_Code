@@ -476,6 +476,11 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
+    public Finder<KeypairWrapper> findAllKeypairs() {
+        return DefaultFinder.of(KeypairWrapper.class, dataModel).sorted(KeypairWrapperImpl.Fields.ALIAS.fieldName(), true);
+    }
+
+    @Override
     public Finder<CertificateWrapper> getAliasesByFilter(AliasSearchFilter searchFilter) {
         Condition searchCondition;
         if (searchFilter.trustStore ==null) {
