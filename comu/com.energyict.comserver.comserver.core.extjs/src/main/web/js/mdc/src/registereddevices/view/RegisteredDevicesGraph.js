@@ -163,7 +163,9 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
             },
 
             legend: {
-                enabled: false
+                enabled: true,
+                align: 'left',
+                verticalAlign: 'top'
             },
 
             plotOptions: {
