@@ -22,10 +22,10 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-27 (09:37)
  */
-class SDKTopologyTaskDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, SDKTopologyTaskDialectProperties> {
+public class SDKTopologyTaskDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, SDKTopologyTaskDialectProperties> {
 
     @Inject
-    SDKTopologyTaskDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public SDKTopologyTaskDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
     }
 

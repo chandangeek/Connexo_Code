@@ -20,10 +20,10 @@ import javax.inject.Inject;
  * Provides an implementation for the {@link CustomPropertySet} interface for {@link SDKDeviceAlarmProtocolDialectProperties}.
  */
 
-class SDKDeviceAlarmDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, SDKDeviceAlarmDialectProperties> {
+public class SDKDeviceAlarmDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, SDKDeviceAlarmDialectProperties> {
 
     @Inject
-    SDKDeviceAlarmDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public SDKDeviceAlarmDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
     }
 

@@ -13,6 +13,7 @@ import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 import org.reflections.Reflections;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,22 +36,13 @@ public class DeviceProtocolDialectCustomPropertySetMappingTest {
 
     @Test
     public void testDeviceProtocolDialectCustomPropertySetExistence() throws Exception {
-        testForPrefix("com.energyict");
-        testForPrefix("com.elster");
-//        testForPrefix("test.com.energyict");  // TODO: re-enable once the dialects of the SDK protocols have their proper DialectCustomPropertySet defined
-    }
+        List<Class<? extends AbstractDeviceProtocolDialect>> dialectClasses = searchDialectClasses("com.energyict");
+        dialectClasses.addAll(searchDialectClasses("com.elster"));
+        dialectClasses.addAll(searchDialectClasses("test.com.energyict"));
 
-    private void testForPrefix(String prefix) throws InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException, NoSuchMethodException {
-        Reflections reflections = new Reflections(prefix);
-        List<Class<? extends AbstractDeviceProtocolDialect>> dialectClasses = reflections.getSubTypesOf(AbstractDeviceProtocolDialect.class)
-                .stream()
-                .filter(aClass -> !aClass.getSimpleName().equals("NoParamsDeviceProtocolDialect"))
-                .collect(Collectors.toList());
-
-        List<Class<? extends AbstractDialectCustomPropertySet>> dialectCustomPropertySetClasses = reflections.getSubTypesOf(AbstractDialectCustomPropertySet.class)
-                .stream()
-                .filter(aClass -> !aClass.getName().contains("SDK"))
-                .collect(Collectors.toList());
+        List<Class<? extends AbstractDialectCustomPropertySet>> dialectCustomPropertySetClasses = searchDialectCustomPropertySetClasses("com.energyict");
+        dialectCustomPropertySetClasses.addAll(searchDialectCustomPropertySetClasses("com.elster"));
+        dialectCustomPropertySetClasses.addAll(searchDialectCustomPropertySetClasses("test.com.energyict"));
 
         for (Class<? extends AbstractDialectCustomPropertySet> customPropertySetClass : dialectCustomPropertySetClasses) {
             AbstractDialectCustomPropertySet customPropertySet = customPropertySetClass.getDeclaredConstructor(Thesaurus.class, PropertySpecService.class)
@@ -69,6 +61,17 @@ public class DeviceProtocolDialectCustomPropertySetMappingTest {
         if (!dialectClasses.isEmpty()) {
             throw new AssertionError("Encountered device protocol dialect(s) without proper custom property support:\r\n" + asString(dialectClasses));
         }
+    }
+
+    private List<Class<? extends AbstractDeviceProtocolDialect>> searchDialectClasses(String prefix) {
+        return new Reflections(prefix).getSubTypesOf(AbstractDeviceProtocolDialect.class)
+                .stream()
+                .filter(aClass -> !aClass.getSimpleName().equals("NoParamsDeviceProtocolDialect"))
+                .collect(Collectors.toList());
+    }
+
+    private List<Class<? extends AbstractDialectCustomPropertySet>> searchDialectCustomPropertySetClasses(String prefix) {
+        return new ArrayList<>(new Reflections(prefix).getSubTypesOf(AbstractDialectCustomPropertySet.class));
     }
 
     private String asString(List<Class<? extends AbstractDeviceProtocolDialect>> dialectClasses) {

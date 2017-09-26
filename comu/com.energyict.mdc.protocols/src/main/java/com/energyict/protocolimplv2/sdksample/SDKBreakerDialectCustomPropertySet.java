@@ -22,10 +22,10 @@ import javax.inject.Inject;
  * @author sva
  * @since 8/04/2016 - 13:10
  */
-class SDKBreakerDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, SDKBreakerDialectProperties> {
+public class SDKBreakerDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, SDKBreakerDialectProperties> {
 
     @Inject
-    SDKBreakerDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public SDKBreakerDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
     }
 
