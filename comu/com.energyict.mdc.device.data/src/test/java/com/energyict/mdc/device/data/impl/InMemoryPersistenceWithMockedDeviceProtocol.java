@@ -346,10 +346,19 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     public static class MockProtocolPluggableService implements ProtocolPluggableService {
 
         private final ProtocolPluggableService protocolPluggableService;
+        private final Thesaurus thesaurus;
+
+        @Inject
+        public MockProtocolPluggableService(Thesaurus thesaurus) {
+            super();
+            this.protocolPluggableService = mock(ProtocolPluggableService.class);
+            this.thesaurus = thesaurus;
+        }
 
         public ProtocolPluggableService getMockedProtocolPluggableService() {
             return protocolPluggableService;
         }
+
         @Override
         public PropertySpec adapt(com.energyict.mdc.upl.properties.PropertySpec uplPropertySpec) {
             return UPLToConnexoPropertySpecAdapter.adaptTo(uplPropertySpec);
@@ -362,12 +371,12 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
         @Override
         public AuthenticationDeviceAccessLevel adapt(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel uplLevel) {
-            return UPLAuthenticationLevelAdapter.adaptTo(uplLevel);
+            return UPLAuthenticationLevelAdapter.adaptTo(uplLevel, thesaurus);
         }
 
         @Override
         public EncryptionDeviceAccessLevel adapt(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel uplLevel) {
-            return UPLEncryptionLevelAdapter.adaptTo(uplLevel);
+            return UPLEncryptionLevelAdapter.adaptTo(uplLevel, thesaurus);
         }
 
         @Override
@@ -386,17 +395,17 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         public SecuritySuite adapt(com.energyict.mdc.upl.security.SecuritySuite uplLevel) {
-            return UPLSecuritySuiteLevelAdapter.adaptTo(uplLevel);
+            return UPLSecuritySuiteLevelAdapter.adaptTo(uplLevel, thesaurus);
         }
 
         @Override
         public RequestSecurityLevel adapt(com.energyict.mdc.upl.security.RequestSecurityLevel uplLevel) {
-            return UPLRequestSecurityLevelAdapter.adaptTo(uplLevel);
+            return UPLRequestSecurityLevelAdapter.adaptTo(uplLevel, thesaurus);
         }
 
         @Override
         public ResponseSecurityLevel adapt(com.energyict.mdc.upl.security.ResponseSecurityLevel uplLevel) {
-            return UPLResponseSecurityLevelAdapter.adaptTo(uplLevel);
+            return UPLResponseSecurityLevelAdapter.adaptTo(uplLevel, thesaurus);
         }
 
         @Override
@@ -413,11 +422,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
         @Override
         public void addConnectionTypeService(ConnectionTypeService connectionTypeService) {
-        }
-
-        @Inject
-        private MockProtocolPluggableService() {
-            this.protocolPluggableService = mock(ProtocolPluggableService.class);
         }
 
         @Override
