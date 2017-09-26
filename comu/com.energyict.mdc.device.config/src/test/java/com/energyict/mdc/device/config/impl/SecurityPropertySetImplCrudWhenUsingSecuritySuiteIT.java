@@ -303,11 +303,11 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
     public void initializeMocks() throws InvalidValueException {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.of(deviceProtocolPluggableClass));
-        when(protocolPluggableService.adapt(any(SecuritySuite.class))).thenAnswer(invocationOnMock -> UPLSecuritySuiteLevelAdapter.adaptTo(((SecuritySuite) invocationOnMock.getArguments()[0])));
-        when(protocolPluggableService.adapt(any(AuthenticationDeviceAccessLevel.class))).thenAnswer(invocationOnMock -> UPLAuthenticationLevelAdapter.adaptTo(((AuthenticationDeviceAccessLevel) invocationOnMock.getArguments()[0])));
-        when(protocolPluggableService.adapt(any(EncryptionDeviceAccessLevel.class))).thenAnswer(invocationOnMock -> UPLEncryptionLevelAdapter.adaptTo(((EncryptionDeviceAccessLevel) invocationOnMock.getArguments()[0])));
-        when(protocolPluggableService.adapt(any(RequestSecurityLevel.class))).thenAnswer(invocationOnMock -> UPLRequestSecurityLevelAdapter.adaptTo(((RequestSecurityLevel) invocationOnMock.getArguments()[0])));
-        when(protocolPluggableService.adapt(any(ResponseSecurityLevel.class))).thenAnswer(invocationOnMock -> UPLResponseSecurityLevelAdapter.adaptTo(((ResponseSecurityLevel) invocationOnMock.getArguments()[0])));
+        when(protocolPluggableService.adapt(any(SecuritySuite.class))).thenAnswer(invocationOnMock -> UPLSecuritySuiteLevelAdapter.adaptTo(((SecuritySuite) invocationOnMock.getArguments()[0]), null));
+        when(protocolPluggableService.adapt(any(AuthenticationDeviceAccessLevel.class))).thenAnswer(invocationOnMock -> UPLAuthenticationLevelAdapter.adaptTo(((AuthenticationDeviceAccessLevel) invocationOnMock.getArguments()[0]), null));
+        when(protocolPluggableService.adapt(any(EncryptionDeviceAccessLevel.class))).thenAnswer(invocationOnMock -> UPLEncryptionLevelAdapter.adaptTo(((EncryptionDeviceAccessLevel) invocationOnMock.getArguments()[0]), null));
+        when(protocolPluggableService.adapt(any(RequestSecurityLevel.class))).thenAnswer(invocationOnMock -> UPLRequestSecurityLevelAdapter.adaptTo(((RequestSecurityLevel) invocationOnMock.getArguments()[0]), null));
+        when(protocolPluggableService.adapt(any(ResponseSecurityLevel.class))).thenAnswer(invocationOnMock -> UPLResponseSecurityLevelAdapter.adaptTo(((ResponseSecurityLevel) invocationOnMock.getArguments()[0]), null));
         when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.empty());
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authLevel, authLevel2));
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encLevel));

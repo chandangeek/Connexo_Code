@@ -300,11 +300,11 @@ public class InMemoryPersistence {
 
             when(protocolPluggableService.adapt(any(AuthenticationDeviceAccessLevel.class))).thenAnswer(invocation -> {
                 Object[] args = invocation.getArguments();
-                return UPLAuthenticationLevelAdapter.adaptTo((AuthenticationDeviceAccessLevel) args[0]);
+                return UPLAuthenticationLevelAdapter.adaptTo((AuthenticationDeviceAccessLevel) args[0], null);
             });
             when(protocolPluggableService.adapt(any(EncryptionDeviceAccessLevel.class))).thenAnswer(invocation -> {
                 Object[] args = invocation.getArguments();
-                return UPLEncryptionLevelAdapter.adaptTo((EncryptionDeviceAccessLevel) args[0]);
+                return UPLEncryptionLevelAdapter.adaptTo((EncryptionDeviceAccessLevel) args[0], null);
             });
         }
         this.licenseService = mock(LicenseService.class);
