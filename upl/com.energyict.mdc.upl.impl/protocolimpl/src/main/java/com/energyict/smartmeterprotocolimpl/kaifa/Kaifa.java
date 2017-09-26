@@ -1,11 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.kaifa;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
@@ -42,6 +43,11 @@ public class Kaifa extends AM110R {
             loadProfileBuilder = new KaifaLoadProfileBuilder(this);
         }
         return loadProfileBuilder;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Kaifa C&I DLMS (SMETS)";
     }
 
     @Override

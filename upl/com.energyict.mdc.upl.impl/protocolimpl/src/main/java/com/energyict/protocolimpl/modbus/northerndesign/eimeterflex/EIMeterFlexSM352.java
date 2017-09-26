@@ -13,7 +13,7 @@ import com.energyict.protocolimpl.modbus.energyict.EIMeterFlexSlaveModule;
  * @author alex
  */
 @Deprecated
-public final class EIMeterFlexSM352 extends EIMeterFlexSlaveModule {
+public class EIMeterFlexSM352 extends EIMeterFlexSlaveModule {
     public EIMeterFlexSM352(PropertySpecService propertySpecService, NlsService nlsService) {
         super(propertySpecService, nlsService);
     }

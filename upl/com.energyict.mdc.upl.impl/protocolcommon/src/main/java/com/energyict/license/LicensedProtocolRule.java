@@ -336,6 +336,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     AM132 (289, "com.energyict.protocolimplv2.dlms.idis.am132.AM132"),
 //    CRYPTO_AM132(290, "com.evn.protocolimplv2.dlms.idis.am132.CryptoAM132"),
     MINI_MAX(291, "com.elster.us.protocolimplv2.mercury.minimax.MiniMax"),
+    US_SEL(295, "com.elster.us.protocolimplv2.sel.SEL"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
@@ -368,8 +369,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     GENERIC_MODBUS_DISCOVER(20010, "com.energyict.protocolimpl.modbus.core.discover.GenericModbusDiscover"),
     DSMR40_MBUS_DUMMY(20011, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.MBusDevice", FamilyRule.DSMR_NTA),
     WEBRTUZ3_SLAVEMETER(20012, "com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter", FamilyRule.EICT_Z3),
-
-    US_SEL(20013, "com.elster.us.protocolimplv2.sel.SEL");
+    KAIFA_SMETS(20013, "com.energyict.smartmeterprotocolimpl.kaifa.Kaifa"),
+    ;
 
     private int code;
     private String className;

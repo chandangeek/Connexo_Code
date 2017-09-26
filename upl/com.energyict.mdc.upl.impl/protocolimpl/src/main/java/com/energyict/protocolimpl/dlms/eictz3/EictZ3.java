@@ -145,7 +145,7 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
  * There is also a generic protocol implementation AbstractNTAProtocol.
  */
 @Deprecated
-public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, SerialNumberSupport {
+public class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, SerialNumberSupport {
 
     /**
      * The name of the property containing the information field size.
