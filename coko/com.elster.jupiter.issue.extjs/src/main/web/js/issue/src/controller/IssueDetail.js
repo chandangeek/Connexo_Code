@@ -28,7 +28,7 @@ Ext.define('Isu.controller.IssueDetail', {
             router = me.getController('Uni.controller.history.Router'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             issueType = queryString.issueType,
-            store = me.getStore('Isu.store.Issues'),
+            store = me.getIssueStore(),
             processStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
             widgetXtype,
             issueModel,
@@ -780,6 +780,10 @@ Ext.define('Isu.controller.IssueDetail', {
                 button.setDisabled(enable);
             })
         }
+    },
+
+    getIssueStore: function () {
+        return this.getStore('Isu.store.Issues');
     }
 
 
