@@ -28,6 +28,8 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
     protected static final int STANDARD_AUTH_DEVICE_ACCESS_LEVEL = 10;
     protected static final int STANDARD_ENCRYPTION_DEVICE_ACCESS_LEVEL = 20;
     protected static final String LEGACY_DEVICE_ACCESS_IDENTIFIER_PROPERTY = "UserId";
+    private static final String authenticationTranslationKeyConstant = "PasswordWithUserIdentificationSecuritySupport.accesslevel.";
+    private static final String encryptionTranslationKeyConstant = "PasswordWithUserIdentificationSecuritySupport.accesslevel.";
 
     public PasswordWithUserIdentificationSecuritySupport(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -134,7 +136,7 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
 
         @Override
         public String getTranslationKey() {
-            return "PasswordWithUserIdentificationSecuritySupport.accesslevel.10";
+            return authenticationTranslationKeyConstant + getId();
         }
 
         @Override
@@ -161,7 +163,7 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
 
         @Override
         public String getTranslationKey() {
-            return "PasswordWithUserIdentificationSecuritySupport.accesslevel.20";
+            return encryptionTranslationKeyConstant + getId();
         }
 
         @Override
