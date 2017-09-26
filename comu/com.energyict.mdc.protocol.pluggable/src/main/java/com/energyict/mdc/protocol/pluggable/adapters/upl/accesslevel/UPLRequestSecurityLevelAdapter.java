@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 
@@ -9,15 +10,15 @@ import com.energyict.mdc.upl.security.DeviceAccessLevel;
  */
 public class UPLRequestSecurityLevelAdapter extends UPLDeviceAccessLevelAdapter implements RequestSecurityLevel {
 
-    public static RequestSecurityLevel adaptTo(DeviceAccessLevel uplDeviceAccessLevel) {
+    public static RequestSecurityLevel adaptTo(DeviceAccessLevel uplDeviceAccessLevel, Thesaurus thesaurus) {
         if (uplDeviceAccessLevel instanceof CXORequestSecurityLevelAdapter) {
             return (RequestSecurityLevel) ((CXORequestSecurityLevelAdapter) uplDeviceAccessLevel).getConnexoDeviceAccessLevel();
         } else {
-            return new UPLRequestSecurityLevelAdapter(uplDeviceAccessLevel);
+            return new UPLRequestSecurityLevelAdapter(uplDeviceAccessLevel, thesaurus);
         }
     }
 
-    private UPLRequestSecurityLevelAdapter(DeviceAccessLevel uplDeviceAccessLevel) {
-        super(uplDeviceAccessLevel);
+    private UPLRequestSecurityLevelAdapter(DeviceAccessLevel uplDeviceAccessLevel, Thesaurus thesaurus) {
+        super(uplDeviceAccessLevel, thesaurus);
     }
 }

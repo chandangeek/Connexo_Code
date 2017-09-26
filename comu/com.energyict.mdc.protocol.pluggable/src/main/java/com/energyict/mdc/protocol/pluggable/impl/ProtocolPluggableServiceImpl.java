@@ -88,6 +88,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnectionFunction
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnectionTypePluggableClassTranslationKeys;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageCategoryAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.DeviceAccessLevelTranslationKeys;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -888,27 +889,27 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
 
     @Override
     public AuthenticationDeviceAccessLevel adapt(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel uplLevel) {
-        return UPLAuthenticationLevelAdapter.adaptTo(uplLevel);
+        return UPLAuthenticationLevelAdapter.adaptTo(uplLevel, thesaurus);
     }
 
     @Override
     public EncryptionDeviceAccessLevel adapt(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel uplLevel) {
-        return UPLEncryptionLevelAdapter.adaptTo(uplLevel);
+        return UPLEncryptionLevelAdapter.adaptTo(uplLevel, thesaurus);
     }
 
     @Override
     public SecuritySuite adapt(com.energyict.mdc.upl.security.SecuritySuite uplLevel) {
-        return UPLSecuritySuiteLevelAdapter.adaptTo(uplLevel);
+        return UPLSecuritySuiteLevelAdapter.adaptTo(uplLevel, thesaurus);
     }
 
     @Override
     public RequestSecurityLevel adapt(com.energyict.mdc.upl.security.RequestSecurityLevel uplLevel) {
-        return UPLRequestSecurityLevelAdapter.adaptTo(uplLevel);
+        return UPLRequestSecurityLevelAdapter.adaptTo(uplLevel, thesaurus);
     }
 
     @Override
     public ResponseSecurityLevel adapt(com.energyict.mdc.upl.security.ResponseSecurityLevel uplLevel) {
-        return UPLResponseSecurityLevelAdapter.adaptTo(uplLevel);
+        return UPLResponseSecurityLevelAdapter.adaptTo(uplLevel, thesaurus);
     }
 
     @Override
@@ -1041,7 +1042,8 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         return Stream.of(
                 Stream.of(TranslationKeys.values()),
                 Stream.of(ConnectionTypePluggableClassTranslationKeys.values()),
-                Stream.of(ConnectionFunctionTranslationKeys.values()))
+                Stream.of(ConnectionFunctionTranslationKeys.values()),
+                Stream.of(DeviceAccessLevelTranslationKeys.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }

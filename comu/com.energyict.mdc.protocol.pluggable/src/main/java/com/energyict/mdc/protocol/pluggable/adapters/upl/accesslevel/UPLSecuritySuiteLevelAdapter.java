@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
@@ -15,16 +16,16 @@ import java.util.stream.Collectors;
  */
 public class UPLSecuritySuiteLevelAdapter extends UPLDeviceAccessLevelAdapter implements SecuritySuite {
 
-    public static SecuritySuite adaptTo(com.energyict.mdc.upl.security.SecuritySuite uplSecuritySuite) {
+    public static SecuritySuite adaptTo(com.energyict.mdc.upl.security.SecuritySuite uplSecuritySuite, Thesaurus thesaurus) {
         if (uplSecuritySuite instanceof CXOSecuritySuiteAdapter) {
             return (SecuritySuite) ((CXOSecuritySuiteAdapter) uplSecuritySuite).getConnexoDeviceAccessLevel();
         } else {
-            return new UPLSecuritySuiteLevelAdapter(uplSecuritySuite);
+            return new UPLSecuritySuiteLevelAdapter(uplSecuritySuite, thesaurus);
         }
     }
 
-    private UPLSecuritySuiteLevelAdapter(com.energyict.mdc.upl.security.SecuritySuite uplSecuritySuite) {
-        super(uplSecuritySuite);
+    private UPLSecuritySuiteLevelAdapter(com.energyict.mdc.upl.security.SecuritySuite uplSecuritySuite, Thesaurus thesaurus) {
+        super(uplSecuritySuite, thesaurus);
     }
 
     @Override
@@ -32,7 +33,7 @@ public class UPLSecuritySuiteLevelAdapter extends UPLDeviceAccessLevelAdapter im
         return ((com.energyict.mdc.upl.security.SecuritySuite) this.uplDeviceAccessLevel)
                 .getEncryptionAccessLevels()
                 .stream()
-                .map(UPLEncryptionLevelAdapter::adaptTo)
+                .map(accessLevel -> UPLEncryptionLevelAdapter.adaptTo(accessLevel, getThesaurus()))
                 .collect(Collectors.toList());
     }
 
@@ -41,7 +42,7 @@ public class UPLSecuritySuiteLevelAdapter extends UPLDeviceAccessLevelAdapter im
         return ((com.energyict.mdc.upl.security.SecuritySuite) this.uplDeviceAccessLevel)
                 .getAuthenticationAccessLevels()
                 .stream()
-                .map(UPLAuthenticationLevelAdapter::adaptTo)
+                .map(accessLevel -> UPLAuthenticationLevelAdapter.adaptTo(accessLevel, getThesaurus()))
                 .collect(Collectors.toList());
     }
 
@@ -50,7 +51,7 @@ public class UPLSecuritySuiteLevelAdapter extends UPLDeviceAccessLevelAdapter im
         return ((com.energyict.mdc.upl.security.SecuritySuite) this.uplDeviceAccessLevel)
                 .getRequestSecurityLevels()
                 .stream()
-                .map(UPLRequestSecurityLevelAdapter::adaptTo)
+                .map(accessLevel -> UPLRequestSecurityLevelAdapter.adaptTo(accessLevel, getThesaurus()))
                 .collect(Collectors.toList());
     }
 
@@ -59,7 +60,7 @@ public class UPLSecuritySuiteLevelAdapter extends UPLDeviceAccessLevelAdapter im
         return ((com.energyict.mdc.upl.security.SecuritySuite) this.uplDeviceAccessLevel)
                 .getResponseSecurityLevels()
                 .stream()
-                .map(UPLResponseSecurityLevelAdapter::adaptTo)
+                .map(accessLevel -> UPLResponseSecurityLevelAdapter.adaptTo(accessLevel, getThesaurus()))
                 .collect(Collectors.toList());
     }
 }

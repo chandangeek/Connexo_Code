@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
@@ -18,9 +19,11 @@ import java.util.stream.Collectors;
 public class UPLDeviceAccessLevelAdapter implements DeviceAccessLevel {
 
     protected final com.energyict.mdc.upl.security.DeviceAccessLevel uplDeviceAccessLevel;
+    private final Thesaurus thesaurus;
 
-    public UPLDeviceAccessLevelAdapter(com.energyict.mdc.upl.security.DeviceAccessLevel uplDeviceAccessLevel) {
+    public UPLDeviceAccessLevelAdapter(com.energyict.mdc.upl.security.DeviceAccessLevel uplDeviceAccessLevel, Thesaurus thesaurus) {
         this.uplDeviceAccessLevel = uplDeviceAccessLevel;
+        this.thesaurus = thesaurus;
     }
 
     public com.energyict.mdc.upl.security.DeviceAccessLevel getUplDeviceAccessLevel() {
@@ -32,9 +35,15 @@ public class UPLDeviceAccessLevelAdapter implements DeviceAccessLevel {
         return uplDeviceAccessLevel.getId();
     }
 
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
     @Override
     public String getTranslation() {
-        return uplDeviceAccessLevel.getDefaultTranslation();
+        return thesaurus != null
+                ? thesaurus.getString(uplDeviceAccessLevel.getTranslationKey(), uplDeviceAccessLevel.getDefaultTranslation())
+                : uplDeviceAccessLevel.getDefaultTranslation(); // Should only be the case for unit tests
     }
 
     @Override
