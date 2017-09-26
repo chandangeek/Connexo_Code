@@ -24,7 +24,8 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         'Mdc.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnDevice',
         'Mdc.store.device.MeterActivations',
         'Isu.store.Issues',
-        'Mdc.store.device.IssuesAlarms'
+        'Mdc.store.device.IssuesAlarms',
+
     ],
 
     models: [
@@ -83,8 +84,8 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             issuesAlarmsStore = me.getStore('Mdc.store.device.IssuesAlarms');
 
         me.getPage().setLoading();
-        Ext.apply(issuesAlarmsStore.getProxy().extraParams, routerArguments);
-        issuesAlarmsStore.load();
+        // Ext.apply(issuesAlarmsStore.getProxy().extraParams, routerArguments);
+        // issuesAlarmsStore.load();
         lifeCycleTab.add(lifeCyclePanel);
         lifeCycleDataView.bindStore(lifeCycleHistoryStore);
         Ext.apply(lifeCycleHistoryStore.getProxy().extraParams, routerArguments);
@@ -167,5 +168,57 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
                 router.getRoute().forward(null, router.queryParams);
             }
         });
+    },
+
+    showOverview: function (deviceId, issueId, actionId) {
+        var me = this,
+            store = me.getStore('Mdc.store.device.IssuesAlarms');
+
+        if (store.getCount()) {
+            var issueActualType = store.getById(parseInt(issueId)).get('issueType').uid;
+            if ((issueActualType === 'datacollection') || (issueActualType === 'datavalidation')) {
+                me.getController('Mdc.controller.setup.IssueAlarmDetail').showOverview(issueId, actionId);
+            }
+            else if (issueActualType === 'devicealarm') {
+                me.getController('Dal.controller.Detail').showOverview(issueId, actionId);
+            }
+        }
+    },
+
+
+    showActionOverview: function (deviceId, issueId, actionId) {
+        var me = this,
+            store = me.getStore('Mdc.store.device.IssuesAlarms');
+
+        if (store.getCount()) {
+            var issueActualType = store.getById(parseInt(issueId)).get('issueType').uid;
+            if ((issueActualType === 'datacollection') || (issueActualType === 'datavalidation')) {
+                me.getController('Isu.controller.ApplyIssueAction').showOverview(issueId, actionId);
+            }
+            else if (issueActualType === 'devicealarm') {
+                me.getController('Dal.controller.ApplyAction').showOverview(issueId, actionId);
+            }
+        }
+    },
+
+    setPriority: function (deviceId, issueId) {
+        var me = this,
+            store = me.getStore('Mdc.store.device.IssuesAlarms');
+
+        if (store.getCount()) {
+            var issueActualType = store.getById(parseInt(issueId)).get('issueType').uid;
+            if ((issueActualType === 'datacollection') || (issueActualType === 'datavalidation')) {
+                me.getController('Isu.controller.SetPriority').setPriority(issueId);
+            }
+            else if (issueActualType === 'devicealarm') {
+                me.getController('Dal.controller.SetPriority').setPriority(issueId);
+            }
+        }
+
+        //this.getController('Isu.controller.SetPriority').setPriority(issueId);
+    },
+
+    startProcess: function (deviceId, issueId) {
+        this.getController('Isu.controller.StartProcess').showStartProcess(issueId);
     }
 });

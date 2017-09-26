@@ -99,12 +99,15 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                                     {
                                         store: 'Mdc.store.device.IssuesAlarms',
                                         xtype: 'issues-alarms-grid',
-                                        itemId: 'issues-alarms-grid'
+                                        itemId: 'issues-alarms-grid',
+                                        router: me.router
                                     },
                                     {
                                         xtype: 'issues-alarms-preview',
                                         itemId: 'issues-alarms-preview',
+                                        router: me.router,
                                         fieldxtype: 'displayfield'
+
                                     }
 
                                 ],

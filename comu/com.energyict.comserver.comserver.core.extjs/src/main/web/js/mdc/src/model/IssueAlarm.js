@@ -6,30 +6,64 @@ Ext.define('Mdc.model.IssueAlarm', {
     fields: [
         {name: 'id', type: 'int'},
         {name: 'issueId', type: 'auto'},
-        {name: 'alarmId', type: 'auto'},
-        {name: 'issueType', type: 'auto'},
-        {name: 'alarmType', type: 'auto'},
-        {name: 'reason', type: 'auto'},
         {name: 'priorityValue', type: 'auto'},
         {name: 'creationDate', type: 'date', dateFormat: 'time'},
-        {name: 'status', type: 'auto'},
-        {name: 'workgroup', type: 'auto'},
-        {name: 'user', type: 'auto'},
+        {name: 'dueDate', type: 'date', dateFormat: 'time'},
+        {name: 'issueType', type: 'auto'},
         {
-            name: 'itemId',
+            name: 'status',
             convert: function (value, record) {
-                if (record.get('issueId'))
-                    return record.get('issueId');
-                return record.get('alarmId');
+                if (value)
+                    return value.name;
+                return '';
             }
         },
         {
-            name: 'itemType',
+            name: 'issueTypeName',
             convert: function (value, record) {
-                if (record.get('issueType'))
-                    return record.get('issueType').name;
-                return record.get('alarmType').name;
+                return record.get('issueType').name;
             }
+        },
+        {
+            name: 'reason',
+            convert: function (value, record) {
+                if (value)
+                    return value.name;
+                return '';
+            }
+        },
+        {
+            name: 'workGroupAssignee',
+            convert: function (value, record) {
+                if (value)
+                    return value.name;
+                return '';
+            }
+        },
+        {
+            name: 'userAssignee',
+            convert: function (value, record) {
+                if (value)
+                    return value.name;
+                return '';
+            }
+        },
+        {
+            name: 'usagePoint',
+            mapping: 'device.usagePoint.info'
+        },
+        {
+            name: 'device',
+            convert: function (value, record) {
+                if (value)
+                    return value.location;
+                return '';
+            }
+        },
+        {
+            name: 'logBook',
+            mapping: 'logBook.name'
+
         }
     ]
 });

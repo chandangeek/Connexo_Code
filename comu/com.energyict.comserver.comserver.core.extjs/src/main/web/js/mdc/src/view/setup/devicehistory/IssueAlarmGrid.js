@@ -17,7 +17,8 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
         'Isu.view.component.AssigneeColumn',
         'Isu.view.component.WorkgroupColumn',
         'Isu.privileges.Issue',
-        'Uni.grid.plugin.ShowConditionalToolTip'
+        'Uni.grid.plugin.ShowConditionalToolTip',
+        'Mdc.view.setup.devicehistory.IssueAlarmActionMenu'
     ],
     plugins: [{
         ptype: 'showConditionalToolTip',
@@ -33,13 +34,13 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
             {
                 itemId: 'issues-grid-id',
                 header: Uni.I18n.translate('general.title.issueId', 'MDC', 'ID'),
-                dataIndex: 'itemId',
+                dataIndex: 'issueId',
                 flex: 1
             },
             {
                 itemId: 'issues-grid-type',
                 header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
-                dataIndex: 'itemType',
+                dataIndex: 'issueTypeName',
                 flex: 1.2
             },
             {
@@ -74,30 +75,34 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
                 header: Uni.I18n.translate('general.workgroup', 'MDC', 'Workgroup'),
                 dataIndex: 'workGroupAssignee',
                 flex: 1,
-                renderer: function (value, metaData, record, rowIndex, colIndex) {
-                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'MDC', 'Unassigned');
-                }
+
             },
             {
                 itemId: 'issues-grid-assignee',
                 header: Uni.I18n.translate('general.user', 'MDC', 'User'),
                 dataIndex: 'userAssignee',
                 flex: 1,
-                renderer: function (value, metaData, record, rowIndex, colIndex) {
-                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'MDC', 'Unassigned');
+
+            },
+            {
+                itemId: 'action',
+                xtype: 'uni-actioncolumn',
+                width: 120,
+                privileges: !!Isu.privileges.Issue.adminDevice,
+                renderer: function (value) {
+
+                },
+                menu: {
+                    xtype: 'issues-alarms-action-menu',
+                    itemId: 'issues-overview-action-menu',
+                    router: me.router
                 }
-            }
-            /* {
-             itemId: 'action',
-             xtype: 'uni-actioncolumn',
-             width: 120,
-             privileges: !!Isu.privileges.Issue.adminDevice,
-             menu: {
-             xtype: 'issues-action-menu',
-             itemId: 'issues-overview-action-menu',
-             router: me.router
+                //     listeners: {
+                //     click: function () {
+                //         this.showMenu();
+                //     }
+                // }
              }
-             }*/
         ];
 
         me.dockedItems = [

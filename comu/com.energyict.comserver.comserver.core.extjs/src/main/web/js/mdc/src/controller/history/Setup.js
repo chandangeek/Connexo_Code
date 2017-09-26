@@ -144,6 +144,51 @@ Ext.define('Mdc.controller.history.Setup', {
 
                                         return this;
                                     }
+                                },
+
+                                view: {
+                                    title: Uni.I18n.translate('general.issueDetails', 'ISU', 'Issue details'),
+                                    route: '{issueId}',
+                                    controller: 'Mdc.controller.setup.DeviceHistory',
+                                    action: 'showOverview',
+                                    privileges: Isu.privileges.Issue.viewAdminDevice,
+                                    callback: function (route) {
+                                        this.getApplication().on('issueLoad', function (record) {
+                                            route.setTitle(record.get('title'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    },
+                                    items: {
+                                        action: {
+                                            title: Uni.I18n.translate('general.action', 'MDC', 'Action'),
+                                            route: 'action/{actionId}',
+                                            controller: 'Mdc.controller.setup.DeviceHistory',
+                                            action: 'showOverview',
+                                            privileges: Isu.privileges.Issue.viewAdminDevice,
+                                            callback: function (route) {
+                                                this.getApplication().on('issueActionLoad', function (record) {
+                                                    route.setTitle(record.get('name'));
+                                                    return true;
+                                                }, {single: true});
+                                                return this;
+                                            }
+                                        },
+                                        setpriority: {
+                                            title: Uni.I18n.translate('issue.setpriority', 'MDC', 'Set priority'),
+                                            route: 'setpriority',
+                                            controller: 'Mdc.controller.setup.DeviceHistory',
+                                            action: 'setPriority',
+                                            privileges: Isu.privileges.Issue.viewAdminDevice
+                                        },
+                                        startProcess: {
+                                            title: Uni.I18n.translate('general.startProcess', 'MDC', 'Start process'),
+                                            route: '{issueId}/startProcess',
+                                            controller: 'Mdc.controller.setup.DeviceHistory',
+                                            action: 'startProcess',
+                                            privileges: Isu.privileges.Issue.viewAdminDevice
+                                        }
+                                    }
                                 }
                             }
                         },

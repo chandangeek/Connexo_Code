@@ -13,9 +13,8 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmFilter', {
         'Isu.store.IssueStatuses',
         'Isu.store.IssueReasons',
         'Mdc.view.setup.devicehistory.IssueAlarmReasons',
-        'Mdc.store.device.IssuesAlarms'
-
-
+        'Mdc.store.device.IssuesAlarms',
+        'Mdc.store.device.IssuesAlarmsReasons'
     ],
 
     initComponent: function () {
@@ -41,7 +40,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmFilter', {
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'id',
-                //store: 'Isu.store.IssueReasons'
+                store: 'Mdc.store.device.IssuesAlarmsReasons'
             },
             {
                 type: 'interval',
