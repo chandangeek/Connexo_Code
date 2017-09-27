@@ -58,7 +58,6 @@ import com.energyict.mdc.device.alarms.impl.database.groups.DeviceAlarmGroupOper
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import com.energyict.mdc.device.alarms.impl.install.Installer;
-import com.energyict.mdc.device.alarms.impl.install.UpgraderV10_4;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
 import com.energyict.mdc.device.alarms.security.Privileges;
 import com.energyict.mdc.device.data.DeviceService;
