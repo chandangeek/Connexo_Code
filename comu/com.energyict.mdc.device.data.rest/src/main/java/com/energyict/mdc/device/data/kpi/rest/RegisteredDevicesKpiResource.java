@@ -100,7 +100,10 @@ public class RegisteredDevicesKpiResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE, Privileges.Constants.VIEW})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE, Privileges.Constants.VIEW,
+            com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,
+            com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION,
+            com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getKpis(@BeanParam JsonQueryParameters queryParameters) {
         if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
             List<RegisteredDevicesKpiInfo> collection = registeredDevicesKpiService.registeredDevicesKpiFinder()
