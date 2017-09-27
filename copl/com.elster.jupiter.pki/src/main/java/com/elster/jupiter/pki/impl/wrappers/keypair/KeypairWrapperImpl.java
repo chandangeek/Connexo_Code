@@ -122,7 +122,7 @@ public class KeypairWrapperImpl implements KeypairWrapper {
 
     @Override
     public Optional<PublicKey> getPublicKey() {
-        if (this.publicKey == null || this.publicKey.length!=0) {
+        if (this.publicKey == null || this.publicKey.length==0) {
             return Optional.empty();
         }
         try {
