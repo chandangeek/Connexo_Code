@@ -49,7 +49,7 @@ public class KeypairWrapperResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+//    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public PagedInfoList getKeypairs(@BeanParam JsonQueryParameters queryParameters) {
         List<KeypairWrapperInfo> infoList = pkiService.findAllKeypairs()
                 .from(queryParameters)
@@ -62,7 +62,7 @@ public class KeypairWrapperResource {
     @GET
     @Path("{id}/download/publickey")
     @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+//    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response downloadPublicKey(@PathParam("id") long keypairId) {
         KeypairWrapper keypairWrapper = pkiService.findKeypairWrapper(keypairId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_KEYPAIR));
@@ -82,7 +82,7 @@ public class KeypairWrapperResource {
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+//    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     @Transactional
     public KeypairWrapperInfo generateNewKeypair(KeypairWrapperInfo keypairWrapperInfo) {
         if (keypairWrapperInfo.keyType==null || keypairWrapperInfo.keyType.id==null) {
@@ -110,7 +110,7 @@ public class KeypairWrapperResource {
     @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+//    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response removeKeypair(@PathParam("id") long keypairId) {
         KeypairWrapper keypairWrapper = pkiService.findKeypairWrapper(keypairId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_KEYPAIR));
