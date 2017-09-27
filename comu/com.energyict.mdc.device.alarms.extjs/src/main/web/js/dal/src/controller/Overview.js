@@ -18,7 +18,7 @@ Ext.define('Dal.controller.Overview', {
     ],
 
     sections: ['status', 'userAssignee', 'reason', 'workGroupAssignee'],
-    historySections: ['crt-alarms-per-reason', 'crt-alarms-open-closed'],
+    historySections: ['crt-alarms-per-reason', 'crt-alarms-open-closed', 'crt-alarms-per-priority'],
     historyFilter: ['reason'],
     widgetType: 'overview-of-alarms',
     model: 'Dal.model.Group',
@@ -189,5 +189,35 @@ Ext.define('Dal.controller.Overview', {
 
         btn.disable();
         me.updateHistorySections();
+    },
+
+    updateSections: function (btn) {
+        var me = this;
+
+        Ext.Array.each(me.sections, function (section) {
+            var sectionPanel = me.getOverview().down('#' + section);
+            if (!sectionPanel.store) {
+                sectionPanel.store = new Ext.data.Store({
+                    model: me.model
+                });
+                sectionPanel.store.getProxy().pageParam = false;
+                sectionPanel.store.getProxy().startParam = false;
+                sectionPanel.store.getProxy().limitParam = false;
+            }
+            sectionPanel.store.load({
+                params: me.getGroupProxyParams(section),
+                callback: function () {
+                    me.getNoPanelFound().setVisible(!this.getCount());
+                    me.getOverview().down('#sections-panel').setVisible(this.getCount());
+                    Ext.suspendLayouts();
+                    sectionPanel.fillSection(this, section);
+                    Ext.resumeLayouts(true);
+                }
+            });
+        });
+
+        if (btn) {
+            me.getOverview().down('button[action=clearAll]').enable();
+        }
     }
 });
