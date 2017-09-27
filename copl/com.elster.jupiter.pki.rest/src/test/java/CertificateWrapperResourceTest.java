@@ -218,7 +218,6 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(certificateWrapper.getCertificate()).thenReturn(Optional.of(x509Certificate));
         when(certificateWrapper.getAlias()).thenReturn("downloadedRootCa");
 
-
         Response response = target("/certificates/12345/download/certificate").request().get();
         InputStream entity = (InputStream) response.getEntity();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

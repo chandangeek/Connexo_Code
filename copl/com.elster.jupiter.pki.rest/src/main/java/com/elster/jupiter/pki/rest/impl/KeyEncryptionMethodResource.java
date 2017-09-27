@@ -24,7 +24,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Created by bvn on 3/29/17.
  */
-@Path("keyencryptionmethods")
+@Path("/keyencryptionmethods")
 public class KeyEncryptionMethodResource {
     private final PkiService pkiService;
 

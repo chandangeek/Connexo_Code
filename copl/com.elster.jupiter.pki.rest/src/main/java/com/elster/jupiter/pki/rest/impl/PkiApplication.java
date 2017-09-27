@@ -36,6 +36,7 @@ public class PkiApplication extends Application {
             CertificateWrapperResource.class,
             KeyEncryptionMethodResource.class,
             KeyTypeResource.class,
+            KeypairWrapperResource.class,
             MultiPartFeature.class
         );
     }
@@ -53,6 +54,7 @@ public class PkiApplication extends Application {
                 bind(TrustStoreInfoFactory.class).to(TrustStoreInfoFactory.class);
                 bind(CertificateInfoFactory.class).to(CertificateInfoFactory.class);
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
+                bind(KeypairInfoFactory.class).to(KeypairInfoFactory.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
