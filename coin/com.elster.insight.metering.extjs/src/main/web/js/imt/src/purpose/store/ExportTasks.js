@@ -8,11 +8,14 @@ Ext.define('Imt.purpose.store.ExportTasks', {
 
     proxy: {
         type: 'rest',
-        url: '/api/export/dataexporttask',
+        url: '/api/export/dataexporttask/usagepoint/{usagePointId}/{purposeId}',
         timeout: 240000,
         reader: {
             type: 'json',
             root: 'dataExportTasks'
-        }
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });
