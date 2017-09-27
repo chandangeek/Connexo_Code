@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.alarms.impl.database.groups;
 
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
@@ -31,6 +30,17 @@ public enum DeviceAlarmGroupRealization {
         @Override
         DeviceAlarmGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
             return new OpenVsCloseImpl(dataModel, thesaurus);
+        }
+    },
+    PRIORITYPERDAY {
+        @Override
+        public String getKey() {
+            return "priorityPerDay";
+        }
+
+        @Override
+        DeviceAlarmGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
+            return new GroupByPriorityImpl(dataModel, thesaurus);
         }
     };
 
