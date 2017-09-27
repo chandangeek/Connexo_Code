@@ -119,7 +119,7 @@ public interface PkiService {
      * @param keyAccessorType The key accessor describing the KeyEncryptionMethod and {@link CryptographicType}
      * @return List of required property specs for importing an SecurityValueWrapper if this type.
      */
-    List<PropertySpec> getImportPropertySpecs(KeyAccessorType keyAccessorType);
+//    List<PropertySpec> getImportPropertySpecs(KeyAccessorType keyAccessorType);
 
     /**
      * List the PropertySpecs that are required to generate a wrapper of the mentioned type.
@@ -127,7 +127,7 @@ public interface PkiService {
      * @param keyAccessorType The key accessor describing the KeyEncryptionMethod and {@link CryptographicType}
      * @return List of required property specs for importing an SecurityValueWrapper if this type.
      */
-    List<PropertySpec> getGenerationPropertySpecs(KeyAccessorType keyAccessorType);
+//    List<PropertySpec> getGenerationPropertySpecs(KeyAccessorType keyAccessorType);
 
     /**
      * Get an existing KeyType by name.
