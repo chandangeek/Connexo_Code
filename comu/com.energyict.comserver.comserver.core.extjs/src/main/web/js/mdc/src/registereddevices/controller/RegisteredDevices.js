@@ -37,7 +37,12 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
         {ref: 'kpisGrid', selector: 'registered-devices-kpis-grid'},
         {ref: 'kpisOverview', selector: 'registered-devices-kpis-view'},
         {ref: 'registeredDevicesView', selector: 'registered-devices-view'},
-        {ref: 'registeredDevicesOnGatewayView', selector: 'registered-devices-on-gateway-view'}
+        {ref: 'registeredDevicesOnGatewayView', selector: 'registered-devices-on-gateway-view'},
+        {ref: 'periodFilter', selector: 'registered-devices-view #mdc-registered-devices-filters #mdc-registered-devices-period-filter'},
+        {ref: 'applyButtonOfPeriodFilter', selector: 'registered-devices-view #mdc-registered-devices-filters #mdc-registered-devices-period-filter button[action=apply]'},
+        {ref: 'clearButtonOfPeriodFilter', selector: 'registered-devices-view #mdc-registered-devices-filters #mdc-registered-devices-period-filter button[action=clear]'},
+        {ref: 'registeredDevicesOnGatewayView', selector: 'registered-devices-on-gateway-view'},
+        {ref: 'gatewayPeriodFilter', selector: 'registered-devices-on-gateway-view #mdc-registered-devices-on-gateway-filters #mdc-registered-devices-on-gateway-period-filter'}
     ],
 
     init: function () {
@@ -65,32 +70,65 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
             },
             'registered-devices-view': {
                 beforedestroy: this.onDestroyRegisteredDevicesView
+            },
+            '#mdc-registered-devices-device-group-filter': {
+                select: this.onSelectDeviceGroupFilter
+            },
+            'registered-devices-view #mdc-registered-devices-filters #mdc-registered-devices-period-filter button[action=apply]': {
+                click: this.onPeriodFilterApply
+            },
+            'registered-devices-view #mdc-registered-devices-filters #mdc-registered-devices-period-filter button[action=clear]': {
+                click: this.onPeriodFilterClear
+            },
+            'registered-devices-on-gateway-view #mdc-registered-devices-on-gateway-filters #mdc-registered-devices-on-gateway-period-filter button[action=apply]': {
+                click: this.onGatewayPeriodFilterApply
+            },
+            'registered-devices-on-gateway-view #mdc-registered-devices-on-gateway-filters #mdc-registered-devices-on-gateway-period-filter button[action=clear]': {
+                click: this.onGatewayPeriodFilterClear
+            },
+            '#mdc-registered-devices-on-gateway-frequency-combo': {
+                select: this.onSelectFrequency
             }
         });
     },
 
     showRegisteredDevices: function() {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            routeQueryParams = router.queryParams,
             widget = Ext.widget('registered-devices-view'),
             kpiStore = widget.down('#mdc-registered-devices-device-group-filter').getStore(),
-            kpiDataStore = Ext.getStore('Mdc.registereddevices.store.RegisteredDevicesKPIsData');
+            kpiDataStore = Ext.getStore('Mdc.registereddevices.store.RegisteredDevicesKPIsData'),
+            noKPIsMessagePnl = widget.down('#mdc-registered-devices-view-no-kpis'),
+            noDataMsgPnl = widget.down('#mdc-registered-devices-view-no-data'),
+            filtersContainer = widget.down('#mdc-registered-devices-filters'),
+            graphContainer = widget.down('#mdc-registered-devices-graph'),
+            deviceGroupFilter = widget.down('#mdc-registered-devices-device-group-filter'),
+            periodFilter = widget.down('#mdc-registered-devices-period-filter');
 
         kpiStore.load(function(kpiRecords) {
             if (kpiRecords.length === 0) {
-                widget.down('#mdc-registered-devices-view-no-kpis').show();
-                widget.down('#mdc-registered-devices-view-no-data').hide();
-                widget.down('#mdc-registered-devices-filters').hide();
-                widget.down('#mdc-registered-devices-graph').hide();
+                noKPIsMessagePnl.show();
+                noDataMsgPnl.hide();
+                filtersContainer.hide();
+                graphContainer.hide();
             } else {
-                if (Ext.isEmpty(widget.down('#mdc-registered-devices-device-group-filter').getValue())) {
-                    widget.down('#mdc-registered-devices-device-group-filter').setValue(kpiRecords[0].get('id'));
+                if (Ext.isEmpty(deviceGroupFilter.getValue())) {
+                    deviceGroupFilter.setValue(kpiRecords[0].get('id'));
+                    me.updatePeriodFilter();
+                } else if (Ext.isEmpty(routeQueryParams.period) && !periodFilter.manuallySet) {
+                    me.updatePeriodFilter();
+                } else if (!Ext.isEmpty(routeQueryParams.period)) {
+                    periodFilter.manuallySet = true;
                 }
-                widget.down('#mdc-registered-devices-view-no-kpis').hide();
-                widget.down('#mdc-registered-devices-view-no-data').hide();
-                widget.down('#mdc-registered-devices-filters').show();
-                widget.down('#mdc-registered-devices-graph').show();
+
+                noKPIsMessagePnl.hide();
+                noDataMsgPnl.hide();
+                filtersContainer.show();
+                graphContainer.show();
             }
             me.getApplication().fireEvent('changecontentevent', widget);
+            graphContainer.showLoading();
             kpiDataStore.on('load', me.onLoadKPIDataStore, me);
         });
     },
@@ -102,8 +140,14 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
             kpiStore = registeredDevicesView.down('#mdc-registered-devices-device-group-filter').getStore(),
             indexInStore = kpiStore.findExact('id', deviceGroupCombo.getValue()),
             storeRecord = indexInStore === -1 ? null : kpiStore.getAt(indexInStore),
-            graph = registeredDevicesView.down('#mdc-registered-devices-graph');
+            graph = registeredDevicesView.down('#mdc-registered-devices-graph'),
+            periodFilter = me.getPeriodFilter();
 
+        if (!periodFilter.manuallySet) {
+            me.updatePeriodFilter();
+            periodFilter.updateClearButton();
+            periodFilter.updateTitle();
+        }
         if (records.length === 0) {
             registeredDevicesView.down('#mdc-registered-devices-view-no-data').show();
             graph.hide();
@@ -131,6 +175,62 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
             } else if (freq.timeUnit === 'days') {
                 return '1d'
             }
+        }
+        return undefined;
+    },
+
+    determineDefaultPeriod: function(frequency) {
+        var now = new moment(),
+            now2Use = undefined,
+            offset = 15,
+            offsetUnit = 'minutes',
+            compareUnit = 'hour',
+            subtract = 1,
+            subtractUnit = 'days';
+
+        if (frequency) {
+            if (frequency.timeUnit === 'minutes') { // 15 minutes KPI
+                now2Use = new moment().minutes(0).seconds(0).milliseconds(0);
+                offset = 15;
+                offsetUnit = 'minutes';
+                compareUnit = 'minute';
+                subtract = 1;
+                subtractUnit = 'days';
+            } else if (frequency.timeUnit === 'hours') {
+                if (frequency.count === 4) {
+                    now2Use = new moment().hours(0).minutes(0).seconds(0).milliseconds(0);
+                    offset = 4;
+                    offsetUnit = 'hours';
+                    compareUnit = 'hour';
+                    subtract = 1;
+                    subtractUnit = 'days';
+                } else if (frequency.count === 12) {
+                    now2Use = new moment().hours(0).minutes(0).seconds(0).milliseconds(0);
+                    offset = 12;
+                    offsetUnit = 'hours';
+                    compareUnit = 'hour';
+                    subtract = 7;
+                    subtractUnit = 'days';
+                }
+            } else if (frequency.timeUnit === 'days') {
+                now2Use = new moment().hours(0).minutes(0).seconds(0).milliseconds(0);
+                offset = 1;
+                offsetUnit = 'days';
+                compareUnit = 'day';
+                subtract = 30;
+                subtractUnit = 'days';
+            }
+
+            while (now2Use.isBefore(now, compareUnit)) {
+                now2Use.add(offset, offsetUnit);
+            }
+            if (!now2Use.isSame(now, compareUnit)) {
+                now2Use.subtract(offset, offsetUnit);
+            }
+            var result = {};
+            result.to = now2Use.valueOf();
+            result.from = now2Use.subtract(subtract, subtractUnit).valueOf();
+            return result;
         }
         return undefined;
     },
@@ -200,7 +300,7 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
                         }
                     } else {
                         Ext.suspendLayouts();
-                        deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('general.noDeviceGroup', 'MDC', 'No device group defined yet.') +  '</span>' );
+                        deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('general.noDeviceGroups', 'MDC', 'No device groups available') +  '</span>' );
                         deviceGroupDisplayField.show();
                         deviceGroupCombo.hide();
                         createBtn.disable();
@@ -284,7 +384,7 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
                 break;
             case 'remove':
                 Ext.create('Uni.view.window.Confirmation').show({
-                    title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", menu.record.get('deviceGroup').name),
+                    title: Uni.I18n.translate('general.removeRegisteredDevicesKPIOnX', 'MDC', "Remove registered devices KPI on '{0}'?", menu.record.get('deviceGroup').name),
                     msg: Uni.I18n.translate('registeredDevicesKPIs.deleteConfirmation.msg', 'MDC', 'This registered devices KPI will no longer be available.'),
                     fn: function (state) {
                         switch (state) {
@@ -325,8 +425,11 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
 
     showRegisteredDevicesOnGateway: function(deviceName) {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            routeQueryParams = router.queryParams,
             widget = undefined,
-            kpiDataStore = Ext.getStore('Mdc.registereddevices.store.RegisteredDevicesOnGateway');
+            kpiDataStore = Ext.getStore('Mdc.registereddevices.store.RegisteredDevicesOnGateway'),
+            periodFilter = undefined;
 
         kpiDataStore.getProxy().setUrl(deviceName);
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceName, {
@@ -335,8 +438,15 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
                 if (Ext.isEmpty(widget.down('#mdc-registered-devices-on-gateway-frequency-combo').getValue())) {
                     widget.down('#mdc-registered-devices-on-gateway-frequency-combo').setValue('1days');
                 }
+                periodFilter = widget.down('#mdc-registered-devices-on-gateway-period-filter');
+                if (Ext.isEmpty(routeQueryParams.period) && !periodFilter.manuallySet) {
+                    me.updateGatewayPeriodFilter();
+                } else if (!Ext.isEmpty(routeQueryParams.period)) {
+                    periodFilter.manuallySet = true;
+                }
                 me.getApplication().fireEvent('loadDevice', record);
                 me.getApplication().fireEvent('changecontentevent', widget);
+                widget.down('#mdc-registered-devices-on-gateway-graph').showLoading();
                 kpiDataStore.on('load', me.onLoadDataStore, me);
             }
         });
@@ -345,14 +455,20 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
     onLoadDataStore: function(store, records) {
         var me = this,
             registeredDevicesView = me.getRegisteredDevicesOnGatewayView(),
+            periodFilter = me.getGatewayPeriodFilter(),
             frequencyCombo = registeredDevicesView.down('#mdc-registered-devices-on-gateway-frequency-combo'),
             frequencyStore = frequencyCombo.getStore(),
             indexInStore = frequencyStore.findExact('id', frequencyCombo.getValue()),
             frequencyRecord = indexInStore === -1 ? null : frequencyStore.getAt(indexInStore),
-            graph = registeredDevicesView.down('#mdc-registered-devices-graph');
+            graph = registeredDevicesView.down('#mdc-registered-devices-on-gateway-graph');
 
+        if (!periodFilter.manuallySet) {
+            me.updateGatewayPeriodFilter();
+            periodFilter.updateClearButton();
+            periodFilter.updateTitle();
+        }
         if (frequencyRecord && graph) {
-            registeredDevicesView.down('#mdc-registered-devices-graph').show();
+            registeredDevicesView.down('#mdc-registered-devices-on-gateway-graph').show();
             graph.showTargetAndTotal = false;
             graph.data = records;
             graph.period = me.getRegisteredDevicesOnGatewayView().down('#mdc-registered-devices-on-gateway-period-filter').getParamValue();
@@ -372,6 +488,81 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
             }
             graph.drawGraph();
         }
+        // registeredDevicesView.setLoading(false);
+    },
+
+    onSelectDeviceGroupFilter: function(combo, selectedRecord) {
+        var me = this,
+            registeredDevicesView = me.getRegisteredDevicesView(),
+            periodFilter = registeredDevicesView.down('#mdc-registered-devices-period-filter'),
+            graphContainer = registeredDevicesView.down('#mdc-registered-devices-graph');
+
+        if (!periodFilter.manuallySet) {
+            me.updatePeriodFilter();
+        }
+        registeredDevicesView.down('#mdc-registered-devices-filters').down('#filter-apply-all').fireEvent('click');
+        graphContainer.showLoading();
+    },
+
+    onPeriodFilterApply: function() {
+        this.getRegisteredDevicesView().down('#mdc-registered-devices-graph').showLoading();
+        this.getPeriodFilter().manuallySet = true;
+    },
+
+    onPeriodFilterClear: function() {
+        this.getRegisteredDevicesView().down('#mdc-registered-devices-graph').showLoading();
+        this.getPeriodFilter().manuallySet = false;
+    },
+
+    updatePeriodFilter: function() {
+        var me = this,
+            deviceGroupFilter = me.getRegisteredDevicesView().down('#mdc-registered-devices-device-group-filter'),
+            periodFilter = me.getPeriodFilter(),
+            index = deviceGroupFilter.getStore().findExact('id', deviceGroupFilter.getValue()),
+            storeRecord = index === -1 ? undefined : deviceGroupFilter.getStore().getAt(index),
+            defaultPeriod = storeRecord ? me.determineDefaultPeriod(storeRecord.get('frequency').every) : undefined;
+        if (!Ext.isEmpty(defaultPeriod)) {
+            periodFilter.setFromDateValue(new Date(defaultPeriod.from));
+            periodFilter.setToDateValue(new Date(defaultPeriod.to));
+            periodFilter.manuallySet = false;
+        }
+    },
+
+    onGatewayPeriodFilterApply: function() {
+        this.getRegisteredDevicesOnGatewayView().down('#mdc-registered-devices-on-gateway-graph').showLoading();
+        this.getGatewayPeriodFilter().manuallySet = true;
+    },
+
+    onGatewayPeriodFilterClear: function() {
+        this.getRegisteredDevicesOnGatewayView().down('#mdc-registered-devices-on-gateway-graph').showLoading();
+        this.getGatewayPeriodFilter().manuallySet = false;
+    },
+
+    updateGatewayPeriodFilter: function() {
+        var me = this,
+            frequencyCombo = me.getRegisteredDevicesOnGatewayView().down('#mdc-registered-devices-on-gateway-frequency-combo'),
+            periodFilter = me.getGatewayPeriodFilter(),
+            index = frequencyCombo.getStore().findExact('id', frequencyCombo.getValue()),
+            frequencyRecord = index === -1 ? undefined : frequencyCombo.getStore().getAt(index),
+            defaultPeriod = frequencyRecord ? me.determineDefaultPeriod(frequencyRecord.get('value').every) : undefined;
+        if (!Ext.isEmpty(defaultPeriod)) {
+            periodFilter.setFromDateValue(new Date(defaultPeriod.from));
+            periodFilter.setToDateValue(new Date(defaultPeriod.to));
+            periodFilter.manuallySet = false;
+        }
+    },
+
+    onSelectFrequency: function(combo, selectedRecord) {
+        var me = this,
+            registeredDevicesView = me.getRegisteredDevicesOnGatewayView(),
+            periodFilter = registeredDevicesView.down('#mdc-registered-devices-on-gateway-period-filter');
+
+        if (!periodFilter.manuallySet) {
+            me.updateGatewayPeriodFilter();
+        }
+        registeredDevicesView.down('#mdc-registered-devices-on-gateway-filters').down('#filter-apply-all').fireEvent('click');
+        registeredDevicesView.down('#mdc-registered-devices-on-gateway-graph').showLoading();
     }
+
 });
 

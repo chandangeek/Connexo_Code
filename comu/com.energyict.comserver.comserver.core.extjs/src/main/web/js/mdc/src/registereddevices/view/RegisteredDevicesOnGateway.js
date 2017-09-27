@@ -53,12 +53,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesOnGateway', {
                                 queryMode: 'local',
                                 editable: false,
                                 displayField: 'name',
-                                valueField: 'id',
-                                listeners: {
-                                    'select': function(combo, selectedRecord) {
-                                        me.down('#mdc-registered-devices-on-gateway-filters').down('#filter-apply-all').fireEvent('click');
-                                    }
-                                }
+                                valueField: 'id'
                             },
                             {
                                 type: 'interval',
@@ -74,7 +69,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesOnGateway', {
                     },
                     {
                         xtype: 'registered-devices-graph',
-                        itemId: 'mdc-registered-devices-graph',
+                        itemId: 'mdc-registered-devices-on-gateway-graph',
                         data: me.data
                     }
                 ]

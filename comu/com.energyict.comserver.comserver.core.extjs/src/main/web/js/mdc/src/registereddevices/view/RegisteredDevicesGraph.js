@@ -44,12 +44,23 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
     drawGraph: function() {
         var me = this;
 
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+
         me.chart = new Highcharts.StockChart({
 
             chart: {
                 type: 'column',
                 height: 750,
-                renderTo: me.down('#mdc-registered-devices-graphContainer').el.dom
+                renderTo: me.down('#mdc-registered-devices-graphContainer').el.dom,
+                events: {
+                    load: function() {
+                        this.hideLoading();
+                    }
+                }
             },
             title: {
                 text: null
@@ -78,12 +89,14 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
                 type: 'datetime',
                 lineWidth: 1,
                 tickWidth: 1,
-                tickLength: 5
+                tickLength: 5,
+                startOnTick: false,
+                endOnTick: false
             },
 
             yAxis: {
                 title: {
-                    text: 'Number of registered devices'
+                    text: Uni.I18n.translate('general.numberOfRegisteredDevices', 'MDC', 'Number of registered devices')
                 },
                 opposite: false, // show the axis on the left
                 gridLineColor: me.gridLineColor,
@@ -135,6 +148,15 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
                 enabled: false
             },
 
+            loading: {
+                style: {
+                    backgroundColor: 'silver'
+                },
+                labelStyle: {
+                    color: 'black'
+                }
+            },
+
             tooltip: {
                 shape: 'square',
                 followPointer: true,
@@ -151,7 +173,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
                     var html = '';
                     html = Uni.DateTime.formatDateTime(new Date(this.x), Uni.DateTime.LONG, Uni.DateTime.SHORT);
                     html += '</br>';
-                    if (this.series.name === 'registeredDevices') {
+                    if (this.series.name === Uni.I18n.translate('general.numberOfRegisteredDevices', 'MDC', 'Number of registered devices')) {
                         html += Uni.I18n.translate('general.xRegisteredDevices', 'MDC', '{0} registered devices', this.y);
                     } else if (this.series.name === Uni.I18n.translate('general.totalAmountOfDevices', 'MDC', 'Total amount of devices')) {
                         html += Uni.I18n.translate('general.totalAmountOfDevices', 'MDC', 'Total amount of devices') + ': ' + this.y;
@@ -190,7 +212,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
     },
 
     createDataSeries: function(records) {
-        if (Ext.isEmpty(records)) {
+        if (Ext.isEmpty(records) || records.length === 0) {
             return;
         }
         
@@ -200,7 +222,8 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
             seriesTarget = {},
             series = [];
 
-        seriesRegistered['name'] = 'registeredDevices';
+        seriesRegistered['name'] = Uni.I18n.translate('general.numberOfRegisteredDevices', 'MDC', 'Number of registered devices');
+        seriesRegistered['pointPlacement'] = 'on';
         seriesRegistered['data'] = [];
 
         if (me.showTargetAndTotal) {
@@ -213,39 +236,6 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
             seriesTarget['color'] = this.targetColor;
             seriesTarget['type'] = 'line';
             seriesTarget['data'] = [];
-        }
-
-        // Convert the records into graph data
-        var start = undefined;
-        if (records.length > 0) {
-            switch(me.frequency) {
-                case '1d':
-                    if (records.length < 31) {
-                        start = moment(records[records.length - 1].get('timestamp')).subtract(30, 'days').valueOf();
-                    }
-                    break;
-                case '12h':
-                    if (records.length < 15) {
-                        start = moment(records[records.length - 1].get('timestamp')).subtract(7, 'days').valueOf();
-                    }
-                    break;
-                case '4h':
-                    if (records.length < 7) {
-                        start = moment(records[records.length - 1].get('timestamp')).subtract(1, 'days').valueOf();
-                    }
-                    break;
-                case '15m':
-                    if (records.length < 97) {
-                        start = moment(records[records.length - 1].get('timestamp')).subtract(1, 'days').valueOf();
-                    }
-                    break;
-            }
-            if (me.period) {
-                start = parseInt(me.period.split('-')[0]);
-                if (start > records[0].get('timestamp')) {
-                    start = records[0].get('timestamp');
-                }
-            }
         }
 
         var frequencyInMillis = 0;
@@ -264,9 +254,40 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
                 break;
         }
 
+        // Convert the records into graph data
+        var start = undefined,
+            end = undefined;
+
+        if (me.period) {
+            start = parseInt(me.period.split('-')[0]);
+            if (start > records[0].get('timestamp')) {
+                start = records[0].get('timestamp');
+            } else {
+                var betterStart = records[0].get('timestamp');
+                while (start < betterStart) {
+                    betterStart -= frequencyInMillis;
+                }
+                start = betterStart;
+            }
+
+            end = parseInt(me.period.split('-')[1]);
+            if (end < records[records.length-1].get('timestamp')) {
+                end = records[records.length-1].get('timestamp');
+            } else {
+                var betterEnd = records[records.length-1].get('timestamp');
+                while (end > betterEnd) {
+                    betterEnd += frequencyInMillis;
+                }
+                end = betterEnd;
+            }
+        }
         if (Ext.isEmpty(start)) {
             start = records[0].get('timestamp');
         }
+        if (Ext.isEmpty(end)) {
+            end = records[records.length-1].get('timestamp');
+        }
+
         Ext.Array.forEach(records, function(record) {
             var timestamp = record.get('timestamp');
             if (timestamp != start) {
@@ -274,14 +295,12 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
                     seriesRegistered['data'].push([start, 0]);
                     start += frequencyInMillis;
                 }
-                if (start === timestamp) {
-                    seriesRegistered['data'].push([timestamp, record.get('registered')]);
-                    if (me.showTargetAndTotal) {
-                        seriesTotal['data'].push([timestamp, record.get('total')]);
-                        seriesTarget['data'].push([timestamp, record.get('target')]);
-                    }
-                    start += frequencyInMillis;
+                seriesRegistered['data'].push([timestamp, record.get('registered')]);
+                if (me.showTargetAndTotal) {
+                    seriesTotal['data'].push([timestamp, record.get('total')]);
+                    seriesTarget['data'].push([timestamp, record.get('target')]);
                 }
+                start += frequencyInMillis;
             } else {
                 seriesRegistered['data'].push([timestamp, record.get('registered')]);
                 if (me.showTargetAndTotal) {
@@ -291,6 +310,10 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
                 start += frequencyInMillis;
             }
         });
+        while (start <= end) {
+            seriesRegistered['data'].push([start, 0]);
+            start += frequencyInMillis;
+        }
 
         series.push(seriesRegistered);
         if (me.showTargetAndTotal) {
@@ -298,5 +321,12 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevicesGraph', {
             series.push(seriesTarget);
         }
         return series;
+    },
+
+    showLoading: function() {
+        if (this.chart) {
+            this.chart.showLoading(Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
+        }
     }
+
 });

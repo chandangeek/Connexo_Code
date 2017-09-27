@@ -58,12 +58,7 @@ Ext.define('Mdc.registereddevices.view.RegisteredDevices', {
                                 multiSelect: false,
                                 displayField: 'name',
                                 valueField: 'id',
-                                store: 'Mdc.registereddevices.store.AvailableKPIs',
-                                listeners: {
-                                    'select': function(combo, selectedRecord) {
-                                        me.down('#mdc-registered-devices-filters').down('#filter-apply-all').fireEvent('click');
-                                    }
-                                }
+                                store: 'Mdc.registereddevices.store.AvailableKPIs'
                             },
                             {
                                 type: 'interval',
