@@ -1,11 +1,14 @@
 package com.elster.jupiter.pki;
 
 import aQute.bnd.annotation.ProviderType;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasId;
 
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 

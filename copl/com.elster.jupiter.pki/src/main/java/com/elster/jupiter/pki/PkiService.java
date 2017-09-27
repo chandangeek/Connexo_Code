@@ -114,6 +114,22 @@ public interface PkiService {
     List<PropertySpec> getPropertySpecs(KeyAccessorType keyAccessorType);
 
     /**
+     * List the PropertySpecs that are required to import a wrapper of the mentioned type.
+     * E.g. For a datavault keypair, we will need the keys themselves, on a HSM private key, we will need only the KEK label.
+     * @param keyAccessorType The key accessor describing the KeyEncryptionMethod and {@link CryptographicType}
+     * @return List of required property specs for importing an SecurityValueWrapper if this type.
+     */
+    List<PropertySpec> getImportPropertySpecs(KeyAccessorType keyAccessorType);
+
+    /**
+     * List the PropertySpecs that are required to generate a wrapper of the mentioned type.
+     * E.g. For a datavault keypair, we will need no additional properties, for a HSM private key stored in the DB, we will need the label of the DB wrapper key.
+     * @param keyAccessorType The key accessor describing the KeyEncryptionMethod and {@link CryptographicType}
+     * @return List of required property specs for importing an SecurityValueWrapper if this type.
+     */
+    List<PropertySpec> getGenerationPropertySpecs(KeyAccessorType keyAccessorType);
+
+    /**
      * Get an existing KeyType by name.
      * Returns Optional.empty() if not found
      * @param name The KpiType's name. The name is a unique identifier.
@@ -174,7 +190,7 @@ public interface PkiService {
     ClientCertificateWrapperBuilder newClientCertificateWrapper(KeyType clientCertificateKeyType, String keyEncryptionMethod);
 
     /**
-     * Create a new Keypair wrapper. A keypair wrapper contains a public and private key, without certificate.
+     * Create a new Keypair wrapper. A keypair wrapper contains a public and/or private key, without certificate.
      * @param alias The keypair will be known by an alias. The alias will need to be unique in the keypair store.
      * @param keyType The KeyType describes the key (RSA, DSA, EC) and the specific parameters.
      * @param keyEncryptionMethod The KeyEncryptionMethod describes which wrapper will be used to store the private key
@@ -212,6 +228,13 @@ public interface PkiService {
      * @return The {@link CertificateWrapper}, empty if not found.
      */
     Optional<CertificateWrapper> findCertificateWrapper(long id);
+
+    /**
+     * Returns the KeypairWrapper identified by the provided id
+     * @param id The Keypair's id
+     * @return The {@link KeypairWrapper}, empty if not found.
+     */
+    Optional<KeypairWrapper> findKeypairWrapper(long id);
 
     /**
      * Returns the CertificateWrapper identified by the provided id if the {@link CertificateWrapper} has the correct version

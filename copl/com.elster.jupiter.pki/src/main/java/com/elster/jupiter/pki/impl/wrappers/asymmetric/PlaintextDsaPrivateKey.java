@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -44,12 +45,14 @@ public final class PlaintextDsaPrivateKey extends AbstractPlaintextPrivateKeyWra
     }
 
     @Override
-    protected void doGenerateValue() throws InvalidKeyException, NoSuchAlgorithmException {
+    protected PublicKey doGenerateValue() throws InvalidKeyException, NoSuchAlgorithmException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
         keyGen.initialize(getKeyType().getKeySize(), new SecureRandom());
-        PrivateKey privateKey = keyGen.generateKeyPair().getPrivate();
+        KeyPair keyPair = keyGen.generateKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
         setPrivateKey(privateKey);
         this.save();
+        return keyPair.getPublic();
     }
 
     protected PublicKey doGetPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {

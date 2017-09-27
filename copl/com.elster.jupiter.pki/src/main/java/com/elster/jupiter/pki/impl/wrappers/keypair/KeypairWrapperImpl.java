@@ -231,4 +231,23 @@ public class KeypairWrapperImpl implements KeypairWrapper {
         return this.privateKeyReference!=null && this.privateKeyReference.isPresent();
     }
 
+    @Override
+    public Optional<String> getKeyEncryptionMethod() {
+        if (!hasPrivateKey()) {
+            return Optional.empty();
+        }
+        return Optional.of(((PrivateKeyWrapper)this.privateKeyReference.get()).getKeyEncryptionMethod());
+    }
+
+    @Override
+    public void generateValue() {
+        if (!hasPrivateKey()) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.CAN_NOT_GENERATE_PUBLIC);
+        }
+        PrivateKeyWrapper privateKeyWrapper = (PrivateKeyWrapper) this.privateKeyReference.get();
+        PublicKey publicKey = privateKeyWrapper.generateValue();
+        setPublicKey(publicKey);
+    }
+
+
 }

@@ -44,7 +44,8 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_PASSWORD_LENGTH(1028, Keys.INVALIDPASSPHRASELENGTH, "Invalid passphrase length"),
     INVALID_KEY_SIZE(1029, Keys.INVALID_KEY_SIZE, "Invalid key size"),
     INVALID_HEX_VALUE(1030,Keys.INVALID_HEX_VALUE, "Not a properly hex encoded key"),
-    PUBLIC_KEY_INVALID(1031, "CouldNotConstructKey", "The public key could not be created: {0}");
+    PUBLIC_KEY_INVALID(1031, "CouldNotConstructKey", "The public key could not be created: {0}"),
+    CAN_NOT_GENERATE_PUBLIC(1032, "CanNotGeneratePublic", "A public key can not be generated, only a public/private keypair");
 
     private final int number;
     private final String key;

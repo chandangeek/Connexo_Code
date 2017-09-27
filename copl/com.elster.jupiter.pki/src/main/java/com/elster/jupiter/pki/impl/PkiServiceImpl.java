@@ -464,6 +464,11 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
+    public Optional<KeypairWrapper> findKeypairWrapper(long id) {
+        return getDataModel().mapper(KeypairWrapper.class).getUnique(KeypairWrapperImpl.Fields.ID.fieldName(), id);
+    }
+
+    @Override
     public Optional<CertificateWrapper> findAndLockCertificateWrapper(long id, long version) {
         return getDataModel().mapper(CertificateWrapper.class).lockObjectIfVersion(version, id);
     }

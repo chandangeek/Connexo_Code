@@ -170,10 +170,11 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
     }
 
     @Override
-    public void generateValue() {
+    public PublicKey generateValue() {
         try {
-            doGenerateValue();
+            PublicKey publicKey = doGenerateValue();
             save();
+            return publicKey;
         } catch (InvalidKeyException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_KEY, e);
         } catch (NoSuchAlgorithmException e) {
@@ -187,7 +188,7 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
         }
     }
 
-    protected abstract void doGenerateValue() throws
+    protected abstract PublicKey doGenerateValue() throws
             InvalidKeyException,
             NoSuchAlgorithmException,
             InvalidKeySpecException,

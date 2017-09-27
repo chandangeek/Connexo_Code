@@ -5,7 +5,6 @@ import com.elster.jupiter.pki.KeyType;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Hex;
-import org.bouncycastle.util.io.Streams;
 
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
@@ -16,7 +15,6 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.stream.StreamSupport;
 
 import org.junit.Before;
 import org.junit.Test;
