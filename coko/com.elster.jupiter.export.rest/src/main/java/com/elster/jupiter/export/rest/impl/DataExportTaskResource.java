@@ -163,15 +163,23 @@ public class DataExportTaskResource {
 
 
         ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(applicationName);
+        List<DataExportTaskInfo> infos = finder.stream()
+                .map(dataExportTaskInfoFactory::asInfoWithMinimalHistory)
+                .collect(Collectors.toList());
+        List<DataExportTaskInfo>filteredTasks = new ArrayList<>();
+        for(DataExportTaskInfo dataExportTaskInfo: infos){
+            Optional<UsagePointGroup> group = meteringGroupsService.findUsagePointGroup(((Number)dataExportTaskInfo.standardDataSelector.usagePointGroup.id).longValue());
 
-        return PagedInfoList.fromPagedList("dataExportTasks",
-                finder.stream()
-                        .map(dataExportTaskInfoFactory::asInfoWithMinimalHistory)
-                .filter(task -> task.getMetrologyPurposeId()== metrologyContract.getMetrologyPurpose().getId()
-                        && isMember(usagePoint.get(),task.getUsagePointGroupId())
-                        && containsAtLeastOneReadingType(readingTypeInfos.readingTypes,task.getReadingTypes()))
-                .collect(Collectors.toList()),
-                queryParameters);
+            if((group.isPresent() && isMember(usagePoint.get(), group.get())) &&
+               (dataExportTaskInfo.standardDataSelector.purpose == null ||
+                (dataExportTaskInfo.standardDataSelector.purpose!=null  &&
+                 metrologyContract.getMetrologyPurpose().getId()== dataExportTaskInfo.standardDataSelector.purpose.id) &&
+                 containsAtLeastOneReadingType(readingTypeInfos.readingTypes, dataExportTaskInfo.standardDataSelector.readingTypes))){
+                 filteredTasks.add(dataExportTaskInfo);
+            }
+        }
+
+        return PagedInfoList.fromPagedList("dataExportTasks", filteredTasks, queryParameters);
     }
 
     private boolean containsAtLeastOneReadingType(List<ReadingTypeInfo> readingTypesFromUsagePoint, List<ReadingTypeInfo> readingTypesFromExportTask) {
@@ -186,12 +194,10 @@ public class DataExportTaskResource {
     }
 
 
-    private boolean isMember(UsagePoint usagePoint, long usagePointGroupId) {
-        Optional<UsagePointGroup> usagePointGroup = meteringGroupsService.findUsagePointGroup(usagePointGroupId);
-
+    private boolean isMember(UsagePoint usagePoint, UsagePointGroup usagePointGroup) {
         return !meteringService.getUsagePointQuery()
                 .select(Where.where("id").isEqualTo(usagePoint.getId())
-                        .and(ListOperator.IN.contains(usagePointGroup.get().toSubQuery("id"), "id")), 1, 1)
+                        .and(ListOperator.IN.contains(usagePointGroup.toSubQuery("id"), "id")), 1, 1)
                 .isEmpty();
     }
 
