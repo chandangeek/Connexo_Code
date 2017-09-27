@@ -52,6 +52,10 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                 change: this.onStep3RadiogroupSetPriorityChangeEvent,
                 afterrender: this.getDefaultSetPriorityStatus
             },
+            'bulk-browse bulk-wizard bulk-step3 snooze-bulk-form radiogroup': {
+                change: this.onStep3RadiogroupSnoozeChangeEvent,
+                afterrender: this.getDefaultSnoozeStatus
+            },
             'issues-close-form': {
                 beforeactivate: this.beforeStep4
             },
@@ -218,6 +222,11 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                 step5panelText = Uni.I18n.translate('alarms.processing.setPriority', 'DAL', 'Setting priority for {0} alarm(s). Please wait...',
                     (requestData.allAlarms ? Uni.I18n.translate('general.all', 'DAL', 'all') : requestData.alarms.length));
                 break;
+            case 'snooze':
+                step5panelText = Uni.I18n.translate('alarms.processing.snooze', 'DAL', 'Snooze {0} alarm(s). Please wait...',
+                    (requestData.allAlarms ? Uni.I18n.translate('general.all', 'DAL', 'all') : requestData.alarms.length));
+                requestUrl = '/api/dal/alarms/bulksnooze';
+                break;
             default:
                 requestUrl = '/api/dal/alarms/' + operation;
                 step5panelText = Uni.I18n.translate('alarms.processing.default', 'DAL', 'Processing {0} alarm(s). Please wait...',
@@ -240,13 +249,19 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
             jsonData: requestData,
             timeout: 120000,
             success: function (response) {
-                var obj = Ext.decode(response.responseText),
-                    successCount = obj.success.length,
+                var obj;
+                if (operation != 'setpriority') {
+                    obj = Ext.decode(response.responseText).data;
+                }
+                else {
+                    obj = Ext.decode(response.responseText);
+                }
+                successCount = obj.success.length;
                     warnCount = 0,
                     failedCount = 0,
-                    successMessage,
-                    warnMessage,
-                    failedMessage,
+                        successMessage = '',
+                        warnMessage = '',
+                        failedMessage = '',
                     warnList = '',
                     failList = '';
 
@@ -291,6 +306,17 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                                     successMessage = Uni.I18n.translatePlural('alarms.setpriority.successAllAlarms.result', successCount, 'DAL', '-', '<h3>Successfully set priority for all alarms</h3><br>', '<h3>Successfully set priority for all alarms</h3><br>');
                                 }else{
                                     successMessage = Uni.I18n.translatePlural('alarms.setpriority.successSelectedAlarms.result', successCount, 'DAL', '-', '<h3>Successfully set priority for selected alarm(s)</h3><br>', '<h3>Successfully set priority for selected alarm(s)</h3><br>');
+                                }
+
+                            }
+                            break;
+
+                        case 'snooze':
+                            if (successCount > 0) {
+                                if (record.get('allAlarms')) {
+                                    successMessage = Uni.I18n.translatePlural('alarms.snooze.successAllAlarms.result', successCount, 'DAL', '-', '<h3>Successfully snoozed all alarms</h3><br>', '<h3>Successfully snoozed for all alarms</h3><br>');
+                                } else {
+                                    successMessage = Uni.I18n.translatePlural('alarms.snooze.successSelectedAlarms.result', successCount, 'DAL', '-', '<h3>Successfully snoozed selected alarm(s)</h3><br>', '<h3>Successfully snoozed selected alarm(s)</h3><br>');
                                 }
 
                             }
@@ -345,6 +371,14 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                             }
                             if (failedCount > 0) {
                                 failedMessage = Uni.I18n.translatePlural('alarms.setpriority.failed.results', failedCount, 'DAL', '-', '<h3 style="color: #eb5642">Unable to set priority for one alarm</h3><br>', '<h3 style="color: #eb5642">Unable to set priority for {0} alarms</h3><br>') + failList;
+                            }
+                            break;
+                        case 'snooze':
+                            if (warnCount > 0) {
+                                warnMessage = Uni.I18n.translatePlural('alarms.snooze.unable.results', warnCount, 'DAL', '-', '<h3 style="color: #eb5642">Unable to snooze one alarm</h3><br>', '<h3 style="color: #eb5642">Unable to snooze {0} alarms</h3><br>') + warnList;
+                            }
+                            if (failedCount > 0) {
+                                failedMessage = Uni.I18n.translatePlural('alarms.snooze.failed.results', failedCount, 'DAL', '-', '<h3 style="color: #eb5642">Unable to snooze one alarm</h3><br>', '<h3 style="color: #eb5642">Unable to snooze for {0} alarms</h3><br>') + failList;
                             }
                             break;
                     }
@@ -454,6 +488,9 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
             case 'setpriority' :
                 requestData.priority = bulkStoreRecord.get('priority');
                 break;
+            case 'snooze' :
+                requestData.snoozeDateTime = bulkStoreRecord.get('snooze').getTime();
+                break;
         }
 
         return requestData;
@@ -506,6 +543,13 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
         record.commit();
     },
 
+    onStep3RadiogroupSnoozeChangeEvent: function (radiogroup, newValue, oldValue) {
+        var record = this.getBulkRecord();
+        record.set('status', newValue.status);
+        record.set('statusName', radiogroup.getChecked()[0].boxLabel);
+        record.commit();
+    },
+
     getDefaultStep2Operation: function () {
         var formPanel = this.getPage().down('alarm-bulk-wizard').down('alarm-bulk-step2').down('panel'),
             default_operation = formPanel.down('radiogroup').getValue().operation,
@@ -524,6 +568,14 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
 
     getDefaultSetPriorityStatus: function () {
         var formPanel = this.getPage().down('alarm-bulk-wizard').down('alarm-bulk-step3').down('set-priority-form'),
+            default_status = formPanel.down('radiogroup').getValue().status,
+            record = this.getBulkRecord();
+        record.set('status', default_status);
+        record.commit();
+    },
+
+    getDefaultSnoozeStatus: function () {
+        var formPanel = this.getPage().down('alarm-bulk-wizard').down('alarm-bulk-step3').down('snooze-bulk-form'),
             default_status = formPanel.down('radiogroup').getValue().status,
             record = this.getBulkRecord();
         record.set('status', default_status);
@@ -577,6 +629,13 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                 widget = Ext.widget(view, {
                     labelWidth: 100,
                     controlsWidth: 200
+                });
+                break;
+            case 'snooze':
+                view = 'snooze-bulk-form';
+                widget = Ext.widget(view, {
+                    labelWidth: 120,
+                    controlsWidth: 500
                 });
                 break;
         }
@@ -679,6 +738,16 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
                 }else {
                     message = Uni.I18n.translatePlural('alarms.selectedAlarms.setPriority.withCount', record.get('alarms').length, 'DAL', '-', '<h3>Set priority for one alarm?</h3><br>', '<h3>Set priority for {0} alarms?</h3><br>')
                         + Uni.I18n.translate('alarms.selectedAlarms.setPriority','DAL', 'The priority of the selected alarm(s) will be set to {0}', [formPanel.down("#priority-label").text]);
+                }
+
+            case 'snooze':
+                record.set('snooze', formPanel.down("#issue-snooze-until-date").getValue());
+                if (record.get('allAlarms')) {
+                    message = Uni.I18n.translate('alarms.allAlarms.snooze.title', 'DAL', '<h3>Snooze all alarms?</h3><br>')
+                        + Uni.I18n.translate('alarms.allAlarms.snooze', 'DAL', 'All alarms will be snoozed ');
+                } else {
+                    message = Uni.I18n.translatePlural('alarms.selectedAlarms.snooze.withCount', record.get('alarms').length, 'DAL', '-', '<h3>Snooze one alarm?</h3><br>', '<h3>Snooze {0} alarms?</h3><br>')
+                        + Uni.I18n.translate('alarms.selectedAlarms.snooze', 'DAL', 'The selected alarm(s) will be snoozed ');
                 }
 
         }
