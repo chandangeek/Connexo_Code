@@ -371,14 +371,18 @@ TODO Move this into a separate button UI.
   }
 }
 
-.x-column-header-sort-DESC .x-column-header-text {
+.x-column-header-sort-DESC .x-column-header-text:after {
+  content: "\ede0";
   display: inline-block;
-  width: 100%;
+  float: right;
+  background-image: none !important;
 }
 
-.x-column-header-sort-ASC .x-column-header-text {
+.x-column-header-sort-ASC .x-column-header-text:after {
+  content: "\eddc";
   display: inline-block;
-  width: 100%;
+  float: right;
+  background-image: none !important;
 }
 
 // Other
