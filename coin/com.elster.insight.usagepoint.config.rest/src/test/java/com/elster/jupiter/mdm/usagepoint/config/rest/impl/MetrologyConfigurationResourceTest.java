@@ -480,7 +480,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(mConfig.getCustomPropertySets()).thenReturn(Collections.singletonList(rcps));
         when(metrologyConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
 
-        Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").request().get();
+        Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").queryParam("start",0).queryParam("limit", 10).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Number>get("$.total")).isEqualTo(1);
         assertThat(model.<List>get("$.customPropertySets")).hasSize(1);
@@ -533,7 +534,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(metrologyConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
         when(customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)).thenReturn(Arrays.asList(rcps1, rcps2));
 
-        Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").queryParam("linked", false).request().get();
+        Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").queryParam("linked", false).queryParam("start", 0).queryParam("limit", 10).request().get();
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Number>get("$.total")).isEqualTo(1);
         assertThat(model.<List>get("$.customPropertySets")).hasSize(1);
