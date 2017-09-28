@@ -196,9 +196,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             comSession = menuItem.up().record.getComSession();
-
+        
         router.getRoute('devices/device/connectionmethods/history/viewlog').forward(
-            Ext.merge({connectionMethodId: comSession.get('connectionMethod').id, historyId: comSession.getId()}, router.arguments),
+            Ext.merge({connectionMethodId: comSession.get('connectionMethod').id, historyId: comSession.getId(), deviceId: comSession.data.device.name, comTaskId: router.arguments.comTaskId}),
             {logLevels: ['Debug'], logTypes: ['Connections', 'Communications']}
         );
     },

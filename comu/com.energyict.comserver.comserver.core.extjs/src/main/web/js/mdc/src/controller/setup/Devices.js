@@ -437,7 +437,11 @@ Ext.define('Mdc.controller.setup.Devices', {
         var me = this;
         var form = button.up('form');
 
-        form.getForm().isValid();
+        if (!form.getForm().isValid()) {
+            me.showErrorPanel(form);
+            return;
+        }
+
         form.updateRecord();
         var deviceType = form.down('#deviceConfiguration').getDeviceType();
         var deviceConfig = form.down('#deviceConfiguration').getDeviceConfiguration();

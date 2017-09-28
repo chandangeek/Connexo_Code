@@ -37,5 +37,10 @@ Ext.define('Mdc.privileges.DeviceGroup', {
     },
     canAdministrateOrViewDetails:function(){
         return Uni.Auth.checkPrivileges(Mdc.privileges.DeviceGroup.administrateOrViewDetails );
+    },
+    canAdministrate: function() {
+        return Ext.Array.merge(Mdc.privileges.DeviceGroup.adminDeviceGroup,
+            Mdc.privileges.DeviceGroup.adminDeviceOfEnumeratedGroup
+        );
     }
 });

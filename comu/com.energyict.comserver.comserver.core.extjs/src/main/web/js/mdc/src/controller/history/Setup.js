@@ -23,7 +23,13 @@ Ext.define('Mdc.controller.history.Setup', {
     },
 
     routeConfig: {
-
+        visualiser: {
+            title: Uni.I18n.translate('networkVisualiser.title', 'MDC', 'Network visualiser'),
+            route: 'visualiser',
+            controller: 'Mdc.networkvisualiser.controller.NetworkVisualiser',
+            // privileges: Mdc.privileges.Device.administrateDevice,
+            action: 'showVisualiser'
+        },
         devices: {
             title: Uni.I18n.translate('general.devices', 'MDC', 'Devices'),
             route: 'devices',
@@ -288,6 +294,13 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceConfigurations',
                             privileges: Mdc.privileges.Device.administrateDeviceData,
                             action: 'showChangeDeviceConfigurationView'
+                        },
+                        network: {
+                            title: Uni.I18n.translate('general.network', 'MDC', 'Network'),
+                            route: 'network',
+                            controller: 'Mdc.networkvisualiser.controller.NetworkVisualiser',
+                            // privileges: Mdc.privileges.Device.administrateDevice,
+                            action: 'showNetwork'
                         },
                         connectionmethods: {
                             title: Uni.I18n.translate('general.connectionMethods', 'MDC', 'Connection methods'),
