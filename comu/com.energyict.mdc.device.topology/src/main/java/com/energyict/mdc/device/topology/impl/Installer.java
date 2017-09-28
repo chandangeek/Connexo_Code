@@ -9,6 +9,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -36,19 +37,25 @@ public class Installer implements FullInstaller {
     private final MessageService messageService;
     private final UserService userService;
     private final Logger logger = Logger.getLogger(Installer.class.getName());
+    private final EventService eventService;
+
     public final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     @Inject
-    Installer(DataModel dataModel, MessageService messageService, UserService userService) {
+    Installer(DataModel dataModel, MessageService messageService, UserService userService, EventService eventService) {
         super();
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.userService = userService;
+        this.eventService = eventService;
     }
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
+        for(EventType eventType: EventType.values()) {
+            eventType.createIfNotExists(eventService);
+        }
         doTry(
                 "Create message handlers",
                 this::createMessageHandlers,

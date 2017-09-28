@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
@@ -27,12 +28,14 @@ public class UpgraderV10_4 implements Upgrader {
     private final DataModel dataModel;
     private final MessageService messageService;
     private final UserService userService;
+    private final EventService eventService;
 
     @Inject
-    UpgraderV10_4(DataModel dataModel, MessageService messageService, UserService userService) {
+    UpgraderV10_4(DataModel dataModel, MessageService messageService, UserService userService, EventService eventService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.userService = userService;
+        this.eventService = eventService;
     }
 
     @Override
@@ -40,6 +43,9 @@ public class UpgraderV10_4 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 4));
         createMessageHandlers();
         addPrivileges();
+        for(EventType eventType: EventType.values()) {
+            eventType.createIfNotExists(eventService);
+        }
     }
 
     private void createMessageHandlers() {
