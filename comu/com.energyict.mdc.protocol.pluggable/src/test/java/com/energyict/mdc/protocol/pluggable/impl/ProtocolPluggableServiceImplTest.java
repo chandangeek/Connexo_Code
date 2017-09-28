@@ -267,7 +267,9 @@ public class ProtocolPluggableServiceImplTest {
         ProtocolPluggableServiceImpl service = this.newTestInstance();
         InboundDeviceProtocolService inboundDeviceProtocolService = mock(InboundDeviceProtocolService.class);
         PluggableClass pluggableClass = mock(PluggableClass.class);
-        when(inboundDeviceProtocolService.createInboundDeviceProtocolFor(pluggableClass)).thenThrow(new ProtocolCreationException(mock(MessageSeed.class), "Whatever"));
+        MessageSeed messageSeed = mock(MessageSeed.class);
+        when(messageSeed.getDefaultFormat()).thenReturn("bogus {0}");
+        when(inboundDeviceProtocolService.createInboundDeviceProtocolFor(pluggableClass)).thenThrow(new ProtocolCreationException(messageSeed, "Whatever"));
         service.addInboundDeviceProtocolService(inboundDeviceProtocolService);
 
         // Business method
