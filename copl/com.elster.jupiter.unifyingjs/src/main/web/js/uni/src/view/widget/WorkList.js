@@ -86,6 +86,7 @@ Ext.define('Uni.view.widget.WorkList', {
             var comboWorkTypes = header.down('#cbo-work-types');
             comboWorkTypes.bindStore(me.workListTypesStore);
             comboWorkTypes.select(me.workListTypesStore.first().get('name'));
+            me.loadWorkList(me.workListTypesStore.first());
         }
 
         me.setTitle('<h3>' + me.configuration.title + '</h3>');
@@ -252,10 +253,11 @@ Ext.define('Uni.view.widget.WorkList', {
             args[name] = item[property];
         });
         Ext.Array.each(workItem.get('workItem').queryParams, function (queryParam) {
-            var name = queryParam.name,
+            var queryParamFunction = workItem.get('workItem').queryParamFunction,
+                name = queryParam.name,
                 value = queryParam.value;
 
-            queryParams[name] = value;
+            queryParams[name] = Ext.isFunction(queryParamFunction) ? queryParamFunction(item, name, value) : value;
         });
         return me.router.getRoute(workItem.get('workItem').itemRoute).buildUrl(args, queryParams)
     },
