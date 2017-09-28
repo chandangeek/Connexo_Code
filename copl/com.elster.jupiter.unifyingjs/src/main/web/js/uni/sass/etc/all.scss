@@ -371,6 +371,16 @@ TODO Move this into a separate button UI.
   }
 }
 
+.x-column-header-sort-DESC .x-column-header-text {
+  display: inline-block;
+  width: 100%;
+}
+
+.x-column-header-sort-ASC .x-column-header-text {
+  display: inline-block;
+  width: 100%;
+}
+
 // Other
 
 .validation-column-align {

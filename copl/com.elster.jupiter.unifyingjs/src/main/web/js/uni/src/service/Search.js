@@ -457,6 +457,7 @@ Ext.define('Uni.service.Search', {
             dataIndex: propertyName,
             header: displayValue,
             disabled: propertyName === 'name',
+            menuDisabled: true,
             xtype: type
         };
     },
