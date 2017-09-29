@@ -371,6 +371,10 @@ TODO Move this into a separate button UI.
   }
 }
 
+.x-column-header-text {
+  vertical-align: middle;
+}
+
 .x-column-header-sort-DESC .x-column-header-text {
   background-image: none !important;
 }
@@ -382,15 +386,13 @@ TODO Move this into a separate button UI.
 .x-column-header-sort-DESC .x-column-header-text:after {
   font-family: icomoon;
   content: "\ede0";
-  display: inline-block;
-  float: right;
+  padding-left: 3px;
 }
 
 .x-column-header-sort-ASC .x-column-header-text:after {
   font-family: icomoon;
   content: "\eddc";
-  display: inline-block;
-  float: right;
+  padding-left: 3px;
 }
 
 // Other
