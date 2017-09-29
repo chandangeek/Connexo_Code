@@ -196,7 +196,7 @@ Ext.define('Dxp.model.DataExportTask', {
             persist: false,
             mapping: function (data) {
                 var result;
-                if (data.schedule && data.nextRun && (data.nextRun !== 0)) {
+                if (data.nextRun && (data.nextRun !== 0)) {
                     result = Uni.DateTime.formatDateTimeLong(new Date(data.nextRun));
                 } else {
                     result = Uni.I18n.translate('general.notScheduled', 'DES', 'Not scheduled')
