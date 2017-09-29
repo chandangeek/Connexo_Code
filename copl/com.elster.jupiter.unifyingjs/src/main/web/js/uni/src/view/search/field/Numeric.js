@@ -19,6 +19,11 @@ Ext.define('Uni.view.search.field.Numeric', {
     },
     defaultOperatorMap: {
         '==': 'uni-search-internal-numberfield',
+        '!=': 'uni-search-internal-quantityfield',
+        '>': 'uni-search-internal-quantityfield',
+        '>=': 'uni-search-internal-quantityfield',
+        '<': 'uni-search-internal-quantityfield',
+        '<=': 'uni-search-internal-quantityfield',
         'BETWEEN': 'uni-search-internal-numberrange'
     },
     customOperatorMap: undefined,
@@ -61,6 +66,32 @@ Ext.define('Uni.view.search.field.Numeric', {
             validateOnChange: me.validateOnChange,
             width: '455',
             operator: '==',
+            removable: false,
+            operatorMap: me.customOperatorMap || me.defaultOperatorMap,
+            listeners: {
+                change: {
+                    fn: me.onValueChange,
+                    scope: me
+                }
+            },
+            xtype: 'uni-search-internal-criterialine',
+            itemsDefaultConfig: me.itemsDefaultConfig,
+            validateOnChange: me.validateOnChange,
+            width: '455',
+            operator: '!=',
+            removable: false,
+            operatorMap: me.customOperatorMap || me.defaultOperatorMap,
+            listeners: {
+                change: {
+                    fn: me.onValueChange,
+                    scope: me
+                }
+            },
+            xtype: 'uni-search-internal-criterialine',
+            itemsDefaultConfig: me.itemsDefaultConfig,
+            validateOnChange: me.validateOnChange,
+            width: '455',
+            operator: '<',
             removable: false,
             operatorMap: me.customOperatorMap || me.defaultOperatorMap,
             listeners: {

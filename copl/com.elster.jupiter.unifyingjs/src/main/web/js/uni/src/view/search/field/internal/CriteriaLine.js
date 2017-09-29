@@ -28,6 +28,11 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
     removable: false,
     items: [],
     operator: '==',
+    operator: '!=',
+    operator: '>',
+    operator: '>=',
+    operator: '<',
+    operator: '<=',
     operatorMap: {
         '==': 'uni-search-internal-input',
         '!=': 'uni-search-internal-input',
