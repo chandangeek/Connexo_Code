@@ -414,7 +414,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
                 comSessionId = me.record.get('comSessionId');
                 if (comTaskId && comTaskSessionId) {
                     me.add({
-                        text: Uni.I18n.translate('issues.actionMenu.viewCommunicationLog', 'ISU', 'View communication log'),
+                        text: Uni.I18n.translate('issues.actionMenu.viewCommunicationLog', 'MDC', 'View communication log'),
                         href: me.router.getRoute('devices/device/communicationtasks/history/viewlog').buildUrl(
                             {
                                 deviceId: deviceName,
@@ -431,7 +431,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
                 }
                 if (connectionTaskId && comSessionId) {
                     me.add({
-                        text: Uni.I18n.translate('issues.actionMenu.viewConnectionLog', 'ISU', 'View connection log'),
+                        text: Uni.I18n.translate('issues.actionMenu.viewConnectionLog', 'MDC', 'View connection log'),
                         href: me.router.getRoute('devices/device/connectionmethods/history/viewlog').buildUrl(
                             {
                                 deviceId: deviceName,

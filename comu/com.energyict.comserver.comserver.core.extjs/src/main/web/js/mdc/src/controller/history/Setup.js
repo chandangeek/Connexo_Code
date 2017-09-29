@@ -147,7 +147,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 },
 
                                 view: {
-                                    title: Uni.I18n.translate('general.issueDetails', 'ISU', 'Issue details'),
+                                    title: Uni.I18n.translate('general.issueDetails', 'MDC', 'Issue details'),
                                     route: '{issueId}',
                                     controller: 'Mdc.controller.setup.DeviceHistory',
                                     action: 'showOverview',
