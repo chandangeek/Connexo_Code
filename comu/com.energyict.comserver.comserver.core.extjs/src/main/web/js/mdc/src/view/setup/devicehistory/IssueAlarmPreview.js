@@ -28,15 +28,16 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
                 xtype: 'uni-button-action',
                 itemId: 'issues-preview-actions-button',
                 privileges: Ext.Array.merge(Isu.privileges.Issue.adminDevice, Isu.privileges.Device.viewDeviceCommunication),
-                menu: {
-                    xtype: 'issues-action-menu',
-                 itemId: 'issues-overview-action-menu',
-                 router: me.router
-                 },
-                 listeners: {
-                 click: function () {
-                 this.showMenu();
-                 }
+                listeners: {
+                    click: function () {
+                        this.setMenu({
+                            xtype: me.record.get('issueType').uid === 'devicealarm' ? '' : 'issues-action-menu',
+                            itemId: 'issues-overview-action-menu',
+                            router: me.router,
+                            record: me.record
+                        });
+                        this.showMenu();
+                    }
                  }
             }
         ];

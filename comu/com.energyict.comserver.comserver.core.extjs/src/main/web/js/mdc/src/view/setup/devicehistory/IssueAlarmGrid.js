@@ -35,6 +35,10 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
                 itemId: 'issues-grid-id',
                 header: Uni.I18n.translate('general.title.issueId', 'MDC', 'ID'),
                 dataIndex: 'issueId',
+                renderer: function (value, metaData, record) {
+                    var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.getId()}, {issueType: record.get('issueType').uid});
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                },
                 flex: 1
             },
             {
@@ -97,11 +101,6 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
                     itemId: 'issues-overview-action-menu',
                     router: me.router
                 }
-                //     listeners: {
-                //     click: function () {
-                //         this.showMenu();
-                //     }
-                // }
              }
         ];
 
@@ -111,9 +110,9 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
                 xtype: 'pagingtoolbartop',
                 dock: 'top',
                 store: me.store,
-                displayMsg: Uni.I18n.translate('workspace.general.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} issues/alarms'),
-                displayMoreMsg: Uni.I18n.translate('workspace.general.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} issues/alarms'),
-                emptyMsg: Uni.I18n.translate('workspace.general.pagingtoolbartop.emptyMsg', 'MDC', 'There are no issues/alarms to display'),
+                displayMsg: Uni.I18n.translate('workspace.general.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} issues and alarms'),
+                displayMoreMsg: Uni.I18n.translate('workspace.general.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} issues and alarms'),
+                emptyMsg: Uni.I18n.translate('workspace.general.pagingtoolbartop.emptyMsg', 'MDC', 'There are no issues and alarms to display'),
             },
             {
                 itemId: 'pagingtoolbarbottom',

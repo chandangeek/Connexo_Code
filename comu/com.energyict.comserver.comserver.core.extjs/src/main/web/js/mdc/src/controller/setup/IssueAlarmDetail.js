@@ -26,6 +26,21 @@ Ext.define('Mdc.controller.setup.IssueAlarmDetail', {
         this.showOverview(issueId);
     },
 
+    showActionOverview: function (deviceId, issueId, actionId) {
+        var me = this,
+            store = me.getStore('Mdc.store.device.IssuesAlarms');
+
+        if (store.getCount()) {
+            var issueActualType = store.getById(parseInt(issueId)).get('issueType').uid;
+            if ((issueActualType === 'datacollection') || (issueActualType === 'datavalidation')) {
+                me.getController('Isu.controller.ApplyIssueAction').showOverview(issueId, actionId);
+            }
+            else if (issueActualType === 'devicealarm') {
+                me.getController('Dal.controller.ApplyAction').showOverview(issueId, actionId);
+            }
+        }
+    },
+
     getIssueStore: function () {
         return this.getStore('Mdc.store.device.IssuesAlarms');
     }

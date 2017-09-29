@@ -46,6 +46,14 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         }
     ],
 
+    init: function () {
+        this.control({
+            '#device-history-issues-alarms-tab #issues-alarms-grid': {
+                select: this.showIssueAndAlarmPreview
+            }
+        });
+    },
+
     showDeviceHistory: function (deviceId) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
@@ -66,6 +74,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
                 me.getApplication().fireEvent('changecontentevent', view);
                 me.showDeviceLifeCycleHistory();
                 me.showCustomAttributeSetsHistory(deviceId);
+                me.showIssuesAndAlarms(deviceId);
             }
         });
     },
@@ -84,8 +93,6 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             issuesAlarmsStore = me.getStore('Mdc.store.device.IssuesAlarms');
 
         me.getPage().setLoading();
-        // Ext.apply(issuesAlarmsStore.getProxy().extraParams, routerArguments);
-        // issuesAlarmsStore.load();
         lifeCycleTab.add(lifeCyclePanel);
         lifeCycleDataView.bindStore(lifeCycleHistoryStore);
         Ext.apply(lifeCycleHistoryStore.getProxy().extraParams, routerArguments);
@@ -109,6 +116,18 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
                 me.getPage().setLoading(false);
             });
         });
+    },
+
+    showIssuesAndAlarms: function (deviceId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            queryParams = router.queryParams;
+
+        if (queryParams.activeTab === 'issues') {
+            me.getTabPanel().setActiveTab('device-history-issues-alarms-tab');
+        }
+
+
     },
 
     showCustomAttributeSetsHistory: function (deviceId) {
@@ -170,6 +189,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         });
     },
 
+
     showOverview: function (deviceId, issueId, actionId) {
         var me = this,
             store = me.getStore('Mdc.store.device.IssuesAlarms');
@@ -177,16 +197,26 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         if (store.getCount()) {
             var issueActualType = store.getById(parseInt(issueId)).get('issueType').uid;
             if ((issueActualType === 'datacollection') || (issueActualType === 'datavalidation')) {
-                me.getController('Mdc.controller.setup.IssueAlarmDetail').showOverview(issueId, actionId);
+                // me.getController('Mdc.controller.setup.IssueAlarmDetail').showOverview(issueId, actionId);
+                // me.getController('Mdc.controller.setup.IssueAlarmDetail').showActionOverview(deviceId, issueId, actionId);
+                if (actionId) {
+                    me.getController('Mdc.controller.setup.IssueAlarmDetail').showActionOverview(deviceId, issueId, actionId);
+                } else {
+                    me.getController('Mdc.controller.setup.IssueAlarmDetail').showOverview(issueId, actionId);
+                }
             }
             else if (issueActualType === 'devicealarm') {
-                me.getController('Dal.controller.Detail').showOverview(issueId, actionId);
+                if (actionId) {
+                    me.getController('Mdc.controller.setup.IssueAlarmDetail').showActionOverview(deviceId, issueId, actionId);
+                } else {
+                    me.getController('Dal.controller.Detail').showOverview(issueId, actionId);
+                }
             }
         }
     },
 
 
-    showActionOverview: function (deviceId, issueId, actionId) {
+    /* showActionOverview: function (deviceId, issueId, actionId) {
         var me = this,
             store = me.getStore('Mdc.store.device.IssuesAlarms');
 
@@ -199,7 +229,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
                 me.getController('Dal.controller.ApplyAction').showOverview(issueId, actionId);
             }
         }
-    },
+     },*/
 
     setPriority: function (deviceId, issueId) {
         var me = this,
@@ -208,17 +238,32 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         if (store.getCount()) {
             var issueActualType = store.getById(parseInt(issueId)).get('issueType').uid;
             if ((issueActualType === 'datacollection') || (issueActualType === 'datavalidation')) {
-                me.getController('Isu.controller.SetPriority').setPriority(issueId);
+                me.getController('Mdc.controller.setup.SetPriority').queryParams = {activeTab: 'issues'};
+                me.getController('Mdc.controller.setup.SetPriority').setPriority(issueId);
             }
             else if (issueActualType === 'devicealarm') {
                 me.getController('Dal.controller.SetPriority').setPriority(issueId);
             }
         }
 
-        //this.getController('Isu.controller.SetPriority').setPriority(issueId);
     },
 
     startProcess: function (deviceId, issueId) {
+        var me = this,
+            store = me.getStore('Mdc.store.device.IssuesAlarms');
         this.getController('Isu.controller.StartProcess').showStartProcess(issueId);
-    }
+    },
+
+    showIssueAndAlarmPreview: function (selectionModel, record) {
+        var me = this,
+            page = me.getPage(),
+            preview = page.down('issues-alarms-preview');
+
+
+        Ext.suspendLayouts();
+        //preview.setTitle(record.get(''));
+        preview.setTitle(record.get('issueId') + ' ' + record.get('reason'));
+        preview.loadRecord(record);
+        Ext.resumeLayouts();
+    },
 });

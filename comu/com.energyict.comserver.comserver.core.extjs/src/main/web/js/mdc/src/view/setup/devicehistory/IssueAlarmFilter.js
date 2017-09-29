@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmFilter', {
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'uid',
-                store: 'Isu.store.IssueTypes'
+                store: 'Mdc.store.device.IssueAlarmTypes'
             },
             {
                 type: 'issue-alarm-reasons',

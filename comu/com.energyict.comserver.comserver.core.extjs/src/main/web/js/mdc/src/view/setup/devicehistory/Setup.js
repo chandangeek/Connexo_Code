@@ -89,7 +89,41 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                             title: Uni.I18n.translate('general.issuesAndAlarms', 'MDC', 'Issues and Alarms'),
                             padding: '8 16 16 0',
                             itemId: 'device-history-issues-alarms-tab',
+
                             items: {
+                                xtype: 'preview-container',
+                                itemId: 'previewContainer',
+                                grid: {
+                                    store: 'Mdc.store.device.IssuesAlarms',
+                                    xtype: 'issues-alarms-grid',
+                                    itemId: 'issues-alarms-grid',
+                                    router: me.router
+                                },
+                                emptyComponent: {
+                                    xtype: 'no-items-found-panel',
+                                    itemId: 'register-mappings-empty-msg',
+                                    title: Uni.I18n.translate('registerMapping.empty.title', 'MDC', 'No register types found'),
+                                    reasons: [
+                                        Uni.I18n.translate('registerMapping.empty.list.item1', 'MDC', 'No register types have been defined yet.')
+                                    ]
+                                },
+                                previewComponent: {
+                                    xtype: 'issues-alarms-preview',
+                                    itemId: 'issues-alarms-preview',
+                                    router: me.router,
+                                    fieldxtype: 'displayfield'
+                                }
+                            },
+                            dockedItems: [
+                                {
+                                    dock: 'top',
+                                    xtype: 'issues-alarm-filter',
+                                    itemId: 'issues-alarm-filter'
+                                }
+                            ]
+
+
+                            /*items: {
                                 xtype: 'contentcontainer',
                                 content: [
                                     {
@@ -110,23 +144,9 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
 
                                     }
 
-                                ],
-                                grid1: {
-                                    xtype: 'device-history-meter-activations-tab',
-                                    itemId: 'device-history-meter-activations-grid',
-                                    device: me.device,
-                                    router: me.router
-                                },
-                                emptyComponent1: {
-                                    xtype: 'form',
-                                    items: [
-                                        {
-                                            xtype: 'uni-form-empty-message',
-                                            text: Uni.I18n.translate('general.device.noMeterActivations', 'MDC', 'No meter activations for this device')
-                                        }
-                                    ]
-                                }
-                            },
+                             ]
+                             },*/
+
                         },
                     ]
                 }
@@ -153,4 +173,5 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
         });
         Ext.resumeLayouts(true);
     }
+
 });

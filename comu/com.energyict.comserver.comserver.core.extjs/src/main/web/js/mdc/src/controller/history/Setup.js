@@ -183,7 +183,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                         },
                                         startProcess: {
                                             title: Uni.I18n.translate('general.startProcess', 'MDC', 'Start process'),
-                                            route: '{issueId}/startProcess',
+                                            //route:'{issueId}/startProcess'
+                                            route: 'startProcess',
                                             controller: 'Mdc.controller.setup.DeviceHistory',
                                             action: 'startProcess',
                                             privileges: Isu.privileges.Issue.viewAdminDevice
