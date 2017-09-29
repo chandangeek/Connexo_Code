@@ -4,9 +4,15 @@
 
 package com.elster.jupiter.issue.impl.database;
 
-import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
+import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.impl.tasks.IssueSnoozeHandlerFactory;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -16,21 +22,29 @@ import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Optional;
 
 import static com.elster.jupiter.orm.Version.version;
 
 public class UpgraderV10_4 implements Upgrader {
 
     private final DataModel dataModel;
+    private final IssueService issueService;
+    private final MessageService messageService;
+
+    private final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     @Inject
-    UpgraderV10_4(DataModel dataModel) {
+    UpgraderV10_4(DataModel dataModel, IssueService issueService, MessageService messageService) {
         this.dataModel = dataModel;
+        this.issueService = issueService;
+        this.messageService = messageService;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, version(10, 4));
+        this.createNewStatuses();
         this.upgradeOpenIssue();
         this.upgradeSubscriberSpecs();
     }
@@ -55,28 +69,33 @@ public class UpgraderV10_4 implements Upgrader {
         }
     }
 
+
+    private void createNewStatuses() {
+        issueService.createStatus(IssueStatus.SNOOZED, false, TranslationKeys.ISSUE_STATUS_SNOOZED);
+        issueService.createStatus(IssueStatus.FORWARDED, true, TranslationKeys.ISSUE_STATUS_FORWARDED);
+    }
+
     private void upgradeSubscriberSpecs() {
-        try (Connection connection = this.dataModel.getConnection(true)) {
-            this.upgradeSubscriberSpecs(connection);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        this.createMessageHandlerIfNotPresent(defaultQueueTableSpec, IssueSnoozeHandlerFactory.ISSUE_SNOOZE_TASK_DESTINATION, TranslationKeys.ISSUE_SNOOZE_SUBSCRIBER_NAME);
     }
 
-    private void upgradeSubscriberSpecs(Connection connection) {
-        try (PreparedStatement statement = this.upgradeSubscriberSpecsStatement(connection)) {
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
+    private void createMessageHandlerIfNotPresent(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberKey) {
+        Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
+        if (!destinationSpecOptional.isPresent()) {
+            DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            queue.activate();
+            queue.subscribe(subscriberKey, IssueService.COMPONENT_NAME, Layer.DOMAIN);
+        } else {
+            boolean notSubscribedYet = destinationSpecOptional.get()
+                    .getSubscribers()
+                    .stream()
+                    .noneMatch(spec -> spec.getName().equals(subscriberKey.getKey()));
+            if (notSubscribedYet) {
+                destinationSpecOptional.get().activate();
+                destinationSpecOptional.get().subscribe(subscriberKey, IssueService.COMPONENT_NAME, Layer.DOMAIN);
+            }
         }
-    }
-
-    private PreparedStatement upgradeSubscriberSpecsStatement(Connection connection) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("UPDATE MSG_SUBSCRIBERSPEC SET nls_component = ?, nls_layer = ? WHERE name = ?");
-        statement.setString(1, IssueServiceImpl.COMPONENT_NAME);
-        statement.setString(2, Layer.DOMAIN.name());
-        statement.setString(3, IssueSnoozeHandlerFactory.ISSUE_SNOOZE_TASK_SUBSCRIBER);
-        return statement;
     }
 
 }
