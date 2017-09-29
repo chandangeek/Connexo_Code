@@ -33,6 +33,7 @@ Ext.define('Mdc.controller.setup.IssueAlarmDetail', {
         if (store.getCount()) {
             var issueActualType = store.getById(parseInt(issueId)).get('issueType').uid;
             if ((issueActualType === 'datacollection') || (issueActualType === 'datavalidation')) {
+                me.getController('Isu.controller.ApplyIssueAction').queryParams = {activeTab: 'issues'};
                 me.getController('Isu.controller.ApplyIssueAction').showOverview(issueId, actionId);
             }
             else if (issueActualType === 'devicealarm') {
