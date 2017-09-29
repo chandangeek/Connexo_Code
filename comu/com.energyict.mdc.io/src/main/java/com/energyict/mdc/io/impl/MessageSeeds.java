@@ -19,6 +19,7 @@ public enum MessageSeeds implements MessageSeed {
 
     COMMUNICATION_INTERRUPTED(20, "communicationInterrupted", "Communication was interrupted: {0}"),
     CONNECTION_TIMEOUT(21, "connectionTimeout", "Connection timeout"),
+    SERIAL_NUMBER_NOT_SUPPORTED(22, "serialNumberNotSupported", "The legacy protocol does not support readout of the serial number")
     ;
 
     private final int number;

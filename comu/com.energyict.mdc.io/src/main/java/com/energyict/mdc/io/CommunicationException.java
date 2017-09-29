@@ -6,6 +6,7 @@ package com.energyict.mdc.io;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComServerRuntimeException;
+import com.energyict.mdc.io.impl.MessageSeeds;
 
 import java.io.IOException;
 
@@ -35,6 +36,15 @@ public class CommunicationException extends ComServerRuntimeException {
 
     protected CommunicationException(MessageSeed messageSeed, Exception cause) {
         super(cause, messageSeed, cause.getMessage());
+    }
+
+    /**
+     * Creates an exception, indication that the serial number of the device cannot be read.</br>
+     *
+     * @return the newly created serialNumberNotSupported  exception
+     */
+    public static CommunicationException serialNumberNotSupported() {
+        return new CommunicationException(MessageSeeds.SERIAL_NUMBER_NOT_SUPPORTED);
     }
 
 }
