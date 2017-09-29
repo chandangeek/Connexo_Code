@@ -15,7 +15,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
-
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
@@ -47,15 +46,15 @@ public class UpgraderV10_4 implements Upgrader {
     }
 
     private void createNewReason() {
-        IssueType issueType = issueService.createIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE, TranslationKeys.ISSUE_TYPE_DATA_COLLECTION, IssueDataCollectionService.DATA_COLLECTION_ISSUE_PREFIX);
-        issueService.createReason(ModuleConstants.REASON_UNREGISTERED_DEVICE, issueType,
-                TranslationKeys.ISSUE_REASON_UNREGISTERED_DEVICE, TranslationKeys.ISSUE_REASON_DESCRIPTION_UNREGISTERED_DEVICE);
+        IssueType issueType = issueService.findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE)
+                .orElse(issueService.createIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE, TranslationKeys.ISSUE_TYPE_DATA_COLLECTION, IssueDataCollectionService.DATA_COLLECTION_ISSUE_PREFIX));
+        issueService.createReason(ModuleConstants.REASON_UNREGISTERED_DEVICE, issueType, TranslationKeys.ISSUE_REASON_UNREGISTERED_DEVICE, TranslationKeys.ISSUE_REASON_DESCRIPTION_UNREGISTERED_DEVICE);
     }
 
     private void setAQSubscriber() {
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
         try {
-            if(destinationSpec.isActive()) {
+            if (destinationSpec.isActive()) {
                 destinationSpec.unSubscribe(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC);
             }
             destinationSpec.subscribe(
