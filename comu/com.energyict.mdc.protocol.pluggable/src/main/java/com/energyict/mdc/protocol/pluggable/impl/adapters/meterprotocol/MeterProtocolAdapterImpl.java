@@ -42,6 +42,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.messages.DeviceMessage;
@@ -315,7 +316,11 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     @Override
     public String getSerialNumber() {
-        return this.offlineDevice.getSerialNumber();
+        if (meterProtocol instanceof SerialNumberSupport) {
+            return ((SerialNumberSupport) meterProtocol).getSerialNumber();
+        } else {
+           throw CommunicationException.serialNumberNotSupported();
+        }
     }
 
     @Override
