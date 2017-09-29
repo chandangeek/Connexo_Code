@@ -155,7 +155,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
 
-        if (!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
+        if (!this.protocol.getConfiguredSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
             //Execute messages for MBus device
             return getMbusMessageExecutor().executeMessageEntry(msgEntry);
         } else {

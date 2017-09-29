@@ -38,7 +38,7 @@ public class XemexEventProfile extends DSMR40EventProfile {
             fromDate = ProtocolUtils.getClearLastMonthDate(getTimeZone());
         }
         fromCal.setTime(fromDate);
-        protocol.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + protocol.getSerialNumber() + ".");
+        protocol.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + protocol.getConfiguredSerialNumber() + ".");
         DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
         DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
         DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());

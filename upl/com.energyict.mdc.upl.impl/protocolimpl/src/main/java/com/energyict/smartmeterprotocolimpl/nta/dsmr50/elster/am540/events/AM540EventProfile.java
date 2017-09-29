@@ -35,7 +35,7 @@ public class AM540EventProfile extends DSMR40EventProfile {
             fromDate = ProtocolUtils.getClearLastMonthDate(getTimeZone());
         }
         fromCal.setTime(fromDate);
-        protocol.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + protocol.getSerialNumber() + ".");
+        protocol.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + protocol.getConfiguredSerialNumber() + ".");
 
         DataContainer dcStandardEvents = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode(), true).getBuffer(fromCal, getToCalendar());
         DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode(), true).getBuffer(fromCal, getToCalendar());

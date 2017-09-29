@@ -226,7 +226,7 @@ public class MeterTopology {
             throw DeviceConfigurationException.missingProperty("SerialNumber");
         }
 
-        if (serialNumber.equals(this.meterProtocol.getSerialNumber())) {
+        if (serialNumber.equals(this.meterProtocol.getConfiguredSerialNumber())) {
             return this.meterProtocol.getPhysicalAddress();
         }
 
@@ -260,7 +260,7 @@ public class MeterTopology {
     public String getSerialNumber(ObisCode obisCode) {
         int bField = obisCode.getB();
         if (bField == this.meterProtocol.getPhysicalAddress()) {
-            return this.meterProtocol.getSerialNumber();
+            return this.meterProtocol.getConfiguredSerialNumber();
         }
 
         for (DeviceMapping dm : this.eMeterMap) {

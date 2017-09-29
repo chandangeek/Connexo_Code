@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.messages.DeviceMessage;
@@ -46,7 +47,6 @@ import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.messages.convertor.EIWebPlusMessageConverter;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;

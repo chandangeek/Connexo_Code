@@ -31,7 +31,7 @@ public class UkHubEventProfiles {
 
     public List<MeterEvent> getEvents(Date from) throws IOException {
         List<MeterEvent> meterEvents = new ArrayList<>();
-        getLogger().log(Level.INFO, "Reading EVENTS from HUB with serial number " + getUkHub().getSerialNumber() + ".");
+        getLogger().log(Level.INFO, "Reading EVENTS from HUB with serial number " + getUkHub().getConfiguredSerialNumber() + ".");
 
         if(from == null){
             from = ProtocolUtils.getClearLastMonthDate(this.ukHub.getTimeZone());

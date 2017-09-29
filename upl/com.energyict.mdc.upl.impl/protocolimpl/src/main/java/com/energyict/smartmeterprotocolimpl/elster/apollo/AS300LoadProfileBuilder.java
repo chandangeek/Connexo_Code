@@ -72,7 +72,7 @@ public class AS300LoadProfileBuilder {
 
         for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
             this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), new DeviceIdentifierBySerialNumber(meterProtocol.getSerialNumber()));
+            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), new DeviceIdentifierBySerialNumber(meterProtocol.getConfiguredSerialNumber()));
 
             ComposedProfileConfig cpc = lpConfigMap.get(lpr);
             if (cpc != null) {
@@ -221,7 +221,7 @@ public class AS300LoadProfileBuilder {
                     for (CapturedObject co : capturedObjects) {
                         if (loadProfileContains(lpr, co.getLogicalName().getObisCode())) {
                             relevantObjects.add(co);
-                            Register reg = new Register(-1, co.getLogicalName().getObisCode(), meterProtocol.getSerialNumber());
+                            Register reg = new Register(-1, co.getLogicalName().getObisCode(), meterProtocol.getConfiguredSerialNumber());
                             if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode())) {// this way we don't get duplicate registerRequests in one getWithList
                                 channelRegisters.add(reg);
                             }

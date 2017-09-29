@@ -21,7 +21,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.eventhandling.ApolloEventProfiles;
@@ -38,7 +37,7 @@ import java.util.List;
  * Date: 29-jun-2011
  * Time: 11:32:30
  */
-public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, SerialNumberSupport {
+public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol {
 
     private final DeviceMessageFileFinder messageFileFinder;
     private final DeviceMessageFileExtractor messageFileExtractor;
@@ -144,7 +143,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     public String getMeterSerialNumber() throws IOException {
         if (getProperties().isFirmwareUpdateSession()) {
             getLogger().severe("Using firmware update client. Skipping serial number check!");
-            return getSerialNumber();
+            return getConfiguredSerialNumber();
         } else {
             return getObjectFactory().getSerialNumber().getString();
         }
@@ -192,7 +191,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         return "Elster AS300-P DLMS (SSWG IC)";
     }
 
-    public String getSerialNumber() {
+    public String getConfiguredSerialNumber() {
         return getProperties().getSerialNumber();
     }
 

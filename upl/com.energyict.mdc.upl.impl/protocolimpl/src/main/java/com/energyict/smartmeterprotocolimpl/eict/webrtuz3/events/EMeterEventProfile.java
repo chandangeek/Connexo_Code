@@ -53,7 +53,7 @@ public class EMeterEventProfile {
             }
             Calendar fromCal = ProtocolUtils.getCleanCalendar(this.simpleMeter.getTimeZone());
             fromCal.setTime(lastLogbookDate);
-            this.simpleMeter.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + this.simpleMeter.getSerialNumber() + ".");
+            this.simpleMeter.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + this.simpleMeter.getConfiguredSerialNumber() + ".");
 
             ObisCode eventLogObisCode = getCorrectedObisCode(EVENT_LOG_OBISCODE);
             DataContainer eventsLogDataContainer = getLogAsDataContainer(eventLogObisCode, fromCal);

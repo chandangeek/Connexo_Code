@@ -35,7 +35,7 @@ public class ZigbeeGasEventProfiles {
 
     public List<MeterEvent> getEvents(Date from) throws IOException {
         List<MeterEvent> meterEvents = new ArrayList<>();
-        getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + getZigbeeGas().getSerialNumber() + ".");
+        getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + getZigbeeGas().getConfiguredSerialNumber() + ".");
         if (from == null) {
             from = ProtocolUtils.getClearLastMonthDate(this.zigbeeGas.getTimeZone());
         }

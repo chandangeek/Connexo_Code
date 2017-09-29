@@ -84,7 +84,7 @@ public class AS300DPET extends AS300 {
     public String getMeterSerialNumber() throws IOException {
         if (getProperties().isFirmwareUpdateSession()) {
             getLogger().severe("Using firmware update client. Skipping serial number check!");
-            return getSerialNumber();
+            return getConfiguredSerialNumber();
         } else {
             OctetString serialNumber = (OctetString) getObjectFactory().getSerialNumber().getValueAttr();
             return serialNumber.stringValue();

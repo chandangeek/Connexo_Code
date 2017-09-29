@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.AS300P;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
@@ -20,7 +21,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.elster.AS300P.eventhandling.AS300PEventProfiles;
 import com.energyict.smartmeterprotocolimpl.elster.AS300P.messaging.AS300PMessageExecutor;

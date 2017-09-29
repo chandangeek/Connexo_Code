@@ -17,6 +17,7 @@ import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -25,7 +26,6 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -53,7 +53,7 @@ import java.util.logging.Logger;
  * Date: 15-jul-2011
  * Time: 10:31:14
  */
-public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterProtocol, MessageProtocol, SerialNumberSupport {
+public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterProtocol, MessageProtocol {
 
     private final AbstractSmartNtaProtocol meterProtocol;
     private final PropertySpecService propertySpecService;
@@ -99,7 +99,7 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
      *
      * @return the serialNumber of the meter
      */
-    public String getSerialNumber() {
+    public String getConfiguredSerialNumber() {
         return this.serialNumber;
     }
 
@@ -183,7 +183,7 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
 
     @Override
     public String getMeterSerialNumber() throws IOException {
-        return getSerialNumber();
+        return getConfiguredSerialNumber();
     }
 
     @Override

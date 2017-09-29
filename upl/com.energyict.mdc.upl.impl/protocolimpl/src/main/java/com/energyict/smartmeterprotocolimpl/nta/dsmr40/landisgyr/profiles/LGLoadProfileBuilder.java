@@ -69,7 +69,7 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
             LoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             if (getChannelInfoMap().containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                 Date toDate = lpr.getEndReadingTime();
-                if (fixMBusToDate && !lpr.getMeterSerialNumber().equals(getMeterProtocol().getSerialNumber())) {     //MBus load profile
+                if (fixMBusToDate && !lpr.getMeterSerialNumber().equals(getMeterProtocol().getConfiguredSerialNumber())) {     //MBus load profile
                     toDate.setTime(toDate.getTime() - 900000);                                      //Read to current time - 15 minutes, see RFC 168
                 }
                 fixMBusToDate = true;       //Reset to default for next LP requests

@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.socomec.a40;
 
+import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -18,7 +19,6 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.ProfileLimiter;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;

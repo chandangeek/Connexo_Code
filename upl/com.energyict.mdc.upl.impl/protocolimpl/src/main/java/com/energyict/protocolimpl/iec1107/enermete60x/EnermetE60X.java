@@ -6,10 +6,10 @@
 
 package com.energyict.protocolimpl.iec1107.enermete60x;
 
+import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.customerconfig.UcontoRegisterConfig;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;

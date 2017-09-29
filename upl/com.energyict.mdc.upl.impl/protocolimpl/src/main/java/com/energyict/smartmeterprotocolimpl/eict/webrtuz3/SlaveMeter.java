@@ -6,7 +6,6 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 
 import java.util.Collections;
@@ -20,7 +19,7 @@ import java.util.logging.Logger;
  * Date: 3-mrt-2011
  * Time: 16:32:09
  */
-public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter, SerialNumberSupport {
+public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter {
 
     private final WebRTUZ3 meterProtocol;
     private final String serialNumber;
@@ -69,7 +68,7 @@ public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter, Seria
     }
 
     @Override
-    public String getSerialNumber() {
+    public String getConfiguredSerialNumber() {
         return this.serialNumber;
     }
 

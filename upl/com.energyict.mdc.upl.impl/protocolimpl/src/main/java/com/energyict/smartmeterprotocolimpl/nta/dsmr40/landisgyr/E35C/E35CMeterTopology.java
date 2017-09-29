@@ -31,6 +31,6 @@ public class E35CMeterTopology extends MeterTopology {
 
     @Override
     public String getSerialNumber(ObisCode obisCode) {
-        return getProtocol().getSerialNumber();
+        return getProtocol().getConfiguredSerialNumber();
     }
 }

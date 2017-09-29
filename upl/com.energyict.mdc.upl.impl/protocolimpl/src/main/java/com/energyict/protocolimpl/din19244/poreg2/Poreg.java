@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.din19244.poreg2;
 
+import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
@@ -13,7 +14,6 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.din19244.poreg2.core.PoregConnection;
 import com.energyict.protocolimpl.din19244.poreg2.core.PoregMessages;

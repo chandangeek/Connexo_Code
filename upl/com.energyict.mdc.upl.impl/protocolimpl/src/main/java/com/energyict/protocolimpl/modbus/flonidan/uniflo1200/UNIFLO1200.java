@@ -8,6 +8,7 @@
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -19,7 +20,6 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;

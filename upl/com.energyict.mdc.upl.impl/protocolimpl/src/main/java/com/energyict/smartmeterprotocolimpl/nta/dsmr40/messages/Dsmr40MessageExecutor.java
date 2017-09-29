@@ -1,5 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.TariffCalendar;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -17,15 +27,6 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.mdc.upl.io.NestedIOException;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
-import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
@@ -57,7 +58,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     }
 
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
-        if (!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
+        if (!this.protocol.getConfiguredSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
             //Execute messages for MBus device
             Dsmr40MbusMessageExecutor mbusMessageExecutor = new Dsmr40MbusMessageExecutor(protocol);
             return mbusMessageExecutor.executeMessageEntry(msgEntry);

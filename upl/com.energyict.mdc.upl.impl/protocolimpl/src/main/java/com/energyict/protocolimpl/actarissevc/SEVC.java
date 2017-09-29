@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.actarissevc;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.nls.TranslationKey;
@@ -22,7 +23,6 @@ import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;

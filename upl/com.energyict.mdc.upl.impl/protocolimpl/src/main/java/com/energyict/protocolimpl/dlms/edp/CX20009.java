@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms.edp;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -27,7 +28,6 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.edp.logbooks.LogbookReader;
 import com.energyict.protocolimpl.dlms.edp.registers.EDPStoredValues;

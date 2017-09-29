@@ -19,7 +19,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.composedobjects.ComposedMeterInfo;
@@ -36,7 +35,7 @@ import java.util.List;
 /**
  * The ZigbeeGas logical device has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE.
  */
-public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, SerialNumberSupport {
+public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol {
 
     private final DeviceMessageFileFinder messageFileFinder;
     private final DeviceMessageFileExtractor messageFileExtractor;
@@ -138,7 +137,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
     public String getMeterSerialNumber() throws IOException {
         if (getProperties().isFirmwareUpdateSession()) {
             getLogger().severe("Using firmware update client. Skipping serial number check!");
-            return getSerialNumber();
+            return getConfiguredSerialNumber();
         } else {
             try {
                 return getMeterInfo().getSerialNumber();
@@ -278,7 +277,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      *
      * @return the serialNumber of the meter
      */
-    public String getSerialNumber() {
+    public String getConfiguredSerialNumber() {
         return getProperties().getSerialNumber();
     }
 

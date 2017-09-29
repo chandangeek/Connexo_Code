@@ -172,7 +172,7 @@ public class MeterTopology implements MasterMeter {
             throw DeviceConfigurationException.missingProperty("SerialNumber");
         }
 
-        if (serialNumber.equals(this.protocol.getSerialNumber())) {
+        if (serialNumber.equals(this.protocol.getConfiguredSerialNumber())) {
             return this.protocol.getPhysicalAddress();
         }
 
@@ -193,7 +193,7 @@ public class MeterTopology implements MasterMeter {
     public String getSerialNumber(final ObisCode obisCode) {
         int bField = obisCode.getB();
         if (bField == this.protocol.getPhysicalAddress() || bField == 128) {    // 128 is the notation of the CapturedObjects in mW for Electricity ...
-            return this.protocol.getSerialNumber();
+            return this.protocol.getConfiguredSerialNumber();
         }
 
         for (DeviceMapping dm : this.mbusMap) {

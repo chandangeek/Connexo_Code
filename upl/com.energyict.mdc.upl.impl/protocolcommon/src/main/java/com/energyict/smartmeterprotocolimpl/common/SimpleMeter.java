@@ -34,7 +34,7 @@ public interface SimpleMeter {
      *
      * @return the serialNumber of the meter
      */
-    String getSerialNumber();
+    String getConfiguredSerialNumber();
 
     /**
      * Get the physical address of the Meter. Mostly this will be an index of the meterList 

@@ -1,13 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.LoadProfileConfiguration;
@@ -19,7 +20,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -42,7 +42,7 @@ import java.util.List;
  * Date: 14-jul-2011
  * Time: 11:20:34
  */
-public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, SerialNumberSupport {
+public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol {
 
     public static final int ObisCodeBFieldIndex = 1;
 
@@ -213,7 +213,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     }
 
     @Override
-    public String getSerialNumber() {
+    public String getConfiguredSerialNumber() {
         return getProperties().getSerialNumber();
     }
 

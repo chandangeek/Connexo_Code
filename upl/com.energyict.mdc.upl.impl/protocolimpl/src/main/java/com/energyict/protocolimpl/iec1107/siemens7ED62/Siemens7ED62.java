@@ -14,11 +14,11 @@ KV|06092005|VDEW changed to do channel mapping!
 
 package com.energyict.protocolimpl.iec1107.siemens7ED62;
 
+import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.utils.ProtocolUtils;

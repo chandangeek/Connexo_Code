@@ -25,7 +25,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.CachedMeterTime;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -52,7 +51,7 @@ import java.util.List;
  * Time: 14:15:14
  */
 @Deprecated //Use the V2 protocol instead: com.energyict.protocolimplv2.eict.webrtuz3.WebRTUZ3
-public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, SerialNumberSupport {
+public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol {
 
     /**
      * Contains properties related to the WebRTUZ3 protocol
@@ -243,7 +242,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
                 eventProfile = new EMeterEventProfile(sm, getDlmsSession());
                 meterEvents.addAll(eventProfile.getEvents(lastLogbookDate));
             } catch (IOException e) {
-                getLogger().info("Could not read the events from meter " + sm.getSerialNumber());
+                getLogger().info("Could not read the events from meter " + sm.getConfiguredSerialNumber());
             }
         }
 
@@ -268,7 +267,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
     }
 
     @Override
-    public String getSerialNumber() {
+    public String getConfiguredSerialNumber() {
         return getProperties().getSerialNumber();
     }
 
@@ -371,7 +370,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
 
     public SlaveMeter getSlaveMeterForSerial(String serialNumber){
         for (SlaveMeter slaveMeter : slaveMeters) {
-            if(slaveMeter.getSerialNumber().equalsIgnoreCase(serialNumber)){
+            if(slaveMeter.getConfiguredSerialNumber().equalsIgnoreCase(serialNumber)){
                 return slaveMeter;
             }
         }

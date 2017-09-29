@@ -17,6 +17,7 @@ entries occur twice or more they need an SL flag.
 
 package com.energyict.protocolimpl.iec1107.abba230;
 
+import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.cache.CachingProtocol;
@@ -55,7 +56,6 @@ import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;

@@ -1,8 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.Clock;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
@@ -11,6 +8,10 @@ import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.Clock;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -37,7 +38,7 @@ public class XemexMessageExecutor extends Dsmr40MessageExecutor {
 
     @Override
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
-        if (!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
+        if (!this.protocol.getConfiguredSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
             Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(protocol);
             return mbusMessageExecutor.executeMessageEntry(msgEntry);
         } else {

@@ -188,7 +188,7 @@ public class ZigbeeGasLoadProfile {
                             statusMask = (int) Math.pow( 2, index);
                         }   else if (loadProfileContains(lpr, obisCode)) {
                             channelMask += (int) Math.pow( 2, index);
-                            Register reg = new Register(-1, obisCode, this.zigbeeGas.getSerialNumber());
+                            Register reg = new Register(-1, obisCode, this.zigbeeGas.getConfiguredSerialNumber());
                             if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode())) {// this way we don't get duplicate registerRequests in one getWithList
                                 channelRegisters.add(reg);
                             }
