@@ -5,9 +5,7 @@
 Ext.define('Dal.view.EventsAlarmDetailsForm', {
     extend: 'Ext.form.Panel',
     requires: [
-        'Mdc.privileges.Device',
-        'Mdc.privileges.DeviceType',
-        'Dal.view.LogGrid',
+        'Dal.view.LogGrid'
     ],
     alias: 'widget.events-alarm-details-form',
     router: null,
