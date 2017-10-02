@@ -140,11 +140,44 @@ public class KeypairWrapperResource {
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
 
+    @POST // This should be PUT but has to be POST due to some 3th party issue
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.TEXT_PLAIN)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    @Path("/{id}/keypair")
+    @Transactional
+    public Response importKeypairIntoExistingWrapper(
+            @PathParam("id") long keypairWrapperId,
+            @FormDataParam("file") InputStream keypairInputStream,
+            @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
+            @FormDataParam("version") long version) {
+        if (contentDispositionHeader==null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "file");
+        }
+        if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
+            throw new LocalizedFieldValidationException(MessageSeeds.IMPORTFILE_TOO_BIG, "file");
+        }
+        KeypairWrapper keypairWrapper = pkiService.findAndLockKeypairWrapper(keypairWrapperId, version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_KEYPAIR));
+        try {
+            doImportKeypairForKeypairWrapper(keypairInputStream, keypairWrapper);
+        } catch (IOException e) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_PUBLIC_KEY, "file");
+        }
+        return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
+    }
+
     private void doImportPublicKeyForKeypairWrapper(InputStream publicKeyInputStream, KeypairWrapper keypairWrapper) throws
             IOException {
         byte[] key = ByteStreams.toByteArray(publicKeyInputStream);
         keypairWrapper.setPublicKey(key);
         keypairWrapper.save();
+    }
+
+
+    private void doImportKeypairForKeypairWrapper(InputStream publicKeyInputStream, KeypairWrapper keypairWrapper) throws
+            IOException {
+        // TODO
     }
 
 
