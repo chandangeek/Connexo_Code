@@ -63,6 +63,22 @@ public enum ProtocolKeyTypes {
             return pkiService.newPassphraseType(getName()).length(20).withLowerCaseCharacters().withUpperCaseCharacters().description("Generic password").add();
         }
     },
+    RSA {
+        @Override
+        public String getName() {
+            return "RSA 1024";
+        }
+
+        @Override
+        public KeyType createKeyType(PkiService pkiService) {
+            return pkiService
+                    .newClientCertificateType(getName(), "SHA256withRSA")
+                    .description("Client certificates with RSA 1024 bit keys. This certificate will be linked to a private key.")
+                    .RSA()
+                    .keySize(1024)
+                    .add();
+        }
+    },
     TLS_CLIENT_SUITE_1 {
         @Override
         public String getName() {
