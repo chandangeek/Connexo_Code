@@ -15,6 +15,7 @@ Ext.define('Mdc.privileges.UsagePoint', {
     admin: ['privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
     insightView: ['privilege.administer.anyUsagePoint', 'privilege.view.anyUsagePoint', 'privilege.administer.ownUsagePoint', 'privilege.view.ownUsagePoint'],
     insightAdmin: ['privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
+    viewUsagePoint: ['privilege.view.anyUsagePoint', 'privilege.view.ownUsagePoint', 'privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
     all: function () {
         return !Uni.util.CheckAppStatus.insightAppIsActive() && Uni.Auth.checkPrivileges(Ext.Array.merge(Mdc.privileges.UsagePoint.view, Mdc.privileges.UsagePoint.admin));
     },
@@ -34,5 +35,9 @@ Ext.define('Mdc.privileges.UsagePoint', {
             }
         });
         return result;
+    },
+
+    canViewUsagePoint: function () {
+        return Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.viewUsagePoint);
     }
 });
