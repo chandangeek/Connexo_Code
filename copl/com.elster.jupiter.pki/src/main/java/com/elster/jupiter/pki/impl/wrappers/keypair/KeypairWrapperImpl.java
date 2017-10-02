@@ -24,6 +24,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -31,6 +32,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -179,12 +181,18 @@ public class KeypairWrapperImpl implements KeypairWrapper {
     @Override
     public void setProperties(Map<String, Object> properties) {
         EnumSet.allOf(Properties.class).forEach(p -> p.copyFromMap(properties, this));
+        if (this.hasPrivateKey()) {
+            ((PrivateKeyWrapper)this.privateKeyReference.get()).setProperties(properties);
+        }
     }
 
     @Override
     public Map<String, Object> getProperties() {
         Map<String, Object> properties = new HashMap<>();
         EnumSet.allOf(Properties.class).forEach(p -> p.copyToMap(properties, this));
+        if (this.hasPrivateKey()) {
+            properties.putAll(((PrivateKeyWrapper)this.privateKeyReference.get()).getProperties());
+        }
         return properties;
     }
 
@@ -195,8 +203,14 @@ public class KeypairWrapperImpl implements KeypairWrapper {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return EnumSet.allOf(Properties.class)
-                .stream().map(properties -> properties.asPropertySpec(propertySpecService, thesaurus)).collect(toList());
+        List<PropertySpec> collect = EnumSet.allOf(Properties.class)
+                .stream()
+                .map(properties -> properties.asPropertySpec(propertySpecService, thesaurus))
+                .collect(toList());
+        if (this.hasPrivateKey()) {
+            collect.addAll(((PrivateKeyWrapper)this.privateKeyReference.get()).getPropertySpecs());
+        }
+        return collect;
     }
 
     public enum Properties {
@@ -217,6 +231,28 @@ public class KeypairWrapperImpl implements KeypairWrapper {
             @Override
             void copyToMap(Map<String, Object> properties, KeypairWrapperImpl certificateWrapper) {
                 properties.put(getPropertyName(), certificateWrapper.getAlias());
+            }
+        },
+        PUBLIC_KEY("publicKey") {
+            public PropertySpec asPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+                return propertySpecService.stringSpec()
+                        .named(getPropertyName(), TranslationKeys.PUBLIC_KEY).fromThesaurus(thesaurus)
+                        .finish();
+            }
+
+            @Override
+            void copyFromMap(Map<String, Object> properties, KeypairWrapperImpl certificateWrapper) {
+                if (properties.containsKey(getPropertyName())) {
+                    certificateWrapper.setPublicKey(Base64.getDecoder().decode((String) properties.get(getPropertyName())));
+                }
+            }
+
+            @Override
+            void copyToMap(Map<String, Object> properties, KeypairWrapperImpl certificateWrapper) {
+                Object publicKeyAsString = certificateWrapper.getPublicKey().isPresent() ?
+                        Base64.getEncoder().encode(certificateWrapper.getPublicKey().get().getEncoded()) :
+                        "";
+                properties.put(getPropertyName(), publicKeyAsString);
             }
         },
         ;
@@ -243,7 +279,13 @@ public class KeypairWrapperImpl implements KeypairWrapper {
 
     @Override
     public boolean hasPrivateKey() {
-        return this.privateKeyReference!=null && this.privateKeyReference.isPresent();
+//        try {
+            return this.privateKeyReference!=null
+                    && this.privateKeyReference.isPresent();
+//                    && ((PrivateKeyWrapper)this.privateKeyReference.get()).getPrivateKey()!=null;
+//        } catch (InvalidKeyException e) {
+//            return false;
+//        }
     }
 
     @Override

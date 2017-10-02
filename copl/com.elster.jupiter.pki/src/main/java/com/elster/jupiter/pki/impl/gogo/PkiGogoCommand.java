@@ -12,9 +12,13 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.gogo.MysqlPrint;
 
+import com.google.common.io.ByteStreams;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -29,7 +33,9 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=deleteCertificate",
                 "osgi.command.function=keypairs",
                 "osgi.command.function=deleteKeypair",
-                "osgi.command.function=generateKeypair"
+                "osgi.command.function=generateKeypair",
+                "osgi.command.function=importPublicKey",
+
         },
         immediate = true)
 public class PkiGogoCommand {
@@ -130,6 +136,28 @@ public class PkiGogoCommand {
                     .orElseThrow(() -> new IllegalArgumentException("No keypair with id " + keyPairId))
                     .delete();
             context.commit();
+        }
+    }
+
+    public void importPublicKey() {
+        System.out.println("usage: importPublicKey <alias> <keyTypeId> <file>");
+    }
+
+    public void importPublicKey(String alias, Long keyTypeId, String file) {
+        threadPrincipalService.set(() -> "Console");
+        KeyType keyType = pkiService.getKeyType(keyTypeId)
+                .orElseThrow(() -> new IllegalArgumentException("No key type with id " + keyTypeId));
+        try (TransactionContext context = transactionService.getContext()) {
+            KeypairWrapper keypairWrapper = pkiService.newKeypairWrapper(alias, keyType, "DataVault");
+            FileInputStream fileInputStream = new FileInputStream(file);
+            byte[] bytes = ByteStreams.toByteArray(fileInputStream);
+            keypairWrapper.setPublicKey(bytes);
+            keypairWrapper.save();
+            context.commit();
+        } catch (FileNotFoundException e) {
+            throw new IllegalArgumentException("No such file: "+file);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Error reading file: "+file+" : "+e);
         }
     }
 
