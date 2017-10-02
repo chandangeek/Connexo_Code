@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.search;
 
+import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.search.impl.MessageSeeds;
 
@@ -70,7 +71,7 @@ public enum SearchablePropertyOperator {
         }
     },
     /**
-     * The operator greater is equal to
+     * The operator is equal to
      */
     EQUAL("==") {
         @Override
@@ -83,9 +84,11 @@ public enum SearchablePropertyOperator {
             } else if (Instant.class.isAssignableFrom(valueType)) {
                 Instant lowerBound = roundToMinutes((Instant) value);
                 criterionBuilder.isBetween(lowerBound, lowerBound.plus(1, ChronoUnit.MINUTES));
-            } else if (Date.class.isAssignableFrom(valueType)){
+            } else if (Date.class.isAssignableFrom(valueType)) {
                 Instant lowerBound = roundToMinutes(((Date) value).toInstant());
                 criterionBuilder.isBetween(Date.from(lowerBound), Date.from(lowerBound.plus(1, ChronoUnit.MINUTES)));
+            } else if (Expiration.class.isAssignableFrom(valueType)) {
+                criterionBuilder.isEqualTo((Expiration) value);
             } else {
                 criterionBuilder.isEqualTo(value);
             }
