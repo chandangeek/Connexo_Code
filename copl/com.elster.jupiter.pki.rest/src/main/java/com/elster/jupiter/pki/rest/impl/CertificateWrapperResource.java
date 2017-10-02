@@ -88,10 +88,11 @@ public class CertificateWrapperResource {
             @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
             @FormDataParam("alias") String alias) {
         if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
-            throw new LocalizedFieldValidationException(MessageSeeds.CERTIFICATE_TOO_BIG, "file");
+            throw new LocalizedFieldValidationException(MessageSeeds.IMPORTFILE_TOO_BIG, "file");
         }
         CertificateWrapper certificateWrapper = pkiService.newCertificateWrapper(alias);
-        return doImportCertificateForCertificateWrapper(certificateInputStream, certificateWrapper);
+        doImportCertificateForCertificateWrapper(certificateInputStream, certificateWrapper);
+        return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
 
     @GET
@@ -133,11 +134,12 @@ public class CertificateWrapperResource {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "file");
         }
         if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
-            throw new LocalizedFieldValidationException(MessageSeeds.CERTIFICATE_TOO_BIG, "file");
+            throw new LocalizedFieldValidationException(MessageSeeds.IMPORTFILE_TOO_BIG, "file");
         }
         CertificateWrapper certificateWrapper = pkiService.findAndLockCertificateWrapper(certificateWrapperId, version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
-        return doImportCertificateForCertificateWrapper(certificateInputStream, certificateWrapper);
+        doImportCertificateForCertificateWrapper(certificateInputStream, certificateWrapper);
+        return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
 
     @POST // This should be PUT but has to be POST due to some 3th party issue
@@ -237,7 +239,7 @@ public class CertificateWrapperResource {
         }
     }
 
-    private Response doImportCertificateForCertificateWrapper(InputStream certificateInputStream, CertificateWrapper certificateWrapper) {
+    private void doImportCertificateForCertificateWrapper(InputStream certificateInputStream, CertificateWrapper certificateWrapper) {
         try {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
             X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(certificateInputStream);
@@ -246,7 +248,6 @@ public class CertificateWrapperResource {
             }
             certificateWrapper.setCertificate(certificate);
             certificateWrapper.save();
-            return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
         } catch (CertificateException e) {
             throw exceptionFactory.newException(MessageSeeds.COULD_NOT_CREATE_CERTIFICATE, e);
         } catch (NoSuchProviderException e) {

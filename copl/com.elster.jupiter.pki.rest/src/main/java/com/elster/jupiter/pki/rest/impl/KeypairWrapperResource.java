@@ -11,6 +11,10 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Checks;
 
+import com.google.common.io.ByteStreams;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -25,6 +29,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.PublicKey;
 import java.util.List;
 
@@ -35,6 +41,8 @@ import static java.util.stream.Collectors.toList;
  */
 @Path("/keypairs")
 public class KeypairWrapperResource {
+
+    private static final long MAX_FILE_SIZE = 2048;
 
     private final PkiService pkiService;
     private final KeypairInfoFactory keypairInfoFactory;
@@ -103,6 +111,40 @@ public class KeypairWrapperResource {
         KeypairWrapper keypairWrapper = pkiService.newKeypairWrapper(keypairWrapperInfo.alias, keyType, keypairWrapperInfo.keyEncryptionMethod);
         keypairWrapper.generateValue();
         return keypairInfoFactory.asInfo(keypairWrapper);
+    }
+
+    @POST // This should be PUT but has to be POST due to some 3th party issue
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.TEXT_PLAIN)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    @Path("/{id}/publickey")
+    @Transactional
+    public Response importPublicKeyIntoExistingWrapper(
+            @PathParam("id") long keypairWrapperId,
+            @FormDataParam("file") InputStream publicKeyInputStream,
+            @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
+            @FormDataParam("version") long version) {
+        if (contentDispositionHeader==null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "file");
+        }
+        if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
+            throw new LocalizedFieldValidationException(MessageSeeds.IMPORTFILE_TOO_BIG, "file");
+        }
+        KeypairWrapper keypairWrapper = pkiService.findAndLockKeypairWrapper(keypairWrapperId, version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_KEYPAIR));
+        try {
+            doImportPublicKeyForKeypairWrapper(publicKeyInputStream, keypairWrapper);
+        } catch (IOException e) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_PUBLIC_KEY, "file");
+        }
+        return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
+    }
+
+    private void doImportPublicKeyForKeypairWrapper(InputStream publicKeyInputStream, KeypairWrapper keypairWrapper) throws
+            IOException {
+        byte[] key = ByteStreams.toByteArray(publicKeyInputStream);
+        keypairWrapper.setPublicKey(key);
+        keypairWrapper.save();
     }
 
 
