@@ -18,8 +18,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
         'Isu.view.component.WorkgroupColumn',
         'Isu.privileges.Issue',
         'Uni.grid.plugin.ShowConditionalToolTip',
-        'Mdc.view.setup.devicehistory.IssueAlarmActionMenu',
-        'Dal.view.ActionMenu'
+        'Mdc.view.setup.devicehistory.IssueAlarmActionMenu'
     ],
     plugins: [{
         ptype: 'showConditionalToolTip',

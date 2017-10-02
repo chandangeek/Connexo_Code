@@ -4,7 +4,6 @@
 Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
     extend: 'Isu.view.issues.ActionMenu',
     requires: [
-        'Dal.view.ActionMenu',
         'Isu.privileges.Issue',
         'Isu.privileges.Device'
     ],
