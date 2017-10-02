@@ -16,7 +16,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = {UniqueCertificateAliasValidator.class})
+@Constraint(validatedBy = {UniqueCertificateAliasValidator.class, UniqueKeypairAliasValidator.class})
 public @interface UniqueAlias {
 
     String message() default "";

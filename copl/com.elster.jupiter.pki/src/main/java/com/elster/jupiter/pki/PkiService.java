@@ -257,6 +257,14 @@ public interface PkiService {
     Finder<KeypairWrapper> findAllKeypairs();
 
     /**
+     * Returns the KeypairWrapper identified by the provided id if the {@link KeypairWrapper} has the correct version
+     * @param id The Keypair's id
+     * @param version The object's required version
+     * @return The {@link KeypairWrapper}, empty if not found.
+     */
+    Optional<KeypairWrapper> findAndLockKeypairWrapper(long id, long version);
+
+    /**
      * List all known aliases from the certificate store that match the search filter.
      * @see {https://confluence.eict.vpdc/pages/viewpage.action?spaceKey=JDG&title=Filter}
      * @see {https://confluence.eict.vpdc/pages/viewpage.action?spaceKey=JDG&title=Forms+and+form+elements}

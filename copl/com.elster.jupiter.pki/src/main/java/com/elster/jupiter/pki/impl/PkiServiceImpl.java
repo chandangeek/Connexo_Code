@@ -486,6 +486,11 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
+    public Optional<KeypairWrapper> findAndLockKeypairWrapper(long id, long version) {
+        return getDataModel().mapper(KeypairWrapper.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Finder<CertificateWrapper> getAliasesByFilter(AliasSearchFilter searchFilter) {
         Condition searchCondition;
         if (searchFilter.trustStore ==null) {

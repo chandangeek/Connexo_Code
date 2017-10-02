@@ -57,8 +57,16 @@ public interface KeypairWrapper extends HasDynamicPropertiesWithUpdatableValues,
     KeyType getKeyType();
 
     /**
+     * Attempts to convert the bytes to public key of the correct type and sets the public key.
+     * This method overwrites an existing public key.
+     * If a private key is present, the public key is matched with the private key
+     * @param key the key, which is assumed to be encoded according to the X.509 standard.
+     */
+    void setPublicKey(byte[] key);
+
+    /**
      * Sets the public key value for this keypair. This method overwrites an existing public key.
-     * If a private key is present,
+     * If a private key is present, the public key is matched with the private key
      * @param publicKey
      */
     void setPublicKey(PublicKey publicKey);

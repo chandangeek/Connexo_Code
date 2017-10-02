@@ -22,6 +22,7 @@ import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
+import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -83,6 +84,7 @@ public class KeypairWrapperImpl implements KeypairWrapper {
     @SuppressWarnings("unused")
     private Instant modTime;
 
+    @Inject
     public KeypairWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
@@ -125,10 +127,14 @@ public class KeypairWrapperImpl implements KeypairWrapper {
         if (this.publicKey == null || this.publicKey.length==0) {
             return Optional.empty();
         }
+        return Optional.ofNullable(getPublicKeyFromBytes(publicKey));
+    }
+
+    private PublicKey getPublicKeyFromBytes(byte[] publicKey) {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(getKeyType().getKeyAlgorithm());
             KeySpec keySpec = new X509EncodedKeySpec(publicKey);
-            return Optional.of(keyFactory.generatePublic(keySpec));
+            return keyFactory.generatePublic(keySpec);
         } catch (NoSuchAlgorithmException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ALGORITHM_NOT_SUPPORTED, e);
         } catch (InvalidKeySpecException e) {
@@ -136,6 +142,15 @@ public class KeypairWrapperImpl implements KeypairWrapper {
         }
     }
 
+    @Override
+    public void setPublicKey(byte[] key) {
+        if (key == null || key.length==0) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_KEY);
+        }
+        setPublicKey(getPublicKeyFromBytes(key));
+    }
+
+    @Override
     public void setPublicKey(PublicKey publicKey) {
         this.publicKey = publicKey.getEncoded();
         this.save();
@@ -156,9 +171,9 @@ public class KeypairWrapperImpl implements KeypairWrapper {
 
     @Override
     public void delete() {
-        this.eventService.postEvent(EventType.CERTIFICATE_VALIDATE_DELETE.topic(), this);
+//        this.eventService.postEvent(EventType.KEYPAIR_VALIDATE_DELETE.topic(), this);
         dataModel.remove(this);
-        this.eventService.postEvent(EventType.CERTIFICATE_DELETED.topic(), this);
+//        this.eventService.postEvent(EventType.KEYPAIR_DELETED.topic(), this);
     }
 
     @Override
