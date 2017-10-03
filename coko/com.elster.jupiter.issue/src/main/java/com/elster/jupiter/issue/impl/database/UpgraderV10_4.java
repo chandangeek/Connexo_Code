@@ -4,9 +4,14 @@
 
 package com.elster.jupiter.issue.impl.database;
 
+import com.elster.jupiter.issue.impl.actions.WebServiceNotificationAction;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
+import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueSnoozeHandlerFactory;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -17,6 +22,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
 import java.sql.Connection;
@@ -25,26 +31,30 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 import static com.elster.jupiter.orm.Version.version;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class UpgraderV10_4 implements Upgrader {
 
     private final DataModel dataModel;
     private final IssueService issueService;
+    private final IssueActionService issueActionService;
     private final MessageService messageService;
 
     private final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     @Inject
-    UpgraderV10_4(DataModel dataModel, IssueService issueService, MessageService messageService) {
+    UpgraderV10_4(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, MessageService messageService) {
         this.dataModel = dataModel;
         this.issueService = issueService;
+        this.issueActionService = issueActionService;
         this.messageService = messageService;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, version(10, 4));
-        this.createNewStatuses();
+        this.createStatusesIfNotPresent();
+        this.createActionTypesIfNotPresent();
         this.upgradeOpenIssue();
         this.upgradeSubscriberSpecs();
     }
@@ -70,9 +80,14 @@ public class UpgraderV10_4 implements Upgrader {
     }
 
 
-    private void createNewStatuses() {
-        issueService.createStatus(IssueStatus.SNOOZED, false, TranslationKeys.ISSUE_STATUS_SNOOZED);
-        issueService.createStatus(IssueStatus.FORWARDED, true, TranslationKeys.ISSUE_STATUS_FORWARDED);
+    private void createStatusesIfNotPresent() {
+        if (!issueService.findStatus(IssueStatus.SNOOZED).isPresent()) {
+            issueService.createStatus(IssueStatus.SNOOZED, false, TranslationKeys.ISSUE_STATUS_SNOOZED);
+        }
+        if (!issueService.findStatus(IssueStatus.FORWARDED).isPresent()) {
+            issueService.createStatus(IssueStatus.FORWARDED, true, TranslationKeys.ISSUE_STATUS_FORWARDED);
+        }
+
     }
 
     private void upgradeSubscriberSpecs() {
@@ -96,6 +111,23 @@ public class UpgraderV10_4 implements Upgrader {
                 destinationSpecOptional.get().subscribe(subscriberKey, IssueService.COMPONENT_NAME, Layer.DOMAIN);
             }
         }
+    }
+
+    private void createActionTypesIfNotPresent() {
+        IssueType type = null;
+        Condition classNameCondition = buildCondition("className", Optional.of(WebServiceNotificationAction.class.getName()));
+        Condition factoryCondition = buildCondition("factoryId", Optional.of(IssueDefaultActionsFactory.ID));
+        if (issueActionService.getActionTypeQuery().select(classNameCondition.and(factoryCondition)).isEmpty()) {
+            issueActionService.createActionType(IssueDefaultActionsFactory.ID, WebServiceNotificationAction.class.getName(), type, CreationRuleActionPhase.CREATE);
+        }
+    }
+
+    private Condition buildCondition(String field, Optional<?> value) {
+        Condition condition = where(field).isNull();
+        if (value.isPresent()) {
+            condition = condition.or(where(field).isEqualTo(value.get()));
+        }
+        return condition;
     }
 
 }
