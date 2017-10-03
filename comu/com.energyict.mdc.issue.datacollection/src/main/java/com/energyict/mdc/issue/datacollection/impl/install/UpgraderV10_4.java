@@ -47,7 +47,7 @@ public class UpgraderV10_4 implements Upgrader {
 
     private void createNewReason() {
         IssueType issueType = issueService.findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE)
-                .orElse(issueService.createIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE, TranslationKeys.ISSUE_TYPE_DATA_COLLECTION, IssueDataCollectionService.DATA_COLLECTION_ISSUE_PREFIX));
+                .orElseGet(() -> issueService.createIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE, TranslationKeys.ISSUE_TYPE_DATA_COLLECTION, IssueDataCollectionService.DATA_COLLECTION_ISSUE_PREFIX));
         issueService.createReason(ModuleConstants.REASON_UNREGISTERED_DEVICE, issueType, TranslationKeys.ISSUE_REASON_UNREGISTERED_DEVICE, TranslationKeys.ISSUE_REASON_DESCRIPTION_UNREGISTERED_DEVICE);
     }
 
@@ -56,6 +56,7 @@ public class UpgraderV10_4 implements Upgrader {
         try {
             if (destinationSpec.isActive()) {
                 destinationSpec.unSubscribe(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC);
+                destinationSpec.unSubscribe(ModuleConstants.AQ_DELAYED_ISSUE_SUBSC);
             }
             destinationSpec.subscribe(
                     TranslationKeys.AQ_DATA_COLLECTION_EVENT_SUBSC,
