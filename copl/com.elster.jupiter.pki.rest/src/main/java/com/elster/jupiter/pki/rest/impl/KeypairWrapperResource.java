@@ -177,7 +177,7 @@ public class KeypairWrapperResource {
 
     private void doImportKeypairForKeypairWrapper(InputStream publicKeyInputStream, KeypairWrapper keypairWrapper) throws
             IOException {
-        // TODO
+        // TODO, we would need the real properties here
     }
 
 
