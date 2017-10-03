@@ -76,15 +76,19 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
                 confirmation: function () {
                     me.retriggerCommTasks();
                 }
-            });
+            }),
+            deviceSummaryStore = this.getStore('Mdc.networkvisualiser.store.DeviceSummary');
 
-        confirmationWindow.insert(1, me.getRetriggerContent());
-        confirmationWindow.show({
-            title: Uni.I18n.translate('general.retriggerCommTasksWindow.title', 'MDC', 'Retrigger communication tasks?')
+        deviceSummaryStore.getProxy().setUrl(encodeURIComponent(deviceName));
+        deviceSummaryStore.load(function(records) {
+            confirmationWindow.insert(1, me.getRetriggerContent(records[0].getData().failedComTasks));
+            confirmationWindow.show({
+                title: Uni.I18n.translate('general.retriggerCommTasksWindow.title', 'MDC', 'Retrigger communication tasks?')
+            });
         });
     },
 
-    getRetriggerContent: function() {
+    getRetriggerContent: function(failedComTasks) {
         var communicationTasksOfDeviceStore = Ext.getStore('Mdc.store.CommunicationTasksOfDevice'),
             // The loading of this store already happened in NetworkVisualiserView.preprocessMenuItemsBeforeShowing()
             container = Ext.create('Ext.container.Container', {
@@ -114,6 +118,7 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
                     xtype: 'checkbox',
                     itemId: 'mdc-retriggerCommTaskWindow-checkbox-' + comTask.get('comTask').id,
                     boxLabel: comTask.get('comTask').name,
+                    checked: Ext.Array.contains(failedComTasks, comTask.get('comTask').name),
                     taskId: comTask.get('comTask').id
                 });
             }
