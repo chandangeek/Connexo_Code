@@ -15,7 +15,6 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -31,15 +30,14 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+import com.energyict.mdc.upl.TypedProperties;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -47,9 +45,15 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -69,11 +73,13 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
     private Device device;
     private DeviceConfiguration deviceConfiguration;
     private PartialScheduledConnectionTask partialConnectionTask;
+    private ConnectionFunction connectionFunction;
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        connectionFunction = mockConnectionFunction(1, "CF_1", "CF 1");
         device = mock(Device.class);
         when(device.getName()).thenReturn("ZABF0000000");
         when(device.getVersion()).thenReturn(1L);
@@ -112,6 +118,40 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<List>get("$.connectionMethods[0].properties")).isEmpty();
         assertThat(jsonModel.<String>get("$.connectionMethods[0].protocolDialect")).isEqualTo("Protocol Dialect Name");
         assertThat(jsonModel.<String>get("$.connectionMethods[0].protocolDialectDisplayName")).isEqualTo("Protocol Dialect DisplayName");
+        assertThat(jsonModel.<Integer>get("$.connectionMethods[0].connectionFunctionInfo.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.connectionMethods[0].connectionFunctionInfo.localizedValue")).isEqualTo("CF 1");
+    }
+
+    @Test
+    public void testGetAllConnectionsForFullTopology() {
+        doReturn(Arrays.asList(connectionTask, mockConnectionTask(123L), mockConnectionTask(421L))).when(topologyService).findAllConnectionTasksForTopology(device);
+
+        String response = target("/devices/ZABF0000000/connectionmethods").queryParam("fullTopology", true).request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(3);
+        assertThat(jsonModel.<List<?>>get("$.connectionMethods")).hasSize(3);
+        Integer connectionTaskId1 = jsonModel.<Integer>get("$.connectionMethods[0].id");
+        Integer connectionTaskId2 = jsonModel.<Integer>get("$.connectionMethods[1].id");
+        Integer connectionTaskId3 = jsonModel.<Integer>get("$.connectionMethods[2].id");
+        assertThat(connectionTaskId1).isNotEqualTo(connectionTaskId2);
+        assertThat(connectionTaskId1).isNotEqualTo(connectionTaskId3);
+        assertThat(connectionTaskId2).isNotEqualTo(connectionTaskId3);
+        assertThat(connectionTaskId1).isIn(9, 123, 421);
+        assertThat(connectionTaskId2).isIn(9, 123, 421);
+        assertThat(connectionTaskId3).isIn(9, 123, 421);
+    }
+
+    @Test
+    public void testGetAllConnectionsForDeviceOnly() {
+        doReturn(Arrays.asList(connectionTask, mockConnectionTask(123L), mockConnectionTask(421L))).when(topologyService).findAllConnectionTasksForTopology(device);
+
+        String response = target("/devices/ZABF0000000/connectionmethods").queryParam("fullTopology", favoritesService).request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List<?>>get("$.connectionMethods")).hasSize(1);
+        assertThat(jsonModel.<Integer>get("$.connectionMethods[0].id")).isEqualTo(9);
     }
 
     @Test
@@ -355,6 +395,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         TypedProperties typedProperties = TypedProperties.empty();
         when(connectionTask.getTypedProperties()).thenReturn(typedProperties);
+        when(connectionTask.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
         return connectionTask;
     }
 
@@ -382,6 +423,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
         when(partialConnectionTask.getName()).thenReturn("partial connection task name");
         when(partialConnectionTask.getId()).thenReturn(991L);
+        when(partialConnectionTask.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
         doReturn(mockPluggableClass()).when(partialConnectionTask).getPluggableClass();
         return partialConnectionTask;
     }
@@ -414,5 +456,24 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(properties.getName()).thenReturn("Protocol Dialect Name");
         when(properties.getDeviceProtocolDialect()).thenReturn(protocolDialect);
         return properties;
+    }
+
+    private ConnectionFunction mockConnectionFunction(int id, String name, String displayName) {
+        return new ConnectionFunction() {
+            @Override
+            public long getId() {
+                return id;
+            }
+
+            @Override
+            public String getConnectionFunctionName() {
+                return name;
+            }
+
+            @Override
+            public String getConnectionFunctionDisplayName() {
+                return displayName;
+            }
+        };
     }
 }

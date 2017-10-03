@@ -72,6 +72,7 @@ public class DeviceInfo extends DeviceVersionInfo {
     public List<DataLoggerSlaveDeviceInfo> dataLoggerSlaveDevices;
     public Boolean hasValidationRules;
     public Boolean hasEstimationRules;
+    public boolean protocolNeedsImageIdentifierForFirmwareUpgrade;
 
     public DeviceInfo() {
     }
