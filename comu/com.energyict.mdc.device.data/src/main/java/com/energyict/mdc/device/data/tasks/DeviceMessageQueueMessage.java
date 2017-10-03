@@ -19,15 +19,17 @@ public class DeviceMessageQueueMessage implements QueueMessage {
     public long releaseDate;
     public String createdByUser;
     public final Map<String, String> properties = new HashMap<>();
+    public boolean trigger;
 
     public DeviceMessageQueueMessage() {
     }
 
-    public DeviceMessageQueueMessage(Long deviceId, DeviceMessageId deviceMessageId, long releaseDate, Map<String, String> properties, String user) {
+    public DeviceMessageQueueMessage(Long deviceId, DeviceMessageId deviceMessageId, long releaseDate, Map<String, String> properties, String user, boolean trigger) {
         this.deviceId = deviceId;
         this.deviceMessageId = deviceMessageId;
         this.releaseDate = releaseDate;
         this.createdByUser = user;
         this.properties.putAll(properties);
+        this.trigger = trigger;
     }
 }

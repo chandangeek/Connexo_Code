@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
@@ -112,6 +113,14 @@ public interface ConnectionTaskService {
     Optional<ConnectionTask> findDefaultConnectionTaskForDevice(Device device);
 
     /**
+     * Finds the {@link ConnectionTask} with the specified {@link ConnectionFunction} for the specified Device.
+     *
+     * @param device The Device for which we need to search the ConnectionTask
+     * @return The ConnectionTask with the specified ConnectionFunction for the given Device if one exists
+     */
+    Optional<ConnectionTask> findConnectionTaskByDeviceAndConnectionFunction(Device device, ConnectionFunction connectionFunction);
+
+    /**
      * Finds all the {@link ConnectionTask}s with the specified {@link TaskStatus}.
      *
      * @param status The TaskStatus
@@ -157,6 +166,24 @@ public interface ConnectionTaskService {
      * @param device The Device
      */
     void clearDefaultConnectionTask(Device device);
+
+    /**
+     * Sets the specified {@link ConnectionTask} as the one having a certain {@link ConnectionFunction}
+     * for the Device against which the ConnectionTask was created. If present, the old ConnectionFunction
+     * is first cleared.
+     *
+     * @param connectionTask The ConnectionTask that will become the one having a certain {@link ConnectionFunction}
+     * @param oldConnectionFunction An optional containing the old ConnectionFunction (which should be cleared first), or else an empty optional.
+     */
+    void setConnectionTaskHavingConnectionFunction(ConnectionTask<?, ?> connectionTask, Optional<ConnectionFunction> oldConnectionFunction);
+
+    /**
+     * Clears the {@link ConnectionFunction} for the specified Device.
+     *
+     * @param connectionTask the ConnectionTask
+     * @param oldConnectionFunction An optional containing the old ConnectionFunction (which should be cleared), or else an empty optional
+     */
+    void clearConnectionTaskConnectionFunction(ConnectionTask<?, ?> connectionTask, Optional<ConnectionFunction> oldConnectionFunction);
 
     /**
      * Attempts to lock the {@link ConnectionTask} that is about to be executed
@@ -225,6 +252,6 @@ public interface ConnectionTaskService {
     /**
      * Finds all ConnectionTasks locked by a specific ComServer
      */
-    public List<ConnectionTask> findLockedByComServer(ComServer comServer);
+    List<ConnectionTask> findLockedByComServer(ComServer comServer);
 
 }

@@ -48,6 +48,8 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -77,6 +79,7 @@ import java.util.TimeZone;
 @ManuallyScheduledNextExecSpecRequired(groups = {SaveScheduled.class})
 @SharedScheduleComScheduleRequired(groups = {Save.Create.class, Save.Update.class})
 @ComTaskMustBeFirmwareManagement(groups = {Save.Create.class, Save.Update.class})
+@ConsumableConnectionFunctionMustBeSupportedByTheDeviceProtocol(groups = {Save.Create.class, Save.Update.class})
 public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> implements ServerComTaskExecution {
 
 
@@ -141,6 +144,9 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private Behavior behavior;
     private ComTaskExecType comTaskExecType;
 
+    protected long connectionFunctionDbValue;
+    private Optional<ConnectionFunction> connectionFunction = Optional.empty();
+
     @Inject
     public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, CommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
         super(ComTaskExecution.class, dataModel, eventService, thesaurus);
@@ -159,8 +165,13 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
         this.executionPriority = comTaskEnablement.getPriority();
         this.plannedPriority = comTaskEnablement.getPriority();
-        this.setUseDefaultConnectionTask(comTaskEnablement.usesDefaultConnectionTask());
-        if (!comTaskEnablement.usesDefaultConnectionTask()) {
+        if (comTaskEnablement.usesDefaultConnectionTask()) {
+            this.setUseDefaultConnectionTask(comTaskEnablement.usesDefaultConnectionTask());
+        } else if (comTaskEnablement.getConnectionFunction().isPresent()) {
+            this.setConnectionFunction(comTaskEnablement.getConnectionFunction().get());
+        } else {
+            this.doSetUseDefaultConnectionTask(false);
+            this.doSetConnectionFunction(null);
             setConnectionTaskIfExists(device, comTaskEnablement);
         }
     }
@@ -276,6 +287,18 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    public Optional<ConnectionFunction> getConnectionFunction() {
+        if (!this.connectionFunction.isPresent() && this.connectionFunctionDbValue != 0) {
+            Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = getDevice().getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
+            List<ConnectionFunction> supportedConnectionFunctions = deviceProtocolPluggableClass.isPresent()
+                    ? deviceProtocolPluggableClass.get().getConsumableConnectionFunctions()
+                    : Collections.emptyList();
+            this.connectionFunction = supportedConnectionFunctions.stream().filter(cf -> cf.getId() == this.connectionFunctionDbValue).findFirst();
+        }
+        return this.connectionFunction;
+    }
+
+    @Override
     public void save() {
         throw new UnsupportedOperationException();
     }
@@ -315,12 +338,34 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.useDefaultConnectionTask = useDefaultConnectionTask;
         if (useDefaultConnectionTask) {
             this.setConnectionTask(null);
+            this.doSetConnectionFunction(null);
         }
+    }
+
+    private void doSetUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
+        this.useDefaultConnectionTask = useDefaultConnectionTask;
+    }
+
+    @Override
+    public void setConnectionFunction(ConnectionFunction connectionFunction) {
+        doSetConnectionFunction(connectionFunction);
+        this.setConnectionTask(null);
+        this.doSetUseDefaultConnectionTask(connectionFunction == null);
+    }
+
+    private void doSetConnectionFunction(ConnectionFunction connectionFunction) {
+        this.connectionFunction = Optional.ofNullable(connectionFunction);
+        this.connectionFunctionDbValue = connectionFunction != null ? connectionFunction.getId() : 0;
     }
 
     void setDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
         this.useDefaultConnectionTask = true;
         setConnectionTask(defaultConnectionTask);
+    }
+
+    private void setConnectionTaskBasedOnConnectionFunction(ConnectionTask<?, ?> connectionTask) {
+        doSetConnectionFunction(connectionTask.getPartialConnectionTask().getConnectionFunction().get());
+        setConnectionTask(connectionTask);
     }
 
     @Override
@@ -356,7 +401,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this, this.getExecutingComPort()
                     .getComServer(), this.getThesaurus(), MessageSeeds.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE);
         }
-        if (this.useDefaultConnectionTask) {
+        if (this.useDefaultConnectionTask || this.connectionFunctionDbValue != 0) {
             this.postEvent(EventType.COMTASKEXECUTION_VALIDATE_OBSOLETE);
         } else if (this.connectionTask.isPresent() && this.connectionTask.get().getExecutingComServer() != null) {
             throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this, this.connectionTask.get()
@@ -747,6 +792,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.markSuccessfullyCompleted();
         this.doReschedule(calculateNextExecutionTimestamp(clock.instant()));
         updateForScheduling(true);
+        getBehavior().comTaskCompleted();
     }
 
     @Override
@@ -776,6 +822,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             this.doExecutionFailed();
         }
         updateForScheduling(true);
+        getBehavior().comTaskFailed();
     }
 
     protected void doExecutionAttemptFailed() {
@@ -865,7 +912,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
                 ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName(),
                 ComTaskExecutionFields.COMPORT.fieldName()
         );
-        this.updateEventType();
+        getBehavior().comTaskStarted();
     }
 
     private void doExecutionStarted(ComPort comPort) {
@@ -1127,6 +1174,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
          */
         boolean isFirmware();
 
+        void comTaskStarted();
+
+        void comTaskCompleted();
+
+        void comTaskFailed();
     }
 
     private class FirmwareBehavior implements Behavior {
@@ -1163,6 +1215,21 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public boolean isFirmware() {
             return true;
+        }
+
+        @Override
+        public void comTaskStarted() {
+            postEvent(EventType.FIRMWARE_COMTASKEXECUTION_STARTED);
+        }
+
+        @Override
+        public void comTaskCompleted() {
+            postEvent(EventType.FIRMWARE_COMTASKEXECUTION_COMPLETED);
+        }
+
+        @Override
+        public void comTaskFailed() {
+            postEvent(EventType.FIRMWARE_COMTASKEXECUTION_FAILED);
         }
 
         @Override
@@ -1241,6 +1308,21 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public boolean isFirmware() {
             return false;
+        }
+
+        @Override
+        public void comTaskStarted() {
+            // no event triggered
+        }
+
+        @Override
+        public void comTaskCompleted() {
+            // no event triggered
+        }
+
+        @Override
+        public void comTaskFailed() {
+            // no event triggered
         }
 
         @Override
@@ -1335,6 +1417,21 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             return false;
         }
 
+        @Override
+        public void comTaskStarted() {
+            // no event triggered
+        }
+
+        @Override
+        public void comTaskCompleted() {
+            // no event triggered
+        }
+
+        @Override
+        public void comTaskFailed() {
+            // no event triggered
+        }
+
         public Optional<ComSchedule> getComSchedule() {
             return Optional.of(ComTaskExecutionImpl.this.comSchedule.get());
         }
@@ -1402,6 +1499,12 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public ComTaskExecutionBuilder useDefaultConnectionTask(boolean useDefaultConnectionTask) {
             this.comTaskExecution.setUseDefaultConnectionTask(useDefaultConnectionTask);
+            return this;
+        }
+
+        @Override
+        public ComTaskExecutionBuilder setConnectionFunction(ConnectionFunction connectionFunction) {
+            this.comTaskExecution.setConnectionFunction(connectionFunction);
             return this;
         }
 
@@ -1475,15 +1578,10 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public ComTaskExecutionUpdater useDefaultConnectionTask(boolean useDefaultConnectionTask) {
-            this.comTaskExecution.setUseDefaultConnectionTask(useDefaultConnectionTask);
-            return this;
-        }
-
-        @Override
         public ComTaskExecutionUpdater connectionTask(ConnectionTask<?, ?> connectionTask) {
             this.comTaskExecution.setConnectionTask(connectionTask);
-            this.comTaskExecution.setUseDefaultConnectionTask(false);
+            this.comTaskExecution.doSetUseDefaultConnectionTask(false);
+            this.comTaskExecution.doSetConnectionFunction(null);
             this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
             return this;
         }
@@ -1515,8 +1613,28 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
+        public ComTaskExecutionUpdater useDefaultConnectionTask(boolean useDefaultConnectionTask) {
+            this.comTaskExecution.setUseDefaultConnectionTask(useDefaultConnectionTask);
+            return this;
+        }
+
+        @Override
         public ComTaskExecutionUpdater useDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
             this.comTaskExecution.setDefaultConnectionTask(defaultConnectionTask);
+            this.connectionTaskSchedulingMayHaveChanged = true;
+            return this;
+        }
+
+        @Override
+        public ComTaskExecutionUpdater setConnectionFunction(ConnectionFunction connectionFunction) {
+            this.comTaskExecution.setConnectionFunction(connectionFunction);
+            this.connectionTaskSchedulingMayHaveChanged = true;
+            return this;
+        }
+
+        @Override
+        public ComTaskExecutionUpdater useConnectionTaskBasedOnConnectionFunction(ConnectionTask<?, ?> connectionTask) {
+            this.comTaskExecution.setConnectionTaskBasedOnConnectionFunction(connectionTask);
             this.connectionTaskSchedulingMayHaveChanged = true;
             return this;
         }
@@ -1579,5 +1697,4 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             return this;
         }
     }
-
 }

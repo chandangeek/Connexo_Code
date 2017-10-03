@@ -251,7 +251,7 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      * Activation can fail if:
      * <ul>
      * <li>the usagePoint is linked to another device</li>
-     * <li>the device doesn't provide all required reading types that specified in the metrology configurations of the usagePoint</li>
+     * <li>the device doesn't provide all rFired reading types that specified in the metrology configurations of the usagePoint</li>
      *</ul>
      * @param start start of the meterActivation
      * @param usagePoint the Usage Point to be linked to the device
