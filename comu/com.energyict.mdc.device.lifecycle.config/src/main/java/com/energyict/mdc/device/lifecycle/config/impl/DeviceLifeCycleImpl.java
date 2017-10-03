@@ -6,6 +6,7 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
@@ -69,6 +70,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final Clock clock;
+    private final EventService eventService;
 
     @SuppressWarnings("unused")
     private long id;
@@ -96,10 +98,11 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     private Instant modTime;
 
     @Inject
-    public DeviceLifeCycleImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock) {
+    public DeviceLifeCycleImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock, EventService eventService) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.clock = clock;
+        this.eventService = eventService;
     }
 
     public DeviceLifeCycleImpl initialize(String name, FiniteStateMachine stateMachine) {
@@ -213,6 +216,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
         try {
             this.updated.forEach(AuthorizedActionImpl::save);
             Save.action(this.id).save(this.dataModel, this);
+            eventService.postEvent(EventType.DEVICE_LIFECYCLE_UPDATE.topic(), this);
         }
         finally {
             this.updated = new ArrayList<>();
