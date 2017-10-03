@@ -94,20 +94,22 @@ public class CommunicationStatusLayerBuilder implements GraphLayerBuilder {
         Optional<OutboundComPortPool> comPortPool = engineConfigurationService.findAllComPortPools().stream().filter((cpp) -> !cpp.isInbound()).map(OutboundComPortPool.class::cast).findFirst();
         if (comPortPool.isPresent()) {
             DeviceConfiguration configuration = device.getDeviceConfiguration();
-            PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
-            deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
-                    .setComPortPool(comPortPool.get())
-                    .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                    .setNextExecutionSpecsFrom(null)
-                    .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                    .setProperty("host", "localhost")
-                    .setProperty("portNumber", new BigDecimal(4059))
-                    .setProperty("connectionTimeout", TimeDuration.minutes(1))
-                    .setNumberOfSimultaneousConnections(1)
-                    .add();
-            System.out.println(String.format("Device '%1s' (%d): set connectiontask '%2s' as default connection task", device.getName(), device.getId(), deviceConnectionTask.getName()));
-            System.out.println(String.format("ConnectionTask status: %s", deviceConnectionTask.getStatus()));
-            connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
+            if (!configuration.getPartialOutboundConnectionTasks().isEmpty()) {
+                PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
+                deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
+                        .setComPortPool(comPortPool.get())
+                        .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                        .setNextExecutionSpecsFrom(null)
+                        .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+                        .setProperty("host", "localhost")
+                        .setProperty("portNumber", new BigDecimal(4059))
+                        .setProperty("connectionTimeout", TimeDuration.minutes(1))
+                        .setNumberOfSimultaneousConnections(1)
+                        .add();
+                System.out.println(String.format("Device '%1s' (%d): set connectiontask '%2s' as default connection task", device.getName(), device.getId(), deviceConnectionTask.getName()));
+                System.out.println(String.format("ConnectionTask status: %s", deviceConnectionTask.getStatus()));
+                connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
+            }
         }
         return Optional.ofNullable(deviceConnectionTask);
     }
