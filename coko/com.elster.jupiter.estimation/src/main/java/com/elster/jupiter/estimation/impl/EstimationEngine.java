@@ -60,13 +60,13 @@ class EstimationEngine {
         if (qualityCodes.size() > 1) {
             Map<Instant, BaseReadingRecord> readings = channel.getReadings(period).stream()
                     .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
-            List<Estimatable> estimatables = channel.toList(period).stream()
+            List<Estimatable> estimableList = channel.toList(period).stream()
                     .map(instant -> Optional.ofNullable(readings.get(instant))
                             .map(BaseReadingRecordEstimatable::new)
                             .map(Estimatable.class::cast)
                             .orElseGet(() -> new MissingReadingRecordEstimatable(instant)))
                     .collect(Collectors.toList());
-            return Stream.of(SimpleEstimationBlock.of(channel, readingType, estimatables));
+            return estimableList.isEmpty() ? Stream.empty() : Stream.of(SimpleEstimationBlock.of(channel, readingType, estimableList));
         }
 
         return findBlocksBasedOnReadingQualities(system, channel, period, readingType, qualityCodes);
@@ -78,6 +78,7 @@ class EstimationEngine {
                 .map(EstimationEngine::toEstimatable)
                 .partitionWhen((est1, est2) -> !channel.getNextDateTime(est1.getTimestamp())
                         .equals(est2.getTimestamp()))
+                .filter(estimableList -> !estimableList.isEmpty())
                 .map(estimableList -> SimpleEstimationBlock.of(channel, readingType, estimableList));
     }
 
