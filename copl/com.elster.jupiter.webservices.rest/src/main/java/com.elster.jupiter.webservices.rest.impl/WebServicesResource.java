@@ -5,7 +5,6 @@
 package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
@@ -42,7 +41,7 @@ public class WebServicesResource {
         return webServicesService.getWebServices()
                 .stream()
                 .map(webServicesInfoFactory::from)
-                .sorted(Comparator.comparing(x -> x.name))
+                .sorted(Comparator.comparing(wsi -> wsi.name))
                 .collect(toList());
     }
 

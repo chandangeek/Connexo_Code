@@ -8,10 +8,13 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 
 import com.jayway.jsonpath.JsonModel;
+import net.minidev.json.JSONArray;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
+
 import java.util.Arrays;
+
 
 import org.junit.Test;
 
@@ -32,15 +35,15 @@ public class WebServicesResourceTest extends WebServicesApplicationTest {
         Response response = target("/webservices").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
-        assertThat(jsonModel.<Integer>get("total")).isEqualTo(2);
-        assertThat(jsonModel.<String>get("webServices[0].name")).isEqualTo("ws1");
-        assertThat(jsonModel.<String>get("webServices[0].direction.id")).isEqualTo("INBOUND");
-        assertThat(jsonModel.<String>get("webServices[0].direction.localizedValue")).isEqualTo("Inbound");
-        assertThat(jsonModel.<String>get("webServices[0].type")).isEqualTo("SOAP");
-        assertThat(jsonModel.<String>get("webServices[1].name")).isEqualTo("ws2");
-        assertThat(jsonModel.<String>get("webServices[1].direction.id")).isEqualTo("OUTBOUND");
-        assertThat(jsonModel.<String>get("webServices[1].direction.localizedValue")).isEqualTo("Outbound");
-        assertThat(jsonModel.<String>get("webServices[1].type")).isEqualTo("SOAP");
+        assertThat(jsonModel.<JSONArray>get("$").size()).isEqualTo(2);
+        assertThat(jsonModel.<String>get("[0].name")).isEqualTo("ws1");
+        assertThat(jsonModel.<String>get("[0].direction.id")).isEqualTo("INBOUND");
+        assertThat(jsonModel.<String>get("[0].direction.localizedValue")).isEqualTo("Inbound");
+        assertThat(jsonModel.<String>get("[0].type")).isEqualTo("SOAP");
+        assertThat(jsonModel.<String>get("[1].name")).isEqualTo("ws2");
+        assertThat(jsonModel.<String>get("[1].direction.id")).isEqualTo("OUTBOUND");
+        assertThat(jsonModel.<String>get("[1].direction.localizedValue")).isEqualTo("Outbound");
+        assertThat(jsonModel.<String>get("[1].type")).isEqualTo("SOAP");
     }
 
     private WebService mockWebService(String name, boolean inbound) {
