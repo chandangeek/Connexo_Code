@@ -239,7 +239,10 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
 
         if (this.checkValidSelection(communicationSchedules, true)) {
             Ext.each(communicationSchedules, function (communicationSchedule) {
-                scheduleIds.push(communicationSchedule.get('id'));
+                scheduleIds.push({
+                    id: communicationSchedule.get('id'),
+                    version: communicationSchedule.get('version')
+                })
             });
 
             Ext.Ajax.request({
@@ -269,7 +272,10 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
 
         if (this.checkValidSelection(communicationSchedules, false)) {
             Ext.each(communicationSchedules, function (communicationSchedule) {
-                scheduleIds.push(communicationSchedule.get('id'));
+                scheduleIds.push({
+                    id: communicationSchedule.get('id'),
+                    version: communicationSchedule.get('version')
+                });
             });
 
             Ext.Ajax.request({
