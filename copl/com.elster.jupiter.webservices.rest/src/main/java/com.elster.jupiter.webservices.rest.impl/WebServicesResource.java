@@ -38,13 +38,12 @@ public class WebServicesResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
-    public PagedInfoList getWebServices(@BeanParam JsonQueryParameters queryParameters) {
-        List<WebServicesInfo> collect = webServicesService.getWebServices()
+    public List<WebServicesInfo> getWebServices(@BeanParam JsonQueryParameters queryParameters) {
+        return webServicesService.getWebServices()
                 .stream()
                 .map(webServicesInfoFactory::from)
                 .sorted(Comparator.comparing(x -> x.name))
                 .collect(toList());
-        return PagedInfoList.fromCompleteList("webServices", collect, queryParameters);
     }
 
 }
