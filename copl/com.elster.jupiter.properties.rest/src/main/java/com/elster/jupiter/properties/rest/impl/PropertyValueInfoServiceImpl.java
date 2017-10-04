@@ -113,7 +113,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         PropertyType propertyType = converter.getPropertyType(propertySpec);
         PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo(propertyType, converter.getDefaultPropertyValidationRule(), getPredefinedPropertyValueInfo(propertySpec, propertyType), null);
         PropertyValueInfo propertyValueInfo = getPropertyValueInfo(propertySpec, propertyValueProvider, inheritedPropertyValueProvider);
-        return new PropertyInfo(propertySpec.getDisplayName(), propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
+        return new PropertyInfo(propertySpec.getDisplayName(), propertySpec.getName(), propertySpec.getDescription(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
     }
 
     @Override
@@ -195,6 +195,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 && propertyType != SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE
                 && propertyType != SimplePropertyType.RAISEEVENTPROPS
                 && propertyType != SimplePropertyType.BPM_PROCESS
+                && propertyType != SimplePropertyType.WEB_SERVICES_ENDPOINT
                 && propertyType != SimplePropertyType.IDWITHNAME
                 ) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
@@ -207,7 +208,8 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 if (propertyType == SimplePropertyType.SELECTIONGRID || propertyType == SimplePropertyType.LISTREADINGQUALITY || propertyType == SimplePropertyType.DEVICECONFIGURATIONLIST ||
                         propertyType == SimplePropertyType.ENDDEVICEEVENTTYPE || propertyType == SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE) {
                     possibleObjects[i] = possibleValues.getAllValues().get(i);
-                } else if (propertyType == SimplePropertyType.IDWITHNAME || propertyType == SimplePropertyType.BPM_PROCESS) {
+                } else if (propertyType == SimplePropertyType.IDWITHNAME || propertyType == SimplePropertyType.BPM_PROCESS ||
+                        propertyType == SimplePropertyType.WEB_SERVICES_ENDPOINT) {
                     Object idWithName = possibleValues.getAllValues().get(i);
                     possibleObjects[i] = idWithName instanceof HasIdAndName
                             ? asInfo(((HasIdAndName) idWithName).getId(), ((HasIdAndName) idWithName).getName())
