@@ -6,7 +6,11 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.util.Common'
+        'Uni.util.Common',
+        'Mdc.controller.setup.IssueSetPriority',
+        'Mdc.controller.setup.AlarmSetPriority',
+        'Dal.controller.SetPriority',
+        'Dal.controller.Detail'
     ],
 
     views: [
@@ -191,45 +195,11 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
 
 
     showOverview: function (deviceId, issueId, actionId) {
-        var me = this,
-            store = me.getStore('Mdc.store.device.IssuesAlarms');
+        var me = this;
 
-        if (store.getCount()) {
-            var issueActualType = store.getById(parseInt(issueId)).get('issueType').uid;
-            if ((issueActualType === 'datacollection') || (issueActualType === 'datavalidation')) {
-                // me.getController('Mdc.controller.setup.IssueAlarmDetail').showOverview(issueId, actionId);
-                // me.getController('Mdc.controller.setup.IssueAlarmDetail').showActionOverview(deviceId, issueId, actionId);
-                if (actionId) {
-                    me.getController('Mdc.controller.setup.IssueAlarmDetail').showActionOverview(deviceId, issueId, actionId);
-                } else {
-                    me.getController('Mdc.controller.setup.IssueAlarmDetail').showOverview(issueId, actionId);
-                }
-            }
-            else if (issueActualType === 'devicealarm') {
-                if (actionId) {
-                    me.getController('Mdc.controller.setup.IssueAlarmDetail').showActionOverview(deviceId, issueId, actionId);
-                } else {
-                    me.getController('Dal.controller.Detail').showOverview(issueId, actionId);
-                }
-            }
-        }
+        me.getController('Mdc.controller.setup.IssueAlarmDetail').queryParams = {activeTab: 'issues'};
+        me.getController('Mdc.controller.setup.IssueAlarmDetail').showActionOverview(deviceId, issueId, actionId);
     },
-
-
-    /* showActionOverview: function (deviceId, issueId, actionId) {
-        var me = this,
-            store = me.getStore('Mdc.store.device.IssuesAlarms');
-
-        if (store.getCount()) {
-            var issueActualType = store.getById(parseInt(issueId)).get('issueType').uid;
-            if ((issueActualType === 'datacollection') || (issueActualType === 'datavalidation')) {
-                me.getController('Isu.controller.ApplyIssueAction').showOverview(issueId, actionId);
-            }
-            else if (issueActualType === 'devicealarm') {
-                me.getController('Dal.controller.ApplyAction').showOverview(issueId, actionId);
-            }
-        }
-     },*/
 
     setPriority: function (deviceId, issueId) {
         var me = this,
@@ -238,14 +208,14 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         if (store.getCount()) {
             var issueActualType = store.getById(parseInt(issueId)).get('issueType').uid;
             if ((issueActualType === 'datacollection') || (issueActualType === 'datavalidation')) {
-                me.getController('Mdc.controller.setup.SetPriority').queryParams = {activeTab: 'issues'};
-                me.getController('Mdc.controller.setup.SetPriority').setPriority(issueId);
+                me.getController('Mdc.controller.setup.IssueSetPriority').queryParams = {activeTab: 'issues'};
+                me.getController('Mdc.controller.setup.IssueSetPriority').setPriority(issueId);
             }
             else if (issueActualType === 'devicealarm') {
-                me.getController('Dal.controller.SetPriority').setPriority(issueId);
+                me.getController('Mdc.controller.setup.AlarmSetPriority').queryParams = {activeTab: 'issues'};
+                me.getController('Mdc.controller.setup.AlarmSetPriority').setPriority(issueId);
             }
         }
-
     },
 
     startProcess: function (deviceId, issueId) {
@@ -259,11 +229,9 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             page = me.getPage(),
             preview = page.down('issues-alarms-preview');
 
-
         Ext.suspendLayouts();
-        //preview.setTitle(record.get(''));
         preview.setTitle(record.get('issueId') + ' ' + record.get('reason'));
         preview.loadRecord(record);
         Ext.resumeLayouts();
-    },
+    }
 });

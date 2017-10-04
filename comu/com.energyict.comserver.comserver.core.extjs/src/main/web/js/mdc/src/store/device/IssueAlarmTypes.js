@@ -3,13 +3,16 @@
  */
 Ext.define('Mdc.store.device.IssueAlarmTypes', {
     extend: 'Isu.store.IssueTypes',
+    sorters: [{
+        property: 'name',
+        direction: 'ASC'
+    }],
     listeners: {
         load: function (store, records, successful, eOpts) {
 
-
-            store.insert(0, {
+            Mdc.privileges.Device.canViewAdminAlarm() && store.insert(0, {
                 uid: 'devicealarm',
-                name: 'Device alarm'
+                name: Uni.I18n.translate('issueTypes.devicealarm', 'MDC', 'Device alarm')
             })
         }
     }

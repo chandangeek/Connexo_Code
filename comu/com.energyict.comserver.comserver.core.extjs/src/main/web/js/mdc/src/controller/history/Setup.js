@@ -149,8 +149,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                 view: {
                                     title: Uni.I18n.translate('general.issueDetails', 'MDC', 'Issue details'),
                                     route: '{issueId}',
-                                    controller: 'Mdc.controller.setup.DeviceHistory',
-                                    action: 'showOverview',
+                                    controller: 'Mdc.controller.setup.IssueAlarmDetail',
+                                    action: 'onShowOverview',
                                     privileges: Isu.privileges.Issue.viewAdminDevice,
                                     callback: function (route) {
                                         this.getApplication().on('issueLoad', function (record) {
@@ -163,8 +163,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                         action: {
                                             title: Uni.I18n.translate('general.action', 'MDC', 'Action'),
                                             route: 'action/{actionId}',
-                                            controller: 'Mdc.controller.setup.DeviceHistory',
-                                            action: 'showOverview',
+                                            controller: 'Mdc.controller.setup.IssueAlarmDetail',
+                                            action: 'showActionOverview',
                                             privileges: Isu.privileges.Issue.viewAdminDevice,
                                             callback: function (route) {
                                                 this.getApplication().on('issueActionLoad', function (record) {
@@ -183,7 +183,6 @@ Ext.define('Mdc.controller.history.Setup', {
                                         },
                                         startProcess: {
                                             title: Uni.I18n.translate('general.startProcess', 'MDC', 'Start process'),
-                                            //route:'{issueId}/startProcess'
                                             route: 'startProcess',
                                             controller: 'Mdc.controller.setup.DeviceHistory',
                                             action: 'startProcess',

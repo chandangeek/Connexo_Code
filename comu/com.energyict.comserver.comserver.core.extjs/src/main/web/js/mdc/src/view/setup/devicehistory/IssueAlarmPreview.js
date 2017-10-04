@@ -156,5 +156,9 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
         ];
 
         me.callParent(arguments);
+
+        me.on('afterrender', function () {
+            me.record && me.loadRecord(me.record);
+        }, me, {single: true});
     }
 });

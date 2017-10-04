@@ -7,6 +7,15 @@ Ext.define('Mdc.store.device.IssuesAlarmsReasons', {
         'Mdc.model.IssuesAlarmsReason'
     ],
     pageSize: undefined,
+    sorters: [{
+        property: 'issueType',
+        direction: 'ASC'
+    },
+        {
+            property: 'name',
+            direction: 'ASC'
+        }
+    ],
     model: 'Mdc.model.IssuesAlarmsReason',
     proxy: {
         type: 'rest',

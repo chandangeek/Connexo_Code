@@ -35,6 +35,7 @@ Ext.define('Mdc.privileges.Device', {
     administerValidationConfiguration: ['privilege.administer.device.validationConfiguration'],
     viewEstimationConfiguration: ['privilege.administrate.device', 'privilege.view.device', 'privilege.administer.device.estimationConfiguration'],
     administerEstimationConfiguration: ['privilege.administer.device.estimationConfiguration'],
+    viewAdminAlarm: ['privilege.view.alarm', 'privilege.comment.alarm', 'privilege.close.alarm', 'privilege.assign.alarm', 'privilege.action.alarm'],
     deviceExecuteProcesses: ['privilege.execute.processes.lvl.1',
                     'privilege.execute.processes.lvl.2',
                     'privilege.execute.processes.lvl.3',
@@ -126,5 +127,8 @@ Ext.define('Mdc.privileges.Device', {
     },
     canViewCommands: function() {
         return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewCommands);
+    },
+    canViewAdminAlarm: function () {
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.ViewAdminAlarm);
     }
 });

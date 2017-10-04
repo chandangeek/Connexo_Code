@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
     extend: 'Isu.view.issues.ActionMenu',
     requires: [
         'Isu.privileges.Issue',
-        'Isu.privileges.Device'
+        'Isu.privileges.Device',
+        'Isu.store.IssueActions'
     ],
     alias: 'widget.issues-alarms-action-menu',
     store: 'Isu.store.IssueActions',
@@ -384,7 +385,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
                 text: Uni.I18n.translate('issues.actionMenu.startProcess', 'MDC', 'Start process'),
                 action: 'startProcess',
                 section: this.SECTION_ACTION,
-                href: me.router.getRoute(me.router.currentRoute + '/startProcess').buildUrl({issueId: issueId}, {
+                href: me.router.getRoute(me.router.currentRoute + '/view/startProcess').buildUrl({issueId: issueId}, {
                     details: false,
                     issueType: issueType
                 }),
