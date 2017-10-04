@@ -95,6 +95,16 @@ Ext.define('Dal.model.Alarm', {
 
         {name: 'logBook', type: 'auto'},
         {name: 'version', type: 'int'},
+        {name: 'snoozedDateTime', type: 'auto'},
+        {
+            name: 'statusDetail',
+            convert: function (value, rec) {
+                if (rec.get('status').id == 'status.snoozed')
+                    return Ext.String.format(Uni.I18n.translate('device.alarms.snoozeReasonDetail', 'DAL', '{0} has been snoozed until {1}'),
+                        rec.get('issueId'), Uni.DateTime.formatDateTimeShort(new Date(rec.getData().snoozedDateTime)));
+                return '';
+            }
+        },
         {name: 'device', type: 'auto'},
         {name: 'alarmId', type: 'string'},
         {name: 'status_name', persist: false, mapping: 'status.name'},
