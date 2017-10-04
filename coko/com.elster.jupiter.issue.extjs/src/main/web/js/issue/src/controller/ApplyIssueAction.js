@@ -33,6 +33,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
 
     actionUrl: '/api/isu/issues/{0}/actions',
     assignUrl: '/api/isu/issues/{0}/{1}',
+    queryParams: null,
     init: function () {
         this.control({
             'issue-action-view issue-action-form #issue-action-apply': {
@@ -74,7 +75,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                         var widget = Ext.widget('issue-action-view', {router: router}),
                             form = widget.down('#issue-action-view-form'),
                             cancelLink = form.down('#issue-action-cancel'),
-                            queryParamsForCancel = fromOverview ? router.queryParams : null;
+                            queryParamsForCancel = fromOverview ? router.queryParams : me.queryParams;
 
                         cancelLink.href = router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).buildUrl(null, queryParamsForCancel);
                         app.fireEvent('changecontentevent', widget);
@@ -121,7 +122,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             fromOverview = router.queryParams.fromOverview === 'true',
-            queryParamsForBackUrl = fromOverview ? router.queryParams : null,
+            queryParamsForBackUrl = fromOverview ? router.queryParams : me.queryParams,
             backUrl = router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).buildUrl(null, queryParamsForBackUrl),
             record,
             requestOptions;
@@ -141,9 +142,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             failure: function (record, operation) {
                 var responseText = Ext.decode(operation.response.responseText, true);
 
-                var response = options.response,
-                    errors = Ext.decode(response.responseText, true),
-                    wizard = me.getWizard();
+                var response = operation.response,
+                    errors = Ext.decode(response.responseText, true);
 
                 if (operation.response.status === 400 && responseText.errors && !actionRecord) {
                     errorPanel.show();
@@ -153,8 +153,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                     window.location.href = backUrl;
                     me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('issues.applyAction.failureTitle', 'ISU', 'Couldn\'t perform your action'), actionRecord.get('issue').title + '.' + responseText.actions[0].message, responseText.actions[0].errorCode);
                 }
-                if (errors && Ext.isArray(errors.errors) && !Ext.isEmpty(errors.errors)) {
-                    wizard.markInvalid(errors.errors);
+                if (me.getWizard && errors && Ext.isArray(errors.errors) && !Ext.isEmpty(errors.errors)) {
+                    me.getWizard().markInvalid(errors.errors);
                 }
 
             },
@@ -217,6 +217,10 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 }
                 else if (mainView && mainView.down('alarms-grid')) {
                     var grid = mainView.down('alarms-grid');
+                    grid.getStore().load();
+                }
+                else if (mainView && mainView.down('issues-alarms-grid')) {
+                    var grid = mainView.down('issues-alarms-grid');
                     grid.getStore().load();
                 }
                 else {
