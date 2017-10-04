@@ -126,8 +126,6 @@ public class DeviceHistoryResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({VIEW_ISSUE, ASSIGN_ISSUE, CLOSE_ISSUE, COMMENT_ISSUE, ACTION_ISSUE, VIEW_ALARM, ASSIGN_ALARM, CLOSE_ALARM, COMMENT_ALARM, ACTION_ALARM})
     public PagedInfoList getAllIssues(@BeanParam com.elster.jupiter.issue.rest.resource.StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
-        //validateMandatory(params, START, LIMIT);
-
         Finder<? extends Issue> issueFinder = findAllAlarmAndIssues(issueResourceHelper.buildFilterFromQueryParameters(filter));
 
         addSorting(issueFinder, params);
@@ -161,17 +159,6 @@ public class DeviceHistoryResource {
                     .collect(Collectors.toList());
         }
         return Response.ok().entity(reasons.stream().map(ReasonInfo::new).collect(Collectors.toList())).build();
-    }
-
-    private void validateMandatory(StandardParametersBean params, String... mandatoryParameters) {
-        if (mandatoryParameters != null) {
-            for (String mandatoryParameter : mandatoryParameters) {
-                String value = params.getFirst(mandatoryParameter);
-                if (value == null) {
-                    throw new WebApplicationException(Response.Status.BAD_REQUEST);
-                }
-            }
-        }
     }
 
     private Finder<? extends Issue> addSorting(Finder<? extends Issue> finder, StandardParametersBean parameters) {
