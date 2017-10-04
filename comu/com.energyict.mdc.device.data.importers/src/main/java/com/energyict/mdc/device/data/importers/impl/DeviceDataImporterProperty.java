@@ -94,6 +94,9 @@ public enum DeviceDataImporterProperty {
         @Override
         public void validateProperties(List<FileImporterProperty> properties, DeviceDataImporterContext context) {
             Optional<FileImporterProperty> delimiter = properties.stream().filter(p -> DELIMITER.isMatchKey(p.getName())).findFirst();
+            if(delimiter.isPresent() && ((String)delimiter.get().getValue()).isEmpty()){
+                throw new LocalizedFieldValidationException(MessageSeeds.CAN_NOT_BE_SPACE_OR_EMPTY,"properties." + delimiter.get().getName());
+            }
             Optional<FileImporterProperty> numberFormat = properties.stream().filter(p -> NUMBER_FORMAT.isMatchKey(p.getName())).findFirst();
             if (delimiter.isPresent() && numberFormat.isPresent()) {
                 char delimiterValue = ((String) delimiter.get().getValue()).charAt(0);
