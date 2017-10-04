@@ -8,6 +8,7 @@ package com.energyict.mdc.device.alarms.rest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -40,6 +41,8 @@ public class DeviceAlarmResourceTest extends DeviceAlarmApplicationTest {
     @Test
     public void testGetAlarmById() {
         Optional<DeviceAlarm> alarm = Optional.of(getDefaultAlarm());
+        Optional<? extends Issue> issueRef = Optional.of(alarm.get());
+        when(issueRef.get().getSnoozeDateTime()).thenReturn(Optional.empty());
         doReturn(alarm).when(deviceAlarmService).findAlarm(1);
 
         Map<?, ?> alarmMap = target("/alarms/1").request().get(Map.class);
@@ -62,6 +65,9 @@ public class DeviceAlarmResourceTest extends DeviceAlarmApplicationTest {
         doReturn(alarms).when(alarmFinder).find();
         Optional<IssueStatus> status = Optional.of(getDefaultStatus());
         when(issueService.findStatus("open")).thenReturn(status);
+
+        Optional<? extends Issue> alarmRef = Optional.of(alarms.get(0));
+        when(alarmRef.get().getSnoozeDateTime()).thenReturn(Optional.empty());
 
         String filter = URLEncoder.encode("[{\"property\":\"status\",\"value\":[\"open\"]}]");
         Map<?, ?> map = target("/alarms").queryParam("filter", filter).queryParam("start", "0").queryParam("limit", "1").request().get(Map.class);

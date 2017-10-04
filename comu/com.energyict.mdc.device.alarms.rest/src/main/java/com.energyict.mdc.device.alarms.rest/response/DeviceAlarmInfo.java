@@ -26,6 +26,7 @@ public class DeviceAlarmInfo<T extends DeviceInfo> extends IssueInfo<T, DeviceAl
     public long creationDate;
     public DeviceAlarmClearStatusInfo clearedStatus;
     public long version;
+    public long snoozedDateTime;
 
     public DeviceInfo device;
     public IdWithNameInfo logBook;
@@ -37,6 +38,9 @@ public class DeviceAlarmInfo<T extends DeviceInfo> extends IssueInfo<T, DeviceAl
         this.alarmId = deviceAlarm.getIssueId();
         this.reason = new IdWithNameInfo(deviceAlarm.getReason().getKey(), deviceAlarm.getReason().getName());
         this.status = new IdWithNameInfo(deviceAlarm.getStatus().getKey(), deviceAlarm.getStatus().getName());
+        this.snoozedDateTime = deviceAlarm.getSnoozeDateTime().isPresent() ? deviceAlarm.getSnoozeDateTime()
+                .get()
+                .toEpochMilli() : 0;
         this.dueDate = deviceAlarm.getDueDate() != null ? deviceAlarm.getDueDate().toEpochMilli() : 0;
         this.workGroupAssignee = (deviceAlarm.getAssignee() != null ? new IssueAssigneeInfo("WORKGROUP", deviceAlarm.getAssignee()) : null);
         this.userAssignee = (deviceAlarm.getAssignee() != null ? new IssueAssigneeInfo("USER", deviceAlarm.getAssignee()) : null);

@@ -8,21 +8,40 @@ import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.request.*;
+import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
+import com.elster.jupiter.issue.rest.request.EntityReference;
+import com.elster.jupiter.issue.rest.request.IssueDueDateInfo;
+import com.elster.jupiter.issue.rest.request.IssueDueDateInfoAdapter;
+import com.elster.jupiter.issue.rest.request.PerformActionRequest;
+import com.elster.jupiter.issue.rest.request.SingleIssueRequest;
+import com.elster.jupiter.issue.rest.request.SingleSnoozeRequest;
 import com.elster.jupiter.issue.rest.resource.IssueRestModuleConst;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
+import com.elster.jupiter.issue.rest.transactions.SingleSnoozeTransaction;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.Priority;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueGroup;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
@@ -34,6 +53,7 @@ import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
 import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.rest.request.AssignDeviceAlarmRequest;
 import com.energyict.mdc.device.alarms.rest.request.BulkDeviceAlarmRequest;
+import com.energyict.mdc.device.alarms.rest.request.BulkSnoozeRequest;
 import com.energyict.mdc.device.alarms.rest.request.CloseDeviceAlarmRequest;
 import com.energyict.mdc.device.alarms.rest.request.SetPriorityAlarmRequest;
 import com.energyict.mdc.device.alarms.rest.response.AlarmProcessInfos;
@@ -42,20 +62,40 @@ import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfo;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfoFactory;
 import com.energyict.mdc.device.alarms.rest.transactions.AssignDeviceAlarmTransaction;
 import com.energyict.mdc.device.alarms.rest.transactions.AssignToMeSingleDeviceAlarmTransaction;
+import com.energyict.mdc.device.alarms.rest.transactions.BulkSnoozeTransaction;
 import com.energyict.mdc.device.alarms.rest.transactions.UnassignSingleDeviceAlarmTransaction;
 import com.energyict.mdc.device.alarms.security.Privileges;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import java.util.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,13 +111,15 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final BpmService bpmService;
     private final TransactionService transactionService;
+    private final Clock clock;
 
     @Inject
-    public DeviceAlarmResource(DeviceAlarmInfoFactory deviceAlarmInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, BpmService bpmService, TransactionService transactionService) {
+    public DeviceAlarmResource(Clock clock, DeviceAlarmInfoFactory deviceAlarmInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, BpmService bpmService, TransactionService transactionService) {
         this.conflictFactory = conflictFactory;
         this.deviceAlarmInfoFactory = deviceAlarmInfoFactory;
         this.bpmService = bpmService;
         this.transactionService = transactionService;
+        this.clock = clock;
     }
 
     @GET
@@ -380,6 +422,59 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         return Response.ok().entity(info).build();
     }
 
+    @PUT
+    @Path("/snooze")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ACTION_ALARM})
+    public Response snooze(@Context SecurityContext securityContext, SingleSnoozeRequest request) {
+        User performer = (User) securityContext.getUserPrincipal();
+        Function<ActionInfo, Issue> issueProvider;
+        issueProvider = result -> getDeviceAlarm(request, result);
+
+        if (Instant.ofEpochMilli(request.snoozeDateTime).isBefore(Instant.now(clock))) {
+            throw new LocalizedFieldValidationException(MessageSeeds.SNOOZE_TIME_BEFORE_CURRENT_TIME, "until");
+        } else {
+            ActionInfo info = getTransactionService().execute(new SingleSnoozeTransaction(request, performer, issueProvider, getThesaurus()));
+            return entity(info).build();
+        }
+
+    }
+
+    @PUT
+    @Path("/bulksnooze")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ACTION_ALARM})
+    @Deprecated
+    public Response assignIssues(BulkSnoozeRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
+        User performer = (User) securityContext.getUserPrincipal();
+        Function<ActionInfo, List<? extends Issue>> issueProvider;
+
+        if (request.allAlarms) {
+            issueProvider = bulkResults -> getDeviceAlarmForBulk(filter);
+        } else {
+            issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
+        }
+
+        ActionInfo info = getTransactionService().execute(new BulkSnoozeTransaction(request, performer, issueProvider, getThesaurus(), clock));
+        return entity(info).build();
+    }
+
+
+    private DeviceAlarm getDeviceAlarm(SingleIssueRequest request, ActionInfo result) {
+        DeviceAlarm alarm = getDeviceAlarmService().findAlarm(request.issue.getId()).orElse(null);
+        if (alarm == null) {
+            result.addFail(getThesaurus().getFormat(MessageSeeds.ALARM_DOES_NOT_EXIST)
+                    .format(), request.issue.getId(), "Alarm (id = " + request.issue.getId() + ")");
+        }
+        return alarm;
+    }
+
+
+
+
+
     private ActionInfo doBulkClose(CloseDeviceAlarmRequest request, User performer, Function<ActionInfo, List<? extends Issue>> issueProvider) {
         ActionInfo response = new ActionInfo();
         Optional<IssueStatus> status = getIssueService().findStatus(request.status);
@@ -421,6 +516,20 @@ public class DeviceAlarmResource extends BaseAlarmResource{
                 alarmsForBulk.add(alarm.get());
             } else {
                 bulkResult.addFail(getThesaurus().getFormat(MessageSeeds.ALARM_DOES_NOT_EXIST).format(), alarmRef.getId(), "Alarm (id = " + alarmRef.getId() + ")");
+            }
+        }
+        return alarmsForBulk;
+    }
+
+    private List<? extends Issue> getUserSelectedIssues(BulkSnoozeRequest request, ActionInfo bulkResult) {
+        List<Issue> alarmsForBulk = new ArrayList<>(request.alarms.size());
+        for (EntityReference alarmRef : request.alarms) {
+            Optional<? extends Issue> alarm = getDeviceAlarmService().findAlarm(alarmRef.getId());
+            if (alarm.isPresent()) {
+                alarmsForBulk.add(alarm.get());
+            } else {
+                bulkResult.addFail(getThesaurus().getFormat(MessageSeeds.ALARM_DOES_NOT_EXIST)
+                        .format(), alarmRef.getId(), "Alarm (id = " + alarmRef.getId() + ")");
             }
         }
         return alarmsForBulk;
