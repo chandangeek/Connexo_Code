@@ -129,6 +129,6 @@ Ext.define('Mdc.privileges.Device', {
         return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewCommands);
     },
     canViewAdminAlarm: function () {
-        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.ViewAdminAlarm);
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewAdminAlarm);
     }
 });
