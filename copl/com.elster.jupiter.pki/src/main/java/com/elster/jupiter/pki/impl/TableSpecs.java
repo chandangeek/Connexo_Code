@@ -9,8 +9,10 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.KeypairWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
+import com.elster.jupiter.pki.impl.wrappers.keypair.KeypairWrapperImpl;
 
 import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
@@ -121,6 +123,40 @@ public enum TableSpecs {
 //                    .composition() // Due to bug CXO-5905
                     .map(AbstractCertificateWrapperImpl.Fields.KEY_TYPE.fieldName())
                     .add();
+        }
+    },
+    PKI_KEYPAIR {
+        @Override
+        void addTo(DataModel dataModel, Encrypter encrypter) {
+            Table<KeypairWrapper> table = dataModel.addTable(this.name(), KeypairWrapper.class)
+                    .since(Version.version(10, 4));
+            table.map(KeypairWrapperImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.addRefAnyColumns("PRIVATEKEY", false, KeypairWrapperImpl.Fields.PRIVATE_KEY.fieldName());
+            table.column("ALIAS")
+                    .varChar()
+                    .map(KeypairWrapperImpl.Fields.ALIAS.fieldName())
+                    .add();
+            table.column("PUBLICKEY")
+                    .type("blob")
+                    .conversion(BLOB2BYTE)
+                    .map(KeypairWrapperImpl.Fields.PUBLIC_KEY.fieldName())
+                    .add();
+            table.column("EXPIRATION")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(KeypairWrapperImpl.Fields.EXPIRATION.fieldName())
+                    .add();
+            Column keyTypeColumn = table.column("KEYTYPE")
+                    .number()
+                    .add();
+            table.primaryKey("PK_PKI_KEYPAIR").on(id).add();
+            table.foreignKey("PKI_FK_PUBKEY_KEYTYPE").on(keyTypeColumn)
+                    .references(KeyTypeImpl.class)
+//                    .composition() // Due to bug CXO-5905
+                    .map(KeypairWrapperImpl.Fields.KEY_TYPE.fieldName())
+                    .add();
+
         }
     }
     ;

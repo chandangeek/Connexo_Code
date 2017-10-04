@@ -51,7 +51,7 @@ public final class PlaintextEcdsaPrivateKey extends AbstractPlaintextPrivateKeyW
     }
 
     @Override
-    protected void doGenerateValue() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
+    protected PublicKey doGenerateValue() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("ECDSA", "BC");
         ECNamedCurveParameterSpec parameterSpec = ECNamedCurveTable.getParameterSpec(getKeyType().getCurve());
         keyGen.initialize(parameterSpec, new SecureRandom());
@@ -59,6 +59,7 @@ public final class PlaintextEcdsaPrivateKey extends AbstractPlaintextPrivateKeyW
         PrivateKey privateKey = keyPair.getPrivate();
         setPrivateKey(privateKey);
         this.save();
+        return keyPair.getPublic();
     }
 
     @Override

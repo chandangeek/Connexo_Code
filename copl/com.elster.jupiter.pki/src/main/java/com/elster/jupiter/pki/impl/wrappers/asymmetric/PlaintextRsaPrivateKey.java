@@ -12,6 +12,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import javax.inject.Inject;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -42,12 +43,14 @@ public final class PlaintextRsaPrivateKey extends AbstractPlaintextPrivateKeyWra
     }
 
     @Override
-    protected void doGenerateValue() throws NoSuchAlgorithmException {
+    protected PublicKey doGenerateValue() throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(getKeyType().getKeySize(), new SecureRandom());
-        PrivateKey privateKey = keyGen.generateKeyPair().getPrivate();
+        KeyPair keyPair = keyGen.generateKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
         setPrivateKey(privateKey);
         this.save();
+        return keyPair.getPublic();
     }
 
     protected PublicKey doGetPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {

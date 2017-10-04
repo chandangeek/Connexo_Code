@@ -17,6 +17,7 @@ import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapp
 import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.RequestableCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.TrustedCertificateImpl;
+import com.elster.jupiter.pki.impl.wrappers.keypair.KeypairWrapperImpl;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -385,6 +386,23 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
+    public KeypairWrapper newKeypairWrapper(String alias, KeyType keyType, String keyEncryptionMethod) {
+        AbstractPlaintextPrivateKeyWrapperImpl privateKeyWrapper = (AbstractPlaintextPrivateKeyWrapperImpl) this.newPrivateKeyWrapper(keyType, keyEncryptionMethod);
+        KeypairWrapperImpl keypairWrapper = getDataModel().getInstance(KeypairWrapperImpl.class).init(keyType, privateKeyWrapper);
+        keypairWrapper.setAlias(alias);
+        keypairWrapper.save();
+        return keypairWrapper;
+    }
+
+    @Override
+    public KeypairWrapper newPublicKeyWrapper(String alias, KeyType keyType) {
+        KeypairWrapperImpl keypairWrapper = getDataModel().getInstance(KeypairWrapperImpl.class).init(keyType);
+        keypairWrapper.setAlias(alias);
+        keypairWrapper.save();
+        return keypairWrapper;
+    }
+
+    @Override
     public String getComponentName() {
         return PkiServiceImpl.COMPONENTNAME;
     }
@@ -428,6 +446,26 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         }
     }
 
+    class KeypairWrapperBuilder implements PkiService.KeypairWrapperBuilder {
+        private final KeypairWrapper underConstruction;
+
+        public KeypairWrapperBuilder(KeypairWrapper underConstruction) {
+            this.underConstruction = underConstruction;
+        }
+
+        @Override
+        public PkiService.KeypairWrapperBuilder alias(String alias) {
+            underConstruction.setAlias(alias);
+            return this;
+        }
+
+        @Override
+        public KeypairWrapper add() {
+            underConstruction.save();
+            return underConstruction;
+        }
+    }
+
     @Override
     public Optional<ClientCertificateWrapper> findClientCertificateWrapper(String alias) {
         return getDataModel().mapper(ClientCertificateWrapper.class).getUnique(ClientCertificateWrapperImpl.Fields.ALIAS.fieldName(), alias);
@@ -456,6 +494,11 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
+    public Optional<KeypairWrapper> findKeypairWrapper(long id) {
+        return getDataModel().mapper(KeypairWrapper.class).getUnique(KeypairWrapperImpl.Fields.ID.fieldName(), id);
+    }
+
+    @Override
     public Optional<CertificateWrapper> findAndLockCertificateWrapper(long id, long version) {
         return getDataModel().mapper(CertificateWrapper.class).lockObjectIfVersion(version, id);
     }
@@ -477,6 +520,16 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     @Override
     public void registerSymmetricAlgorithm(SymmetricAlgorithm symmetricAlgorithm) {
         symmetricAlgorithmMap.put(symmetricAlgorithm.getIdentifier(), new SymmetricAlgorithmImpl(symmetricAlgorithm));
+    }
+
+    @Override
+    public Finder<KeypairWrapper> findAllKeypairs() {
+        return DefaultFinder.of(KeypairWrapper.class, dataModel).sorted(KeypairWrapperImpl.Fields.ALIAS.fieldName(), true);
+    }
+
+    @Override
+    public Optional<KeypairWrapper> findAndLockKeypairWrapper(long id, long version) {
+        return getDataModel().mapper(KeypairWrapper.class).lockObjectIfVersion(version, id);
     }
 
     @Override

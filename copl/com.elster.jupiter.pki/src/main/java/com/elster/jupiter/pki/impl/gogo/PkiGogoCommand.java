@@ -4,16 +4,23 @@
 
 package com.elster.jupiter.pki.impl.gogo;
 
+import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.KeypairWrapper;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.gogo.MysqlPrint;
 
+import com.google.common.io.ByteStreams;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -23,7 +30,12 @@ import static java.util.stream.Collectors.toList;
         property = {"osgi.command.scope=pki",
                 "osgi.command.function=keytypes",
                 "osgi.command.function=certificateStore",
-                "osgi.command.function=deleteCertificate"
+                "osgi.command.function=deleteCertificate",
+                "osgi.command.function=keypairs",
+                "osgi.command.function=deleteKeypair",
+                "osgi.command.function=generateKeypair",
+                "osgi.command.function=importPublicKey",
+
         },
         immediate = true)
 public class PkiGogoCommand {
@@ -54,6 +66,7 @@ public class PkiGogoCommand {
     public void keytypes() {
         List<List<?>> collect = pkiService.findAllKeyTypes()
                 .stream()
+                .sorted(Comparator.comparing(KeyType::getId))
                 .map(keytype -> Arrays.asList(keytype.getId(), keytype.getName(), keytype.getCryptographicType().name(), keytype.getKeyAlgorithm()))
                 .collect(toList());
         collect.add(0, Arrays.asList("id", "name", "type", "algorithm"));
@@ -83,6 +96,68 @@ public class PkiGogoCommand {
                     .orElseThrow(() -> new IllegalArgumentException("No such certificate"))
                     .delete();
             context.commit();
+        }
+    }
+
+    public void keypairs() {
+        List<List<?>> lists = pkiService.findAllKeypairs()
+                .stream()
+                .sorted(Comparator.comparing(KeypairWrapper::getAlias))
+                .map(keypair -> Arrays.asList(keypair.getId(), keypair.getAlias(), keypair.getKeyType()
+                        .getKeyAlgorithm(), keypair.getPublicKey().isPresent(), keypair.hasPrivateKey()))
+                .collect(toList());
+        MYSQL_PRINT.printTableWithHeader(Arrays.asList("id", "Alias", "KeyType", "PublicKey", "PrivateKey"), lists);
+    }
+
+    public void generateKeypair() {
+        System.out.println("usage: createKeypair <alias> <keytype>");
+    }
+
+    public void generateKeypair(String alias, int keyTypeId) {
+        threadPrincipalService.set(() -> "Console");
+        KeyType keyType = pkiService.getKeyType(keyTypeId)
+                .orElseThrow(() -> new IllegalArgumentException("No key type with id " + keyTypeId));
+
+        try (TransactionContext context = transactionService.getContext()) {
+            KeypairWrapper keypairWrapper = pkiService.newKeypairWrapper(alias, keyType, "DataVault");
+            keypairWrapper.generateValue();
+            context.commit();
+        }
+    }
+
+    public void deleteKeypair() {
+        System.out.println("usage: deleteKeypair <id>");
+    }
+
+    public void deleteKeypair(int keyPairId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            pkiService.findKeypairWrapper(keyPairId)
+                    .orElseThrow(() -> new IllegalArgumentException("No keypair with id " + keyPairId))
+                    .delete();
+            context.commit();
+        }
+    }
+
+    public void importPublicKey() {
+        System.out.println("usage: importPublicKey <alias> <keyTypeId> <file>");
+    }
+
+    public void importPublicKey(String alias, Long keyTypeId, String file) {
+        threadPrincipalService.set(() -> "Console");
+        KeyType keyType = pkiService.getKeyType(keyTypeId)
+                .orElseThrow(() -> new IllegalArgumentException("No key type with id " + keyTypeId));
+        try (TransactionContext context = transactionService.getContext()) {
+            KeypairWrapper keypairWrapper = pkiService.newKeypairWrapper(alias, keyType, "DataVault");
+            FileInputStream fileInputStream = new FileInputStream(file);
+            byte[] bytes = ByteStreams.toByteArray(fileInputStream);
+            keypairWrapper.setPublicKey(bytes);
+            keypairWrapper.save();
+            context.commit();
+        } catch (FileNotFoundException e) {
+            throw new IllegalArgumentException("No such file: "+file);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Error reading file: "+file+" : "+e);
         }
     }
 

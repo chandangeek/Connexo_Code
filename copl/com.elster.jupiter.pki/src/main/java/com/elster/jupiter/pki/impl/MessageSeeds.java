@@ -48,7 +48,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_IMPORT_KEY_DEFINED(1032, "NoImportKeyDefined", "DataVault importer requires an import key to be defined in the config file, however the property ''{0}'' was not set."),
     IMPORT_KEY_NOT_FOUND(1033, "ImportKeyNotFound", "DataVault importer could not find the certificate ''{0}'' with associated private key, required during import"),
     INCORRECT_IMPORT_KEY(1034, "IncorrectImportKey", "The certificate ''{0}'' does not seem to be associated with a private key and can not be used by the importer"),
-    DEVICE_KEY_IMPORT_FAILED(1035, "FailedToImportDeviceKey", "DataVault importer failed to import the device key: ''{0}''");
+    DEVICE_KEY_IMPORT_FAILED(1035, "FailedToImportDeviceKey", "DataVault importer failed to import the device key: ''{0}''"),
+    PUBLIC_KEY_INVALID(1036, "CouldNotConstructKey", "The public key could not be created: {0}"),
+    CAN_NOT_GENERATE_PUBLIC(1037, "CanNotGeneratePublic", "A public key can not be generated, only a public/private keypair");
 
     private final int number;
     private final String key;
