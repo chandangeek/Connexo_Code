@@ -59,6 +59,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask.ConnectionTaskLifecycl
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.impl.ServerTopologyService;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.favorites.FavoritesService;
@@ -170,6 +171,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static MdcPropertyUtils mdcPropertyUtils;
     private static OrmService ormService;
     private static IssueInfoFactoryService issueInfoFactoryService;
+    private static RegisteredDevicesKpiService registeredDevicesKpiService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
@@ -195,6 +197,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         serviceCallService = mock(ServiceCallService.class);
         bpmService = mock(BpmService.class);
         threadPrincipalService = mock(ThreadPrincipalService.class);
+        registeredDevicesKpiService = mock(RegisteredDevicesKpiService.class);
         userService = mock(UserService.class);
         pkiService = mock(PkiService.class);
         ormService = mock(OrmService.class);
@@ -422,6 +425,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setMdcPropertyUtils(inMemoryPersistence.getMdcPropertyUtils());
         application.setIssueInfoFactoryService(issueInfoFactoryService);
         application.setOrmService(ormService);
+        application.setRegisteredDevicesKpiService(registeredDevicesKpiService);
         return application;
     }
 

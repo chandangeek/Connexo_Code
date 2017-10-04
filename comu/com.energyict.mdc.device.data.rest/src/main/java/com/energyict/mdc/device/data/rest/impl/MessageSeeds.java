@@ -136,6 +136,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_DEVICE_COMMAND(315, "NoSuchDeviceMessageId", "No device message with name {0}"),
     NO_MESSAGE_WITH_ID(316, "NoMessageWithId", "No device message with id {0} exists"),
     NO_SUCH_CONNECTION_FUNCTION(317, "NoSuchConnectionFunction", "The connection function could not be found"),
+    MASTER_DEVICE_CANNOT_ACT_AS_GATEWAY(318, "MasterDeviceCannotActAsGateway", "Device ''{0}'' cannot be set as master device because its device configuration prohibits usage as gateway"),
     ;
 
     private final int number;

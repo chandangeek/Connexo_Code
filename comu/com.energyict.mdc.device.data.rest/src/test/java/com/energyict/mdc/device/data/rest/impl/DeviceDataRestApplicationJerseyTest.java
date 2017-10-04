@@ -75,6 +75,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -232,6 +233,9 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     PkiService pkiService;
     MdcPropertyUtils mdcPropertyUtils;
+    @Mock
+    protected
+    RegisteredDevicesKpiService registeredDevicesKpiService;
 
     @Mock
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -358,6 +362,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setPkiService(pkiService);
         application.setIssueInfoFactoryService(issueInfoFactoryService);
         application.setOrmService(ormService);
+        application.setRegisteredDevicesKpiService(registeredDevicesKpiService);
         return application;
     }
 

@@ -69,6 +69,8 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
 import com.energyict.mdc.device.data.kpi.rest.KpiResource;
+import com.energyict.mdc.device.data.kpi.rest.RegisteredDevicesKpiInfoFactory;
+import com.energyict.mdc.device.data.kpi.rest.RegisteredDevicesKpiResource;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.data.rest.ReadingQualitiesTranslationKeys;
@@ -81,6 +83,7 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
@@ -175,6 +178,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile IssueInfoFactoryService issueInfoFactoryService;
     private volatile OrmService ormService;
 
+    private volatile RegisteredDevicesKpiService registeredDevicesKpiService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -205,6 +209,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 ConnectionResource.class,
                 DeviceProtocolPropertyResource.class,
                 KpiResource.class,
+                RegisteredDevicesKpiResource.class,
                 AdhocGroupResource.class,
                 DeviceEstimationResource.class,
                 DeviceHistoryResource.class,
@@ -224,6 +229,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
+    }
+
+    @Reference
+    public void setRegisteredDevicesKpiService(RegisteredDevicesKpiService registeredDevicesKpiService) {
+        this.registeredDevicesKpiService = registeredDevicesKpiService;
     }
 
     @Reference
@@ -336,6 +346,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 .join(nlsService.getThesaurus(I18N.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
+                .join(nlsService.getThesaurus(TopologyService.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(PkiService.COMPONENTNAME, Layer.DOMAIN));
     }
 
@@ -617,6 +628,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(DeviceConnectionTaskInfoFactory.class).to(DeviceConnectionTaskInfoFactory.class);
             bind(DeviceComTaskExecutionInfoFactory.class).to(DeviceComTaskExecutionInfoFactory.class);
             bind(DataCollectionKpiInfoFactory.class).to(DataCollectionKpiInfoFactory.class);
+            bind(RegisteredDevicesKpiInfoFactory.class).to(RegisteredDevicesKpiInfoFactory.class);
             bind(DeviceGroupInfoFactory.class).to(DeviceGroupInfoFactory.class);
             bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
             bind(firmwareService).to(FirmwareService.class);
@@ -665,6 +677,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(ExecutionLevelInfoFactory.class).to(ExecutionLevelInfoFactory.class);
             bind(ChannelReferenceDataCopier.class).to(ChannelReferenceDataCopier.class);
             bind(CommandInfoFactory.class).to(CommandInfoFactory.class);
+            bind(registeredDevicesKpiService).to(RegisteredDevicesKpiService.class);
             bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
             bind(issueActionService).to(IssueActionService.class);
             bind(issueInfoFactoryService).to(IssueInfoFactoryService.class);
