@@ -49,6 +49,7 @@ import com.energyict.protocolimplv2.dlms.a1860.registers.A1860StoredValues;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -117,11 +118,10 @@ public class A1860 extends AbstractDlmsProtocol {
         this.offlineDevice = offlineDevice;
         if (comChannel.getComChannelType() == ComChannelType.OpticalComChannel) {
             hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
-        }else {
-            setConnectionModeToHDLC(comChannel);
         }
+
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
-        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, getDlmsSessionProperties().getDeviceId()));
+        setDlmsSession(new A1860DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, getDlmsSessionProperties().getDeviceId()));
     }
 
     @Override
@@ -204,17 +204,6 @@ public class A1860 extends AbstractDlmsProtocol {
         return hhuSignOn;
     }
 
-    /**
-     * Set connection mode to HDLC (A1800 supports only HDLC connection)
-     *
-     * @param comChannel ComChannel to set type to HDLC
-     */
-    private void setConnectionModeToHDLC(ComChannel comChannel){
-        TypedProperties hdlcProp = comChannel.getProperties();
-        hdlcProp.setProperty("ComChannelType", 0); //HDLC connection
-        comChannel.addProperties(hdlcProp);
-    }
-
     private A1860LogBookFactory getLogBookFactory(){
         if(logBookFactory == null){
             logBookFactory = new A1860LogBookFactory(this, getCollectedDataFactory(), getIssueFactory());
@@ -233,7 +222,7 @@ public class A1860 extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
