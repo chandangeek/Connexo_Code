@@ -92,7 +92,7 @@ public class EndDeviceSearchDomain implements SearchDomain {
 
     @Override
     public List<String> targetApplications() {
-        return Arrays.asList("COKO", "COIN");
+        return Arrays.asList("COKO", "COIN", "COMU");
     }
 
     @Override
