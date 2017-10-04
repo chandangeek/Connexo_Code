@@ -108,7 +108,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-05 (10:40)
  */
-@Component(name = "com.energyict.mdc.device.topology", service = {TopologyService.class, ServerTopologyService.class, MessageSeedProvider.class, TranslationKeyProvider.class, MessageService.class}, property = "name=" + TopologyService.COMPONENT_NAME)
+@Component(name = "com.energyict.mdc.device.topology", service = {TopologyService.class, ServerTopologyService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + TopologyService.COMPONENT_NAME)
 public class TopologyServiceImpl implements ServerTopologyService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
