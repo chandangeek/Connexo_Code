@@ -162,21 +162,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
 
     onCheck: function (getConfirmationWindow) {
         var me = this,
-            confWindow = getConfirmationWindow(),
-            progressbar = confWindow.insert(2, {
-                xtype: 'progressbar',
-                itemId: 'snooze-progressbar',
-                margin: '5 0 15 0'
-            });
-
-        progressbar.wait({
-            duration: 10000,
-            fn: Ext.bind(me.onTooLongOperation, me, [confWindow, {
-                title: Uni.I18n.translate('issue.snooze.timeout.title1', 'ISU', 'Snooze request takes longer than expected'),
-                msg: Uni.I18n.translate('issue.snooze.timeout.message', 'ISU', 'Snooze request takes longer than expected and will continue in the background.')
-            }])
-        });
-
+            confWindow = getConfirmationWindow();
         me.doOperation(confWindow, Uni.I18n.translate('snooze.successMsg', 'ISU', 'Snooze successful'), 'snooze');
     },
 
@@ -201,42 +187,17 @@ Ext.define('Isu.view.issues.ActionMenu', {
             jsonData: Ext.encode(updatedData),
             success: function (response) {
                 confirmationWindow.close();
-                me.fireEvent('acknowledge', successMessage);
+                router.getApplication().fireEvent('acknowledge', successMessage);
                 router.getRoute().forward(null, Ext.Object.fromQueryString(router.getQueryString()));
             },
             failure: function (response) {
                 var json = Ext.decode(response.responseText, true);
                 if (json && json.errors) {
-                    confirmationWindow.down('#snooze-progressbar').reset(true);
                     confirmationWindow.down('#issue-snooze-until-date').markInvalid(json.errors[0].msg);
 
                 }
             }
         });
-    },
-
-    onTooLongOperation: function (confirmationWindow, errorMessageConfig) {
-        var errorMessage = Ext.widget('messagebox', {
-            closeAction: 'destroy',
-            buttons: [
-                {
-                    text: Uni.I18n.translate('general.close', 'ISU', 'Close'),
-                    ui: 'remove',
-                    handler: function () {
-                        this.up('window').close();
-                    }
-                }
-            ]
-        });
-
-        Ext.suspendLayouts();
-        confirmationWindow.close();
-        errorMessage.show(Ext.apply({
-            ui: 'notification-error',
-            modal: false,
-            icon: Ext.MessageBox.ERROR
-        }, errorMessageConfig));
-        Ext.resumeLayouts(true);
     },
 
 
