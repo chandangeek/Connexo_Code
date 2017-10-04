@@ -123,9 +123,13 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
 
     updateDevice: function (data) {
         var me = this,
-            deviceTopologyContent = me.getDeviceTopology();
+            deviceTopologyContent = me.getDeviceTopology(),
+            previousMasterDeviceId,
+            previousMasterDeviceName;
 
         deviceTopologyContent.setLoading(true);
+        previousMasterDeviceId = deviceTopologyContent.device.get('masterDeviceId');
+        previousMasterDeviceName = deviceTopologyContent.device.get('masterDeviceName');
         deviceTopologyContent.device.set('masterDeviceId', data.masterDeviceId);
         deviceTopologyContent.device.set('masterDeviceName', data.masterDeviceName);
         deviceTopologyContent.device.save({
@@ -143,6 +147,8 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
                 return true;
             },
             failure: function(record, operation) {
+                deviceTopologyContent.device.set('masterDeviceId', previousMasterDeviceId);
+                deviceTopologyContent.device.set('masterDeviceName', previousMasterDeviceName);
                 deviceTopologyContent.setLoading(false);
             }
         });

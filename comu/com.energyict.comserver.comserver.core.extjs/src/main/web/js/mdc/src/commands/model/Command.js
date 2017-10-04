@@ -5,7 +5,9 @@ Ext.define('Mdc.commands.model.Command', {
     extend: 'Mdc.model.DeviceCommand',
     fields: [
         {
-            name:'deviceType'
+            name: 'deviceType',
+            useNull: true,
+            persist:false
         },
         {
             name:'deviceTypeAndConfiguration',

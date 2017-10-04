@@ -242,7 +242,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         });
         return Ext.create('Mdc.model.DeviceConnectionMethod', {
             id: 0,
-            name: Uni.I18n.translate('deviceCommunicationTask.defaultWithCount', 'MDC', 'Default ({0})', Uni.I18n.translate('deviceCommunicationTask.notDefinedYet', 'MDC', defaultConnectionMethodName)),
+            name: Uni.I18n.translate('deviceCommunicationTask.defaultWithCount', 'MDC', 'Default ({0})', defaultConnectionMethodName),
             isDefault: true
         });
     },
@@ -260,7 +260,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 'communicationtasks.form.selectKnownPartialConnectionTaskBasedOnConnectionFunction',
                 'MDC',
                 'Connection method with \'{0}\' function ({1})',
-                [connectionFunction['localizedValue'], Uni.I18n.translate('deviceCommunicationTask.notDefinedYet', 'MDC', connectionMethodName)]
+                [connectionFunction['localizedValue'], connectionMethodName]
             ),
             connectionFunctionInfo: connectionFunction
         });
