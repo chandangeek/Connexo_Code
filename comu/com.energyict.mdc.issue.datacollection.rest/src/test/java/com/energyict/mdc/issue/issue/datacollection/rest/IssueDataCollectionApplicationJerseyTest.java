@@ -30,6 +30,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
@@ -75,6 +76,8 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
     BpmService bpmService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    TopologyService topologyService;
 
     @Override
     protected Application getApplication() {
@@ -96,6 +99,7 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         application.setJsonService(jsonService);
         application.setCommunicationTaskService(communicationTaskService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setTopologyService(topologyService);
         return application;
     }
 
