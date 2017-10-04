@@ -7,6 +7,7 @@ package com.elster.jupiter.pki.impl.gogo;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeypairWrapper;
 import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -19,6 +20,11 @@ import org.osgi.service.component.annotations.Reference;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -35,6 +41,7 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=deleteKeypair",
                 "osgi.command.function=generateKeypair",
                 "osgi.command.function=importPublicKey",
+                "osgi.command.function=importKeypair",
 
         },
         immediate = true)
@@ -148,7 +155,7 @@ public class PkiGogoCommand {
         KeyType keyType = pkiService.getKeyType(keyTypeId)
                 .orElseThrow(() -> new IllegalArgumentException("No key type with id " + keyTypeId));
         try (TransactionContext context = transactionService.getContext()) {
-            KeypairWrapper keypairWrapper = pkiService.newKeypairWrapper(alias, keyType, "DataVault");
+            KeypairWrapper keypairWrapper = pkiService.newPublicKeyWrapper(alias, keyType);
             FileInputStream fileInputStream = new FileInputStream(file);
             byte[] bytes = ByteStreams.toByteArray(fileInputStream);
             keypairWrapper.setPublicKey(bytes);
@@ -158,6 +165,37 @@ public class PkiGogoCommand {
             throw new IllegalArgumentException("No such file: "+file);
         } catch (IOException e) {
             throw new IllegalArgumentException("Error reading file: "+file+" : "+e);
+        }
+    }
+
+    public void importKeypair() {
+        System.out.println("usage: importKeypair <alias> <keyTypeId> <private key file (DER)>");
+    }
+
+    public void importKeypair(String alias, Long keyTypeId, String privateKeyFile) {
+        threadPrincipalService.set(() -> "Console");
+        KeyType keyType = pkiService.getKeyType(keyTypeId)
+                .orElseThrow(() -> new IllegalArgumentException("No key type with id " + keyTypeId));
+        try (TransactionContext context = transactionService.getContext()) {
+            KeypairWrapper keypairWrapper = pkiService.newKeypairWrapper(alias, keyType, "DataVault");
+            FileInputStream fileInputStream = new FileInputStream(privateKeyFile);
+            byte[] privateKeyBytes = ByteStreams.toByteArray(fileInputStream);
+            PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+            KeyFactory keyFactory = KeyFactory.getInstance(keyType.getKeyAlgorithm());
+            PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
+            PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) keypairWrapper.getPrivateKeyWrapper().get();
+            privateKeyWrapper.setPrivateKey(privateKey);
+            keypairWrapper.setPublicKey(privateKeyWrapper.getPublicKey());
+            keypairWrapper.save();
+            context.commit();
+        } catch (FileNotFoundException e) {
+            throw new IllegalArgumentException("No such file: "+privateKeyFile);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Error reading file: "+privateKeyFile+" : "+e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException("No such algorithm: "+e);
+        } catch (InvalidKeySpecException e) {
+            throw new IllegalArgumentException("Invalid key spec: "+e);
         }
     }
 
