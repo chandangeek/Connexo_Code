@@ -18,6 +18,7 @@ import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapper
 import com.elster.jupiter.pki.impl.wrappers.certificate.RequestableCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.TrustedCertificateImpl;
 import com.elster.jupiter.pki.security.Privileges;
+import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -34,6 +35,7 @@ import org.osgi.service.component.annotations.*;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Security;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -42,9 +44,6 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-/**
- * Created by bvn on 1/26/17.
- */
 @Component(name="PkiService",
         service = { PkiService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
         property = "name=" + PkiService.COMPONENTNAME,
@@ -79,6 +78,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     // OSGi constructor
+    @SuppressWarnings("unused")
     public PkiServiceImpl() {
 
     }
@@ -318,6 +318,16 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).newSymmetricKey(keyAccessorType);
     }
 
+    @Override
+    public List<SecurityValueWrapper> getExpired(Expiration expiration, Instant when) {
+        List<SecurityValueWrapper> all = new ArrayList<>();
+        privateKeyFactories.values().stream().flatMap(pkf -> pkf.findExpired(expiration, when).stream()).map(SecurityValueWrapper.class::cast).forEach(all::add);
+        symmetricKeyFactories.values().stream().flatMap(skf -> skf.findExpired(expiration, when).stream()).map(SecurityValueWrapper.class::cast).forEach(all::add);
+        passphraseFactories.values().stream().flatMap(ppf -> ppf.findExpired(expiration, when).stream()).map(SecurityValueWrapper.class::cast).forEach(all::add);
+        this.findExpiredCertificates(expiration, when).stream().forEach(all::add);
+        return all;
+    }
+
     private SymmetricKeyFactory getSymmetricKeyFactoryOrThrowException(String keyEncryptionMethod) {
         if (!symmetricKeyFactories.containsKey(keyEncryptionMethod)) {
             throw new NoSuchKeyEncryptionMethod(thesaurus);
@@ -435,6 +445,12 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         return DefaultFinder.of(CertificateWrapper.class,
                 where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)),
                 getDataModel()).sorted(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName(), true);
+    }
+
+    private List<CertificateWrapper> findExpiredCertificates(Expiration expiration, Instant when){
+        return dataModel.query(CertificateWrapper.class).select(
+                    where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR))
+                    .and(expiration.isExpired("expirationTime", when)));
     }
 
     @Override

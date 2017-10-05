@@ -13,11 +13,15 @@ import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.impl.wrappers.SoftwareSecurityDataModel;
+import com.elster.jupiter.properties.Expiration;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component(name="PlaintextPrivateKeyFactory", service = { PrivateKeyFactory.class }, immediate = true)
 public class DataVaultPrivateKeyFactory implements PrivateKeyFactory {
@@ -28,6 +32,7 @@ public class DataVaultPrivateKeyFactory implements PrivateKeyFactory {
     private volatile Thesaurus thesaurus;
 
     // OSGi
+    @SuppressWarnings("unused")
     public DataVaultPrivateKeyFactory() {
     }
 
@@ -66,6 +71,13 @@ public class DataVaultPrivateKeyFactory implements PrivateKeyFactory {
         } catch (IllegalArgumentException e) {
             throw new UnsupportedAsymmetricKeyType(thesaurus, keyType.getKeyAlgorithm());
         }
+    }
+
+    @Override
+    public List<PrivateKeyWrapper> findExpired(Expiration expiration, Instant when) {
+        List<PrivateKeyWrapper> wrappers = new ArrayList<>();
+        wrappers.addAll(dataModel.query(AbstractPlaintextPrivateKeyWrapperImpl.class).select(expiration.isExpired("expirationTime",when)));
+        return wrappers;
     }
 
     private PrivateKeyWrapper newRsaPrivateKey(KeyType keyType) {

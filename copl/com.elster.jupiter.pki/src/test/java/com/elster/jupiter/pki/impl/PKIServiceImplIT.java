@@ -17,6 +17,7 @@ import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
@@ -24,6 +25,7 @@ import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultPassphraseFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
+import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 
@@ -360,7 +362,7 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testGeneratePlaintextSymmetricAesKey() {
-        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128B", "AES", 128).add();
+        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128C", "AES", 128).add();
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(created);
         when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
@@ -1050,6 +1052,150 @@ public class PKIServiceImplIT {
         symmetricKeyWrapper.setProperties(map);
     }
 
+    @Test
+    @Transactional
+    public void getExpiredSymmetricKeyTest(){
+        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128D", "AES", 128).add();
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(created);
+        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getPkiService()
+                .newSymmetricKeyWrapper(keyAccessorType);
+        symmetricKeyWrapper.generateValue();
+
+       assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getPkiService().getExpired(new Expiration(Expiration.Type.EXPIRED), ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void getExpiredWithinOneWeekSymmetricKeyTest(){
+        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128E", "AES", 128).add();
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(created);
+        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getPkiService()
+                .newSymmetricKeyWrapper(keyAccessorType);
+        symmetricKeyWrapper.generateValue();
+
+       assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getPkiService().getExpired(new Expiration(Expiration.Type.EXPIRES_1WEEK), ZonedDateTime.of(2019, 4, 4, 6, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void getExpiredWithinOneMonthSymmetricKeyTest(){
+        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128F", "AES", 128).add();
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(created);
+        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getPkiService()
+                .newSymmetricKeyWrapper(keyAccessorType);
+        symmetricKeyWrapper.generateValue();
+
+       assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getPkiService().getExpired(new Expiration(Expiration.Type.EXPIRES_1MONTH), ZonedDateTime.of(2019, 4, 3, 14, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void getExpiredWithinThreeMonthSymmetricKeyTest(){
+        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128G", "AES", 128).add();
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(created);
+        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getPkiService()
+                .newSymmetricKeyWrapper(keyAccessorType);
+        symmetricKeyWrapper.generateValue();
+
+       assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getPkiService().getExpired(new Expiration(Expiration.Type.EXPIRES_3MONTHS), ZonedDateTime.of(2019, 1, 5, 14, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void getExpiredPassPhraseTest(){
+        KeyType created = inMemoryPersistence.getPkiService().newPassphraseType("SECRETB").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(created);
+        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getPkiService()
+                .newPassphraseWrapper(keyAccessorType);
+        passphraseWrapper.generateValue();
+
+        assertThat(passphraseWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getPkiService().getExpired(new Expiration(Expiration.Type.EXPIRED), ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void getExpiredWithinOneWeekPassPhraseTest(){
+        KeyType created = inMemoryPersistence.getPkiService().newPassphraseType("SECRETC").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(created);
+        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getPkiService()
+                .newPassphraseWrapper(keyAccessorType);
+        passphraseWrapper.generateValue();
+
+        assertThat(passphraseWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getPkiService().getExpired(new Expiration(Expiration.Type.EXPIRES_1WEEK), ZonedDateTime.of(2019, 4, 4, 6, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void getExpiredWithinOneMonthPassPhraseTest(){
+        KeyType created = inMemoryPersistence.getPkiService().newPassphraseType("SECRETD").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(created);
+        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getPkiService()
+                .newPassphraseWrapper(keyAccessorType);
+        passphraseWrapper.generateValue();
+
+        assertThat(passphraseWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getPkiService().getExpired(new Expiration(Expiration.Type.EXPIRES_1MONTH), ZonedDateTime.of(2019, 4, 3, 14, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void getExpiredWithinThreeMonthPassPhraseTest(){
+        KeyType created = inMemoryPersistence.getPkiService().newPassphraseType("SECRETE").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getKeyType()).thenReturn(created);
+        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getPkiService()
+                .newPassphraseWrapper(keyAccessorType);
+        passphraseWrapper.generateValue();
+
+        assertThat(passphraseWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getPkiService().getExpired(new Expiration(Expiration.Type.EXPIRES_3MONTHS), ZonedDateTime.of(2019, 1, 5, 14, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
+    }
+
     private X509Certificate createSelfSignedCertificate(String myself) throws Exception {
         // generate a key pair
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
@@ -1090,6 +1236,8 @@ public class PKIServiceImplIT {
                 .setProvider("BC")
                 .getCertificate(certificateBuilder.build(contentSigner));
     }
+
+
 
 
 }

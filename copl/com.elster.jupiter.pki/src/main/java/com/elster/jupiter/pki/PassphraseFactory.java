@@ -4,8 +4,10 @@
 
 package com.elster.jupiter.pki;
 
+import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -31,4 +33,6 @@ public interface PassphraseFactory {
      * @return List of PropertySpecs an actual implementation would have
      */
     List<PropertySpec> getPropertySpecs();
+
+    List<PassphraseWrapper> findExpired(Expiration expiration, Instant when);
 }

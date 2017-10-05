@@ -1,10 +1,12 @@
 package com.elster.jupiter.pki;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -163,6 +165,8 @@ public interface PkiService {
     PassphraseWrapper newPassphraseWrapper(KeyAccessorType keyAccessorType);
 
     CertificateWrapper newCertificateWrapper(String alias);
+
+    List<SecurityValueWrapper> getExpired(Expiration expiration, Instant when);
 
     /**
      * Creates a new Client certificate wrapper.

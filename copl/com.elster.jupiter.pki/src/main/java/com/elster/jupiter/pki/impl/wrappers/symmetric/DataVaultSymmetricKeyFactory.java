@@ -9,12 +9,15 @@ import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.impl.wrappers.SoftwareSecurityDataModel;
+import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component(name="PlaintextSymmetricKeyFactory", service = SymmetricKeyFactory.class, immediate = true)
@@ -25,6 +28,7 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory {
     private volatile DataModel dataModel;
 
     // OSGi
+    @SuppressWarnings("unused")
     public DataVaultSymmetricKeyFactory() {
     }
 
@@ -49,6 +53,13 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory {
                 .init(keyAccessorType.getKeyType(), keyAccessorType.getDuration().get());
         symmetricKeyWrapper.save();
         return symmetricKeyWrapper;
+    }
+
+    @Override
+    public List<SymmetricKeyWrapper> findExpired(Expiration expiration, Instant when) {
+        List<SymmetricKeyWrapper> wrappers = new ArrayList<>();
+        wrappers.addAll(dataModel.query(SymmetricKeyWrapper.class).select(expiration.isExpired("expirationTime", when)));
+        return wrappers;
     }
 
     @Override
