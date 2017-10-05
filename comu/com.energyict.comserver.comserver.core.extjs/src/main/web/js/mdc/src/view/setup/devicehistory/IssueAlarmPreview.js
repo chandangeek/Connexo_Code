@@ -124,7 +124,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
 
                         itemId: 'issue-preview-status',
                         fieldLabel: Uni.I18n.translate('general.title.status', 'MDC', 'Status'),
-                        name: 'status'
+                        name: 'statusName'
                     },
                     {
                         itemId: 'issue-preview-due-date',

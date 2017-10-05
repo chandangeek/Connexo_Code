@@ -34,7 +34,6 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmFilter', {
             },
             {
                 type: 'issue-alarm-reasons',
-                //type: 'combobox',
                 itemId: 'issue-reason-filter',
                 dataIndex: 'reason',
                 emptyText: Uni.I18n.translate('general.reason', 'MDC', 'Reason'),

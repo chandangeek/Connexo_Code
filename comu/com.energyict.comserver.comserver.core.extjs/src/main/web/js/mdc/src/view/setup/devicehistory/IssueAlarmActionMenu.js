@@ -201,27 +201,25 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
             updatedData;
 
         updatedData = {
-
             issue: {
                 id: me.record.getData().id,
                 version: me.record.getData().version
             },
-
             snoozeDateTime: confirmationWindow.down('#issue-snooze-until-date').getValue().getTime()
         };
 
         Ext.Ajax.request({
-            url: '/api/isu/issues/snooze',
+            url: me.isIssueType() ? '/api/isu/issues/snooze' : '/api/dal/alarms/snooze',
             method: 'PUT',
             jsonData: Ext.encode(updatedData),
             success: function (response) {
                 confirmationWindow.close();
                 me.fireEvent('acknowledge', successMessage);
-                router.getRoute().forward(null, Ext.Object.fromQueryString(router.getQueryString()));
+                router.getRoute().forward(null, {activeTab: 'issues'});
             },
             failure: function (response) {
                 var json = Ext.decode(response.responseText, true);
-                if (json && json.errors) {
+                if (json && json.errors && json.errors.length > 0) {
                     confirmationWindow.down('#snooze-progressbar').reset(true);
                     confirmationWindow.down('#issue-snooze-until-date').markInvalid(json.errors[0].msg);
 
@@ -295,7 +293,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
             });
             confirmationWindow.show({
                 title: Uni.I18n.translate('issue.snoozeNow', 'MDC', "Snooze '{0}'?",
-                    this.record.getData().title, false)
+                    this.record.get('title'), false)
             });
 
             function getConfirmationWindow() {
@@ -456,6 +454,16 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
                 }
             }
         }
+    },
+
+    isIssueType: function () {
+        var issueType = this.record.get('issueType').uid;
+        return (issueType === "datacollection") || (issueType === "datavalidation");
+    },
+
+    isAlarmType: function () {
+        var issueType = this.record.get('issueType').uid;
+        return (issueType === "devicealarm");
     },
 
     getPredefinedItems: function () {

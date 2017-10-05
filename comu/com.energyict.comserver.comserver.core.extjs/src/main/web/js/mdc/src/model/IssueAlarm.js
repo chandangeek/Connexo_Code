@@ -10,6 +10,9 @@ Ext.define('Mdc.model.IssueAlarm', {
         'connectionTaskId',
         'comSessionId',
         'priority',
+        'status',
+        'title',
+        'snoozedDateTime',
         {name: 'id', type: 'int'},
         {name: 'issueId', type: 'auto'},
         {
@@ -31,10 +34,10 @@ Ext.define('Mdc.model.IssueAlarm', {
         {name: 'dueDate', type: 'date', dateFormat: 'time'},
         {name: 'issueType', type: 'auto'},
         {
-            name: 'status',
+            name: 'statusName',
             convert: function (value, record) {
-                if (value)
-                    return value.name;
+                if (record.get('status'))
+                    return record.get('status').name;
                 return '';
             }
         },

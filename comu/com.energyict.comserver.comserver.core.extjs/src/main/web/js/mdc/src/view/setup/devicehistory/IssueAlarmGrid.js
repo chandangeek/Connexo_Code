@@ -71,7 +71,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
             {
                 itemId: 'issues-grid-status',
                 header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
-                dataIndex: 'status',
+                dataIndex: 'statusName',
                 flex: 1
             },
             {

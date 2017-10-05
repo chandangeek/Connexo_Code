@@ -121,33 +121,7 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                                     itemId: 'issues-alarm-filter'
                                 }
                             ]
-
-
-                            /*items: {
-                                xtype: 'contentcontainer',
-                                content: [
-                                    {
-                                        xtype: 'issues-alarm-filter',
-                                        itemId: 'issues-alarm-filter'
-                                    },
-                                    {
-                                        store: 'Mdc.store.device.IssuesAlarms',
-                                        xtype: 'issues-alarms-grid',
-                                        itemId: 'issues-alarms-grid',
-                                        router: me.router
-                                    },
-                                    {
-                                        xtype: 'issues-alarms-preview',
-                                        itemId: 'issues-alarms-preview',
-                                        router: me.router,
-                                        fieldxtype: 'displayfield'
-
-                                    }
-
-                             ]
-                             },*/
-
-                        },
+                        }
                     ]
                 }
             ]
