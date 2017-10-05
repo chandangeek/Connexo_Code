@@ -17,6 +17,12 @@ Ext.define('Dal.controller.ApplyAction', {
             },
             'alarms-action-menu #unassign-alarm': {
                 click: this.unassign
+            },
+            'issues-alarms-action-menu #assign-alarm-to-me': {
+                click: this.assignToMe
+            },
+            'issues-alarms-action-menu #unassign-alarm': {
+                click: this.unassign
             }
         });
     }
