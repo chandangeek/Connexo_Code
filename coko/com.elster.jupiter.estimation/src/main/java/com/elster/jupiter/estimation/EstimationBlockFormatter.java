@@ -30,15 +30,17 @@ public class EstimationBlockFormatter {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(ZoneId.systemDefault()).withLocale(Locale.ENGLISH);
 
     public String format(EstimationBlock estimationBlock) {
-        Instant start = estimationBlock.estimatables().get(0).getTimestamp();
-        Instant end = estimationBlock.estimatables().get(estimationBlock.estimatables().size() - 1).getTimestamp();
+        StringJoiner joiner = new StringJoiner("");
+        if (!estimationBlock.estimatables().isEmpty()) {
+            Instant start = estimationBlock.estimatables().get(0).getTimestamp();
+            Instant end = estimationBlock.estimatables().get(estimationBlock.estimatables().size() - 1).getTimestamp();
+            joiner.add("from ")
+                  .add(DATE_TIME_FORMATTER.format(start))
+                  .add(" until ")
+                  .add(DATE_TIME_FORMATTER.format(end));
+        }
         ChannelsContainer channelsContainer = estimationBlock.getChannel().getChannelsContainer();
-        return new StringJoiner("")
-                .add("from ")
-                .add(DATE_TIME_FORMATTER.format(start))
-                .add(" until ")
-                .add(DATE_TIME_FORMATTER.format(end))
-                .add(" on ")
+        return joiner.add(" on ")
                 .add(channelsContainer instanceof MetrologyContractChannelsContainer ?
                         channelsContainer.getUsagePoint().map(UsagePoint::getName).orElse("") :
                         channelsContainer.getMeter().map(Meter::getName).orElse(""))
