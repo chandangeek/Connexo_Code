@@ -23,6 +23,9 @@ Ext.define('Dal.controller.ApplyAction', {
             },
             'issues-alarms-action-menu #unassign-alarm': {
                 click: this.unassign
+            },
+            'alarms-action-view alarm-action-form #alarm-action-apply' : {
+                click: this.applyAction
             }
         });
     }
