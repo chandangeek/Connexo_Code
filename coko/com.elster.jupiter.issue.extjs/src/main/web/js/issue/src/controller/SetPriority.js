@@ -66,7 +66,7 @@ Ext.define('Isu.controller.SetPriority', {
             returnUrl = form.returnLink,
             router = me.getController('Uni.controller.history.Router'),
             issueType = router.queryParams.issueType,
-            forAlarm = issueType === 'alarm',
+            forAlarm = (issueType === 'alarm') || (issueType === 'devicealarm'),
             record,
             updatedData,
             acknowledgeMessage;
