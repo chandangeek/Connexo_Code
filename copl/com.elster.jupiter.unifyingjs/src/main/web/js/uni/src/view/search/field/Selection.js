@@ -174,11 +174,11 @@ Ext.define('Uni.view.search.field.Selection', {
                                 margin: '0 5 0 0',
                                 operators: [
                                     '==',
-                                    '!=',
-                                    '>',
-                                    '>=',
-                                    '<',
-                                    '<='
+                                    '!='
+                                    //'>',
+                                    //'>=',
+                                    //'<',
+                                    //'<='
                                 ],
                                 listeners: {
                                     change: {

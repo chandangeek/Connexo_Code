@@ -26,10 +26,10 @@ Ext.define('Uni.view.search.field.Quantity', {
             operatorMap: {
                 '==': 'uni-search-internal-quantityfield',
                 '!=': 'uni-search-internal-quantityfield',
-                '>': 'uni-search-internal-quantityfield',
-                '>=': 'uni-search-internal-quantityfield',
-                '<': 'uni-search-internal-quantityfield',
-                '<=': 'uni-search-internal-quantityfield',
+                //'>': 'uni-search-internal-quantityfield',
+                //'>=': 'uni-search-internal-quantityfield',
+                //'<': 'uni-search-internal-quantityfield',
+                //'<=': 'uni-search-internal-quantityfield',
                 'BETWEEN': 'uni-search-internal-quantityrange'
             },
             listeners: {
