@@ -6,6 +6,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
     requires: [
         'Uni.form.field.FilterDisplay',
         'Isu.view.issues.ActionMenu',
+        'Dal.view.ActionMenu',
         'Isu.privileges.Issue',
         'Isu.privileges.Device',
         'Dal.privileges.Alarm'
@@ -31,10 +32,11 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
                 listeners: {
                     click: function () {
                         this.setMenu({
-                            xtype: me.record.get('issueType').uid === 'devicealarm' ? '' : 'issues-action-menu',
+                            xtype: 'issues-alarms-action-menu',
                             itemId: 'issues-overview-action-menu',
                             router: me.router,
-                            record: me.record
+                            record: me.record,
+                            currentUserId: me.currentUserId
                         });
                         this.showMenu();
                     }
@@ -144,7 +146,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
 
                         itemId: 'issue-preview-assignee',
                         fieldLabel: Uni.I18n.translate('general.title.USER', 'MDC', 'User'),
-                        name: 'userAssignee'
+                        name: 'userAssigneeName'
                     },
                     {
                         itemId: 'issue-preview-creation-date',

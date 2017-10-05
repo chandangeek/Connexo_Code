@@ -84,7 +84,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
             {
                 itemId: 'issues-grid-assignee',
                 header: Uni.I18n.translate('general.user', 'MDC', 'User'),
-                dataIndex: 'userAssignee',
+                dataIndex: 'userAssigneeName',
                 flex: 1,
 
             },

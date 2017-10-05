@@ -2,7 +2,7 @@
  * Created by H251853 on 9/25/2017.
  */
 Ext.define('Mdc.controller.setup.IssueAlarmDetail', {
-    extend: 'Isu.controller.IssueDetail',
+    extend: 'Ext.app.Controller',
     requires: [
         'Isu.privileges.Issue',
         'Isu.store.TimelineEntries',
@@ -25,7 +25,26 @@ Ext.define('Mdc.controller.setup.IssueAlarmDetail', {
 
 
     onShowOverview: function (deviceId, issueId) {
-        this.showOverview(issueId);
+        var me = this,
+            store = me.getStore('Mdc.store.device.IssuesAlarms'),
+            queryString = Uni.util.QueryString.getQueryStringValues(false),
+            issueType = queryString.issueType;
+
+        if (store.getCount()) {
+            var issueActualType = store.getById(parseInt(issueId)).get('issueType').uid;
+            if (issueActualType != issueType) {
+                queryString.issueType = issueActualType;
+                window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+                issueType = issueActualType;
+            }
+        }
+
+        if ((issueType === 'datacollection') || (issueType === 'datavalidation')) {
+            this.getController('Isu.controller.IssueDetail').showOverview(issueId);
+        }
+        else if (issueType === 'devicealarm') {
+            this.getController('Dal.controller.Detail').showOverview(issueId);
+        }
     },
 
     showActionOverview: function (deviceId, issueId, actionId) {

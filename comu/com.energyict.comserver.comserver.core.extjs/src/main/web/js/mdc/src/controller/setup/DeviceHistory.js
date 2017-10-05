@@ -65,6 +65,14 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             view,
             issuesAlarmsStore = me.getStore('Mdc.store.device.IssuesAlarms');
 
+        Ext.Ajax.request({
+            url: '/api/usr/currentuser',
+            success: function (response) {
+                var currentUser = Ext.decode(response.responseText, true);
+                me.currentUserId = currentUser.id;
+            }
+        });
+
         issuesAlarmsStore.getProxy().setUrl(deviceId);
         deviceModel.load(deviceId, {
             success: function (device) {
@@ -232,6 +240,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         Ext.suspendLayouts();
         preview.setTitle(record.get('issueId') + ' ' + record.get('reason'));
         preview.loadRecord(record);
+        preview.currentUserId = me.currentUserId;
         Ext.resumeLayouts();
     }
 });

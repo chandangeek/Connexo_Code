@@ -14,7 +14,8 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmFilter', {
         'Isu.store.IssueReasons',
         'Mdc.view.setup.devicehistory.IssueAlarmReasons',
         'Mdc.store.device.IssuesAlarms',
-        'Mdc.store.device.IssuesAlarmsReasons'
+        'Mdc.store.device.IssuesAlarmsReasons',
+        'Mdc.store.device.IssueAlarmTypes'
     ],
 
     initComponent: function () {

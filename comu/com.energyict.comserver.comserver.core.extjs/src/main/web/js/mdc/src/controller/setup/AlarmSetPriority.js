@@ -8,4 +8,6 @@
 Ext.define('Mdc.controller.setup.AlarmSetPriority', {
     extend: 'Dal.controller.SetPriority',
 
+    init: function () {
+    }
 })

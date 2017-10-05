@@ -6,6 +6,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
     requires: [
         'Isu.privileges.Issue',
         'Isu.privileges.Device',
+        'Dal.privileges.Alarm',
         'Isu.store.IssueActions'
     ],
     alias: 'widget.issues-alarms-action-menu',
@@ -19,7 +20,6 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
         bindable: 'Ext.util.Bindable'
     },
     currentUserId: -1,
-    //urlStoreProxy: '/api/isu/issues/{0}/actions',
     urlIssueStoreProxy: '/api/isu/issues/{0}/actions',
     urlAlarmStoreProxy: '/api/dal/alarms/{0}/actions',
     onBeforeShow: Ext.emptyFn,
@@ -29,6 +29,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
                 var me = this;
 
                 me.removeAll();
+
                 if ((me.record.get('issueType').uid === "datacollection") || (me.record.get('issueType').uid === "datavalidation")) {
                     me.setLoading(true);
                     me.store.getProxy().url = Ext.String.format(me.urlIssueStoreProxy, me.record.getId());
@@ -62,15 +63,20 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
 
         me.bindStore(me.store || 'ext-empty-store', true);
 
+        this.callParent(arguments);
+    },
+
+    prepare: function () {
+        var me = this;
+
         // load current user
-        Ext.Ajax.request({
+        (me.currentUserId != -1) && Ext.Ajax.request({
             url: '/api/usr/currentuser',
             success: function (response) {
                 var currentUser = Ext.decode(response.responseText, true);
                 me.currentUserId = currentUser.id;
             }
         });
-        this.callParent(arguments);
     },
 
     // this method overwritten to avoid firing click event twice in menu
@@ -298,12 +304,14 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
         }
     },
 
-
     addPredefinedActions: function () {
         var me = this,
             issueId = me.record.getId(),
             issueType = me.record.get('issueType').uid,
             fromDetails = Ext.ComponentQuery.query('issue-detail-top')[0],
+            predefinedItems = me.getPredefinedItems();
+
+        var me = this,
             predefinedItems = me.getPredefinedItems();
 
         // show/hide 'Assign to me and' and 'Unassign' menu items
@@ -403,9 +411,8 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
             comTaskSessionId,
             connectionTaskId,
             comSessionId;
-
         // add specific actions
-        if (Isu.privileges.Device.viewDeviceCommunication) {
+        if (Isu.privileges.Device.viewDeviceCommunication && (issueType === "datacollection") || (issueType === "datavalidation")) {
             deviceName = me.record.get('deviceName');
             if (deviceName) {
                 comTaskId = me.record.get('comTaskId');
@@ -452,6 +459,18 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
     },
 
     getPredefinedItems: function () {
+        var me = this,
+            issueType = me.record.get('issueType').uid;
+
+        if ((issueType === "datacollection") || (issueType === "datavalidation")) {
+            return me.getPredefinedItemsForIssues();
+        }
+        else if (issueType == 'devicealarm') {
+            return me.getPredefinedItemsForAlarms();
+        }
+    },
+
+    getPredefinedItemsForIssues: function () {
         var me = this;
         return [
             {
@@ -486,6 +505,47 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
             {
                 text: Uni.I18n.translate('issues.actionMenu.setPriority', 'MDC', 'Set priority'),
                 privileges: Isu.privileges.Issue.action,
+                section: me.SECTION_EDIT,
+                action: 'setPriority'
+            }
+        ];
+    },
+
+    getPredefinedItemsForAlarms: function () {
+        var me = this;
+        return [
+            {
+                text: Uni.I18n.translate('issues.actionMenu.assignToMe', 'MDC', 'Assign to me'),
+                privileges: Dal.privileges.Alarm.assign,
+                action: 'assignIssueToMe',
+                itemId: 'assign-alarm-to-me',
+                section: me.SECTION_ACTION,
+                hidden: true
+            },
+            {
+                text: Uni.I18n.translate('issues.actionMenu.unassign', 'MDC', 'Unassign'),
+                privileges: Dal.privileges.Alarm.assign,
+                action: 'unassign',
+                itemId: 'unassign-alarm',
+                section: me.SECTION_ACTION,
+                hidden: true
+            },
+            {
+                text: Uni.I18n.translate('issues.actionMenu.snooze', 'MDC', 'Snooze'),
+                privileges: Dal.privileges.Alarm.action,
+                action: 'snooze',
+                itemId: 'snooze-date',
+                section: me.SECTION_ACTION,
+            },
+            {
+                text: Uni.I18n.translate('issues.actionMenu.addComment', 'MDC', 'Add comment'),
+                privileges: Dal.privileges.Alarm.comment,
+                section: me.SECTION_ACTION,
+                action: 'addComment'
+            },
+            {
+                text: Uni.I18n.translate('issues.actionMenu.setPriority', 'MDC', 'Set priority'),
+                privileges: Dal.privileges.Alarm.viewAdminAlarm,
                 section: me.SECTION_EDIT,
                 action: 'setPriority'
             }
