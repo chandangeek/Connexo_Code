@@ -6,18 +6,22 @@ package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.ExpirationFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -61,12 +65,45 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder sqlBuilder = new SqlBuilder();
-//        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN ");
-//        sqlBuilder.openBracket();
-//        sqlBuilder.append("select DEVICE from DDC_CONNECTIONTASK where OBSOLETE_DATE IS NULL AND ");
-//        sqlBuilder.add(this.toSqlFragment("DDC_CONNECTIONTASK.SIMULTANEOUSCONNECTIONS", condition, now));
-//        sqlBuilder.closeBracket();
+
+        Comparison comparison = (Comparison) condition;
+        if (comparison.getValues().length == 1){
+            // the condition coming from FE as 'device.security.expiration ==  Expiration.Type.EXPIRED || Expiration.Type.EXPIRES_1WEEK || Expiration.Type.EXPIRES_1MONTH || Expiration.Type.EXPIRES_3MONTHS
+            Expiration expiration = (Expiration) comparison.getValues()[0];
+
+            sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN ");
+            sqlBuilder.openBracket();
+            //Devices having an actual certificate that is expired
+            sqlBuilder.append("SELECT DEVICE FROM DDC_KEYACCESSOR, PKI_CERTIFICATE WHERE (DDC_KEYACCESSOR.DISCRIMINATOR = 'C' AND DDC_KEYACCESSOR.ACTUAL_CERT = PKI_CERTIFICATE.ID AND ");
+            sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.EXPIRATION", (Comparison) expiration.isExpired("PKI_CERTIFICATE.EXPIRATION", now)));
+            sqlBuilder.closeBracket();
+            //
+            sqlBuilder.append(" UNION ");
+            // Devices having an actual passphrase that is expired
+            sqlBuilder.append("SELECT DEVICE FROM DDC_KEYACCESSOR, SSM_PLAINTEXTPW WHERE (DDC_KEYACCESSOR.DISCRIMINATOR = 'P' AND DDC_KEYACCESSOR.ACTUALPASSPHRASEID = SSM_PLAINTEXTPW.ID AND ");
+            sqlBuilder.add(new ComparisonFragment(this, "SSM_PLAINTEXTPW.EXPIRATION", (Comparison) expiration.isExpired("SSM_PLAINTEXTPW.EXPIRATION", now)));
+            sqlBuilder.closeBracket();
+            //
+            sqlBuilder.append(" UNION ");
+            // Devices having an actual symmetric key that is expired
+            sqlBuilder.append("SELECT DEVICE FROM DDC_KEYACCESSOR, SSM_PLAINTEXTSK WHERE (DDC_KEYACCESSOR.DISCRIMINATOR = 'S' AND DDC_KEYACCESSOR.ACTUALSYMKEYID = SSM_PLAINTEXTSK.ID AND ");
+            sqlBuilder.add(new ComparisonFragment(this, "SSM_PLAINTEXTSK.EXPIRATION", (Comparison) expiration.isExpired("SSM_PLAINTEXTSK.EXPIRATION", now)));
+            sqlBuilder.closeBracket();
+            //
+            sqlBuilder.closeBracket();
+        }
         return sqlBuilder;
+    }
+
+    @Override
+    public void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
+        Long expirationDateAsEpochMillis = (Long) value;
+        if (expirationDateAsEpochMillis != null) {
+            statement.setLong(bindPosition, expirationDateAsEpochMillis);
+        }
+        else {
+            statement.setNull(bindPosition, java.sql.Types.NUMERIC);
+        }
     }
 
     @Override

@@ -109,7 +109,7 @@ public interface KeyAccessor<T extends SecurityValueWrapper> {
     /**
      * Indicates if the values are in their original place or swapped. After clearing the temp value of a KeyAccessor,
      * the actual value is always considered in his original place.
-     * @return
+     * @return true if swapped, else the values is in its original place
      */
     boolean isSwapped();
 
