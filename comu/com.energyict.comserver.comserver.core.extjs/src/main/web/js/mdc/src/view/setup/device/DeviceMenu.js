@@ -191,6 +191,12 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                             itemId: 'topologyLink',
                             href: '#/devices/' + encodeURIComponent(deviceId) + '/topology',
                             showCondition: me.device.get('isGateway') || !me.device.get('isDirectlyAddressed')
+                        },
+                        {
+                            text: Uni.I18n.translate('title.registeredDevices', 'MDC', 'Registered devices'),
+                            itemId: 'registeredDevices',
+                            href: '#/devices/' + encodeURIComponent(deviceId) + '/regdevices',
+                            showCondition: me.device.get('isGateway') && me.device.get('gatewayType') === 'LAN'
                         }
                     ]
                 },

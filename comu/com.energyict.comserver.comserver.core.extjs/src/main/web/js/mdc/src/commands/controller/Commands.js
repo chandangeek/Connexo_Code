@@ -138,6 +138,11 @@ Ext.define('Mdc.commands.controller.Commands', {
         previewForm.setLoading(true);
         model.load(simpleRecord.get('id'), {
             success: function (record) {
+                if (Ext.isEmpty(me.getCommandPreviewForm())) {
+                    // The preview panel is already gone (because eg. the "Add command" wizard is already on screen)
+                    return;
+                }
+
                 Ext.suspendLayouts();
                 if (record.get('trackingCategory').id === 'trackingCategory.serviceCall') {
                     trackingField.setFieldLabel(Uni.I18n.translate('general.serviceCall', 'MDC', 'Service call'));
@@ -167,7 +172,9 @@ Ext.define('Mdc.commands.controller.Commands', {
                 Ext.resumeLayouts(true);
             },
             callback: function() {
-                previewForm.setLoading(false);
+                if (me.getCommandPreviewForm()) {
+                    me.getCommandPreviewForm().setLoading(false);
+                }
             }
         });
     },
@@ -303,6 +310,11 @@ Ext.define('Mdc.commands.controller.Commands', {
                     doCallback();
                 }
                 break;
+            case 3:
+                if (me.validateStep3()) {
+                    doCallback();
+                }
+                break;
             default:
                 doCallback();
         }
@@ -373,12 +385,22 @@ Ext.define('Mdc.commands.controller.Commands', {
 
     prepareStep3: function (wizard) {
         var me = this,
-            step3 = wizard.down('add-command-step3'),
+            step3 = wizard.down('add-command-step3').down('#msg-container'),
             confirmationTitle = Uni.I18n.translate('add.command.step3.title.specific', 'MDC',
                 "Add '{0}' to devices in '{1}'?", [me.wizardInformation.command.get('name'), me.wizardInformation.deviceGroupName]),
-            confirmationMessage = Uni.I18n.translate('add.command.step3.msg', 'MDC', 'The selected command will be added to all devices in the device group.');
+            confirmationMessage = Uni.I18n.translate('add.command.step3.msg', 'MDC', 'The selected command will be added to all devices in the device group.'),
+            triggerMessage = Uni.I18n.translate('add.command.step3.msg.trigger', 'MDC', 'Would you like to trigger a communication task to execute this command?');
 
-        step3.update('<h3>' + confirmationTitle + '</h3><br>' + confirmationMessage);
+        step3.update('<h3>' + confirmationTitle + '</h3><br>' + confirmationMessage + '<br><br>' + triggerMessage);
+    },
+
+    validateStep3: function () {
+        var me = this,
+            wizard = me.getAddCommandWizard(),
+            addCommandForm = wizard.down('#mdc-add-command-step3'),
+            valid = true;
+            me.wizardInformation.trigger = addCommandForm.down('radiogroup').getValue().trigger;
+        return valid;
     },
 
     prepareStep4: function (wizard) {
@@ -455,6 +477,7 @@ Ext.define('Mdc.commands.controller.Commands', {
         messageSpecification && newRecord.set('messageSpecification', messageSpecification);
         newRecord.set('status', null);
         newRecord.set('trackingCategory', null);
+        newRecord.set('trigger',me.wizardInformation.trigger);
         newRecord.endEdit();
         newRecord.save({
             url: '/api/ddr/devicegroups/' + me.wizardInformation.deviceGroupId + '/commands',

@@ -372,7 +372,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.getDeviceConnectionMethodEditView().down('#ConnectionFunctionFieldContainer').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#activeRadioGroup').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#comWindowField').setDisabled(false);
-        this.getDeviceConnectionMethodEditView().down('#numberOfSimultaneousConnections').setDisabled(false);
+        this.getDeviceConnectionMethodEditView().down('#numberOfSimultaneousConnectionsField').setDisabled(false);
         if (connectionMethod.get('connectionStrategyInfo')['connectionStrategy'] === 'MINIMIZE_CONNECTIONS') {
             this.getDeviceConnectionMethodEditView().down('form').down('#scheduleFieldContainer').setVisible(true);
             if (connectionMethod.get('temporalExpression')) {
@@ -685,6 +685,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                                         me.getDeviceConnectionMethodEditView().down('#activeRadioGroup').setDisabled(false);
                                                         me.getDeviceConnectionMethodEditView().down('#comWindowField').setDisabled(false);
                                                         me.getDeviceConnectionMethodEditView().down('#protocolDialectComboBox').setDisabled(false);
+                                                        me.getDeviceConnectionMethodEditView().down('#numberOfSimultaneousConnectionsField').setDisabled(false);
                                                         me.getDeviceConnectionMethodComboBox().setDisabled(true);
                                                         me.getDeviceConnectionMethodEditView().down('form').loadRecord(connectionMethod);
                                                         if (connectionMethod.get('connectionStrategyInfo')['connectionStrategy'] === 'MINIMIZE_CONNECTIONS') {

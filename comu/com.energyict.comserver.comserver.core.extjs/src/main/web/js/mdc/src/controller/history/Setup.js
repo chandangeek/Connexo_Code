@@ -23,7 +23,13 @@ Ext.define('Mdc.controller.history.Setup', {
     },
 
     routeConfig: {
-
+        visualiser: {
+            title: Uni.I18n.translate('networkVisualiser.title', 'MDC', 'Network visualiser'),
+            route: 'visualiser',
+            controller: 'Mdc.networkvisualiser.controller.NetworkVisualiser',
+            // privileges: Mdc.privileges.Device.administrateDevice,
+            action: 'showVisualiser'
+        },
         devices: {
             title: Uni.I18n.translate('general.devices', 'MDC', 'Devices'),
             route: 'devices',
@@ -333,6 +339,13 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceConfigurations',
                             privileges: Mdc.privileges.Device.administrateDeviceData,
                             action: 'showChangeDeviceConfigurationView'
+                        },
+                        network: {
+                            title: Uni.I18n.translate('general.network', 'MDC', 'Network'),
+                            route: 'network',
+                            controller: 'Mdc.networkvisualiser.controller.NetworkVisualiser',
+                            // privileges: Mdc.privileges.Device.administrateDevice,
+                            action: 'showNetwork'
                         },
                         connectionmethods: {
                             title: Uni.I18n.translate('general.connectionMethods', 'MDC', 'Connection methods'),
@@ -1249,6 +1262,12 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
                             filter: 'Bpm.monitorprocesses.model.HistoryProcessesFilter',
                             action: 'showDeviceProcesses'
+                        },
+                        regdevices: {
+                            title: Uni.I18n.translate('title.registeredDevices', 'MDC', 'Registered devices'),
+                            route: 'regdevices',
+                            controller: 'Mdc.registereddevices.controller.RegisteredDevices',
+                            action: 'showRegisteredDevicesOnGateway'
                         }
                     }
                 }
@@ -2495,6 +2514,36 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         }
+                    },
+                    regdeviceskpis: {
+                        title: Uni.I18n.translate('general.registeredDevicesKPIs', 'MDC', 'Registered devices KPIs'),
+                        route: 'regdeviceskpis',
+                        privileges: Mdc.privileges.RegisteredDevicesKpi.view,
+                        controller: 'Mdc.registereddevices.controller.RegisteredDevices',
+                        action: 'showRegisteredDevicesKpis',
+                        items: {
+                            add: {
+                                title: Uni.I18n.translate('registeredDevicesKPIs.add', 'MDC', 'Add registered devices KPI'),
+                                route: 'add',
+                                privileges: Mdc.privileges.RegisteredDevicesKpi.admin,
+                                controller: 'Mdc.registereddevices.controller.RegisteredDevices',
+                                action: 'showEditKPIView'
+                            },
+                            edit: {
+                                title: Uni.I18n.translate('registeredDevicesKPIs.edit', 'MDC', 'Edit registered devices KPI'),
+                                route: '{id}/edit',
+                                privileges: Mdc.privileges.RegisteredDevicesKpi.admin,
+                                controller: 'Mdc.registereddevices.controller.RegisteredDevices',
+                                action: 'showEditKPIView',
+                                callback: function (route) {
+                                    this.getApplication().on('loadRegisteredDevicesKpi', function (deviceGroupName) {
+                                        route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", deviceGroupName, false));
+                                        return true;
+                                    }, {single: true});
+                                    return this;
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -2664,6 +2713,12 @@ Ext.define('Mdc.controller.history.Setup', {
                                 action: 'showAddCommandWizard'
                             }
                         }
+                    },
+                    regdevices: {
+                        title: Uni.I18n.translate('general.registeredDevices', 'MDC', 'Registered devices'),
+                        route: 'regdevices',
+                        controller: 'Mdc.registereddevices.controller.RegisteredDevices',
+                        action: 'showRegisteredDevices'
                     }
                 }
             }
