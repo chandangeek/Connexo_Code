@@ -64,4 +64,12 @@ public interface IssueFilter {
 
     List<Priority> getPriorities();
 
+    Long getStartCreateTime();
+
+    void setStartCreateTime(Long startCreateTime);
+
+    Long getEndCreateTime();
+
+    void setEndCreateTime(Long endCreateTime);
+
 }

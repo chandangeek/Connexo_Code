@@ -31,6 +31,9 @@ public class IssueFilterImpl implements IssueFilter {
     private List<Priority> priorities = new ArrayList();
     private boolean unassignedSelected = false;
     private boolean unassignedWorkGroupSelected = false;
+    private Long startCreateTime;
+    private Long endCreateTime;
+
 
     @Override
     public void setIssueId(String issueId) {
@@ -148,6 +151,26 @@ public class IssueFilterImpl implements IssueFilter {
     @Override
     public void addIssueType(IssueType issueType) {
         this.issueTypes.add(issueType);
+    }
+
+    @Override
+    public Long getStartCreateTime() {
+        return startCreateTime;
+    }
+
+    @Override
+    public void setStartCreateTime(Long startCreateTime) {
+        this.startCreateTime = startCreateTime;
+    }
+
+    @Override
+    public Long getEndCreateTime() {
+        return endCreateTime;
+    }
+
+    @Override
+    public void setEndCreateTime(Long endCreateTime) {
+        this.endCreateTime = endCreateTime;
     }
 
 }
