@@ -35,11 +35,11 @@ Ext.define('Uni.view.search.field.Simple', {
             removable: false,
             operatorMap: {
                 '==': 'uni-search-internal-input',
-                '\u2260': 'uni-search-internal-input',
-                '>': 'uni-search-internal-input',
-                '>=': 'uni-search-internal-input',
-                '<': 'uni-search-internal-input',
-                '<=': 'uni-search-internal-input'
+                '\u2260': 'uni-search-internal-input'
+                //'>': 'uni-search-internal-input',
+                //'>=': 'uni-search-internal-input',
+                //'<': 'uni-search-internal-input',
+                //'<=': 'uni-search-internal-input'
             },
             listeners: {
                 change: {
@@ -54,10 +54,10 @@ Ext.define('Uni.view.search.field.Simple', {
             operatorMap: {
                 '==': 'uni-search-internal-input',
                 '!=': 'uni-search-internal-input',
-                '>': 'uni-search-internal-input',
-                '>=': 'uni-search-internal-input',
-                '<': 'uni-search-internal-input',
-                '<=': 'uni-search-internal-input'
+                //'>': 'uni-search-internal-input',
+                //'>=': 'uni-search-internal-input',
+                //'<': 'uni-search-internal-input',
+                //'<=': 'uni-search-internal-input'
             },
             listeners: {
                 change: {
