@@ -70,7 +70,8 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
         if (comparison.getValues().length == 1){
             // the condition coming from FE as 'device.security.expiration ==  Expiration.Type.EXPIRED || Expiration.Type.EXPIRES_1WEEK || Expiration.Type.EXPIRES_1MONTH || Expiration.Type.EXPIRES_3MONTHS
             Expiration expiration = (Expiration) comparison.getValues()[0];
-
+/* Todo: the PkiService also consults the private key factories when looking for expired keys
+   Todo: There's no link between DDC_KEYACCESSOR and the SSM_PLAINTEXTPK table as there is no such thing as a PrivateKeyAccessor ???? */
             sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN ");
             sqlBuilder.openBracket();
             //Devices having an actual certificate that is expired
