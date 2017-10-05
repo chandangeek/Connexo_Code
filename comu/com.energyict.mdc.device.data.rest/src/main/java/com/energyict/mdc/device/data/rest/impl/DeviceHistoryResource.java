@@ -40,7 +40,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -55,6 +54,7 @@ import static com.elster.jupiter.issue.security.Privileges.Constants.ASSIGN_ISSU
 import static com.elster.jupiter.issue.security.Privileges.Constants.CLOSE_ISSUE;
 import static com.elster.jupiter.issue.security.Privileges.Constants.COMMENT_ISSUE;
 import static com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ISSUE;
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.device.alarms.security.Privileges.Constants.ACTION_ALARM;
 import static com.energyict.mdc.device.alarms.security.Privileges.Constants.ASSIGN_ALARM;
 import static com.energyict.mdc.device.alarms.security.Privileges.Constants.CLOSE_ALARM;
@@ -171,7 +171,7 @@ public class DeviceHistoryResource {
     }
 
     private Finder<? extends Issue> findAllAlarmAndIssues(IssueFilter filter, Class<?>... eagers) {
-        Condition condition = Condition.TRUE;
+        Condition condition = buildConditionFromFilter(filter);
         List<Class<?>> eagerClasses = determineMainApiClass(filter);
         if (eagers != null && eagers.length > 0) {
             eagerClasses.addAll(Arrays.asList(eagers));
@@ -193,6 +193,31 @@ public class DeviceHistoryResource {
         }
         return eagerClasses;
     }
+
+    private Condition buildConditionFromFilter(IssueFilter filter) {
+        Condition condition = Condition.TRUE;
+        //filter by reason
+        if (!filter.getIssueReasons().isEmpty()) {
+            condition = condition.and(where("reason").in(filter.getIssueReasons()));
+        }
+        //filter by issue types
+        if (!filter.getIssueTypes().isEmpty()) {
+            condition = condition.and(where("reason.issueType").in(filter.getIssueTypes()));
+        }
+        //filter by statuses
+        if (!filter.getStatuses().isEmpty()) {
+            condition = condition.and(where("status").in(filter.getStatuses()));
+        }
+        //filter by create time
+        if (filter.getStartCreateTime() != null) {
+            condition = condition.and(where("createDateTime").isGreaterThanOrEqual(filter.getStartCreateTime()));
+        }
+        if (filter.getEndCreateTime() != null) {
+            condition = condition.and(where("createDateTime").isLessThanOrEqual(filter.getEndCreateTime()));
+        }
+        return condition;
+    }
+
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private class ReasonInfo extends IssueReasonInfo {
