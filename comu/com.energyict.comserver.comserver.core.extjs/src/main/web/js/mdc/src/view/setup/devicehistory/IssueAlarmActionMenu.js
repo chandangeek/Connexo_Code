@@ -134,8 +134,14 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
                 case 'Assign issue':
                     privileges = Isu.privileges.Issue.canDoAction() && Isu.privileges.Issue.assign;
                     break;
+                case 'Assign alarm':
+                    privileges = Dal.privileges.Alarm.canDoAction() && Dal.privileges.Alarm.assign;
+                    break;
                 case 'Close issue':
                     privileges = Isu.privileges.Issue.canDoAction() && Isu.privileges.Issue.close;
+                    break;
+                case 'Close alarm':
+                    privileges = Dal.privileges.Alarm.canDoAction() && Dal.privileges.Alarm.close;
                     break;
                 case 'Retry now':
                     privileges = Isu.privileges.Device.canOperateDeviceCommunication() && Isu.privileges.Issue.canDoAction();
@@ -144,10 +150,10 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
                     privileges = Isu.privileges.Issue.runTask;
                     break;
                 case 'Set priority':
-                    privileges = Isu.privileges.Issue.canDoAction();
+                    privileges = me.isIssueType() ? Isu.privileges.Issue.canDoAction() : (Dal.privileges.Alarm.canDoAction() && Dal.privileges.Alarm.setPriority);
                     break;
                 case 'Snooze':
-                    privileges = Isu.privileges.Issue.canDoAction();
+                    privileges = me.isIssueType() ? Isu.privileges.Issue.canDoAction() : Dal.privileges.Alarm.canDoAction();
                     break;
             }
 
@@ -214,7 +220,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
             jsonData: Ext.encode(updatedData),
             success: function (response) {
                 confirmationWindow.close();
-                me.fireEvent('acknowledge', successMessage);
+                router.getApplication().fireEvent('acknowledge', successMessage);
                 router.getRoute().forward(null, {activeTab: 'issues'});
             },
             failure: function (response) {
@@ -502,7 +508,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
                 privileges: Isu.privileges.Issue.action,
                 action: 'snooze',
                 itemId: 'snooze-date',
-                section: me.SECTION_ACTION,
+                section: me.SECTION_ACTION
             },
             {
                 text: Uni.I18n.translate('issues.actionMenu.addComment', 'MDC', 'Add comment'),
@@ -543,7 +549,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
                 privileges: Dal.privileges.Alarm.action,
                 action: 'snooze',
                 itemId: 'snooze-date',
-                section: me.SECTION_ACTION,
+                section: me.SECTION_ACTION
             },
             {
                 text: Uni.I18n.translate('issues.actionMenu.addComment', 'MDC', 'Add comment'),

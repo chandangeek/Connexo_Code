@@ -9,6 +9,8 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         'Uni.util.Common',
         'Mdc.controller.setup.IssueSetPriority',
         'Mdc.controller.setup.AlarmSetPriority',
+        'Mdc.controller.setup.ApplyAlarmAction',
+        'Mdc.controller.setup.ApplyIssueAction',
         'Dal.controller.SetPriority',
         'Dal.controller.Detail'
     ],
@@ -202,11 +204,39 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
     },
 
 
-    showOverview: function (deviceId, issueId, actionId) {
-        var me = this;
+    showActionOverview: function (deviceId, issueId, actionId) {
+        var me = this,
+            store = me.getStore('Mdc.store.device.IssuesAlarms'),
+            queryString = Uni.util.QueryString.getQueryStringValues(false),
+            issueType = queryString.issueType;
 
-        me.getController('Mdc.controller.setup.IssueAlarmDetail').queryParams = {activeTab: 'issues'};
-        me.getController('Mdc.controller.setup.IssueAlarmDetail').showActionOverview(deviceId, issueId, actionId);
+        if (store.getCount()) {
+            var issueActualType = store.getById(parseInt(issueId)).get('issueType').uid;
+            if (issueActualType != issueType) {
+                queryString.issueType = issueActualType;
+                window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+                issueType = issueActualType;
+            }
+        }
+
+        if ((issueType === 'datacollection') || (issueType === 'datavalidation')) {
+            if (actionId) {
+                me.getController('Mdc.controller.setup.ApplyIssueAction').queryParams = {activeTab: 'issues'};
+                me.getController('Mdc.controller.setup.ApplyIssueAction').showOverview(issueId, actionId);
+            } else {
+                me.getController('Mdc.controller.setup.ApplyIssueAction').queryParams = {activeTab: 'issues'};
+                me.getController('Mdc.controller.setup.ApplyIssueAction').showOverview(deviceId, issueId);
+            }
+        }
+        else if (issueType === 'devicealarm') {
+            if (actionId) {
+                me.getController('Mdc.controller.setup.ApplyAlarmAction').queryParams = {activeTab: 'issues'};
+                me.getController('Mdc.controller.setup.ApplyAlarmAction').showOverview(issueId, actionId);
+            } else {
+                me.getController('Mdc.controller.setup.ApplyAlarmAction').queryParams = {activeTab: 'issues'};
+                me.getController('Mdc.controller.setup.ApplyAlarmAction').showOverview(deviceId, issueId);
+            }
+        }
     },
 
     setPriority: function (deviceId, issueId) {

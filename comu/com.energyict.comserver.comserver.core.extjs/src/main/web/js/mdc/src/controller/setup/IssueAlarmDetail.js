@@ -47,7 +47,7 @@ Ext.define('Mdc.controller.setup.IssueAlarmDetail', {
         }
     },
 
-    showActionOverview: function (deviceId, issueId, actionId) {
+    /*   showActionOverview: function (deviceId, issueId, actionId) {
         var me = this,
             store = me.getStore('Mdc.store.device.IssuesAlarms'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
@@ -81,7 +81,7 @@ Ext.define('Mdc.controller.setup.IssueAlarmDetail', {
             }
         }
     },
-
+     */
     getIssueStore: function () {
         return this.getStore('Mdc.store.device.IssuesAlarms');
     }

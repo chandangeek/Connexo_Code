@@ -87,27 +87,30 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
                         }
                     },
                     {
-
+                        name: 'location',
                         itemId: 'issue-location',
                         fieldLabel: Uni.I18n.translate('general.location', 'MDC', 'Location'),
-                        name: 'device'
-
+                        renderer: function (value) {
+                            if (me.record && me.record.get('device') && !Ext.isEmpty(me.record.get('device').location)) {
+                                return Ext.String.htmlEncode(me.record.get('device').location).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>');
+                            }
+                            return '-';
+                        }
                     },
                     {
-
                         itemId: 'issue-logbook',
                         fieldLabel: Uni.I18n.translate('general.logbook', 'MDC', 'Logbook'),
                         name: 'logBook',
                         renderer: function (value) {
                             var url = '',
                                 result = '-';
-                            /*
-                             if (value && Dal.privileges.Alarm.canViewLogbook()) {
-                             url = me.router.getRoute('devices/device/logbooks/logbookdata').buildUrl({deviceId: me.getRecord('device').get('deviceName'), logbookId: value.id});
-                             result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>';
-                             } else if (value) {
-                             result = value.name;
-                             }*/
+
+                            if (value && value.id && me.record && Dal.privileges.Alarm.canViewLogbook()) {
+                                url = me.router.getRoute('devices/device/logbooks/logbookdata').buildUrl({deviceId: me.record.get('device').name, logbookId: value.id});
+                                result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>';
+                            } else if (value) {
+                                result = value.name;
+                            }
                             return result;
                         }
 

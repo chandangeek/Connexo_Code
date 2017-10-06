@@ -169,7 +169,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                         action: {
                                             title: Uni.I18n.translate('general.action', 'MDC', 'Action'),
                                             route: 'action/{actionId}',
-                                            controller: 'Mdc.controller.setup.IssueAlarmDetail',
+                                            controller: 'Mdc.controller.setup.DeviceHistory',
                                             action: 'showActionOverview',
                                             privileges: Isu.privileges.Issue.viewAdminDevice,
                                             callback: function (route) {

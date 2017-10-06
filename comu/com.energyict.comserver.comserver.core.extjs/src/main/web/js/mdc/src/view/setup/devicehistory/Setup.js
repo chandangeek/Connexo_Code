@@ -102,9 +102,11 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                                 emptyComponent: {
                                     xtype: 'no-items-found-panel',
                                     itemId: 'register-mappings-empty-msg',
-                                    title: Uni.I18n.translate('registerMapping.empty.title', 'MDC', 'No register types found'),
+                                    title: Uni.I18n.translate('issueAlarm.empty.title', 'MDC', 'No issues and alarms found'),
                                     reasons: [
-                                        Uni.I18n.translate('registerMapping.empty.list.item1', 'MDC', 'No register types have been defined yet.')
+                                        Uni.I18n.translate('issueAlarm.empty.list.item1', 'MDC', 'No issue or alarm creation rules have been defined yet.'),
+                                        Uni.I18n.translate('issueAlarm.empty.list.item2', 'MDC', "The current issue or alarm creation rules haven't generated any alarms."),
+                                        Uni.I18n.translate('issueAlarm.empty.list.item3', 'MDC', 'No issues or alarms comply with the filter.')
                                     ]
                                 },
                                 previewComponent: {

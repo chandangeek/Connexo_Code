@@ -12,7 +12,10 @@ Ext.define('Mdc.model.IssueAlarm', {
         'priority',
         'status',
         'title',
+        'device',
         'snoozedDateTime',
+        'logBook',
+        'location',
         {name: 'id', type: 'int'},
         {name: 'issueId', type: 'auto'},
         {
@@ -77,17 +80,14 @@ Ext.define('Mdc.model.IssueAlarm', {
             mapping: 'device.usagePoint.info'
         },
         {
-            name: 'device',
+            name: 'location',
             convert: function (value, record) {
-                if (value)
-                    return value.location;
-                return '';
+                var device = record.get('device');
+                if (device && !Ext.isEmpty(device.location)) {
+                    return Ext.String.htmlEncode(device.location).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>');
+                    return '-'
+                }
             }
-        },
-        {
-            name: 'logBook',
-            mapping: 'logBook.name'
-
         },
         {name: 'userAssignee', type: 'auto'},
         {
