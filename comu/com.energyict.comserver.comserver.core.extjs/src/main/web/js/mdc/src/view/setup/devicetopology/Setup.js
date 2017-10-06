@@ -133,7 +133,8 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
                         margins: '7 0 0 10',
                         ui: 'blank',
                         text: '<span class="icon-pencil3" style="display:inline-block; font-size:16px;"></span>',
-                        tooltip: Uni.I18n.translate('deviceCommunicationTopology.editMaster.tooltip', 'MDC', 'Edit master')
+                        tooltip: Uni.I18n.translate('deviceCommunicationTopology.editMaster.tooltip', 'MDC', 'Edit master'),
+                        privileges: [Mdc.privileges.Device.administrateDevice, Mdc.privileges.Device.administrateDeviceCommunication]
                     },
                     {
                         xtype: 'button',
@@ -142,7 +143,8 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
                         ui: 'blank',
                         text: '<span class="icon-cancel-circle2" style="display:inline-block; font-size:16px;"></span>',
                         tooltip: Uni.I18n.translate('deviceCommunicationTopology.removeMaster.tooltip', 'MDC', 'Remove master'),
-                        hidden: Ext.isEmpty(me.device.get('masterDeviceName'))
+                        hidden: Ext.isEmpty(me.device.get('masterDeviceName')),
+                        privileges: [Mdc.privileges.Device.administrateDevice, Mdc.privileges.Device.administrateDeviceCommunication]
                     }
                 ]
             }
