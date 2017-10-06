@@ -196,6 +196,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 && propertyType != SimplePropertyType.RAISEEVENTPROPS
                 && propertyType != SimplePropertyType.BPM_PROCESS
                 && propertyType != SimplePropertyType.WEB_SERVICES_ENDPOINT
+                && propertyType != SimplePropertyType.INCREASE_URGENCY
                 ) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
             return null;

@@ -44,6 +44,7 @@ public enum SimplePropertyType implements PropertyType {
     RELATIVEPERIODWITHCOUNT(ListValueFactory.class),
     BPM_PROCESS(HasIdAndName.class),
     WEB_SERVICES_ENDPOINT(HasIdAndName.class),
+    INCREASE_URGENCY(HasIdAndName.class),
     TEMPORALAMOUNT(TemporalAmount.class),   //Property indicating a long period (See java.time.Period)
     DURATION(Duration.class),               //Property indicating a short duration (See java.time.Duration)
     TIMEDURATION(TimeDuration.class),       //Property that can indicate any kind of duration/period
