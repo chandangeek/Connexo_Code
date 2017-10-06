@@ -32,7 +32,6 @@ public final class ModuleConstants {
     public static final String CONNECTION_TASK_ID = "connectionTaskId";
     public static final String COM_SESSION_ID = "comSessionId";
     public static final String EVENT_TIMESTAMP = "timestamp";
-
     public static final long MDC_AMR_SYSTEM_ID = 1L;
 
 }

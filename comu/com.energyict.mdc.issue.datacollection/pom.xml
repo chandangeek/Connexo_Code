@@ -320,6 +320,10 @@
             <artifactId>soap.whiteboard.cxf</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.json</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

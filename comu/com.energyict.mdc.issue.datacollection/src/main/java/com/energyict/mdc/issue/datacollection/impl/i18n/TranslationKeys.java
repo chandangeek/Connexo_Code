@@ -23,7 +23,7 @@ public enum TranslationKeys implements TranslationKey {
 
     PARAMETER_NAME_EVENT_TYPE(BasicDataCollectionRuleTemplate.EVENTTYPE, "Event"),
     PARAMETER_AUTO_RESOLUTION(BasicDataCollectionRuleTemplate.AUTORESOLUTION, "Auto resolution"),
-    PARAMETER_INCREASE_URGENCY(BasicDataCollectionRuleTemplate.INCREASEURGENCY, "Increase urgency on recurrence (+1)"),
+    PARAMETER_INCREASE_URGENCY(BasicDataCollectionRuleTemplate.INCREASEURGENCY, "When raised again"),
     PARAMETER_NAME_THRESHOLD(EventAggregationRuleTemplate.THRESHOLD, "Threshold (%)"),
     PARAMETER_NAME_DELAY_IN_HOURS(MeterRegistrationRuleTemplate.DELAY, "Delay (in hours)"),
     PARAMETER_NAME_EVENT_TYPE_FOR_AGGREGATION(EventAggregationRuleTemplate.EVENTTYPE, "Event"),
