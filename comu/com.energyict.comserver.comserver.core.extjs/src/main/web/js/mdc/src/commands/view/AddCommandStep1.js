@@ -50,7 +50,7 @@ Ext.define('Mdc.commands.view.AddCommandStep1', {
                 labelWidth: 200,
                 width: 550,
                 renderer: function(value){
-                    return '<div style=" color:#FF0000; margin:6px 10px 6px 0px; ">' + Uni.I18n.translate('general.noDeviceGroup', 'MDC', 'No device group defined yet') + '</div>';
+                    return '<div style=" color:#FF0000; margin:6px 10px 6px 0px; ">' + Uni.I18n.translate('general.noDeviceGroup', 'MDC', 'No device group defined yet.') + '</div>';
                 }
             }
         ];
