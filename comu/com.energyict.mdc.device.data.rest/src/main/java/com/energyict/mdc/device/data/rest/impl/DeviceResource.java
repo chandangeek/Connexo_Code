@@ -345,7 +345,7 @@ public class DeviceResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE})
     public Response updateDevice(@PathParam("id") long id, DeviceInfo info) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(info.name);
         if (device.getDeviceConfiguration().getId() != info.deviceConfigurationId) {
