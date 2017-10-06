@@ -42,7 +42,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -199,7 +198,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     template.getPropertySpec(BasicDataCollectionRuleTemplate.AUTORESOLUTION).get().getValueFactory().fromStringValue("1"));
             properties.put(
                     BasicDataCollectionRuleTemplate.INCREASEURGENCY,
-                    template.getPropertySpec(BasicDataCollectionRuleTemplate.INCREASEURGENCY).get().getValueFactory().fromStringValue("1"));
+                    getIssueUrgencyIncreaseProps());
         } else if (template.getName().equals(BASIC_DATA_VALIDATION_RULE_TEMPLATE)) {
             List<HasIdAndName> deviceConfigurations = new ArrayList<>();
             deviceConfigurationService.findDeviceTypeByName("Elster A1800").get().getConfigurations()
@@ -331,5 +330,19 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                 .from(state)
                 .map(deviceLifeCycleConfigurationService::getDisplayName)
                 .orElseGet(state::getName);
+    }
+
+    private HasIdAndName getIssueUrgencyIncreaseProps() {
+        return new HasIdAndName() {
+            @Override
+            public Long getId() {
+                return 1L;
+            }
+
+            @Override
+            public String getName() {
+                return "Increase urgency(+1)";
+            }
+        };
     }
 }
