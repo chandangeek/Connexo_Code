@@ -34,6 +34,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
     actionUrl: '/api/isu/issues/{0}/actions',
     assignUrl: '/api/isu/issues/{0}/{1}',
     queryParams: null,
+    actionItemId: 'issue-action-apply',
     init: function () {
         this.control({
             'issue-action-view issue-action-form #issue-action-apply': {
@@ -72,7 +73,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                         me.applyAction(null, null, actionRecord, clipboard.get('issue') || issueRecord);
                         clipboard.clear('issue');
                     } else {
-                        var widget = Ext.widget('issue-action-view', {router: router}),
+                        var widget = Ext.widget('issue-action-view', {router: router, actionItemId: me.actionItemId}),
                             form = widget.down('#issue-action-view-form'),
                             cancelLink = form.down('#issue-action-cancel'),
                             queryParamsForCancel = fromOverview ? router.queryParams : me.queryParams;
