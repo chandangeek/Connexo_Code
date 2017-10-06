@@ -35,7 +35,7 @@ Ext.define('Uni.view.search.field.Simple', {
             removable: false,
             operatorMap: {
                 '==': 'uni-search-internal-input',
-                '\u2260': 'uni-search-internal-input'
+                '!=': 'uni-search-internal-input'
                 //'>': 'uni-search-internal-input',
                 //'>=': 'uni-search-internal-input',
                 //'<': 'uni-search-internal-input',
@@ -48,7 +48,7 @@ Ext.define('Uni.view.search.field.Simple', {
                 }
             },
             xtype: 'uni-search-internal-criterialine',
-            operator: '!=',
+            operator: '==',
             padding: 5,
             removable: false,
             operatorMap: {
