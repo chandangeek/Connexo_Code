@@ -199,7 +199,8 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
                         break;
                 }
             } else {
-                newEstimationTask.set('nextRun', null);
+                var startOnDate_noRecurrence = moment(newEstimationTaskDto.startOn).valueOf();
+                newEstimationTask.set('nextRun', startOnDate_noRecurrence);
                 newEstimationTask.set('schedule', null);
             }
 
