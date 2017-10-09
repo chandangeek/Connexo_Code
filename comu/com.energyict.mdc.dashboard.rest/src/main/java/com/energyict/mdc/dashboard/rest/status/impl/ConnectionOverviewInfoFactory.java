@@ -144,7 +144,7 @@ public class ConnectionOverviewInfoFactory {
         taskCounterInfo.displayName = thesaurus.getFormat(TranslationKeys.SUCCESS_WITH_FAILED_TASKS).format();
         taskCounterInfo.count = comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount();
         perLatestResultOverview.total += taskCounterInfo.count;
-        perLatestResultOverview.counters.add(taskCounterInfo);
+        perLatestResultOverview.counters.add(1, taskCounterInfo);
     }
 
 }
