@@ -241,10 +241,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
             System.arraycopy(encryptedDeviceKey, 16, cipher, 0, encryptedDeviceKey.length - 16);
 
             DeviceSecretImporter deviceSecretImporter = pkiService.getDeviceSecretImporter(keyAccessorType);
-//        SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessorType);
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("key", symmetricKey);
-//        symmetricKeyWrapper.setProperties(map);
+
             if (device.getKeyAccessor(keyAccessorType).isPresent() && device.getKeyAccessor(keyAccessorType).get().getActualValue().isPresent()) {
                 log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
             } else {
