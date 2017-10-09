@@ -251,6 +251,9 @@ Ext.define('Dxp.controller.Tasks', {
             },
             '#des-history-sort-toolbar #itemsContainer button': {
                 click: this.switchSortingOrder
+            },
+            '#history-grid-action-menu': {
+                click: this.historyGridActionMenu
             }
         });
     },
@@ -2898,4 +2901,14 @@ Ext.define('Dxp.controller.Tasks', {
         store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
         me.updateSortingToolbarAndResults();
     },
+
+    historyGridActionMenu: function(menu, item){
+        var me = this;
+
+        switch (item.action) {
+            case 'retryHistory':
+                alert('retryHistory');
+                break
+        }
+    }
 });

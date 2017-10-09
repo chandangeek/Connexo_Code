@@ -15,7 +15,8 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
         'Uni.grid.column.Duration',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Uni.DateTime'
+        'Uni.DateTime',
+        'Dxp.view.tasks.HistoryGridActionMenu'
     ],
 
     initComponent: function () {
@@ -67,7 +68,16 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 dataIndex: 'exportPeriod_range',
                 textAlign: 'center',
                 flex: 3
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                width: 120,
+                menu: {
+                    xtype: 'history-grid-action-menu',
+                    itemId: 'history-grid-action-menu'
+                }
             }
+
         ];
 
         me.dockedItems = [
