@@ -12,5 +12,6 @@ Ext.define('Imt.usagepointgroups.store.DynamicGroupUsagePoints', {
             type: 'json',
             root: 'searchResults'
         }
-    }
+    },
+    sorters: ['name']
 });

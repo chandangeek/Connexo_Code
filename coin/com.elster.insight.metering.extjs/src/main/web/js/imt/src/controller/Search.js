@@ -122,6 +122,13 @@ Ext.define('Imt.controller.Search', {
                 service: me.service
             });
 
+        me.getResultsGrid().getStore().on('sort', function () {
+            me.getResultsGrid().setLoading(false);
+        });
+        me.getResultsGrid().getStore().on('beforesort', function () {
+            me.getResultsGrid().setLoading(true);
+        });
+
         me.getApplication().fireEvent('changecontentevent', widget);
 
         searchDomains.clearFilter(true);

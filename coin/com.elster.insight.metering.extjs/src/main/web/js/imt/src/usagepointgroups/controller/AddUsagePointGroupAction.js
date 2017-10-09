@@ -365,6 +365,13 @@ Ext.define('Imt.usagepointgroups.controller.AddUsagePointGroupAction', {
         if (step2.isPrepared) {
             return;
         }
+
+        isDynamic && store.on('sort', function () {
+            step2.down('dynamic-group-usagepoints-grid').setLoading(false);
+        });
+        isDynamic && store.on('beforesort', function () {
+            step2.down('dynamic-group-usagepoints-grid').setLoading(true);
+        });
         step2.getLayout().setActiveItem(isDynamic ? 1 : 0);
         me.service.setSearchResultsStore(store);
         me.setColumnPicker(isDynamic);

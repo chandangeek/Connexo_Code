@@ -169,6 +169,13 @@ Ext.define('Imt.usagepointgroups.controller.UsagePointGroups', {
         }
         usagePointsOfGroupStore.getProxy().setExtraParam('id', currentUsagePointGroupId);
 
+        usagePointsOfGroupStore.on('sort', function () {
+            me.getUsagePointsOfUsagePointGroupGrid().setLoading(false);
+        });
+        usagePointsOfGroupStore.on('beforesort', function () {
+            me.getUsagePointsOfUsagePointGroupGrid().setLoading(true);
+        });
+
         mainView.setLoading();
         service.getSearchDomainsStore().load(onDependenciesLoad);
         model.load(currentUsagePointGroupId, {

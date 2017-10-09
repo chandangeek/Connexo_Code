@@ -17,6 +17,7 @@ Ext.define('Imt.usagepointgroups.view.UsagePointsOfUsagePointGroupGrid', {
     forceFit: true,
     enableColumnMove: true,
     columns: [],
+    sortableColumns: true,
     config: {
         service: null
     },

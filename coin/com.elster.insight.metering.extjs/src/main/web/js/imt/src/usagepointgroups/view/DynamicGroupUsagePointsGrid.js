@@ -18,7 +18,7 @@ Ext.define('Imt.usagepointgroups.view.DynamicGroupUsagePointsGrid', {
     config: {
         service: null
     },
-
+    sortableColumns: true,
     initComponent: function () {
         var me = this;
 
