@@ -149,6 +149,12 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').router = null;
         }
         this.getDevicesOfDeviceGroupStore().getProxy().setExtraParam('id', currentDeviceGroupId);
+        this.getDevicesOfDeviceGroupStore().on('sort', function () {
+            me.getDevicesOfDeviceGroupGrid().setLoading(false);
+        });
+        this.getDevicesOfDeviceGroupStore().on('beforesort', function () {
+            me.getDevicesOfDeviceGroupGrid().setLoading(true);
+        });
 
         var service = Ext.create('Mdc.service.Search', {
             router: router

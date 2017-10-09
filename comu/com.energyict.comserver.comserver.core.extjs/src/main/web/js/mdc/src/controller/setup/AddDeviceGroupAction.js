@@ -384,6 +384,13 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         } else {
             searchBtn.setText(Uni.I18n.translate('general.preview', 'MDC', 'Preview'));
             staticGrid = step2.down('dynamic-group-devices-grid');
+            staticGrid.getStore().on('sort', function () {
+                staticGrid.setLoading(false);
+            });
+            staticGrid.getStore().on('beforesort', function () {
+                staticGrid.setLoading(true);
+            });
+
             staticGrid.down('pagingtoolbartop').resetPaging();
             staticGrid.down('pagingtoolbarbottom').resetPaging();
         }

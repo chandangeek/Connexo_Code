@@ -119,6 +119,13 @@ Ext.define('Mdc.controller.Search', {
                 service: me.service
             });
 
+        searchResults.on('sort', function () {
+            me.getResultsGrid().setLoading(false);
+        });
+        searchResults.on('beforesort', function () {
+            me.getResultsGrid().setLoading(true);
+        });
+
         Ext.suspendLayouts();
         me.getApplication().fireEvent('changecontentevent', widget);
 
