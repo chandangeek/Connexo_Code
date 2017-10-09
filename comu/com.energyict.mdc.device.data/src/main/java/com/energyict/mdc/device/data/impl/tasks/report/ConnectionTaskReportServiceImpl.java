@@ -221,13 +221,17 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
     }
 
     private long countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(boolean waitingOnly, EndDeviceGroup deviceGroup) {
-        SqlBuilder sqlBuilder = new SqlBuilder("select count(*) from ");
+        SqlBuilder sqlBuilder = new SqlBuilder("WITH ");
+        DeviceStateSqlBuilder
+                .forDefaultExcludedStates("enddevices")
+                .appendRestrictedStatesWithClause(sqlBuilder, this.clock().instant());
+        sqlBuilder.append("select count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct ");
+        sqlBuilder.append(" join ");
+        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
+        sqlBuilder.append("  dev on ct.device = dev.id join enddevices kd on dev.meterid = kd.id ");
         if(deviceGroup != null) {
-            sqlBuilder.append(" join ");
-            sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-            sqlBuilder.append(" dev on ct.device = dev.id ");
             this.appendDeviceGroupConditions(deviceGroup, sqlBuilder, "ct");
         }
         sqlBuilder.append(" where ct.obsolete_date is null");
@@ -237,9 +241,12 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
             sqlBuilder.append(" and ct.comserver is null and ct.status = 0 and ct.currentretrycount = 0 and ct.lastExecutionFailed = 0 and ct.lastsuccessfulcommunicationend is not null");
         } else {
             sqlBuilder.append(" and ct.nextexecutiontimestamp is not null");
+            sqlBuilder.append(" and ct.lastsession is not null ");
         }
         sqlBuilder.append(" and ct.lastSessionSuccessIndicator = 0");
-        this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(true, sqlBuilder);
+        sqlBuilder.append(" and exists (select * from ");
+        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
+        sqlBuilder.append(" ctes where ctes.COMSESSION = ct.lastSession and ctes.SUCCESSINDICATOR = 0)");
         try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
              PreparedStatement stmnt = sqlBuilder.prepare(connection)) {
             try (ResultSet resultSet = stmnt.executeQuery()) {
