@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.KeypairWrapper;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
@@ -124,11 +125,12 @@ public class DataVaultSymmetricKeyImporterTest {
 
     @Test
     public void testSuccessfulImport() throws Exception {
-        ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
         PrivateKeyWrapper privateKeyWrapper = mock(PrivateKeyWrapper.class);
-        when(certificateWrapper.getPrivateKeyWrapper()).thenReturn(privateKeyWrapper);
         when(privateKeyWrapper.getPrivateKey()).thenReturn(hsmKeyPair.getPrivate());
-        when(pkiService.findCertificateWrapper("ImportKey")).thenReturn(Optional.of(certificateWrapper));
+        KeypairWrapper keypairWrapper = mock(KeypairWrapper.class);
+        when(keypairWrapper.getPrivateKeyWrapper()).thenReturn(Optional.of(privateKeyWrapper));
+        when(keypairWrapper.hasPrivateKey()).thenReturn(true);
+        when(pkiService.findKeypairWrapper("ImportKey")).thenReturn(Optional.of(keypairWrapper));
 
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         KeyType keyType = mock(KeyType.class);

@@ -244,6 +244,13 @@ public interface PkiService {
     Optional<KeypairWrapper> findKeypairWrapper(long id);
 
     /**
+     * Returns the KeypairWrapper identified by alias
+     * @param alias The Keypair's alias
+     * @return The {@link KeypairWrapper}, empty if not found.
+     */
+    Optional<KeypairWrapper> findKeypairWrapper(String alias);
+
+    /**
      * Returns the CertificateWrapper identified by the provided id if the {@link CertificateWrapper} has the correct version
      * @param id The certificate's id
      * @param version The object's required version

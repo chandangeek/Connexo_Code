@@ -185,6 +185,7 @@ public class PkiGogoCommand {
             PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
             PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) keypairWrapper.getPrivateKeyWrapper().get();
             privateKeyWrapper.setPrivateKey(privateKey);
+            privateKeyWrapper.save();
             keypairWrapper.setPublicKey(privateKeyWrapper.getPublicKey());
             keypairWrapper.save();
             context.commit();

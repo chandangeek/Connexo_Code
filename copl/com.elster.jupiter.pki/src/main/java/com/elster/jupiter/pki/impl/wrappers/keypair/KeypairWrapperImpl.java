@@ -279,13 +279,13 @@ public class KeypairWrapperImpl implements KeypairWrapper {
 
     @Override
     public boolean hasPrivateKey() {
-//        try {
+        try {
             return this.privateKeyReference!=null
-                    && this.privateKeyReference.isPresent();
-//                    && ((PrivateKeyWrapper)this.privateKeyReference.get()).getPrivateKey()!=null;
-//        } catch (InvalidKeyException e) {
-//            return false;
-//        }
+                    && this.privateKeyReference.isPresent()
+                    && ((PrivateKeyWrapper)this.privateKeyReference.get()).getPrivateKey()!=null;
+        } catch (InvalidKeyException e) {
+            return false;
+        }
     }
 
     @Override

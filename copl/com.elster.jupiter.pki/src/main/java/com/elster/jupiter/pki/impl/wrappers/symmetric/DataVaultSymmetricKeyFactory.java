@@ -29,7 +29,6 @@ import java.util.Optional;
 public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory {
 
     public static final String KEY_ENCRYPTION_METHOD = "DataVault";
-    public static final String IMPORT_KEY = "com.elster.jupiter.shipment.importer.certificate.alias";
 
     private volatile DataModel dataModel;
     private volatile PkiService pkiService;
@@ -43,7 +42,7 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory {
 
     @Activate
     public void activate(BundleContext bundleContext) {
-        certificateAlias = Optional.ofNullable(bundleContext.getProperty(IMPORT_KEY));
+        certificateAlias = Optional.ofNullable(bundleContext.getProperty(AbstractDataVaultImporter.IMPORT_KEY));
     }
 
     @Inject // Testing only

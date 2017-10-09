@@ -499,6 +499,11 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
+    public Optional<KeypairWrapper> findKeypairWrapper(String alias) {
+        return getDataModel().mapper(KeypairWrapper.class).getUnique(KeypairWrapperImpl.Fields.ALIAS.fieldName(), alias);
+    }
+
+    @Override
     public Optional<CertificateWrapper> findAndLockCertificateWrapper(long id, long version) {
         return getDataModel().mapper(CertificateWrapper.class).lockObjectIfVersion(version, id);
     }
