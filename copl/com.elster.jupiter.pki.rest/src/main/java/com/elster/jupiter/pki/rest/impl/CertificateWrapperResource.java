@@ -15,7 +15,6 @@ import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.util.Checks;
 
-import com.elster.jupiter.util.json.JsonService;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -42,7 +41,10 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -273,6 +275,270 @@ public class CertificateWrapperResource {
         } catch (NoSuchProviderException e) {
             throw exceptionFactory.newException(MessageSeeds.COULD_NOT_CREATE_CERTIFICATE_FACTORY, e);
         }
+    }
+
+    @GET
+    @Path("/aliases")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList aliasSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
+        PkiService.AliasSearchFilter aliasSearchFilter = getAliasSearchFilter(params, uriInfo.getQueryParameters(), jsonQueryFilter);
+        List<AliasInfo> collect = pkiService.getAliasesByFilter(aliasSearchFilter)
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getAlias)
+                .map(AliasInfo::new)
+                .collect(toList());
+        return PagedInfoList.fromPagedList("aliases", collect, queryParameters);
+    }
+
+    private PkiService.AliasSearchFilter getAliasSearchFilter(StandardParametersBean params, MultivaluedMap<String, String> uriParams, JsonQueryFilter jsonQueryFilter) {
+        PkiService.AliasSearchFilter aliasSearchFilter = new PkiService.AliasSearchFilter();
+        String alias = null;
+        Long trustStoreId = null;
+
+        if (uriParams.containsKey("alias")) {
+            alias = params.getFirst("alias");
+        }
+        if (alias == null && jsonQueryFilter.hasFilters()) {
+            alias = jsonQueryFilter.getString("alias");
+        }
+        if (uriParams.containsKey("trustStore")) {
+            trustStoreId = Long.valueOf(params.getFirst("trustStore"));
+        }
+        if (trustStoreId == null && jsonQueryFilter.hasProperty("trustStore")) {
+            trustStoreId = jsonQueryFilter.getLong("trustStore");
+        }
+        if (trustStoreId != null) {
+            aliasSearchFilter.trustStore = pkiService.findTrustStore(trustStoreId)
+                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUSTSTORE, "trustStore"));
+        }
+        if (alias == null || alias.isEmpty()) {
+            aliasSearchFilter.alias = "*";
+        }
+        if (alias != null && !alias.isEmpty()) {
+            if (!alias.contains("*") && !alias.contains("?")) {
+                aliasSearchFilter.alias = "*" + alias + "*";
+            } else {
+                aliasSearchFilter.alias = alias;
+            }
+        }
+        return aliasSearchFilter;
+    }
+
+    @GET
+    @Path("/subjects")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList subjectSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
+        PkiService.SubjectSearchFilter subjectSearchFilter = getSubjectSearchFilter(params, uriInfo.getQueryParameters(), jsonQueryFilter);
+        List<SubjectInfo> collect = pkiService.getSubjectsByFilter(subjectSearchFilter)
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getSubject)
+                .map(SubjectInfo::new)
+                .collect(toList());
+        return PagedInfoList.fromPagedList("subjects", collect, queryParameters);
+    }
+
+    private PkiService.SubjectSearchFilter getSubjectSearchFilter(StandardParametersBean params, MultivaluedMap<String, String> uriParams, JsonQueryFilter jsonQueryFilter) {
+        PkiService.SubjectSearchFilter subjectSearchFilter = new PkiService.SubjectSearchFilter();
+        String subject = null;
+        Long trustStoreId = null;
+
+        if (uriParams.containsKey("subject")) {
+            subject = params.getFirst("subject");
+        }
+        if (subject == null && jsonQueryFilter.hasProperty("subject")) {
+            subject = jsonQueryFilter.getString("subject");
+        }
+        if (uriParams.containsKey("trustStore")) {
+            trustStoreId = Long.valueOf(params.getFirst("trustStore"));
+        }
+        if (trustStoreId == null && jsonQueryFilter.hasProperty("trustStore")) {
+            trustStoreId = jsonQueryFilter.getLong("trustStore");
+        }
+        if (trustStoreId != null) {
+            subjectSearchFilter.trustStore = pkiService.findTrustStore(trustStoreId)
+                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUSTSTORE, "trustStore"));
+        }
+        if (subject == null || subject.isEmpty()) {
+            subjectSearchFilter.subject = "*";
+        }
+        if (subject != null && !subject.isEmpty()) {
+            if (!subject.contains("*") && !subject.contains("?")) {
+                subjectSearchFilter.subject = "*" + subject + "*";
+            } else {
+                subjectSearchFilter.subject = subject;
+            }
+        }
+        return subjectSearchFilter;
+    }
+
+    @GET
+    @Path("/issuers")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList issuerSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
+        PkiService.IssuerSearchFilter issueSearchFilter = getIssuerSearchFilter(params, uriInfo.getQueryParameters(), jsonQueryFilter);
+        List<SubjectInfo> collect = pkiService.getIssuersByFilter(issueSearchFilter)
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getIssuer)
+                .map(SubjectInfo::new)
+                .collect(toList());
+        return PagedInfoList.fromPagedList("issuers", collect, queryParameters);
+    }
+
+    private PkiService.IssuerSearchFilter getIssuerSearchFilter(StandardParametersBean params, MultivaluedMap<String, String> uriParams, JsonQueryFilter jsonQueryFilter) {
+        PkiService.IssuerSearchFilter issuerSearchFilter = new PkiService.IssuerSearchFilter();
+        String issuer = null;
+        Long trustStoreId = null;
+
+        if (uriParams.containsKey("issuer")) {
+            issuer = params.getFirst("issuer");
+        }
+        if (issuer == null && jsonQueryFilter.hasProperty("issuer")) {
+            issuer = jsonQueryFilter.getString("issuer");
+        }
+        if (uriParams.containsKey("trustStore")) {
+            trustStoreId = Long.valueOf(params.getFirst("trustStore"));
+        }
+        if (trustStoreId == null && jsonQueryFilter.hasProperty("trustStore")) {
+            trustStoreId = jsonQueryFilter.getLong("trustStore");
+        }
+        if (trustStoreId != null) {
+            issuerSearchFilter.trustStore = pkiService.findTrustStore(trustStoreId)
+                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUSTSTORE, "trustStore"));
+        }
+        if (issuer == null || issuer.isEmpty()) {
+            issuerSearchFilter.issuer = "*";
+        }
+        if (issuer != null && !issuer.isEmpty()) {
+            if (!issuer.contains("*") && !issuer.contains("?")) {
+                issuerSearchFilter.issuer = "*" + issuer + "*";
+            } else {
+                issuerSearchFilter.issuer = issuer;
+            }
+        }
+        return issuerSearchFilter;
+    }
+
+    @GET
+    @Path("/keyusages")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList keyUsagesSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
+        PkiService.KeyUsagesSearchFilter keyUsagesSearchFilter = getKeyUsagesSearchFilter(params, uriInfo.getQueryParameters(), jsonQueryFilter);
+
+        List<String> infos = pkiService.getKeyUsagesByFilter(keyUsagesSearchFilter)
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getStringifiedKeyUsages)
+                .map(x -> filterKeyUsagesbySearchParam().apply(x, keyUsagesSearchFilter.keyUsages))
+                .flatMap(Collection::stream)
+                .distinct()
+                .collect(toList());
+
+        return PagedInfoList.fromPagedList("keyusages", infos, queryParameters);
+    }
+
+    private PkiService.KeyUsagesSearchFilter getKeyUsagesSearchFilter(StandardParametersBean params, MultivaluedMap<String, String> uriParams, JsonQueryFilter jsonQueryFilter) {
+        PkiService.KeyUsagesSearchFilter keyUsagesSearchFilter = new PkiService.KeyUsagesSearchFilter();
+        String keyUsages = null;
+        Long trustStoreId = null;
+
+        if (uriParams.containsKey("keyUsages")) {
+            keyUsages = params.getFirst("keyUsages");
+        }
+        if (keyUsages == null && jsonQueryFilter.hasProperty("keyUsages")) {
+            keyUsages = jsonQueryFilter.getString("keyUsages");
+        }
+        if (uriParams.containsKey("trustStore")) {
+            trustStoreId = Long.valueOf(params.getFirst("trustStore"));
+        }
+        if (trustStoreId == null && jsonQueryFilter.hasProperty("trustStore")) {
+            trustStoreId = jsonQueryFilter.getLong("trustStore");
+        }
+        if (trustStoreId != null) {
+            keyUsagesSearchFilter.trustStore = pkiService.findTrustStore(trustStoreId)
+                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUSTSTORE, "trustStore"));
+        }
+        if (keyUsages == null || keyUsages.isEmpty()) {
+            keyUsagesSearchFilter.keyUsages = "*";
+        }
+        if (keyUsages != null && !keyUsages.isEmpty()) {
+            if (!keyUsages.contains("*") && !keyUsages.contains("?")) {
+                keyUsagesSearchFilter.keyUsages = "*" + keyUsages + "*";
+            } else {
+                keyUsagesSearchFilter.keyUsages = keyUsages;
+            }
+        }
+        return keyUsagesSearchFilter;
+    }
+
+    @GET
+    @Path("/extendedkeyusages")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList extendedKeyUsagesSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
+        PkiService.ExtendedKeyUsagesSearchFilter extendedKeyUsagesSearchFilter = getExtendedKeyUsagesSearchFilter(params, uriInfo.getQueryParameters(), jsonQueryFilter);
+
+        List<String> infos = pkiService.getExtendedKeyUsagesByFilter(extendedKeyUsagesSearchFilter)
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getStringifiedExtendedKeyUsages)
+                .map(x -> filterKeyUsagesbySearchParam().apply(x, extendedKeyUsagesSearchFilter.extendedKeyUsages))
+                .flatMap(Collection::stream)
+                .distinct()
+                .collect(toList());
+
+        return PagedInfoList.fromPagedList("extendedkeyusages", infos, queryParameters);
+    }
+
+    private PkiService.ExtendedKeyUsagesSearchFilter getExtendedKeyUsagesSearchFilter(StandardParametersBean params, MultivaluedMap<String, String> uriParams, JsonQueryFilter jsonQueryFilter) {
+        PkiService.ExtendedKeyUsagesSearchFilter extendedKeyUsagesSearchFilter = new PkiService.ExtendedKeyUsagesSearchFilter();
+        String extendedKeyUsages = null;
+        Long trustStoreId = null;
+
+        if (uriParams.containsKey("extendedKeyUsages")) {
+            extendedKeyUsages = params.getFirst("extendedKeyUsages");
+        }
+        if (extendedKeyUsages == null && jsonQueryFilter.hasProperty("extendedKeyUsages")) {
+            extendedKeyUsages = jsonQueryFilter.getString("extendedKeyUsages");
+        }
+        if (uriParams.containsKey("trustStore")) {
+            trustStoreId = Long.valueOf(params.getFirst("trustStore"));
+        }
+        if (trustStoreId == null && jsonQueryFilter.hasProperty("trustStore")) {
+            trustStoreId = jsonQueryFilter.getLong("trustStore");
+        }
+        if (trustStoreId != null) {
+            extendedKeyUsagesSearchFilter.trustStore = pkiService.findTrustStore(trustStoreId)
+                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUSTSTORE, "trustStore"));
+        }
+        if (extendedKeyUsages == null || extendedKeyUsages.isEmpty()) {
+            extendedKeyUsagesSearchFilter.extendedKeyUsages = "*";
+        }
+        if (extendedKeyUsages != null && !extendedKeyUsages.isEmpty()) {
+            if (!extendedKeyUsages.contains("*") && !extendedKeyUsages.contains("?")) {
+                extendedKeyUsagesSearchFilter.extendedKeyUsages = "*" + extendedKeyUsages + "*";
+            } else {
+                extendedKeyUsagesSearchFilter.extendedKeyUsages = extendedKeyUsages;
+            }
+        }
+        return extendedKeyUsagesSearchFilter;
+    }
+
+
+    private BiFunction<String, String, List<String>> filterKeyUsagesbySearchParam() {
+        return (String usages, String searchParam) ->
+                Stream.of(usages.split(","))
+                        .map(usage -> usage.toLowerCase().trim())
+                        .filter(x -> x.contains(searchParam.
+                                replace("*", "")
+                                .replace("?", "")))
+                        .collect(toList());
     }
 
 }
