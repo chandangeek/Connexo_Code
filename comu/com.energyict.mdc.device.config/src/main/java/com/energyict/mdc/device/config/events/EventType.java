@@ -18,11 +18,31 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
  */
 public enum EventType {
 
-    DEVICETYPE_CREATED("devicetype/CREATED"),
-    DEVICETYPE_UPDATED("devicetype/UPDATED"),
+    DEVICETYPE_CREATED("devicetype/CREATED"){
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
+    DEVICETYPE_UPDATED("devicetype/UPDATED"){
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
     DEVICETYPE_VALIDATE_DELETE("devicetype/VALIDATEDELETE"),
-    DEVICETYPE_DELETED("devicetype/DELETED"),
-    DEVICELIFECYCLE_UPDATED("devicetype/dlc/UPDATED"),
+    DEVICETYPE_DELETED("devicetype/DELETED"){
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
+    DEVICELIFECYCLE_UPDATED("devicetype/dlc/UPDATED"){
+        @Override
+        EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder.shouldPublish();
+        }
+    },
     DEVICECONFIGURATION_CREATED("deviceconfiguration/CREATED"),
     DEVICECONFIGURATION_UPDATED("deviceconfiguration/UPDATED"),
     DEVICECONFIGURATION_DELETED("deviceconfiguration/DELETED"),
