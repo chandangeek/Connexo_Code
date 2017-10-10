@@ -42,7 +42,6 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=generateKeypair",
                 "osgi.command.function=importPublicKey",
                 "osgi.command.function=importKeypair",
-
         },
         immediate = true)
 public class PkiGogoCommand {
@@ -147,6 +146,7 @@ public class PkiGogoCommand {
     }
 
     public void importPublicKey() {
+        System.out.println("Imports an existing public key (x509 encoded) into a new keypair wrapper");
         System.out.println("usage: importPublicKey <alias> <keyTypeId> <file>");
     }
 
@@ -169,6 +169,7 @@ public class PkiGogoCommand {
     }
 
     public void importKeypair() {
+        System.out.println("Imports an existing keypair (pkcs8) into a new keypair wrapper");
         System.out.println("usage: importKeypair <alias> <keyTypeId> <private key file (DER)>");
     }
 
