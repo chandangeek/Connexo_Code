@@ -10,8 +10,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.io.ConnectionCommunicationException;
-import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
+
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ConnectionSetupException;
 
 import java.util.List;
 
@@ -124,11 +125,11 @@ abstract class ScheduledJobExecutor {
     }
 
     private boolean isConnectionSetupException(Throwable t) {
-        return t instanceof ConnectionSetupException || t instanceof com.energyict.mdc.upl.io.ConnectionSetupException;
+        return t instanceof ConnectionSetupException;
     }
 
     private boolean isConnectionCommunicationException(Throwable t) {
-        return t instanceof ConnectionCommunicationException || t instanceof com.energyict.mdc.upl.io.ConnectionCommunicationException;
+        return t instanceof ConnectionCommunicationException;
     }
 
     public enum ValidationReturnStatus {

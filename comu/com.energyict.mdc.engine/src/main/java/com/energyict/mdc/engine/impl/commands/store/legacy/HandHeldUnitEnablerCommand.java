@@ -15,7 +15,6 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
@@ -24,6 +23,7 @@ import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.HalfDuplexEnabler;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 public class HandHeldUnitEnablerCommand extends SimpleComCommand {
 

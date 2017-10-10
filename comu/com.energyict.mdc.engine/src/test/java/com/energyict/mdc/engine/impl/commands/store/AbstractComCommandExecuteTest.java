@@ -97,7 +97,7 @@ public abstract class AbstractComCommandExecuteTest {
     @Mock
     protected NlsService nlsService;
     @Mock
-    private Thesaurus thesaurusISU, thesaurusCES, thesaurusJoined;
+    private Thesaurus thesaurusISU, thesaurusCES, thesaurusPPC, thesaurusJoined;
     protected IssueServiceImpl issueService;
     @Mock
     private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
@@ -133,12 +133,21 @@ public abstract class AbstractComCommandExecuteTest {
         when(thesaurusISU.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
         when(nlsService.getThesaurus("ISU", Layer.DOMAIN)).thenReturn(thesaurusISU);
+        when(nlsService.getThesaurus("CES", Layer.DOMAIN)).thenReturn(thesaurusCES);
+        when(nlsService.getThesaurus("PPC", Layer.DOMAIN)).thenReturn(thesaurusPPC);
 
         when(thesaurusCES.getString(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
         when(thesaurusCES.getString(any(), any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
         when(thesaurusCES.getFormat(any(TranslationKey.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((TranslationKey) invocation.getArguments()[0]));
         when(thesaurusCES.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
+
+        when(thesaurusPPC.getString(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
+        when(thesaurusPPC.getString(any(), any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
+        when(thesaurusPPC.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocation -> new SimpleNlsMessageFormat((TranslationKey) invocation.getArguments()[0]));
+        when(thesaurusPPC.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
 
         when(nlsService.getThesaurus("CES", Layer.DOMAIN)).thenReturn(thesaurusCES);
@@ -164,6 +173,7 @@ public abstract class AbstractComCommandExecuteTest {
         when(commandRootServiceProvider.clock()).thenReturn(this.clock);
         when(commandRootServiceProvider.issueService()).thenReturn(issueService);
         when(commandRootServiceProvider.deviceService()).thenReturn(deviceService);
+        when(commandRootServiceProvider.nlsService()).thenReturn(nlsService);
         when(commandRootServiceProvider.thesaurus()).thenReturn(thesaurusCES);
         IdentificationService identificationService = mock(IdentificationService.class);
         when(identificationService.createLoadProfileIdentifierByDatabaseId(Matchers.anyLong(), Matchers.<ObisCode>any(), Matchers.<DeviceIdentifier>any())).thenReturn(mock(LoadProfileIdentifier.class));

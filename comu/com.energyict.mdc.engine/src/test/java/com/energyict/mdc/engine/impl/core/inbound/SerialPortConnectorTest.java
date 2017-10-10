@@ -15,7 +15,6 @@ import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.io.impl.SerialIOAtModemComponentServiceImpl;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -24,6 +23,7 @@ import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
+import com.energyict.protocol.exceptions.ModemException;
 import org.joda.time.DateTimeConstants;
 
 import java.io.IOException;
@@ -393,9 +393,7 @@ public class SerialPortConnectorTest {
         try {
             portConnector.accept();
         } catch (ModemException e) {
-            assertThat(e.getCause()).isInstanceOf(com.energyict.mdc.upl.io.ModemException.class);
-            com.energyict.mdc.upl.io.ModemException cause = (com.energyict.mdc.upl.io.ModemException) e.getCause();
-            assertThat(cause.getType()).isEqualTo(com.energyict.mdc.upl.io.ModemException.Type.MODEM_COULD_NOT_HANG_UP);
+            assertThat(e.getMessageSeed()).isEqualTo(com.energyict.protocol.exception.ModemException.Type.MODEM_COULD_NOT_HANG_UP.getMessageSeed());
             long timeAfterConnect = System.currentTimeMillis();
             long connectTime = timeAfterConnect - timeBeforeConnect;
             long secs = connectTime / DateTimeConstants.MILLIS_PER_SECOND;

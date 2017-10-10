@@ -17,7 +17,6 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.exceptions.ObisCodeParseException;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Problem;
@@ -29,6 +28,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.exceptions.DataParseException;
 
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -145,7 +145,7 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
                         && meterChannelInfo.getMeterIdentifier().equalsIgnoreCase(localChannelInfo.getMeterIdentifier());
             }
         } catch (IllegalArgumentException e) {
-            throw new ObisCodeParseException(e);
+            throw new DataParseException(e, MessageSeeds.COULD_NOT_PARSE_OBIS_CODE);
         }
     }
 

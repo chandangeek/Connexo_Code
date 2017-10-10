@@ -11,7 +11,6 @@ import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTest
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Problem;
@@ -22,6 +21,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.exceptions.DataParseException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -232,7 +232,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         assertEquals("The mock reader should be in the remove-list", loadProfileReader, verifyLoadProfilesCommand.getReadersToRemove().get(0));
     }
 
-    @Test(expected = GeneralParseException.class)
+    @Test(expected = DataParseException.class)
     public void verifyChannelInfoTestIOException() {
         List<ChannelInfo> listOfChannelInfos = new ArrayList<>();
         ChannelInfo channelInfoMock1 = new ChannelInfo(0, "NoObisCodeValue", Unit.getUndefined());

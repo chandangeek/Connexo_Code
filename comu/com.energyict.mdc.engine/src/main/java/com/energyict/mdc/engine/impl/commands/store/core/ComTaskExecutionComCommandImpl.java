@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 
+import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
@@ -17,8 +18,11 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLNlsServiceAdapter;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -56,6 +60,7 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
                     } catch (Throwable throwable) {
                         // nothing should get through here, or there must be something seriously wrong ...
                         CommandRoot.ServiceProvider serviceProvider = getGroupedDeviceCommand().getCommandRoot().getServiceProvider();
+                        injectNlsServiceIfNeeded(throwable, serviceProvider);
                         Problem problem = serviceProvider.issueService().newProblem(this, MessageSeeds.SOMETHING_UNEXPECTED_HAPPENED);
                         addIssue(problem, CompletionCode.UnexpectedError);
                         setExecutionState(BasicComCommandBehavior.ExecutionState.FAILED);
@@ -75,6 +80,14 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
             }
         }
     }
+
+    private void injectNlsServiceIfNeeded(Throwable e, CommandRoot.ServiceProvider serviceProvider) {
+         if (e instanceof ProtocolRuntimeException) {
+             ((ProtocolRuntimeException)e).injectNlsService(UPLNlsServiceAdapter.adaptTo(serviceProvider.nlsService()));
+         } else if (e instanceof ComServerRuntimeException) {
+            ((ComServerRuntimeException)e).injectNlsService(serviceProvider.nlsService());
+        }
+     }
 
     private String getComTasksDescription(ExecutionContext executionContext) {
         return executionContext.getComTaskExecution().getComTask().getName();

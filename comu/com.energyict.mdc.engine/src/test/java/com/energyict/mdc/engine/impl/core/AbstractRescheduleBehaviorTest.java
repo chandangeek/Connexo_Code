@@ -4,6 +4,11 @@
 
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.StopWatch;
@@ -30,19 +35,20 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.ClockCommandImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -51,6 +57,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -91,8 +98,11 @@ public abstract class AbstractRescheduleBehaviorTest {
     @Mock
     protected EventPublisher eventPublisher;
     @Mock
+    protected NlsService nlsService;
+    @Mock
+    protected Thesaurus thesaurusCES;
+    @Mock
     protected ComServerDAO comServerDAO;
-
     @Mock
     protected ScheduledConnectionTask connectionTask;
     @Mock
@@ -110,9 +120,12 @@ public abstract class AbstractRescheduleBehaviorTest {
 
     @Before
     public void setup() {
-        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionStarted(any(ConnectionTask.class), any(ComServer.class));
-        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionFailed(any(ConnectionTask.class));
-        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionCompleted(any(ConnectionTask.class));
+        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o -> o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO)
+                .executionStarted(any(ConnectionTask.class), any(ComServer.class));
+        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o -> o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO)
+                .executionFailed(any(ConnectionTask.class));
+        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o -> o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO)
+                .executionCompleted(any(ConnectionTask.class));
         when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(comTaskExecution.getDevice()).thenReturn(device);
         Optional<NextExecutionSpecs> nextExecutionSpecs = Optional.empty();
@@ -148,6 +161,16 @@ public abstract class AbstractRescheduleBehaviorTest {
 
         when(this.commandRootServiceProvider.issueService()).thenReturn(this.issueService);
         when(this.commandRootServiceProvider.clock()).thenReturn(clock);
+        when(this.commandRootServiceProvider.nlsService()).thenReturn(this.nlsService);
+        when(this.nlsService.getThesaurus("CES", Layer.DOMAIN)).thenReturn(this.thesaurusCES);
+
+        when(thesaurusCES.getString(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
+        when(thesaurusCES.getString(any(), any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
+        when(thesaurusCES.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocation -> new SimpleNlsMessageFormat((TranslationKey) invocation.getArguments()[0]));
+        when(thesaurusCES.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
+
 
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).thenReturn(comSessionBuilder);
     }
@@ -182,7 +205,7 @@ public abstract class AbstractRescheduleBehaviorTest {
         ClockTask clockTask = mock(ClockTask.class);
         when(clockTask.getClockTaskType()).thenReturn(ClockTaskType.SETCLOCK);
         ClockCommandImpl clockCommand = spy(new ClockCommandImpl(groupedDeviceCommand, clockTask, comTaskExecution));
-        doThrow(new CommunicationException(MessageSeeds.UNEXPECTED_PROTOCOL_ERROR, new IOException("Hi, I'm an error"))).when(clockCommand).doExecute(any(DeviceProtocol.class), any(ExecutionContext.class));
+        doThrow(new CommunicationException(MessageSeeds.LOGBOOK_ISSUE, new IOException("Hi, I'm an error"))).when(clockCommand).doExecute(any(DeviceProtocol.class), any(ExecutionContext.class));
         groupedDeviceCommand.addCommand(clockCommand, comTaskExecution);
     }
 
@@ -190,9 +213,9 @@ public abstract class AbstractRescheduleBehaviorTest {
         ClockTask clockTask = mock(ClockTask.class);
         when(clockTask.getClockTaskType()).thenReturn(ClockTaskType.SETCLOCK);
         ClockCommandImpl clockCommand = spy(new ClockCommandImpl(groupedDeviceCommand, clockTask, comTaskExecution));
-        doThrow(ConnectionCommunicationException.unexpectedIOException(new IOException("For testing purposes only")))
-            .when(clockCommand)
-            .doExecute(any(DeviceProtocol.class), any(ExecutionContext.class));
+        doThrow(new ConnectionCommunicationException(com.energyict.mdc.engine.impl.commands.MessageSeeds.UNEXPECTED_IO_EXCEPTION, new IOException("For testing purposes only")))
+                .when(clockCommand)
+                .doExecute(any(DeviceProtocol.class), any(ExecutionContext.class));
         groupedDeviceCommand.addCommand(clockCommand, comTaskExecution);
     }
 
@@ -235,11 +258,11 @@ public abstract class AbstractRescheduleBehaviorTest {
     protected ComTaskExecution mockNewComTaskExecution() {
         NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
         when(nextExecutionSpecs.getNextTimestamp(any(Calendar.class)))
-            .thenAnswer(invocation -> {
-                Calendar calendar = (Calendar) invocation.getArguments()[0];
-                calendar.add(Calendar.MINUTE, 5);
-                return calendar.getTime();
-            });
+                .thenAnswer(invocation -> {
+                    Calendar calendar = (Calendar) invocation.getArguments()[0];
+                    calendar.add(Calendar.MINUTE, 5);
+                    return calendar.getTime();
+                });
         ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
@@ -248,4 +271,26 @@ public abstract class AbstractRescheduleBehaviorTest {
         return comTaskExecution1;
     }
 
+    class SimpleNlsMessageFormat implements NlsMessageFormat {
+
+        private final String key;
+
+        SimpleNlsMessageFormat(TranslationKey translationKey) {
+            this.key = translationKey.getKey();
+        }
+
+        SimpleNlsMessageFormat(MessageSeed messageSeed) {
+            this.key = messageSeed.getKey();
+        }
+
+        @Override
+        public String format(Object... args) {
+            return this.key;    // Don't format, just return the key
+        }
+
+        @Override
+        public String format(Locale locale, Object... args) {
+            return this.key;    // Don't format, just return the key
+        }
+    }
 }

@@ -57,7 +57,6 @@ import com.energyict.mdc.engine.impl.protocol.inbound.statistics.StatisticsMonit
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
@@ -69,6 +68,8 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+
+import com.energyict.protocol.exceptions.CommunicationException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

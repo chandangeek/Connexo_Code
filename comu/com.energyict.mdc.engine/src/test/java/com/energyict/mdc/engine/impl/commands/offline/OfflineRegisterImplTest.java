@@ -9,7 +9,6 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -30,7 +29,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -140,18 +138,4 @@ public class OfflineRegisterImplTest {
         when(register.getRegisterSpec()).thenReturn(mockedRtuRegisterSpec);
         return register;
     }
-
-    @Test
-    public void deviceIdentifierForKnownDeviceBySerialNumberShouldBeUsedTest() {
-        Device device = getMockedDevice();
-        Register register = getMockedRegister(device);
-
-        DeviceIdentifierForAlreadyKnownDevice deviceIdentifierForAlreadyKnownDevice = new DeviceIdentifierForAlreadyKnownDevice(device);
-        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(Device.class))).thenReturn(deviceIdentifierForAlreadyKnownDevice);
-
-        OfflineRegisterImpl offlineRegister = new OfflineRegisterImpl(register, identificationService);
-
-        assertThat(offlineRegister.getDeviceIdentifier().forIntrospection().getTypeName()).isEqualTo("SerialNumber");
-    }
-
 }

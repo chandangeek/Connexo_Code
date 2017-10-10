@@ -8,7 +8,6 @@ import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -19,7 +18,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.BasicCheckTask;
@@ -29,7 +27,10 @@ import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 
 import java.util.ArrayList;
 import java.util.Arrays;

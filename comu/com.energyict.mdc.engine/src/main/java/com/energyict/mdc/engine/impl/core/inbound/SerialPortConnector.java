@@ -15,9 +15,6 @@ import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.io.ConnectionCommunicationException;
-import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
@@ -25,6 +22,10 @@ import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.io.SerialPortException;
+
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ModemException;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -93,7 +94,7 @@ public class SerialPortConnector implements InboundComPortConnector {
                 } else {
                     currentRingCount = 0;
                 }
-            } catch (com.energyict.mdc.upl.io.ModemException e) {
+            } catch (ModemException e) {
                 currentRingCount = 0;
             }
         } while (currentRingCount < comPort.getRingCount());
@@ -122,11 +123,7 @@ public class SerialPortConnector implements InboundComPortConnector {
                 comPort.getAddressSelector(),
                 null,//Use the default line toggle delay
                 comPort.getPostDialCommands());
-        try {
-            atModemComponent.initializeModem(comPort.getName(), comChannel);
-        } catch (com.energyict.mdc.upl.io.ModemException e) {
-            throw ModemException.from(e);
-        }
+        atModemComponent.initializeModem(comPort.getName(), comChannel);
         return atModemComponent;
     }
 
