@@ -9,11 +9,17 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.DeviceMessageQueueMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.tasks.ProtocolTask;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -55,7 +61,22 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
                         }
                     }
                 }
-                deviceMessageBuilder.add();
+                DeviceMessage deviceMessage = deviceMessageBuilder.add();
+                if(queueMessage.trigger){
+                    Device device = deviceOptional.get();
+                    Optional<ComTaskEnablement> messageEnabledComTaskEnablement = device.getDeviceConfiguration().getComTaskEnablements().stream().filter(comTaskEnablement -> canPerformDeviceCommand(comTaskEnablement, deviceMessage.getDeviceMessageId())).findAny();
+                    messageEnabledComTaskEnablement.ifPresent(comTaskEnablement -> {
+                        Optional<ComTaskExecution> messageEnabledComTask = device.getComTaskExecutions().stream().filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()).findAny();
+                        if(messageEnabledComTask.isPresent()){
+                            messageEnabledComTask.get().runNow();
+                        } else {
+                            ComTaskExecution comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement).add();
+                            comTaskExecution.runNow();
+                        }
+                        messageEnabledComTask.ifPresent(ComTaskExecution::runNow);
+                    });
+
+                }
                 LOGGER.info(String.format("Added device command '%s' on device '%s'", queueMessage.deviceMessageId, deviceOptional.get().getName()));
             } else {
                 LOGGER.log(Level.SEVERE, "Could not find device message spec with db value "+queueMessage.deviceMessageId.dbValue());
@@ -63,6 +84,11 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
         } else {
             LOGGER.log(Level.SEVERE, "Could not find device with id "+queueMessage.deviceId);
         }
+    }
+
+    private boolean canPerformDeviceCommand(ComTaskEnablement comTaskExecution, DeviceMessageId deviceMessageId) {
+        Optional<ProtocolTask> messagesTask = comTaskExecution.getComTask().getProtocolTasks().stream().filter(protocolTask -> protocolTask instanceof MessagesTask).findAny();
+        return messagesTask.filter(protocolTask -> ((MessagesTask) protocolTask).getDeviceMessageCategories().stream().anyMatch(deviceMessageCategory -> deviceMessageCategory.getMessageSpecifications().stream().anyMatch(deviceMessageSpec -> deviceMessageSpec.getId().equals(deviceMessageId)))).isPresent();
     }
 
     @Override
