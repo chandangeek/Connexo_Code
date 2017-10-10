@@ -1,18 +1,20 @@
 package com.energyict.mdc.channel.serial.direct.serialio;
 
-import Serialio.SerInputStream;
-import Serialio.SerOutputStream;
-import Serialio.SerialConfig;
-import Serialio.SerialPort;
-import Serialio.SerialPortLocal;
+import com.energyict.mdc.channel.ip.datagrams.MessageSeeds;
 import com.energyict.mdc.channel.serial.BaudrateValue;
 import com.energyict.mdc.channel.serial.FlowControl;
 import com.energyict.mdc.channel.serial.Parities;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.channel.serial.SignalController;
-import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 import com.energyict.mdc.upl.io.SerialPortException;
+
+import Serialio.SerInputStream;
+import Serialio.SerOutputStream;
+import Serialio.SerialConfig;
+import Serialio.SerialPort;
+import Serialio.SerialPortLocal;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -188,7 +190,7 @@ public class SioSerialPort implements ServerSerialPort {
             try {
                 this.serialPort.close();
             } catch (IOException e) {
-                throw ConnectionCommunicationException.unexpectedIOException(e);
+                throw new ConnectionCommunicationException(e, MessageSeeds.UNEXPECTED_IO_EXCEPTION);
             }
         }
     }
@@ -219,7 +221,7 @@ public class SioSerialPort implements ServerSerialPort {
         try {
             return serialPort.txBufCount();
         } catch (IOException e) {
-            throw ConnectionCommunicationException.unexpectedIOException(e);
+            throw new ConnectionCommunicationException( e, MessageSeeds.UNEXPECTED_IO_EXCEPTION);
         }
     }
 }

@@ -10,6 +10,13 @@ import java.util.logging.Level;
  * @since 2017-01-09 (12:00)
  */
 public interface MessageSeed extends TranslationKey {
-    int getId();
+
+    /**
+     * @return three letter code that identifies the module, which defines this ExceptionType.
+     */
+    int getNumber();
+
     Level getLevel();
+
+    String getModule();
 }

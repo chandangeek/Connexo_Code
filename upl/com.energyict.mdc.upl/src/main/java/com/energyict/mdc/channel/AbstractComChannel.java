@@ -1,8 +1,10 @@
 package com.energyict.mdc.channel;
 
+import com.energyict.mdc.channel.ip.datagrams.MessageSeeds;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -119,9 +121,9 @@ public abstract class AbstractComChannel implements ComChannel {
         // If we are disconnecting, then we want communication to continue (or in other words: ALWAYS do the disconnect)
         if (!getDisconnectingAtomicBoolean().get()) {
             if (ComChannel.abortCommunication.get()) {
-                throw ConnectionCommunicationException.userInterrupted();
+                throw new ConnectionCommunicationException(MessageSeeds.COMMUNICATION_INTERRUPTED);
             } else if (Thread.currentThread().isInterrupted()) {
-                throw ConnectionCommunicationException.systemInterrupted();
+                throw new ConnectionCommunicationException(MessageSeeds.COMMUNICATION_INTERRUPTED);
             }
         }
     }

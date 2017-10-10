@@ -1,8 +1,10 @@
 package com.energyict.mdc.channel.ip.socket;
 
 import com.energyict.mdc.channel.SynchroneousComChannel;
+import com.energyict.mdc.channel.ip.datagrams.MessageSeeds;
 import com.energyict.mdc.protocol.ComChannelType;
-import com.energyict.mdc.upl.io.ConnectionCommunicationException;
+
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -57,7 +59,7 @@ public class SocketComChannel extends SynchroneousComChannel {
         try {
             socket.setSoTimeout((int) millis);
         } catch (IOException e) {
-            throw ConnectionCommunicationException.unexpectedIOException(e);
+            throw new ConnectionCommunicationException( e, MessageSeeds.UNEXPECTED_IO_EXCEPTION);
         }
     }
 
@@ -72,7 +74,7 @@ public class SocketComChannel extends SynchroneousComChannel {
                 }
             }
         } catch (IOException e) {
-            throw ConnectionCommunicationException.unexpectedIOException(e);
+            throw new ConnectionCommunicationException(e, MessageSeeds.UNEXPECTED_IO_EXCEPTION);
         }
     }
 

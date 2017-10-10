@@ -1,7 +1,9 @@
 package com.energyict.mdc.channel;
 
+import com.energyict.mdc.channel.ip.datagrams.MessageSeeds;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.upl.io.ConnectionCommunicationException;
+
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,7 +46,7 @@ public abstract class SynchroneousComChannel extends AbstractComChannel {
         try {
             this.out.flush();
         } catch (IOException e) {
-            throw ConnectionCommunicationException.unexpectedIOException(e);
+            throw new ConnectionCommunicationException(e, MessageSeeds.UNEXPECTED_IO_EXCEPTION);
         }
         return !previousValue;  // Status was changed if previousValue != true, i.e. if it false
     }
@@ -67,7 +69,7 @@ public abstract class SynchroneousComChannel extends AbstractComChannel {
         try {
             return operation.doRead();
         } catch (IOException e) {
-            throw ConnectionCommunicationException.unexpectedIOException(e);
+            throw new ConnectionCommunicationException(e, MessageSeeds.UNEXPECTED_IO_EXCEPTION);
         }
     }
 
@@ -113,7 +115,7 @@ public abstract class SynchroneousComChannel extends AbstractComChannel {
         try {
             operation.doWrite();
         } catch (IOException e) {
-            throw ConnectionCommunicationException.unexpectedIOException(e);
+            throw new ConnectionCommunicationException(e, MessageSeeds.UNEXPECTED_IO_EXCEPTION);
         }
     }
 
@@ -135,7 +137,7 @@ public abstract class SynchroneousComChannel extends AbstractComChannel {
             this.in.close();
             this.out.close();
         } catch (IOException e) {
-            throw ConnectionCommunicationException.unexpectedIOException(e);
+            throw new ConnectionCommunicationException(e, MessageSeeds.UNEXPECTED_IO_EXCEPTION);
         }
     }
 
