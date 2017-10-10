@@ -30,6 +30,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.events.EventService;
@@ -72,6 +73,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     private volatile EventService eventService;
     private volatile Optional<User> batchUser;
     private volatile EndPointConfigurationService endPointConfigurationService;
+    private volatile UserService userService;
 
     private volatile KnowledgeBase knowledgeBase;
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
@@ -97,13 +99,13 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.queryService = queryService;
-        this.batchUser = userService.findUser("batch executor");
         this.knowledgeBaseFactoryService = knowledgeBaseFactoryService;
         this.knowledgeBuilderFactoryService = knowledgeBuilderFactoryService;
         this.resourceFactoryService = resourceFactoryService;
         this.thesaurus = thesaurus;
         this.endPointConfigurationService = endPointConfigurationService;
         this.eventService = eventService;
+        this.userService = userService;
     }
 
     @Override
@@ -211,6 +213,11 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     }
 
     private void createNewIssue(CreationRule firedRule, IssueEvent event, CreationRuleTemplate template) {
+        try {
+            batchUser = userService.findUser("batch executor");
+        }catch(FoundUserIsNotActiveException e){
+            batchUser = Optional.empty();
+        }
         OpenIssueImpl baseIssue = dataModel.getInstance(OpenIssueImpl.class);
         baseIssue.setReason(firedRule.getReason());
         baseIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElse(null));
