@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.protocol.api.adapters.ConnexoMessageSeedAdapter;
 import com.energyict.mdc.protocol.api.adapters.ConnexoTranslationKeyAdapter;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
@@ -164,17 +165,33 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     }
 
     @Override
+    public String getComponentName() {
+        return DeviceProtocolService.COMPONENT_NAME;
+    }
+
+    @Override
     public List<MessageSeed> getSeeds() {
-        return Stream.of(
+        List<MessageSeed> protocolSeeds = new ArrayList<>(getProtocolMessageSeeds());
+        List<MessageSeed> cxoSeeds = Stream.of(
                 Stream.of(IpMessageSeeds.values()),
                 Stream.of(MessageSeeds.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
+
+        List<MessageSeed> allSeeds = new ArrayList<>();
+        allSeeds.addAll(protocolSeeds);
+        allSeeds.addAll(cxoSeeds);
+        return allSeeds;
     }
 
-    @Override
-    public String getComponentName() {
-        return DeviceProtocolService.COMPONENT_NAME;
+    private List<MessageSeed> getProtocolMessageSeeds() {
+        return Stream.of(
+                Stream.of(com.energyict.protocol.exception.ProtocolExceptionMessageSeeds.values()),
+                Stream.of(com.energyict.mdc.channel.ip.datagrams.MessageSeeds.values()))
+                .flatMap(Function.identity())
+                .map(com.energyict.mdc.upl.nls.MessageSeed.class::cast) // Downcast the generic type to Upl MessageSeed (to avoid problems at runtime)
+                .map(ConnexoMessageSeedAdapter::adaptTo)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -195,7 +212,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
                 Stream.of(com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys.values()),
                 Stream.of(com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys.values()))
                 .flatMap(Function.identity())
-                .map(com.energyict.mdc.upl.nls.TranslationKey.class::cast) // Downcast the generic type to TranslationKey (to avoid problems at runtime)
+                .map(com.energyict.mdc.upl.nls.TranslationKey.class::cast) // Downcast the generic type to Upl TranslationKey (to avoid problems at runtime)
                 .map(ConnexoTranslationKeyAdapter::adaptTo)
                 .collect(Collectors.toList());
     }
