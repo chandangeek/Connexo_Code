@@ -103,6 +103,7 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
 
     private void doSetCSR(PKCS10CertificationRequest csr) throws IOException {
         this.csr = csr.getEncoded();
+        setSubject(csr.getSubject().toString());
     }
 
     @Override

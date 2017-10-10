@@ -73,8 +73,11 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         TRUST_STORE("trustStoreReference"),
         LAST_READ_DATE("lastReadDate"),
         ALIAS("alias"),
-        ID("id")
-        ;
+        ID("id"),
+        SUBJECT("subject"),
+        ISSUER("issuer"),
+        KEY_USAGES("keyUsagesCsv"),
+        EXT_KEY_USAGES("extendedKeyUsagesCsv");
 
         private final String fieldName;
 
@@ -92,6 +95,14 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     private String alias;
     private byte[] certificate;
     private Instant expirationTime;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String subject;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String issuer;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String keyUsagesCsv;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String extendedKeyUsagesCsv;
     private Instant lastReadDate;
     @SuppressWarnings("unused")
     private String userName;
@@ -149,6 +160,14 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         try {
             this.certificate = certificate.getEncoded();
             this.expirationTime = certificate.getNotAfter().toInstant();
+            this.subject = certificate.getSubjectDN().getName();
+            this.issuer = certificate.getIssuerDN().getName();
+            if (getCertificateKeyUsages(certificate).size() > 0) {
+                this.keyUsagesCsv = Joiner.on(", ").join(getCertificateKeyUsages(certificate).stream().map(Enum::name).collect(toList()));
+            }
+            if (getCertificateExtendedKeyUsages(certificate).size() > 0) {
+                this.extendedKeyUsagesCsv = Joiner.on(", ").join(getCertificateExtendedKeyUsages(certificate).stream().map(Enum::name).collect(toList()));
+            }
             this.save();
         } catch (CertificateEncodingException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_ENCODING_EXCEPTION, e);
@@ -293,8 +312,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             void copyToMap(Map<String, Object> properties, AbstractCertificateWrapperImpl certificateWrapper) {
                 properties.put(getPropertyName(), certificateWrapper.getAlias());
             }
-        },
-        ;
+        },;
 
         private final String propertyName;
 
@@ -303,7 +321,9 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         }
 
         abstract PropertySpec asPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus);
+
         abstract void copyFromMap(Map<String, Object> properties, AbstractCertificateWrapperImpl certificateWrapper);
+
         abstract void copyToMap(Map<String, Object> properties, AbstractCertificateWrapperImpl certificateWrapper);
 
         String getPropertyName() {
@@ -328,5 +348,57 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
 
     public Optional<Instant> getLastReadDate() {
         return Optional.ofNullable(this.lastReadDate);
+    }
+
+    @Override
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public String getIssuer() {
+        return issuer;
+    }
+
+    @Override
+    public void setIssuer(String issuer) {
+        this.issuer = issuer;
+    }
+
+    public String stringifyKeyUsages(Set<KeyUsage> keyUsages) {
+        List<String> collect = keyUsages.stream().map(Enum::name).collect(toList());
+        return Joiner.on(", ").join(collect);
+    }
+
+    public String getStringifiedKeyUsages() {
+        return keyUsagesCsv;
+    }
+
+    public String stringifyExtendedKeyUsages(Set<ExtendedKeyUsage> extendedKeyUsages) {
+        List<String> collect = extendedKeyUsages.stream().map(Enum::name).collect(toList());
+        return Joiner.on(", ").join(collect);
+    }
+
+    public void setKeyUsagesCsv(String keyUsages) {
+        this.keyUsagesCsv = keyUsages;
+    }
+
+    public String getKeyUsagesCsv() {
+        return this.keyUsagesCsv;
+    }
+
+    public void setExtendedKeyUsagesCsv(String extendedKeyUsages) {
+        this.extendedKeyUsagesCsv = extendedKeyUsages;
+    }
+
+    public String getExtendedKeyUsagesCsv() {
+        return this.extendedKeyUsagesCsv;
+    }
+
+    public String getStringifiedExtendedKeyUsages() {
+        return extendedKeyUsagesCsv;
     }
 }
