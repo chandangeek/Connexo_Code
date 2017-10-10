@@ -252,6 +252,12 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.topology.rest</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.dynamic</artifactId>
                 <version>3.1.0${revision}</version>
                 <scope>provided</scope>
@@ -653,6 +659,7 @@
                 <module>../com.energyict.mdc.device.lifecycle.config.rest</module>
                 <module>../com.energyict.mdc.device.lifecycle.config.extjs</module>
                 <module>../com.energyict.mdc.device.topology</module>
+                <module>../com.energyict.mdc.device.topology.rest</module>
                 <module>../com.energyict.mdc.device.data.rest</module>
                 <module>../com.energyict.mdc.device.data.importers</module>
                 <module>../com.energyict.mdc.device.data.validation</module>
