@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.rest;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.rest.util.PropertyValuesResourceProvider;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.upl.TypedProperties;
@@ -20,7 +21,7 @@ import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.rest.impl.SecurityAccessorInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyDefaultValuesProvider;
-import com.energyict.mdc.pluggable.rest.PropertyValuesResourceProvider;
+
 
 import javax.inject.Inject;
 import java.util.Collections;

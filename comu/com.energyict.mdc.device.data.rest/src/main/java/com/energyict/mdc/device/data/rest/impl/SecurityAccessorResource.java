@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.*;
+import com.elster.jupiter.pki.rest.impl.AliasTypeAheadPropertyValueProvider;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyType;
@@ -20,7 +21,6 @@ import com.energyict.mdc.device.data.rest.SubjectInfo;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyDefaultValuesProvider;
-import com.energyict.mdc.pluggable.rest.PropertyValuesResourceProvider;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -129,17 +129,13 @@ public class SecurityAccessorResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
             com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public Response getCertificate(@PathParam("name") String name, @PathParam("id") long keyAccessorTypeId,
-                                   @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider,
-                                   @BeanParam SubjectTypeAheadPropertyValueProvider subjectTypeAheadPropertyValueProvider,
-                                   @BeanParam IssuerTypeAheadPropertyValueProvider issuerTypeAheadPropertyValueProvider,
-                                   @BeanParam KeyUsagesTypeAheadPropertyValueProvider keyUsagesTypeAheadPropertyValueProvider,
-                                   @BeanParam ExtendedKeyUsagesTypeAheadPropertyValueProvider extendedKeyUsagesTypeAheadPropertyValueProvider) {
+                                   @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
         KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType)
                 .orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device));
 
-        List<PropertyValuesResourceProvider> providers = Stream.of(aliasTypeAheadPropertyValueProvider, subjectTypeAheadPropertyValueProvider, issuerTypeAheadPropertyValueProvider).collect(toList());
+        List<PropertyValuesResourceProvider> providers = Collections.singletonList(aliasTypeAheadPropertyValueProvider);
         return Response.ok(securityAccessorInfoFactory.asCertificate(keyAccessor, providers, trustStoreValuesProvider)).build();
     }
 
@@ -151,13 +147,9 @@ public class SecurityAccessorResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
             com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public PagedInfoList getCertificates(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters,
-                                         @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider,
-                                         @BeanParam SubjectTypeAheadPropertyValueProvider subjectTypeAheadPropertyValueProvider,
-                                         @BeanParam IssuerTypeAheadPropertyValueProvider issuerTypeAheadPropertyValueProvider,
-                                         @BeanParam KeyUsagesTypeAheadPropertyValueProvider keyUsagesTypeAheadPropertyValueProvider,
-                                         @BeanParam ExtendedKeyUsagesTypeAheadPropertyValueProvider extendedKeyUsagesTypeAheadPropertyValueProvider) {
+                                         @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<PropertyValuesResourceProvider> providers = Stream.of(aliasTypeAheadPropertyValueProvider, subjectTypeAheadPropertyValueProvider, issuerTypeAheadPropertyValueProvider).collect(toList());
+        List<PropertyValuesResourceProvider> providers = Collections.singletonList(aliasTypeAheadPropertyValueProvider);
         List<SecurityAccessorInfo> collect = getSecurityAccessorInfos(device, kat -> CERTIFICATES.contains(kat.getKeyType().getCryptographicType()), (keyAccessor) -> securityAccessorInfoFactory
                 .asCertificate(keyAccessor, providers, trustStoreValuesProvider));
         return PagedInfoList.fromCompleteList("certificates", collect, queryParameters);
@@ -220,18 +212,13 @@ public class SecurityAccessorResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public Response swapCertificateValues(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId,
                                           @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider,
-                                          @BeanParam SubjectTypeAheadPropertyValueProvider subjectTypeAheadPropertyValueProvider,
-                                          @BeanParam IssuerTypeAheadPropertyValueProvider issuerTypeAheadPropertyValueProvider,
-                                          @BeanParam KeyUsagesTypeAheadPropertyValueProvider keyUsagesTypeAheadPropertyValueProvider,
-                                          @BeanParam ExtendedKeyUsagesTypeAheadPropertyValueProvider extendedKeyUsagesTypeAheadPropertyValueProvider,
                                           SecurityAccessorInfo securityAccessorInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
         KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
         KeyAccessor<SecurityValueWrapper> keyAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, keyAccessorType, securityAccessorInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
         keyAccessor.swapValues();
-        List<PropertyValuesResourceProvider> providers = Stream.of(aliasTypeAheadPropertyValueProvider, subjectTypeAheadPropertyValueProvider, issuerTypeAheadPropertyValueProvider).collect(toList());
-        return Response.ok(securityAccessorInfoFactory.asCertificate(keyAccessor, providers, trustStoreValuesProvider)).build();
+        return Response.ok(securityAccessorInfoFactory.asCertificate(keyAccessor, Collections.singletonList(aliasTypeAheadPropertyValueProvider), trustStoreValuesProvider)).build();
     }
 
     @PUT
@@ -287,10 +274,6 @@ public class SecurityAccessorResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public Response updateOrCreateCertificateAccessor(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId,
                                                       @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider,
-                                                      @BeanParam SubjectTypeAheadPropertyValueProvider subjectTypeAheadPropertyValueProvider,
-                                                      @BeanParam IssuerTypeAheadPropertyValueProvider issuerTypeAheadPropertyValueProvider,
-                                                      @BeanParam KeyUsagesTypeAheadPropertyValueProvider keyUsagesTypeAheadPropertyValueProvider,
-                                                      @BeanParam ExtendedKeyUsagesTypeAheadPropertyValueProvider extendedKeyUsagesTypeAheadPropertyValueProvider,
                                                       SecurityAccessorInfo securityAccessorInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
         KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
@@ -333,272 +316,9 @@ public class SecurityAccessorResource {
         KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(device, ka, securityAccessorInfo, certificateReferenceGetter, actualValueUpdater, tempValueUpdater))
                 .orElseGet(() -> createKeyAccessor(device, keyAccessorType, securityAccessorInfo, certificateReferenceGetter));
 
-        List<PropertyValuesResourceProvider> providers = Stream.of(aliasTypeAheadPropertyValueProvider, subjectTypeAheadPropertyValueProvider, issuerTypeAheadPropertyValueProvider).collect(toList());
-        return Response.ok().entity(securityAccessorInfoFactory.asCertificate(result, providers, trustStoreValuesProvider)).build();
+        return Response.ok().entity(securityAccessorInfoFactory.asCertificate(result, Collections.singletonList(aliasTypeAheadPropertyValueProvider), trustStoreValuesProvider)).build();
     }
 
-    @GET
-    @Path("/certificates/aliases")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
-    public PagedInfoList aliasSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
-        PkiService.AliasSearchFilter aliasSearchFilter = getAliasSearchFilter(params, uriInfo.getQueryParameters(), jsonQueryFilter);
-        List<AliasInfo> collect = pkiService.getAliasesByFilter(aliasSearchFilter)
-                .from(queryParameters)
-                .stream()
-                .map(CertificateWrapper::getAlias)
-                .map(AliasInfo::new)
-                .collect(toList());
-        return PagedInfoList.fromPagedList("aliases", collect, queryParameters);
-    }
-
-    private PkiService.AliasSearchFilter getAliasSearchFilter(StandardParametersBean params, MultivaluedMap<String, String> uriParams, JsonQueryFilter jsonQueryFilter) {
-        PkiService.AliasSearchFilter aliasSearchFilter = new PkiService.AliasSearchFilter();
-        String alias = null;
-        Long trustStoreId = null;
-
-        if (uriParams.containsKey("alias")) {
-            alias = params.getFirst("alias");
-        }
-        if (alias == null && jsonQueryFilter.hasFilters()) {
-            alias = jsonQueryFilter.getString("alias");
-        }
-        if (uriParams.containsKey("trustStore")) {
-            trustStoreId = Long.valueOf(params.getFirst("trustStore"));
-        }
-        if (trustStoreId == null && jsonQueryFilter.hasProperty("trustStore")) {
-            trustStoreId = jsonQueryFilter.getLong("trustStore");
-        }
-        if (trustStoreId != null) {
-            aliasSearchFilter.trustStore = pkiService.findTrustStore(trustStoreId)
-                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUST_STORE, "trustStore"));
-        }
-        if (alias == null || alias.isEmpty()) {
-            aliasSearchFilter.alias = "*";
-        }
-        if (alias != null && !alias.isEmpty()) {
-            if (!alias.contains("*") && !alias.contains("?")) {
-                aliasSearchFilter.alias = "*" + alias + "*";
-            } else {
-                aliasSearchFilter.alias = alias;
-            }
-        }
-        return aliasSearchFilter;
-    }
-
-    @GET
-    @Path("/certificates/subjects")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
-    public PagedInfoList subjectSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
-        PkiService.SubjectSearchFilter subjectSearchFilter = getSubjectSearchFilter(params, uriInfo.getQueryParameters(), jsonQueryFilter);
-        List<SubjectInfo> collect = pkiService.getSubjectsByFilter(subjectSearchFilter)
-                .from(queryParameters)
-                .stream()
-                .map(CertificateWrapper::getSubject)
-                .map(SubjectInfo::new)
-                .collect(toList());
-        return PagedInfoList.fromPagedList("subjects", collect, queryParameters);
-    }
-
-    private PkiService.SubjectSearchFilter getSubjectSearchFilter(StandardParametersBean params, MultivaluedMap<String, String> uriParams, JsonQueryFilter jsonQueryFilter) {
-        PkiService.SubjectSearchFilter subjectSearchFilter = new PkiService.SubjectSearchFilter();
-        String subject = null;
-        Long trustStoreId = null;
-
-        if (uriParams.containsKey("subject")) {
-            subject = params.getFirst("subject");
-        }
-        if (subject == null && jsonQueryFilter.hasProperty("subject")) {
-            subject = jsonQueryFilter.getString("subject");
-        }
-        if (uriParams.containsKey("trustStore")) {
-            trustStoreId = Long.valueOf(params.getFirst("trustStore"));
-        }
-        if (trustStoreId == null && jsonQueryFilter.hasProperty("trustStore")) {
-            trustStoreId = jsonQueryFilter.getLong("trustStore");
-        }
-        if (trustStoreId != null) {
-            subjectSearchFilter.trustStore = pkiService.findTrustStore(trustStoreId)
-                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUST_STORE, "trustStore"));
-        }
-        if (subject == null || subject.isEmpty()) {
-            subjectSearchFilter.subject = "*";
-        }
-        if (subject != null && !subject.isEmpty()) {
-            if (!subject.contains("*") && !subject.contains("?")) {
-                subjectSearchFilter.subject = "*" + subject + "*";
-            } else {
-                subjectSearchFilter.subject = subject;
-            }
-        }
-        return subjectSearchFilter;
-    }
-
-    @GET
-    @Path("/certificates/issuers")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
-    public PagedInfoList issuerSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
-        PkiService.IssuerSearchFilter issueSearchFilter = getIssuerSearchFilter(params, uriInfo.getQueryParameters(), jsonQueryFilter);
-        List<SubjectInfo> collect = pkiService.getIssuersByFilter(issueSearchFilter)
-                .from(queryParameters)
-                .stream()
-                .map(CertificateWrapper::getIssuer)
-                .map(SubjectInfo::new)
-                .collect(toList());
-        return PagedInfoList.fromPagedList("issuers", collect, queryParameters);
-    }
-
-    private PkiService.IssuerSearchFilter getIssuerSearchFilter(StandardParametersBean params, MultivaluedMap<String, String> uriParams, JsonQueryFilter jsonQueryFilter) {
-        PkiService.IssuerSearchFilter issuerSearchFilter = new PkiService.IssuerSearchFilter();
-        String issuer = null;
-        Long trustStoreId = null;
-
-        if (uriParams.containsKey("issuer")) {
-            issuer = params.getFirst("issuer");
-        }
-        if (issuer == null && jsonQueryFilter.hasProperty("issuer")) {
-            issuer = jsonQueryFilter.getString("issuer");
-        }
-        if (uriParams.containsKey("trustStore")) {
-            trustStoreId = Long.valueOf(params.getFirst("trustStore"));
-        }
-        if (trustStoreId == null && jsonQueryFilter.hasProperty("trustStore")) {
-            trustStoreId = jsonQueryFilter.getLong("trustStore");
-        }
-        if (trustStoreId != null) {
-            issuerSearchFilter.trustStore = pkiService.findTrustStore(trustStoreId)
-                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUST_STORE, "trustStore"));
-        }
-        if (issuer == null || issuer.isEmpty()) {
-            issuerSearchFilter.issuer = "*";
-        }
-        if (issuer != null && !issuer.isEmpty()) {
-            if (!issuer.contains("*") && !issuer.contains("?")) {
-                issuerSearchFilter.issuer = "*" + issuer + "*";
-            } else {
-                issuerSearchFilter.issuer = issuer;
-            }
-        }
-        return issuerSearchFilter;
-    }
-
-    @GET
-    @Path("/certificates/keyusages")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
-    public PagedInfoList keyUsagesSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
-        PkiService.KeyUsagesSearchFilter keyUsagesSearchFilter = getKeyUsagesSearchFilter(params, uriInfo.getQueryParameters(), jsonQueryFilter);
-
-        List<String> infos = pkiService.getKeyUsagesByFilter(keyUsagesSearchFilter)
-                .from(queryParameters)
-                .stream()
-                .map(CertificateWrapper::getStringifiedKeyUsages)
-                .map(x -> filterKeyUsagesbySearchParam().apply(x, keyUsagesSearchFilter.keyUsages))
-                .flatMap(Collection::stream)
-                .distinct()
-                .collect(toList());
-
-        return PagedInfoList.fromPagedList("keyusages", infos, queryParameters);
-    }
-
-    private PkiService.KeyUsagesSearchFilter getKeyUsagesSearchFilter(StandardParametersBean params, MultivaluedMap<String, String> uriParams, JsonQueryFilter jsonQueryFilter) {
-        PkiService.KeyUsagesSearchFilter keyUsagesSearchFilter = new PkiService.KeyUsagesSearchFilter();
-        String keyUsages = null;
-        Long trustStoreId = null;
-
-        if (uriParams.containsKey("keyUsages")) {
-            keyUsages = params.getFirst("keyUsages");
-        }
-        if (keyUsages == null && jsonQueryFilter.hasProperty("keyUsages")) {
-            keyUsages = jsonQueryFilter.getString("keyUsages");
-        }
-        if (uriParams.containsKey("trustStore")) {
-            trustStoreId = Long.valueOf(params.getFirst("trustStore"));
-        }
-        if (trustStoreId == null && jsonQueryFilter.hasProperty("trustStore")) {
-            trustStoreId = jsonQueryFilter.getLong("trustStore");
-        }
-        if (trustStoreId != null) {
-            keyUsagesSearchFilter.trustStore = pkiService.findTrustStore(trustStoreId)
-                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUST_STORE, "trustStore"));
-        }
-        if (keyUsages == null || keyUsages.isEmpty()) {
-            keyUsagesSearchFilter.keyUsages = "*";
-        }
-        if (keyUsages != null && !keyUsages.isEmpty()) {
-            if (!keyUsages.contains("*") && !keyUsages.contains("?")) {
-                keyUsagesSearchFilter.keyUsages = "*" + keyUsages + "*";
-            } else {
-                keyUsagesSearchFilter.keyUsages = keyUsages;
-            }
-        }
-        return keyUsagesSearchFilter;
-    }
-
-    @GET
-    @Path("/certificates/extendedkeyusages")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
-    public PagedInfoList extendedKeyUsagesSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
-        PkiService.ExtendedKeyUsagesSearchFilter extendedKeyUsagesSearchFilter = getExtendedKeyUsagesSearchFilter(params, uriInfo.getQueryParameters(), jsonQueryFilter);
-
-        List<String> infos = pkiService.getExtendedKeyUsagesByFilter(extendedKeyUsagesSearchFilter)
-                .from(queryParameters)
-                .stream()
-                .map(CertificateWrapper::getStringifiedExtendedKeyUsages)
-                .map(x -> filterKeyUsagesbySearchParam().apply(x, extendedKeyUsagesSearchFilter.extendedKeyUsages))
-                .flatMap(Collection::stream)
-                .distinct()
-                .collect(toList());
-
-        return PagedInfoList.fromPagedList("extendedkeyusages", infos, queryParameters);
-    }
-
-    private PkiService.ExtendedKeyUsagesSearchFilter getExtendedKeyUsagesSearchFilter(StandardParametersBean params, MultivaluedMap<String, String> uriParams, JsonQueryFilter jsonQueryFilter) {
-        PkiService.ExtendedKeyUsagesSearchFilter extendedKeyUsagesSearchFilter = new PkiService.ExtendedKeyUsagesSearchFilter();
-        String extendedKeyUsages = null;
-        Long trustStoreId = null;
-
-        if (uriParams.containsKey("extendedKeyUsages")) {
-            extendedKeyUsages = params.getFirst("extendedKeyUsages");
-        }
-        if (extendedKeyUsages == null && jsonQueryFilter.hasProperty("extendedKeyUsages")) {
-            extendedKeyUsages = jsonQueryFilter.getString("extendedKeyUsages");
-        }
-        if (uriParams.containsKey("trustStore")) {
-            trustStoreId = Long.valueOf(params.getFirst("trustStore"));
-        }
-        if (trustStoreId == null && jsonQueryFilter.hasProperty("trustStore")) {
-            trustStoreId = jsonQueryFilter.getLong("trustStore");
-        }
-        if (trustStoreId != null) {
-            extendedKeyUsagesSearchFilter.trustStore = pkiService.findTrustStore(trustStoreId)
-                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUST_STORE, "trustStore"));
-        }
-        if (extendedKeyUsages == null || extendedKeyUsages.isEmpty()) {
-            extendedKeyUsagesSearchFilter.extendedKeyUsages = "*";
-        }
-        if (extendedKeyUsages != null && !extendedKeyUsages.isEmpty()) {
-            if (!extendedKeyUsages.contains("*") && !extendedKeyUsages.contains("?")) {
-                extendedKeyUsagesSearchFilter.extendedKeyUsages = "*" + extendedKeyUsages + "*";
-            } else {
-                extendedKeyUsagesSearchFilter.extendedKeyUsages = extendedKeyUsages;
-            }
-        }
-        return extendedKeyUsagesSearchFilter;
-    }
 
     private BiFunction<String, String, List<String>> filterKeyUsagesbySearchParam() {
         return (String usages, String searchParam) ->
