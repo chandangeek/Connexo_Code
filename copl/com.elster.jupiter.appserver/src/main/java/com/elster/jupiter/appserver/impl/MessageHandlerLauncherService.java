@@ -274,6 +274,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
                 executors.remove(factory);
                 executorService.shutdownNow();
             }
+
             LOGGER.log(Level.SEVERE, e, () -> "MessageHandlerFactory for subscriber " + subscriberSpec.getDestination().getName() + " : " + subscriberSpec.getName() + " threw an exception while creating a new Messagehandler.");
         }
     }
@@ -290,7 +291,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     private Principal getBatchPrincipal() {
         if (batchPrincipal == null) {
             String batchExecutorName = "batch executor";
-            batchPrincipal = userService.findUser(batchExecutorName).get();
+            batchPrincipal = userService.findUser(batchExecutorName).orElse(null);
         }
         return batchPrincipal;
     }
