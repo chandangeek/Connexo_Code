@@ -250,7 +250,7 @@ Ext.define('Dal.controller.BulkChangeAlarms', {
             timeout: 120000,
             success: function (response) {
                 var obj;
-                if (operation != 'setpriority') {
+                if (operation == 'snooze') {
                     obj = Ext.decode(response.responseText).data;
                 }
                 else {
