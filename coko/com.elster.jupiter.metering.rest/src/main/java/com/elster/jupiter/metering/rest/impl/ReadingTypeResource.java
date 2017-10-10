@@ -4,9 +4,21 @@
 
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFilter;
+import com.elster.jupiter.metering.rest.ReadingTypeAliasInfo;
+import com.elster.jupiter.metering.rest.ReadingTypeAliasInfos;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
@@ -97,6 +109,73 @@ public class ReadingTypeResource {
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("readingTypes", readingTypeInfos, queryParameters);
+    }
+
+    @GET
+    @Path("/groups/")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getReadingTypeAliases(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+//        String searchText = queryParameters.getLike();
+//        if (searchText != null && !searchText.isEmpty()) {
+//            ReadingTypeFilter filter = new ReadingTypeFilter();
+//            filter.addCondition(getReadingTypeFilterCondition(searchText));
+//            List<ReadingTypeInfo> infos = meteringService.findReadingTypes(filter).stream()
+//                    .limit(50)
+//                    .map(readingTypeInfoFactory::from)
+//                    .collect(Collectors.toList());
+//            return PagedInfoList.fromPagedList("aliases", infos, queryParameters);
+//        }
+//
+//        List<ReadingTypeInfo> readingTypeInfos = meteringService.findReadingTypes(readingTypeFilterFactory.from(jsonQueryFilter))
+//                .from(queryParameters)
+//                .stream()
+//                .map(readingTypeInfoFactory::from)
+//                .collect(Collectors.toList());
+        List<ReadingTypeAliasInfo> infos = new ArrayList();
+
+        ReadingTypeAliasInfo info1 = new ReadingTypeAliasInfo();
+        info1.name = "A+";
+        info1.numberOfReadingTypes = 180;
+        info1.commodity = "Electricity";  // Commodity.ELECTRICITY_SECONDARY_METERED.getDescription();
+                                          // and
+                                          // Commodity.ELECTRICITY_PRIMARY_METERED.getDescription();
+        info1.measurementKind = MeasurementKind.ENERGY.getDescription();
+        info1.flowDirection = FlowDirection.FORWARD.getDescription();
+        info1.unit = ReadingTypeUnit.WATTHOUR.getName();
+        info1.macroPeriod = MacroPeriod.NOTAPPLICABLE.getDescription();
+        info1.timePeriod = TimeAttribute.NOTAPPLICABLE.getDescription();
+        info1.accumulation = Accumulation.NOTAPPLICABLE.getDescription();
+        info1.aggregate = Aggregate.NOTAPPLICABLE.getDescription();
+        info1.multiplier = MetricMultiplier.ZERO.getMultiplier();
+        info1.phases = Phase.NOTAPPLICABLE.getDescription();
+        info1.tou = 0;
+        info1.cpp = 0;
+        info1.consumptionTier = 0;
+
+        ReadingTypeAliasInfo info2 = new ReadingTypeAliasInfo();
+        info2.name = "A-";
+        info2.numberOfReadingTypes = 180;
+        info2.commodity = "Electricity";  // Commodity.ELECTRICITY_SECONDARY_METERED.getDescription();
+                                        // and
+                                        // Commodity.ELECTRICITY_PRIMARY_METERED.getDescription();
+        info2.measurementKind = MeasurementKind.ENERGY.getDescription();
+        info2.flowDirection = FlowDirection.REVERSE.getDescription();
+        info2.unit = ReadingTypeUnit.WATTHOUR.getName();
+        info2.macroPeriod = MacroPeriod.NOTAPPLICABLE.getDescription();
+        info2.timePeriod = TimeAttribute.NOTAPPLICABLE.getDescription();
+        info2.accumulation = Accumulation.NOTAPPLICABLE.getDescription();
+        info2.aggregate = Aggregate.NOTAPPLICABLE.getDescription();
+        info2.multiplier = MetricMultiplier.ZERO.getMultiplier();
+        info2.phases = Phase.NOTAPPLICABLE.getDescription();
+        info2.tou = 0;
+        info2.cpp = 0;
+        info2.consumptionTier = 0;
+
+        infos.add(info1);
+        infos.add(info2);
+
+        return PagedInfoList.fromPagedList("groups", infos, queryParameters);
     }
 
     @GET
