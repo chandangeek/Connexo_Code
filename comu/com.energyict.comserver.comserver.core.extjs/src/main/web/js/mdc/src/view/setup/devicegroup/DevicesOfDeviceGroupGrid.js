@@ -24,6 +24,7 @@ Ext.define('Mdc.view.setup.devicegroup.DevicesOfDeviceGroupGrid', {
         mode: 'SINGLE'
     },
     store: 'Uni.store.search.Results',
+    sortableColumns: true,
     forceFit: true,
     enableColumnMove: true,
     columns: [],

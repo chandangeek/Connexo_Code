@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.devicegroup.DynamicGroupDevicesGrid', {
         ptype: 'showConditionalToolTip',
         pluginId: 'showConditionalToolTipId'
     }],
-
+    sortableColumns: true,
     forceFit: true,
     enableColumnMove: true,
     columns: [],

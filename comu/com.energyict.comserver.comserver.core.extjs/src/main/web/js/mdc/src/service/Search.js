@@ -44,7 +44,7 @@ Ext.define('Mdc.service.Search', {
                 return Ext.String.htmlEncode(value) || '-';
             }
         }
-
+        column.menuDisabled = true;
         return column;
     }
 });
