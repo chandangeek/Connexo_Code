@@ -2,6 +2,7 @@
 -dsannotations: *
 Private-Package:  \
 	com.energyict.mdc.device.data.rest.impl,\
+	com.energyict.mdc.device.data.kpi.rest.impl,\
 	com.energyict.mdc.device.command.rest.impl
 Export-Package:  \
 	com.energyict.mdc.device.data.kpi.rest,\
