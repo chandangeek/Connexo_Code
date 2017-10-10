@@ -21,6 +21,8 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -161,6 +163,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private SchedulingService schedulingService;
     private DataVaultService dataVaultService;
     private InMemoryBootstrapModule bootstrapModule;
+    private MessageService messageService;
     private Thesaurus thesaurus;
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
@@ -176,6 +179,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         this.initializeMocks(testName);
         this.bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
+                new InMemoryMessagingModule(),
                 new MockModule(),
                 bootstrapModule,
                 new UtilModule(clock),
@@ -226,7 +230,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 ),
                 new MeteringGroupsModule(),
                 new SearchModule(),
-                new InMemoryMessagingModule(),
                 new OrmModule(),
                 new IssuesModule(),
                 new MdcReadingTypeUtilServiceModule(),
@@ -260,6 +263,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommunicationTestServiceCallCustomPropertySet());
             injector.getInstance(OrmService.class);
+            this.messageService = injector.getInstance(MessageService.class);
             this.eventService = injector.getInstance(EventService.class);
             injector.getInstance(NlsService.class);
             injector.getInstance(FiniteStateMachineService.class);
@@ -322,6 +326,10 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
     public ServerDeviceService getDeviceService() {
         return deviceDataModelService.deviceService();
+    }
+
+    public MessageService getMessageService() {
+        return messageService;
     }
 
     public TopologyService getTopologyService() {

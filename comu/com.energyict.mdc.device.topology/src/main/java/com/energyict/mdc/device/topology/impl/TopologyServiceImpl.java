@@ -8,17 +8,25 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -54,16 +62,25 @@ import com.energyict.mdc.device.topology.PhysicalGatewayReference;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
+import com.energyict.mdc.device.topology.impl.kpi.RegisteredDevicesKpiServiceImpl;
+import com.energyict.mdc.device.topology.impl.kpi.TranslationKeys;
 import com.energyict.mdc.device.topology.impl.utils.ChannelDataTransferor;
+import com.energyict.mdc.device.topology.impl.utils.DeviceEventInfo;
 import com.energyict.mdc.device.topology.impl.utils.MeteringChannelProvider;
 import com.energyict.mdc.device.topology.impl.utils.Utils;
+import com.energyict.mdc.device.topology.kpi.Privileges;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.protocol.api.ConnectionFunction;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -91,8 +108,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-05 (10:40)
  */
-@Component(name = "com.energyict.mdc.device.topology", service = {TopologyService.class, ServerTopologyService.class, MessageSeedProvider.class}, property = "name=" + TopologyService.COMPONENT_NAME)
-public class TopologyServiceImpl implements ServerTopologyService, MessageSeedProvider {
+@Component(name = "com.energyict.mdc.device.topology", service = {TopologyService.class, ServerTopologyService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + TopologyService.COMPONENT_NAME)
+public class TopologyServiceImpl implements ServerTopologyService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -101,7 +118,14 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private volatile CommunicationTaskService communicationTaskService;
     private volatile UpgradeService upgradeService;
     private volatile QueryService queryService;
+    private volatile EventService eventService;
     private MeteringChannelProvider meteringChannelProvider;
+    private volatile MessageService messageService;
+    private volatile TaskService taskService;
+    private volatile KpiService kpiService;
+    private volatile UserService userService;
+    private RegisteredDevicesKpiService registeredDevicesKpiService;
+    private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     // For OSGi framework only
     public TopologyServiceImpl() {
@@ -110,7 +134,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     // For unit testing purposes only
     @Inject
-    public TopologyServiceImpl(OrmService ormService, NlsService nlsService, Clock clock, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, UpgradeService upgradeService, QueryService queryService) {
+    public TopologyServiceImpl(BundleContext bundleContext, OrmService ormService, NlsService nlsService, Clock clock, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, UpgradeService upgradeService, QueryService queryService, EventService eventService, MessageService messageService, TaskService taskService, KpiService kpiService, UserService userService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -119,8 +143,18 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         setCommunicationTaskService(communicationTaskService);
         setUpgradeService(upgradeService);
         setQueryService(queryService);
+        setEventService(eventService);
+        setMessageService(messageService);
+        setTaskService(taskService);
+        setKpiService(kpiService);
+        setUserService(userService);
         meteringChannelProvider = new MeteringChannelProvider(thesaurus);
-        activate();
+        activate(bundleContext);
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
     }
 
     @Override
@@ -129,14 +163,40 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
+    public List<TranslationKey> getKeys() {
+        return Stream.of(
+                Arrays.stream(TranslationKeys.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext bundleContext) {
+        createRealServices();
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
+            Version.version(10, 2), V10_2SimpleUpgrader.class,
+            Version.version(10, 4), UpgraderV10_4.class));
+        this.registerRealServices(bundleContext);
+    }
+
+    private void createRealServices() {
+        this.registeredDevicesKpiService = new RegisteredDevicesKpiServiceImpl(this, clock);
+    }
+
+    private void registerRealServices(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(RegisteredDevicesKpiService.class, this.registeredDevicesKpiService, null));
+    }
+
+    @Deactivate
+    public void stop() throws Exception {
+        this.serviceRegistrations.forEach(ServiceRegistration::unregister);
     }
 
     private Module getModule() {
@@ -147,8 +207,14 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
+                bind(EventService.class).toInstance(eventService);
                 bind(TopologyService.class).toInstance(TopologyServiceImpl.this);
                 bind(ServerTopologyService.class).toInstance(TopologyServiceImpl.this);
+                bind(MessageService.class).toInstance(messageService);
+                bind(KpiService.class).toInstance(kpiService);
+                bind(TaskService.class).toInstance(taskService);
+                bind(RegisteredDevicesKpiService.class).toInstance(registeredDevicesKpiService);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
@@ -383,6 +449,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
+    public Stream<PhysicalGatewayReference> getLastPhysicalGateways(Device slave, int numberOfDevices) {
+        return DefaultFinder.of(PhysicalGatewayReference.class, where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(slave), dataModel).paged(0, numberOfDevices).sorted("interval.start", false).stream();
+    }
+
+    @Override
     public Subquery IsLinkedToMaster(Device device) {
         return queryService.wrap(this.dataModel.query(PhysicalGatewayReference.class))
                 .asSubquery(where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(device)
@@ -429,6 +500,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         Instant now = this.clock.instant();
         this.getPhysicalGatewayReference(slave, now).ifPresent(r -> terminateTemporal(r, now));
         this.newPhysicalGatewayReference(slave, gateway, now);
+        eventService.postEvent(EventType.REGISTERED_TO_GATEWAY.topic(), new DeviceEventInfo(slave.getId()));
         this.slaveTopologyChanged(slave, Optional.of(gateway));
     }
 
@@ -885,7 +957,10 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     private void clearPhysicalGateway(Device slave, Instant when) {
-        this.getPhysicalGatewayReference(slave, when).ifPresent(r -> terminateTemporal(r, when));
+        this.getPhysicalGatewayReference(slave, when).ifPresent(r -> {
+            terminateTemporal(r, when);
+            eventService.postEvent(EventType.UNREGISTERED_FROM_GATEWAY.topic(), new DeviceEventInfo((slave.getId()), r.getGateway().getId()));
+        });
         this.slaveTopologyChanged(slave, Optional.empty());
     }
 
@@ -907,6 +982,15 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             fetcher.forEach(communicationPath::addSegment);
         }
         return communicationPath;
+    }
+
+    @Override
+    public Stream<G3CommunicationPathSegment> getUniqueG3CommunicationPathSegments(Device gateway) {
+        Condition condition = this.getDevicesInTopologyCondition(gateway);
+        Subquery  subQuery  = this.dataModel.query(PhysicalGatewayReferenceImpl.class).asSubquery(condition, PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName());
+        Condition targetIsASlave = ListOperator.IN.contains(subQuery, "target");
+        return this.dataModel.query(G3CommunicationPathSegment.class)
+                .select(targetIsASlave.and(where("interval").isEffective()).and(where("nextHop").isNull())).stream();
     }
 
     @Override
@@ -944,6 +1028,12 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     @Override
     public TopologyTimeline getPysicalTopologyTimeline(Device device) {
         return TopologyTimelineImpl.merge(this.findPhysicallyReferencingDevicesFor(device, Range.all()));
+    }
+
+    @Override
+    public List<PhysicalGatewayReference> getPhysyicalGatewayReferencesFor(Device device, Range<Instant> range) {
+        Condition condition = this.getDevicesInTopologyInIntervalCondition(device, range);
+        return this.dataModel.mapper(PhysicalGatewayReference.class).select(condition);
     }
 
     @Override
@@ -1178,6 +1268,30 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     @Reference
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
+    public void setKpiService(KpiService kpiService) {
+        this.kpiService = kpiService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
 

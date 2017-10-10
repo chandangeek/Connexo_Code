@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Provides services that relate to the topology of {@link Device}s.
@@ -90,6 +91,15 @@ public interface TopologyService {
     TopologyTimeline getPysicalTopologyTimeline(Device device);
 
     /**
+     * Gets the {@link PhysicalGatewayReference} for a specified gateway for a certain range
+     *
+     * @param device The gateway
+     * @param range The range
+     * @return a list of PhysicalGataweyReference
+     */
+    List<PhysicalGatewayReference> getPhysyicalGatewayReferencesFor(Device device, Range<Instant> range);
+
+    /**
      * Gets the most recent additions to the {@link TopologyTimeline}
      * of the devices that are directly physically connected to the specified gateway.
      *
@@ -110,6 +120,7 @@ public interface TopologyService {
      */
     G3CommunicationPath getCommunicationPath(Device source, Device target);
 
+
     /**
      * Starts the process to add {@link G3CommunicationPathSegment}s
      * from the source to multiple target {@link Device}s.
@@ -118,6 +129,13 @@ public interface TopologyService {
      * @return The G3CommunicationPathSegmentBuilder
      */
     G3CommunicationPathSegmentBuilder addCommunicationSegments(Device source);
+
+    /**
+     * Return the current stream of communication path segments to all gateway slaves
+     * @param gateway to get the segments to its slaves
+     * @return  a Stream of segments
+     */
+    Stream<G3CommunicationPathSegment> getUniqueG3CommunicationPathSegments(Device gateway);
 
     /**
      * Counts the number of communication errors that have occurred in the specified
@@ -405,6 +423,14 @@ public interface TopologyService {
     List<Pair<Channel, Range<Instant>>> getDataLoggerChannelTimeLine(Channel channel, Range<Instant> range);
 
     List<Pair<Register, Range<Instant>>> getDataLoggerRegisterTimeLine(Register register, Range<Instant> intervalReg);
+
+    /**
+     * Returns the x last physical gateways of a certain device
+     * @param slave the device to find the gateways for
+     * @param numberOfDevices number of gateways that we need
+     * @return a Stream of physical gateway references
+     */
+    Stream<PhysicalGatewayReference> getLastPhysicalGateways(Device slave, int numberOfDevices);
 
     interface G3CommunicationPathSegmentBuilder {
 

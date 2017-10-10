@@ -20,6 +20,10 @@ public enum MessageSeeds implements MessageSeed {
 
     VALUE_IS_REQUIRED_KEY(1, Keys.VALUE_IS_REQUIRED_KEY, "A value is required for attribute {0}"),
     FIELD_TOO_LONG(2, Keys.FIELD_TOO_LONG, "The value {0} provided for attribute {1} is too long"),
+    DEVICE_GROUP_MUST_BE_UNIQUE(3, Keys.DEVICE_GROUP_MUST_BE_UNIQUE, "There is already a KPI for this device group"),
+    FREQUENCY_MUST_BE_VALID(4, Keys.FREQUENCY_MUST_BE_VALID, "Frequency must be valid"),
+    FIELD_REQUIRED(5, Keys.FIELD_REQUIRED, "This field is required"),
+    TARGET_MUST_BE_VALID(6, Keys.TARGET_MUST_BE_VALID, "Target must be between 0 and 100"),
     DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(100, Keys.DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY, "You can not remove device {0} because it is still used as a physical gateway for {1}"),
     DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(101, Keys.DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY, "You can not remove device {0} because it is still used as a communication gateway for {1}"),
     DEVICE_CANNOT_BE_PHYSICAL_GATEWAY_FOR_ITSELF(102, Keys.DEVICE_CANNOT_BE_PHYSICAL_GATEWAY_FOR_ITSELF, "A device cannot be its own gateway"),
@@ -37,6 +41,8 @@ public enum MessageSeeds implements MessageSeed {
     DATA_LOGGER_SLAVE_NOT_LINKED_AT(1008, Keys.DATA_LOGGER_SLAVE_NOT_LINKED_AT, "Slave {0} is not linked at {1}"),
     DATA_LOGGER_UNIQUE_KEY_VIOLATION(1009, Keys.DATA_LOGGER_UNIQUE_KEY_VIOLATION, "You have already linked this slave ''{0}'' to this datalogger ''{1}'' at this timestamp ''{2}''. Please select another linking date"),
     DATA_LOGGER_SLAVE_WAS_ALREADY_LINKED(1010, Keys.DATA_LOGGER_SLAVE_WAS_ALREADY_LINKED, "The slave ''{0}'' was already linked to a datalogger ''{1}'' at the given timestamp ''{2}''"),
+
+
     ;
 
     private final int number;
@@ -107,6 +113,10 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NOT_A_MULTI_ELEMENT_SUBMETER_DEVICE = "multi.element.device.no.submeter.device";
         public static final String GATEWAY_NOT_MULTI_ELEMENT_ENABLED = "gateway.not.multi.element.enabled";
         public static final String MULTI_ELEMENT_DEVICE_CHANNEL_ALREADY_REFERENCED = "multi.element.device.channel.already.referenced";
+        public static final String DEVICE_GROUP_MUST_BE_UNIQUE = "registered.devices.kpi.deviceGroup.unique";
+        public static final String FREQUENCY_MUST_BE_VALID = "registered.devices.kpi.frequency.valid";
+        public static final String FIELD_REQUIRED = "registered.devices.kpi.field.required";
+        public static final String TARGET_MUST_BE_VALID = "registered.devices.kpi.valid.target";
     }
 
 }

@@ -18,9 +18,11 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -38,6 +40,7 @@ import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -75,6 +78,7 @@ import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.topology.impl.multielement.MultiElementDeviceModule;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -166,6 +170,10 @@ public class InMemoryIntegrationPersistence {
     private IssueService issueService;
     private Thesaurus thesaurus;
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private RegisteredDevicesKpiService registeredDevicesKpiService;
+    private MeteringGroupsService meteringGroupsService;
+    private SearchService searchService;
+    private MessageService messageService;
 
     public InMemoryIntegrationPersistence(Clock clock) {
         super();
@@ -251,6 +259,7 @@ public class InMemoryIntegrationPersistence {
                 new MeteringGroupsModule(),
                 new SearchModule(),
                 new InMemoryMessagingModule(),
+                new KpiModule(),
                 new OrmModule(),
                 new IssuesModule(),
                 new MdcReadingTypeUtilServiceModule(),
@@ -295,6 +304,8 @@ public class InMemoryIntegrationPersistence {
             injector.getInstance(MeteringGroupsService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
+            this.messageService = injector.getInstance(MessageService.class);
+            injector.getInstance(KpiService.class);
             this.taskService = injector.getInstance(TaskService.class);
             this.validationService = injector.getInstance(ValidationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
@@ -312,6 +323,9 @@ public class InMemoryIntegrationPersistence {
             this.threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
             this.issueService = injector.getInstance(IssueService.class);
             this.deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
+            this.registeredDevicesKpiService = injector.getInstance(RegisteredDevicesKpiService.class);
+            this.meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+            this.searchService = injector.getInstance(SearchService.class);
             this.dataModel = this.deviceDataModelService.dataModel();
             ctx.commit();
         }
@@ -433,6 +447,10 @@ public class InMemoryIntegrationPersistence {
         return deviceLifeCycleConfigurationService;
     }
 
+    public RegisteredDevicesKpiService getRegisteredDevicesKpiService() {
+        return registeredDevicesKpiService;
+    }
+
     public int update(SqlBuilder sqlBuilder) throws SQLException {
         try (Connection connection = this.dataModel.getConnection(true);
              PreparedStatement statement = sqlBuilder.getStatement(connection)) {
@@ -459,6 +477,14 @@ public class InMemoryIntegrationPersistence {
         return this.issueService;
     }
 
+    public MeteringGroupsService getMeteringGroupsService() {
+        return meteringGroupsService;
+    }
+
+    public SearchService getSearchService() {
+        return searchService;
+    }
+
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
@@ -471,7 +497,6 @@ public class InMemoryIntegrationPersistence {
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
         }
