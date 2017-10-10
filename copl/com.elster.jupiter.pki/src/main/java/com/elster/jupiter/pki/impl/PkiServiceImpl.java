@@ -470,10 +470,12 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         if (searchFilter.trustStore == null) {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName())
                     .likeIgnoreCase(searchFilter.subject)
-                    .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
+                    .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)))
+                    .and(where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName()).isNotNull());
         } else {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName())
                     .likeIgnoreCase(searchFilter.subject)
+                    .and(where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName()).isNotNull())
                     .and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(searchFilter.trustStore));
         }
 
@@ -489,10 +491,13 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         if (searchFilter.trustStore == null) {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName())
                     .likeIgnoreCase(searchFilter.issuer)
+                    .and(where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName()).isNotNull())
                     .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
+
         } else {
-            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName())
+            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName())
                     .likeIgnoreCase(searchFilter.issuer)
+                    .and(where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName()).isNotNull())
                     .and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(searchFilter.trustStore));
         }
 
@@ -508,10 +513,12 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         if (searchFilter.trustStore == null) {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName())
                     .likeIgnoreCase(searchFilter.keyUsages)
+                    .and(where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName()).isNotNull())
                     .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
         } else {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName())
                     .likeIgnoreCase(searchFilter.keyUsages)
+                    .and(where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName()).isNotNull())
                     .and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(searchFilter.trustStore));
         }
 
@@ -527,10 +534,12 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         if (searchFilter.trustStore == null) {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName())
                     .likeIgnoreCase(searchFilter.extendedKeyUsages)
+                    .and(where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName()).isNotNull())
                     .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
         } else {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName())
                     .likeIgnoreCase(searchFilter.extendedKeyUsages)
+                    .and(where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName()).isNotNull())
                     .and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(searchFilter.trustStore));
         }
 
