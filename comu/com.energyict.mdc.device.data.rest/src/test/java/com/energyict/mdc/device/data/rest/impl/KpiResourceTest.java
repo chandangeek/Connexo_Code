@@ -7,12 +7,13 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfo;
-import com.energyict.mdc.device.data.kpi.rest.LongIdWithNameInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
 import com.jayway.jsonpath.JsonModel;
@@ -228,7 +229,7 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DataCollectionKpiInfo info = new DataCollectionKpiInfo();
         info.connectionTarget=BigDecimal.valueOf(99.1);
-        info.deviceGroup =new LongIdWithNameInfo(102L, "some group");
+        info.deviceGroup =new com.elster.jupiter.rest.util.LongIdWithNameInfo(102L, "some group");
         info.frequency = new TemporalExpressionInfo();
         info.frequency.every = new TimeDurationInfo();
         info.frequency.every.timeUnit="minutes";

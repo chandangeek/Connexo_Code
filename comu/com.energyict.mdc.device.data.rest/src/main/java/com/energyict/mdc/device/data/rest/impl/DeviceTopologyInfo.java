@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
+import com.energyict.mdc.device.topology.TopologyTimeslice;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -16,6 +17,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.osgi.util.measurement.Unit.s;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceTopologyInfo {
@@ -30,6 +33,7 @@ public class DeviceTopologyInfo {
 
     public static List<DeviceTopologyInfo> from(TopologyTimeline timeline, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         return timeline.getAllDevices().stream()
+                .filter(device -> hasNotEnded(timeline, device))
                 .sorted(new DeviceRecentlyAddedComporator(timeline))
                 .map(d -> from(d, timeline.mostRecentlyAddedOn(d), deviceLifeCycleConfigurationService))
                 .collect(Collectors.toList());
@@ -51,8 +55,8 @@ public class DeviceTopologyInfo {
     }
 
     private static class DeviceRecentlyAddedComporator implements Comparator<Device> {
-        private TopologyTimeline timeline;
 
+        private TopologyTimeline timeline;
         DeviceRecentlyAddedComporator(TopologyTimeline timeline) {
             this.timeline = timeline;
         }
@@ -70,5 +74,21 @@ public class DeviceTopologyInfo {
             }
             return -1 * d1AddTime.get().compareTo(d2AddTime.get());
         }
+
+    }
+
+    public static boolean hasNotEnded(TopologyTimeline timeline, Device device) {
+        Optional<TopologyTimeslice> first = timeline.getSlices()
+                .stream()
+                .filter(s -> contains(s, device))
+                .sorted((s1, s2) -> s2.getPeriod().lowerEndpoint().compareTo(s1.getPeriod().lowerEndpoint()))
+                .findFirst();
+        return first.filter(topologyTimeslice -> !topologyTimeslice.getPeriod().hasUpperBound()).isPresent();
+    }
+
+    private static boolean contains(TopologyTimeslice timeslice, Device device) {
+        return timeslice.getDevices()
+                .stream()
+                .anyMatch(d -> d.getId() == device.getId());
     }
 }

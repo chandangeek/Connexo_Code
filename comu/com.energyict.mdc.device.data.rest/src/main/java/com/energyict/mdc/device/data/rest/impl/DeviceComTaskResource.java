@@ -214,6 +214,33 @@ public class DeviceComTaskResource {
         return Response.ok().build();
     }
 
+    @PUT
+    @Transactional
+    @Path("/runnow")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
+    public Response runnowForMultipleTasks(@PathParam("name") String name, RetriggerComTasksInfo info) {
+        if (info==null || info.device==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
+        }
+        info.device.name = name;
+        if (!info.comTaskIds.isEmpty()) {
+            Device device = resourceHelper.lockDeviceOrThrowException(info.device);
+            for (Long comTaskId : info.comTaskIds) {
+                checkForNoActionsAllowedOnSystemComTask(comTaskId);
+                List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
+                if (!comTaskExecutions.isEmpty()) {
+                    comTaskExecutions.forEach(runComTaskFromExecutionNow());
+                } else {
+                    List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
+                    comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
+                }
+            }
+        }
+        return Response.ok().build();
+    }
+
     @GET
     @Transactional
     @Path("{comTaskId}/comtaskexecutionsessions")
