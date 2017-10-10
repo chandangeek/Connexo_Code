@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
  * @since 2017-01-26 (11:20)
  */
 public class NestedPropertyValidationException extends RuntimeException {
+
     private final PropertyValidationException uplException;
 
     public NestedPropertyValidationException(PropertyValidationException uplException) {

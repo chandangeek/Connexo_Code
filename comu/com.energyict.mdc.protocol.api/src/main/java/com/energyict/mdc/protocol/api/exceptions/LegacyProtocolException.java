@@ -18,7 +18,7 @@ import java.io.IOException;
 public class LegacyProtocolException extends ComServerRuntimeException {
 
     public LegacyProtocolException(MessageSeed messageSeed, IOException cause){
-        super(cause, messageSeed, cause.getMessage());
+        super(cause, messageSeed);
     }
 
 }
