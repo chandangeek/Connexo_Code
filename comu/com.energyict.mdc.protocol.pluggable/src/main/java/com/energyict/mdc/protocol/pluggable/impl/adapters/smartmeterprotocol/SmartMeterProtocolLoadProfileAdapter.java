@@ -7,7 +7,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.StackTracePrinter;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -23,6 +22,7 @@ import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.exceptions.DataParseException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -109,7 +109,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
                     deviceLoadProfileConfiguration.setSupportedByMeter(false);
                     deviceLoadProfileConfiguration.setFailureInformation(
                             ResultType.DataIncomplete,
-                            getIssue(this, com.energyict.mdc.protocol.api.MessageSeeds.DEVICEPROTOCOL_LEGACY_ISSUE, StackTracePrinter.print(e)));
+                            getIssue(this, MessageSeeds.DEVICEPROTOCOL_LEGACY_ISSUE, StackTracePrinter.print(e)));
                     return deviceLoadProfileConfiguration;
                 })
                 .collect(Collectors.toList());
@@ -178,7 +178,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
                                 ResultType.NotSupported,
                                 getIssue(
                                         loadProfileReader.getProfileObisCode(),
-                                        com.energyict.mdc.protocol.api.MessageSeeds.LOADPROFILE_NOT_SUPPORTED,
+                                        MessageSeeds.LOADPROFILE_NOT_SUPPORTED,
                                         loadProfileReader.getProfileObisCode()));
                     }
                     collectedLoadProfiles.add(deviceLoadProfile);

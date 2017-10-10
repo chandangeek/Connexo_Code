@@ -14,7 +14,6 @@ import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -45,6 +44,7 @@ import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
@@ -58,6 +58,7 @@ import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.protocol.exceptions.CommunicationException;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -182,7 +183,7 @@ public class MeterProtocolAdapterTest {
     }
 
     private MeterProtocol getMockedMeterProtocol() {
-        return mock(MeterProtocol.class, withSettings().extraInterfaces(DeviceSecuritySupport.class, DeviceMessageSupport.class));
+        return mock(MeterProtocol.class, withSettings().extraInterfaces(DeviceSecuritySupport.class, DeviceMessageSupport.class, SerialNumberSupport.class));
     }
 
     @Test
@@ -347,7 +348,7 @@ public class MeterProtocolAdapterTest {
         final String meterSerialNumber = "MeterSerialNumber";
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        when(offlineDevice.getSerialNumber()).thenReturn(meterSerialNumber);
+        when(((SerialNumberSupport) meterProtocol).getSerialNumber()).thenReturn(meterSerialNumber);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         assertThat(meterProtocolAdapter.getSerialNumber()).isEqualTo(meterSerialNumber);

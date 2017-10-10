@@ -41,6 +41,9 @@ import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.api.services.NotAppropriateDeviceCacheMarshallingTargetException;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
+
+import java.util.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,8 +51,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -105,14 +106,15 @@ public class ProtocolPluggableServiceImplTest {
     private TransactionService transactionService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DataModel dataModel;
+    @Mock
+    MessageSeed messageSeed;
 
     @Before
     public void setUp() {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
-        when(dataModel.getInstance(Installer.class)).thenAnswer(invocation -> {
-            return new Installer(dataModel, eventService);
-        });
+        when(dataModel.getInstance(Installer.class)).thenAnswer(invocation -> new Installer(dataModel, eventService));
         when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
+        when(messageSeed.getDefaultFormat()).thenReturn("Message: {0}");
     }
 
     @After
@@ -147,7 +149,8 @@ public class ProtocolPluggableServiceImplTest {
     public void createProtocolDelegatesToAllServices() {
         ProtocolPluggableServiceImpl service = this.newTestInstance();
         DeviceProtocolService deviceProtocolService1 = mock(DeviceProtocolService.class);
-        when(deviceProtocolService1.createProtocol(anyString())).thenThrow(new ProtocolCreationException(mock(MessageSeed.class), "Whatever"));
+        ProtocolCreationException exception = new ProtocolCreationException(messageSeed, "Whatever");
+        when(deviceProtocolService1.createProtocol(anyString())).thenThrow(exception);
         DeviceProtocolService deviceProtocolService2 = mock(DeviceProtocolService.class);
         service.addDeviceProtocolService(deviceProtocolService1);
         service.addDeviceProtocolService(deviceProtocolService2);
@@ -184,7 +187,8 @@ public class ProtocolPluggableServiceImplTest {
     public void createProtocolThatDoesNotExist() {
         ProtocolPluggableServiceImpl service = this.newTestInstance();
         DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
-        when(deviceProtocolService.createProtocol(anyString())).thenThrow(new ProtocolCreationException(mock(MessageSeed.class), "Whatever"));
+        ProtocolCreationException whatever = new ProtocolCreationException(messageSeed, "Whatever");
+        when(deviceProtocolService.createProtocol(anyString())).thenThrow(whatever);
         service.addDeviceProtocolService(deviceProtocolService);
 
         // Business method
@@ -267,7 +271,8 @@ public class ProtocolPluggableServiceImplTest {
         ProtocolPluggableServiceImpl service = this.newTestInstance();
         InboundDeviceProtocolService inboundDeviceProtocolService = mock(InboundDeviceProtocolService.class);
         PluggableClass pluggableClass = mock(PluggableClass.class);
-        when(inboundDeviceProtocolService.createInboundDeviceProtocolFor(pluggableClass)).thenThrow(new ProtocolCreationException(mock(MessageSeed.class), "Whatever"));
+        ProtocolCreationException exception = new ProtocolCreationException(messageSeed, "Whatever");
+        when(inboundDeviceProtocolService.createInboundDeviceProtocolFor(pluggableClass)).thenThrow(exception);
         service.addInboundDeviceProtocolService(inboundDeviceProtocolService);
 
         // Business method
@@ -303,7 +308,8 @@ public class ProtocolPluggableServiceImplTest {
     public void createDeviceProtocolMessagesForDelegatesToAllProtocolServices() {
         ProtocolPluggableServiceImpl service = this.newTestInstance();
         DeviceProtocolMessageService deviceProtocolMessageService1 = mock(DeviceProtocolMessageService.class);
-        when(deviceProtocolMessageService1.createDeviceProtocolMessagesFor(anyString())).thenThrow(new ProtocolCreationException(mock(MessageSeed.class), "Whatever"));
+        ProtocolCreationException exception = new ProtocolCreationException(messageSeed, "Whatever");
+        when(deviceProtocolMessageService1.createDeviceProtocolMessagesFor(anyString())).thenThrow(exception);
         DeviceProtocolMessageService deviceProtocolMessageService2 = mock(DeviceProtocolMessageService.class);
         service.addDeviceProtocolMessageService(deviceProtocolMessageService1);
         service.addDeviceProtocolMessageService(deviceProtocolMessageService2);
@@ -340,7 +346,8 @@ public class ProtocolPluggableServiceImplTest {
     public void createDeviceProtocolMessagesThatDoesNotExist() {
         ProtocolPluggableServiceImpl service = this.newTestInstance();
         DeviceProtocolMessageService deviceProtocolMessageService = mock(DeviceProtocolMessageService.class);
-        when(deviceProtocolMessageService.createDeviceProtocolMessagesFor(anyString())).thenThrow(new ProtocolCreationException(mock(MessageSeed.class), "Whatever"));
+        ProtocolCreationException exception = new ProtocolCreationException(messageSeed, "Whatever");
+        when(deviceProtocolMessageService.createDeviceProtocolMessagesFor(anyString())).thenThrow(exception);
         service.addDeviceProtocolMessageService(deviceProtocolMessageService);
 
         // Business method
@@ -376,8 +383,8 @@ public class ProtocolPluggableServiceImplTest {
     public void createDeviceProtocolSecurityForDelegatesToAllProtocolServices() {
         ProtocolPluggableServiceImpl service = this.newTestInstance();
         DeviceProtocolSecurityService deviceProtocolSecurityService1 = mock(DeviceProtocolSecurityService.class);
-        when(deviceProtocolSecurityService1.createDeviceProtocolSecurityFor(anyString()))
-                .thenThrow(DeviceProtocolAdapterCodingExceptions.unsupportedMethod(mock(MessageSeed.class), ProtocolPluggableServiceImplTest.class, "createDeviceProtocolSecurityForDelegatesToAllProtocolServices"));
+        DeviceProtocolAdapterCodingExceptions exception = DeviceProtocolAdapterCodingExceptions.unsupportedMethod(messageSeed, ProtocolPluggableServiceImplTest.class, "createDeviceProtocolSecurityForDelegatesToAllProtocolServices");
+        when(deviceProtocolSecurityService1.createDeviceProtocolSecurityFor(anyString())).thenThrow(exception);
         DeviceProtocolSecurityService deviceProtocolSecurityService2 = mock(DeviceProtocolSecurityService.class);
         service.addDeviceProtocolSecurityService(deviceProtocolSecurityService1);
         service.addDeviceProtocolSecurityService(deviceProtocolSecurityService2);
@@ -414,8 +421,8 @@ public class ProtocolPluggableServiceImplTest {
     public void createDeviceProtocolSecuritysThatDoesNotExist() {
         ProtocolPluggableServiceImpl service = this.newTestInstance();
         DeviceProtocolSecurityService deviceProtocolSecurityService = mock(DeviceProtocolSecurityService.class);
-        when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(anyString()))
-                .thenThrow(DeviceProtocolAdapterCodingExceptions.unsupportedMethod(mock(MessageSeed.class), ProtocolPluggableServiceImplTest.class, "createDeviceProtocolSecuritysThatDoesNotExist"));
+        DeviceProtocolAdapterCodingExceptions exception = DeviceProtocolAdapterCodingExceptions.unsupportedMethod(messageSeed, ProtocolPluggableServiceImplTest.class, "createDeviceProtocolSecuritysThatDoesNotExist");
+        when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(anyString())).thenThrow(exception);
         service.addDeviceProtocolSecurityService(deviceProtocolSecurityService);
 
         // Business method
@@ -792,7 +799,8 @@ public class ProtocolPluggableServiceImplTest {
     }
 
     private ProtocolPluggableServiceImpl newTestInstance() {
-        return new ProtocolPluggableServiceImpl(this.ormService, this.threadPrincipalService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, identificationService, deviceMessageSpecificationService, customPropertySetInstantiatorService, this.customPropertySetService, this.licenseService, this.dataVaultService, this.transactionService, UpgradeModule.FakeUpgradeService.getInstance());
+        return new ProtocolPluggableServiceImpl(this.ormService, this.threadPrincipalService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, identificationService, deviceMessageSpecificationService, customPropertySetInstantiatorService, this.customPropertySetService, this.licenseService, this.dataVaultService, this.transactionService, UpgradeModule.FakeUpgradeService
+                .getInstance());
     }
 
 }

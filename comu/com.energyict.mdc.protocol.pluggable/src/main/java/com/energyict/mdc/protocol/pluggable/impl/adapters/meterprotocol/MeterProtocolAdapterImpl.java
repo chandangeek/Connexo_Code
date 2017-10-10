@@ -10,8 +10,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannelInputStreamAdapter;
 import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
-import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
@@ -76,6 +74,7 @@ import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.exceptions.CommunicationException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -319,7 +318,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         if (meterProtocol instanceof SerialNumberSupport) {
             return ((SerialNumberSupport) meterProtocol).getSerialNumber();
         } else {
-           throw CommunicationException.serialNumberNotSupported();
+           throw new CommunicationException(MessageSeeds.SERIAL_NUMBER_NOT_SUPPORTED);
         }
     }
 
@@ -455,7 +454,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         try {
             this.meterProtocol.connect();
         } catch (IOException e) {
-            throw new ConnectionCommunicationException(MessageSeeds.PROTOCOL_CONNECT, e);
+            throw new CommunicationException(e, MessageSeeds.PROTOCOL_CONNECT);
         }
     }
 
@@ -469,7 +468,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         try {
             this.meterProtocol.disconnect();
         } catch (IOException e) {
-            throw new CommunicationException(MessageSeeds.PROTOCOL_DISCONNECT, e);
+            throw new CommunicationException(e, MessageSeeds.PROTOCOL_DISCONNECT);
         }
     }
 

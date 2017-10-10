@@ -7,14 +7,15 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
+
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 

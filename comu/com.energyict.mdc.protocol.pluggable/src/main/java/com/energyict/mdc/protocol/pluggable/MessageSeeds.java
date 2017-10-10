@@ -14,11 +14,11 @@ import java.util.logging.Level;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-23 (10:21)
  */
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, com.energyict.mdc.upl.nls.MessageSeed {
     INDEX_OUT_OF_BOUND_DATA_PARSE_EXCEPTION(100, "dataParseException.indexOutOfBounds", "Referenced a non-existing index: {0}"),
     CONFIG_NOT_ACCESSIBLE(101, "configNotAccessible", "The configuration for loadprofile with OBIS code {0} is not accessible"),
-    PROTOCOL_CONNECT(102, "protocolConnect", "The logical connect to a device failed: {0}"),
-    PROTOCOL_DISCONNECT(103, "protocolDisonnect", "The logical disconnect to a device failed: {0}"),
+    PROTOCOL_CONNECT(102, "protocolConnect.failed", "The logical connect to a device failed: {0}"),
+    PROTOCOL_DISCONNECT(103, "protocolDisconnect.failed", "The logical disconnect to a device failed: {0}"),
     UNSUPPORTED_METHOD(104, "unsupportedMethod", "Method {1} is not supported for class {0}"),
     NON_EXISTING_MAP_ELEMENT(105, "nonExistingMapElement", "''{2}'' is not known to the Map ''{1}'' in ''{0}'', only predefined protocols can make use of the DeviceProtocolAdapters"),
     GENERIC_JAVA_REFLECTION_ERROR(106, "genericJavaReflectionError", "Unable to create an instance of the class {0}."),
@@ -28,7 +28,17 @@ public enum MessageSeeds implements MessageSeed {
     LEGACY_IO(110, "lecagyIoError", "IO related exception occurred in adapter framework: {0}"),
     MESSAGEADAPTER_APPLYMESSAGES_ISSUE(111, "messageadapter.applymessages.issue", "An error occurred during the applyMesssages call in the message adapters, see following stacktrace: {0}", Level.INFO),
     DEVICE_TOPOLOGY_NOT_SUPPORTED_BY_ADAPTER(112, "devicetopologynotsupportedbyadapter", "Device topology update not supported by the legacy protocol adapter", Level.INFO),
-
+    SERIAL_NUMBER_NOT_SUPPORTED(113, "serialNumberNotSupported", "The legacy protocol does not support readout of the serial number"),
+    LOADPROFILE_NOT_SUPPORTED(114, "loadProfileXnotsupported", "Load profile with OBIS code ''{0}'' is not supported by the device"),
+    LOGBOOK_NOT_SUPPORTED(115, "logBookXnotsupported", "Logbook with OBIS code ''{0}'' is not supported by the device"),
+    LOGBOOK_ISSUE(116, "logBookXissue", "Encountered an exception while reading LogBook {0}: {1}"),
+    UNSUPPORTED_CHANNEL_INFO(117, "unsupportedChannelInfo", "The channel info ''{0}'' is not supported"),
+    COULD_NOT_READOUT_LOGBOOK_DATA(118, "couldNotReadoutLogBookData", "Could not correctly read the logbook data: {0}"),
+    COULD_NOT_PARSE_LOGBOOK_DATA(119, "couldNotParseLogBookData", "Could not correctly parse the logbook data: {0}"),
+    COULD_NOT_READOUT_LOADPROFILE_DATA(120, "couldNotReadoutLoadProfileData", "Could not correctly readout the load profile data, reason: {0}"),
+    COULD_NOT_PARSE_LOADPROFILE_DATA(121, "couldNotParseLoadProfileData", "Could not correctly parse the load profile data: {0}"),
+    REGISTER_NOT_SUPPORTED(122, "registerXnotsupported", "Register with OBIS code ''{0}'' is not supported by the device"),
+    DEVICEPROTOCOL_LEGACY_ISSUE(123, "deviceprotocol.legacy.issue", "An error occurred during the execution of a legacy protocol, see following stacktrace: {0}"),
     PROTOCOL_NOT_ALLOWED_BY_LICENSE(1001, "protocolXNotAllowedByLicense", "Usage of protocol \"{0}\" is not allowed by the current license."),
     PLUGGABLE_CLASS_LACKS_RELATED_INTERFACE(1002, "PluggableClassXShouldImplementYForTypeZ", "Pluggable class \"{2}\" should implement \"{1}\" because the type is \"{0}\""),
     PLUGGABLE_CLASS_CREATION_FAILURE(1003, Keys.PLUGGABLE_CLASS_NEW_INSTANCE_FAILURE, "Failure to create instance of pluggable class {0}"),
@@ -37,6 +47,7 @@ public enum MessageSeeds implements MessageSeed {
     PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE(2024, Keys.PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY, "Not a valid value for this attribute"),
     PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING(2025, Keys.PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY, "A value is missing for required attribute ''{0}'' of device protocol''{1}''"),
     UNEXPECTED_IO_EXCEPTION(2026, "unexpectedIOException", "Exception occurred while communication with a device"),
+
     ;
 
     private final int number;

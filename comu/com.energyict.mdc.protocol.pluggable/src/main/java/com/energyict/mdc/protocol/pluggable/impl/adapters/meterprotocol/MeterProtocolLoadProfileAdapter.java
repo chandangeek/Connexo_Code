@@ -5,11 +5,8 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.cbo.Unit;
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -24,6 +21,8 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
+
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -31,6 +30,8 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import org.joda.time.DateTimeConstants;
 
 import java.io.IOException;
@@ -195,7 +196,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
      */
     private CollectedLoadProfile createUnSupportedCollectedLoadProfile(final LoadProfileReader loadProfileReader) {
         CollectedLoadProfile deviceLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(null);
-        deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getProblem(loadProfileReader.getProfileObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.LOADPROFILE_NOT_SUPPORTED, loadProfileReader.getProfileObisCode()));
+        deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getProblem(loadProfileReader.getProfileObisCode(), MessageSeeds.LOADPROFILE_NOT_SUPPORTED, loadProfileReader.getProfileObisCode()));
         return deviceLoadProfile;
     }
 
@@ -205,7 +206,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         for (LogBookReader reader : logBookReaders) {
             if (!reader.getLogBookObisCode().equals(LogBook.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
                 CollectedLogBook deviceLogBook = collectedDataFactory.createCollectedLogBook(reader.getLogBookIdentifier());
-                deviceLogBook.setFailureInformation(ResultType.NotSupported, getWarning(reader.getLogBookObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.LOGBOOK_NOT_SUPPORTED, reader.getLogBookObisCode()));
+                deviceLogBook.setFailureInformation(ResultType.NotSupported, getWarning(reader.getLogBookObisCode(), MessageSeeds.LOGBOOK_NOT_SUPPORTED, reader.getLogBookObisCode()));
                 collectedLogBookList.add(deviceLogBook);
             }
         }
@@ -240,14 +241,14 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             if (isTimeout(e)) {
                 throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
             } else {
-                deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getProblem(loadProfileReader.getProfileObisCode(), com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READOUT_LOADPROFILE_DATA, e.getMessage()));
+                deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getProblem(loadProfileReader.getProfileObisCode(), MessageSeeds.COULD_NOT_READOUT_LOADPROFILE_DATA, e.getMessage()));
             }
         } catch (IndexOutOfBoundsException e) { // handles parsing errors
             deviceLoadProfile.setFailureInformation(
                     ResultType.InCompatible,
                     getProblem(
                             loadProfileReader.getProfileObisCode(),
-                            com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_PARSE_LOADPROFILE_DATA,
+                            MessageSeeds.COULD_NOT_PARSE_LOADPROFILE_DATA,
                             e.toString()));
         }
         collectedDataList.add(deviceLoadProfile);
@@ -268,7 +269,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
                 }
                 convertedChannelInfos.add(convertedChannelInfo);
             } catch (LoadProfileConfigurationException e) {
-                collectedLoadProfile.setFailureInformation(ResultType.ConfigurationMisMatch, getWarning(profileData, com.energyict.mdc.protocol.api.MessageSeeds.UNSUPPORTED_CHANNEL_INFO, ci));
+                collectedLoadProfile.setFailureInformation(ResultType.ConfigurationMisMatch, getWarning(profileData, MessageSeeds.UNSUPPORTED_CHANNEL_INFO, ci));
             }
         }
         return convertedChannelInfos;
@@ -303,13 +304,13 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
                         ResultType.NotSupported,
                         getProblem(
                                 loadProfileReader.getProfileObisCode(),
-                                com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READOUT_LOADPROFILE_DATA,
+                                MessageSeeds.COULD_NOT_READOUT_LOADPROFILE_DATA,
                                 e.getMessage()));
                 deviceLogBook.setFailureInformation(
                         ResultType.NotSupported,
                         getProblem(
                                 logBookReader.getLogBookObisCode(),
-                                com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READOUT_LOGBOOK_DATA,
+                                MessageSeeds.COULD_NOT_READOUT_LOGBOOK_DATA,
                                 e.getMessage()));
             }
         } catch (IndexOutOfBoundsException e) { // handles parsing errors
@@ -317,13 +318,13 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
                     ResultType.InCompatible,
                     getProblem(
                             loadProfileReader.getProfileObisCode(),
-                            com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_PARSE_LOADPROFILE_DATA,
+                            MessageSeeds.COULD_NOT_PARSE_LOADPROFILE_DATA,
                             e.toString()));
             deviceLogBook.setFailureInformation(
                     ResultType.InCompatible,
                     getProblem(
                             logBookReader.getLogBookObisCode(),
-                            com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA,
+                            MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA,
                             e.toString()));
         }
         collectedDataList.add(deviceLoadProfile);
@@ -345,7 +346,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
                         ResultType.NotSupported,
                         getProblem(
                                 logBookReader.getLogBookObisCode(),
-                                com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READOUT_LOGBOOK_DATA,
+                                MessageSeeds.COULD_NOT_READOUT_LOGBOOK_DATA,
                                 e.getMessage()));
             }
         } catch (IndexOutOfBoundsException e) { // handles parsing errors
@@ -353,7 +354,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
                     ResultType.InCompatible,
                     getProblem(
                             logBookReader.getLogBookObisCode(),
-                            com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA,
+                            MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA,
                             e.toString()));
         }
         collectedDataList.add(deviceLogBook);

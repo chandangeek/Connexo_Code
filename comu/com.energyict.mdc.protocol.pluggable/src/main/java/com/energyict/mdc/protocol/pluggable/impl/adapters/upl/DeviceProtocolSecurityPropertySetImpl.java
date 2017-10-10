@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
+import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityPropertySet;
 
 /**
  * Maps the securityPropertySet to a usable property set for a DeviceProtocol.
