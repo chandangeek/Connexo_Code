@@ -2,9 +2,10 @@ package com.elster.protocolimpl.dlms.util;
 
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.NestedIOException;
+
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
-import com.energyict.protocol.exception.ProtocolRuntimeException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 
 import java.io.IOException;
 
@@ -46,5 +47,4 @@ public class ElsterProtocolIOExceptionHandler {
     protected static ProtocolRuntimeException createNumberOfRetriesReachedException(IOException e, int nbRetries) {
         return ConnectionCommunicationException.numberOfRetriesReached(e, nbRetries);
     }
-
 }

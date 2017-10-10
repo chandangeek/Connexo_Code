@@ -4,8 +4,7 @@
 
 package com.energyict.protocolcommon.exceptions;
 
-import com.energyict.protocol.exception.ProtocolExceptionReference;
-import com.energyict.protocol.exception.ProtocolRuntimeException;
+import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
 
 /**
  * Provides functionality to generate exceptions based on the parsing of some data
@@ -13,17 +12,17 @@ import com.energyict.protocol.exception.ProtocolRuntimeException;
  * @author gna
  * @since 28/03/12 - 15:12
  */
-public class CodingException extends ProtocolRuntimeException {
+public class CodingException extends com.energyict.protocol.exceptions.CodingException {
 
-    protected CodingException(Throwable cause, ProtocolExceptionReference code, Object... messageArguments) {
+    protected CodingException(Throwable cause, ProtocolExceptionMessageSeeds code, Object... messageArguments) {
         super(cause, code, messageArguments);
     }
 
-    protected CodingException(ProtocolExceptionReference reference, Object... messageArguments) {
+    protected CodingException(ProtocolExceptionMessageSeeds reference, Object... messageArguments) {
         super(reference, messageArguments);
     }
 
-    private CodingException(ProtocolExceptionReference reference, Exception cause) {
+    private CodingException(ProtocolExceptionMessageSeeds reference, Exception cause) {
         super(cause, reference, cause.getMessage());
     }
 
@@ -32,11 +31,11 @@ public class CodingException extends ProtocolRuntimeException {
     }
 
     public static CodingException genericReflectionError(Exception reflectionError, String className) {
-        return new CodingException(reflectionError, ProtocolExceptionReference.GENERIC_JAVA_REFLECTION_ERROR, className);
+        return new CodingException(reflectionError, ProtocolExceptionMessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, className);
     }
 
     public static CodingException protocolImplementationError(String error) {
-        return new CodingException(ProtocolExceptionReference.PROTOCOL_IMPLEMENTATION_ERROR, error);
+        return new CodingException(ProtocolExceptionMessageSeeds.PROTOCOL_IMPLEMENTATION_ERROR, error);
     }
 
     /**
@@ -47,7 +46,7 @@ public class CodingException extends ProtocolRuntimeException {
      * @return a newly created CodingException
      */
     public static CodingException unsupportedMethod(Class clazz, String methodName) {
-        return new CodingException(ProtocolExceptionReference.UNSUPPORTED_METHOD, clazz.getName(), methodName);
+        return new CodingException(ProtocolExceptionMessageSeeds.UNSUPPORTED_METHOD, clazz.getName(), methodName);
     }
 
     /**
@@ -58,7 +57,7 @@ public class CodingException extends ProtocolRuntimeException {
      * @return The CodingException
      */
     public static <T extends Enum> CodingException unrecognizedEnumValue (T enumValue) {
-        return new CodingException(ProtocolExceptionReference.UNRECOGNIZED_ENUM_VALUE, enumValue.getClass(), enumValue.ordinal());
+        return new CodingException(ProtocolExceptionMessageSeeds.UNRECOGNIZED_ENUM_VALUE, enumValue.getClass(), enumValue.ordinal());
     }
 
     /**
@@ -71,6 +70,6 @@ public class CodingException extends ProtocolRuntimeException {
      * @return The CodingException
      */
     public static <T extends Enum> CodingException unrecognizedEnumValue (Class<T> enumClass, int ordinalValue) {
-        return new CodingException(ProtocolExceptionReference.UNRECOGNIZED_ENUM_VALUE, enumClass.getName(), ordinalValue);
+        return new CodingException(ProtocolExceptionMessageSeeds.UNRECOGNIZED_ENUM_VALUE, enumClass.getName(), ordinalValue);
     }
 }

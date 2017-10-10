@@ -10,7 +10,7 @@ import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisSta
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStackImpl;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
-import com.energyict.protocol.exception.ProtocolRuntimeException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolcommon.exceptions.CodingException;
 
 import java.io.IOException;

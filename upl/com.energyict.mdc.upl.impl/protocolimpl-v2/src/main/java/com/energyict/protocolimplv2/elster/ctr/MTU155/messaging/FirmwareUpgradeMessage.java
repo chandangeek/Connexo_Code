@@ -4,9 +4,10 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
+
 import com.energyict.protocol.exception.ConnectionCommunicationException;
-import com.energyict.protocol.exception.ProtocolExceptionReference;
-import com.energyict.protocol.exception.ProtocolRuntimeException;
+import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.protocolimpl.utils.TempFileLoader;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CTRDeviceProtocolCache;
@@ -317,7 +318,7 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
                 }
             }
         } catch (ProtocolRuntimeException e) {
-            if (e instanceof ConnectionCommunicationException && (e.getExceptionReference().equals(ProtocolExceptionReference.NUMBER_OF_RETRIES_REACHED))) {        // A timeout exception, probably because the device went offline after 5 min of communication
+            if (e instanceof ConnectionCommunicationException && (e.getMessageSeed().equals(ProtocolExceptionMessageSeeds.NUMBER_OF_RETRIES_REACHED))) {        // A timeout exception, probably because the device went offline after 5 min of communication
                 String message = "Got an CTRException [" + e.getMessage() + "] while sending firmware image segments to the MTU155 - " +
                         lastAckedSegment.getSegment() + " out of " + numberOfTotalSegments + " segments are already send out to the device" +
                         " - The firmware upgrade process will continue next communication session.";

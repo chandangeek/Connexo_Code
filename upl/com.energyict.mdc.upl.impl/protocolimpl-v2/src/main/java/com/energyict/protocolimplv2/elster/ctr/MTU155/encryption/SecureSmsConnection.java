@@ -2,9 +2,10 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.encryption;
 
 import com.energyict.mdc.channels.sms.ProximusSmsSender;
 import com.energyict.mdc.protocol.ComChannel;
+
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
-import com.energyict.protocol.exception.ProtocolRuntimeException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CtrConnection;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CtrConnectionState;

@@ -164,7 +164,7 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
                 .finish();
     }
 
-    private PropertySpec keyAccessorTypeReferencePropertySpec(String name, TranslationKey translationKey) {
+    protected PropertySpec keyAccessorTypeReferencePropertySpec(String name, TranslationKey translationKey) {
         return this.propertySpecService
                 .referenceSpec(KeyAccessorType.class.getName())
                 .named(name, translationKey)

@@ -1,6 +1,13 @@
 package com.elster.us.protocolimplv2.sel;
 
 
+import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+
 import com.elster.us.protocolimplv2.sel.events.EventFormatter;
 import com.elster.us.protocolimplv2.sel.frame.RequestFrame;
 import com.elster.us.protocolimplv2.sel.frame.ResponseFrame;
@@ -17,12 +24,6 @@ import com.elster.us.protocolimplv2.sel.utility.UnitMapper;
 import com.elster.us.protocolimplv2.sel.utility.YModem;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.mdc.protocol.SerialPortComChannel;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -257,7 +258,7 @@ public class SELConnection {
                 }
             }
         } catch (Exception ioe) {
-            throw ConnectionCommunicationException.protocolConnectFailed(ioe);
+            throw CommunicationException.protocolConnectFailed(ioe);
         }
     }
 
@@ -265,7 +266,7 @@ public class SELConnection {
         try {
             Thread.sleep(milliSeconds);
         } catch (InterruptedException ie) {
-            throw ConnectionCommunicationException.protocolConnectFailed(ie);
+            throw CommunicationException.protocolConnectFailed(ie);
         }
     }
 

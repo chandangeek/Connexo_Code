@@ -6,16 +6,18 @@ package com.energyict.mdc.channels;
 
 import com.energyict.mdc.channel.SynchroneousComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
-import com.energyict.mdc.upl.io.ConnectionCommunicationException;
+
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;

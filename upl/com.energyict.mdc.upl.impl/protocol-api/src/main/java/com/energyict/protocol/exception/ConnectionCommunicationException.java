@@ -4,7 +4,12 @@
 
 package com.energyict.protocol.exception;
 
+import com.energyict.mdc.upl.nls.MessageSeed;
+
 import java.io.IOException;
+
+import static com.energyict.protocol.exceptions.ConnectionCommunicationException.Type.CONNECTION_STILL_INTACT;
+import static com.energyict.protocol.exceptions.ConnectionCommunicationException.Type.NON_RECOVERABLE;
 
 /**
  * ComServer won't execute any other communication related ComCommands (for a certain connection) after that this exception is thrown.
@@ -13,18 +18,23 @@ import java.io.IOException;
  * @author gna
  * @since 28/03/12 - 15:39
  */
-public class ConnectionCommunicationException extends CommunicationException {
+public class ConnectionCommunicationException extends com.energyict.protocol.exceptions.ConnectionCommunicationException {
 
-    protected ConnectionCommunicationException(Throwable cause, ProtocolExceptionReference code, Object... messageArguments) {
-        super(cause, code, messageArguments);
+    private final Type exceptionType;
+
+    public ConnectionCommunicationException(Type exceptionType, MessageSeed messageSeed, Object... messageArguments) {
+        super(messageSeed, messageArguments);
+        this.exceptionType = exceptionType;
     }
 
-    protected ConnectionCommunicationException(ProtocolExceptionReference reference, Object... messageArguments) {
-        super(reference, messageArguments);
+    public ConnectionCommunicationException(Type exceptionType, Throwable cause, MessageSeed messageSeed, Object... messageArguments) {
+        super(cause, messageSeed, messageArguments);
+        this.exceptionType = exceptionType;
     }
 
-    private ConnectionCommunicationException(ProtocolExceptionReference reference, Exception cause) {
-        super(cause, reference, cause.getMessage());
+    @Override
+    public Type getExceptionType() {
+        return exceptionType;
     }
 
     /**
@@ -36,7 +46,7 @@ public class ConnectionCommunicationException extends CommunicationException {
      * Also, communication to the next physical slave devices (that use the same connection) is not possible.
      */
     public static ConnectionCommunicationException unexpectedIOException(IOException cause) {
-        return new ConnectionCommunicationException(cause, ProtocolExceptionReference.UNEXPECTED_IO_EXCEPTION, cause.getMessage());
+        return new ConnectionCommunicationException(NON_RECOVERABLE, cause, ProtocolExceptionMessageSeeds.UNEXPECTED_IO_EXCEPTION, cause.getMessage());
     }
 
     /**
@@ -50,8 +60,8 @@ public class ConnectionCommunicationException extends CommunicationException {
      * @param cause the exception created by the protocol
      * @return the newly created numberOfRetriesReached CommunicationException
      */
-    public static ConnectionCommunicationException numberOfRetriesReached(final Exception cause, final int totalNumberOfAttempts) {
-        return new ConnectionCommunicationException(ProtocolExceptionReference.NUMBER_OF_RETRIES_REACHED, cause, totalNumberOfAttempts);
+    public static ConnectionCommunicationException numberOfRetriesReached(Exception cause, int totalNumberOfAttempts) {
+        return new ConnectionCommunicationException(NON_RECOVERABLE, cause, ProtocolExceptionMessageSeeds.NUMBER_OF_RETRIES_REACHED, totalNumberOfAttempts);
     }
 
     /**
@@ -65,8 +75,8 @@ public class ConnectionCommunicationException extends CommunicationException {
      * @param cause the exception created by the protocol
      * @return the newly created numberOfRetriesReached CommunicationException
      */
-    public static ConnectionCommunicationException numberOfRetriesReachedWithConnectionStillIntact(final Exception cause, final int totalNumberOfAttempts) {
-        return new ConnectionCommunicationException(ProtocolExceptionReference.NUMBER_OF_RETRIES_REACHED_CONNECTION_STILL_INTACT, cause, totalNumberOfAttempts);
+    public static ConnectionCommunicationException numberOfRetriesReachedWithConnectionStillIntact(Exception cause, int totalNumberOfAttempts) {
+        return new ConnectionCommunicationException(CONNECTION_STILL_INTACT, cause, ProtocolExceptionMessageSeeds.NUMBER_OF_RETRIES_REACHED_CONNECTION_STILL_INTACT, totalNumberOfAttempts);
     }
 
     /**
@@ -74,7 +84,7 @@ public class ConnectionCommunicationException extends CommunicationException {
      * E.g.: invalid framecounter, decryption failure, empty object list, ...
      */
     public static ConnectionCommunicationException unExpectedProtocolError(IOException e) {
-        return new ConnectionCommunicationException(ProtocolExceptionReference.UNEXPECTED_PROTOCOL_ERROR, e);
+        return new ConnectionCommunicationException(CONNECTION_STILL_INTACT, e, ProtocolExceptionMessageSeeds.UNEXPECTED_PROTOCOL_ERROR, e.getMessage());
     }
 
     /**
@@ -88,7 +98,7 @@ public class ConnectionCommunicationException extends CommunicationException {
      * @return the newly created numberOfRetriesReached CommunicationException
      */
     public static ConnectionCommunicationException cipheringException(final Exception cause) {
-        return new ConnectionCommunicationException(ProtocolExceptionReference.CIPHERING_EXCEPTION, cause);
+        return new ConnectionCommunicationException(CONNECTION_STILL_INTACT, cause, ProtocolExceptionMessageSeeds.CIPHERING_EXCEPTION, cause.getMessage());
     }
 
     /**
@@ -96,29 +106,23 @@ public class ConnectionCommunicationException extends CommunicationException {
      * The data should have been singed by the server signing key, of which we own the certificate.
      */
     public static ConnectionCommunicationException signatureVerificationError() {
-        return new ConnectionCommunicationException(ProtocolExceptionReference.SIGNATURE_VERIFICATION_ERROR);
+        return new ConnectionCommunicationException(NON_RECOVERABLE, ProtocolExceptionMessageSeeds.SIGNATURE_VERIFICATION_ERROR);
     }
 
     /**
      * Indicates the communication was interrupted because e.g. the comserver is shutting down.
      */
     public static ConnectionCommunicationException communicationInterruptedException() {
-        return new ConnectionCommunicationException(ProtocolExceptionReference.COMMUNICATION_INTERRUPTED);
+        return new ConnectionCommunicationException(NON_RECOVERABLE, ProtocolExceptionMessageSeeds.COMMUNICATION_INTERRUPTED);
     }
 
     /**
      * Indicates the communication was interrupted because e.g. the comserver is shutting down.
+     * upl
      *
      * @param cause the original InterruptedException
      */
-    public static ConnectionCommunicationException communicationInterruptedException(final Exception cause) {
-        return new ConnectionCommunicationException(ProtocolExceptionReference.COMMUNICATION_INTERRUPTED, cause);
-    }
-
-    /**
-     * Indicates the communication was aborted by the user
-     */
-    public static ConnectionCommunicationException communicationAbortedByUserException() {
-        return new ConnectionCommunicationException(ProtocolExceptionReference.COMMUNICATION_ABORTED_BY_USER);
+    public static ConnectionCommunicationException communicationInterruptedException(Exception cause) {
+        return new ConnectionCommunicationException(NON_RECOVERABLE, cause, ProtocolExceptionMessageSeeds.COMMUNICATION_INTERRUPTED, cause.getMessage());
     }
 }

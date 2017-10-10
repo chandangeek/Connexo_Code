@@ -4,6 +4,8 @@
 
 package com.energyict.protocol.exception;
 
+import com.energyict.mdc.upl.nls.MessageSeed;
+
 import java.io.IOException;
 
 /**
@@ -15,22 +17,18 @@ import java.io.IOException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-06-15 (10:21)
  */
-public class CommunicationException extends ProtocolRuntimeException {
+public class CommunicationException extends com.energyict.protocol.exceptions.CommunicationException {
 
-    protected CommunicationException(Throwable cause, ProtocolExceptionReference code, Object... messageArguments) {
-        super(cause, code, messageArguments);
+    public CommunicationException(MessageSeed messageSeed, Object... messageArguments) {
+        super(messageSeed, messageArguments);
     }
 
-    protected CommunicationException(ProtocolExceptionReference reference, Object... messageArguments) {
-        super(reference, messageArguments);
-    }
-
-    private CommunicationException(ProtocolExceptionReference reference, Exception cause) {
-        super(cause, reference, cause.getMessage());
+    public CommunicationException(Throwable cause, MessageSeed messageSeed, Object... messageArguments) {
+        super(cause, messageSeed, messageArguments);
     }
 
     public static CommunicationException numberFormatException(NumberFormatException cause, String parameterName, String value) {
-        return new CommunicationException(cause, ProtocolExceptionReference.NUMERIC_PARAMETER_EXPECTED, parameterName, value);
+        return new CommunicationException(cause, ProtocolExceptionMessageSeeds.NUMERIC_PARAMETER_EXPECTED, parameterName, value);
     }
 
     /**
@@ -38,11 +36,11 @@ public class CommunicationException extends ProtocolRuntimeException {
      * However, it is still possible to further communicate with the device.
      */
     public static CommunicationException unexpectedResponse(IOException e) {
-        return new CommunicationException(e, ProtocolExceptionReference.UNEXPECTED_RESPONSE, e.getMessage());
+        return new CommunicationException(e, ProtocolExceptionMessageSeeds.UNEXPECTED_RESPONSE, e.getMessage());
     }
 
     public static CommunicationException unsupportedUrlContentType(String value) {
-        return new CommunicationException(ProtocolExceptionReference.UNSUPPORTED_URL_CONTENT_TYPE, value);
+        return new CommunicationException(ProtocolExceptionMessageSeeds.UNSUPPORTED_URL_CONTENT_TYPE, value);
     }
 
     /**
@@ -55,7 +53,7 @@ public class CommunicationException extends ProtocolRuntimeException {
      * @return The CommunicationException
      */
     public static CommunicationException unsupportedVersion(String value, String context) {
-        return new CommunicationException(ProtocolExceptionReference.UNSUPPORTED_VERSION, value, context);
+        return new CommunicationException(ProtocolExceptionMessageSeeds.UNSUPPORTED_VERSION, value, context);
     }
 
     /**
@@ -63,12 +61,12 @@ public class CommunicationException extends ProtocolRuntimeException {
      * version number is not supported in the specified context.
      * The message that will be generated looks like: <code>Version {0} is not supported for {1}</code>.
      *
-     * @param value The unsupported version number
+     * @param value The unsupported version number                     Thesaurus thesaurus
      * @param context The context that does not support the version
      * @return The CommunicationException
      */
     public static CommunicationException unsupportedVersion(int value, String context) {
-        return new CommunicationException(ProtocolExceptionReference.UNSUPPORTED_VERSION, value, context);
+        return new CommunicationException(ProtocolExceptionMessageSeeds.UNSUPPORTED_VERSION, value, context);
     }
 
     /**
@@ -85,7 +83,7 @@ public class CommunicationException extends ProtocolRuntimeException {
      * @return the newly create CommunicationException
      */
     public static CommunicationException notConfiguredForInboundCommunication(Object deviceIdentifier) {
-        return new CommunicationException(ProtocolExceptionReference.NOT_CONFIGURED_FOR_INBOUND_COMMUNICATION, deviceIdentifier);
+        return new CommunicationException(ProtocolExceptionMessageSeeds.NOT_CONFIGURED_FOR_INBOUND_COMMUNICATION, deviceIdentifier);
     }
 
     /**
@@ -98,32 +96,11 @@ public class CommunicationException extends ProtocolRuntimeException {
      * @return The CommunicationException
      */
     public static CommunicationException unsupportedDiscoveryResultType(String resultType) {
-        return new CommunicationException(ProtocolExceptionReference.UNSUPPORTED_DISCOVERY_RESULT_TYPE, resultType);
+        return new CommunicationException(ProtocolExceptionMessageSeeds.UNSUPPORTED_DISCOVERY_RESULT_TYPE, resultType);
     }
 
     public static CommunicationException missingInboundData(Object deviceIdentifier) {
-        return new CommunicationException(ProtocolExceptionReference.NO_INBOUND_DATE, deviceIdentifier.toString());
-    }
-
-    /**
-     * Creates an exception, indication that the logical disconnect to a device failed.</br>
-     * <i>(with logical disconnect we mean a signOff/logOff, not the disconnect of the physical link)</i>
-     *
-     * @param cause the exception created by the protocol
-     * @return the newly created protocolDisconnect failed exception
-     */
-    public static CommunicationException protocolDisconnectFailed(final Exception cause) {
-        return new CommunicationException(ProtocolExceptionReference.PROTOCOL_DISCONNECT, cause);
-    }
-
-    /**
-     * Creates an exception, indication that the serial number of the device cannot be read.</br>
-     *
-     * @param deviceIdentifier the identifier for which the serialnumber was not supported
-     * @return the newly created serialNumberNotSupported  exception
-     */
-    public static CommunicationException serialNumberNotSupported(Object deviceIdentifier) {
-        return new CommunicationException(ProtocolExceptionReference.SERIAL_NUMBER_NOT_SUPPORTED, deviceIdentifier);
+        return new CommunicationException(ProtocolExceptionMessageSeeds.NO_INBOUND_DATA, deviceIdentifier);
     }
 
     /**
@@ -137,7 +114,26 @@ public class CommunicationException extends ProtocolRuntimeException {
      * @return the newly created protocolConnect failed exception
      */
     public static CommunicationException protocolConnectFailed(final Exception cause) {
-        return new CommunicationException(ProtocolExceptionReference.PROTOCOL_CONNECT, cause);
+        return new CommunicationException(cause, ProtocolExceptionMessageSeeds.PROTOCOL_CONNECT);
     }
 
+    /**
+     * Creates an exception, indication that the logical disconnect to a device failed.</br>
+     * <i>(with logical disconnect we mean a signOff/logOff, not the disconnect of the physical link)</i>
+     *
+     * @param cause the exception created by the protocol
+     * @return the newly created protocolDisconnect failed exception
+     */
+    public static CommunicationException protocolDisconnectFailed(final Exception cause) {
+        return new CommunicationException(cause, ProtocolExceptionMessageSeeds.PROTOCOL_DISCONNECT_FAILED);
+    }
+
+    /**
+     * Creates an exception, indication that the serial number of the device cannot be read.</br>
+     *
+     * @return the newly created serialNumberNotSupported  exception
+     */
+    public static CommunicationException serialNumberNotSupported() {
+        return new CommunicationException(ProtocolExceptionMessageSeeds.SERIAL_NUMBER_NOT_SUPPORTED);
+    }
 }

@@ -10,7 +10,6 @@ import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineDevice;
@@ -21,7 +20,6 @@ import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
-import com.energyict.protocol.exception.identifier.NotFoundException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
@@ -99,7 +97,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
                             .map(TypedProperties::copyOf)
                             .orElseGet(TypedProperties::empty);
             if (deviceProtocolProperties == null || deviceConnectionTypeProperties == null) {
-                throw NotFoundException.notFound(Device.class, getDeviceIdentifier().toString());
+                throw CommunicationException.notConfiguredForInboundCommunication(getDeviceIdentifier());
             }
 
             allRelevantProperties.setAllProperties(deviceProtocolProperties);

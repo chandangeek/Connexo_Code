@@ -7,10 +7,11 @@ import com.energyict.mdc.channels.serial.modem.TypedCaseModemProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.io.ConnectionType;
-import com.energyict.mdc.upl.io.ModemException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.exceptions.ConnectionException;
+import com.energyict.protocol.exceptions.ModemException;
 import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import javax.xml.bind.annotation.XmlRootElement;

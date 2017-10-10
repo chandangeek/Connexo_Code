@@ -1,11 +1,13 @@
 package com.elster.us.protocolimplv2.mercury.minimax;
 
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.io.NestedIOException;
+
 import com.elster.us.protocolimplv2.mercury.minimax.frame.RequestFrame;
 import com.elster.us.protocolimplv2.mercury.minimax.frame.ResponseFrame;
 import com.elster.us.protocolimplv2.mercury.minimax.frame.data.BasicData;
 import com.elster.us.protocolimplv2.mercury.minimax.frame.data.ExtendedData;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 
 import java.io.ByteArrayOutputStream;
@@ -242,7 +244,7 @@ public class MiniMaxConnection {
                 }
             }
         } catch (IOException ioe) {
-            throw ConnectionCommunicationException.protocolConnectFailed(ioe);
+            throw CommunicationException.protocolConnectFailed(ioe);
         }
     }
 
@@ -266,7 +268,7 @@ public class MiniMaxConnection {
                 throw new IOException(signOffResponse.getError());
             }
         } catch (IOException ioe) {
-            throw ConnectionCommunicationException.protocolDisconnectFailed(ioe);
+            throw CommunicationException.protocolDisconnectFailed(ioe);
         }
     }
 

@@ -4,86 +4,78 @@
 
 package com.energyict.protocol.exception;
 
-public final class ModemException extends CommunicationException {
+import com.energyict.mdc.upl.nls.MessageSeed;
 
-    private ModemException(Throwable cause, ProtocolExceptionReference code, Object... messageArguments) {
-        super(cause, code, messageArguments);
-    }
+/**
+ * @author Stijn Vanhoorelbeke
+ * @since 05.10.17 - 11:02
+ */
+public class ModemException extends com.energyict.protocol.exceptions.ModemException {
 
-    private ModemException(ProtocolExceptionReference reference, Object... messageArguments) {
-        super(reference, messageArguments);
-    }
+    public enum Type {
+        MODEM_READ_TIMEOUT(ProtocolExceptionMessageSeeds.MODEM_READ_TIMEOUT),
+        MODEM_COULD_NOT_RESTORE_DEFAULT_PROFILE(ProtocolExceptionMessageSeeds.MODEM_COULD_NOT_RESTORE_DEFAULT_PROFILE),
+        MODEM_COULD_NOT_HANG_UP(ProtocolExceptionMessageSeeds.MODEM_COULD_NOT_HANG_UP),
+        MODEM_COULD_NOT_INITIALIZE_COMMAND_STATE(ProtocolExceptionMessageSeeds.MODEM_COULD_NOT_INITIALIZE_COMMAND_STATE),
+        MODEM_COULD_NOT_SEND_INIT_STRING(ProtocolExceptionMessageSeeds.MODEM_COULD_NOT_SEND_INIT_STRING),
+        MODEM_CONNECT_TIMEOUT(ProtocolExceptionMessageSeeds.MODEM_CONNECT_TIMEOUT),
+        MODEM_COULD_NOT_ESTABLISH_CONNECTION(ProtocolExceptionMessageSeeds.MODEM_COULD_NOT_ESTABLISH_CONNECTION),
+        MODEM_CALL_ABORTED(ProtocolExceptionMessageSeeds.MODEM_CALL_ABORTED),
+        AT_MODEM_BUSY(ProtocolExceptionMessageSeeds.AT_MODEM_BUSY),
+        AT_MODEM_ERROR(ProtocolExceptionMessageSeeds.AT_MODEM_ERROR),
+        AT_MODEM_NO_ANSWER(ProtocolExceptionMessageSeeds.AT_MODEM_NO_ANSWER),
+        AT_MODEM_NO_CARRIER(ProtocolExceptionMessageSeeds.AT_MODEM_NO_CARRIER),
+        AT_MODEM_NO_DIALTONE(ProtocolExceptionMessageSeeds.AT_MODEM_NO_DIALTONE);
 
-    private ModemException(ProtocolExceptionReference reference, Exception cause) {
-        super(cause, reference, cause.getMessage());
-    }
+        private final MessageSeed messageSeed;
 
-    private static ModemException dialingError(String comPortName, com.energyict.mdc.upl.io.ModemException uplException, ProtocolExceptionReference exceptionReference) {
-        return dialingError(comPortName, exceptionReference, (String) uplException.getMessageArguments()[0]);
-    }
-
-    public static ModemException from(String comPortName, com.energyict.mdc.upl.io.ModemException uplException) {
-        switch (uplException.getType()) {
-            case MODEM_CALL_ABORTED: {
-                return dialingError(comPortName, uplException, ProtocolExceptionReference.MODEM_CALL_ABORTED);
-            }
-            case AT_MODEM_BUSY: {
-                return dialingError(comPortName, uplException, ProtocolExceptionReference.AT_MODEM_BUSY);
-            }
-            case AT_MODEM_ERROR: {
-                return dialingError(comPortName, uplException, ProtocolExceptionReference.AT_MODEM_ERROR);
-            }
-            case AT_MODEM_NO_ANSWER: {
-                return dialingError(comPortName, uplException, ProtocolExceptionReference.AT_MODEM_NO_ANSWER);
-            }
-            case AT_MODEM_NO_CARRIER: {
-                return dialingError(comPortName, uplException, ProtocolExceptionReference.AT_MODEM_NO_CARRIER);
-            }
-            case AT_MODEM_NO_DIALTONE: {
-                return dialingError(comPortName, uplException, ProtocolExceptionReference.AT_MODEM_NO_DIALTONE);
-            }
-            case MODEM_COULD_NOT_HANG_UP: {
-                return couldNotHangup(comPortName);
-            }
-            case MODEM_READ_TIMEOUT: {
-                Object[] messageArguments = uplException.getMessageArguments();
-                return commandTimeoutExceeded(comPortName, (Long) messageArguments[0], (String) messageArguments[1]);
-            }
-            case MODEM_COULD_NOT_RESTORE_DEFAULT_PROFILE: {
-                Object[] messageArguments = uplException.getMessageArguments();
-                return couldNotRestoreProfile(comPortName, (String) messageArguments[0], (String) messageArguments[1]);
-            }
-            case MODEM_COULD_NOT_INITIALIZE_COMMAND_STATE: {
-                Object[] messageArguments = uplException.getMessageArguments();
-                return failedToInitializeCommandStateString(comPortName, (String) messageArguments[0]);
-            }
-            case MODEM_COULD_NOT_SEND_INIT_STRING: {
-                Object[] messageArguments = uplException.getMessageArguments();
-                return failedToWriteInitString(comPortName, (String) messageArguments[0], (String) messageArguments[1]);
-            }
-            case MODEM_CONNECT_TIMEOUT: {
-                Object[] messageArguments = uplException.getMessageArguments();
-                return connectTimeOutException(comPortName, (Long) messageArguments[0]);
-            }
-            case MODEM_COULD_NOT_ESTABLISH_CONNECTION: {
-                Object[] messageArguments = uplException.getMessageArguments();
-                return couldNotEstablishConnection(comPortName, (Long) messageArguments[0]);
-            }
-            default: {
-                throw new IllegalArgumentException("Unsupported modem exception type: " + uplException.getType());
-            }
+        Type(MessageSeed messageSeed) {
+            this.messageSeed = messageSeed;
         }
+
+        public MessageSeed getMessageSeed() {
+            return messageSeed;
+        }
+    }
+
+    public enum DialErrorType {
+        MODEM_CALL_ABORTED,
+        AT_MODEM_BUSY,
+        AT_MODEM_ERROR,
+        AT_MODEM_NO_ANSWER,
+        AT_MODEM_NO_CARRIER,
+        AT_MODEM_NO_DIALTONE;
+
+        public Type getExceptionType() {
+            return Type.valueOf(this.name());
+        }
+    }
+
+    private final Type type;
+
+    protected ModemException(Type type, Object... messageArguments) {
+        super(type.getMessageSeed(), messageArguments);
+        this.type = type;
+    }
+
+    protected ModemException(Type type, Throwable cause, Object... messageArguments) {
+        super(cause, type.getMessageSeed(), messageArguments);
+        this.type = type;
+    }
+
+    public Type getType() {
+        return type;
     }
 
     /**
      * Creates an {@link ModemException} indicating that the collection system could
-     * not <i>hang up</i> the modem, no new connection could be setup before old ones are closed
+     * not <i>hang up</i> the modem, no new connection could be setup before old ones are closed.
      *
-     * @param name the name of the ComPort that does not exist
+     * @param name the name of the port
      * @return the newly create exception
      */
-    public static ModemException couldNotHangup(final String name) {
-        return new ModemException(ProtocolExceptionReference.MODEM_COULD_NOT_HANG_UP, name);
+    public static ModemException couldNotHangup(String name) {
+        return new ModemException(Type.MODEM_COULD_NOT_HANG_UP, name);
     }
 
     /**
@@ -95,7 +87,7 @@ public final class ModemException extends CommunicationException {
      * @param command the command that causes the timeOut
      */
     public static ModemException commandTimeoutExceeded(String name, long milliSeconds, String command) {
-        return new ModemException(ProtocolExceptionReference.MODEM_READ_TIMEOUT, name, milliSeconds, command);
+        return new ModemException(Type.MODEM_READ_TIMEOUT, name, milliSeconds, command);
     }
 
     /**
@@ -106,7 +98,7 @@ public final class ModemException extends CommunicationException {
      * @return the newly created exception
      */
     public static ModemException couldNotRestoreProfile(String name, String lastCommandSend, String lastResponseReceived) {
-        return new ModemException(ProtocolExceptionReference.MODEM_COULD_NOT_RESTORE_DEFAULT_PROFILE, name, lastCommandSend, lastResponseReceived);
+        return new ModemException(Type.MODEM_COULD_NOT_RESTORE_DEFAULT_PROFILE, name, lastCommandSend, lastResponseReceived);
     }
 
     /**
@@ -118,7 +110,7 @@ public final class ModemException extends CommunicationException {
      * @return the newly create exception
      */
     public static ModemException failedToInitializeCommandStateString(String comPortName, String lastResponseReceived) {
-        return new ModemException(ProtocolExceptionReference.MODEM_COULD_NOT_INITIALIZE_COMMAND_STATE, comPortName, lastResponseReceived);
+        return new ModemException(Type.MODEM_COULD_NOT_INITIALIZE_COMMAND_STATE, comPortName, lastResponseReceived);
     }
 
     /**
@@ -131,26 +123,18 @@ public final class ModemException extends CommunicationException {
      * @return the newly create exception
      */
     public static ModemException failedToWriteInitString(String comPortName, String lastCommandSend, String lastResponseReceived) {
-        return new ModemException(ProtocolExceptionReference.MODEM_COULD_NOT_SEND_INIT_STRING, comPortName, lastCommandSend, lastResponseReceived);
+        return new ModemException(Type.MODEM_COULD_NOT_SEND_INIT_STRING, comPortName, lastCommandSend, lastResponseReceived);
     }
 
     /**
      * Creates an {@link ModemException} indicating that on the modem for the given comPort, a dial error occurred.
-     * In general these references should be used:
-     * <ul>
-     * <li>{@link ProtocolExceptionReference#AT_MODEM_BUSY}</li>
-     * <li>{@link ProtocolExceptionReference#AT_MODEM_ERROR}</li>
-     * <li>{@link ProtocolExceptionReference#AT_MODEM_NO_ANSWER}</li>
-     * <li>{@link ProtocolExceptionReference#AT_MODEM_NO_CARRIER}</li>
-     * <li>{@link ProtocolExceptionReference#AT_MODEM_NO_DIALTONE}</li>
-     * </ul>
      *
-     * @param comPortName the comPort on which the error occurred
-     * @param exceptionReferences the exceptionReference for this atModemException
+     * @param comPortName The comPort on which the error occurred
+     * @param type The Type for this ModemException
      * @return the newly created exception
      */
-    public static ModemException dialingError(String comPortName, ProtocolExceptionReference exceptionReferences, String lastCommandSend) {
-        return new ModemException(exceptionReferences, comPortName, lastCommandSend);
+    public static ModemException dialingError(String comPortName, DialErrorType type, String lastCommandSend) {
+        return new ModemException(type.getExceptionType(), comPortName, lastCommandSend);
     }
 
     /**
@@ -161,7 +145,7 @@ public final class ModemException extends CommunicationException {
      * @return the newly created exception
      */
     public static ModemException connectTimeOutException(String comPortName, long milliSeconds) {
-        return new ModemException(ProtocolExceptionReference.MODEM_CONNECT_TIMEOUT, comPortName, milliSeconds);
+        return new ModemException(Type.MODEM_CONNECT_TIMEOUT, comPortName, milliSeconds);
     }
 
     /**
@@ -172,6 +156,6 @@ public final class ModemException extends CommunicationException {
      * @return the newly created exception
      */
     public static ModemException couldNotEstablishConnection(String comPortName, long milliSeconds) {
-        return new ModemException(ProtocolExceptionReference.MODEM_COULD_NOT_ESTABLISH_CONNECTION, comPortName, milliSeconds);
+        return new ModemException(Type.MODEM_COULD_NOT_ESTABLISH_CONNECTION, comPortName, milliSeconds);
     }
 }

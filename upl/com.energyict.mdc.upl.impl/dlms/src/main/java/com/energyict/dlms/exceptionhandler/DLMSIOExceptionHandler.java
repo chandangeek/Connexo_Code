@@ -1,10 +1,11 @@
 package com.energyict.dlms.exceptionhandler;
 
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.NestedIOException;
+
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 
@@ -29,7 +30,7 @@ public class DLMSIOExceptionHandler {
      * Throw the proper ComServer runtime exception
      */
 
-    public static CommunicationException handle(IOException e, int nbRetries) {
+    public static com.energyict.protocol.exceptions.CommunicationException handle(IOException e, int nbRetries) {
         if (isUnexpectedResponse(e, nbRetries)) {
             //Unexpected problem or response, but we can still communicate with the device
             return CommunicationException.unexpectedResponse(e);
@@ -113,7 +114,7 @@ public class DLMSIOExceptionHandler {
         return false;
     }
 
-    private static CommunicationException connectionCommunicationException(IOException e, int noRetries) {
+    private static com.energyict.protocol.exceptions.CommunicationException connectionCommunicationException(IOException e, int noRetries) {
         return ConnectionCommunicationException.numberOfRetriesReached(e, noRetries);
     }
 }

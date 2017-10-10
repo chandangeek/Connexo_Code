@@ -1,7 +1,6 @@
 package com.energyict.mdc.channels.serial.modem;
 
 import com.energyict.mdc.channel.serial.modemproperties.AbstractPEMPModemProperties;
-import com.energyict.mdc.channel.serial.modemproperties.AtModemComponent;
 import com.energyict.mdc.channel.serial.modemproperties.PEMPModemConfiguration;
 import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.upl.nls.TranslationKey;
@@ -11,6 +10,7 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;

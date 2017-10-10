@@ -4,16 +4,17 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.upl.InboundDeviceProtocol;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.InboundFrameException;
-import com.energyict.protocol.exception.ProtocolRuntimeException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.edmi.common.packets.PushPacket;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 

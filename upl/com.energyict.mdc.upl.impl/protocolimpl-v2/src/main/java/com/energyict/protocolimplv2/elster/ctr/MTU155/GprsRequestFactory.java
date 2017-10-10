@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocol.exception.ConnectionCommunicationException;
-import com.energyict.protocol.exception.ProtocolRuntimeException;
 import com.energyict.mdc.upl.TypedProperties;
+
+import com.energyict.protocol.exception.CommunicationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.EK155.EK155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
@@ -957,7 +958,7 @@ public class GprsRequestFactory implements RequestFactory {
             }
         } catch (ProtocolRuntimeException e) {
             getLogger().severe("Failed to close session! " + e.getMessage());
-            throw ConnectionCommunicationException.protocolDisconnectFailed(e);
+            throw CommunicationException.protocolDisconnectFailed(e);
         }
     }
 

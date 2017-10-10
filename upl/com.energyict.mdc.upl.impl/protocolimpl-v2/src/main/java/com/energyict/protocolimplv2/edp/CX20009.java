@@ -41,8 +41,8 @@ import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
-import com.energyict.protocol.exception.ProtocolExceptionReference;
-import com.energyict.protocol.exception.ProtocolRuntimeException;
+import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.edp.logbooks.LogbookReader;
@@ -118,7 +118,7 @@ public class CX20009 extends AbstractDlmsProtocol implements MigrateFromV1Protoc
             getDlmsSession().connect();
             checkCacheObjects();
         } catch (ProtocolRuntimeException e) {
-            if (e instanceof ConnectionCommunicationException && (e.getExceptionReference().equals(ProtocolExceptionReference.PROTOCOL_CONNECT))) {
+            if (e instanceof ConnectionCommunicationException && (e.getMessageSeed().equals(ProtocolExceptionMessageSeeds.PROTOCOL_CONNECT))) {
                 logOff();
                 getDlmsSession().connect();
                 checkCacheObjects();

@@ -9,9 +9,10 @@ import com.energyict.mdc.protocol.inbound.general.frames.RegisterFrame;
 import com.energyict.mdc.protocol.inbound.general.frames.RequestFrame;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.InboundFrameException;
-import com.energyict.protocol.exception.ProtocolRuntimeException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
 
 import java.util.ArrayList;

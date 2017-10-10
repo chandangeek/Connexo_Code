@@ -3,6 +3,8 @@ package com.energyict.mdc.channels.nls;
 import com.energyict.mdc.upl.nls.MessageSeed;
 import com.energyict.mdc.upl.nls.TranslationKey;
 
+import com.energyict.protocolimplv2.messages.nls.Thesaurus;
+
 import java.util.logging.Level;
 
 /**
@@ -22,13 +24,7 @@ public enum MessageSeeds implements MessageSeed {
     NestedIOException("upl.error.nestedIOException", "Nested I/O Error"),
     NestedModemException("upl.error.nestedModemException", "Nested modem error"),
     PreferredCipherSuiteIsNotSupportedByJavaVersion("upl.error.preferredCipherSuiteIsNotSupportedByJavaVersion", "The preferred cipher suite ''{0}'' is not supported by your current java version."),
-    WavenisStackSetupError("upl.error.wavenisStackSetupError", "Error while starting the Wavenis stack"),
-
-    AT_MODEM_BUSY("upl.error.at.modem.busy", "Receiver was currently busy, modem on COM port {0} returned BUSY command, last command send [{1}]"),
-    AT_MODEM_ERROR("upl.error.at.modem.error", "Most likely an invalid command has been sent, modem on COM port {0} returned ERROR command, last command send [{1}]"),
-    AT_MODEM_NO_ANSWER("upl.error.at.modem.no.answer", "Receiver was not reachable, modem on COM port {0} returned NO_ANSWER command, last command send [{1}]"),
-    AT_MODEM_NO_CARRIER("upl.error.at.modem.no.carrier", "Receiver was not reachable, modem on COM port {0} returned NO_CARRIER command, last command send [{1}]"),
-    AT_MODEM_NO_DIALTONE("upl.error.at.modem.no.dial.tone", "Could not dial with modem on COM port {0}, a NO_DIALTONE command was returned, last command send [{1}]");
+    WavenisStackSetupError("upl.error.wavenisStackSetupError", "Error while starting the Wavenis stack");
 
     private final String key;
     private final String defaultTranslation;
@@ -55,7 +51,7 @@ public enum MessageSeeds implements MessageSeed {
     }
 
     @Override
-    public int getId() {
+    public int getNumber() {
         return this.ordinal();
     }
 
@@ -63,4 +59,10 @@ public enum MessageSeeds implements MessageSeed {
     public Level getLevel() {
         return this.level;
     }
+
+    @Override
+    public String getModule() {
+        return Thesaurus.ID.toString();
+    }
+
 }

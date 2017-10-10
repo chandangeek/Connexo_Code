@@ -17,6 +17,7 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.DeviceConfigurationException;
+import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.DummyDLMSConnection;
 import com.energyict.protocolimpl.utils.MockSecurityProvider;
@@ -96,7 +97,7 @@ public class MeterTopologyTest {
         try {
             mt.getPhysicalAddress("SomeSerialNumber");
         } catch (DeviceConfigurationException e) {
-            assertEquals("[PRTCL-142] Unexpected value ''SomeSerialNumber'' for property ''SerialNumber''", e.getMessage());
+            assertEquals(ProtocolExceptionMessageSeeds.INVALID_PROPERTY_VALUE, e.getMessageSeed());
         }
 
         DeviceMapping dmSlave1 = new DeviceMapping("MbusSlave1", 1);

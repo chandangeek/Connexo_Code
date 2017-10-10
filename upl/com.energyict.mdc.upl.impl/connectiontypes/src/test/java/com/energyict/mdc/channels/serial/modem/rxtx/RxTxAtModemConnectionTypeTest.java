@@ -6,24 +6,26 @@ package com.energyict.mdc.channels.serial.modem.rxtx;
 
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.channel.serial.ServerSerialPort;
-import com.energyict.mdc.channel.serial.modemproperties.AtModemComponent;
-import com.energyict.mdc.channel.serial.modemproperties.TypedAtModemProperties;
 import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
+import com.energyict.mdc.channels.serial.modem.AtModemComponent;
+import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.io.ConnectionType;
-import com.energyict.mdc.upl.io.ModemException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.protocol.exception.ModemException;
 import com.energyict.protocol.exceptions.ConnectionException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Arrays;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

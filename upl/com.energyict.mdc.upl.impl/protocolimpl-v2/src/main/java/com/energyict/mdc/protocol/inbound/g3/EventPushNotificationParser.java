@@ -4,15 +4,6 @@
 
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.EventPushNotificationConfig;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.idis.DataPushNotificationParser;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
@@ -21,17 +12,37 @@ import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.EventPushNotificationConfig;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DataParseException;
-import com.energyict.protocol.exception.identifier.NotFoundException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.idis.am540.events.MeterAlarmParser;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
-import com.energyict.protocolimplv2.identifiers.*;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySystemTitle;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.nio.ByteBuffer;
@@ -620,19 +631,12 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
     protected DeviceIdentifier getDeviceIdentifierBasedOnSystemTitle(byte[] systemTitle) {
         String serverSystemTitle = null;
-        try {
-            byte[] mc = ProtocolTools.getSubArray(systemTitle, 0, 3);
-            String manufacturerCode = ProtocolTools.getAsciiFromBytes(mc);
-            byte[] remainingBytes = ProtocolTools.getSubArray(systemTitle, 3);
-            String remainingData = ProtocolTools.getHexStringFromBytes(remainingBytes, "");
-            serverSystemTitle = manufacturerCode + remainingData;
-            return new DeviceIdentifierBySystemTitle(serverSystemTitle);
-        } catch (NotFoundException e) {
-            log("Unable to find a device identified by system title: " + serverSystemTitle + ". Try to extract a serial number out of it and use that as identifier");
-            String serialNumber = new String(systemTitle);
-            serialNumber = serialNumber.replace("DC", "");      //Strip off the "DC" prefix
-            return new DeviceIdentifierLikeSerialNumber("%" + serialNumber + "%");
-        }
+        byte[] mc = ProtocolTools.getSubArray(systemTitle, 0, 3);
+        String manufacturerCode = ProtocolTools.getAsciiFromBytes(mc);
+        byte[] remainingBytes = ProtocolTools.getSubArray(systemTitle, 3);
+        String remainingData = ProtocolTools.getHexStringFromBytes(remainingBytes, "");
+        serverSystemTitle = manufacturerCode + remainingData;
+        return new DeviceIdentifierBySystemTitle(serverSystemTitle);
     }
 
     protected DlmsProperties getNewInstanceOfProperties() {

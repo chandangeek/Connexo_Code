@@ -3,7 +3,8 @@ package com.energyict.mdc.channels.serial.modem;
 import com.energyict.mdc.channel.serial.modemproperties.AbstractPEMPModemProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
-import com.energyict.mdc.upl.io.ModemException;
+
+import com.energyict.protocol.exception.ModemException;
 
 import java.time.Duration;
 

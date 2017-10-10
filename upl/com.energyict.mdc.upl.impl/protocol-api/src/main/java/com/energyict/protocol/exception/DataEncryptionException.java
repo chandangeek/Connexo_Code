@@ -12,17 +12,17 @@ package com.energyict.protocol.exception;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-17 (12:02)
  */
-public class DataEncryptionException extends CommunicationException {
+public class DataEncryptionException extends com.energyict.protocol.exceptions.DataEncryptionException {
 
-    protected DataEncryptionException(Throwable cause, ProtocolExceptionReference code, Object... messageArguments) {
+    protected DataEncryptionException(Throwable cause, ProtocolExceptionMessageSeeds code, Object... messageArguments) {
         super(cause, code, messageArguments);
     }
 
-    protected DataEncryptionException(ProtocolExceptionReference reference, Object... messageArguments) {
+    protected DataEncryptionException(ProtocolExceptionMessageSeeds reference, Object... messageArguments) {
         super(reference, messageArguments);
     }
 
-    private DataEncryptionException(ProtocolExceptionReference reference, Exception cause) {
+    private DataEncryptionException(ProtocolExceptionMessageSeeds reference, Exception cause) {
         super(cause, reference, cause.getMessage());
     }
 
@@ -31,11 +31,11 @@ public class DataEncryptionException extends CommunicationException {
      * that encrypted data received could not be correctly decrypted.
      */
     public static DataEncryptionException dataEncryptionException() {
-        return new DataEncryptionException(ProtocolExceptionReference.DATA_ENCRYPTION_EXCEPTION);
+        return new DataEncryptionException(ProtocolExceptionMessageSeeds.DATA_ENCRYPTION_EXCEPTION);
     }
 
     public static DataEncryptionException dataEncryptionException(Exception cause) {
-        return new DataEncryptionException(cause, ProtocolExceptionReference.DATA_ENCRYPTION_EXCEPTION_WITH_CAUSE, cause.getMessage());
+        return new DataEncryptionException(cause, ProtocolExceptionMessageSeeds.DATA_ENCRYPTION_EXCEPTION_WITH_CAUSE, cause.getMessage());
     }
 
 }

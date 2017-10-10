@@ -3,12 +3,11 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.protocol.inbound.general.InboundConnection;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.protocol.exception.CommunicationException;
-import com.energyict.protocol.exception.identifier.NotFoundException;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.util.Optional;
@@ -35,18 +34,18 @@ public class EIWebCryptographerTest {
      * Test that failure to find the related device
      * does not break the EIWebCryptographer component.
      */
-    @Test(expected = NotFoundException.class)
+    @Test(expected = RuntimeException.class)
     public void testBuildMD5SeedForNonExistingDevice() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         InboundDiscoveryContext inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
-        doThrow(NotFoundException.class).when(inboundDiscoveryContext).getConnectionTypeProperties(deviceIdentifier);
+        doThrow(RuntimeException.class).when(inboundDiscoveryContext).getConnectionTypeProperties(deviceIdentifier);
 
         EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDiscoveryContext);
 
         // Business method
         cryptographer.buildMD5Seed(deviceIdentifier, "1234");
 
-        // Asserts: expected NotFoundException
+        // Asserts: expected RuntimeException (actually a CanNotFindForIdentifier)
     }
 
     /**

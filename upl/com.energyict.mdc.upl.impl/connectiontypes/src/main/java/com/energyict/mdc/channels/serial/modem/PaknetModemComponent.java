@@ -2,12 +2,12 @@ package com.energyict.mdc.channels.serial.modem;
 
 import com.energyict.mdc.channel.serial.SignalController;
 import com.energyict.mdc.channel.serial.modemproperties.AbstractPaknetModemProperties;
-import com.energyict.mdc.channel.serial.modemproperties.AtModemComponent;
 import com.energyict.mdc.channel.serial.modemproperties.postdialcommand.ModemComponent;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
-import com.energyict.mdc.upl.io.ModemException;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.protocol.exception.ModemException;
 
 import java.time.Duration;
 import java.util.List;

@@ -17,6 +17,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.exception.DeviceConfigurationException;
+import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology.MeterTopology;
@@ -73,12 +74,12 @@ public class LoadProfileBuilderTest {
         try {
             lpb.isDataObisCode(ObisCode.fromString("1.0.1.8.0.255"), "SomeOtherSerialNumber");
         } catch (DeviceConfigurationException e) {
-            assertEquals("[PRTCL-142] Unexpected value ''SomeOtherSerialNumber'' for property ''SerialNumber''", e.getMessage());
+            assertEquals(ProtocolExceptionMessageSeeds.INVALID_PROPERTY_VALUE, e.getMessageSeed());
         }
         try {
             lpb.isDataObisCode(LoadProfileBuilder.MbusMeterStatusObisCode, "SomeOtherSerialNumber");
         } catch (DeviceConfigurationException e) {
-            assertEquals("[PRTCL-142] Unexpected value ''SomeOtherSerialNumber'' for property ''SerialNumber''", e.getMessage());
+            assertEquals(ProtocolExceptionMessageSeeds.INVALID_PROPERTY_VALUE, e.getMessageSeed());
         }
 
         assertFalse(lpb.isDataObisCode(Clock.getDefaultObisCode(), "MasterSerialNumber"));

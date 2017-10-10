@@ -3,14 +3,14 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjec
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.properties.DeviceGroup;
 
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
-import com.energyict.protocol.exception.ProtocolRuntimeException;
-import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;

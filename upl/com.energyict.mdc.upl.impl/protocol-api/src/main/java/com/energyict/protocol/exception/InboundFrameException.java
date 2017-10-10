@@ -13,18 +13,18 @@ import java.io.IOException;
  * Time: 12:01
  * Author: khe
  */
-public final class InboundFrameException extends CommunicationException {
+public final class InboundFrameException extends com.energyict.protocol.exceptions.InboundFrameException {
 
 
-    protected InboundFrameException(Throwable cause, ProtocolExceptionReference code, Object... messageArguments) {
+    protected InboundFrameException(Throwable cause, ProtocolExceptionMessageSeeds code, Object... messageArguments) {
         super(cause, code, messageArguments);
     }
 
-    protected InboundFrameException(ProtocolExceptionReference reference, Object... messageArguments) {
+    protected InboundFrameException(ProtocolExceptionMessageSeeds reference, Object... messageArguments) {
         super(reference, messageArguments);
     }
 
-    private InboundFrameException(ProtocolExceptionReference reference, Exception cause) {
+    private InboundFrameException(ProtocolExceptionMessageSeeds reference, Exception cause) {
         super(cause, reference, cause.getMessage());
     }
 
@@ -37,7 +37,7 @@ public final class InboundFrameException extends CommunicationException {
      * @return the newly created exception
      */
     public static InboundFrameException unexpectedFrame(final String frame, final String additionalInformation) {
-        return new InboundFrameException(ProtocolExceptionReference.INBOUND_UNEXPECTED_FRAME, frame, additionalInformation);
+        return new InboundFrameException(ProtocolExceptionMessageSeeds.INBOUND_UNEXPECTED_FRAME, frame, additionalInformation);
     }
 
     /**
@@ -50,7 +50,7 @@ public final class InboundFrameException extends CommunicationException {
      * @return the newly created exception
      */
     public static InboundFrameException unexpectedFrame(IOException e, String frame, final String additionalInformation) {
-        return new InboundFrameException(e, ProtocolExceptionReference.INBOUND_UNEXPECTED_FRAME, frame, additionalInformation);
+        return new InboundFrameException(e, ProtocolExceptionMessageSeeds.INBOUND_UNEXPECTED_FRAME, frame, additionalInformation);
     }
 
     /**
@@ -60,10 +60,10 @@ public final class InboundFrameException extends CommunicationException {
      * @return the newly created exception
      */
     public static InboundFrameException timeoutException(final String cause) {
-        return new InboundFrameException(ProtocolExceptionReference.INBOUND_TIMEOUT, cause);
+        return new InboundFrameException(ProtocolExceptionMessageSeeds.INBOUND_TIMEOUT, cause);
     }
 
     public static InboundFrameException timeoutException(Exception cause, String message) {
-        return new InboundFrameException(cause, ProtocolExceptionReference.INBOUND_TIMEOUT, message);
+        return new InboundFrameException(cause, ProtocolExceptionMessageSeeds.INBOUND_TIMEOUT, message);
     }
 }

@@ -167,7 +167,8 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     }
 
     private PropertySpec validateCachedFrameCounter() {
-        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER, false, PropertyTranslationKeys.V2_DLMS_VALIDATE_CACHED_FRAMECOUNTER, getPropertySpecService()::booleanSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER, false, PropertyTranslationKeys.V2_DLMS_VALIDATE_CACHED_FRAMECOUNTER, getPropertySpecService()::booleanSpec)
+                .finish();
     }
 
     /**
@@ -176,7 +177,9 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      * @return The property specification.
      */
     private final PropertySpec supportsHundrethsTimeField() {
-        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.SUPPORTS_HUNDRETHS_TIMEFIELD, false, PropertyTranslationKeys.V2_SUPPORTS_HUNDRETHS_TIMEFIELD, getPropertySpecService()::booleanSpec).setDefaultValue(false).finish();
+        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.SUPPORTS_HUNDRETHS_TIMEFIELD, false, PropertyTranslationKeys.V2_SUPPORTS_HUNDRETHS_TIMEFIELD, getPropertySpecService()::booleanSpec)
+                .setDefaultValue(false)
+                .finish();
     }
 
     /**
@@ -185,7 +188,9 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      * @return The property specification.
      */
     private final PropertySpec skipFramecounterAuthenticationTagValidation() {
-        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.SKIP_FC_AUTH_TAG_VALIDATION, false, PropertyTranslationKeys.V2_SKIP_FC_AUTH_TAG_VALIDATION, getPropertySpecService()::booleanSpec).setDefaultValue(false).finish();
+        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.SKIP_FC_AUTH_TAG_VALIDATION, false, PropertyTranslationKeys.V2_SKIP_FC_AUTH_TAG_VALIDATION, getPropertySpecService()::booleanSpec)
+                .setDefaultValue(false)
+                .finish();
     }
 
     /**
@@ -194,7 +199,9 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      * @return The property specification.
      */
     private final PropertySpec skipSlaveDevices() {
-        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.SKIP_SLAVE_DEVICES, false, PropertyTranslationKeys.V2_SKIP_SLAVE_DEVICES, getPropertySpecService()::booleanSpec).setDefaultValue(true).finish();
+        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.SKIP_SLAVE_DEVICES, false, PropertyTranslationKeys.V2_SKIP_SLAVE_DEVICES, getPropertySpecService()::booleanSpec)
+                .setDefaultValue(true)
+                .finish();
     }
 
     /**
@@ -203,7 +210,9 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      * @return The property specification.
      */
     private final PropertySpec useUndefinedForClockStatus() {
-        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.USE_UNDEFINED_AS_CLOCK_STATUS, false, PropertyTranslationKeys.V2_USE_UNDEFINED_AS_CLOCK_STATUS, getPropertySpecService()::booleanSpec).setDefaultValue(true).finish();
+        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.USE_UNDEFINED_AS_CLOCK_STATUS, false, PropertyTranslationKeys.V2_USE_UNDEFINED_AS_CLOCK_STATUS, getPropertySpecService()::booleanSpec)
+                .setDefaultValue(true)
+                .finish();
     }
 
     /**
@@ -212,7 +221,9 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      * @return The property specification.
      */
     private final PropertySpec useUndefinedForTimeDeviation() {
-        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.USE_UNDEFINED_AS_TIME_DEVIATION, false, PropertyTranslationKeys.V2_USE_UNDEFINED_AS_TIME_DEVIATION, getPropertySpecService()::booleanSpec).setDefaultValue(true).finish();
+        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.USE_UNDEFINED_AS_TIME_DEVIATION, false, PropertyTranslationKeys.V2_USE_UNDEFINED_AS_TIME_DEVIATION, getPropertySpecService()::booleanSpec)
+                .setDefaultValue(true)
+                .finish();
     }
 
     /**
@@ -221,7 +232,9 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      * @return Whether or not to use a fixed object list.
      */
     private final PropertySpec useFixedObjectList() {
-        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.USE_FIXED_OBJECT_LIST, false, PropertyTranslationKeys.V2_USE_FIXED_OBJECT_LIST, getPropertySpecService()::booleanSpec).setDefaultValue(false).finish();
+        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.USE_FIXED_OBJECT_LIST, false, PropertyTranslationKeys.V2_USE_FIXED_OBJECT_LIST, getPropertySpecService()::booleanSpec)
+                .setDefaultValue(false)
+                .finish();
     }
 
     /**
@@ -230,11 +243,13 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      * @return <code>true</code> for a cached frame counter, <code>false</code> if not.
      */
     private PropertySpec useCachedFrameCounter() {
-        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, false, PropertyTranslationKeys.V2_DLMS_USE_CACHED_FRAMECOUNTER, getPropertySpecService()::booleanSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.USE_CACHED_FRAME_COUNTER, false, PropertyTranslationKeys.V2_DLMS_USE_CACHED_FRAMECOUNTER, getPropertySpecService()::booleanSpec)
+                .finish();
     }
 
     private PropertySpec requestAuthenticatedFrameCounter() {
-        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, false, PropertyTranslationKeys.V2_DLMS_REQUEST_AUTHENTICATE_FRAME_COUNTER, getPropertySpecService()::booleanSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, false, PropertyTranslationKeys.V2_DLMS_REQUEST_AUTHENTICATE_FRAME_COUNTER, getPropertySpecService()::booleanSpec)
+                .finish();
     }
 
     private PropertySpec lastSeenDatePropertySpec() {
@@ -246,11 +261,12 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     }
 
     private PropertySpec pskPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(G3Properties.PSK, false, PropertyTranslationKeys.V2_DLMS_PSK, this.getPropertySpecService()::stringSpec).finish();
+        return keyAccessorTypeReferencePropertySpec(G3Properties.PSK, PropertyTranslationKeys.V2_DLMS_PSK);
     }
 
     protected PropertySpec nodeAddressPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), false, PropertyTranslationKeys.V2_DLMS_NODEID, this.getPropertySpecService()::bigDecimalSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), false, PropertyTranslationKeys.V2_DLMS_NODEID, this.getPropertySpecService()::bigDecimalSpec)
+                .finish();
     }
 
     private PropertySpec serverLowerMacAddressPropertySpec() {
@@ -258,11 +274,13 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     }
 
     protected PropertySpec mirrorLogicalDeviceIdPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, false, PropertyTranslationKeys.V2_DLMS_MIRROR_LOGICAL_DEVICE_ID, this.getPropertySpecService()::bigDecimalSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, false, PropertyTranslationKeys.V2_DLMS_MIRROR_LOGICAL_DEVICE_ID, this.getPropertySpecService()::bigDecimalSpec)
+                .finish();
     }
 
     protected PropertySpec actualLogicalDeviceIdPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, false, PropertyTranslationKeys.V2_DLMS_GATEWAY_LOGICAL_DEVICE_ID, this.getPropertySpecService()::bigDecimalSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, false, PropertyTranslationKeys.V2_DLMS_GATEWAY_LOGICAL_DEVICE_ID, this.getPropertySpecService()::bigDecimalSpec)
+                .finish();
     }
 
     private PropertySpec useEquipmentIdentifierAsSerialNumberPropertySpec() {
@@ -322,7 +340,8 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     }
 
     public PropertySpec deviceSystemTitlePropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.DEVICE_SYSTEM_TITLE, false, PropertyTranslationKeys.V2_DEVICE_SYSTEM_TITLE, this.getPropertySpecService()::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.DEVICE_SYSTEM_TITLE, false, PropertyTranslationKeys.V2_DEVICE_SYSTEM_TITLE, this.getPropertySpecService()::stringSpec)
+                .finish();
     }
 
     /**

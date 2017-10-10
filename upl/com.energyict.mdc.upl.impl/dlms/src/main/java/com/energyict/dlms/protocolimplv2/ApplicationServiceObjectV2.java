@@ -25,7 +25,7 @@ import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DataEncryptionException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
-import com.energyict.protocol.exception.ProtocolExceptionReference;
+import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
 import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
@@ -170,7 +170,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                     if (!Arrays.equals(acse.getRespondingApplicationEntityQualifier(), configuredCertificate)) {
                         silentDisconnect();
                         ProtocolException protocolException = new ProtocolException("The received server signing certificate does not match the certificate that is configured in the general properties.");
-                        throw ConnectionCommunicationException.protocolConnectFailed(protocolException);
+                        throw CommunicationException.protocolConnectFailed(protocolException);
                     }
                 }
             }
@@ -185,7 +185,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         } catch (CertificateException e) {
             silentDisconnect();
             ProtocolException protocolException = new ProtocolException("Received an invalid server signing certificate, should be an ASN.1 DER encoded X.509 v3 certificate.");
-            throw ConnectionCommunicationException.unexpectedResponse(protocolException);
+            throw CommunicationException.unexpectedResponse(protocolException);
         }
     }
 
@@ -350,7 +350,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             } else {
                 silentDisconnect();
                 ProtocolException protocolException = new ProtocolException("Verification of the received digital signature (HLS7 using ECDSA) using the server signing certificate failed.");
-                throw ConnectionCommunicationException.protocolConnectFailed(protocolException);
+                throw CommunicationException.protocolConnectFailed(protocolException);
             }
         }
 
@@ -384,7 +384,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             } catch (IOException e) {
                 throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
             } catch (ConnectionCommunicationException e) {
-                if (e.getExceptionReference().equals(ProtocolExceptionReference.UNEXPECTED_RESPONSE) || e.getExceptionReference().equals(ProtocolExceptionReference.UNEXPECTED_PROTOCOL_ERROR)) {
+                if (e.getMessageSeed().equals(ProtocolExceptionMessageSeeds.UNEXPECTED_RESPONSE) || e.getMessageSeed().equals(ProtocolExceptionMessageSeeds.UNEXPECTED_PROTOCOL_ERROR)) {
                     silentDisconnect();
                 }
                 throw e;
@@ -446,7 +446,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         try {
             this.acse.analyzeRLRE(response);
         } catch (DLMSConnectionException | AssociationControlServiceElement.ACSEParsingException e) {
-            throw ConnectionCommunicationException.protocolDisconnectFailed(e);    //Association release failed
+            throw CommunicationException.protocolDisconnectFailed(e);    //Association release failed
         }
     }
 

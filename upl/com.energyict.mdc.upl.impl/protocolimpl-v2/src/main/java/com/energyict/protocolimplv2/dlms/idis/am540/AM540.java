@@ -53,8 +53,8 @@ import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DataEncryptionException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
-import com.energyict.protocol.exception.ProtocolExceptionReference;
-import com.energyict.protocol.exception.ProtocolRuntimeException;
+import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
@@ -356,7 +356,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
                     return true;
                 }
             } catch (CommunicationException ex) {
-                if (ex.getExceptionReference() != ProtocolExceptionReference.COMMUNICATION_INTERRUPTED) {
+                if (ex.getMessageSeed() != ProtocolExceptionMessageSeeds.COMMUNICATION_INTERRUPTED) {
                     long frameCounter = testDlmsSession.getAso().getSecurityContext().getFrameCounter();
                     getLogger().warning("Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
                     frameCounter += step;
