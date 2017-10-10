@@ -25,6 +25,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_LDAP_FOUND(1011, "ldap.not.found", "Connection to LDAP failed."),
     FAIL_ACTIVATE_USER(1012, "fail.activate.user", "Fail to activate user."),
 
+
     UNDERLYING_IO_EXCEPTION(1013, Keys.UNDERLYING_IO_EXCEPTION, "Underlying IO Exception"),
     FIELD_SIZE_BETWEEN_1_AND_4(1014, Keys.FIELD_SIZE_BETWEEN_1_AND_4, "Field text length should be between 1 and 4 symbols"),
     FIELD_SIZE_BETWEEN_1_AND_3(1015, Keys.FIELD_SIZE_BETWEEN_1_AND_3, "Field text length should be between 1 and 3 symbols"),
@@ -34,7 +35,8 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_SIZE_BETWEEN_1_AND_256(1019, Keys.FIELD_SIZE_BETWEEN_1_AND_256, "Field text length should be between 1 and 256 symbols"),
     DUPLICATE_WORKGROUP_NAME(1020, Keys.DUPLICATE_WORKGROUP_NAME, "Duplicate name"),
     INSUFFICIENT_PRIVILEGES(1021, "InsufficientPrivileges", "The user does not have the needed privileges to perform the requested action."),
-    CANNOT_REMOVE_ALL_USER_ADMINISTRATORS(1022, "cannot.remove.all.user.administrators", "At least one user account with the \'User administrator\' role is required.");
+    CANNOT_REMOVE_ALL_USER_ADMINISTRATORS(1022, "cannot.remove.all.user.administrators", "At least one user account with the \'User administrator\' role is required."),
+    USER_NOT_ACTIVE(1023, "userX.not.active", "User {0} not active");
 
     private final int number;
     private final String key;

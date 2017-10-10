@@ -24,6 +24,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
+import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.LdapUserDirectory;
@@ -344,6 +345,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         if (!users.isEmpty()) {
             if (users.get(0).getStatus()) {
                 return Optional.of(users.get(0));
+            }else{
+                throw new FoundUserIsNotActiveException(thesaurus, authenticationName);
             }
         }
         return Optional.empty();
