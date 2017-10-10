@@ -197,7 +197,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     BasicDataCollectionRuleTemplate.AUTORESOLUTION,
                     template.getPropertySpec(BasicDataCollectionRuleTemplate.AUTORESOLUTION).get().getValueFactory().fromStringValue("1"));
             properties.put(
-                    BasicDataCollectionRuleTemplate.INCREASEURGENCY,
+                    BasicDataCollectionRuleTemplate.RADIOGROUP,
                     getIssueUrgencyIncreaseProps());
         } else if (template.getName().equals(BASIC_DATA_VALIDATION_RULE_TEMPLATE)) {
             List<HasIdAndName> deviceConfigurations = new ArrayList<>();
