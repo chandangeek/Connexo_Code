@@ -20,6 +20,8 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
 
     initComponent: function () {
         var me = this;
+
+
         me.items = [
             {
                 xtype: 'displayfield',

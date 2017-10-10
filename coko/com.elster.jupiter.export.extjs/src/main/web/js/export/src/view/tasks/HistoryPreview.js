@@ -11,8 +11,30 @@ Ext.define('Dxp.view.tasks.HistoryPreview', {
         'Dxp.view.tasks.HistoryPreviewForm'
     ],
 
-    items: {
-        xtype: 'dxp-tasks-history-preview-form'
+    initComponent: function () {
+        var me = this;
+
+        me.tools = [
+            {
+                xtype: 'uni-button-action',
+                itemId: 'history-preview-actions-button',
+                privileges: Ext.Array.merge(Isu.privileges.Issue.adminDevice, Isu.privileges.Device.viewDeviceCommunication),
+                menu: {
+                    xtype: 'history-grid-action-menu',
+                    itemId: 'history-grid-action-menu',
+                    router: me.router
+                },
+                listeners: {
+                    click: function () {
+                        this.showMenu();
+                    }
+                }
+            }
+        ];
+        me.items = {
+            xtype: 'dxp-tasks-history-preview-form'
+        };
+        me.callParent();
     }
 });
 
