@@ -59,7 +59,7 @@ public class SecurityAccessorInfoFactory {
         info.canGeneratePassiveKey = KeyAccessorStatus.COMPLETE.equals(keyAccessor.getStatus());
         info.hasTempValue = keyAccessor.getTempValue().isPresent();
         info.hasActualValue = keyAccessor.getActualValue().isPresent();
-        keyAccessor.getActualValue().ifPresent(ka->ka.getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration));
+        keyAccessor.getActualValue().ifPresent(ka -> ka.getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration));
 
         return info;
     }
@@ -72,7 +72,7 @@ public class SecurityAccessorInfoFactory {
         boolean userHasViewPrivilege = ((DeviceKeyAccessorType) keyAccessor.getKeyAccessorType()).currentUserIsAllowedToViewDeviceProperties();
         boolean userHasEditPrivilege = ((DeviceKeyAccessorType) keyAccessor.getKeyAccessorType()).currentUserIsAllowedToEditDeviceProperties();
 
-        MdcPropertyUtils.ValueVisibility valueVisibility = userHasViewPrivilege && userHasEditPrivilege? SHOW_VALUES: HIDE_VALUES;
+        MdcPropertyUtils.ValueVisibility valueVisibility = userHasViewPrivilege && userHasEditPrivilege ? SHOW_VALUES : HIDE_VALUES;
         MdcPropertyUtils.PrivilegePresence withoutPrivileges = userHasViewPrivilege ? WITH_PRIVILEGES : WITHOUT_PRIVILEGES;
         info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties, valueVisibility, withoutPrivileges);
 
@@ -92,20 +92,20 @@ public class SecurityAccessorInfoFactory {
         return info;
     }
 
-    public SecurityAccessorInfo asCertificate(KeyAccessor<?> keyAccessor, PropertyValuesResourceProvider aliasTypeAheadPropertyValueProvider, PropertyDefaultValuesProvider trustStoreValuesProvider) {
+    public SecurityAccessorInfo asCertificate(KeyAccessor<?> keyAccessor, List<PropertyValuesResourceProvider> propertyValuesResourceProviderList, PropertyDefaultValuesProvider trustStoreValuesProvider) {
         List<PropertySpec> propertySpecs = keyAccessor.getPropertySpecs();
         SecurityAccessorInfo info = from(keyAccessor);
         TypedProperties actualTypedProperties = getPropertiesActualValue(keyAccessor);
 
-        info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
+        info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties, propertyValuesResourceProviderList, trustStoreValuesProvider);
         Collections.sort(info.currentProperties, (PropertyInfo info1, PropertyInfo info2) -> info1.key.equals("trustStore") ? -1 : 0);
 
         TypedProperties tempTypedProperties = getPropertiesTempValue(keyAccessor);
-        info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
+        info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties, propertyValuesResourceProviderList, trustStoreValuesProvider);
         Collections.sort(info.tempProperties, (PropertyInfo info1, PropertyInfo info2) -> info1.key.equals("trustStore") ? -1 : 0);
 
         if (keyAccessor instanceof CertificateAccessor) {
-            ((CertificateAccessor)keyAccessor).getActualValue().ifPresent(cw->cw.getLastReadDate().ifPresent(date -> info.lastReadDate = date));
+            ((CertificateAccessor) keyAccessor).getActualValue().ifPresent(cw -> cw.getLastReadDate().ifPresent(date -> info.lastReadDate = date));
         }
 
         return info;
@@ -113,13 +113,13 @@ public class SecurityAccessorInfoFactory {
 
     private TypedProperties getPropertiesTempValue(KeyAccessor<?> keyAccessor) {
         TypedProperties tempTypedProperties = TypedProperties.empty();
-        keyAccessor.getTempValue().ifPresent(ka->ka.getProperties().entrySet().forEach(e->tempTypedProperties.setProperty(e.getKey(),e.getValue())));
+        keyAccessor.getTempValue().ifPresent(ka -> ka.getProperties().entrySet().forEach(e -> tempTypedProperties.setProperty(e.getKey(), e.getValue())));
         return tempTypedProperties;
     }
 
     private TypedProperties getPropertiesActualValue(KeyAccessor<?> keyAccessor) {
         TypedProperties actualTypedProperties = TypedProperties.empty();
-        keyAccessor.getActualValue().ifPresent(ka->ka.getProperties().entrySet().forEach(e1 -> actualTypedProperties.setProperty(e1.getKey(), e1.getValue())));
+        keyAccessor.getActualValue().ifPresent(ka -> ka.getProperties().entrySet().forEach(e1 -> actualTypedProperties.setProperty(e1.getKey(), e1.getValue())));
         return actualTypedProperties;
     }
 
