@@ -7,7 +7,10 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
 
     views: [
         'Mtr.readingtypes.view.Overview',
+        'Mtr.readingtypes.view.GroupsOverview',
         'Mtr.readingtypes.view.Grid',
+        'Mtr.readingtypes.view.GroupsGrid',
+        'Mtr.readingtypes.view.GroupPreview',
         'Mtr.readingtypes.view.EditAliasWindow',
         'Mtr.readingtypes.util.FilterTopPanel'
     ],
@@ -15,7 +18,8 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
     requires: [],
 
     stores: [
-        'Mtr.readingtypes.store.ReadingTypes'
+        'Mtr.readingtypes.store.ReadingTypes',
+        'Mtr.readingtypes.store.ReadingTypeGroups'
     ],
 
 
@@ -47,6 +51,18 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
         {
             ref: 'readingTypesFilterPanel',
             selector: '#reading-types-filter-top-panel'
+        },
+        {
+            ref: 'groupPreviewForm',
+            selector: 'readingTypesGroup-preview-form'
+        },
+        {
+            ref: 'groupPreview',
+            selector: 'readingTypesGroup-preview'
+        },
+        {
+            ref: 'readingTypesGroupPreviewMenu',
+            selector: 'readingTypesGroup-preview readingTypesGroup-action-menu'
         }
     ],
 
@@ -72,6 +88,9 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
             },
             '#edit-alias-window-textfield': {
                 change: this.disableSaveButton
+            },
+            'reading-type-groups-grid': {
+                select: this.showGroupPreview
             }
         });
     },
@@ -80,8 +99,7 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
     showOverview: function () {
         var me = this, widget,
             sorting = me.getController('Mtr.readingtypes.controller.OverviewSorting'),
-            store = me.getStore('Mtr.readingtypes.store.ReadingTypes'),
-            viewport = Ext.ComponentQuery.query('viewport')[0];
+            store = me.getStore('Mtr.readingtypes.store.ReadingTypes');
 
         me.setCurrentSort();
         widget = Ext.widget('reading-types-setup');
@@ -226,6 +244,29 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
         router.getRoute('administration/readingtypes/bulk').forward(null,
             router.getQueryStringValues()
         );
+    },
+
+    showGroupsOverview: function () {
+        var me = this,
+            widget,
+            store = me.getStore('Mtr.readingtypes.store.ReadingTypeGroups'),
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
+        widget = Ext.widget('reading-type-groups-overview');
+        me.getApplication().fireEvent('changecontentevent', widget);
+        store.load();
+    },
+
+    showGroupPreview: function(selectionModel, record) {
+        var me = this,
+            menu = me.getReadingTypesGroupPreviewMenu();
+
+        if (menu) {
+            menu.record = record;
+        }
+        me.getGroupPreview().setTitle(Ext.String.htmlEncode(record.get('name')));
+        me.getGroupPreviewForm().loadRecord(record);
     }
+
 });
 

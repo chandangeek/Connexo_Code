@@ -5,11 +5,11 @@
 Ext.define('Mtr.readingtypes.util.CimCombobox', {
     extend: 'Ext.form.field.ComboBox',
     xtype: 'cimcombobox',
-    labelSeparator: '#',
+    // labelSeparator: '#',
     showCimCodes: true,
     initComponent: function () {
         var me = this;
-        me.labelSeparator = ' ' + me.labelSeparator + (me.cimIndex ? me.cimIndex : '');
+        // me.labelSeparator = ' ' + me.labelSeparator + (me.cimIndex ? me.cimIndex : '');
         me.showCimCodes && (me.listConfig = {
             itemTpl: Ext.create('Ext.XTemplate',
                 '{', me.displayField, '}',

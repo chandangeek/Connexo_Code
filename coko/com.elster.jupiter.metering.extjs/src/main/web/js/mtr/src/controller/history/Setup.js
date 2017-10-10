@@ -14,6 +14,13 @@ Ext.define('Mtr.controller.history.Setup', {
             route: 'administration',
             disabled: true,
             items: {
+                readingtypegroups: {
+                    title: Uni.I18n.translate('readingtypes.readingTypeGroups', 'MTR', 'Reading type groups'),
+                    route: 'readingtypegroups',
+                    controller: 'Mtr.readingtypes.controller.ReadingTypes',
+                    privileges : Mtr.privileges.ReadingTypes.view,
+                    action: 'showGroupsOverview'
+                },
                 readingtypes: {
                     title: Uni.I18n.translate('readingtypes.title', 'MTR', 'Reading types'),
                     route: 'readingtypes',
