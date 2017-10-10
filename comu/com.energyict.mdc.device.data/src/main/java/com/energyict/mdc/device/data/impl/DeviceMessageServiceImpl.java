@@ -304,7 +304,7 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
     public Optional<DeviceMessage> findDeviceMessageByIdentifier(MessageIdentifier identifier) {
         try {
             return this.exactlyOne(this.find(identifier.forIntrospection()), identifier);
-        } catch (UnsupportedDeviceMessageIdentifierTypeName | IllegalArgumentException e) {
+        } catch (UnsupportedDeviceMessageIdentifierTypeName | IllegalArgumentException | NotUniqueException e) {
             return Optional.empty();
         }
     }

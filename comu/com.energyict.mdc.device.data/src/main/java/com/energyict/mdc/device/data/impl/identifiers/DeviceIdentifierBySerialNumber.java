@@ -4,7 +4,8 @@
 
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
+import com.elster.jupiter.orm.NotUniqueException;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 
@@ -15,11 +16,11 @@ import java.util.Set;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface
- * that uses an {@link com.energyict.mdc.upl.meterdata.Device}'s serial number to uniquely identify it.
+ * that uses an {@link Device}'s serial number to uniquely identify it.
  * <br/><br/>
  * <b>NOTE:</b> It is strongly advised to use the {@link DeviceIdentifierById} instead of this one.
  * The SerialNumber of a device doesn't have to be unique. If this identifier finds more than one
- * device with the same serialNumber, then a {@link DuplicateException} will be thrown indicating that.
+ * device with the same serialNumber, then a {@link NotUniqueException} will be thrown indicating that.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-12 (11:16)

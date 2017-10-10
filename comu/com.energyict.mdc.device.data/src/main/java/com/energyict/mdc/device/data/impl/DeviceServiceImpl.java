@@ -360,7 +360,7 @@ class DeviceServiceImpl implements ServerDeviceService {
     public Optional<Device> findDeviceByIdentifier(DeviceIdentifier identifier) {
         try {
             return this.exactlyOne(this.find(identifier.forIntrospection()), identifier);
-        } catch (UnsupportedDeviceIdentifierTypeName | IllegalArgumentException e) {
+        } catch (UnsupportedDeviceIdentifierTypeName | IllegalArgumentException | NotUniqueException e) {
             return Optional.empty();
         }
     }
