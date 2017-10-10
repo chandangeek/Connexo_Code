@@ -52,7 +52,7 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
             return SimplePropertyType.WEB_SERVICES_ENDPOINT;
         }
         if (propertySpec.getValueFactory() instanceof RaiseEventUrgencyFactory) {
-            return SimplePropertyType.INCREASE_URGENCY;
+            return SimplePropertyType.RADIO_GROUP;
         }
         return SimplePropertyType.IDWITHNAME;
     }
