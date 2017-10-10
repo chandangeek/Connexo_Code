@@ -26,7 +26,7 @@ public interface MdcPropertyUtils {
     void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList);
 
     void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList,
-                                                    ValueVisibility showValue, PrivilegePresence privilegePresence);
+                                             ValueVisibility showValue, PrivilegePresence privilegePresence);
 
 
     List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties);
@@ -39,7 +39,7 @@ public interface MdcPropertyUtils {
 
     List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, PropertyDefaultValuesProvider valuesProvider);
 
-    List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, PropertyValuesResourceProvider valuesResourceProvider, PropertyDefaultValuesProvider valuesProvider);
+    List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyValuesResourceProvider> valuesResourceProvider, PropertyDefaultValuesProvider valuesProvider);
 
     Object findPropertyValue(PropertySpec propertySpec, Collection<PropertyInfo> propertyInfos);
 

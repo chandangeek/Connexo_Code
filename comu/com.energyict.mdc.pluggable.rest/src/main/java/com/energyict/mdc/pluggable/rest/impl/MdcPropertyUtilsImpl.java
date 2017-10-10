@@ -201,16 +201,18 @@ public class MdcPropertyUtilsImpl implements MdcPropertyUtils {
         return propertyInfoList;
     }
 
-    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, PropertyValuesResourceProvider valuesResourceProvider, PropertyDefaultValuesProvider valuesProvider) {
+    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyValuesResourceProvider> valuesResourceProviderList, PropertyDefaultValuesProvider valuesProvider) {
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
         for (PropertySpec propertySpec : propertySpecs) {
             PropertyInfo propertyInfo = propertyValueInfoService.getPropertyInfo(propertySpec, properties.getLocalValue(propertySpec.getName()) != null ? properties::getLocalValue : null);
             modifyPropertyValueInfo(propertyInfo, propertySpec, properties, SHOW_VALUES, WITHOUT_PRIVILEGES);
-            if (valuesResourceProvider.getPropertiesValuesResource(propertySpec).isPresent()) {
-                modifyPropertyTypeInfo(propertyInfo, propertySpec, valuesResourceProvider);
-            } else {
-                modifyPropertyTypeInfo(propertyInfo, propertySpec, null, valuesProvider);
-            }
+            valuesResourceProviderList.stream().forEach(provider -> {
+                if (provider.getPropertiesValuesResource(propertySpec).isPresent()) {
+                    modifyPropertyTypeInfo(propertyInfo, propertySpec, provider);
+                } else {
+                    modifyPropertyTypeInfo(propertyInfo, propertySpec, null, valuesProvider);
+                }
+            });
             propertyInfoList.add(propertyInfo);
         }
         return propertyInfoList;
@@ -303,7 +305,7 @@ public class MdcPropertyUtilsImpl implements MdcPropertyUtils {
     /**
      * Creates a proper URI to fetch the <i>full</i> list of the BusinessObjects of the given class
      *
-     * @param uriInfo the URI info which was used for the REST call
+     * @param uriInfo           the URI info which was used for the REST call
      * @param propertyClassType the classTypeName of the object
      * @return the uri to fetch the list of objects
      */
