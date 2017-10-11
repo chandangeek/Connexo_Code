@@ -19,6 +19,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,7 +33,11 @@ public class StatusResource  extends BaseAlarmResource{
     @RolesAllowed({Privileges.Constants.VIEW_ALARM,Privileges.Constants.ASSIGN_ALARM,Privileges.Constants.CLOSE_ALARM,Privileges.Constants.COMMENT_ALARM,Privileges.Constants.ACTION_ALARM})
     public Response getStatuses() {
         Query<IssueStatus> query = getIssueService().query(IssueStatus.class);
-        List<IssueStatus> statuses = query.select(Condition.TRUE);
+        List<IssueStatus> statuses = query
+                .select(Condition.TRUE)
+                .stream()
+                .sorted(Comparator.comparing(IssueStatus::getName))
+                .collect(Collectors.toList());
         return Response.ok().entity(statuses.stream().map(IssueStatusInfo::new).collect(Collectors.toList())).build();
     }
 

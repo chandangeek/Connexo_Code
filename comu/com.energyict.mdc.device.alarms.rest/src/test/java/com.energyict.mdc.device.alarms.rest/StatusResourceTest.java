@@ -13,6 +13,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -47,6 +48,8 @@ public class StatusResourceTest extends DeviceAlarmApplicationTest{
 
         List<IssueStatusInfo> statusInfos  = target("/statuses").request().get(List.class);
         assertThat(statusInfos.size()).isEqualTo(2);
+        assertThat(((Map)statusInfos.get(0)).get("name")).isEqualTo("close");
+
     }
 
     @Test
