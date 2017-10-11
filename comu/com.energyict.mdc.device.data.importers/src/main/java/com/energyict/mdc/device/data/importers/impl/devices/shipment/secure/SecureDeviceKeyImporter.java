@@ -228,6 +228,10 @@ public class SecureDeviceKeyImporter implements FileImporter {
             if (wrapKey==null) {
                 throw new ImportFailedException(MessageSeeds.WRAP_KEY_NOT_FOUND, securityAccessorName, device.getName(), deviceKey.getWrapKeyLabel());
             }
+            DeviceSecretImporter deviceSecretImporter = pkiService.getDeviceSecretImporter(keyAccessorType);
+            PublicKey publicKey = getPublicKeyFromWrapKey(wrapKey);
+            deviceSecretImporter.verifyPublicKey(publicKey);
+
             byte[] encryptedSymmetricKey = wrapKey.getSymmetricKey().getCipherData().getCipherValue();
             byte[] encryptedDeviceKey = deviceKey.getCipherData().getCipherValue();
             byte[] initializationVector = new byte[16];
@@ -240,7 +244,6 @@ public class SecureDeviceKeyImporter implements FileImporter {
             System.arraycopy(encryptedDeviceKey, 0, initializationVector, 0, 16);
             System.arraycopy(encryptedDeviceKey, 16, cipher, 0, encryptedDeviceKey.length - 16);
 
-            DeviceSecretImporter deviceSecretImporter = pkiService.getDeviceSecretImporter(keyAccessorType);
 
             if (device.getKeyAccessor(keyAccessorType).isPresent() && device.getKeyAccessor(keyAccessorType).get().getActualValue().isPresent()) {
                 log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
@@ -250,6 +253,20 @@ public class SecureDeviceKeyImporter implements FileImporter {
                 keyAccessor.setActualValue(newWrapperValue);
                 keyAccessor.save();
             }
+        }
+    }
+
+    private PublicKey getPublicKeyFromWrapKey(WrapKey wrapKey) {
+        try {
+            BigInteger exponent = new BigInteger(wrapKey.getPublicKey().getExponent());
+            BigInteger modulus = new BigInteger(wrapKey.getPublicKey().getModulus());
+            RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, exponent);
+            KeyFactory factory = KeyFactory.getInstance("RSA");
+            return factory.generatePublic(spec);
+        } catch (NoSuchAlgorithmException e) {
+            throw new ImportFailedException(MessageSeeds.NO_SUCH_ALGORITHM, e);
+        } catch (InvalidKeySpecException e) {
+            throw new ImportFailedException(MessageSeeds.ILLEGAL_KEY, e);
         }
     }
 
