@@ -125,6 +125,11 @@ public class KeypairWrapperImpl implements KeypairWrapper {
     }
 
     @Override
+    public String getName() {
+        return this.alias;
+    }
+
+    @Override
     public Optional<PublicKey> getPublicKey() {
         if (this.publicKey == null || this.publicKey.length==0) {
             return Optional.empty();
@@ -299,7 +304,7 @@ public class KeypairWrapperImpl implements KeypairWrapper {
     @Override
     public void generateValue() {
         if (this.privateKeyReference==null
-                || !this.privateKeyReference.isPresent()) {
+                || this.privateKeyReference.isPresent()) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CAN_NOT_GENERATE_PUBLIC);
         }
         PrivateKeyWrapper privateKeyWrapper = (PrivateKeyWrapper) this.privateKeyReference.get();
