@@ -19,7 +19,6 @@ import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.security.PublicKey;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -29,11 +28,11 @@ import static java.util.stream.Collectors.toList;
 /**
  * This factory creates importers for the Secure
  */
-@Component(name = "com.energyict.mdc.device.data.importers." + SecureDeviceShipmentImporterFactory.NAME,
+@Component(name = "com.energyict.mdc.device.data.importers." + SecureDeviceKeyImporterFactory.NAME,
         service = FileImporterFactory.class,
         immediate = true)
-public class SecureDeviceShipmentImporterFactory implements FileImporterFactory {
-    public static final String NAME = "SecureDeviceShipmentImporterFactory";
+public class SecureDeviceKeyImporterFactory implements FileImporterFactory {
+    public static final String NAME = "SecureDeviceKeyImporterFactory";
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
     private volatile PkiService pkiService;
@@ -49,12 +48,12 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
     public FileImporter createImporter(Map<String, Object> properties) {
         TrustStore trustStore = (TrustStore) properties.get(SecureDeviceShipmentImporterProperty.TRUSTSTORE.getPropertyKey());
 //        PublicKey publicKey = (PublicKey) properties.get(SecureDeviceShipmentImporterProperty.PUBLICKEY.getPropertyKey());
-        return new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, pkiService);
+        return new SecureDeviceKeyImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, pkiService);
     }
 
     @Override
     public String getDisplayName() {
-        return thesaurus.getFormat(TranslationKeys.SECURE_DEVICE_SHIPMENT_IMPORTER).format();
+        return thesaurus.getFormat(TranslationKeys.SECURE_DEVICE_KEY_IMPORTER).format();
     }
 
     @Override

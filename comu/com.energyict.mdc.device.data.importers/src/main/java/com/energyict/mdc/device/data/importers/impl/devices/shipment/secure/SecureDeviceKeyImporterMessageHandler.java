@@ -23,18 +23,18 @@ import javax.inject.Inject;
 
 import static com.elster.jupiter.orm.Version.version;
 
-@Component(name = "com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceShipmentImporterMessageHandler",
+@Component(name = "com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceKeyImporterMessageHandler",
         service = MessageHandlerFactory.class,
         property = {
-                "name=" + SecureDeviceShipmentImporterMessageHandler.COMPONENT_NAME,
-                "subscriber=" + SecureDeviceShipmentImporterMessageHandler.SUBSCRIBER_NAME,
-                "destination=" + SecureDeviceShipmentImporterMessageHandler.DESTINATION_NAME },
+                "name=" + SecureDeviceKeyImporterMessageHandler.COMPONENT_NAME,
+                "subscriber=" + SecureDeviceKeyImporterMessageHandler.SUBSCRIBER_NAME,
+                "destination=" + SecureDeviceKeyImporterMessageHandler.DESTINATION_NAME },
         immediate = true)
-public class SecureDeviceShipmentImporterMessageHandler implements MessageHandlerFactory {
+public class SecureDeviceKeyImporterMessageHandler implements MessageHandlerFactory {
 
-    static final String DESTINATION_NAME = "SecureShipmentImport";
-    public static final String SUBSCRIBER_NAME = "SecureShipmentImport";
-    static final String COMPONENT_NAME = "SSI";
+    static final String DESTINATION_NAME = "SecureDeviceKeyImport";
+    public static final String SUBSCRIBER_NAME = "SecureDeviceKeyImport";
+    static final String COMPONENT_NAME = "SSK";
 
     private volatile FileImportService fileImportService;
     private volatile UpgradeService upgradeService;
@@ -42,7 +42,7 @@ public class SecureDeviceShipmentImporterMessageHandler implements MessageHandle
     private volatile OrmService ormService;
 
     // OSGi constructor
-    public SecureDeviceShipmentImporterMessageHandler() {
+    public SecureDeviceKeyImporterMessageHandler() {
 
     }
 
@@ -58,17 +58,17 @@ public class SecureDeviceShipmentImporterMessageHandler implements MessageHandle
         });
 
         upgradeService.register(
-                InstallIdentifier.identifier("MultiSense", SecureDeviceShipmentImporterMessageHandler.COMPONENT_NAME),
+                InstallIdentifier.identifier("MultiSense", SecureDeviceKeyImporterMessageHandler.COMPONENT_NAME),
                 dataModel,
-                SsiInstaller.class,
+                SskInstaller.class,
                 ImmutableMap.of(
-                        version(10, 4), UpgraderV10_4_SSI.class
+                        version(10, 4), UpgraderV10_4_SSK.class
                 ));
 
     }
 
     @Inject // for test purposes
-    public SecureDeviceShipmentImporterMessageHandler(FileImportService fileImportService, UpgradeService upgradeService, MessageService messageService, OrmService ormService) {
+    public SecureDeviceKeyImporterMessageHandler(FileImportService fileImportService, UpgradeService upgradeService, MessageService messageService, OrmService ormService) {
         this();
         setFileImportService(fileImportService);
         setUpgradeService(upgradeService);

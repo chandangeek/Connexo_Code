@@ -13,6 +13,7 @@ import com.energyict.mdc.device.data.importers.impl.devices.decommission.DeviceD
 import com.energyict.mdc.device.data.importers.impl.devices.installation.DeviceInstallationImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
+import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceKeyImporterMessageHandler;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceShipmentImporterMessageHandler;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
@@ -21,6 +22,7 @@ public enum TranslationKeys implements TranslationKey {
 
     DATA_IMPORTER_SUBSCRIBER(DeviceDataImporterMessageHandler.SUBSCRIBER_NAME, "Handle data import"),
     SECURE_SHIPMENT_IMPORT_SUBSCRIBER(SecureDeviceShipmentImporterMessageHandler.SUBSCRIBER_NAME, "Handle secure shipment import"),
+    SECURE_SHIPMENT_KEY_SUBSCRIBER(SecureDeviceKeyImporterMessageHandler.SUBSCRIBER_NAME, "Handle secure key import"),
 
     IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED("ImportResultNoDevicesWereProcessed", "Failed to complete, no devices have been processed."),
     IMPORT_RESULT_FAIL("ImportResultFail", "Failed to complete. {0} devices processed successfully."),
@@ -57,7 +59,7 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_DATA_IMPORTER_TRUSTSTORE("truststore", "Trust store"),
     DEVICE_DATA_IMPORTER_TRUSTSTORE_DESCRIPTION("truststore.description", "The trust store used to build a chain of trust for the certificate in the shipment file"),
     DEVICE_DATA_IMPORTER_PUBLICKEY("publickey", "Public key"),
-    DEVICE_DATA_IMPORTER_PUBLICKEY_DESCRIPTION("publickey.description", "The public key to be used to verify the shipment file's signature. Only to be filled in if the shipment file does not contain a certificate"),
+    DEVICE_DATA_IMPORTER_PUBLICKEY_DESCRIPTION("publickey.description", "The public key to be used to verify the shipment file's signature. Only to be filled in if the shipment file signature does not contain a certificate"),
 
     MASTER_WILL_BE_OVERRIDDEN("MasterWillBeOverridden", "Note for line {0}: Master device (name: {1}) was overridden by new one (name: {2})"),
     NEW_USAGE_POINT_WILL_BE_CREATED("NewUsagePointWillBeCreated", "Note for line {0}: Usage point {1} is not found. New usage point was created based on Service Category value"),
@@ -66,6 +68,7 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_READINGS_IMPORTER(DeviceReadingsImporterFactory.NAME, "Device readings importer [STD]"),
     DEVICE_SHIPMENT_IMPORTER(DeviceShipmentImporterFactory.NAME, "Devices shipment importer [STD]"),
     SECURE_DEVICE_SHIPMENT_IMPORTER(SecureDeviceShipmentImporterFactory.NAME, "Secure device shipment importer [STD]"),
+    SECURE_DEVICE_KEY_IMPORTER(SecureDeviceShipmentImporterFactory.NAME, "Secured device key importer [STD]"),
     DEVICE_INSTALLATION_IMPORTER(DeviceInstallationImporterFactory.NAME, "Devices installation importer [STD]"),
     DEVICE_COMMISSIONING_IMPORTER(DeviceCommissioningImportFactory.NAME, "Devices commissioning  importer [STD]"),
     DEVICE_DECOMMISSIONING_IMPORTER(DeviceDecommissioningImportFactory.NAME, "Devices decommissioning  importer [STD]"),

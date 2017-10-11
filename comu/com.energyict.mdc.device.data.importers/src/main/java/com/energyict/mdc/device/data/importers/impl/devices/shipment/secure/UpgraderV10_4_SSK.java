@@ -20,11 +20,11 @@ import java.sql.SQLException;
 /**
  * Upgrades the database to version 10.4.
  */
-public class UpgraderV10_4 implements Upgrader {
+public class UpgraderV10_4_SSK implements Upgrader {
     private final OrmService ormService;
 
     @Inject
-    UpgraderV10_4(OrmService ormService) {
+    UpgraderV10_4_SSK(OrmService ormService) {
         this.ormService = ormService;
     }
 
@@ -51,9 +51,9 @@ public class UpgraderV10_4 implements Upgrader {
 
     private PreparedStatement upgradeSubscriberSpecsStatement(Connection connection) throws SQLException {
         PreparedStatement statement = connection.prepareStatement("UPDATE MSG_SUBSCRIBERSPEC SET nls_component = ?, nls_layer = ? WHERE name = ?");
-        statement.setString(1, SecureDeviceShipmentImporterMessageHandler.COMPONENT_NAME);
+        statement.setString(1, SecureDeviceKeyImporterMessageHandler.COMPONENT_NAME);
         statement.setString(2, Layer.DOMAIN.name());
-        statement.setString(3, SecureDeviceShipmentImporterMessageHandler.SUBSCRIBER_NAME);
+        statement.setString(3, SecureDeviceKeyImporterMessageHandler.SUBSCRIBER_NAME);
         return statement;
     }
 

@@ -15,12 +15,12 @@ import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import javax.inject.Inject;
 import java.util.logging.Logger;
 
-class Installer implements FullInstaller {
+class SsiInstaller implements FullInstaller {
 
     private final MessageService messageService;
 
     @Inject
-    Installer(MessageService messageService) {
+    SsiInstaller(MessageService messageService) {
         this.messageService = messageService;
     }
 

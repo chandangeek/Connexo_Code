@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SymmetricAlgorithm;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -81,6 +82,9 @@ public class SecureDeviceShipmentImporterTest {
         testHandler = new TestHandler();
         logger.addHandler(testHandler);
         when(fileImportOccurrence.getLogger()).thenReturn(logger);
+        SymmetricAlgorithm symmetricAlgorithm = mock(SymmetricAlgorithm.class);
+        when(symmetricAlgorithm.getCipherName()).thenReturn("AES");
+        when(pkiService.getSymmetricAlgorithm("http://www.w3.org/2001/04/xmlenc#aes256-cbc")).thenReturn(Optional.of(symmetricAlgorithm));
     }
 
     @Test
