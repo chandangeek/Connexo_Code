@@ -5,15 +5,20 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -40,6 +45,14 @@ import static org.mockito.Mockito.when;
 public class SecurityExpirationSearchablePropertyTest {
 
     @Mock
+    private UserService userService;
+    @Mock
+    private EventService eventService;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private UpgradeService upgradeService;
+    @Mock
     private DataVaultService dataVaultService;
     @Mock
     private DataModel dataModel;
@@ -56,6 +69,7 @@ public class SecurityExpirationSearchablePropertyTest {
 
     private BeanService beanService = new DefaultBeanService();
     private com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
+    private PkiService pkiService;
     private PropertySpecService propertySpecService;
     private SecuritySearchablePropertyGroup securitySearchablePropertyGroup;
 
@@ -67,6 +81,8 @@ public class SecurityExpirationSearchablePropertyTest {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService, this.ormService, this.beanService);
         this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
+        this.pkiService = new com.elster.jupiter.pki.impl.PkiServiceImpl(this.ormService, this.upgradeService, this.nlsService, dataVaultService, jupiterPropertySpecService,
+                        this.eventService, this.userService);
         this.securitySearchablePropertyGroup = new SecuritySearchablePropertyGroup(thesaurus);
     }
 
@@ -162,6 +178,6 @@ public class SecurityExpirationSearchablePropertyTest {
     }
 
     private SecurityExpirationSearchableProperty getTestInstance() {
-        return new SecurityExpirationSearchableProperty(propertySpecService, thesaurus).init(this.domain, securitySearchablePropertyGroup);
+        return new SecurityExpirationSearchableProperty(this.dataModel, pkiService, propertySpecService, thesaurus).init(this.domain, securitySearchablePropertyGroup);
     }
 }

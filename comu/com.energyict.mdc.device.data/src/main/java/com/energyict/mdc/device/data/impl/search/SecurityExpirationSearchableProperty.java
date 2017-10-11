@@ -6,6 +6,8 @@ package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.ExpirationFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -20,9 +22,12 @@ import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -31,14 +36,18 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
 
     static final String PROPERTY_NAME = "device.security.expiration";
 
+    private final DataModel dataModel;
+    private final PkiService pkiService;
     private final PropertySpecService propertySpecService;
 
     private SearchDomain searchDomain;
     private SearchablePropertyGroup group;
 
     @Inject
-    public SecurityExpirationSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public SecurityExpirationSearchableProperty(DataModel datamodel, PkiService pkiService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(thesaurus);
+        this.dataModel = datamodel;
+        this.pkiService = pkiService;
         this.propertySpecService = propertySpecService;
     }
 
@@ -67,29 +76,21 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         Comparison comparison = (Comparison) condition;
-        if (comparison.getValues().length == 1){
+        if (comparison.getValues().length == 1) {
             // the condition coming from FE as 'device.security.expiration ==  Expiration.Type.EXPIRED || Expiration.Type.EXPIRES_1WEEK || Expiration.Type.EXPIRES_1MONTH || Expiration.Type.EXPIRES_3MONTHS
             Expiration expiration = (Expiration) comparison.getValues()[0];
-/* Todo: the PkiService also consults the private key factories when looking for expired keys
-   Todo: There's no link between DDC_KEYACCESSOR and the SSM_PLAINTEXTPK table as there is no such thing as a PrivateKeyAccessor ???? */
+
             sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN ");
             sqlBuilder.openBracket();
             //Devices having an actual certificate that is expired
             sqlBuilder.append("SELECT DEVICE FROM DDC_KEYACCESSOR, PKI_CERTIFICATE WHERE (DDC_KEYACCESSOR.DISCRIMINATOR = 'C' AND DDC_KEYACCESSOR.ACTUAL_CERT = PKI_CERTIFICATE.ID AND ");
             sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.EXPIRATION", (Comparison) expiration.isExpired("PKI_CERTIFICATE.EXPIRATION", now)));
             sqlBuilder.closeBracket();
-            //
-            sqlBuilder.append(" UNION ");
+
             // Devices having an actual passphrase that is expired
-            sqlBuilder.append("SELECT DEVICE FROM DDC_KEYACCESSOR, SSM_PLAINTEXTPW WHERE (DDC_KEYACCESSOR.DISCRIMINATOR = 'P' AND DDC_KEYACCESSOR.ACTUALPASSPHRASEID = SSM_PLAINTEXTPW.ID AND ");
-            sqlBuilder.add(new ComparisonFragment(this, "SSM_PLAINTEXTPW.EXPIRATION", (Comparison) expiration.isExpired("SSM_PLAINTEXTPW.EXPIRATION", now)));
-            sqlBuilder.closeBracket();
-            //
-            sqlBuilder.append(" UNION ");
+            getPassPhrasePairTableNames().forEach(passPhraseTableName -> appendExpiredKeyClause(sqlBuilder, "P", passPhraseTableName, expiration, now));
             // Devices having an actual symmetric key that is expired
-            sqlBuilder.append("SELECT DEVICE FROM DDC_KEYACCESSOR, SSM_PLAINTEXTSK WHERE (DDC_KEYACCESSOR.DISCRIMINATOR = 'S' AND DDC_KEYACCESSOR.ACTUALSYMKEYID = SSM_PLAINTEXTSK.ID AND ");
-            sqlBuilder.add(new ComparisonFragment(this, "SSM_PLAINTEXTSK.EXPIRATION", (Comparison) expiration.isExpired("SSM_PLAINTEXTSK.EXPIRATION", now)));
-            sqlBuilder.closeBracket();
+            getSymmetricKeyTableNames().forEach(symmetricKeyTableName -> appendExpiredKeyClause(sqlBuilder, "S", symmetricKeyTableName, expiration, now));
             //
             sqlBuilder.closeBracket();
         }
@@ -101,8 +102,7 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
         Long expirationDateAsEpochMillis = (Long) value;
         if (expirationDateAsEpochMillis != null) {
             statement.setLong(bindPosition, expirationDateAsEpochMillis);
-        }
-        else {
+        } else {
             statement.setNull(bindPosition, java.sql.Types.NUMERIC);
         }
     }
@@ -153,7 +153,46 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        // no refresh
+    }
+
+    private List<String> getPassPhrasePairTableNames() {
+        return addTableNames(new ArrayList<>(), "SELECT DISTINCT ACTUALPASSPHRASETABLE FROM DDC_KEYACCESSOR WHERE ACTUALPASSPHRASEID IS NOT NULL");
+    }
+
+    private List<String> getSymmetricKeyTableNames() {
+        return addTableNames(new ArrayList<>(), "SELECT DISTINCT ACTUALSYMKEYTABLE FROM DDC_KEYACCESSOR WHERE ACTUALSYMKEYID IS NOT NULL");
+    }
+
+    private List<String> addTableNames(List<String> tableNames, String sql) {
+        try (Connection connection = this.dataModel.getConnection(false);
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                tableNames.add(rs.getString(0));
+            }
+        } catch (SQLException e) {
+            // Should not happen
+        }
+        return tableNames;
+    }
+
+    private void appendExpiredKeyClause(SqlBuilder sqlBuilder, String keyAccessorDiscriminator, String keyTableName, Expiration expiration, Instant when) {
+        Optional<Comparison> expirationCondition = pkiService.getExpirationCondition(expiration, when, keyTableName);
+        sqlBuilder.append(" UNION ");
+        sqlBuilder.append("SELECT DEVICE FROM DDC_KEYACCESSOR, ");
+        sqlBuilder.append(keyTableName);
+        sqlBuilder.append(" WHERE ");
+        sqlBuilder.openBracket();
+        sqlBuilder.append("DDC_KEYACCESSOR.DISCRIMINATOR = '");
+        sqlBuilder.append(keyAccessorDiscriminator);
+        sqlBuilder.append("' AND DDC_KEYACCESSOR.ACTUALPASSPHRASEID = ");
+        sqlBuilder.append(keyTableName);
+        sqlBuilder.append(".ID ");
+        if (expirationCondition.isPresent()) {
+            sqlBuilder.append(" AND ");
+            sqlBuilder.add(new ComparisonFragment(this, expirationCondition.get().getFieldName(), expirationCondition.get()));
+        }
+        sqlBuilder.closeBracket();
     }
 
 }
