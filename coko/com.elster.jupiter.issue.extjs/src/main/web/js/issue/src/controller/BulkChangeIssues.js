@@ -351,7 +351,10 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                             break;
                         case 'close':
                             if (successCount > 0) {
-                                successMessage = Uni.I18n.translatePlural('issues.close.success.result', successCount, 'ISU', '-', '<h3>Successfully closed issue</h3><br>', '<h3>Successfully closed issues</h3><br>');
+                                successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.close.success.result', successCount, 'ISU',
+                                    "-",
+                                    "Successfully closed one issue",
+                                    "Successfully closed {0} issues") + '\</h3\>\<br\>';
                             }
                             break;
                         case 'retrycomm':
@@ -382,9 +385,15 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                         case 'setpriority':
                             if (successCount > 0) {
                                 if(record.get('allIssues')){
-                                    successMessage = Uni.I18n.translatePlural('issues.setpriority.successAllIssues.result', successCount, 'ISU', '-', '<h3>Successfully set priority for all issues</h3><br>', '<h3>Successfully set priority for all issues</h3><br>');
+                                    successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.setpriority.successAllIssues.result', successCount, 'ISU',
+                                        "-",
+                                        "Successfully set priority for {0} issue",
+                                        "Successfully set priority for {0} issues") + '\</h3\>\<br\>';
                                 }else{
-                                    successMessage = Uni.I18n.translatePlural('issues.setpriority.successSelectedIssues.result', successCount, 'ISU', '-', '<h3>Successfully set priority for selected issue(s)</h3><br>', '<h3>Successfully set priority for selected issue(s)</h3><br>');
+                                    successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.setpriority.successSelectedIssues.result', successCount, 'ISU',
+                                        "-",
+                                        "Successfully set priority for {0} selected issue",
+                                        "Successfully set priority for {0} selected issues") + '\</h3\>\<br\>';
                                 }
 
                             }
@@ -392,9 +401,29 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                         case 'snooze':
                             if (successCount > 0) {
                                 if (record.get('allIssues')) {
-                                    successMessage = Uni.I18n.translatePlural('issues.snooze.successAllIssues.result', successCount, 'ISU', '-', '<h3>Successfully snoozed all issues</h3><br>', '<h3>Successfully snoozed for all issues</h3><br>');
+                                    if (Ext.isEmpty(obj.failure)) {
+                                        successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.snooze.successAllIssuesAll.result', successCount, 'ISU',
+                                            "-",
+                                            "Successfully snoozed {0} issue",
+                                            "Successfully snoozed all issues") + '\</h3\>\<br\>';
+                                    } else {
+                                        successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.snooze.successAllIssuesPartial.result', successCount, 'ISU',
+                                            "-",
+                                            "Successfully snoozed {0} issue",
+                                            "Successfully snoozed {0} issues") + '\</h3\>\<br\>';
+                                    }
                                 } else {
-                                    successMessage = Uni.I18n.translatePlural('issues.snooze.successSelectedIssues.result', successCount, 'ISU', '-', '<h3>Successfully snoozed selected issue(s)</h3><br>', '<h3>Successfully snoozed selected issue(s)</h3><br>');
+                                    if (Ext.isEmpty(obj.failure)) {
+                                        successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.snooze.successSelectedIssuesAll.result', successCount, 'ISU',
+                                            "-",
+                                            "Successfully snoozed {0} selected issue",
+                                            "Successfully snoozed all selected issues") + '\</h3\>\<br\>';
+                                    } else {
+                                        successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.snooze.successSelectedIssuesPartial.result', successCount, 'ISU',
+                                            "-",
+                                            "Successfully snoozed {0} selected issue",
+                                            "Successfully snoozed {0} selected issues") + '\</h3\>\<br\>';
+                                    }
                                 }
 
                             }
