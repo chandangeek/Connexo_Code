@@ -99,7 +99,7 @@ public class CertificateWrapperExtractorImpl implements CertificateWrapperExtrac
                 keyStore.load(null); // This initializes the empty key store
                 keyStore.setKeyEntry(
                         clientCertificateWrapper.getAlias(),
-                        clientCertificateWrapper.getPrivateKeyWrapper().getPrivateKey(),
+                        clientCertificateWrapper.getPrivateKeyWrapper().getPrivateKey().get(),
                         PARAMETERS,
                         new Certificate[]{clientCertificateWrapper.getCertificate().get()}  //The chain for the client PrivateKey is just 1 certificate
                 );
@@ -128,7 +128,7 @@ public class CertificateWrapperExtractorImpl implements CertificateWrapperExtrac
     public PrivateKey getPrivateKey(CertificateWrapper clientCertificateWrapper) throws InvalidKeyException {
         com.elster.jupiter.pki.CertificateWrapper connexoCertificateWrapper = toConnexoCertificateWrapper(clientCertificateWrapper);
         if (connexoCertificateWrapper instanceof ClientCertificateWrapper) {
-            return ((ClientCertificateWrapper) connexoCertificateWrapper).getPrivateKeyWrapper().getPrivateKey();
+            return ((ClientCertificateWrapper) connexoCertificateWrapper).getPrivateKeyWrapper().getPrivateKey().get();
         } else {
             throw new IllegalArgumentException("The given CertificateWrapper (alias '" + connexoCertificateWrapper.getAlias() + "') must be of type ClientCertificateWrapper");
         }

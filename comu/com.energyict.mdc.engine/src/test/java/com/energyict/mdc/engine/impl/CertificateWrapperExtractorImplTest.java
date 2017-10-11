@@ -57,7 +57,7 @@ public class CertificateWrapperExtractorImplTest {
 
         PrivateKey originalPrivateKey = generateECCKeyPair().getPrivate();
 
-        when(privateKeyWrapper.getPrivateKey()).thenReturn(originalPrivateKey);
+        when(privateKeyWrapper.getPrivateKey()).thenReturn(Optional.of(originalPrivateKey));
         when(certificateWrapper.getPrivateKeyWrapper()).thenReturn(privateKeyWrapper);
         CertificateWrapperAdapter uplCertificateWrapper = new CertificateWrapperAdapter(certificateWrapper, Optional.empty());
 
