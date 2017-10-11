@@ -76,8 +76,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
         }
 
         this.groupedDeviceCommand = groupedDeviceCommand;
-        this.basicComCommandBehavior = new BasicComCommandBehavior(this, ComCommandDescriptionTitle.getComCommandDescriptionTitleFor(this.getClass())
-                .getDescription(), getServiceProvider().clock(), getServiceProvider().deviceMessageService());
+        this.basicComCommandBehavior = new BasicComCommandBehavior(this, getDescriptionTitle(), getServiceProvider().clock(), getServiceProvider().deviceMessageService());
     }
 
     private CommandRoot.ServiceProvider getServiceProvider() {
@@ -320,11 +319,6 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
 
     protected LogLevel defaultJournalingLogLevel() {
         return this.basicComCommandBehavior.defaultJournalingLogLevel();
-    }
-
-    @Override
-    public String getDescriptionTitle() {
-        return this.basicComCommandBehavior.getDescriptionTitle();
     }
 
     @Override

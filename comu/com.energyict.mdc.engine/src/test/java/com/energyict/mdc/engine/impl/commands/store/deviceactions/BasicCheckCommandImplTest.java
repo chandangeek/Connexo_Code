@@ -11,7 +11,6 @@ import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.commands.store.core.BasicComCommandBehavior;
-import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -124,7 +123,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         assertThat(basicCheckCommand.getVerifyTimeDifferenceCommand().getWarnings().isEmpty()).isTrue();
         assertThat(basicCheckCommand.getVerifySerialNumberCommand()).isNull();
 
-        assertEquals(ComCommandDescriptionTitle.BasicCheckCommandImpl.getDescription() + " {check maximum clock difference}", journalMessage);
+        assertEquals("Executed basic check protocol task {check maximum clock difference}", journalMessage);
     }
 
     @Test
@@ -166,7 +165,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         verify(deviceProtocol).getSerialNumber();
         assertThat(basicCheckCommand.getVerifyTimeDifferenceCommand()).isNull();
         // the verification should have been successful so the test should not fail
-        assertEquals(ComCommandDescriptionTitle.BasicCheckCommandImpl.getDescription() + " {check serial number}", journalMessage);
+        assertEquals("Executed basic check protocol task {check serial number}", journalMessage);
     }
 
     @Test
@@ -185,7 +184,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         String description = basicCheckCommand.toJournalMessageDescription(LogLevel.ERROR);
 
         // Asserts
-        assertThat(description).isEqualTo(ComCommandDescriptionTitle.BasicCheckCommandImpl.getDescription() + " {check serial number; check maximum clock difference}");
+        assertThat(description).isEqualTo("Executed basic check protocol task {check serial number; check maximum clock difference}");
     }
 
     @Test
@@ -204,7 +203,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         String description = basicCheckCommand.toJournalMessageDescription(LogLevel.INFO);
 
         // Asserts
-        assertThat(description).isEqualTo(ComCommandDescriptionTitle.BasicCheckCommandImpl.getDescription() + " {executionState: NOT_EXECUTED; completionCode: Ok; check serial number; check maximum clock difference}");
+        assertThat(description).isEqualTo("Executed basic check protocol task {executionState: NOT_EXECUTED; completionCode: Ok; check serial number; check maximum clock difference}");
     }
 
     @Test
@@ -223,7 +222,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         String description = basicCheckCommand.toJournalMessageDescription(LogLevel.TRACE);
 
         // Asserts
-        assertThat(description).isEqualTo(ComCommandDescriptionTitle.BasicCheckCommandImpl.getDescription() + " {executionState: NOT_EXECUTED; completionCode: Ok; check serial number; check maximum clock difference}");
+        assertThat(description).isEqualTo("Executed basic check protocol task {executionState: NOT_EXECUTED; completionCode: Ok; check serial number; check maximum clock difference}");
     }
 
     @Test

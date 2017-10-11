@@ -7,7 +7,6 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -37,7 +36,7 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImplTest extends CommonComm
                 = new ReadLegacyLoadProfileLogBooksDataCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), legacyLoadProfileLogBooksDataCommand);
 
         String journalMessage = readLegacyLoadProfileLogBooksDataCommand.toJournalMessageDescription(LogLevel.ERROR);
-        assertThat(journalMessage).isEqualTo(ComCommandDescriptionTitle.ReadLegacyLoadProfileLogBooksDataCommandImpl.getDescription() + " {collectedProfiles: ; collectedLogBooks: }");
+        assertThat(journalMessage).isEqualTo("Read out load profile and logbook of legacy protocol {collectedProfiles: ; collectedLogBooks: }");
     }
 
     @Test
@@ -54,7 +53,7 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImplTest extends CommonComm
                 = new ReadLegacyLoadProfileLogBooksDataCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), legacyLoadProfileLogBooksDataCommand);
 
         String journalMessage = readLegacyLoadProfileLogBooksDataCommand.toJournalMessageDescription(LogLevel.ERROR);
-        assertThat(journalMessage).isEqualTo(ComCommandDescriptionTitle.ReadLegacyLoadProfileLogBooksDataCommandImpl.getDescription() + " {collectedProfiles: ; collectedLogBooks: (1.0.98.99.1.255)}");
+        assertThat(journalMessage).isEqualTo("Read out load profile and logbook of legacy protocol {collectedProfiles: ; collectedLogBooks: (1.0.98.99.1.255)}");
     }
 
     @Test
@@ -71,6 +70,6 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImplTest extends CommonComm
                 = new ReadLegacyLoadProfileLogBooksDataCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), legacyLoadProfileLogBooksDataCommand);
 
         String journalMessage = readLegacyLoadProfileLogBooksDataCommand.toJournalMessageDescription(LogLevel.ERROR);
-        assertThat(journalMessage).isEqualTo(ComCommandDescriptionTitle.ReadLegacyLoadProfileLogBooksDataCommandImpl.getDescription() + " {collectedProfiles: ; collectedLogBooks: }");
+        assertThat(journalMessage).isEqualTo("Read out load profile and logbook of legacy protocol {collectedProfiles: ; collectedLogBooks: }");
     }
 }

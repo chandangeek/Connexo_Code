@@ -8,12 +8,12 @@ import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
-import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+
 import com.energyict.obis.ObisCode;
 import org.fest.assertions.api.Assertions;
 
@@ -86,6 +86,6 @@ public class VerifyLoadProfilesCommandImplTest extends AbstractComCommandExecute
         when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.anyList())).thenReturn(Arrays.asList(config1, config2));
         command.doExecute(deviceProtocol, null);
         String journalMessage = command.toJournalMessageDescription(LogLevel.DEBUG);
-        Assertions.assertThat(journalMessage).isEqualTo(ComCommandDescriptionTitle.VerifyLoadProfilesCommandImpl.getDescription() + " {executionState: NOT_EXECUTED; completionCode: Ok; loadProfileObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2}");
+        Assertions.assertThat(journalMessage).isEqualTo("Read out and verify the load profile configuration {executionState: NOT_EXECUTED; completionCode: Ok; loadProfileObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2}");
     }
 }

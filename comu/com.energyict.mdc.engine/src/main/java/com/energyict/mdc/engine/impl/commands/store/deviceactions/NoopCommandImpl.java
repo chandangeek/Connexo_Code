@@ -30,4 +30,9 @@ public class NoopCommandImpl extends SimpleComCommand {
     public ComCommandType getCommandType() {
         return ComCommandTypes.UNKNOWN;
     }
+
+    @Override
+    public String getDescriptionTitle() {
+        return "No operations command";
+    }
 }

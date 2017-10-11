@@ -14,7 +14,6 @@ import com.energyict.mdc.engine.impl.commands.collect.SetClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.SynchronizeClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -265,7 +264,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         // time difference is outside boundaries, but as the ClockCommand is a ForceClockTask it should set the frozenClock time
         verify(deviceProtocol).setTime(Matchers.<Date>argThat(new TimingArgumentMatcher()));
         // The journal message should mention the ClockTaskType
-        assertEquals(ComCommandDescriptionTitle.ClockCommandImpl.getDescription() + " {clockTaskType: FORCECLOCK}", journalEntry);
+        assertEquals("Executed clock protocol task {clockTaskType: FORCECLOCK}", journalEntry);
     }
 
     @Test
@@ -390,7 +389,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         String description = clockCommand.toJournalMessageDescription(LogLevel.ERROR);
 
         // Asserts
-        assertThat(description).isEqualTo(ComCommandDescriptionTitle.ClockCommandImpl.getDescription() + " {clockTaskType: SYNCHRONIZECLOCK}");
+        assertThat(description).isEqualTo("Executed clock protocol task {clockTaskType: SYNCHRONIZECLOCK}");
     }
 
     @Test
@@ -405,7 +404,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         String description = clockCommand.toJournalMessageDescription(LogLevel.INFO);
 
         // Asserts
-        Assertions.assertThat(description).isEqualTo(ComCommandDescriptionTitle.ClockCommandImpl.getDescription() + " {executionState: NOT_EXECUTED; completionCode: Ok; clockTaskType: SYNCHRONIZECLOCK}");
+        Assertions.assertThat(description).isEqualTo("Executed clock protocol task {executionState: NOT_EXECUTED; completionCode: Ok; clockTaskType: SYNCHRONIZECLOCK}");
     }
 
     @Test
@@ -417,7 +416,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         String description = clockCommand.toJournalMessageDescription(LogLevel.TRACE);
 
         // Asserts
-        assertThat(description).isEqualTo(ComCommandDescriptionTitle.ClockCommandImpl.getDescription() + " {executionState: NOT_EXECUTED; completionCode: Ok; clockTaskType: SYNCHRONIZECLOCK; minimumDifference: 2 seconds; maximumDifference: 10 seconds; maximumClockShift: 8 seconds}");
+        assertThat(description).isEqualTo("Executed clock protocol task {executionState: NOT_EXECUTED; completionCode: Ok; clockTaskType: SYNCHRONIZECLOCK; minimumDifference: 2 seconds; maximumDifference: 10 seconds; maximumClockShift: 8 seconds}");
     }
 
     @Test
@@ -432,7 +431,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         String description = clockCommand.toJournalMessageDescription(LogLevel.TRACE);
 
         // Asserts
-        assertThat(description).isEqualTo(ComCommandDescriptionTitle.ClockCommandImpl.getDescription() + " {executionState: NOT_EXECUTED; completionCode: Ok; clockTaskType: SETCLOCK; minimumDifference: 2 seconds; maximumDifference: 10 seconds; timeDifference: 12 seconds}");
+        assertThat(description).isEqualTo("Executed clock protocol task {executionState: NOT_EXECUTED; completionCode: Ok; clockTaskType: SETCLOCK; minimumDifference: 2 seconds; maximumDifference: 10 seconds; timeDifference: 12 seconds}");
     }
 
     @Test
@@ -447,7 +446,7 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
         String description = clockCommand.toJournalMessageDescription(LogLevel.TRACE);
 
         // Asserts
-        assertThat(description).isEqualTo(ComCommandDescriptionTitle.ClockCommandImpl.getDescription() + " {executionState: NOT_EXECUTED; completionCode: Ok; clockTaskType: FORCECLOCK; timeDifference: 12 seconds}");
+        assertThat(description).isEqualTo("Executed clock protocol task {executionState: NOT_EXECUTED; completionCode: Ok; clockTaskType: FORCECLOCK; timeDifference: 12 seconds}");
     }
 
     @Test

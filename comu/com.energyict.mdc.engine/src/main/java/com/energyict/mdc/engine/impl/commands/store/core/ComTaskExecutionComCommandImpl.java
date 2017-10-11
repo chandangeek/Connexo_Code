@@ -137,4 +137,9 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
     protected LogLevel defaultJournalingLogLevel() {
         return LogLevel.DEBUG;
     }
+
+    @Override
+    public String getDescriptionTitle() {
+        return "Execute commands for a single communication task";
+    }
 }
