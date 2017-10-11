@@ -8,12 +8,16 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pki.ExpirationSupport;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.impl.wrappers.SoftwareSecurityDataModel;
+import com.elster.jupiter.pki.impl.wrappers.TableSpecs;
 import com.elster.jupiter.properties.Expiration;
+import com.elster.jupiter.util.conditions.Comparison;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -24,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component(name="PlaintextPrivateKeyFactory", service = { PrivateKeyFactory.class }, immediate = true)
-public class DataVaultPrivateKeyFactory implements PrivateKeyFactory {
+public class DataVaultPrivateKeyFactory implements PrivateKeyFactory, ExpirationSupport {
 
     public static final String KEY_ENCRYPTION_METHOD = "DataVault";
 
@@ -74,10 +78,16 @@ public class DataVaultPrivateKeyFactory implements PrivateKeyFactory {
     }
 
     @Override
-    public List<PrivateKeyWrapper> findExpired(Expiration expiration, Instant when) {
-        List<PrivateKeyWrapper> wrappers = new ArrayList<>();
-        wrappers.addAll(dataModel.query(AbstractPlaintextPrivateKeyWrapperImpl.class).select(expiration.isExpired("expirationTime",when)));
+    public List<SecurityValueWrapper> findExpired(Expiration expiration, Instant when) {
+        List<SecurityValueWrapper> wrappers = new ArrayList<>();
+        wrappers.addAll(dataModel.query(AbstractPlaintextPrivateKeyWrapperImpl.class).select(expiration.isExpired("expirationTime", when)));
         return wrappers;
+    }
+
+    @Override
+    public Comparison isExpiredCondition(Expiration expiration, Instant when) {
+        // for this we use  the columnname and not the field name as it will be used in a sqlbuilder and not by orm
+        return (Comparison) expiration.isExpired(TableSpecs.SSM_PLAINTEXTPK.name()+".EXPIRATION", when);
     }
 
     private PrivateKeyWrapper newRsaPrivateKey(KeyType keyType) {

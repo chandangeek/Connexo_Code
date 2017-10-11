@@ -3,6 +3,7 @@ package com.elster.jupiter.pki;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.conditions.Comparison;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -168,6 +169,7 @@ public interface PkiService {
 
     List<SecurityValueWrapper> getExpired(Expiration expiration, Instant when);
 
+    Optional<Comparison> getExpirationCondition(Expiration expiration, Instant when, String securityValueWrapperTableName);
     /**
      * Creates a new Client certificate wrapper.
      *
@@ -234,7 +236,7 @@ public interface PkiService {
         public TrustStore trustStore;
     }
 
-    public interface PasswordTypeBuilder {
+    interface PasswordTypeBuilder {
         PasswordTypeBuilder description(String description);
         PasswordTypeBuilder length(int length);
         PasswordTypeBuilder withLowerCaseCharacters();
@@ -244,17 +246,17 @@ public interface PkiService {
         KeyType add();
     }
 
-    public interface ClientCertificateWrapperBuilder {
+    interface ClientCertificateWrapperBuilder {
         ClientCertificateWrapperBuilder alias(String alias);
         ClientCertificateWrapper add();
     }
 
-    public interface CertificateTypeBuilder {
+    interface CertificateTypeBuilder {
         CertificateTypeBuilder description(String description);
         KeyType add();
     }
 
-    public interface ClientCertificateTypeBuilder {
+    interface ClientCertificateTypeBuilder {
         ClientCertificateTypeBuilder description(String description);
         ClientCertificateTypeBuilder setKeyUsages(EnumSet<KeyUsage> keyUsages);
         ClientCertificateTypeBuilder setExtendedKeyUsages(EnumSet<ExtendedKeyUsage> keyUsages);
@@ -263,17 +265,17 @@ public interface PkiService {
         AsyncCurveBuilder ECDSA();
     }
 
-    public interface AsyncKeySizeBuilder {
+    interface AsyncKeySizeBuilder {
         AsyncKeySizeBuilder keySize(int keySize);
         KeyType add();
     }
 
-    public interface AsyncCurveBuilder {
+    interface AsyncCurveBuilder {
         AsyncCurveBuilder curve(String curveName);
         KeyType add();
     }
 
-    public interface TrustStoreBuilder {
+    interface TrustStoreBuilder {
         /**
          * Clarify the purpose of this TrustStore by adding a human understandable description.
          * This field is optional.
@@ -283,7 +285,7 @@ public interface PkiService {
         TrustStore add();
     }
 
-    public interface KeyTypeBuilder {
+    interface KeyTypeBuilder {
         KeyTypeBuilder description(String description);
         KeyType add();
     }

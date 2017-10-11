@@ -24,6 +24,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
@@ -321,11 +322,22 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     @Override
     public List<SecurityValueWrapper> getExpired(Expiration expiration, Instant when) {
         List<SecurityValueWrapper> all = new ArrayList<>();
-        privateKeyFactories.values().stream().flatMap(pkf -> pkf.findExpired(expiration, when).stream()).map(SecurityValueWrapper.class::cast).forEach(all::add);
-        symmetricKeyFactories.values().stream().flatMap(skf -> skf.findExpired(expiration, when).stream()).map(SecurityValueWrapper.class::cast).forEach(all::add);
-        passphraseFactories.values().stream().flatMap(ppf -> ppf.findExpired(expiration, when).stream()).map(SecurityValueWrapper.class::cast).forEach(all::add);
+        allFactoriesSupportingExpiration().forEach(es -> all.addAll(es.findExpired(expiration, when)));
         this.findExpiredCertificates(expiration, when).stream().forEach(all::add);
         return all;
+    }
+
+    private List<ExpirationSupport> allFactoriesSupportingExpiration(){
+        List<ExpirationSupport> factoriesSupportingExpiration = new ArrayList<>();
+        privateKeyFactories.values().stream().filter(pkf -> pkf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
+        symmetricKeyFactories.values().stream().filter(skf -> skf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
+        passphraseFactories.values().stream().filter(ppf -> ppf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
+        return factoriesSupportingExpiration;
+    }
+
+    @Override
+    public Optional<Comparison> getExpirationCondition(Expiration expiration, Instant when, String securityValueWrapperTableName) {
+        return allFactoriesSupportingExpiration().stream().map(es -> es.isExpiredCondition(expiration, when)).filter(c -> c.getFieldName().startsWith(securityValueWrapperTableName)).findAny();
     }
 
     private SymmetricKeyFactory getSymmetricKeyFactoryOrThrowException(String keyEncryptionMethod) {

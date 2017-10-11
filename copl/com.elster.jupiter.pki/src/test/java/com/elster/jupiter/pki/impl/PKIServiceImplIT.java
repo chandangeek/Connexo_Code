@@ -74,6 +74,7 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -103,6 +104,11 @@ public class PKIServiceImplIT {
     @BeforeClass
     public static void initialize() {
         inMemoryPersistence.activate();
+    }
+
+    @AfterClass
+    public static void uninstall(){
+        inMemoryPersistence.deactivate();
     }
 
     @Before
