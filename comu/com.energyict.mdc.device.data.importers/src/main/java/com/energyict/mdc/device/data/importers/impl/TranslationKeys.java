@@ -13,6 +13,7 @@ import com.energyict.mdc.device.data.importers.impl.devices.decommission.DeviceD
 import com.energyict.mdc.device.data.importers.impl.devices.installation.DeviceInstallationImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
+import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceKeyImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceKeyImporterMessageHandler;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceShipmentImporterMessageHandler;
@@ -68,7 +69,7 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_READINGS_IMPORTER(DeviceReadingsImporterFactory.NAME, "Device readings importer [STD]"),
     DEVICE_SHIPMENT_IMPORTER(DeviceShipmentImporterFactory.NAME, "Devices shipment importer [STD]"),
     SECURE_DEVICE_SHIPMENT_IMPORTER(SecureDeviceShipmentImporterFactory.NAME, "Secure device shipment importer [STD]"),
-    SECURE_DEVICE_KEY_IMPORTER(SecureDeviceShipmentImporterFactory.NAME, "Secured device key importer [STD]"),
+    SECURE_DEVICE_KEY_IMPORTER(SecureDeviceKeyImporterFactory.NAME, "Secured device key importer [STD]"),
     DEVICE_INSTALLATION_IMPORTER(DeviceInstallationImporterFactory.NAME, "Devices installation importer [STD]"),
     DEVICE_COMMISSIONING_IMPORTER(DeviceCommissioningImportFactory.NAME, "Devices commissioning  importer [STD]"),
     DEVICE_DECOMMISSIONING_IMPORTER(DeviceDecommissioningImportFactory.NAME, "Devices decommissioning  importer [STD]"),

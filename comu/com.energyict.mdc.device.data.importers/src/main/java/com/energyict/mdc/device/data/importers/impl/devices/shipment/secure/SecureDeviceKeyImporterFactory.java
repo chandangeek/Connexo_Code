@@ -112,7 +112,6 @@ public class SecureDeviceKeyImporterFactory implements FileImporterFactory {
                         .named(this.getPropertyKey(), this.getNameTranslationKey())
                         .describedAs(this.getDescriptionTranslationKey())
                         .fromThesaurus(thesaurus)
-                        .markRequired()
                         .markExhaustive()
                         .addValues(pkiService.getAllTrustStores())
                         .finish();
@@ -126,7 +125,6 @@ public class SecureDeviceKeyImporterFactory implements FileImporterFactory {
                         .named(this.getPropertyKey(), this.getNameTranslationKey())
                         .describedAs(this.getDescriptionTranslationKey())
                         .fromThesaurus(thesaurus)
-                        .markRequired()
                         .markExhaustive()
                         .addValues(pkiService.getAllKeyPairs())
                         .finish();

@@ -38,7 +38,7 @@ class SskInstaller implements FullInstaller {
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(SecureDeviceKeyImporterMessageHandler.DESTINATION_NAME, 60);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe(TranslationKeys.SECURE_SHIPMENT_IMPORT_SUBSCRIBER, SecureDeviceKeyImporterMessageHandler.COMPONENT_NAME, Layer.DOMAIN);
+        destinationSpec.subscribe(TranslationKeys.SECURE_SHIPMENT_KEY_SUBSCRIBER, SecureDeviceKeyImporterMessageHandler.COMPONENT_NAME, Layer.DOMAIN);
     }
 
 }
