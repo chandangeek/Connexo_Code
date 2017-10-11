@@ -188,16 +188,12 @@ public class SecureDeviceKeyImporter implements FileImporter {
                     .emptyOrOnlyWhiteSpace() ? xmlDevice.getSerialNumber() : xmlDevice.getUniqueIdentifier();
             log(logger, MessageSeeds.IMPORTING_DEVICE, deviceName);
             try {
-                if (deviceService.findDeviceByName(deviceName).isPresent()) {
-                    log(logger, MessageSeeds.DEVICE_WITH_NAME_ALREADY_EXISTS, deviceName);
+                Optional<Device> existingDevice = deviceService.findDeviceByName(deviceName);
+                if (!existingDevice.isPresent()) {
+                    log(logger, MessageSeeds.DEVICE_WITH_NAME_DOES_NOT_EXIST, deviceName);
                     continue;
                 }
-                Device device = deviceCreator.createDevice(deviceConfiguration, deviceName);
-                device.setManufacturer(shipment.getHeader().getManufacturer());
-                device.setSerialNumber(xmlDevice.getSerialNumber());
-                storeCertificationDate(device, shipment);
-                storeMacAddress(device, xmlDevice, logger);
-                device.save();
+                Device device = existingDevice.get();
                 for (NamedEncryptedDataType deviceKey : xmlDevice.getKey()) {
                     importDeviceKey(device, deviceKey, wrapKeyMap, logger);
                 }
@@ -245,12 +241,24 @@ public class SecureDeviceKeyImporter implements FileImporter {
             System.arraycopy(encryptedDeviceKey, 16, cipher, 0, encryptedDeviceKey.length - 16);
 
 
-            if (device.getKeyAccessor(keyAccessorType).isPresent() && device.getKeyAccessor(keyAccessorType).get().getActualValue().isPresent()) {
-                log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
+            boolean hasActiveValue = device.getKeyAccessor(keyAccessorType).isPresent() && device.getKeyAccessor(keyAccessorType)
+                    .get()
+                    .getActualValue()
+                    .isPresent();
+            boolean hasPassiveValue = device.getKeyAccessor(keyAccessorType).isPresent() && device.getKeyAccessor(keyAccessorType)
+                    .get()
+                    .getTempValue()
+                    .isPresent();
+            if (hasActiveValue && hasPassiveValue) {
+                log(logger, MessageSeeds.BOTH_VALUES_ALREADY_EXISTS, securityAccessorName, device.getName());
             } else {
                 KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType).orElseGet(()->device.newKeyAccessor(keyAccessorType));
                 SecurityValueWrapper newWrapperValue = deviceSecretImporter.importSecret(encryptedDeviceKey, initializationVector, encryptedSymmetricKey, symmetricAlgorithm, asymmetricAlgorithm);
-                keyAccessor.setActualValue(newWrapperValue);
+                if (!hasActiveValue) {
+                    keyAccessor.setActualValue(newWrapperValue);
+                } else {
+                    keyAccessor.setTempValue(newWrapperValue);
+                }
                 keyAccessor.save();
             }
         }

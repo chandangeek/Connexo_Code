@@ -101,7 +101,10 @@ public enum MessageSeeds implements MessageSeed {
     ACTUAL_VALUE_ALREADY_EXISTS(534, "ActualValueAlreadyExists", "Can''t process device ''{1}'': security accessor ''{0}'' already as an 'active' value.", Level.WARNING),
     IMPORT_COMPLETED(535, "ImportSuccesful", "The device import completed, a total of {0} devices have been created", Level.INFO),
     NO_SUCH_ALGORITHM(536, "NoSuchAlgorithm", "Algorithm not found: {0}", Level.SEVERE),
-    ILLEGAL_KEY(537, "NoAValidPublicKey", "The key is not a valid public key: {0}", Level.SEVERE);
+    ILLEGAL_KEY(537, "NoAValidPublicKey", "The key is not a valid public key: {0}", Level.SEVERE),
+    DEVICE_WITH_NAME_DOES_NOT_EXIST(538, "NoDeviceWithName", "No device with name ''{0}'' could be found, skipped by importer", Level.WARNING),
+    BOTH_VALUES_ALREADY_EXISTS(539, "ActualAndPassiveAlreadyExist", "Can''t process device ''{1}'': security accessor ''{0}'' already as an 'active' and a 'passive' value, skipped.", Level.WARNING),
+    ;
 
 
 
