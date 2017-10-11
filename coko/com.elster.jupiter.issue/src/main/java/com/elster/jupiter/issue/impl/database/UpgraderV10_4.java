@@ -21,6 +21,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.conditions.Condition;
 
@@ -39,15 +40,19 @@ public class UpgraderV10_4 implements Upgrader {
     private final IssueService issueService;
     private final IssueActionService issueActionService;
     private final MessageService messageService;
+    private final TaskService taskService;
 
     private final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
+    private static final String ISSUE_SNOOZE_TASK_NAME = "IssueSnoozeTask";
+    private static final String ISSUE_SNOOZE_TASK_SCHEDULE = "0 0/1 * 1/1 * ? *";
 
     @Inject
-    UpgraderV10_4(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, MessageService messageService) {
+    UpgraderV10_4(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, MessageService messageService, TaskService taskService) {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.issueActionService = issueActionService;
         this.messageService = messageService;
+        this.taskService = taskService;
     }
 
     @Override
@@ -101,6 +106,7 @@ public class UpgraderV10_4 implements Upgrader {
             DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
             queue.activate();
             queue.subscribe(subscriberKey, IssueService.COMPONENT_NAME, Layer.DOMAIN);
+            createTask(ISSUE_SNOOZE_TASK_NAME, ISSUE_SNOOZE_TASK_SCHEDULE, queue );
         } else {
             boolean notSubscribedYet = destinationSpecOptional.get()
                     .getSubscribers()
@@ -109,8 +115,20 @@ public class UpgraderV10_4 implements Upgrader {
             if (notSubscribedYet) {
                 destinationSpecOptional.get().activate();
                 destinationSpecOptional.get().subscribe(subscriberKey, IssueService.COMPONENT_NAME, Layer.DOMAIN);
+                createTask(ISSUE_SNOOZE_TASK_NAME, ISSUE_SNOOZE_TASK_SCHEDULE, destinationSpecOptional.get());
             }
         }
+    }
+
+    private void createTask(String name, String schedule, DestinationSpec destinationSpec){
+        taskService.newBuilder()
+                .setApplication("Admin")
+                .setName(name)
+                .setScheduleExpressionString(schedule)
+                .setDestination(destinationSpec)
+                .setPayLoad("payload")
+                .scheduleImmediately(true)
+                .build();
     }
 
     private void createActionTypesIfNotPresent() {
