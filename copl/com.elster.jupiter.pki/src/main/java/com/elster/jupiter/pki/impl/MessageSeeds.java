@@ -50,7 +50,9 @@ public enum MessageSeeds implements MessageSeed {
     INCORRECT_IMPORT_KEY(1034, "IncorrectImportKey", "The keypair ''{0}'' does not seem to be associated with a private key and can not be used by the importer"),
     DEVICE_KEY_IMPORT_FAILED(1035, "FailedToImportDeviceKey", "DataVault importer failed to import the device key: ''{0}''"),
     PUBLIC_KEY_INVALID(1036, "CouldNotConstructKey", "The public key could not be created: {0}"),
-    CAN_NOT_GENERATE_PUBLIC(1037, "CanNotGeneratePublic", "A public key can not be generated, only a public/private keypair");
+    CAN_NOT_GENERATE_PUBLIC(1037, "CanNotGeneratePublic", "A public key can not be generated, only a public/private keypair"),
+    NO_PUBLIC_KEY_TO_VERIFY(1038, "NoPublicKeyForVerification", "The public key can not be verified: no public key counterpart for verification"),
+    PUBLIC_KEY_DOES_NOT_MATCH(1039, "PublicKeyDoesNotMatch", "Incorrect public key used to encrypt wrap key");
 
     private final int number;
     private final String key;

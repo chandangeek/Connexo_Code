@@ -1,5 +1,7 @@
 package com.elster.jupiter.pki;
 
+import java.security.PublicKey;
+
 /**
  * Capable of importing a specific key into connexo, into a form understood by either Connexo (DataVault key) or an
  * external party (HSM)
@@ -25,5 +27,10 @@ public interface DeviceSecretImporter {
     SecurityValueWrapper importSecret(byte[] encryptedDeviceSecret, byte[] initializationVector, byte[] encryptedSymmetricWrapKey,
                                       String symmetricAlgorithm, String asymmetricAlgorithm)
             throws KeyImportFailedException;
+
+    /**
+     * Verify that the public key passed as argument is the public key that had to be used to encrypt WrapKeys for the secret
+     */
+    void verifyPublicKey(PublicKey publicKey);
 
 }

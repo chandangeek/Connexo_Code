@@ -1,8 +1,6 @@
 package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.pki.KeyImportFailedException;
 import com.elster.jupiter.pki.KeypairWrapper;
@@ -20,6 +18,8 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -45,16 +45,10 @@ abstract public class AbstractDataVaultImporter implements DeviceSecretImporter 
     public SecurityValueWrapper importSecret(byte[] encryptedDeviceSecret, byte[] initializationVector, byte[] encryptedSymmetricWrapKey,
                                              String symmetricAlgorithm, String asymmetricAlgorithm)
             throws KeyImportFailedException {
-        if (!keypairAlias.isPresent()) {
-            throw new KeyImportFailedException(thesaurus, MessageSeeds.NO_IMPORT_KEY_DEFINED, IMPORT_KEY);
-        }
-        Optional<KeypairWrapper> keypairWrapper = pkiService.findKeypairWrapper(keypairAlias.get());
-        if (!keypairWrapper.isPresent()) {
-            throw new KeyImportFailedException(thesaurus, MessageSeeds.IMPORT_KEY_NOT_FOUND, keypairAlias.get());
-        }
-        if (keypairWrapper.get().hasPrivateKey()) {
+        KeypairWrapper keypairWrapper = getImportKeypair();
+        if (keypairWrapper.hasPrivateKey()) {
             try {
-                byte[] decryptedWrapKey = decryptWrapKey(encryptedSymmetricWrapKey, asymmetricAlgorithm, keypairWrapper.get());
+                byte[] decryptedWrapKey = decryptWrapKey(encryptedSymmetricWrapKey, asymmetricAlgorithm, keypairWrapper);
                 byte[] decryptedDeviceKey = decryptDeviceKey(encryptedDeviceSecret, initializationVector, symmetricAlgorithm, decryptedWrapKey);
                 SecurityValueWrapper instance = createPlaintextWrapper(decryptedDeviceKey);
                 return instance;
@@ -63,6 +57,29 @@ abstract public class AbstractDataVaultImporter implements DeviceSecretImporter 
             }
         } else {
             throw new KeyImportFailedException(thesaurus, MessageSeeds.INCORRECT_IMPORT_KEY, keypairAlias.get());
+        }
+    }
+
+    private KeypairWrapper getImportKeypair() {
+        if (!keypairAlias.isPresent()) {
+            throw new KeyImportFailedException(thesaurus, MessageSeeds.NO_IMPORT_KEY_DEFINED, IMPORT_KEY);
+        }
+        Optional<KeypairWrapper> keypairWrapper = pkiService.findKeypairWrapper(keypairAlias.get());
+        if (!keypairWrapper.isPresent()) {
+            throw new KeyImportFailedException(thesaurus, MessageSeeds.IMPORT_KEY_NOT_FOUND, keypairAlias.get());
+        }
+        return keypairWrapper.get();
+    }
+
+    @Override
+    public void verifyPublicKey(PublicKey publicKey) {
+        KeypairWrapper keypairWrapper = getImportKeypair();
+        if (keypairWrapper.getPublicKey().isPresent()) {
+            if (!Arrays.equals(publicKey.getEncoded(), keypairWrapper.getPublicKey().get().getEncoded())) {
+                throw new KeyImportFailedException(thesaurus, MessageSeeds.PUBLIC_KEY_DOES_NOT_MATCH);
+            }
+        } else {
+            throw new KeyImportFailedException(thesaurus, MessageSeeds.NO_PUBLIC_KEY_TO_VERIFY);
         }
     }
 
