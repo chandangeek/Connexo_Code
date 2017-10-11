@@ -5,12 +5,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.List;
 
 @JsonIgnoreProperties
-public class ComTaskConnectionMethodInfo {
-    @JsonProperty("connectionMethod")
-    public long connectionMethod;
-
+public class RetriggerComTasksInfo {
     public DeviceInfo device;
+    public List<Long> comTaskIds;
 }

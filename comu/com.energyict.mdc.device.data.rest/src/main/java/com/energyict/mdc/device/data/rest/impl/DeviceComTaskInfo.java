@@ -18,6 +18,8 @@ public class DeviceComTaskInfo {
     public ComTaskInfo comTask;
     @JsonProperty("connectionMethod")
     public String connectionMethod;
+    @JsonProperty("connectionFunctionInfo")
+    public ConnectionFunctionInfo connectionFunctionInfo;
     @JsonProperty("connectionStrategy")
     public String connectionStrategy;
     @JsonProperty("connectionStrategyKey")

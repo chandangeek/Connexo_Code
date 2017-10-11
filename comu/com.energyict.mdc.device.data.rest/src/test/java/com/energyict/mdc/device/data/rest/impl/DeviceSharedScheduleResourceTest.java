@@ -40,7 +40,9 @@ public class DeviceSharedScheduleResourceTest extends DeviceDataRestApplicationJ
         ComSchedule schedule44 = mock(ComSchedule.class);
         when(schedulingService.findSchedule(33L)).thenReturn(Optional.of(schedule33));
         when(schedulingService.findSchedule(44L)).thenReturn(Optional.of(schedule44));
-        scheduleIdsInfo.scheduleIds = Arrays.asList(33L,44L);
+        scheduleIdsInfo.scheduleIds = Arrays.asList(new DeviceSharedScheduleResource.ScheduleIdAndVersion(33L, 1), new DeviceSharedScheduleResource.ScheduleIdAndVersion(44L, 1));
+        when(schedulingService.findAndLockComScheduleByIdAndVersion(33L, 1)).thenReturn(Optional.of(schedule33));
+        when(schedulingService.findAndLockComScheduleByIdAndVersion(44L, 1)).thenReturn(Optional.of(schedule44));
         scheduleIdsInfo.device = new DeviceInfo();
         scheduleIdsInfo.device.name = "XAF";
         scheduleIdsInfo.device.version = 1L;
@@ -70,7 +72,7 @@ public class DeviceSharedScheduleResourceTest extends DeviceDataRestApplicationJ
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(1L, 1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
-        scheduleIdsInfo.scheduleIds = Arrays.asList(33L,44L);
+        scheduleIdsInfo.scheduleIds = Arrays.asList(new DeviceSharedScheduleResource.ScheduleIdAndVersion(33L, 1), new DeviceSharedScheduleResource.ScheduleIdAndVersion(44L, 1));
         scheduleIdsInfo.device = new DeviceInfo();
         scheduleIdsInfo.device.name = "XAF";
         scheduleIdsInfo.device.version = 1L;

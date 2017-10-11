@@ -340,7 +340,7 @@ public class DeviceGroupResource {
             DeviceMessageId deviceMessageId = DeviceMessageId.valueOf(deviceMessageInfo.messageSpecification.id);
             EndDeviceGroup endDeviceGroup = resourceHelper.findEndDeviceGroupOrThrowException(deviceGroupId);
             Map<String, String> properties = convertPropertyInfosToMap(deviceMessageInfo.properties);
-            BulkDeviceMessageQueueMessage message = new BulkDeviceMessageQueueMessage(endDeviceGroup.getId(), deviceMessageId, deviceMessageInfo.releaseDate.getEpochSecond(), properties, threadPrincipalService.getPrincipal().getName());
+            BulkDeviceMessageQueueMessage message = new BulkDeviceMessageQueueMessage(endDeviceGroup.getId(), deviceMessageId, deviceMessageInfo.releaseDate.getEpochSecond(), properties, threadPrincipalService.getPrincipal().getName(),deviceMessageInfo.trigger);
             return processMessagePost(message, destinationSpec.get());
         } else {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
