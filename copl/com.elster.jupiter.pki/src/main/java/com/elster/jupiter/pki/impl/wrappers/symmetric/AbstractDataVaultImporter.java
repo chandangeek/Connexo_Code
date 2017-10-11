@@ -87,7 +87,7 @@ abstract public class AbstractDataVaultImporter implements DeviceSecretImporter 
             NoSuchPaddingException,
             IllegalBlockSizeException,
             BadPaddingException {
-        PrivateKey privateKey = keypairWrapper.getPrivateKeyWrapper().get().getPrivateKey();
+        PrivateKey privateKey = keypairWrapper.getPrivateKeyWrapper().get().getPrivateKey().get();
         Cipher cipher = Cipher.getInstance(asymmetricAlgorithm);
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         return cipher.doFinal(encryptedSymmetricWrapKey);

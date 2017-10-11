@@ -56,7 +56,7 @@ public final class PlaintextDsaPrivateKey extends AbstractPlaintextPrivateKeyWra
     }
 
     protected PublicKey doGetPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        DSAPrivateKey privateKey = (DSAPrivateKey)getPrivateKey();
+        DSAPrivateKey privateKey = (DSAPrivateKey)getPrivateKey().get();
         DSAParams dsaParams = privateKey.getParams();
         BigInteger p = dsaParams.getP();
         BigInteger q = dsaParams.getQ();

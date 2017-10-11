@@ -126,7 +126,7 @@ public class DataVaultSymmetricKeyImporterTest {
     @Test
     public void testSuccessfulImport() throws Exception {
         PrivateKeyWrapper privateKeyWrapper = mock(PrivateKeyWrapper.class);
-        when(privateKeyWrapper.getPrivateKey()).thenReturn(hsmKeyPair.getPrivate());
+        when(privateKeyWrapper.getPrivateKey()).thenReturn(Optional.ofNullable(hsmKeyPair.getPrivate()));
         KeypairWrapper keypairWrapper = mock(KeypairWrapper.class);
         when(keypairWrapper.getPrivateKeyWrapper()).thenReturn(Optional.of(privateKeyWrapper));
         when(keypairWrapper.hasPrivateKey()).thenReturn(true);

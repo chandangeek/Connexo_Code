@@ -30,6 +30,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.operator.KeyWrapper;
 import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
@@ -239,6 +240,11 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     @Override
     public List<TrustStore> getAllTrustStores() {
         return getDataModel().mapper(TrustStore.class).select(Condition.TRUE, Order.ascending(TrustStoreImpl.Fields.NAME.fieldName()).toUpperCase());
+    }
+
+    @Override
+    public List<KeypairWrapper> getAllKeyPairs() {
+        return getDataModel().mapper(KeypairWrapper.class).select(Condition.TRUE, Order.ascending(KeypairWrapperImpl.Fields.ALIAS.fieldName()).toUpperCase());
     }
 
     @Override

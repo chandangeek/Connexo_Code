@@ -53,6 +53,13 @@ public interface PkiService {
     List<TrustStore> getAllTrustStores();
 
     /**
+     * Returns a list of all keypair wrappers that exist in the system. There is expected to be a limited set of keypair wrappers.
+     * Devices e.g. will only contain certificates, not uncertified keypairs.
+     * @return List of existing keypairs, sorted by alias
+     */
+    List<KeypairWrapper> getAllKeyPairs();
+
+    /**
      * Get a list of names of all KeyEncryptionMethods that registered through whiteboard.
      * @return List of key encryption method names
      */

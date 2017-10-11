@@ -36,13 +36,13 @@ public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValu
 
     /**
      * Returns the PrivateKey held by this element. How the value for the PrivateKey is determined, depends
-     * on the KeyEncryptionType
+     * on the KeyEncryptionType.
      *
      * @return The PrivateKey build from the provided properties. Note that java.security.PrivateKey is provided through
      * the Java's SPI.
      * @throws InvalidKeyException
      */
-    PrivateKey getPrivateKey() throws InvalidKeyException;
+    Optional<PrivateKey> getPrivateKey() throws InvalidKeyException;
 
     /**
      * These properties are defined by the implementor. In case of a plaintext key, there will be a property containing

@@ -54,7 +54,7 @@ public final class PlaintextRsaPrivateKey extends AbstractPlaintextPrivateKeyWra
     }
 
     protected PublicKey doGetPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        RSAPrivateCrtKey rsaPrivateKey = (RSAPrivateCrtKey)getPrivateKey();
+        RSAPrivateCrtKey rsaPrivateKey = (RSAPrivateCrtKey)getPrivateKey().get();
         RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(rsaPrivateKey.getModulus(), rsaPrivateKey.getPublicExponent());
 
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");

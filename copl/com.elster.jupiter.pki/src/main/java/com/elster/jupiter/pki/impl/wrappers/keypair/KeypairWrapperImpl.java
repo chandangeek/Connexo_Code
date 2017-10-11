@@ -282,7 +282,7 @@ public class KeypairWrapperImpl implements KeypairWrapper {
         try {
             return this.privateKeyReference!=null
                     && this.privateKeyReference.isPresent()
-                    && ((PrivateKeyWrapper)this.privateKeyReference.get()).getPrivateKey()!=null;
+                    && ((PrivateKeyWrapper)this.privateKeyReference.get()).getPrivateKey().isPresent();
         } catch (InvalidKeyException e) {
             return false;
         }
@@ -298,7 +298,8 @@ public class KeypairWrapperImpl implements KeypairWrapper {
 
     @Override
     public void generateValue() {
-        if (!hasPrivateKey()) {
+        if (this.privateKeyReference==null
+                || !this.privateKeyReference.isPresent()) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CAN_NOT_GENERATE_PUBLIC);
         }
         PrivateKeyWrapper privateKeyWrapper = (PrivateKeyWrapper) this.privateKeyReference.get();

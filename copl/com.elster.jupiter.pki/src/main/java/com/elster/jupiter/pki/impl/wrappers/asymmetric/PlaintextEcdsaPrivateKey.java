@@ -64,7 +64,7 @@ public final class PlaintextEcdsaPrivateKey extends AbstractPlaintextPrivateKeyW
 
     @Override
     protected PublicKey doGetPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
-        BCECPrivateKey privateKey = (BCECPrivateKey) getPrivateKey();
+        BCECPrivateKey privateKey = (BCECPrivateKey) getPrivateKey().get();
         BigInteger d = privateKey.getD();
         ECNamedCurveParameterSpec ecParameterSpec = ECNamedCurveTable.getParameterSpec(getKeyType().getCurve());
         ECPoint q = ecParameterSpec.getG().multiply(d);
