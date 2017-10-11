@@ -6,11 +6,7 @@ package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.ClientCertificateWrapper;
-import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.PkiService;
-import com.elster.jupiter.pki.RequestableCertificateWrapper;
+import com.elster.jupiter.pki.*;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.util.Checks;
@@ -431,12 +427,13 @@ public class CertificateWrapperResource {
     public PagedInfoList keyUsagesSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
         PkiService.KeyUsagesSearchFilter keyUsagesSearchFilter = getKeyUsagesSearchFilter(params, uriInfo.getQueryParameters(), jsonQueryFilter);
 
-        List<String> infos = pkiService.getKeyUsagesByFilter(keyUsagesSearchFilter)
+        List<KeyUsageInfo> infos = pkiService.getKeyUsagesByFilter(keyUsagesSearchFilter)
                 .from(queryParameters)
                 .stream()
                 .map(CertificateWrapper::getStringifiedKeyUsages)
                 .map(x -> filterKeyUsagesbySearchParam().apply(x, keyUsagesSearchFilter.keyUsages))
                 .flatMap(Collection::stream)
+                .map(KeyUsageInfo::new)
                 .distinct()
                 .collect(toList());
 
@@ -484,12 +481,13 @@ public class CertificateWrapperResource {
     public PagedInfoList extendedKeyUsagesSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
         PkiService.ExtendedKeyUsagesSearchFilter extendedKeyUsagesSearchFilter = getExtendedKeyUsagesSearchFilter(params, uriInfo.getQueryParameters(), jsonQueryFilter);
 
-        List<String> infos = pkiService.getExtendedKeyUsagesByFilter(extendedKeyUsagesSearchFilter)
+        List<ExtendedKeyUsageInfo> infos = pkiService.getExtendedKeyUsagesByFilter(extendedKeyUsagesSearchFilter)
                 .from(queryParameters)
                 .stream()
                 .map(CertificateWrapper::getStringifiedExtendedKeyUsages)
                 .map(x -> filterKeyUsagesbySearchParam().apply(x, extendedKeyUsagesSearchFilter.extendedKeyUsages))
                 .flatMap(Collection::stream)
+                .map(ExtendedKeyUsageInfo::new)
                 .distinct()
                 .collect(toList());
 
