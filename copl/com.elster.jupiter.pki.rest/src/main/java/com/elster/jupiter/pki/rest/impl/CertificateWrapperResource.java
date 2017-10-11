@@ -381,11 +381,11 @@ public class CertificateWrapperResource {
     @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public PagedInfoList issuerSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
         PkiService.IssuerSearchFilter issueSearchFilter = getIssuerSearchFilter(params, uriInfo.getQueryParameters(), jsonQueryFilter);
-        List<SubjectInfo> collect = pkiService.getIssuersByFilter(issueSearchFilter)
+        List<IssuerInfo> collect = pkiService.getIssuersByFilter(issueSearchFilter)
                 .from(queryParameters)
                 .stream()
                 .map(CertificateWrapper::getIssuer)
-                .map(SubjectInfo::new)
+                .map(IssuerInfo::new)
                 .collect(toList());
         return PagedInfoList.fromPagedList("issuers", collect, queryParameters);
     }
