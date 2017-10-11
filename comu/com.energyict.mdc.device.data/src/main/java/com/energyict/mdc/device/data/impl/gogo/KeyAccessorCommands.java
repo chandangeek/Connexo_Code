@@ -166,8 +166,7 @@ public class KeyAccessorCommands {
         } else if (value.getCSR().isPresent()) {
             extraValue += "CSR";
         }
-        PrivateKey privateKey = value.getPrivateKeyWrapper().getPrivateKey();
-        if (privateKey != null) {
+        if (value.getPrivateKeyWrapper().getPrivateKey().isPresent()) {
             extraValue += " + PK";
         }
         return extraValue;
