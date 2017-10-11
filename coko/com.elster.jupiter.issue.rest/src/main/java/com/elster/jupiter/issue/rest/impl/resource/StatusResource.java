@@ -18,8 +18,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
@@ -38,7 +40,11 @@ public class StatusResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE,Privileges.Constants.ASSIGN_ISSUE,Privileges.Constants.CLOSE_ISSUE,Privileges.Constants.COMMENT_ISSUE,Privileges.Constants.ACTION_ISSUE})
     public Response getStatuses() {
         Query<IssueStatus> query = getIssueService().query(IssueStatus.class);
-        List<IssueStatus> statuses = query.select(Condition.TRUE);
+        List<IssueStatus> statuses = query
+                .select(Condition.TRUE)
+                .stream()
+                .sorted(Comparator.comparing(IssueStatus::getName))
+                .collect(Collectors.toList());
         return entity(statuses, IssueStatusInfo.class).build();
     }
 

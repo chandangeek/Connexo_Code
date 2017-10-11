@@ -47,7 +47,8 @@ public class StatusResourceTest extends IssueRestApplicationJerseyTest{
         assertThat(map.get("total")).isEqualTo(2);
         List data = (List) map.get("data");
         assertThat(data).hasSize(2);
-        assertThat(((Map) data.get(1)).get("allowForClosing")).isEqualTo(true);
+        assertThat(((Map) data.get(1)).get("name")).isEqualTo("open");
+        assertThat(((Map) data.get(1)).get("allowForClosing")).isEqualTo(false);
     }
 
     @Test
