@@ -11,6 +11,8 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         'Mdc.controller.setup.AlarmSetPriority',
         'Mdc.controller.setup.ApplyAlarmAction',
         'Mdc.controller.setup.ApplyIssueAction',
+        'Mdc.controller.setup.IssueStartProcess',
+        'Mdc.controller.setup.AlarmStartProcess',
         'Dal.controller.SetPriority',
         'Dal.controller.Detail'
     ],
@@ -30,8 +32,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         'Mdc.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnDevice',
         'Mdc.store.device.MeterActivations',
         'Isu.store.Issues',
-        'Mdc.store.device.IssuesAlarms',
-
+        'Mdc.store.device.IssuesAlarms'
     ],
 
     models: [
@@ -86,6 +87,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
                 });
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', view);
+                issuesAlarmsStore.load();
                 me.showDeviceLifeCycleHistory();
                 me.showCustomAttributeSetsHistory(deviceId);
                 me.showIssuesAndAlarms(deviceId);
@@ -103,8 +105,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             lifeCycleHistoryStore = me.getStore('Mdc.store.DeviceLifeCycleStatesHistory'),
             firmwareTab = me.getPage().down('#device-history-firmware-tab'),
             firmwareHistoryPanel = Ext.widget('device-history-firmware-panel'),
-            firmwareHistoryStore = me.getStore('Mdc.store.DeviceFirmwareHistory'),
-            issuesAlarmsStore = me.getStore('Mdc.store.device.IssuesAlarms');
+            firmwareHistoryStore = me.getStore('Mdc.store.DeviceFirmwareHistory');
 
         me.getPage().setLoading();
         lifeCycleTab.add(lifeCyclePanel);
@@ -259,7 +260,18 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
     startProcess: function (deviceId, issueId) {
         var me = this,
             store = me.getStore('Mdc.store.device.IssuesAlarms');
-        this.getController('Isu.controller.StartProcess').showStartProcess(issueId);
+
+        if (store.getCount()) {
+            var issueActualType = store.getById(parseInt(issueId)).get('issueType').uid;
+            if ((issueActualType === 'datacollection') || (issueActualType === 'datavalidation')) {
+                me.getController('Mdc.controller.setup.IssueStartProcess').queryParams = {activeTab: 'issues'};
+                me.getController('Mdc.controller.setup.IssueStartProcess').showStartProcess(issueId);
+            }
+            else if (issueActualType === 'devicealarm') {
+                me.getController('Mdc.controller.setup.AlarmStartProcess').queryParams = {activeTab: 'issues'};
+                me.getController('Mdc.controller.setup.AlarmStartProcess').showStartProcess(issueId);
+            }
+        }
     },
 
     showIssueAndAlarmPreview: function (selectionModel, record) {
@@ -268,6 +280,13 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             preview = page.down('issues-alarms-preview');
 
         Ext.suspendLayouts();
+        preview.down('#issues-preview-actions-button').setMenu({
+            xtype: 'issues-alarms-action-menu',
+            itemId: 'issues-overview-action-menu',
+            router: me.getController('Uni.controller.history.Router'),
+            record: record,
+            currentUserId: me.currentUserId
+        });
         preview.setTitle(record.get('issueId') + ' ' + record.get('reason'));
         preview.loadRecord(record);
         preview.currentUserId = me.currentUserId;

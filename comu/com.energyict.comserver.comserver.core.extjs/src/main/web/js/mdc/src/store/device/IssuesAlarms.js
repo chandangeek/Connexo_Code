@@ -7,6 +7,7 @@ Ext.define('Mdc.store.device.IssuesAlarms', {
         'Mdc.model.IssueAlarm'
     ],
     model: 'Mdc.model.IssueAlarm',
+    // autoLoad: false,
     proxy: {
         type: 'rest',
         urlTpl: '/api/ddr/devices/{deviceId}/history/issuesandalarms',

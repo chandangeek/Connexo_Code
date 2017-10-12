@@ -26,6 +26,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
     }],
     alias: 'widget.issues-alarms-grid',
     router: null,
+    store: 'Mdc.store.device.IssuesAlarms',
 
     initComponent: function () {
         var me = this;
@@ -61,7 +62,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
             },
             {
                 itemId: 'issues-grid-created',
-                header: Uni.I18n.translate('general.created', 'MDC', 'Created On'),
+                header: Uni.I18n.translate('general.createdOn', 'MDC', 'Created on'),
                 dataIndex: 'creationDate',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateShort(value) : '-';
@@ -79,6 +80,9 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
                 header: Uni.I18n.translate('general.workgroup', 'MDC', 'Workgroup'),
                 dataIndex: 'workGroupAssignee',
                 flex: 1,
+                renderer: function (value, metaData, record, rowIndex, colIndex) {
+                    return value ? Ext.String.htmlEncode(value) : Uni.I18n.translate('general.unassigned', 'MDC', 'Unassigned');
+                }
 
             },
             {
@@ -86,7 +90,9 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
                 header: Uni.I18n.translate('general.user', 'MDC', 'User'),
                 dataIndex: 'userAssigneeName',
                 flex: 1,
-
+                renderer: function (value, metaData, record, rowIndex, colIndex) {
+                    return value ? Ext.String.htmlEncode(value) : Uni.I18n.translate('general.unassigned', 'MDC', 'Unassigned');
+                }
             },
             {
                 itemId: 'action',
@@ -119,6 +125,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmGrid', {
                 xtype: 'pagingtoolbarbottom',
                 dock: 'bottom',
                 store: me.store,
+                deferLoading: true,
                 itemsPerPageMsg: Uni.I18n.translate('workspace.general.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Issues and alarms per page')
             }
         ];

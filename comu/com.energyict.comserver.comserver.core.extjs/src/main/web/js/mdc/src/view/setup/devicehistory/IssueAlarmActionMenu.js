@@ -404,6 +404,17 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
                 details: false
             });
         }
+
+        if ((Dal.privileges.Alarm.canViewProcesses()) && issueType == 'devicealarm') {
+            var detail = Ext.ComponentQuery.query('alarm-detail-top')[0];
+            me.add({
+                text: Uni.I18n.translate('alarms.actionMenu.startProcess', 'MDC', 'Start process'),
+                action: 'startProcess',
+                section: this.SECTION_ACTION,
+                href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId}, {details: (detail) ? true : false}),
+                details: false
+            });
+        }
     },
 
     addSpecificActions: function () {

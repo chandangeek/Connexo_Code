@@ -89,19 +89,18 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                             title: Uni.I18n.translate('general.issuesAndAlarms', 'MDC', 'Issues and Alarms'),
                             padding: '8 16 16 0',
                             itemId: 'device-history-issues-alarms-tab',
-
                             items: {
                                 xtype: 'preview-container',
                                 itemId: 'previewContainer',
                                 grid: {
-                                    store: 'Mdc.store.device.IssuesAlarms',
+
                                     xtype: 'issues-alarms-grid',
                                     itemId: 'issues-alarms-grid',
                                     router: me.router
                                 },
                                 emptyComponent: {
                                     xtype: 'no-items-found-panel',
-                                    itemId: 'register-mappings-empty-msg',
+                                    itemId: 'issues-alarms-grid-empty-msg',
                                     title: Uni.I18n.translate('issueAlarm.empty.title', 'MDC', 'No issues and alarms found'),
                                     reasons: [
                                         Uni.I18n.translate('issueAlarm.empty.list.item1', 'MDC', 'No issue or alarm creation rules have been defined yet.'),

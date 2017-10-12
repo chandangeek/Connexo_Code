@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmFilter', {
         me.callParent(arguments);
     },
 
-    onBeforeLoad1: function (store, options) {
+    onBeforeLoad: function (store, options) {
         var me = this,
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             params = {};
@@ -90,6 +90,16 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmFilter', {
         }
         Ext.apply(options.params, params);
         me.down('button[action=clearAll]').setDisabled(!((options.params.filter && Ext.decode(options.params.filter).length)));
+    },
+
+    checkGrouping: function (params) {
+        var queryString = Uni.util.QueryString.getQueryStringValues(false);
+
+        if (Ext.isDefined(queryString.groupingType) && Ext.isDefined(queryString.groupingValue) && Ext.isEmpty(params[queryString.groupingType])) {
+            params[queryString.groupingType] = queryString.groupingValue;
+        }
+
+        return params;
     },
 
     comboSetFilterValue: function (value) {

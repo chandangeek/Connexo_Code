@@ -31,13 +31,6 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
                 privileges: Ext.Array.merge(Isu.privileges.Issue.adminDevice, Isu.privileges.Device.viewDeviceCommunication),
                 listeners: {
                     click: function () {
-                        this.setMenu({
-                            xtype: 'issues-alarms-action-menu',
-                            itemId: 'issues-overview-action-menu',
-                            router: me.router,
-                            record: me.record,
-                            currentUserId: me.currentUserId
-                        });
                         this.showMenu();
                     }
                  }
@@ -132,7 +125,10 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
                     {
                         itemId: 'issue-preview-due-date',
                         fieldLabel: Uni.I18n.translate('general.title.dueDate', 'MDC', 'Due date'),
-                        name: 'dueDate'
+                        name: 'dueDate',
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateShort(value) : '-';
+                        }
                     },
                     {
                         itemId: 'issue-preview-priority',
@@ -143,18 +139,27 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmPreview', {
 
                         itemId: 'issue-preview-workgroup',
                         fieldLabel: Uni.I18n.translate('general.workgroup', 'MDC', 'Workgroup'),
-                        name: 'workGroupAssignee'
+                        name: 'workGroupAssignee',
+                        renderer: function (value) {
+                            return value ? Ext.String.htmlEncode(value) : Uni.I18n.translate('general.unassigned', 'MDC', 'Unassigned');
+                        }
                     },
                     {
 
                         itemId: 'issue-preview-assignee',
                         fieldLabel: Uni.I18n.translate('general.title.USER', 'MDC', 'User'),
-                        name: 'userAssigneeName'
+                        name: 'userAssigneeName',
+                        renderer: function (value) {
+                            return value ? Ext.String.htmlEncode(value) : Uni.I18n.translate('general.unassigned', 'MDC', 'Unassigned');
+                        }
                     },
                     {
                         itemId: 'issue-preview-creation-date',
                         fieldLabel: Uni.I18n.translate('general.title.creationDate', 'MDC', 'Creation date'),
-                        name: 'creationDate'
+                        name: 'creationDate',
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
+                        }
                     }
                 ]
             }
