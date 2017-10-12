@@ -156,7 +156,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         this.dataVaultService = dataVaultService;
     }
 
-    DataModel getDataModel() {
+    public DataModel getDataModel() {
         return dataModel;
     }
 
