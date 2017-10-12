@@ -141,10 +141,6 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             failure: function (record, operation) {
                 var responseText = Ext.decode(operation.response.responseText, true);
 
-                var response = options.response,
-                    errors = Ext.decode(response.responseText, true),
-                    wizard = me.getWizard();
-
                 if (operation.response.status === 400 && responseText.errors && !actionRecord) {
                     errorPanel.show();
                     basicForm.markInvalid(responseText.errors);
@@ -152,9 +148,6 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 if (operation.response.status === 200 && responseText.actions) {
                     window.location.href = backUrl;
                     me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('issues.applyAction.failureTitle', 'ISU', 'Couldn\'t perform your action'), actionRecord.get('issue').title + '.' + responseText.actions[0].message, responseText.actions[0].errorCode);
-                }
-                if (errors && Ext.isArray(errors.errors) && !Ext.isEmpty(errors.errors)) {
-                    wizard.markInvalid(errors.errors);
                 }
 
             },
