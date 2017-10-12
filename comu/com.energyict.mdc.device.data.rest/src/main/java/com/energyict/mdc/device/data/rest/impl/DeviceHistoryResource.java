@@ -125,14 +125,17 @@ public class DeviceHistoryResource {
     @Path("/issuesandalarms")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({VIEW_ISSUE, ASSIGN_ISSUE, CLOSE_ISSUE, COMMENT_ISSUE, ACTION_ISSUE, VIEW_ALARM, ASSIGN_ALARM, CLOSE_ALARM, COMMENT_ALARM, ACTION_ALARM})
-    public PagedInfoList getAllIssues(@BeanParam com.elster.jupiter.issue.rest.resource.StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
-        Finder<? extends Issue> issueFinder = findAllAlarmAndIssues(issueResourceHelper.buildFilterFromQueryParameters(filter));
+    public PagedInfoList getAllIssues(@PathParam("name") String name, @BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        Finder<? extends Issue> issueFinder = findAlarmAndIssues(issueResourceHelper.buildFilterFromQueryParameters(filter));
 
         addSorting(issueFinder, params);
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
             issueFinder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
         }
-        List<? extends Issue> issues = issueFinder.find();
+        List<? extends Issue> issues = issueFinder.find().stream()
+                .filter(isu -> isu.getDevice().getAmrId().equals(String.valueOf(device.getId())))
+                .collect(Collectors.toList());
         List<IssueInfo> issueInfos = new ArrayList<>();
         for (Issue baseIssue : issues) {
             for (IssueProvider issueProvider : issueService.getIssueProviders()) {
@@ -170,7 +173,7 @@ public class DeviceHistoryResource {
         return finder;
     }
 
-    private Finder<? extends Issue> findAllAlarmAndIssues(IssueFilter filter, Class<?>... eagers) {
+    private Finder<? extends Issue> findAlarmAndIssues(IssueFilter filter, Class<?>... eagers) {
         Condition condition = buildConditionFromFilter(filter);
         List<Class<?>> eagerClasses = determineMainApiClass(filter);
         if (eagers != null && eagers.length > 0) {
