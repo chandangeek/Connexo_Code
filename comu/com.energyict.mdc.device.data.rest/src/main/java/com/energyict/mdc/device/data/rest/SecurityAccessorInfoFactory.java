@@ -7,7 +7,7 @@ package com.energyict.mdc.device.data.rest;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
-import com.elster.jupiter.rest.util.PropertyValuesResourceProvider;
+import com.energyict.mdc.pluggable.rest.PropertyValuesResourceProvider;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.upl.TypedProperties;
@@ -93,16 +93,16 @@ public class SecurityAccessorInfoFactory {
         return info;
     }
 
-    public SecurityAccessorInfo asCertificate(KeyAccessor<?> keyAccessor, List<PropertyValuesResourceProvider> propertyValuesResourceProviderList, PropertyDefaultValuesProvider trustStoreValuesProvider) {
+    public SecurityAccessorInfo asCertificate(KeyAccessor<?> keyAccessor, PropertyValuesResourceProvider propertyValuesResourceProvider, PropertyDefaultValuesProvider trustStoreValuesProvider) {
         List<PropertySpec> propertySpecs = keyAccessor.getPropertySpecs();
         SecurityAccessorInfo info = from(keyAccessor);
         TypedProperties actualTypedProperties = getPropertiesActualValue(keyAccessor);
 
-        info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties, propertyValuesResourceProviderList, trustStoreValuesProvider);
+        info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties, propertyValuesResourceProvider, trustStoreValuesProvider);
         Collections.sort(info.currentProperties, (PropertyInfo info1, PropertyInfo info2) -> info1.key.equals("trustStore") ? -1 : 0);
 
         TypedProperties tempTypedProperties = getPropertiesTempValue(keyAccessor);
-        info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties, propertyValuesResourceProviderList, trustStoreValuesProvider);
+        info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties, propertyValuesResourceProvider, trustStoreValuesProvider);
         Collections.sort(info.tempProperties, (PropertyInfo info1, PropertyInfo info2) -> info1.key.equals("trustStore") ? -1 : 0);
 
         if (keyAccessor instanceof CertificateAccessor) {

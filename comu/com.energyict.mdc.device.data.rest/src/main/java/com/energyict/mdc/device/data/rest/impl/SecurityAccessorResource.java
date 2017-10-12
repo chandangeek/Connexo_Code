@@ -6,18 +6,24 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.*;
-import com.elster.jupiter.pki.rest.impl.AliasTypeAheadPropertyValueProvider;
+import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyType;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.PathPrependingConstraintViolationException;
+import com.energyict.mdc.pluggable.rest.PropertyValuesResourceProvider;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyAccessor;
-import com.energyict.mdc.device.data.rest.AliasInfo;
 import com.energyict.mdc.device.data.rest.SecurityAccessorInfoFactory;
-import com.energyict.mdc.device.data.rest.SubjectInfo;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyDefaultValuesProvider;
@@ -34,12 +40,17 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -135,8 +146,7 @@ public class SecurityAccessorResource {
         KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType)
                 .orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device));
 
-        List<PropertyValuesResourceProvider> providers = Collections.singletonList(aliasTypeAheadPropertyValueProvider);
-        return Response.ok(securityAccessorInfoFactory.asCertificate(keyAccessor, providers, trustStoreValuesProvider)).build();
+        return Response.ok(securityAccessorInfoFactory.asCertificate(keyAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider)).build();
     }
 
     @GET
@@ -149,9 +159,8 @@ public class SecurityAccessorResource {
     public PagedInfoList getCertificates(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters,
                                          @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<PropertyValuesResourceProvider> providers = Collections.singletonList(aliasTypeAheadPropertyValueProvider);
         List<SecurityAccessorInfo> collect = getSecurityAccessorInfos(device, kat -> CERTIFICATES.contains(kat.getKeyType().getCryptographicType()), (keyAccessor) -> securityAccessorInfoFactory
-                .asCertificate(keyAccessor, providers, trustStoreValuesProvider));
+                .asCertificate(keyAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider));
         return PagedInfoList.fromCompleteList("certificates", collect, queryParameters);
     }
 
@@ -218,7 +227,7 @@ public class SecurityAccessorResource {
         KeyAccessor<SecurityValueWrapper> keyAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, keyAccessorType, securityAccessorInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
         keyAccessor.swapValues();
-        return Response.ok(securityAccessorInfoFactory.asCertificate(keyAccessor, Collections.singletonList(aliasTypeAheadPropertyValueProvider), trustStoreValuesProvider)).build();
+        return Response.ok(securityAccessorInfoFactory.asCertificate(keyAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider)).build();
     }
 
     @PUT
@@ -316,7 +325,7 @@ public class SecurityAccessorResource {
         KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(device, ka, securityAccessorInfo, certificateReferenceGetter, actualValueUpdater, tempValueUpdater))
                 .orElseGet(() -> createKeyAccessor(device, keyAccessorType, securityAccessorInfo, certificateReferenceGetter));
 
-        return Response.ok().entity(securityAccessorInfoFactory.asCertificate(result, Collections.singletonList(aliasTypeAheadPropertyValueProvider), trustStoreValuesProvider)).build();
+        return Response.ok().entity(securityAccessorInfoFactory.asCertificate(result, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider)).build();
     }
 
 
