@@ -22,8 +22,8 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
         {name: 'statusDate', type: 'number'},
         {name: 'statusPrefix', type: 'string'},
         {name: 'trigger', type: 'string'},
-        {name: 'updatePeriodFrom', type: 'string'},
-        {name: 'updatePeriodTo', type: 'string'},
+        {name: 'updatePeriodFrom'},
+        {name: 'updatePeriodTo'},
         {
             name: 'name',
             persist:false,

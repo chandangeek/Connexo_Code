@@ -2907,8 +2907,91 @@ Ext.define('Dxp.controller.Tasks', {
 
         switch (item.action) {
             case 'retryHistory':
-                alert('retryHistory');
+                me.runHistoryTask(menu.record);
                 break
         }
+    },
+
+    runHistoryTask: function (record) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('general.run', 'DES', 'Run'),
+                confirmation: function () {
+                    me.submitHistoryRunTask(record, this);
+                }
+            });
+
+        confirmationWindow.insert(1,
+            {
+                xtype: 'panel',
+                itemId: 'date-errors',
+                hidden: true,
+                bodyStyle: {
+                    color: '#eb5642',
+                    padding: '0 0 15px 65px'
+                },
+                html: ''
+            }
+        );
+
+        confirmationWindow.show({
+            msg: Uni.I18n.translate('exportTasks.runMsg', 'DES', 'Data export task will be queued to run at the earliest possible time.'),
+            title: Uni.I18n.translate('general.runExportTaskx', 'DES', "Run export task {0}?", [record.data.name])
+        });
+    },
+
+    submitHistoryRunTask: function (record, confWindow) {
+        var me = this,
+            id = record.get('id'),
+            taskModel = me.getModel('Dxp.model.DataExportTaskHistory'),
+            grid,
+            store,
+            index,
+            view;
+
+        Ext.Ajax.request({
+            url: '/api/export/dataexporttask/history/' + id + '/trigger',
+            method: 'PUT',
+            jsonData: record.getProxy().getWriter().getRecordData(record),
+            isNotEdit: true,
+            success: function () {
+                confWindow.destroy();
+                /*if (me.getPage()) {
+                 view = me.getPage();
+                 grid = view.down('grid');
+                 store = grid.getStore();
+                 index = store.indexOf(record);
+                 view.down('preview-container').selectByDefault = false;
+                 store.load(function () {
+                 grid.getSelectionModel().select(index);
+                 });
+                 } else {
+                 taskModel.load(id, {
+                 success: function (rec) {
+                 view = me.getDetailsPage();
+                 view.down('dxp-tasks-action-menu').record = rec;
+                 view.down('dxp-tasks-preview-form').loadRecord(rec);
+                 if (record.get('status') === 'Busy') {
+                 view.down('#run').hide();
+                 }
+                 if (Ext.isFunction(rec.properties) && rec.properties().count()) {
+                 view.down('grouped-property-form').loadRecord(rec);
+                 }
+                 }
+                 });
+                 }*/
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.runQueued', 'DES', 'Export task run queued'));
+            },
+            failure: function (response) {
+                var res = Ext.decode(response.responseText, true);
+
+                if (response.status !== 409 && res && res.errors && res.errors.length) {
+                    confWindow.update(res.errors[0].msg);
+                    confWindow.setVisible(true);
+                } else {
+                    confWindow.destroy();
+                }
+            }
+        });
     }
 });
