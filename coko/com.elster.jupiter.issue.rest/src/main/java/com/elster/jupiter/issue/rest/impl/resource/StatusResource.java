@@ -43,7 +43,8 @@ public class StatusResource extends BaseResource {
         List<IssueStatus> statuses = query
                 .select(Condition.TRUE)
                 .stream()
-                .sorted(Comparator.comparing(IssueStatus::getName))
+                .sorted(Comparator.comparing(IssueStatus::getName,
+                        String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
         return entity(statuses, IssueStatusInfo.class).build();
     }
