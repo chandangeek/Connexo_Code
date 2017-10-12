@@ -29,14 +29,12 @@ Ext.define('Uni.view.search.field.Numeric', {
     customOperatorMap: undefined,
 
     onValueChange: function () {
-        var value = this.getValue(),
-            clearBtn = this.down('button[action=reset]');
+        var me = this,
+            value = me.getValue(),
+            clearBtn = me.down('#clearall');
 
-        this.callParent(arguments);
-
-        if (clearBtn) {
-            clearBtn.setDisabled(!!Ext.isEmpty(value));
-        }
+        me.callParent(arguments);
+        clearBtn.setDisabled(false);
     },
 
     cleanup: function () {

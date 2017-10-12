@@ -51,7 +51,6 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
         if (xtype) {
             Ext.suspendLayouts();
 
-            me.remove(me.getField());
             me.field = me.add(Ext.apply({
                 xtype: xtype,
                 listeners: {
