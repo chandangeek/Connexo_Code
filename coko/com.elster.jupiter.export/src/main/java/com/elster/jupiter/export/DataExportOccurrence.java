@@ -49,4 +49,6 @@ public interface DataExportOccurrence {
     LogEntryFinder getLogsFinder();
 
     int nthSince(Instant since);
+
+    void triggerNow();
 }

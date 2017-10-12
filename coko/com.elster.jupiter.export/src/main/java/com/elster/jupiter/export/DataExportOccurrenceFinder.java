@@ -13,6 +13,8 @@ import java.time.Instant;
 import java.util.List;
 
 public interface DataExportOccurrenceFinder {
+    DataExportOccurrenceFinder setId(long id);
+
     DataExportOccurrenceFinder setStart(int start);
 
     DataExportOccurrenceFinder setLimit(int limit);

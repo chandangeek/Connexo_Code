@@ -210,4 +210,9 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     public int hashCode() {
         return Objects.hash(taskOccurrence);
     }
+
+    @Override
+    public void triggerNow() {
+        return;
+    }
 }
