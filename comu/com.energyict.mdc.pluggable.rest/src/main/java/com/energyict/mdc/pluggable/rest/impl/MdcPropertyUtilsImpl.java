@@ -22,7 +22,7 @@ import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.properties.rest.PropertyValuesResourceInfo;
-import com.elster.jupiter.rest.util.PropertyValuesResourceProvider;
+import com.energyict.mdc.pluggable.rest.PropertyValuesResourceProvider;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -201,18 +201,16 @@ public class MdcPropertyUtilsImpl implements MdcPropertyUtils {
         return propertyInfoList;
     }
 
-    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyValuesResourceProvider> valuesResourceProviderList, PropertyDefaultValuesProvider valuesProvider) {
+    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, PropertyValuesResourceProvider valuesResourceProvider, PropertyDefaultValuesProvider valuesProvider) {
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
         for (PropertySpec propertySpec : propertySpecs) {
             PropertyInfo propertyInfo = propertyValueInfoService.getPropertyInfo(propertySpec, properties.getLocalValue(propertySpec.getName()) != null ? properties::getLocalValue : null);
             modifyPropertyValueInfo(propertyInfo, propertySpec, properties, SHOW_VALUES, WITHOUT_PRIVILEGES);
-            valuesResourceProviderList.stream().forEach(provider -> {
-                if (provider.getPropertiesValuesResource(propertySpec).isPresent()) {
-                    modifyPropertyTypeInfo(propertyInfo, propertySpec, provider);
-                } else {
-                    modifyPropertyTypeInfo(propertyInfo, propertySpec, null, valuesProvider);
-                }
-            });
+            if (valuesResourceProvider.getPropertiesValuesResource(propertySpec).isPresent()) {
+                modifyPropertyTypeInfo(propertyInfo, propertySpec, valuesResourceProvider);
+            } else {
+                modifyPropertyTypeInfo(propertyInfo, propertySpec, null, valuesProvider);
+            }
             propertyInfoList.add(propertyInfo);
         }
         return propertyInfoList;

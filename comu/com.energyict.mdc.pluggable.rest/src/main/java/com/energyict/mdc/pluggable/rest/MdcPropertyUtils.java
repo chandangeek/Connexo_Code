@@ -6,7 +6,6 @@ package com.energyict.mdc.pluggable.rest;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
-import com.elster.jupiter.rest.util.PropertyValuesResourceProvider;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.upl.TypedProperties;
 
@@ -40,7 +39,7 @@ public interface MdcPropertyUtils {
 
     List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, PropertyDefaultValuesProvider valuesProvider);
 
-    List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyValuesResourceProvider> valuesResourceProvider, PropertyDefaultValuesProvider valuesProvider);
+    List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, PropertyValuesResourceProvider valuesResourceProvider, PropertyDefaultValuesProvider valuesProvider);
 
     Object findPropertyValue(PropertySpec propertySpec, Collection<PropertyInfo> propertyInfos);
 
