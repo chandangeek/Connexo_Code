@@ -14,6 +14,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.impl.PkiServiceImpl;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.time.TimeService;
@@ -111,6 +113,8 @@ public class DeviceSearchDomainTest {
     private EngineConfigurationService engineConfigurationService;
     @Mock
     private MasterDataService masterDataService;
+    @Mock
+    private PkiService pkiService;
 
     private Injector injector;
 
@@ -308,6 +312,7 @@ public class DeviceSearchDomainTest {
                 bind(MasterDataService.class).toInstance(masterDataService);
                 bind(com.elster.jupiter.properties.PropertySpecService.class).to(com.elster.jupiter.properties.impl.PropertySpecServiceImpl.class);
                 bind(PropertySpecService.class).to(PropertySpecServiceImpl.class);
+                bind(PkiService.class).toInstance(pkiService);
             }
         };
     }

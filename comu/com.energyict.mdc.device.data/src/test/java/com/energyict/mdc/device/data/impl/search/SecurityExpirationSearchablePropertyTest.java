@@ -4,86 +4,46 @@
 
 package com.energyict.mdc.device.data.impl.search;
 
-import com.elster.jupiter.datavault.DataVaultService;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
-import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.beans.BeanService;
-import com.elster.jupiter.util.beans.impl.DefaultBeanService;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityExpirationSearchablePropertyTest {
 
-    @Mock
-    private UserService userService;
-    @Mock
-    private EventService eventService;
-    @Mock
-    private NlsService nlsService;
-    @Mock
-    private UpgradeService upgradeService;
-    @Mock
-    private DataVaultService dataVaultService;
-    @Mock
-    private DataModel dataModel;
-    @Mock
-    private TimeService timeService;
-    @Mock
-    private OrmService ormService;
+    private static InMemoryPersistence inMemoryPersistence = new InMemoryPersistence();
+
     @Mock
     private DeviceSearchDomain domain;
-    @Mock
-    private Thesaurus thesaurus;
-    @Mock
-    private DeviceConfigurationService deviceConfigurationService;
-
-    private BeanService beanService = new DefaultBeanService();
-    private com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
-    private PkiService pkiService;
-    private PropertySpecService propertySpecService;
     private SecuritySearchablePropertyGroup securitySearchablePropertyGroup;
+
+    @BeforeClass
+    public static void initialize() {
+        inMemoryPersistence.activate();
+    }
+
+    @AfterClass
+    public static void uninstall(){
+        inMemoryPersistence.deactivate();
+    }
 
     @Before
     public void initializeMocks() {
-        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_EXPIRATION.getDefaultFormat());
-        when(thesaurus.getFormat(PropertyTranslationKeys.DEVICE_EXPIRATION)).thenReturn(messageFormat);
-        when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService, this.ormService, this.beanService);
-        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
-        this.pkiService = new com.elster.jupiter.pki.impl.PkiServiceImpl(this.ormService, this.upgradeService, this.nlsService, dataVaultService, jupiterPropertySpecService,
-                        this.eventService, this.userService);
-        this.securitySearchablePropertyGroup = new SecuritySearchablePropertyGroup(thesaurus);
+        this.securitySearchablePropertyGroup = new SecuritySearchablePropertyGroup(inMemoryPersistence.getThesaurus());
     }
 
     @Test
@@ -132,17 +92,6 @@ public class SecurityExpirationSearchablePropertyTest {
     }
 
     @Test
-    public void testTranslation() {
-        SecurityExpirationSearchableProperty property = this.getTestInstance();
-
-        // Business method
-        property.getDisplayName();
-
-        // Asserts
-        verify(this.thesaurus).getFormat(PropertyTranslationKeys.DEVICE_EXPIRATION);
-    }
-
-    @Test
     public void testSpecification() {
         SecurityExpirationSearchableProperty property = this.getTestInstance();
 
@@ -178,6 +127,6 @@ public class SecurityExpirationSearchablePropertyTest {
     }
 
     private SecurityExpirationSearchableProperty getTestInstance() {
-        return new SecurityExpirationSearchableProperty(this.dataModel, pkiService, propertySpecService, thesaurus).init(this.domain, securitySearchablePropertyGroup);
+        return new SecurityExpirationSearchableProperty(inMemoryPersistence.getDataModel(), inMemoryPersistence.getPkiService(), inMemoryPersistence.getPropertySpecService(), inMemoryPersistence.getThesaurus()).init(this.domain, securitySearchablePropertyGroup);
     }
 }
