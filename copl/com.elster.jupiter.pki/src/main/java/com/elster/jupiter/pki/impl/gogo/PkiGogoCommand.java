@@ -19,6 +19,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -41,6 +42,7 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=deleteKeypair",
                 "osgi.command.function=generateKeypair",
                 "osgi.command.function=importPublicKey",
+                "osgi.command.function=exportPublicKey",
                 "osgi.command.function=importKeypair",
         },
         immediate = true)
@@ -142,6 +144,30 @@ public class PkiGogoCommand {
                     .orElseThrow(() -> new IllegalArgumentException("No keypair with id " + keyPairId))
                     .delete();
             context.commit();
+        }
+    }
+
+    public void exportPublicKey() {
+        System.out.println("Exports the public key (x509 encoded) to file");
+        System.out.println("usage: importPublicKey <alias>");
+    }
+
+    public void exportPublicKey(String alias) throws IOException {
+        KeypairWrapper keypairWrapper = pkiService.findKeypairWrapper(alias)
+                .orElseThrow(() -> new IllegalArgumentException("No such keypair"));
+        FileOutputStream fileOutputStream = null;
+        try {
+            String filename = alias + ".der";
+            fileOutputStream = new FileOutputStream(filename);
+            fileOutputStream.write(keypairWrapper.getPublicKey().get().getEncoded());
+            fileOutputStream.flush();
+            System.out.println("Wrote "+filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fileOutputStream!=null) {
+                fileOutputStream.close();
+            }
         }
     }
 
