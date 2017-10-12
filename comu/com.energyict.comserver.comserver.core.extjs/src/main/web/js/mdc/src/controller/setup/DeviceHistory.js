@@ -280,13 +280,8 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             preview = page.down('issues-alarms-preview');
 
         Ext.suspendLayouts();
-        preview.down('#issues-preview-actions-button').setMenu({
-            xtype: 'issues-alarms-action-menu',
-            itemId: 'issues-overview-action-menu',
-            router: me.getController('Uni.controller.history.Router'),
-            record: record,
-            currentUserId: me.currentUserId
-        });
+        preview.down('#issues-preview-actions-button').menu.record = record;
+        preview.record = record;
         preview.setTitle(record.get('issueId') + ' ' + record.get('reason'));
         preview.loadRecord(record);
         preview.currentUserId = me.currentUserId;
