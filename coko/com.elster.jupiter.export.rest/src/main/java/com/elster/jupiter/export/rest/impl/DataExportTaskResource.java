@@ -576,6 +576,40 @@ public class DataExportTaskResource {
         return PagedInfoList.fromPagedList("data", infos, queryParameters);
     }
 
+    @PUT
+    @Path("history/{historyId}/trigger")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.RUN_DATA_EXPORT_TASK})
+    @Transactional
+    public Response triggerDataExportHistoryTask(@PathParam("historyId") long historyId, DataExportTaskHistoryInfo historyInfo) {
+        /*info.id = id;
+        ExportTask exportTask = dataExportService.findAndLockExportTask(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> dataExportService.findExportTask(info.id)
+                                .map(ExportTask::getVersion)
+                                .orElse(null))
+                        .withMessageTitle(MessageSeeds.RUN_TASK_CONCURRENT_TITLE, info.name)
+                        .withMessageBody(MessageSeeds.RUN_TASK_CONCURRENT_BODY, info.name)
+                        .supplier());
+        exportTask.triggerNow();*/
+        dataExportService.findExportTask(historyInfo.task.id)
+                .ifPresent(exportTask ->
+                {
+                    DataExportOccurrence dataExportOccurrence = exportTask.getOccurrencesFinder()
+                            .setId(historyId).stream()
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
+                    History<ExportTask> history = exportTask.getHistory();
+                    ExportTask historyExportTask = history
+                            .getVersionAt(dataExportOccurrence.getStartDate().get())
+                            .orElseGet(() -> history.getVersionAt(dataExportOccurrence.getTask().getCreateTime())
+                                    .orElseGet(dataExportOccurrence::getTask));
+                    historyExportTask.triggerNow();
+                    //dataExportOccurrence.getTask().triggerNow();
+                });
+        return Response.status(Response.Status.OK).build();
+    }
+
     @GET
     @Path("/{id}/datasources")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
