@@ -9,7 +9,7 @@ import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByMRID;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByPropertyValue;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceByMrID;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceMessageIdentifierForAlreadyKnownMessage;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
@@ -68,7 +68,7 @@ public class IdentificationServiceImpl implements IdentificationService {
 
     @Override
     public DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(com.energyict.mdc.upl.meterdata.Device device) {
-        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(device);
+        return new DeviceIdentifierForAlreadyKnownDevice(device);
     }
 
     @Override

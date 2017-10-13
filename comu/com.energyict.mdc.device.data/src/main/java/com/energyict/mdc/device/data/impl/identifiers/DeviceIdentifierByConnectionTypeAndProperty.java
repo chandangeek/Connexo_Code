@@ -26,7 +26,7 @@ public class DeviceIdentifierByConnectionTypeAndProperty implements DeviceIdenti
     private String propertyValue;
 
     /**
-     * Constructor only to be used by JSON (de)marshalling
+     * Constructor only to be used by JSON (de)marshalling or in unit tests
      */
     public DeviceIdentifierByConnectionTypeAndProperty() {
     }
@@ -56,12 +56,12 @@ public class DeviceIdentifierByConnectionTypeAndProperty implements DeviceIdenti
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
         @Override
         public String getTypeName() {
-            return "PropertyBased";
+            return "ConnectionTypePropertyBased";
         }
 
         @Override
         public Set<String> getRoles() {
-            return new HashSet<>(Arrays.asList("connectionTypeClass", "connectionTypeClassName", "propertyName", "propertyValue"));
+            return new HashSet<>(Arrays.asList("connectionTypeClass", "propertyName", "propertyValue"));
         }
 
         @Override
@@ -69,9 +69,6 @@ public class DeviceIdentifierByConnectionTypeAndProperty implements DeviceIdenti
             switch (role) {
                 case "connectionTypeClass": {
                     return connectionTypeClass;
-                }
-                case "connectionTypeClassName": {
-                    return connectionTypeClass.getName();
                 }
                 case "propertyName": {
                     return propertyName;

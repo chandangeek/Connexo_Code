@@ -707,7 +707,7 @@ public class ComSessionCrudIT {
 
         @Override
         public List<PropertySpec> getUPLPropertySpecs() {
-            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::adaptTo).collect(Collectors.toList());
         }
 
         @Override

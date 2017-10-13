@@ -19,7 +19,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
-import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
@@ -27,6 +26,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
@@ -35,18 +35,44 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
 import static java.util.stream.Collectors.toList;
 
-class DeviceMessageServiceImpl implements DeviceMessageService {
+class DeviceMessageServiceImpl implements ServerDeviceMessageService {
+
+    /**
+     * Enum listing up all different Introspector types that can be used in method DeviceMessageServiceImpl#findDeviceMessageByIdentifier(MessageIdentifier)
+     */
+    public enum IntrospectorTypes {
+        DatabaseId("databaseValue", "device"),
+        DeviceIdentifierAndProtocolInfoParts("device", "protocolInfo"),
+        Actual("actual", "device", "databaseValue");
+
+        private final String[] roles;
+
+        IntrospectorTypes(String... roles) {
+            this.roles = roles;
+        }
+
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList(roles));
+        }
+
+        public static Optional<IntrospectorTypes> forName(String name) {
+            return Arrays.stream(values()).filter(type -> type.name().equals(name)).findFirst();
+        }
+    }
 
     private final DeviceDataModelService deviceDataModelService;
     private final ThreadPrincipalService threadPrincipalService;
@@ -60,6 +86,12 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
         this.threadPrincipalService = threadPrincipalService;
         this.meteringGroupsService = meteringGroupsService;
         this.clock = clock;
+        Services.deviceMessageFinder(this);
+    }
+
+    @Override
+    public Optional<com.energyict.mdc.upl.messages.DeviceMessage> find(MessageIdentifier identifier) {
+        return this.findDeviceMessageByIdentifier(identifier).map(com.energyict.mdc.upl.messages.DeviceMessage.class::cast);
     }
 
     @Override
@@ -134,6 +166,7 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
         if (threadPrincipalService.getPrincipal() instanceof User) {
             User currentUser = (User) threadPrincipalService.getPrincipal();
             if (currentUser != null) {
+
                 Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = deviceConfiguration.getDeviceMessageEnablements()
                         .stream()
                         .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId))
@@ -184,27 +217,27 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
     private List<Condition> getReleaseDateConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {
         List<Condition> releaseDateConditions = new ArrayList<>();
         deviceMessageQueryFilter.getReleaseDateStart().ifPresent(date ->
-            releaseDateConditions.add(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isGreaterThanOrEqual(date)));
+                releaseDateConditions.add(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isGreaterThanOrEqual(date)));
         deviceMessageQueryFilter.getReleaseDateEnd().ifPresent(date ->
-            releaseDateConditions.add(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isLessThanOrEqual(date)));
+                releaseDateConditions.add(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isLessThanOrEqual(date)));
         return releaseDateConditions;
     }
 
     private List<Condition> getSentDateConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {
         List<Condition> sentDateConditions = new ArrayList<>();
         deviceMessageQueryFilter.getSentDateStart().ifPresent(date ->
-            sentDateConditions.add(Where.where(DeviceMessageImpl.Fields.SENTDATE.fieldName()).isGreaterThanOrEqual(date)));
+                sentDateConditions.add(Where.where(DeviceMessageImpl.Fields.SENTDATE.fieldName()).isGreaterThanOrEqual(date)));
         deviceMessageQueryFilter.getSentDateEnd().ifPresent(date ->
-            sentDateConditions.add(Where.where(DeviceMessageImpl.Fields.SENTDATE.fieldName()).isLessThanOrEqual(date)));
+                sentDateConditions.add(Where.where(DeviceMessageImpl.Fields.SENTDATE.fieldName()).isLessThanOrEqual(date)));
         return sentDateConditions;
     }
 
     private List<Condition> getCreationDateConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {
         List<Condition> creationDateConditions = new ArrayList<>();
         deviceMessageQueryFilter.getCreationDateStart().ifPresent(date ->
-            creationDateConditions.add(Where.where(DeviceMessageImpl.Fields.CREATIONDATE.fieldName()).isGreaterThanOrEqual(date)));
+                creationDateConditions.add(Where.where(DeviceMessageImpl.Fields.CREATIONDATE.fieldName()).isGreaterThanOrEqual(date)));
         deviceMessageQueryFilter.getCreationDateEnd().ifPresent(date ->
-            creationDateConditions.add(Where.where(DeviceMessageImpl.Fields.CREATIONDATE.fieldName()).isLessThanOrEqual(date)));
+                creationDateConditions.add(Where.where(DeviceMessageImpl.Fields.CREATIONDATE.fieldName()).isLessThanOrEqual(date)));
         return creationDateConditions;
     }
 
@@ -218,7 +251,7 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
         if (deviceMessageStatuses.contains(DeviceMessageStatus.WAITING)) {
             messageStatusConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).isEqualTo(DeviceMessageStatus.WAITING)
                     .and(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isNull()
-                    .or(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isGreaterThanOrEqual(this.clock.instant()))));
+                            .or(Where.where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isGreaterThanOrEqual(this.clock.instant()))));
         }
         ArrayList<DeviceMessageStatus> reducedDeviceMessageStatuses = new ArrayList<>(deviceMessageStatuses);
         reducedDeviceMessageStatuses.remove(DeviceMessageStatus.WAITING);
@@ -271,33 +304,27 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
     public Optional<DeviceMessage> findDeviceMessageByIdentifier(MessageIdentifier identifier) {
         try {
             return this.exactlyOne(this.find(identifier.forIntrospection()), identifier);
-        } catch (UnsupportedDeviceMessageIdentifierTypeName | IllegalArgumentException e) {
+        } catch (UnsupportedDeviceMessageIdentifierTypeName | IllegalArgumentException | NotUniqueException e) {
             return Optional.empty();
         }
     }
 
     private List<DeviceMessage> find(Introspector introspector) throws UnsupportedDeviceMessageIdentifierTypeName {
-        switch (introspector.getTypeName()) {
-            case "DatabaseId": {
-                return this
-                        .findDeviceMessageById(Long.valueOf(introspector.getValue("databaseValue").toString()))
-                        .map(Collections::singletonList)
-                        .orElseGet(Collections::emptyList);
-            }
-            case "DeviceIdentifierAndProtocolInfoParts": {
-                DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue("device");
-                String[] messageProtocolInfoParts = (String[]) introspector.getValue("protocolInfo");
-                return this.deviceDataModelService.deviceService()
-                        .findDeviceByIdentifier(deviceIdentifier)
-                        .map(device -> this.findByDeviceAndProtocolInfoParts(device, messageProtocolInfoParts))
-                        .orElseGet(Collections::emptyList);
-            }
-            case "Actual": {
-                return Collections.singletonList((DeviceMessage) introspector.getValue("actual"));
-            }
-            default: {
-                throw new UnsupportedDeviceMessageIdentifierTypeName();
-            }
+        if (introspector.getTypeName().equals(IntrospectorTypes.DatabaseId.name())) {
+            return this.findDeviceMessageById(Long.valueOf(introspector.getValue(IntrospectorTypes.DatabaseId.roles[0]).toString()))
+                    .map(Collections::singletonList)
+                    .orElseGet(Collections::emptyList);
+        } else if (introspector.getTypeName().equals(IntrospectorTypes.DeviceIdentifierAndProtocolInfoParts.name())) {
+            DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue(IntrospectorTypes.DeviceIdentifierAndProtocolInfoParts.roles[0]);
+            String[] messageProtocolInfoParts = (String[]) introspector.getValue(IntrospectorTypes.DeviceIdentifierAndProtocolInfoParts.roles[1]);
+            return this.deviceDataModelService.deviceService()
+                    .findDeviceByIdentifier(deviceIdentifier)
+                    .map(device -> this.findByDeviceAndProtocolInfoParts(device, messageProtocolInfoParts))
+                    .orElseGet(Collections::emptyList);
+        } else if (introspector.getTypeName().equals(IntrospectorTypes.Actual.name())) {
+            return Collections.singletonList((DeviceMessage) introspector.getValue(IntrospectorTypes.Actual.roles[0]));
+        } else {
+            throw new UnsupportedDeviceMessageIdentifierTypeName();
         }
     }
 
@@ -313,7 +340,7 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
         }
     }
 
-    public List<DeviceMessage> findByDeviceAndProtocolInfoParts(Device device, String... protocolInfoParts) {
+    protected List<DeviceMessage> findByDeviceAndProtocolInfoParts(Device device, String... protocolInfoParts) {
         Condition protocolInfoPartsCondition =
                 Stream
                         .of(protocolInfoParts)

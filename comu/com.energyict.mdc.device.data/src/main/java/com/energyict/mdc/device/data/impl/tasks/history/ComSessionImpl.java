@@ -16,6 +16,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ComSessionSuccessIndicatorTranslationKeys;
+import com.energyict.mdc.device.data.impl.CompletionCodeTranslationKeys;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.HasLastComSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -522,7 +523,7 @@ public class ComSessionImpl implements ComSession {
             if (CompletionCode.Ok.equals(this.completionCode)) {
                 return "";
             } else {
-                return this.completionCode.name();    // Todo: needs translation
+                return CompletionCodeTranslationKeys.translationFor(this.completionCode, thesaurus);
             }
         }
     }

@@ -6,9 +6,8 @@ package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.energyict.mdc.device.data.DeviceService;
-import org.junit.BeforeClass;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.BeforeClass;
 
@@ -46,7 +45,7 @@ public class DeviceIdentifierByIdEqualityTest extends EqualsContractTest {
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return Arrays.asList(new DeviceIdentifierById(DEVICE_ID_B));
+        return Collections.singletonList(new DeviceIdentifierById(DEVICE_ID_B));
     }
 
     @Override
