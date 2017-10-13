@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.pki.rest.impl.CertificateWrapperResource;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.pluggable.rest.PropertyValuesResourceProvider;
 
@@ -13,6 +12,9 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Optional;
 
+/**
+ * Provides access to AlIAS type-ahead resource
+ */
 public class AliasTypeAheadPropertyValueProvider implements PropertyValuesResourceProvider {
     private final UriInfo uriInfo;
 
@@ -24,8 +26,10 @@ public class AliasTypeAheadPropertyValueProvider implements PropertyValuesResour
     public Optional<URI> getPropertiesValuesResource(PropertySpec propertySpec) {
         if (propertySpec.getName().equals("alias")) {
             return Optional.of(uriInfo.getBaseUriBuilder()
-                    .path(CertificateWrapperResource.class, "aliasSource")
-                    .build());
+                    .path(DeviceResource.class)
+                    .path(DeviceResource.class, "getSecurityAccessorResource")
+                    .path(SecurityAccessorResource.class, "aliasSource")
+                    .build("x"));
         } else {
             return Optional.empty();
         }
