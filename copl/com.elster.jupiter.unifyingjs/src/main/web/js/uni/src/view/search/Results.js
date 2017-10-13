@@ -8,7 +8,7 @@
 Ext.define('Uni.view.search.Results', {
     extend: 'Ext.grid.Panel',
     xtype: 'uni-view-search-results',
-
+    sortableColumns: true,
     requires: [
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',

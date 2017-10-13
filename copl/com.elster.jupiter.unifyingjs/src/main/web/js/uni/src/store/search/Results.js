@@ -13,7 +13,7 @@ Ext.define('Uni.store.search.Results', {
     autoLoad: false,
     remoteFilter: true,
     pageSize: 100,
-
+    sorters: ['name'],
     proxy: {
         timeout: 9999999,
         type: 'ajax',
