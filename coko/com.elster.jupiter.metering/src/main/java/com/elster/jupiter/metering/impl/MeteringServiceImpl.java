@@ -31,6 +31,7 @@ import com.elster.jupiter.metering.MeterFilter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.PurgeConfiguration;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingStorer;
@@ -46,7 +47,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
-import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -164,6 +164,11 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Optional<ReadingType> getReadingType(String mRid) {
         return dataModel.mapper(ReadingType.class).getOptional(mRid);
+    }
+
+    @Override
+    public Optional<ReadingType> getReadingTypeByName(String name) {
+        return dataModel.mapper(ReadingType.class).getUnique("fullAliasName", name);
     }
 
     @Override

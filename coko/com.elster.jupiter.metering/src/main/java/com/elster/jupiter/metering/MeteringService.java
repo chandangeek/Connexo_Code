@@ -41,6 +41,8 @@ public interface MeteringService {
 
     Optional<ReadingType> getReadingType(String mRid);
 
+    Optional<ReadingType> getReadingTypeByName(String name);
+
     List<ReadingType> findReadingTypes(List<String> mRids);
 
     Finder<ReadingType> findReadingTypes(ReadingTypeFilter filter);
