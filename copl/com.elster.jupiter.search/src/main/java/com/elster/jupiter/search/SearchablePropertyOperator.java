@@ -110,8 +110,13 @@ public enum SearchablePropertyOperator {
     NOT_EQUAL("!=") {
         @Override
         protected <T> void appendSingle(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, T value) throws InvalidValueException {
-            if (Boolean.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
+            Class valueType = searchableProperty.getSpecification().getValueFactory().getValueType();
+            if (String.class.isAssignableFrom(valueType)) {
+                criterionBuilder.isNotEqualTo((String) value);
+            }else if (Boolean.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
                 criterionBuilder.is(!(Boolean) value);
+            }else if (String.class.isAssignableFrom(valueType)) {
+                criterionBuilder.isNotEqualTo((String) value);
             } else {
                 criterionBuilder.isNotEqualTo(value);
             }

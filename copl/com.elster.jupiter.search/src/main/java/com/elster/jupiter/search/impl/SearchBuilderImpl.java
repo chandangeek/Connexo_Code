@@ -158,7 +158,11 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
         @Override
         public SearchBuilder<T> isNotEqualTo(Object value) throws InvalidValueException {
-            return this.addConditionWithOperator(Operator.NOTEQUAL, value);
+            if(value instanceof String){
+                return notLikeIgnoreCase((String)value);
+            }else {
+                return this.addConditionWithOperator(Operator.NOTEQUAL, value);
+            }
         }
 
         @Override
@@ -190,6 +194,7 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
             return SearchBuilderImpl.this;
         }
 
+
         @Override
         public SearchBuilder<T> like(String wildCardPattern) throws InvalidValueException {
             PropertySpec specification = this.property.getSpecification();
@@ -202,9 +207,18 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         @Override
         public SearchBuilder<T> likeIgnoreCase(String wildCardPattern) throws InvalidValueException {
             PropertySpec specification = this.property.getSpecification();
+        this.validateValue(wildCardPattern, specification);
+        addCondition(this,
+                             new SearchablePropertyComparison(Operator.LIKEIGNORECASE.compare(specification.getName(), toOracleSql(wildCardPattern)), this.property));
+        return SearchBuilderImpl.this;
+    }
+
+
+        private SearchBuilder<T> notLikeIgnoreCase(String wildCardPattern) throws InvalidValueException {
+            PropertySpec specification = this.property.getSpecification();
             this.validateValue(wildCardPattern, specification);
             addCondition(this,
-                    new SearchablePropertyComparison(Operator.LIKEIGNORECASE.compare(specification.getName(), toOracleSql(wildCardPattern)), this.property));
+                    new SearchablePropertyComparison(Operator.NOT_LIKEIGNORECASE.compare(specification.getName(), toOracleSql(wildCardPattern)), this.property));
             return SearchBuilderImpl.this;
         }
 

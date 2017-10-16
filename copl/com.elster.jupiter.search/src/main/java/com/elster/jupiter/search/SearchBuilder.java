@@ -4,9 +4,10 @@
 
 package com.elster.jupiter.search;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.properties.InvalidValueException;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.Arrays;
 import java.util.List;
@@ -310,6 +311,7 @@ public interface SearchBuilder<T> {
          *         with the property's specification
          */
         SearchBuilder<T> likeIgnoreCase(String wildCardPattern) throws InvalidValueException;
+
 
         /**
          * Builds a criterion that checks that the target {@link SearchableProperty}
