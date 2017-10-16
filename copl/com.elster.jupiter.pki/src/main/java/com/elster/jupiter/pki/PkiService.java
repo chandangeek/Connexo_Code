@@ -1,7 +1,7 @@
 package com.elster.jupiter.pki;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.pki.impl.*;
 import com.elster.jupiter.properties.PropertySpec;
 
 import aQute.bnd.annotation.ProviderType;
@@ -256,6 +256,7 @@ public interface PkiService {
         public TrustStore trustStore;
     }
 
+    Finder<CertificateWrapper> getAliasesByFilter(AliasParameterFilter aliasParameterFilter);
     /**
      * List all known subjects from the certificate store that match the search filter.
      *
@@ -263,12 +264,7 @@ public interface PkiService {
      * @return Finder for matching subjects. If more results are available
      * than requested, limit+1 results will be returned.
      */
-    Finder<CertificateWrapper> getSubjectsByFilter(SubjectSearchFilter searchFilter);
-
-    class SubjectSearchFilter {
-        public String subject;
-        public TrustStore trustStore;
-    }
+    Finder<CertificateWrapper> getSubjectsByFilter(SubjectParameterFilter searchFilter);
 
     /**
      * List all known issuers from the certificate store that match the search filter.
@@ -277,12 +273,7 @@ public interface PkiService {
      * @return Finder for matching issuers. If more results are available
      * than requested, limit+1 results will be returned.
      */
-    Finder<CertificateWrapper> getIssuersByFilter(IssuerSearchFilter searchFilter);
-
-    class IssuerSearchFilter {
-        public String issuer;
-        public TrustStore trustStore;
-    }
+    Finder<CertificateWrapper> getIssuersByFilter(IssuerParameterFilter searchFilter);
 
     /**
      * List all known extendedKeyUsages from the certificate store that match the search filter.
@@ -291,12 +282,7 @@ public interface PkiService {
      * @return Finder for matching keyUsages. If more results are available
      * than requested, limit+1 results will be returned.
      */
-    Finder<CertificateWrapper> getKeyUsagesByFilter(KeyUsagesSearchFilter searchFilter);
-
-    class KeyUsagesSearchFilter {
-        public String keyUsages;
-        public TrustStore trustStore;
-    }
+    Finder<CertificateWrapper> getKeyUsagesByFilter(KeyUsagesParameterFilter searchFilter);
 
     /**
      * List all known extendedKeyUsages from the certificate store that match the search filter.
@@ -305,12 +291,7 @@ public interface PkiService {
      * @return Finder for matching keyUsages. If more results are available
      * than requested, limit+1 results will be returned.
      */
-    Finder<CertificateWrapper> getExtendedKeyUsagesByFilter(ExtendedKeyUsagesSearchFilter searchFilter);
-
-    class ExtendedKeyUsagesSearchFilter {
-        public String extendedKeyUsages;
-        public TrustStore trustStore;
-    }
+    Finder<CertificateWrapper> getExtendedKeyUsagesByFilter(ExtendedKeyUsagesParameterFilter searchFilter);
 
     /**
      * List all known certificates from the certificate store that match the search filter.

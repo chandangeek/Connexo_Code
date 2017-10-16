@@ -43,7 +43,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_POSSIBLE_CHARS_IN_PASSWORD(1027, Keys.NOVALIDCHARACTERS, "The passphrase type has no characters sets to choose from"),
     INVALID_PASSWORD_LENGTH(1028, Keys.INVALIDPASSPHRASELENGTH, "Invalid passphrase length"),
     INVALID_KEY_SIZE(1029, Keys.INVALID_KEY_SIZE, "Invalid key size"),
-    INVALID_HEX_VALUE(1030,Keys.INVALID_HEX_VALUE, "Not a properly hex encoded key");
+    INVALID_HEX_VALUE(1030,Keys.INVALID_HEX_VALUE, "Not a properly hex encoded key"),
+    NO_SUCH_TRUSTSTORE(1031, "noSuchTrustStore", "The trust store could not be found");
+
 
     private final int number;
     private final String key;

@@ -465,16 +465,34 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public Finder<CertificateWrapper> getSubjectsByFilter(SubjectSearchFilter searchFilter) {
+    public Finder<CertificateWrapper> getAliasesByFilter(AliasParameterFilter searchFilter) {
+        Condition searchCondition;
+        if (searchFilter.trustStore == null) {
+            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
+                    .likeIgnoreCase(searchFilter.searchValue)
+                    .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
+        } else {
+            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
+                    .likeIgnoreCase(searchFilter.searchValue)
+                    .and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(searchFilter.trustStore));
+        }
+        return DefaultFinder.of(CertificateWrapper.class,
+                searchCondition, getDataModel())
+                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName() + ")", true)
+                .maxPageSize(thesaurus, 100);
+    }
+
+    @Override
+    public Finder<CertificateWrapper> getSubjectsByFilter(SubjectParameterFilter searchFilter) {
         Condition searchCondition;
         if (searchFilter.trustStore == null) {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName())
-                    .likeIgnoreCase(searchFilter.subject)
+                    .likeIgnoreCase(searchFilter.searchValue)
                     .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)))
                     .and(where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName()).isNotNull());
         } else {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName())
-                    .likeIgnoreCase(searchFilter.subject)
+                    .likeIgnoreCase(searchFilter.searchValue)
                     .and(where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName()).isNotNull())
                     .and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(searchFilter.trustStore));
         }
@@ -485,18 +503,17 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                 .maxPageSize(thesaurus, 100);
     }
 
-    @Override
-    public Finder<CertificateWrapper> getIssuersByFilter(IssuerSearchFilter searchFilter) {
+    public Finder<CertificateWrapper> getIssuersByFilter(IssuerParameterFilter searchFilter) {
         Condition searchCondition;
         if (searchFilter.trustStore == null) {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName())
-                    .likeIgnoreCase(searchFilter.issuer)
+                    .likeIgnoreCase(searchFilter.searchValue)
                     .and(where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName()).isNotNull())
                     .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
 
         } else {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName())
-                    .likeIgnoreCase(searchFilter.issuer)
+                    .likeIgnoreCase(searchFilter.searchValue)
                     .and(where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName()).isNotNull())
                     .and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(searchFilter.trustStore));
         }
@@ -508,16 +525,16 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public Finder<CertificateWrapper> getKeyUsagesByFilter(KeyUsagesSearchFilter searchFilter) {
+    public Finder<CertificateWrapper> getKeyUsagesByFilter(KeyUsagesParameterFilter searchFilter) {
         Condition searchCondition;
         if (searchFilter.trustStore == null) {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName())
-                    .likeIgnoreCase(searchFilter.keyUsages)
+                    .likeIgnoreCase(searchFilter.searchValue)
                     .and(where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName()).isNotNull())
                     .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
         } else {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName())
-                    .likeIgnoreCase(searchFilter.keyUsages)
+                    .likeIgnoreCase(searchFilter.searchValue)
                     .and(where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName()).isNotNull())
                     .and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(searchFilter.trustStore));
         }
@@ -529,16 +546,16 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public Finder<CertificateWrapper> getExtendedKeyUsagesByFilter(ExtendedKeyUsagesSearchFilter searchFilter) {
+    public Finder<CertificateWrapper> getExtendedKeyUsagesByFilter(ExtendedKeyUsagesParameterFilter searchFilter) {
         Condition searchCondition;
         if (searchFilter.trustStore == null) {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName())
-                    .likeIgnoreCase(searchFilter.extendedKeyUsages)
+                    .likeIgnoreCase(searchFilter.searchValue)
                     .and(where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName()).isNotNull())
                     .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
         } else {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName())
-                    .likeIgnoreCase(searchFilter.extendedKeyUsages)
+                    .likeIgnoreCase(searchFilter.searchValue)
                     .and(where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName()).isNotNull())
                     .and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(searchFilter.trustStore));
         }
