@@ -5,9 +5,11 @@
 package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
@@ -45,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportProcessor<DeviceReadingsImportRecord> {
 
@@ -62,9 +65,13 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
         setDevice(data, logger);
         validateReadingDate(device, data.getReadingDateTime(), data.getLineNumber());
         for (int i = 0; i < data.getReadingTypes().size(); i++) {
-            String readingTypeMRID = data.getReadingTypes().get(i);
-            ReadingType readingType = getContext().getMeteringService().getReadingType(readingTypeMRID)
-                    .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SUCH_READING_TYPE, data.getLineNumber(), readingTypeMRID));
+            String readingTypeString = data.getReadingTypes().get(i);
+            MeteringService meteringService = getContext().getMeteringService();
+            ReadingType readingType = (meteringService.getReadingType(readingTypeString)
+                    .orElseGet(() -> meteringService.getReadingTypeByName(readingTypeString)
+                            .orElseGet(() -> getReadingTypeByObisCode(readingTypeString, data.getLineNumber())
+                                    .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SUCH_READING_TYPE, data.getLineNumber(), readingTypeString)))));
+
             ZoneId deviceZoneId = getMeterActivationEffectiveAt(device.getMeterActivationsMostRecentFirst(), data.getReadingDateTime().toInstant())
                     .map(MeterActivation::getChannelsContainer)
                     .map(ChannelsContainer::getZoneId)
@@ -77,6 +84,28 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
                 addReading(readingType, readingValue, data.getReadingDateTime().toInstant());
             }
         }
+    }
+
+    private Optional<ReadingType> getReadingTypeByObisCode(String readingTypeStr, long lineNumber) {
+        List<Integer> channelsList = IntStream.range(0, device.getChannels().size()).boxed()
+                .filter(o -> device.getChannels().get(o).getObisCode().toString().equals(readingTypeStr))
+                .collect(Collectors.toList());
+
+        List<Integer> registersList = IntStream.range(0, device.getRegisters().size()).boxed()
+                .filter(o -> device.getRegisters().get(0).getObisCode().toString().equals(readingTypeStr))
+                .collect(Collectors.toList());
+
+        Optional<ReadingType> readingType = Optional.empty();
+        if (registersList.size() > 1 || channelsList.size() > 1 || (channelsList.size() + registersList.size() > 1)) {
+            throw new ProcessorException(MessageSeeds.READING_TYPE_DUPLICATED_OBIS_CODE, lineNumber, readingTypeStr);
+        }
+        if (channelsList.size() == 1) {
+            readingType = Optional.ofNullable(device.getChannels().get(channelsList.get(0)).getReadingType());
+        }
+        if (registersList.size() == 1) {
+            readingType = Optional.ofNullable(device.getRegisters().get(registersList.get(0)).getReadingType());
+        }
+        return readingType;
     }
 
     @Override
@@ -157,9 +186,6 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
 
     private void validateReadingType(ReadingType readingType, ZonedDateTime readingDate, long lineNumber) {
         if (readingType.isRegular()) {
-            if (readingType.getMeasuringPeriod().isApplicable()) {
-                throw new ProcessorException(MessageSeeds.NOT_SUPPORTED_READING_TYPE, lineNumber, readingType.getMRID());
-            }
             if (MacroPeriod.DAILY == readingType.getMacroPeriod() && !validTimeOfDay(readingDate)) {
                 throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_DAILY_CHANNEL, lineNumber, readingType.getMRID(), readingDate.getZone());
             }
@@ -169,11 +195,20 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
             if (MacroPeriod.YEARLY == readingType.getMacroPeriod() && !(readingDate.getDayOfYear() == 1 && validTimeOfDay(readingDate))) {
                 throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_YEARLY_CHANNEL, lineNumber, readingType.getMRID(), readingDate.getZone());
             }
+            if (!validMinutes(readingType.getMeasuringPeriod(), readingDate)) {
+                throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_15_MINUTES_CHANNEL, lineNumber, readingType
+                        .getMRID(), readingDate.getZone());
+            }
         }
     }
 
+
     private boolean validTimeOfDay(ZonedDateTime dateTime) {
         return dateTime.getHour() == 0 && dateTime.getMinute() == 0 && dateTime.getSecond() == 0 && dateTime.getNano() == 0;
+    }
+
+    private boolean validMinutes(TimeAttribute timeAttribute, ZonedDateTime dateTime) {
+        return (dateTime.getMinute() % timeAttribute.getMinutes()) == 0;
     }
 
     private ValueValidator createValueValidator(Device device, ReadingType readingType, FileImportLogger logger, long lineNumber) {
