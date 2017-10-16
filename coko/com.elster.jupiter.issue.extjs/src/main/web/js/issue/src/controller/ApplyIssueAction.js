@@ -87,6 +87,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                         if (form.title === 'Close issue' || form.title === 'Close alarm' || form.title === 'Notify user' || form.title === 'Assign issue' || form.title === 'Assign alarm' || form.title === "Snooze") {
                             form.down('#issue-action-apply') && form.down('#issue-action-apply').setText(form.title.split(' ')[0]);
                             form.down('#alarm-action-apply') && form.down('#alarm-action-apply').setText(form.title.split(' ')[0]);
+                            form.down('#device-issue-action-apply') && form.down('#device-issue-action-apply').setText(form.title.split(' ')[0]);
                         }
                     }
                 }
