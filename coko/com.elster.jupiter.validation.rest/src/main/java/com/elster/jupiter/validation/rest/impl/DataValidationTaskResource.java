@@ -131,6 +131,7 @@ public class DataValidationTaskResource {
                 .stream()
                 .filter(task -> task.getQualityCodeSystem().equals(getQualityCodeSystemForApplication(applicationName)))
                 .map(dataValidationTaskInfoFactory::asInfo)
+                .sorted((dt1, dt2) -> dt1.name.compareToIgnoreCase(dt2.name))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("dataValidationTasks", infos, queryParameters);
