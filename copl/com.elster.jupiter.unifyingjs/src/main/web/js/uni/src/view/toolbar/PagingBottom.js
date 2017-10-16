@@ -362,11 +362,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         me.setChildDisabled('#first', currPage === 1 || isEmpty);
         me.setChildDisabled('#prev', currPage === 1 || isEmpty);
         me.setChildDisabled('#next', currPage === pageCount || isEmpty);
-
-        if (me.isFullTotalCount || (typeof pageData !== 'undefined' && me.store.pageSize * pageData.currentPage >= me.totalCount)) {
-            me.setChildDisabled('#last', typeof pageData === 'undefined' || me.totalPages === pageData.currentPage);
-            me.isFullTotalCount = true;
-        }
+        me.setChildDisabled('#last', typeof pageData === 'undefined' || me.totalPages === pageData.currentPage);
 
         me.updateInfo();
         Ext.resumeLayouts(true);
