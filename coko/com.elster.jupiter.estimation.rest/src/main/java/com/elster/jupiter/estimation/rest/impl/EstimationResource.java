@@ -6,7 +6,14 @@ package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.estimation.*;
+import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
+import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationRuleBuilder;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.EstimationTask;
+import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
+import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -19,7 +26,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
@@ -30,14 +44,34 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -311,6 +345,7 @@ public class EstimationResource {
         List<EstimationTaskInfo> infos = estimationService.findEstimationTasks(getQualityCodeSystemFromApplicationName(applicationName))
                 .stream()
                 .map(et -> new EstimationTaskInfo(et, thesaurus, timeService))
+                .sorted((dt1, dt2) -> dt1.name.compareToIgnoreCase(dt2.name))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("estimationTasks", infos, queryParameters);
