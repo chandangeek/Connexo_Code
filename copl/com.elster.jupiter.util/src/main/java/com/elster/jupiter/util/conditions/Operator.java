@@ -66,6 +66,12 @@ public enum Operator {
             return "''a'' || UPPER(nvl({0}, '''')) LIKE ''a'' || UPPER(?) ESCAPE ''\\''";  // prepending 'a' to make sure % also matches empty strings, which in oracle are null
         }
     },
+    NOT_LIKEIGNORECASE("") {
+        @Override
+        public String getFormat() {
+            return "UPPER(nvl({0}, '''')) NOT LIKE UPPER(?)";
+        }
+    },
     SOUNDSAS("") {
         @Override
         public String getFormat() {
