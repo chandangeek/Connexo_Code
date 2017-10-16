@@ -6,11 +6,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PkiService;
-import com.elster.jupiter.pki.SecurityValueWrapper;
-import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.*;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyType;
@@ -18,7 +14,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.PathPrependingConstraintViolationException;
-import com.energyict.mdc.pluggable.rest.PropertyValuesResourceProvider;
+import com.energyict.mdc.device.data.rest.AliasInfo;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -40,8 +36,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -337,6 +332,48 @@ public class SecurityAccessorResource {
                                 replace("*", "")
                                 .replace("?", "")))
                         .collect(toList());
+    }
+
+    @GET
+    @Path("/certificates/aliases")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
+            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
+            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
+    public PagedInfoList aliasSource(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
+        PkiService.AliasSearchFilter aliasSearchFilter = getAliasSearchFilter(params, uriInfo.getQueryParameters());
+        List<AliasInfo> collect = pkiService.getAliasesByFilter(aliasSearchFilter)
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getAlias)
+                .map(AliasInfo::new)
+                .collect(toList());
+        return PagedInfoList.fromPagedList("aliases", collect, queryParameters);
+    }
+
+    private PkiService.AliasSearchFilter getAliasSearchFilter(StandardParametersBean params, MultivaluedMap<String, String> uriParams) {
+        PkiService.AliasSearchFilter aliasSearchFilter = new PkiService.AliasSearchFilter();
+        String alias = null;
+
+        if (uriParams.containsKey("alias")) {
+            alias = params.getFirst("alias");
+        }
+        if (uriParams.containsKey("trustStore")) {
+            Long trustStoreId = Long.valueOf(params.getFirst("trustStore"));
+            aliasSearchFilter.trustStore = pkiService.findTrustStore(trustStoreId)
+                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUST_STORE, "trustStore"));
+        }
+        if (alias ==null || alias.isEmpty() ) {
+            aliasSearchFilter.alias="*";
+        }
+        if (alias!=null && !alias.isEmpty()) {
+            if (!alias.contains("*") && !alias.contains("?")) {
+                aliasSearchFilter.alias="*"+alias+"*";
+            } else {
+                aliasSearchFilter.alias=alias;
+            }
+        }
+        return aliasSearchFilter;
     }
 
     private KeyAccessorType findKeyAccessorTypeOrThrowException(@PathParam("id") long keyAccessorTypeId, Device device) {
