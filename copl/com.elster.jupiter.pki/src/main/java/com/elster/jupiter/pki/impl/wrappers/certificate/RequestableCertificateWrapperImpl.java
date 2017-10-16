@@ -15,6 +15,7 @@ import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpecService;
 
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.google.common.base.Joiner;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
@@ -40,8 +41,8 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
 
 
     @Inject
-    public RequestableCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService) {
-        super(dataModel, thesaurus, propertySpecService, eventService);
+    public RequestableCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService, ExceptionFactory exceptionFactory) {
+        super(dataModel, thesaurus, propertySpecService, eventService,exceptionFactory);
         this.thesaurus = thesaurus;
     }
 

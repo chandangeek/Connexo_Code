@@ -20,9 +20,14 @@ import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
+import javax.security.auth.x500.X500Principal;
 import javax.validation.constraints.Size;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -36,12 +41,7 @@ import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -90,6 +90,9 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         }
     }
 
+    private final Map<String, Integer> rdsOrder = new HashMap<>();
+    private final ExceptionFactory exceptionFactory;
+
     private long id;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String alias;
@@ -113,11 +116,12 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    public AbstractCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService) {
+    public AbstractCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService,ExceptionFactory exceptionFactory) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.eventService = eventService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @Override
@@ -160,8 +164,8 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         try {
             this.certificate = certificate.getEncoded();
             this.expirationTime = certificate.getNotAfter().toInstant();
-            this.subject = certificate.getSubjectDN().getName();
-            this.issuer = certificate.getIssuerDN().getName();
+            this.subject= x500FormattedName(certificate.getSubjectDN().getName());
+            this.issuer = x500FormattedName(certificate.getIssuerDN().getName());
             if (getCertificateKeyUsages(certificate).size() > 0) {
                 this.keyUsagesCsv = Joiner.on(", ").join(getCertificateKeyUsages(certificate).stream().map(Enum::name).collect(toList()));
             }
@@ -171,6 +175,22 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             this.save();
         } catch (CertificateEncodingException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_ENCODING_EXCEPTION, e);
+        }
+    }
+
+    String x500FormattedName(String x500Name) {
+        try {
+            return new LdapName(x500Name)
+                    .getRdns()
+                    .stream()
+                    .sorted(Comparator.comparing(rdn -> rdsOrder.getOrDefault(rdn.getType(), 7)))
+                    .map(Rdn::toString)
+                    .reduce((a, b) -> a + ", " + b)
+                    .map(X500Principal::new)
+                    .map(p -> p.getName(X500Principal.RFC1779))
+                    .get();
+        } catch (InvalidNameException e) {
+            throw exceptionFactory.newException(MessageSeeds.INVALID_DN);
         }
     }
 
