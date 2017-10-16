@@ -7,7 +7,6 @@ package com.elster.jupiter.pki.rest.impl;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.*;
-import com.elster.jupiter.pki.impl.*;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.util.Checks;
@@ -91,6 +90,87 @@ public class CertificateWrapperResource {
         dataSearchFilter.intervalTo = params.getInstant("intervalTo");
 
         return dataSearchFilter;
+    }
+
+    @GET
+    @Path("/aliases")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList aliasSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        List<AliasInfo> collect = pkiService.getAliasesByFilter(new AliasParameterFilter(pkiService, jsonQueryFilter))
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getAlias)
+                .map(AliasInfo::new)
+                .collect(toList());
+        return PagedInfoList.fromPagedList("aliases", collect, queryParameters);
+    }
+
+    @GET
+    @Path("/subjects")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList subjectSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        List<SubjectInfo> collect = pkiService.getSubjectsByFilter(new SubjectParameterFilter(pkiService, jsonQueryFilter))
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getSubject)
+                .map(SubjectInfo::new)
+                .collect(toList());
+        return PagedInfoList.fromPagedList("subjects", collect, queryParameters);
+    }
+
+    @GET
+    @Path("/issuers")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList issuerSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        List<IssuerInfo> collect = pkiService.getIssuersByFilter(new IssuerParameterFilter(pkiService, jsonQueryFilter))
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getIssuer)
+                .map(IssuerInfo::new)
+                .collect(toList());
+        return PagedInfoList.fromPagedList("issuers", collect, queryParameters);
+    }
+
+    @GET
+    @Path("/keyusages")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList keyUsagesSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        KeyUsagesParameterFilter filter = new KeyUsagesParameterFilter(pkiService, jsonQueryFilter);
+        List<KeyUsageInfo> infos = pkiService.getKeyUsagesByFilter(filter)
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getStringifiedKeyUsages)
+                .map(x -> filterKeyUsagesbySearchParam().apply(x, filter.searchValue))
+                .flatMap(Collection::stream)
+                .map(KeyUsageInfo::new)
+                .distinct()
+                .collect(toList());
+
+        return PagedInfoList.fromPagedList("keyusages", infos, queryParameters);
+    }
+
+
+    @GET
+    @Path("/extendedkeyusages")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList extendedKeyUsagesSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        ExtendedKeyUsagesParameterFilter filter = new ExtendedKeyUsagesParameterFilter(pkiService, jsonQueryFilter);
+        List<ExtendedKeyUsageInfo> infos = pkiService.getExtendedKeyUsagesByFilter(filter)
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getStringifiedExtendedKeyUsages)
+                .map(x -> filterKeyUsagesbySearchParam().apply(x, filter.searchValue))
+                .flatMap(Collection::stream)
+                .map(ExtendedKeyUsageInfo::new)
+                .distinct()
+                .collect(toList());
+
+        return PagedInfoList.fromPagedList("extendedkeyusages", infos, queryParameters);
     }
 
     @POST
@@ -267,87 +347,6 @@ public class CertificateWrapperResource {
         } catch (NoSuchProviderException e) {
             throw exceptionFactory.newException(MessageSeeds.COULD_NOT_CREATE_CERTIFICATE_FACTORY, e);
         }
-    }
-
-    @GET
-    @Path("/aliases")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public PagedInfoList aliasSource( @BeanParam JsonQueryFilter jsonQueryFilter,@BeanParam JsonQueryParameters queryParameters) {
-        List<AliasInfo> collect = pkiService.getAliasesByFilter(new AliasParameterFilter(pkiService,jsonQueryFilter))
-                .from(queryParameters)
-                .stream()
-                .map(CertificateWrapper::getAlias)
-                .map(AliasInfo::new)
-                .collect(toList());
-        return PagedInfoList.fromPagedList("aliases", collect, queryParameters);
-    }
-
-    @GET
-    @Path("/subjects")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public PagedInfoList subjectSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        List<SubjectInfo> collect = pkiService.getSubjectsByFilter(new SubjectParameterFilter(pkiService,jsonQueryFilter))
-                .from(queryParameters)
-                .stream()
-                .map(CertificateWrapper::getSubject)
-                .map(SubjectInfo::new)
-                .collect(toList());
-        return PagedInfoList.fromPagedList("subjects", collect, queryParameters);
-    }
-
-    @GET
-    @Path("/issuers")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public PagedInfoList issuerSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-                List<IssuerInfo> collect = pkiService.getIssuersByFilter(new IssuerParameterFilter(pkiService,jsonQueryFilter))
-                .from(queryParameters)
-                .stream()
-                .map(CertificateWrapper::getIssuer)
-                .map(IssuerInfo::new)
-                .collect(toList());
-        return PagedInfoList.fromPagedList("issuers", collect, queryParameters);
-    }
-
-    @GET
-    @Path("/keyusages")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public PagedInfoList keyUsagesSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        KeyUsagesParameterFilter filter = new KeyUsagesParameterFilter(pkiService,jsonQueryFilter);
-        List<KeyUsageInfo> infos = pkiService.getKeyUsagesByFilter(filter)
-                .from(queryParameters)
-                .stream()
-                .map(CertificateWrapper::getStringifiedKeyUsages)
-                .map(x -> filterKeyUsagesbySearchParam().apply(x, filter.searchValue))
-                .flatMap(Collection::stream)
-                .map(KeyUsageInfo::new)
-                .distinct()
-                .collect(toList());
-
-        return PagedInfoList.fromPagedList("keyusages", infos, queryParameters);
-    }
-
-
-    @GET
-    @Path("/extendedkeyusages")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public PagedInfoList extendedKeyUsagesSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-                ExtendedKeyUsagesParameterFilter filter = new ExtendedKeyUsagesParameterFilter(pkiService,jsonQueryFilter);
-        List<ExtendedKeyUsageInfo> infos = pkiService.getExtendedKeyUsagesByFilter(filter)
-                .from(queryParameters)
-                .stream()
-                .map(CertificateWrapper::getStringifiedExtendedKeyUsages)
-                .map(x -> filterKeyUsagesbySearchParam().apply(x, filter.searchValue))
-                .flatMap(Collection::stream)
-                .map(ExtendedKeyUsageInfo::new)
-                .distinct()
-                .collect(toList());
-
-        return PagedInfoList.fromPagedList("extendedkeyusages", infos, queryParameters);
     }
 
     private BiFunction<String, String, List<String>> filterKeyUsagesbySearchParam() {
