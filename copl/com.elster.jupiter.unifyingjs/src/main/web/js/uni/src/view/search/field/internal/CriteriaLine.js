@@ -48,21 +48,26 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
         var me = this,
             xtype = this.operatorMap[value];
 
+        if(me.rendered && (oldValue == 'BETWEEN' || value == 'BETWEEN' )) {
+            me.remove(me.getField());
+        }
         if (xtype) {
             Ext.suspendLayouts();
-
-            me.field = me.add(Ext.apply({
-                xtype: xtype,
-                listeners: {
-                    change: function() {
-                        me.fireEvent('change', me.getValue())
-                    },
-                    reset: function() {
-                        me.fireEvent('reset')
+            if (!me.rendered || (oldValue == 'BETWEEN' || value == 'BETWEEN' )) {
+                me.field = me.add(Ext.apply({
+                    xtype: xtype,
+                    listeners: {
+                        change: function () {
+                            me.fireEvent('change', me.getValue())
+                        },
+                        reset: function () {
+                            me.fireEvent('reset')
+                        }
                     }
-                }
-            }, me.itemsDefaultConfig));
-
+                }, me.itemsDefaultConfig));
+            }else{
+                me.getField().operator = value;
+            }
             Ext.resumeLayouts(true);
 
             if (me.rendered) {
