@@ -281,6 +281,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
 
         Ext.suspendLayouts();
         preview.down('#issues-preview-actions-button').menu.record = record;
+        preview.down('#issue-logbook').setVisible(record.get('issueType').uid == 'devicealarm');
         preview.record = record;
         preview.setTitle(record.get('issueId') + ' ' + record.get('reason'));
         preview.loadRecord(record);
