@@ -106,7 +106,6 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
     },
 
     reset: function() {
-        this.down('#filter-operator').reset();
         this.getField().reset();
     },
 
