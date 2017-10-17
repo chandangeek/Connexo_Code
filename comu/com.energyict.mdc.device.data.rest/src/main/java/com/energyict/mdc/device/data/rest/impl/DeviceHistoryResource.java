@@ -136,17 +136,14 @@ public class DeviceHistoryResource {
         if (!endDevices.isEmpty() && endDevices.size() == 1) {
             issueFilter.addDevice(endDevices.get(0));
         } else {
-            throw new IllegalStateException("Duplicate name or bad AMR mapping");
+            throw new IllegalStateException("Incorrect AMR mapping");
         }
         Finder<? extends Issue> issueFinder = findAlarmAndIssues(issueFilter);
-
         addSorting(issueFinder, params);
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
             issueFinder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
         }
-        List<? extends Issue> issues = issueFinder.find().stream()
-                .filter(isu -> isu.getDevice().getAmrId().equals(String.valueOf(device.getId())))
-                .collect(Collectors.toList());
+        List<? extends Issue> issues = issueFinder.find();
         List<IssueInfo> issueInfos = new ArrayList<>();
         for (Issue baseIssue : issues) {
             for (IssueProvider issueProvider : issueService.getIssueProviders()) {
@@ -210,6 +207,10 @@ public class DeviceHistoryResource {
 
     private Condition buildConditionFromFilter(IssueFilter filter) {
         Condition condition = Condition.TRUE;
+        //filter by current associated device
+        if (!filter.getDevices().isEmpty()) {
+            condition = condition.and(where("device").in(filter.getDevices()));
+        }
         //filter by reason
         if (!filter.getIssueReasons().isEmpty()) {
             condition = condition.and(where("reason").in(filter.getIssueReasons()));
