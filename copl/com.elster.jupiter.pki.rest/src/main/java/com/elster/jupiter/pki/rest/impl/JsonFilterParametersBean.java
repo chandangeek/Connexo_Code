@@ -24,9 +24,9 @@ public class JsonFilterParametersBean {
     }
 
     public Optional<Instant> getInstant(String key) {
-        String value = jsonQueryFilter.getString(key);
+        Instant value = jsonQueryFilter.getInstant(key);
         if (value != null) {
-            return Optional.of(Instant.ofEpochMilli(Long.parseLong(value)));
+            return Optional.of(value);
         }
         return Optional.empty();
 
