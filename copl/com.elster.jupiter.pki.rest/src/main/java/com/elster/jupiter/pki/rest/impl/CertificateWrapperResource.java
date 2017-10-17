@@ -81,6 +81,7 @@ public class CertificateWrapperResource {
 
         JsonFilterParametersBean params = new JsonFilterParametersBean(jsonQueryFilter);
 
+        dataSearchFilter.isTrusted = false;
         dataSearchFilter.alias = params.getStringList("alias");
         dataSearchFilter.subject = params.getStringList("subject");
         dataSearchFilter.issuer = params.getStringList("issuer");
