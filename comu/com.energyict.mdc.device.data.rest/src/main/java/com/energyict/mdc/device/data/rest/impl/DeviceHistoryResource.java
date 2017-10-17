@@ -21,6 +21,8 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -72,10 +74,11 @@ public class DeviceHistoryResource {
     private IssueService issueService;
     private IssueInfoFactoryService issueInfoFactoryService;
     private OrmService ormService;
+    private MeteringService meteringService;
 
     @Inject
     public DeviceHistoryResource(ResourceHelper resourceHelper, DeviceLifeCycleHistoryInfoFactory deviceLifeCycleStatesHistoryInfoFactory,
-                                 DeviceFirmwareHistoryInfoFactory deviceFirmwareHistoryInfoFactory, MeterActivationInfoFactory meterActivationInfoFactory, IssueResourceHelper issueResourceHelper, IssueService issueService, IssueInfoFactoryService issueInfoFactoryService, OrmService ormService) {
+                                 DeviceFirmwareHistoryInfoFactory deviceFirmwareHistoryInfoFactory, MeterActivationInfoFactory meterActivationInfoFactory, IssueResourceHelper issueResourceHelper, IssueService issueService, IssueInfoFactoryService issueInfoFactoryService, OrmService ormService, MeteringService meteringService) {
         this.resourceHelper = resourceHelper;
         this.deviceLifeCycleHistoryInfoFactory = deviceLifeCycleStatesHistoryInfoFactory;
         this.deviceFirmwareHistoryInfoFactory = deviceFirmwareHistoryInfoFactory;
@@ -84,6 +87,7 @@ public class DeviceHistoryResource {
         this.issueService = issueService;
         this.issueInfoFactoryService = issueInfoFactoryService;
         this.ormService = ormService;
+        this.meteringService = meteringService;
     }
 
     @GET
@@ -127,7 +131,14 @@ public class DeviceHistoryResource {
     @RolesAllowed({VIEW_ISSUE, ASSIGN_ISSUE, CLOSE_ISSUE, COMMENT_ISSUE, ACTION_ISSUE, VIEW_ALARM, ASSIGN_ALARM, CLOSE_ALARM, COMMENT_ALARM, ACTION_ALARM})
     public PagedInfoList getAllIssues(@PathParam("name") String name, @BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        Finder<? extends Issue> issueFinder = findAlarmAndIssues(issueResourceHelper.buildFilterFromQueryParameters(filter));
+        IssueFilter issueFilter = issueResourceHelper.buildFilterFromQueryParameters(filter);
+        List<EndDevice> endDevices = meteringService.getEndDeviceQuery().select(Condition.TRUE.and(where("amrId").isEqualToIgnoreCase(device.getId())));
+        if (!endDevices.isEmpty() && endDevices.size() == 1) {
+            issueFilter.addDevice(endDevices.get(0));
+        } else {
+            throw new IllegalStateException("Duplicate name or bad AMR mapping");
+        }
+        Finder<? extends Issue> issueFinder = findAlarmAndIssues(issueFilter);
 
         addSorting(issueFinder, params);
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
@@ -187,7 +198,7 @@ public class DeviceHistoryResource {
     private List<Class<?>> determineMainApiClass(IssueFilter filter) {
         List<Class<?>> eagerClasses = new ArrayList<>();
         List<IssueStatus> statuses = filter.getStatuses();
-        if (!statuses.isEmpty() && statuses.stream().allMatch(status -> !status.isHistorical())) {
+        if (!statuses.isEmpty() && statuses.stream().noneMatch(IssueStatus::isHistorical)) {
             eagerClasses.add(OpenIssue.class);
         } else if (!statuses.isEmpty() && statuses.stream().allMatch(IssueStatus::isHistorical)) {
             eagerClasses.add(HistoricalIssue.class);
