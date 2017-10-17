@@ -617,6 +617,10 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                                 .isLessThanOrEqual(dataSearchFilter.intervalTo.get().toEpochMilli()));
             }
 
+            if (!dataSearchFilter.isTrusted){
+               searchCondition = searchCondition.and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
+            }
+
             return DefaultFinder.of(CertificateWrapper.class,
                     searchCondition, getDataModel())
                     .maxPageSize(thesaurus, 100);

@@ -303,6 +303,7 @@ public interface PkiService {
     Finder<CertificateWrapper> findCertificatesByFilter(DataSearchFilter dataSearchFilter);
 
     class DataSearchFilter {
+        public boolean isTrusted;
         public Optional<List<String>> alias;
         public Optional<List<String>> subject;
         public Optional<List<String>> issuer;
