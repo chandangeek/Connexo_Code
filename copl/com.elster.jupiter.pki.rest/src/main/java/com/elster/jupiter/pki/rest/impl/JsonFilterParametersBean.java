@@ -5,7 +5,6 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class JsonFilterParametersBean {
 
@@ -29,6 +28,5 @@ public class JsonFilterParametersBean {
             return Optional.of(value);
         }
         return Optional.empty();
-
     }
 }

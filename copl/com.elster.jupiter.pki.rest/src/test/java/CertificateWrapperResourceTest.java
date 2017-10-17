@@ -7,9 +7,11 @@ import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.rest.impl.CertificateInfoFactory;
 import com.elster.jupiter.pki.rest.impl.CsrInfo;
 
 import com.jayway.jsonpath.JsonModel;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
@@ -223,6 +225,13 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         InputStream entity = (InputStream) response.getEntity();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(entity).hasSameContentAs(new ByteArrayInputStream(x509Certificate.getEncoded()));
+    }
+
+    @Test
+    public void testRenderSubject() throws Exception {
+        CertificateInfoFactory certificateInfoFactory = new CertificateInfoFactory(null);
+        String name = certificateInfoFactory.x500FormattedName("CN=Matthieu Deroo, OU=Software solutions, L=Kortrijk, ST=West-Vlaanderen, C=Belgium, O=Honeywell");
+        AssertionsForClassTypes.assertThat(name).isEqualTo("CN=Matthieu Deroo, OU=Software solutions, O=Honeywell, L=Kortrijk, ST=West-Vlaanderen, C=Belgium");
     }
 
     @Test
