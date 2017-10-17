@@ -9,6 +9,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.pki.CertificateFormatter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyUsage;
@@ -47,7 +48,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 @UniqueAlias(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ALIAS_UNIQUE + "}")
-public abstract class AbstractCertificateWrapperImpl implements CertificateWrapper {
+public abstract class AbstractCertificateWrapperImpl implements CertificateWrapper, CertificateFormatter {
     public static final String CLIENT_CERTIFICATE_DISCRIMINATOR = "C";
     public static final String TRUSTED_CERTIFICATE_DISCRIMINATOR = "T";
     public static final String CERTIFICATE_DISCRIMINATOR = "R";
@@ -116,7 +117,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    public AbstractCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService,ExceptionFactory exceptionFactory) {
+    public AbstractCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService, ExceptionFactory exceptionFactory) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
@@ -164,7 +165,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         try {
             this.certificate = certificate.getEncoded();
             this.expirationTime = certificate.getNotAfter().toInstant();
-            this.subject= x500FormattedName(certificate.getSubjectDN().getName());
+            this.subject = x500FormattedName(certificate.getSubjectDN().getName());
             this.issuer = x500FormattedName(certificate.getIssuerDN().getName());
             if (getCertificateKeyUsages(certificate).size() > 0) {
                 this.keyUsagesCsv = Joiner.on(", ").join(getCertificateKeyUsages(certificate).stream().map(Enum::name).collect(toList()));
@@ -175,24 +176,26 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             this.save();
         } catch (CertificateEncodingException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_ENCODING_EXCEPTION, e);
-        }
-    }
-
-    String x500FormattedName(String x500Name) {
-        try {
-            return new LdapName(x500Name)
-                    .getRdns()
-                    .stream()
-                    .sorted(Comparator.comparing(rdn -> rdsOrder.getOrDefault(rdn.getType(), 7)))
-                    .map(Rdn::toString)
-                    .reduce((a, b) -> a + ", " + b)
-                    .map(X500Principal::new)
-                    .map(p -> p.getName(X500Principal.RFC1779))
-                    .get();
         } catch (InvalidNameException e) {
             throw exceptionFactory.newException(MessageSeeds.INVALID_DN);
         }
     }
+
+//    String x500FormattedName(String x500Name) {
+//        try {
+//            return new LdapName(x500Name)
+//                    .getRdns()
+//                    .stream()
+//                    .sorted(Comparator.comparing(rdn -> rdsOrder.getOrDefault(rdn.getType(), 7)))
+//                    .map(Rdn::toString)
+//                    .reduce((a, b) -> a + ", " + b)
+//                    .map(X500Principal::new)
+//                    .map(p -> p.getName(X500Principal.RFC1779))
+//                    .get();
+//        } catch (InvalidNameException e) {
+//            throw exceptionFactory.newException(MessageSeeds.INVALID_DN);
+//        }
+//    }
 
     @Override
     public long getVersion() {
@@ -206,6 +209,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
 
     /**
      * Method can be implemented by sub-classes if they wish to override/extend status
+     *
      * @return
      */
     protected Optional<TranslationKeys> getInternalStatus() {
