@@ -47,7 +47,6 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
                 itemId: 'from',
                 listeners: {
                     change: function (field, newValue) {
-                        me.down('#to').setMinValue(!Ext.isEmpty(newValue) ? new Date(newValue) : null);
                         me.fireEvent('change', me, me.getValue());
                     }
                 }
@@ -57,9 +56,9 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
                 itemId: 'to',
                 listeners: {
                     change: function (field, newValue) {
-                        me.down('#from').setMaxValue(!Ext.isEmpty(newValue) ? new Date(newValue) : null);
                         me.fireEvent('change', me, me.getValue());
                     }
+
                 }
             }
         ]
