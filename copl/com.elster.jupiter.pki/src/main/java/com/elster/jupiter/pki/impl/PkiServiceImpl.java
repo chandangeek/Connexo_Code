@@ -571,16 +571,16 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         Condition searchCondition = Condition.TRUE;
         {
             if (dataSearchFilter.alias.isPresent()) {
-                searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
-                        .in(dataSearchFilter.alias.get()));
+                searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName()).isNotNull()
+                        .and(where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName()).in(dataSearchFilter.alias.get())));
             }
             if (dataSearchFilter.subject.isPresent()) {
-                searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName())
-                        .in(dataSearchFilter.subject.get()));
+                searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName()).isNotNull()
+                        .and(where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName()).in(dataSearchFilter.subject.get())));
             }
             if (dataSearchFilter.issuer.isPresent()) {
-                searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName())
-                        .in(dataSearchFilter.issuer.get()));
+                searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName()).isNotNull()
+                        .and(where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName()).in(dataSearchFilter.issuer.get())));
             }
             if (dataSearchFilter.keyUsages.isPresent()) {
                 Condition UsageIn = Condition.TRUE;
@@ -588,7 +588,9 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                 dataSearchFilter.keyUsages.get().forEach(ku -> {
                     UsageIn.or(where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName()).likeIgnoreCase(ku));
                 });
-                searchCondition = searchCondition.and(UsageIn);
+                searchCondition = searchCondition
+                        .and(where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName()).isNotNull()
+                                .and(UsageIn));
             }
             if (dataSearchFilter.extendedKeyUsages.isPresent()) {
                 Condition ExtendedUsageIn = Condition.TRUE;
@@ -596,18 +598,23 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                 dataSearchFilter.extendedKeyUsages.get().forEach(eku -> {
                     ExtendedUsageIn.or(where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName()).likeIgnoreCase(eku));
                 });
-                searchCondition = searchCondition.and(ExtendedUsageIn);
+                searchCondition = searchCondition
+                        .and(where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName()).isNotNull()
+                                .and(ExtendedUsageIn));
             }
             if (dataSearchFilter.intervalFrom.isPresent() && dataSearchFilter.intervalTo.isPresent()) {
-                searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.EXPIRATION.fieldName())
-                        .between(dataSearchFilter.intervalFrom.get().toEpochMilli()).and(dataSearchFilter.intervalTo.get().toEpochMilli()));
+                searchCondition = searchCondition
+                        .and(where(AbstractCertificateWrapperImpl.Fields.EXPIRATION.fieldName())
+                                .between(dataSearchFilter.intervalFrom.get().toEpochMilli()).and(dataSearchFilter.intervalTo.get().toEpochMilli()));
             } else if (dataSearchFilter.intervalFrom.isPresent()) {
-                searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.EXPIRATION.fieldName())
-                        .isGreaterThanOrEqual(dataSearchFilter.intervalFrom.get().toEpochMilli()));
+                searchCondition = searchCondition
+                        .and(where(AbstractCertificateWrapperImpl.Fields.EXPIRATION.fieldName())
+                                .isGreaterThanOrEqual(dataSearchFilter.intervalFrom.get().toEpochMilli()));
 
             } else if (dataSearchFilter.intervalTo.isPresent()) {
-                searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.EXPIRATION.fieldName())
-                        .isLessThanOrEqual(dataSearchFilter.intervalTo.get().toEpochMilli()));
+                searchCondition = searchCondition
+                        .and(where(AbstractCertificateWrapperImpl.Fields.EXPIRATION.fieldName())
+                                .isLessThanOrEqual(dataSearchFilter.intervalTo.get().toEpochMilli()));
             }
 
             return DefaultFinder.of(CertificateWrapper.class,
