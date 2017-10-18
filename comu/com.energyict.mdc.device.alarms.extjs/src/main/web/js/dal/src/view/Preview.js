@@ -75,11 +75,11 @@ Ext.define('Dal.view.Preview', {
                             var appName = 'Insight';
                             if (value && Dal.privileges.Alarm.canViewUsagePoint()) {
                                 if (Uni.store.Apps.checkApp(appName)) {
-                                    if (Mdc.privileges.UsagePoint.canViewInInsight()) {
+                                    if (Dal.privileges.Alarm.canViewUsagePointInInsight()) {
                                         var url = Ext.String.format('{0}/usagepoints/{1}', Uni.store.Apps.getAppUrl(appName), encodeURIComponent(value));
                                         return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value));
                                     }
-                                } else if (Mdc.privileges.UsagePoint.canView()) {
+                                } else if (Dal.privileges.Alarm.canViewUsagePointByApp()) {
                                     var url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value});
                                     return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value));
                                 }
@@ -124,13 +124,16 @@ Ext.define('Dal.view.Preview', {
                     {
                         itemId: 'alarm-logbook',
                         fieldLabel: Uni.I18n.translate('general.title.logbook', 'DAL', 'Logbook'),
-                        name: 'logbook',
+                        name: 'logBook',
                         renderer: function (value, metaData, record) {
                             var url = '',
                                 result = '-';
 
                             if (value && Dal.privileges.Alarm.canViewLogbook()) {
-                                url = me.router.getRoute('devices/device/logbooks/logbookdata').buildUrl({deviceId: record.get('id'), logbookId: value.id});
+                                url = me.router.getRoute('devices/device/logbooks/logbookdata').buildUrl({
+                                    deviceId: me.getRecord('device').get('deviceName'),
+                                    logbookId: value.id
+                                });
                                 result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>';
                             } else if (value) {
                                 result = value.name;

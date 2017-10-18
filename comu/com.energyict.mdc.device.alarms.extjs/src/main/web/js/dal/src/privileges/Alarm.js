@@ -9,7 +9,7 @@ Ext.define('Dal.privileges.Alarm', {
     singleton: true,
 
     viewDeviceCommunication: ['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication'],
-    viewLogbook: ['Mdc.privileges.MasterData.view'],
+    viewLogbook: ['privilege.administrate.masterData', 'privilege.view.masterData'],
     viewUsagePoint: ['privilege.view.anyUsagePoint', 'privilege.view.ownUsagePoint', 'privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
     viewAdminProcesses: ['privilege.view.bpm', 'privilege.administrate.bpm'],
     viewAdminAlarm: ['privilege.view.alarm', 'privilege.comment.alarm', 'privilege.close.alarm', 'privilege.assign.alarm', 'privilege.action.alarm'],
@@ -20,6 +20,7 @@ Ext.define('Dal.privileges.Alarm', {
     closeOrAssing: ['privilege.close.alarm', 'privilege.assign.alarm'],
     comment: ['privilege.comment.alarm'],
     assign: ['privilege.assign.alarm'],
+    snooze: ['privilege.snooze.alarm'],
     action: ['privilege.action.alarm'],
     close: ['privilege.close.alarm'],
     setPriority: ['privilege.setPriority.alarm'],
@@ -33,7 +34,7 @@ Ext.define('Dal.privileges.Alarm', {
     executeLevel2: ['privilege.execute.processes.lvl.2'],
     executeLevel3: ['privilege.execute.processes.lvl.3'],
     executeLevel4: ['privilege.execute.processes.lvl.4'],
-
+    insightView: ['privilege.administer.anyUsagePoint', 'privilege.view.anyUsagePoint', 'privilege.administer.ownUsagePoint', 'privilege.view.ownUsagePoint'],
     all: function () {
         return Ext.Array.merge(Dal.privileges.Alarm.viewDeviceCommunication,
             Dal.privileges.Alarm.viewLogbook,
@@ -69,6 +70,9 @@ Ext.define('Dal.privileges.Alarm', {
     canAssign: function () {
         return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.assign);
     },
+    canSnooze: function () {
+        return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.snooze);
+    },
     canDoAction: function () {
         return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.action);
     },
@@ -89,5 +93,17 @@ Ext.define('Dal.privileges.Alarm', {
     },
     canViewAdminAlarmCreationRule: function () {
         return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.viewAdminAlarmCreationRule);
+    },
+    canViewUsagePointByApp: function () {
+        return !Uni.util.CheckAppStatus.insightAppIsActive() && Uni.Auth.checkPrivileges(Dal.privileges.Alarm.viewUsagePoint);
+    },
+    canViewUsagePointInInsight: function () {
+        var result = false;
+        Dal.privileges.Alarm.insightView.forEach(function (item) {
+            if (Uni.Auth.hasPrivilegeInApp(item, 'INS')) {
+                result = true;
+            }
+        });
+        return result;
     }
 });

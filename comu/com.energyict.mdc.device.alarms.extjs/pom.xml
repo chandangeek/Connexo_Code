@@ -46,10 +46,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>unifyingjs</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>comserver.core.extjs</artifactId>
-        </dependency>
     </dependencies>
 
     <profiles>
