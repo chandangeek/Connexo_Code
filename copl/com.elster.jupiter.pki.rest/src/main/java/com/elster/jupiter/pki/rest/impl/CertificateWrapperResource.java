@@ -34,6 +34,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
@@ -46,11 +47,13 @@ public class CertificateWrapperResource {
     private final PkiService pkiService;
     private final CertificateInfoFactory certificateInfoFactory;
     private final ExceptionFactory exceptionFactory;
+    private final DataSearchFilterFactory dataSearchFilterFactory;
 
     @Inject
-    public CertificateWrapperResource(PkiService pkiService, CertificateInfoFactory certificateInfoFactory, ExceptionFactory exceptionFactory/*, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, TrustedCertificateInfoFactory trustedCertificateInfoFactory*/) {
+    public CertificateWrapperResource(PkiService pkiService, CertificateInfoFactory certificateInfoFactory, DataSearchFilterFactory dataSearchFilterFactory, ExceptionFactory exceptionFactory/*, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, TrustedCertificateInfoFactory trustedCertificateInfoFactory*/) {
         this.pkiService = pkiService;
         this.certificateInfoFactory = certificateInfoFactory;
+        this.dataSearchFilterFactory = dataSearchFilterFactory;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -77,20 +80,7 @@ public class CertificateWrapperResource {
     }
 
     private PkiService.DataSearchFilter getDataSearchFilter(JsonQueryFilter jsonQueryFilter) {
-        PkiService.DataSearchFilter dataSearchFilter = new PkiService.DataSearchFilter();
-
-        JsonFilterParametersBean params = new JsonFilterParametersBean(jsonQueryFilter);
-
-        dataSearchFilter.isTrusted = false;
-        dataSearchFilter.alias = params.getStringList("alias");
-        dataSearchFilter.subject = params.getStringList("subject");
-        dataSearchFilter.issuer = params.getStringList("issuer");
-        dataSearchFilter.keyUsages = params.getStringList("keyUsages");
-        dataSearchFilter.extendedKeyUsages = params.getStringList("extendedKeyUsages");
-        dataSearchFilter.intervalFrom = params.getInstant("intervalFrom");
-        dataSearchFilter.intervalTo = params.getInstant("intervalTo");
-
-        return dataSearchFilter;
+        return dataSearchFilterFactory.asFilter(jsonQueryFilter, Optional.empty());
     }
 
     @GET
@@ -116,6 +106,7 @@ public class CertificateWrapperResource {
                 .from(queryParameters)
                 .stream()
                 .map(CertificateWrapper::getSubject)
+                .distinct()
                 .map(SubjectInfo::new)
                 .collect(toList());
         return PagedInfoList.fromPagedList("subjects", collect, queryParameters);
@@ -130,6 +121,7 @@ public class CertificateWrapperResource {
                 .from(queryParameters)
                 .stream()
                 .map(CertificateWrapper::getIssuer)
+                .distinct()
                 .map(IssuerInfo::new)
                 .collect(toList());
         return PagedInfoList.fromPagedList("issuers", collect, queryParameters);
@@ -147,8 +139,8 @@ public class CertificateWrapperResource {
                 .map(CertificateWrapper::getStringifiedKeyUsages)
                 .map(x -> filterKeyUsagesbySearchParam().apply(x, filter.searchValue))
                 .flatMap(Collection::stream)
-                .map(KeyUsageInfo::new)
                 .distinct()
+                .map(KeyUsageInfo::new)
                 .collect(toList());
 
         return PagedInfoList.fromPagedList("keyusages", infos, queryParameters);
@@ -167,8 +159,8 @@ public class CertificateWrapperResource {
                 .map(CertificateWrapper::getStringifiedExtendedKeyUsages)
                 .map(x -> filterKeyUsagesbySearchParam().apply(x, filter.searchValue))
                 .flatMap(Collection::stream)
-                .map(ExtendedKeyUsageInfo::new)
                 .distinct()
+                .map(ExtendedKeyUsageInfo::new)
                 .collect(toList());
 
         return PagedInfoList.fromPagedList("extendedkeyusages", infos, queryParameters);
@@ -353,8 +345,7 @@ public class CertificateWrapperResource {
     private BiFunction<String, String, List<String>> filterKeyUsagesbySearchParam() {
         return (String usages, String searchParam) ->
                 Stream.of(usages.split(","))
-                        .map(usage -> usage.toLowerCase().trim())
-                        .filter(x -> x.contains(searchParam.
+                        .filter(x -> x.toLowerCase().trim().contains(searchParam.
                                 replace("*", "")
                                 .replace("?", "")))
                         .collect(toList());
