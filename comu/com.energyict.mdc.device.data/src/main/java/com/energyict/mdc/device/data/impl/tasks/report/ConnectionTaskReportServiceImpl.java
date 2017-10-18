@@ -225,7 +225,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
         DeviceStateSqlBuilder
                 .forDefaultExcludedStates("enddevices")
                 .appendRestrictedStatesWithClause(sqlBuilder, this.clock().instant());
-        sqlBuilder.append("select count(*) from ");
+        sqlBuilder.append(" select count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct ");
         sqlBuilder.append(" join ");

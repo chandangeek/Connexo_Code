@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.impl.tasks.report;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -16,10 +17,12 @@ import org.junit.Test;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-25 (09:32)
  */
+@Ignore // all tests moved to ConnectionTaskReportServiceImplOracleSpecificIT
 public class ConnectionTaskReportServiceImplIT extends PersistenceIntegrationTest {
 
     @Transactional
     @Test
+    @Ignore // moved to ConnectionTaskReportServiceImplOracleSpecificIT
     public void countConnectionTasksLastComSessionsWithAtLeastOneFailedTaskDoesNotProduceSQLExceptions() {
         // Business method
         inMemoryPersistence.getConnectionTaskReportService().countConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
@@ -29,6 +32,7 @@ public class ConnectionTaskReportServiceImplIT extends PersistenceIntegrationTes
 
     @Transactional
     @Test
+    @Ignore // moved to ConnectionTaskReportServiceImplOracleSpecificIT
     public void countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTaskDoesNotProduceSQLExceptions() {
         // Business method
         inMemoryPersistence.getConnectionTaskReportService().countWaitingConnectionTasksLastComSessionsWithAtLeastOneFailedTask();
