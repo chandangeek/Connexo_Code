@@ -15,6 +15,7 @@ import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_2;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_3;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_4;
 import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
@@ -70,7 +71,6 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
@@ -93,7 +93,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -233,7 +232,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 ImmutableMap.of(
                         version(10, 2), UpgraderV10_2.class,
                         version(10, 3), UpgraderV10_3.class,
-                        version(10,4), V10_4SimpleUpgrader.class
+                        version(10, 4), UpgraderV10_4.class
                 ));
     }
 
@@ -743,7 +742,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private List<Class<?>> determineMainApiClass(IssueFilter filter) {
         List<Class<?>> eagerClasses = new ArrayList<>();
         List<IssueStatus> statuses = filter.getStatuses();
-        if (!statuses.isEmpty() && statuses.stream().allMatch(status -> !status.isHistorical())) {
+        if (!statuses.isEmpty() && statuses.stream().noneMatch(IssueStatus::isHistorical)) {
             eagerClasses.add(OpenIssue.class);
         } else if (!statuses.isEmpty() && statuses.stream().allMatch(IssueStatus::isHistorical)) {
             eagerClasses.add(HistoricalIssue.class);

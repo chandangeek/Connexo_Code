@@ -6,10 +6,8 @@ package com.elster.jupiter.issue.impl.tasks;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.IssueFilter;
-import com.elster.jupiter.issue.share.IssueProvider;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -47,16 +45,19 @@ public class IssueSnoozeHandler implements TaskExecutor {
         IssueFilter issueFilter = issueService.newIssueFilter();
         if (snoozedIssueStaus.isPresent()) {
             issueFilter.addStatus(snoozedIssueStaus.get());
-            issueService.findIssues(issueFilter).find().
-                    forEach(issue -> {
-                                if (issue.getSnoozeDateTime().isPresent() &&
-                                        issue.getSnoozeDateTime().get().isBefore(Instant.now(clock))) {
-                                    issue.clearSnooze();
-                                    issue.update();
-                                    MessageSeeds.ISSUE_SNOOZE_PERIOD_EXPIRED.log(LOG, thesaurus, issue.getTitle());
-                                }
-                            }
-                    );
+            issueService.findIssues(issueFilter).find()
+                    .forEach(this::handleExpired);
+            issueService.findAlarms(issueFilter).find()
+                    .forEach(this::handleExpired);
+        }
+    }
+
+    private void handleExpired(Issue issue) {
+        if (issue.getSnoozeDateTime().isPresent() &&
+                issue.getSnoozeDateTime().get().isBefore(Instant.now(clock))) {
+            issue.clearSnooze();
+            issue.update();
+            MessageSeeds.ISSUE_SNOOZE_PERIOD_EXPIRED.log(LOG, thesaurus, issue.getTitle());
         }
     }
 }
