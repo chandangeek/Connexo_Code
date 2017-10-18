@@ -93,9 +93,6 @@ public final class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDe
             if (events.size() == 1) {
                 event.init(this, events.get(0));
                 deviceAlarmRelatedEvents.add(event);
-                if (eventTimestamp.isBefore(this.getCreateDateTime())) {
-                    this.setCreateDateTime(eventTimestamp);
-                }
             } else {
                 throw new LocalizedFieldValidationException(MessageSeeds.INCORRECT_NUMBER_OF_CONCURRENT_PROCESSED_EVENTS, events.stream()
                         .map(record -> record.getEndDevice().getId() + ":" + record.getEventTypeCode() + ":" + record.getCreatedDateTime())
