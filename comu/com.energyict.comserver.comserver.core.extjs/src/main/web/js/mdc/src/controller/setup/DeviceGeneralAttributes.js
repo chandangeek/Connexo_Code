@@ -18,7 +18,8 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
         {ref: 'displayPropertyForm', selector: '#deviceGeneralAttributesSetup property-form'},
         {ref: 'editPropertyForm', selector: '#deviceGeneralAttributesEdit property-form'},
         {ref: 'restoreToDefaultBtn', selector: '#deviceGeneralAttributesEdit #deviceGeneralAttributesRestoreDefaultBtn'},
-        {ref: 'deviceGeneralAttributesEdit', selector: '#deviceGeneralAttributesEdit'}
+        {ref: 'deviceGeneralAttributesEdit', selector: '#deviceGeneralAttributesEdit'},
+        {ref: 'issuesAlarmsPreview', selector: '#device-history-issues-alarms-tab #issues-alarms-preview'}
     ],
 
     init: function () {
@@ -34,7 +35,10 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
             },
             '#deviceGeneralAttributesEdit property-form': {
                 showRestoreAllBtn: this.showRestoreAllBtn
-            }
+            },
+            '#device-history-issues-alarms-tab #issues-alarms-grid': {
+                selectionchange: this.refreshIssuesAndAlarmsPreview
+            },
         });
     },
 
@@ -150,5 +154,14 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
                 widget.setLoading(false);
             }
         });
+    },
+
+    refreshIssuesAndAlarmsPreview: function (grid, selected) {
+        var me = this,
+            record = selected[0],
+            issuesAlarmsPreview = me.getIssuesAlarmsPreview();
+
+        issuesAlarmsPreview.record = record;
+        issuesAlarmsPreview.loadRecord(record);
     }
 });

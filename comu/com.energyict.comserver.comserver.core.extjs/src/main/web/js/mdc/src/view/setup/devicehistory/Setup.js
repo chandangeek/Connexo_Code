@@ -11,7 +11,10 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
         'Mdc.view.setup.devicehistory.LifeCycle',
         'Mdc.view.setup.devicehistory.MeterActivations',
         'Uni.view.container.EmptyGridContainer',
-        'Uni.util.FormEmptyMessage'
+        'Uni.util.FormEmptyMessage',
+        'Mdc.view.setup.devicehistory.IssueAlarmFilter',
+        'Mdc.view.setup.devicehistory.IssueAlarmGrid',
+        'Mdc.view.setup.devicehistory.IssueAlarmPreview'
     ],
 
     router: null,
@@ -76,10 +79,49 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                                     ]
                                 }
                             },
+
                             listeners: {
                                 activate: me.controller.showMeterActivations,
                                 scope: me.controller
                             }
+                        },
+                        {
+                            title: Uni.I18n.translate('general.issuesAndAlarms', 'MDC', 'Issues and Alarms'),
+                            padding: '8 16 16 0',
+                            itemId: 'device-history-issues-alarms-tab',
+                            items: {
+                                xtype: 'preview-container',
+                                itemId: 'previewContainer',
+                                grid: {
+
+                                    xtype: 'issues-alarms-grid',
+                                    itemId: 'issues-alarms-grid',
+                                    router: me.router
+                                },
+                                emptyComponent: {
+                                    xtype: 'no-items-found-panel',
+                                    itemId: 'issues-alarms-grid-empty-msg',
+                                    title: Uni.I18n.translate('issueAlarm.empty.title', 'MDC', 'No issues and alarms found'),
+                                    reasons: [
+                                        Uni.I18n.translate('issueAlarm.empty.list.item1', 'MDC', 'No issue or alarm creation rules have been defined yet.'),
+                                        Uni.I18n.translate('issueAlarm.empty.list.item2', 'MDC', "The current issue or alarm creation rules haven't generated any alarms."),
+                                        Uni.I18n.translate('issueAlarm.empty.list.item3', 'MDC', 'No issues or alarms comply with the filter.')
+                                    ]
+                                },
+                                previewComponent: {
+                                    xtype: 'issues-alarms-preview',
+                                    itemId: 'issues-alarms-preview',
+                                    router: me.router,
+                                    fieldxtype: 'displayfield'
+                                }
+                            },
+                            dockedItems: [
+                                {
+                                    dock: 'top',
+                                    xtype: 'issues-alarm-filter',
+                                    itemId: 'issues-alarm-filter'
+                                }
+                            ]
                         }
                     ]
                 }
@@ -106,4 +148,5 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
         });
         Ext.resumeLayouts(true);
     }
+
 });
