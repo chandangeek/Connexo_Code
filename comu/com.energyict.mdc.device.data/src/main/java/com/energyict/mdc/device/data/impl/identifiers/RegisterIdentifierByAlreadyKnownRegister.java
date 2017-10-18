@@ -3,16 +3,16 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import com.energyict.obis.ObisCode;
 
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 /**
- *
- *
  * @author khe
  * @since 8/12/2016 - 16:04
  */
@@ -20,18 +20,32 @@ public class RegisterIdentifierByAlreadyKnownRegister implements RegisterIdentif
 
     private final Register register;
 
+    // For JSON serialization only or in unit tests
+    @SuppressWarnings("unused")
+    public RegisterIdentifierByAlreadyKnownRegister() {
+        register = null;
+    }
+
     public RegisterIdentifierByAlreadyKnownRegister(com.energyict.mdc.upl.meterdata.Register register) {
         this.register = (Register) register;    //Downcast to the Connexo Register
     }
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(register.getDevice());
+        return new DeviceIdentifierForAlreadyKnownDevice(register.getDevice());
     }
 
     @Override
     public ObisCode getRegisterObisCode() {
         return register.getDeviceObisCode();
+    }
+
+    @Override
+    public String toString() {
+        return MessageFormat.format(
+                "register with OBIS code ''{0}'' on device with name ''{1}''",
+                register.getDeviceObisCode(),
+                register.getDevice().getName());
     }
 
     @Override
@@ -44,7 +58,7 @@ public class RegisterIdentifierByAlreadyKnownRegister implements RegisterIdentif
         }
         RegisterIdentifierByAlreadyKnownRegister that = (RegisterIdentifierByAlreadyKnownRegister) o;
         return (register.getDevice().getId() == that.register.getDevice().getId())
-            && (register.getRegisterSpecId() == that.register.getRegisterSpecId());
+                && (register.getRegisterSpecId() == that.register.getRegisterSpecId());
     }
 
     @Override

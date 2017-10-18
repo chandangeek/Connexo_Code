@@ -346,38 +346,47 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     public static class MockProtocolPluggableService implements ProtocolPluggableService {
 
         private final ProtocolPluggableService protocolPluggableService;
+        private final Thesaurus thesaurus;
+
+        @Inject
+        public MockProtocolPluggableService(Thesaurus thesaurus) {
+            super();
+            this.protocolPluggableService = mock(ProtocolPluggableService.class);
+            this.thesaurus = thesaurus;
+        }
 
         public ProtocolPluggableService getMockedProtocolPluggableService() {
             return protocolPluggableService;
         }
+
         @Override
         public PropertySpec adapt(com.energyict.mdc.upl.properties.PropertySpec uplPropertySpec) {
-            return new UPLToConnexoPropertySpecAdapter(uplPropertySpec);
+            return UPLToConnexoPropertySpecAdapter.adaptTo(uplPropertySpec);
         }
 
         @Override
         public com.energyict.mdc.upl.properties.PropertySpec adapt(PropertySpec propertySpec) {
-            return new ConnexoToUPLPropertSpecAdapter(propertySpec);
+            return ConnexoToUPLPropertSpecAdapter.adaptTo(propertySpec);
         }
 
         @Override
         public AuthenticationDeviceAccessLevel adapt(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel uplLevel) {
-            return new UPLAuthenticationLevelAdapter(uplLevel);
+            return UPLAuthenticationLevelAdapter.adaptTo(uplLevel, thesaurus);
         }
 
         @Override
         public EncryptionDeviceAccessLevel adapt(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel uplLevel) {
-            return new UPLEncryptionLevelAdapter(uplLevel);
+            return UPLEncryptionLevelAdapter.adaptTo(uplLevel, thesaurus);
         }
 
         @Override
         public com.energyict.mdc.upl.messages.DeviceMessageCategory adapt(DeviceMessageCategory connexoCategory) {
-            return new ConnexoDeviceMessageCategoryAdapter(connexoCategory);
+            return ConnexoDeviceMessageCategoryAdapter.adaptTo(connexoCategory);
         }
 
         @Override
         public com.energyict.mdc.upl.messages.DeviceMessageSpec adapt(DeviceMessageSpec connexoSpec) {
-            return new ConnexoDeviceMessageSpecAdapter(connexoSpec);
+            return ConnexoDeviceMessageSpecAdapter.adaptTo(connexoSpec);
         }
 
         @Override
@@ -386,17 +395,17 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         public SecuritySuite adapt(com.energyict.mdc.upl.security.SecuritySuite uplLevel) {
-            return new UPLSecuritySuiteLevelAdapter(uplLevel);
+            return UPLSecuritySuiteLevelAdapter.adaptTo(uplLevel, thesaurus);
         }
 
         @Override
         public RequestSecurityLevel adapt(com.energyict.mdc.upl.security.RequestSecurityLevel uplLevel) {
-            return new UPLRequestSecurityLevelAdapter(uplLevel);
+            return UPLRequestSecurityLevelAdapter.adaptTo(uplLevel, thesaurus);
         }
 
         @Override
         public ResponseSecurityLevel adapt(com.energyict.mdc.upl.security.ResponseSecurityLevel uplLevel) {
-            return new UPLResponseSecurityLevelAdapter(uplLevel);
+            return UPLResponseSecurityLevelAdapter.adaptTo(uplLevel, thesaurus);
         }
 
         @Override
@@ -413,11 +422,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
         @Override
         public void addConnectionTypeService(ConnectionTypeService connectionTypeService) {
-        }
-
-        @Inject
-        private MockProtocolPluggableService() {
-            this.protocolPluggableService = mock(ProtocolPluggableService.class);
         }
 
         @Override
