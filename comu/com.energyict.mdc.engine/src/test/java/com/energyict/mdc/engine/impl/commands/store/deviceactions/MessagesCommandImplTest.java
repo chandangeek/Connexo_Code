@@ -13,7 +13,6 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.MessagesCommand;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
-import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -265,12 +264,12 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
         // Asserts
         assertThat(infoJournalMessage)
                 .isEqualTo(
-                        ComCommandDescriptionTitle.MessagesCommandImpl.getDescription() +
+                        "Handle all device messages" +
                         " {executionState: NOT_EXECUTED; completionCode: Ok;" +
                         " nrOfPendingMessages: 2; nrOfPendingInvalidMessages: 0; nrOfMessagesFromPreviousSessions: 1}");
         assertThat(debugJournalMessage)
                 .matches(
-                        ComCommandDescriptionTitle.MessagesCommandImpl.getDescription() +
+                        "Handle all device messages" +
                         " \\{executionState: NOT_EXECUTED; completionCode: Ok;" +
                         " pendingMessages: \\(.*, DeviceMessageTestCategories - TEST_SPEC_WITH_EXTENDED_SPECS\\), \\(.*, DeviceMessageTestCategories - TEST_SPEC_WITHOUT_SPECS\\);" +
                         " There are no invalid pending messages;" +

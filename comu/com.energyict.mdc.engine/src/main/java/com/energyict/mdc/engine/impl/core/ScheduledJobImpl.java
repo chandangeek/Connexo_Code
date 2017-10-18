@@ -14,15 +14,16 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.events.ComServerEvent;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.commands.store.RescheduleToNextComWindow;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
 import com.energyict.protocol.exceptions.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionSetupException;
 
 import java.time.Clock;
 import java.util.Calendar;
@@ -184,7 +185,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
             try {
                 this.getConnectionTask().disconnect(getExecutionContext().getComPortRelatedComChannel());
             } catch (ConnectionException e) {
-                throw ConnectionSetupException.disconnectFailed(e);
+                throw new ConnectionSetupException(e, MessageSeeds.DISCONNECT_FAILED);
             }
         }
     }

@@ -16,7 +16,8 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
-import com.energyict.mdc.io.CommunicationException;
+
+import com.energyict.protocol.exceptions.CommunicationException;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -261,7 +262,5 @@ abstract class ComPortListenerImpl implements ComPortListener, Runnable {
         public void initialize(InboundComPort comPort) {
             this.logger = this.newLogger(comPort);
         }
-
     }
-
 }

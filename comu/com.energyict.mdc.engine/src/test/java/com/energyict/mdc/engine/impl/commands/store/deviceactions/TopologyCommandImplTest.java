@@ -8,7 +8,6 @@ import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.TopologyCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolProperty;
@@ -78,15 +77,14 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
         assertThat(topologyCommand.getCollectedData()).hasSize(1);
         CollectedData collectedData = topologyCommand.getCollectedData().get(0);
         assertThat(collectedData).isInstanceOf(CollectedTopology.class);
-        assertThat(description).isEqualTo(
-                ComCommandDescriptionTitle.TopologyCommandImpl.getDescription() +
-                        " {topologyAction: UPDATE; updatedTopologyMaster: device having id 1; originalSlaves: None; receivedSlaves: device having id 2, device having id 3;" +
-                        " additionalDeviceInfo: DeviceProtocolProperty {deviceIdentifier: device having id 1; property: myProperty; value: myPropertyValue}}"
+        assertThat(description).isEqualTo("Executed topology protocol task" +
+                " {topologyAction: UPDATE; updatedTopologyMaster: device having id 1; originalSlaves: None; receivedSlaves: device having id 2, device having id 3;" +
+                " additionalDeviceInfo: DeviceProtocolProperty {deviceIdentifier: device having id 1; property: myProperty; value: myPropertyValue}}"
         );
     }
 
     @Test
-    public void doExecuteWithoutAdditionalInfoTest(){
+    public void doExecuteWithoutAdditionalInfoTest() {
         DeviceIdentifierById masterDevice = new DeviceIdentifierById(1L);
         DeviceIdentifierById slaveDevice1 = new DeviceIdentifierById(2L);
         DeviceIdentifierById slaveDevice2 = new DeviceIdentifierById(3L);
@@ -111,9 +109,7 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
         assertThat(topologyCommand.getCollectedData()).hasSize(1);
         CollectedData collectedData = topologyCommand.getCollectedData().get(0);
         assertThat(collectedData).isInstanceOf(CollectedTopology.class);
-        assertThat(description).isEqualTo(
-                ComCommandDescriptionTitle.TopologyCommandImpl.getDescription() +
-                        " {topologyAction: UPDATE; updatedTopologyMaster: device having id 1; originalSlaves: None; receivedSlaves: device having id 2, device having id 3}");
+        assertThat(description).isEqualTo("Executed topology protocol task {topologyAction: UPDATE; updatedTopologyMaster: device having id 1; originalSlaves: None; receivedSlaves: device having id 2, device having id 3}");
     }
 
     @Test

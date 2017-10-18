@@ -12,7 +12,6 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadLogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
-import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -95,7 +94,7 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         assertEquals("Should have no issues", 0, logBooksCommand.getIssues().size());
         assertEquals("Should have no problems", 0, logBooksCommand.getProblems().size());
         assertEquals("Should have no warnings", 0, logBooksCommand.getWarnings().size());
-        assertEquals(ComCommandDescriptionTitle.ReadLogBooksCommandImpl.getDescription() + " {No log books to read}", journalMessage);
+        assertEquals("Read out the device logbooks {No log books to read}", journalMessage);
     }
 
     @Test
@@ -147,8 +146,8 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         String debugJournalMessage = readLogBooksCommand.toJournalMessageDescription(LogLevel.DEBUG);
 
         assertEquals("Expected only the three unique LogBookReaders", 3, ((ReadLogBooksCommandImpl) readLogBooksCommand).getLogBooksToCollect().size());
-        assertEquals(ComCommandDescriptionTitle.ReadLogBooksCommandImpl.getDescription() + " {nrOfLogbooksToRead: 3}", infoJournalMessage);
-        assertEquals(ComCommandDescriptionTitle.ReadLogBooksCommandImpl.getDescription() + " {logbooks: (1.0.1.8.1.255 - Supported - nrOfEvents: 1), (1.0.1.8.2.255 - Supported - nrOfEvents: 0), (1.0.1.8.3.255 - Supported - nrOfEvents: 0)}", debugJournalMessage);
+        assertEquals("Read out the device logbooks {nrOfLogbooksToRead: 3}", infoJournalMessage);
+        assertEquals("Read out the device logbooks {logbooks: (1.0.1.8.1.255 - Supported - nrOfEvents: 1), (1.0.1.8.2.255 - Supported - nrOfEvents: 0), (1.0.1.8.3.255 - Supported - nrOfEvents: 0)}", debugJournalMessage);
     }
 
     @Test
@@ -199,8 +198,8 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
         String debugJournalMessage = readLogBooksCommand.toJournalMessageDescription(LogLevel.DEBUG);
 
         assertEquals("Expected only the three unique LogBookReaders", 3, ((ReadLogBooksCommandImpl) readLogBooksCommand).getLogBooksToCollect().size());
-        assertEquals(ComCommandDescriptionTitle.ReadLogBooksCommandImpl.getDescription() + " {nrOfLogbooksToRead: 3}", infoJournalMessage);
-        assertEquals(ComCommandDescriptionTitle.ReadLogBooksCommandImpl.getDescription() + " {logbooks: (1.0.1.8.1.255 - Supported - nrOfEvents: 1), (1.0.1.8.2.255 - Supported - nrOfEvents: 0), (1.x.1.8.3.255 - ConfigurationError - nrOfEvents: 0)}", debugJournalMessage);
+        assertEquals("Read out the device logbooks {nrOfLogbooksToRead: 3}", infoJournalMessage);
+        assertEquals("Read out the device logbooks {logbooks: (1.0.1.8.1.255 - Supported - nrOfEvents: 1), (1.0.1.8.2.255 - Supported - nrOfEvents: 0), (1.x.1.8.3.255 - ConfigurationError - nrOfEvents: 0)}", debugJournalMessage);
 
         ArgumentCaptor<List> collectedDataCaptor = ArgumentCaptor.forClass(List.class);
         verify(logBooksCommand, times(1)).addListOfCollectedDataItems(collectedDataCaptor.capture());

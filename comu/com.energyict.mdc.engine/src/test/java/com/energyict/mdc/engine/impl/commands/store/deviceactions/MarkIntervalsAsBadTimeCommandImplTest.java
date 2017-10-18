@@ -12,7 +12,6 @@ import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
 import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
@@ -23,15 +22,11 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProtocolReadingQualities;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -40,6 +35,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -129,7 +130,7 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
             assertThat(intervalData.getReadingQualityTypes()).hasSize(1);
             assertThat(intervalData.getReadingQualityTypes().toArray()[0]).isEqualTo(ProtocolReadingQualities.BADTIME.getCimCode());
         }
-        assertEquals(ComCommandDescriptionTitle.MarkIntervalsAsBadTimeCommandImpl.getDescription() + " {nrOfWarnings: 1; nrOfProblems: 0; minimumClockDifference: 1 minutes; badTimeLoadProfiles: 0.0.99.98.0.255}", journalMessage);
+        assertEquals("Mark load profile intervals as bad time {nrOfWarnings: 1; nrOfProblems: 0; minimumClockDifference: 1 minutes; badTimeLoadProfiles: 0.0.99.98.0.255}", journalMessage);
     }
 
     @Test
@@ -165,7 +166,7 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
         for (IntervalData intervalData : deviceLoadProfile.getCollectedIntervalData()) {
             assertThat(intervalData.getReadingQualityTypes()).hasSize(0);
         }
-        assertEquals(ComCommandDescriptionTitle.MarkIntervalsAsBadTimeCommandImpl.getDescription() + " {badTimeLoadProfiles: None}", journalMessage);
+        assertEquals("Mark load profile intervals as bad time {badTimeLoadProfiles: None}", journalMessage);
     }
 
 }

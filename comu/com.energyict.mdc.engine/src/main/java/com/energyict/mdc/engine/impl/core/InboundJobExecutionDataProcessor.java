@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -468,6 +469,11 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         @Override
         public Thesaurus thesaurus() {
             return serviceProvider.thesaurus();
+        }
+
+        @Override
+        public NlsService nlsService() {
+            return serviceProvider.nlsService();
         }
 
         @Override

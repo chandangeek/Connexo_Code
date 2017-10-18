@@ -8,7 +8,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -38,7 +37,7 @@ public class VerifyTimeDifferenceCommandImplTest extends CommonCommandImplTests 
         BasicCheckCommand basicCheckCommand = mock(BasicCheckCommand.class);
         when(basicCheckCommand.getMaximumClockDifference()).thenReturn(Optional.of(new TimeDuration(100)));
         VerifyTimeDifferenceCommandImpl command = new VerifyTimeDifferenceCommandImpl(basicCheckCommand, createGroupedDeviceCommand(offlineDevice, deviceProtocol));
-        assertEquals(ComCommandDescriptionTitle.VerifyTimeDifferenceCommandImpl.getDescription() + " {maximumDifference: 100 seconds}", command.toJournalMessageDescription(LogLevel.ERROR));
+        assertEquals("Verify the device time difference {maximumDifference: 100 seconds}", command.toJournalMessageDescription(LogLevel.ERROR));
     }
 
     @Test

@@ -9,7 +9,6 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceBySerialNumber;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -29,7 +28,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -131,18 +129,4 @@ public class OfflineLoadProfileImplTest {
         assertThat(offlineLoadProfile.getAllOfflineChannels()).isNotNull();
         assertThat(offlineLoadProfile.getAllOfflineChannels().size()).isEqualTo(4);
     }
-
-    @Test
-    public void deviceIdentifierForKnownDeviceBySerialNumberShouldBeUsedTest() {
-        final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
-        LoadProfile loadProfile = getNewMockedLoadProfile(LOAD_PROFILE_ID, loadProfileObisCode);
-        Device device = getMockedDevice();
-        DeviceIdentifierForAlreadyKnownDeviceBySerialNumber deviceIdentifier = new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(device);
-        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(Device.class))).thenReturn(deviceIdentifier);
-
-        OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile, topologyService, identificationService);
-
-        assertThat(offlineLoadProfile.getDeviceIdentifier().forIntrospection().getTypeName()).isEqualTo("SerialNumber");
-    }
-
 }

@@ -348,13 +348,18 @@ public class CannotEstablishConnectionEventTest {
         }
 
         @Override
-        public int getId() {
+        public int getNumber() {
             return ordinal();
         }
 
         @Override
         public Level getLevel() {
             return Level.SEVERE;
+        }
+
+        @Override
+        public String getModule() {
+            return "TST";
         }
     }
 }

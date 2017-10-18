@@ -10,11 +10,12 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -114,9 +115,7 @@ public final class ComTaskExecutionOrganizer {
         return logicalSlaveDevices.stream()
                 .filter(device -> securityPropertySetBelongsToDevice(securityPropertySet, device))
                 .findAny()
-                .orElseThrow(() -> new DeviceConfigurationException(
-                        MessageSeeds.FAILED_TO_FETCH_DEVICE_OWNING_SECURITY_PROPERTY_SET,
-                        securityPropertySet.getName()));
+                .orElseThrow(() -> new DeviceConfigurationException(MessageSeeds.FAILED_TO_FETCH_DEVICE_OWNING_SECURITY_PROPERTY_SET, securityPropertySet.getName()));
     }
 
     private boolean securityPropertySetBelongsToDevice(SecurityPropertySet securityPropertySet, Device device) {
@@ -205,10 +204,7 @@ public final class ComTaskExecutionOrganizer {
         SecurityPropertySet securityPropertySet =
                 foundComTaskEnablement
                         .flatMap(cte -> this.getProperSecurityPropertySet(cte, device, comTaskExecution))
-                        .orElseThrow(() -> new DeviceConfigurationException(
-                                MessageSeeds.COMTASK_NOT_ENABLED_ON_CONFIGURATION,
-                                comTask.getName(),
-                                device.getDeviceConfiguration().getName()));
+                        .orElseThrow(() -> new DeviceConfigurationException(MessageSeeds.COMTASK_NOT_ENABLED_ON_CONFIGURATION, comTask.getName(), device.getDeviceConfiguration().getName()));
         return Key.of(device, securityPropertySet);
     }
 

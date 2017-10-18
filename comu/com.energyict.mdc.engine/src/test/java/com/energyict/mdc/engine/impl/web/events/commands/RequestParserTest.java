@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.web.events.commands;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
@@ -85,6 +86,8 @@ public class RequestParserTest {
     private RunningComServer runningComServer;
     @Mock
     private OutboundCapableComServer comServer;
+    @Mock
+    private MessageSeed messageSeed;
 
     @Before
     public void initializeServiceProvider() {
@@ -94,6 +97,7 @@ public class RequestParserTest {
         when(this.serviceProvider.engineConfigurationService()).thenReturn(this.engineConfigurationService);
         when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
         when(this.runningComServer.getComServer()).thenReturn(this.comServer);
+        when(this.messageSeed.getDefaultFormat()).thenReturn("Something happened");
     }
 
     @Test(expected = UnexpectedRequestFormatException.class)
@@ -352,7 +356,7 @@ public class RequestParserTest {
         when(this.deviceService.findDeviceById(anyLong())).thenReturn(Optional.empty());
         when(this.deviceService.findDeviceByIdentifier(any(DeviceIdentifier.class))).thenReturn(Optional.empty());
         when(this.deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
-        doThrow(CanNotFindForIdentifier.device(mock(DeviceIdentifier.class), null)).when(this.identificationService).createDeviceIdentifierByMRID("unknown");
+        doThrow(CanNotFindForIdentifier.device(mock(DeviceIdentifier.class), messageSeed)).when(this.identificationService).createDeviceIdentifierByMRID("unknown");
         this.mockDevices();
         RequestParser parser = new RequestParser(this.runningComServer, this.serviceProvider);
 
@@ -371,7 +375,7 @@ public class RequestParserTest {
         when(this.deviceService.findDeviceById(anyLong())).thenReturn(Optional.empty());
         when(this.deviceService.findDeviceByIdentifier(any(DeviceIdentifier.class))).thenReturn(Optional.empty());
         when(this.deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
-        doThrow(CanNotFindForIdentifier.device(mock(DeviceIdentifier.class), null)).when(this.identificationService).createDeviceIdentifierByMRID(NON_EXISTING_DEVICE_MRID);
+        doThrow(CanNotFindForIdentifier.device(mock(DeviceIdentifier.class), messageSeed)).when(this.identificationService).createDeviceIdentifierByMRID(NON_EXISTING_DEVICE_MRID);
         this.mockDevices();
         RequestParser parser = new RequestParser(this.runningComServer, this.serviceProvider);
 
