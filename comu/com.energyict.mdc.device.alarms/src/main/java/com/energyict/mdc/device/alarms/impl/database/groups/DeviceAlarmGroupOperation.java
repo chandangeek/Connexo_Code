@@ -42,7 +42,7 @@ public abstract class DeviceAlarmGroupOperation {
         }
         Optional<DeviceAlarmGroupRealization> groupByRealizationRef = DeviceAlarmGroupRealization.of(filter.getGroupBy());
         if (!groupByRealizationRef.isPresent()) {
-            throw new IllegalArgumentException("We can't group issues by this column: " + filter.getGroupBy());
+            throw new IllegalArgumentException("We can't group alarms by this column: " + filter.getGroupBy());
         }
         DeviceAlarmGroupOperation operation = groupByRealizationRef.get().getOperation(dataModel, thesaurus);
         operation.setFilter(filter);

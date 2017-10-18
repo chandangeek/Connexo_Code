@@ -82,7 +82,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         userService.addModulePrivileges(this);
         run(() -> new CreateDeviceAlarmViewOperation(dataModel).execute(), "database schema. Execute command 'ddl " + DeviceAlarmService.COMPONENT_NAME + "' and apply the sql script manually", logger);
-        run(this::setAQSubscriber, "aq subscribers", logger);
+        run(this::setAQSubscribers, "aq subscribers", logger);
         run(() -> {
             IssueType issueType = setSupportedIssueType();
             setDefaultDeviceAlarmActions(issueType);
@@ -129,14 +129,28 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         return issueService.createIssueType(DeviceAlarmService.DEVICE_ALARM, TranslationKeys.ISSUE_TYPE_DEVICE_ALARM, DeviceAlarmService.DEVICE_ALARM_PREFIX);
     }
 
-    private void setAQSubscriber() {
+    private void setAQSubscribers() {
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
         try {
             destinationSpec.subscribe(
                     TranslationKeys.AQ_DEVICE_ALARM_EVENT_SUBSC,
                     DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN,
                     whereCorrelationId().isEqualTo("com/elster/jupiter/metering/enddeviceevent/CREATED"));
+        } catch (DuplicateSubscriberNameException e) {
+            // subscriber already exists, ignoring
+        }
 
+        try {
+            destinationSpec.subscribe(
+                    TranslationKeys.DEVICE_TYPES_CHANGES_EVENT_SUBSC,
+                    DeviceAlarmService.COMPONENT_NAME,
+                    Layer.DOMAIN,
+                    whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/devicetype/CREATED")
+                            .or(whereCorrelationId().isEqualTo("com/elster/jupiter/metering/enddeviceevent/CREATED"))
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/devicetype/DELETED"))
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/devicetype/dlc/UPDATED"))
+                            .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/lifecycle/config/dlc/update"))
+                            .or(whereCorrelationId().isEqualTo("com/elster/jupiter/fsm/UPDATED")));
         } catch (DuplicateSubscriberNameException e) {
             // subscriber already exists, ignoring
         }
