@@ -22,6 +22,8 @@ Ext.define('Uni.grid.filtertop.Interval', {
     originalTitle: null,
     withoutTime: false,
     minValue: undefined,
+    fromAndToValueRequired: false,
+    maxValue: undefined,
 
     initComponent: function () {
         var me = this;
@@ -87,13 +89,19 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     {
                                         xtype: 'datefield',
                                         minValue: me.minValue,
+                                        maxValue: me.maxValue,
                                         itemId: 'fromDate',
                                         editable: false,
                                         value: me.defaultFromDate,
                                         margins: '0 1 0 0',
                                         format: Uni.util.Preferences.lookup(Uni.DateTime.dateLongKey, Uni.DateTime.dateLongDefault),
                                         emptyText: Uni.I18n.translate('grid.filter.date.datefield.emptytext', 'UNI', 'Select a date'),
-                                        width: 129
+                                        width: 129,
+                                        listeners: {
+                                            'select' : function() {
+                                                me.updateClearButton();
+                                            }
+                                        }
                                     }
                                 ]
                             },
@@ -191,13 +199,19 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     {
                                         xtype: 'datefield',
                                         minValue: me.minValue,
+                                        maxValue: me.maxValue,
                                         itemId: 'toDate',
                                         editable: false,
                                         value: me.defaultToDate,
                                         margins: '0 1 0 0',
                                         format: Uni.util.Preferences.lookup(Uni.DateTime.dateLongKey, Uni.DateTime.dateLongDefault),
                                         emptyText: Uni.I18n.translate('grid.filter.date.datefield.emptytext', 'UNI', 'Select a date'),
-                                        width: 129
+                                        width: 129,
+                                        listeners: {
+                                            'select' : function() {
+                                                me.updateClearButton();
+                                            }
+                                        }
                                     }
                                 ]
                             },
@@ -303,7 +317,8 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                         xtype: 'button',
                                         ui: 'action',
                                         action: 'apply',
-                                        text: Uni.I18n.translate('general.apply', 'UNI', 'Apply')
+                                        text: Uni.I18n.translate('general.apply', 'UNI', 'Apply'),
+                                        disabled: me.fromAndToValueRequired ? (me.defaultFromDate && me.defaultToDate ? false : true) : false
                                     },
                                     {
                                         xtype: 'button',
@@ -391,6 +406,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
         me.fireFilterUpdateEvent();
         me.getChooseIntervalButton().hideMenu();
         me.updateTitle();
+        me.updateClearButton();
     },
 
     resetValue: function () {
@@ -551,6 +567,10 @@ Ext.define('Uni.grid.filtertop.Interval', {
         } else {
             me.getClearButton().setDisabled(false);
         }
+
+        if (me.fromAndToValueRequired) {
+            me.getApplyButton().setDisabled( Ext.isEmpty(currentFromDate) || Ext.isEmpty(currentToDate) );
+        }
     },
 
     getChooseIntervalButton: function () {
@@ -587,6 +607,10 @@ Ext.define('Uni.grid.filtertop.Interval', {
 
     getClearButton: function () {
         return this.down('button[action=clear]');
+    },
+
+    getApplyButton: function () {
+        return this.down('button[action=apply]');
     },
 
     updateTitle: function() {
