@@ -12,4 +12,5 @@ public class KeypairWrapperInfo {
     public Boolean hasPrivateKey;
     public String keyEncryptionMethod;
     public IdWithNameInfo keyType;
+    public String key;
 }
