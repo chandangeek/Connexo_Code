@@ -840,7 +840,7 @@ public class PKIServiceImplIT {
         x500NameBuilder.addRDN(BCStyle.CN, "ComserverTlsClient");
         PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
                 .generateCSR(x500NameBuilder.build(), certificateType.getSignatureAlgorithm());
-        clientCertificateWrapper.setCSR(pkcs10CertificationRequest);
+        clientCertificateWrapper.setCSR(pkcs10CertificationRequest,certificateType.getKeyUsages(),certificateType.getExtendedKeyUsages());
         clientCertificateWrapper.save();
 
         // Assertions
@@ -1143,26 +1143,7 @@ public class PKIServiceImplIT {
 
         List<CertificateWrapper> certificates = reloaded.stream().collect(toList());
         assertThat(certificates).hasSize(1);
-        assertTrue(certificates.get(0).getStringifiedKeyUsages().contains(digitalSignature.toString()));
-    }
-
-    @Test
-    @Transactional
-    public void testFindCertificatesByExtendedKeyUsagesParameterFilter() throws Exception {
-        cleanup(inMemoryPersistence);
-
-        PkiService pkiService = inMemoryPersistence.getPkiService();
-        X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
-        CertificateWrapper certificateWrapper = pkiService.newCertificateWrapper("myCert6");
-        certificateWrapper.setCertificate(certificate);
-
-        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter("[{\"property\":\"extendedKeyUsages\",\"value\":[\"" + tlsWebServerAuthentication + "\"]}]");
-
-        Finder<CertificateWrapper> reloaded = pkiService.getExtendedKeyUsagesByFilter(new ExtendedKeyUsagesParameterFilter(pkiService, jsonQueryFilter));
-
-        List<CertificateWrapper> certificates = reloaded.stream().collect(toList());
-        assertThat(certificates).hasSize(1);
-        assertTrue(certificates.get(0).getStringifiedExtendedKeyUsages().contains(tlsWebServerAuthentication.toString()));
+        assertTrue(certificates.get(0).getStringifiedKeyUsages().get().contains(digitalSignature.toString()));
     }
 
     @Test
@@ -1209,7 +1190,6 @@ public class PKIServiceImplIT {
         filter.subject = Optional.empty();
         filter.issuer = Optional.empty();
         filter.keyUsages = Optional.empty();
-        filter.extendedKeyUsages = Optional.empty();
         filter.intervalFrom = Optional.empty();
         filter.intervalTo = Optional.empty();
 

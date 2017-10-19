@@ -45,8 +45,8 @@ public class UpgraderV10_4 implements Upgrader {
                         try {
                             csr.getCertificate().ifPresent(cert -> csr.setSubject(cert.getSubjectDN().toString()));
                             csr.getCertificate().ifPresent(cert -> csr.setIssuer(cert.getIssuerDN().toString()));
-                            csr.setKeyUsagesCsv(csr.stringifyKeyUsages(csr.getKeyUsages()));
-                            csr.setExtendedKeyUsagesCsv(csr.stringifyExtendedKeyUsages(csr.getExtendedKeyUsages()));
+                            csr.setKeyUsagesCsv(csr.stringifyKeyUsages(csr.getKeyUsages(),csr.getExtendedKeyUsages()));
+//                            csr.setExtendedKeyUsagesCsv(csr.stringifyExtendedKeyUsages(csr.getExtendedKeyUsages()));
                             csr.save();
                         } catch (CertificateParsingException e) {
                             throw new PkiLocalizedException(thesaurus, MessageSeeds.COULD_NOT_READ_KEY_USAGES);
@@ -63,11 +63,10 @@ public class UpgraderV10_4 implements Upgrader {
                 .map(x -> {
                     for (TrustedCertificate trustedCertificate : x.getCertificates()) {
                         try {
-                            trustedCertificate.getCertificate().ifPresent(cert -> trustedCertificate.setSubject(cert.getSubjectDN().toString()));
-                            trustedCertificate.getCertificate().ifPresent(cert -> trustedCertificate.setIssuer(cert.getIssuerDN().toString()));
-                            trustedCertificate.setKeyUsagesCsv(trustedCertificate.stringifyKeyUsages(trustedCertificate.getKeyUsages()));
-                            trustedCertificate.setExtendedKeyUsagesCsv(trustedCertificate.stringifyExtendedKeyUsages(trustedCertificate.getExtendedKeyUsages()));
-                            trustedCertificate.save();
+                        trustedCertificate.getCertificate().ifPresent(cert -> trustedCertificate.setSubject(cert.getSubjectDN().toString()));
+                        trustedCertificate.getCertificate().ifPresent(cert -> trustedCertificate.setIssuer(cert.getIssuerDN().toString()));
+                        trustedCertificate.setKeyUsagesCsv(trustedCertificate.stringifyKeyUsages(trustedCertificate.getKeyUsages(),trustedCertificate.getExtendedKeyUsages()));
+                        trustedCertificate.save();
                         } catch (CertificateParsingException e) {
                             throw new PkiLocalizedException(thesaurus, MessageSeeds.COULD_NOT_READ_KEY_USAGES);
                         }

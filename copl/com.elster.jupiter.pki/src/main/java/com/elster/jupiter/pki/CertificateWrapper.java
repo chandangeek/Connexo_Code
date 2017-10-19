@@ -132,13 +132,7 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
 
     void setKeyUsagesCsv(String keyUsages);
 
-    String stringifyKeyUsages(Set<KeyUsage> keyUsages);
+    String stringifyKeyUsages(Set<KeyUsage> keyUsages, Set<ExtendedKeyUsage> extendedKeyUsages);
 
-    String getStringifiedKeyUsages();
-
-    void setExtendedKeyUsagesCsv(String extendedKeyUsages);
-
-    String stringifyExtendedKeyUsages(Set<ExtendedKeyUsage> extendedKeyUsages);
-
-    String getStringifiedExtendedKeyUsages();
+    Optional<String> getStringifiedKeyUsages();
 }

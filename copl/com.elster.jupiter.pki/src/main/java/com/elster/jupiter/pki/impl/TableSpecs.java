@@ -115,11 +115,6 @@ public enum TableSpecs {
                     .map(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName())
                     .since(Version.version(10, 4))
                     .add();
-            table.column("EXTENDEDKEYUSAGESCSV")
-                    .varChar()
-                    .map(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName())
-                    .since(Version.version(10, 4))
-                    .add();
             Column trustStoreColumn = table.column("TRUSTSTORE")
                     .number()
                     .add();

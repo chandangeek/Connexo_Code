@@ -285,14 +285,14 @@ public interface PkiService {
      */
     Finder<CertificateWrapper> getKeyUsagesByFilter(KeyUsagesParameterFilter searchFilter);
 
-    /**
-     * List all known extendedKeyUsages from the certificate store that match the search filter.
-     *
-     * @param searchFilter Search filter for extendedKeyUsages, possibly containing wildcards for extendedKeyUsages
-     * @return Finder for matching keyUsages. If more results are available
-     * than requested, limit+1 results will be returned.
-     */
-    Finder<CertificateWrapper> getExtendedKeyUsagesByFilter(ExtendedKeyUsagesParameterFilter searchFilter);
+//    /**
+//     * List all known extendedKeyUsages from the certificate store that match the search filter.
+//     *
+//     * @param searchFilter Search filter for extendedKeyUsages, possibly containing wildcards for extendedKeyUsages
+//     * @return Finder for matching keyUsages. If more results are available
+//     * than requested, limit+1 results will be returned.
+//     */
+//    Finder<CertificateWrapper> getExtendedKeyUsagesByFilter(ExtendedKeyUsagesParameterFilter searchFilter);
 
     /**
      * List all known certificates from the certificate store that match the search filter.
@@ -320,7 +320,6 @@ public interface PkiService {
         public Optional<List<String>> subject;
         public Optional<List<String>> issuer;
         public Optional<List<String>> keyUsages;
-        public Optional<List<String>> extendedKeyUsages;
         public Optional<Instant> intervalFrom;
         public Optional<Instant> intervalTo;
     }

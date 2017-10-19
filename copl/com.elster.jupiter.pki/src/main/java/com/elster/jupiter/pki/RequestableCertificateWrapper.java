@@ -6,6 +6,7 @@ package com.elster.jupiter.pki;
 
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
+import java.util.EnumSet;
 import java.util.Optional;
 
 /**
@@ -19,6 +20,7 @@ public interface RequestableCertificateWrapper extends CertificateWrapper {
     /**
      * If a CSR was created for this placeholder in order to obtain or renew a certificate, the CSR can be retrieved through this method.
      * We choose not to use the restricted class {@link sun.security.pkcs10.PKCS10} as return type for this method.
+     *
      * @return PKCS10CertificationRequest if one was generated for this placeholder.
      */
     Optional<PKCS10CertificationRequest> getCSR();
@@ -26,8 +28,9 @@ public interface RequestableCertificateWrapper extends CertificateWrapper {
     /**
      * Sets the CSR for this certificate wrapper. Most commonly this method will be called after having obtained a CSR from a device.
      * Nothing is done with the CSR, it is merely stored so that it can be exported when needed.
+     *
      * @param csr The CSR to associate with this certificate wrapper.
      */
-    void setCSR(PKCS10CertificationRequest csr);
+    void setCSR(PKCS10CertificationRequest csr, EnumSet<KeyUsage> keyUsages, EnumSet<ExtendedKeyUsage> extendedKeyUsages);
 
 }

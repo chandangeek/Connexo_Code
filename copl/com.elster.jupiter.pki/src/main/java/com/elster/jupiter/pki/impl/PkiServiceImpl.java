@@ -558,27 +558,6 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public Finder<CertificateWrapper> getExtendedKeyUsagesByFilter(ExtendedKeyUsagesParameterFilter searchFilter) {
-        Condition searchCondition;
-        if (searchFilter.trustStore == null) {
-            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName())
-                    .likeIgnoreCase(searchFilter.searchValue)
-                    .and(where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName()).isNotNull())
-                    .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
-        } else {
-            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName())
-                    .likeIgnoreCase(searchFilter.searchValue)
-                    .and(where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName()).isNotNull())
-                    .and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(searchFilter.trustStore));
-        }
-
-        return DefaultFinder.of(CertificateWrapper.class,
-                searchCondition, getDataModel())
-                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName() + ")", true)
-                .maxPageSize(thesaurus, 100);
-    }
-
-    @Override
     public Finder<CertificateWrapper> findCertificatesByFilter(DataSearchFilter dataSearchFilter) {
         return DefaultFinder.of(CertificateWrapper.class,
                 getSearchCondition(dataSearchFilter), getDataModel())
@@ -621,17 +600,6 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
             searchCondition = searchCondition
                     .and(where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName()).isNotNull()
                             .and(UsageIn));
-        }
-        if (dataSearchFilter.extendedKeyUsages.isPresent()) {
-            Condition ExtendedUsageIn = Condition.FALSE;
-
-            for (String extendedKeyUsage : dataSearchFilter.extendedKeyUsages.get()) {
-                ExtendedUsageIn = ExtendedUsageIn.or(where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName()).likeIgnoreCase(extendedKeyUsage));
-            }
-
-            searchCondition = searchCondition
-                    .and(where(AbstractCertificateWrapperImpl.Fields.EXT_KEY_USAGES.fieldName()).isNotNull()
-                            .and(ExtendedUsageIn));
         }
         if (dataSearchFilter.intervalFrom.isPresent() && dataSearchFilter.intervalTo.isPresent()) {
             searchCondition = searchCondition

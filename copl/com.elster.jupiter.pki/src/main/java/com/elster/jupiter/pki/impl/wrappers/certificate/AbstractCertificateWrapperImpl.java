@@ -77,8 +77,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         ID("id"),
         SUBJECT("subject"),
         ISSUER("issuer"),
-        KEY_USAGES("keyUsagesCsv"),
-        EXT_KEY_USAGES("extendedKeyUsagesCsv");
+        KEY_USAGES("keyUsagesCsv");
 
         private final String fieldName;
 
@@ -165,13 +164,10 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         try {
             this.certificate = certificate.getEncoded();
             this.expirationTime = certificate.getNotAfter().toInstant();
-            this.subject = x500FormattedName(certificate.getSubjectDN().getName()).replaceAll("\\s+","");
-            this.issuer = x500FormattedName(certificate.getIssuerDN().getName()).replaceAll("\\s+","");
+            this.subject = x500FormattedName(certificate.getSubjectDN().getName()).replaceAll("\\s+", "");
+            this.issuer = x500FormattedName(certificate.getIssuerDN().getName()).replaceAll("\\s+", "");
             if (getCertificateKeyUsages(certificate).size() > 0) {
                 this.keyUsagesCsv = Joiner.on(", ").join(getCertificateKeyUsages(certificate).stream().map(Enum::name).collect(toList()));
-            }
-            if (getCertificateExtendedKeyUsages(certificate).size() > 0) {
-                this.extendedKeyUsagesCsv = Joiner.on(", ").join(getCertificateExtendedKeyUsages(certificate).stream().map(Enum::name).collect(toList()));
             }
             this.save();
         } catch (CertificateEncodingException e) {
@@ -180,22 +176,6 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             throw exceptionFactory.newException(MessageSeeds.INVALID_DN);
         }
     }
-
-//    String x500FormattedName(String x500Name) {
-//        try {
-//            return new LdapName(x500Name)
-//                    .getRdns()
-//                    .stream()
-//                    .sorted(Comparator.comparing(rdn -> rdsOrder.getOrDefault(rdn.getType(), 7)))
-//                    .map(Rdn::toString)
-//                    .reduce((a, b) -> a + ", " + b)
-//                    .map(X500Principal::new)
-//                    .map(p -> p.getName(X500Principal.RFC1779))
-//                    .get();
-//        } catch (InvalidNameException e) {
-//            throw exceptionFactory.newException(MessageSeeds.INVALID_DN);
-//        }
-//    }
 
     @Override
     public long getVersion() {
@@ -392,18 +372,14 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         this.issuer = issuer;
     }
 
-    public String stringifyKeyUsages(Set<KeyUsage> keyUsages) {
+    public String stringifyKeyUsages(Set<KeyUsage> keyUsages, Set<ExtendedKeyUsage> extendedKeyUsages) {
         List<String> collect = keyUsages.stream().map(Enum::name).collect(toList());
+        collect.addAll(extendedKeyUsages.stream().map(Enum::name).collect(toList()));
         return Joiner.on(", ").join(collect);
     }
 
-    public String getStringifiedKeyUsages() {
-        return keyUsagesCsv;
-    }
-
-    public String stringifyExtendedKeyUsages(Set<ExtendedKeyUsage> extendedKeyUsages) {
-        List<String> collect = extendedKeyUsages.stream().map(Enum::name).collect(toList());
-        return Joiner.on(", ").join(collect);
+    public Optional<String> getStringifiedKeyUsages() {
+        return keyUsagesCsv != null ? Optional.of(keyUsagesCsv) : Optional.empty();
     }
 
     public void setKeyUsagesCsv(String keyUsages) {
@@ -413,18 +389,5 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     public String getKeyUsagesCsv() {
         return this.keyUsagesCsv;
     }
-
-    public void setExtendedKeyUsagesCsv(String extendedKeyUsages) {
-        this.extendedKeyUsagesCsv = extendedKeyUsages;
-    }
-
-    public String getExtendedKeyUsagesCsv() {
-        return this.extendedKeyUsagesCsv;
-    }
-
-    public String getStringifiedExtendedKeyUsages() {
-        return extendedKeyUsagesCsv;
-    }
-
 
 }

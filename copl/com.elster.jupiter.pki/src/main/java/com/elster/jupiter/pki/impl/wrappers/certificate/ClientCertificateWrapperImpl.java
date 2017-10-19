@@ -61,7 +61,7 @@ public class ClientCertificateWrapperImpl extends RequestableCertificateWrapperI
 
     @Override
     public void generateCSR(X500Name subjectDN) {
-        setCSR(getPrivateKeyWrapper().generateCSR(subjectDN, getKeyType().getSignatureAlgorithm()));
+        setCSR(getPrivateKeyWrapper().generateCSR(subjectDN, getKeyType().getSignatureAlgorithm()),getKeyType().getKeyUsages(),getKeyType().getExtendedKeyUsages());
         save();
     }
 
