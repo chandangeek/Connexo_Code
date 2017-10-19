@@ -117,7 +117,7 @@ public class KeyAccessorCommands {
         Device device = deviceService.findDeviceByName(deviceName)
                 .orElseThrow(() -> new RuntimeException("No such device"));
         List<List<?>> collection = new ArrayList<>();
-        for (KeyAccessorType keyAccessorType: device.getDeviceType().getKeyAccessorTypes()) {
+        for (KeyAccessorType keyAccessorType : device.getDeviceType().getKeyAccessorTypes()) {
             Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(keyAccessorType);
             String actualExtraValue = "";
             String tempExtraValue = "";
@@ -150,12 +150,12 @@ public class KeyAccessorCommands {
             }
             collection.add(Arrays.asList(keyAccessorType.getName(),
                     keyAccessorType.getKeyType().getName(),
-                    keyAccessor.isPresent() && keyAccessor.get().getActualValue().isPresent() ? (actualExtraValue.isEmpty()?"Accessor present":actualExtraValue):"",
-                    keyAccessor.isPresent() && keyAccessor.get().getTempValue().isPresent() ? (tempExtraValue.isEmpty()?"Accessor present":tempExtraValue):""
+                    keyAccessor.isPresent() && keyAccessor.get().getActualValue().isPresent() ? (actualExtraValue.isEmpty() ? "Accessor present" : actualExtraValue) : "",
+                    keyAccessor.isPresent() && keyAccessor.get().getTempValue().isPresent() ? (tempExtraValue.isEmpty() ? "Accessor present" : tempExtraValue) : ""
             ));
         }
 
-        MYSQL_PRINT.printTableWithHeader(Arrays.asList("Key accessor type", "Key type","Current value", "Temp value"), collection);
+        MYSQL_PRINT.printTableWithHeader(Arrays.asList("Key accessor type", "Key type", "Current value", "Temp value"), collection);
     }
 
     private String toString(String extraValue, ClientCertificateWrapper value) throws InvalidKeyException {
@@ -178,7 +178,7 @@ public class KeyAccessorCommands {
 
     public void importCertificateWithKey(String deviceName, String certKatName, String pkcs12Name, String pkcs12Password, String alias)
             throws KeyStoreException, IOException, CertificateException,
-                        NoSuchAlgorithmException, UnrecoverableKeyException {
+            NoSuchAlgorithmException, UnrecoverableKeyException {
 
         threadPrincipalService.set(() -> "Console");
 
@@ -190,17 +190,17 @@ public class KeyAccessorCommands {
                     .stream()
                     .filter(kat -> kat.getName().equals(certKatName))
                     .findAny()
-                    .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: "+certKatName));
+                    .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: " + certKatName));
 
             KeyStore pkcs12 = KeyStore.getInstance("pkcs12");
             pkcs12.load(new FileInputStream(pkcs12Name), pkcs12Password.toCharArray());
             Certificate certificate = pkcs12.getCertificate(alias);
-            if (certificate==null) {
-                throw new RuntimeException("The keystore does not contain a certificate with alias "+alias);
+            if (certificate == null) {
+                throw new RuntimeException("The keystore does not contain a certificate with alias " + alias);
             }
             Key key = pkcs12.getKey(alias, pkcs12Password.toCharArray());
-            if (key==null) {
-                throw new RuntimeException("The keystore does not contain a key with alias "+alias);
+            if (key == null) {
+                throw new RuntimeException("The keystore does not contain a key with alias " + alias);
             }
             ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(certKeyAccessorType.getKeyType(), certKeyAccessorType.getKeyEncryptionMethod()).alias(alias).add();
             clientCertificateWrapper.setCertificate((X509Certificate) certificate);
@@ -210,7 +210,7 @@ public class KeyAccessorCommands {
             privateKeyWrapper.save();
 
             KeyAccessor keyAccessor = device.getKeyAccessor(certKeyAccessorType)
-                    .orElseGet(()->device.newKeyAccessor(certKeyAccessorType));
+                    .orElseGet(() -> device.newKeyAccessor(certKeyAccessorType));
             keyAccessor.setActualValue(clientCertificateWrapper);
             keyAccessor.save();
             context.commit();
@@ -235,13 +235,13 @@ public class KeyAccessorCommands {
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: " + keyAccessorTypeName));
 
-            KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType).orElseGet(()->device.newKeyAccessor(keyAccessorType));
+            KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType).orElseGet(() -> device.newKeyAccessor(keyAccessorType));
             if (keyAccessor.getActualValue().isPresent()) {
                 PlaintextPassphrase actualValue = (PlaintextPassphrase) keyAccessor.getActualValue().get();
                 actualValue.setPassphrase(cleartextPassword);
             } else {
                 PassphraseWrapper passphraseWrapper = pkiService.newPassphraseWrapper(keyAccessorType);
-                ((PlaintextPassphrase)passphraseWrapper).setPassphrase(cleartextPassword);
+                ((PlaintextPassphrase) passphraseWrapper).setPassphrase(cleartextPassword);
                 keyAccessor.setActualValue(passphraseWrapper);
                 keyAccessor.save();
             }
@@ -256,7 +256,7 @@ public class KeyAccessorCommands {
 
     public void importSymmetricKey(String deviceName, String keyAccessTypeName, String keyStoreName, String keyStorePassword, String alias)
             throws KeyStoreException, IOException, CertificateException,
-                        NoSuchAlgorithmException, UnrecoverableKeyException {
+            NoSuchAlgorithmException, UnrecoverableKeyException {
 
         threadPrincipalService.set(() -> "Console");
 
@@ -268,22 +268,22 @@ public class KeyAccessorCommands {
                     .stream()
                     .filter(kat -> kat.getName().equals(keyAccessTypeName))
                     .findAny()
-                    .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: "+keyAccessTypeName));
+                    .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: " + keyAccessTypeName));
 
             KeyStore keyStore = KeyStore.getInstance("JCEKS");
             keyStore.load(new FileInputStream(keyStoreName), keyStorePassword.toCharArray());
             Key key = keyStore.getKey(alias, keyStorePassword.toCharArray());
-            if (key==null) {
-                throw new RuntimeException("The keystore does not contain a key with alias "+alias);
+            if (key == null) {
+                throw new RuntimeException("The keystore does not contain a key with alias " + alias);
             }
 
             SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessorType);
-            ((PlaintextSymmetricKey)symmetricKeyWrapper).setKey(new SecretKeySpec(key.getEncoded(), key.getAlgorithm()));
+            ((PlaintextSymmetricKey) symmetricKeyWrapper).setKey(new SecretKeySpec(key.getEncoded(), key.getAlgorithm()));
             Optional<KeyAccessor> keyAccessorOptional = device.getKeyAccessor(keyAccessorType);
             KeyAccessor<SymmetricKeyWrapper> keyAccessor;
             if (keyAccessorOptional.isPresent()) {
                 if (keyAccessorOptional.get().getActualValue().isPresent()) {
-                    ((SymmetricKeyWrapper)keyAccessorOptional.get().getActualValue().get()).delete();
+                    ((SymmetricKeyWrapper) keyAccessorOptional.get().getActualValue().get()).delete();
                 }
                 keyAccessor = keyAccessorOptional.get();
             } else {
@@ -321,11 +321,11 @@ public class KeyAccessorCommands {
             x500NameBuilder.addRDN(BCStyle.CN, cn);
             PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
                     .generateCSR(x500NameBuilder.build(), certKeyAccessorType.getKeyType().getSignatureAlgorithm());
-            clientCertificateWrapper.setCSR(pkcs10CertificationRequest);
+            clientCertificateWrapper.setCSR(pkcs10CertificationRequest, certKeyAccessorType.getKeyType().getKeyUsages(), certKeyAccessorType.getKeyType().getExtendedKeyUsages());
             clientCertificateWrapper.save();
             context.commit();
         } catch (Exception e) {
-            System.err.println("Failed to create CSR: "+e.getMessage());
+            System.err.println("Failed to create CSR: " + e.getMessage());
         }
     }
 
@@ -355,7 +355,7 @@ public class KeyAccessorCommands {
 
             context.commit();
         } catch (Exception e) {
-            System.err.println("Failed to renew value: "+e.getMessage());
+            System.err.println("Failed to renew value: " + e.getMessage());
         }
     }
 
@@ -385,7 +385,7 @@ public class KeyAccessorCommands {
 
             context.commit();
         } catch (Exception e) {
-            System.err.println("Failed to swap values: "+e.getMessage());
+            System.err.println("Failed to swap values: " + e.getMessage());
         }
     }
 
@@ -415,7 +415,7 @@ public class KeyAccessorCommands {
 
             context.commit();
         } catch (Exception e) {
-            System.err.println("Failed to clear temp value: "+e.getMessage());
+            System.err.println("Failed to clear temp value: " + e.getMessage());
         }
     }
 

@@ -113,7 +113,7 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
         X500Name x500Name = getDNFromCertificate(getActualValue().get());
         PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
                 .generateCSR(x500Name, getKeyAccessorType().getKeyType().getSignatureAlgorithm());
-        clientCertificateWrapper.setCSR(pkcs10CertificationRequest);
+        clientCertificateWrapper.setCSR(pkcs10CertificationRequest,getKeyAccessorType().getKeyType().getKeyUsages(),getKeyAccessorType().getKeyType().getExtendedKeyUsages());
         clientCertificateWrapper.save();
         tempCertificate.set(clientCertificateWrapper);
         this.save();
