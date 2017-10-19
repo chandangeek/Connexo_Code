@@ -159,21 +159,6 @@ public class TrustStoreResource {
         return PagedInfoList.fromPagedList("keyUsages", collect, queryParameters);
     }
 
-    @GET
-    @Path("/{id}/certificates/extendedkeyusages")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
-    public PagedInfoList getCertificateExtendedKeyUsages(@PathParam("id") long id, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        TrustStore trustStore = findTrustStoreOrThrowException(id);
-        List<ExtendedKeyUsageInfo> collect = trustStore.getCertificates().stream()
-                .map(TrustStoreResource::applyExtendedKeyUsages)
-                .flatMap(Collection::stream)
-                .distinct()
-                .map((ExtendedKeyUsage extendedKeyUsage) -> new ExtendedKeyUsageInfo(extendedKeyUsage.name()))
-                .collect(toList());
-
-        return PagedInfoList.fromPagedList("extendedKeyUsages", collect, queryParameters);
-    }
 
     @GET
     @Path("{id}/certificates/{certificateId}/download/certificate")

@@ -18,7 +18,6 @@ public class DataSearchFilterFactory {
         dataSearchFilter.subject = params.getStringList("subject");
         dataSearchFilter.issuer = params.getStringList("issuer");
         dataSearchFilter.keyUsages = params.getStringList("keyUsages");
-        dataSearchFilter.extendedKeyUsages = params.getStringList("extendedKeyUsages");
         dataSearchFilter.intervalFrom = params.getInstant("intervalFrom");
         dataSearchFilter.intervalTo = params.getInstant("intervalTo");
 

@@ -33,6 +33,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -143,27 +144,7 @@ public class CertificateWrapperResource {
                 .map(KeyUsageInfo::new)
                 .collect(toList());
 
-        return PagedInfoList.fromPagedList("keyusages", infos, queryParameters);
-    }
-
-
-    @GET
-    @Path("/extendedkeyusages")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public PagedInfoList extendedKeyUsagesSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        ExtendedKeyUsagesParameterFilter filter = new ExtendedKeyUsagesParameterFilter(pkiService, jsonQueryFilter);
-        List<ExtendedKeyUsageInfo> infos = pkiService.getExtendedKeyUsagesByFilter(filter)
-                .from(queryParameters)
-                .stream()
-                .map(CertificateWrapper::getStringifiedExtendedKeyUsages)
-                .map(x -> filterKeyUsagesbySearchParam().apply(x, filter.searchValue))
-                .flatMap(Collection::stream)
-                .distinct()
-                .map(ExtendedKeyUsageInfo::new)
-                .collect(toList());
-
-        return PagedInfoList.fromPagedList("extendedkeyusages", infos, queryParameters);
+        return PagedInfoList.fromPagedList("keyUsages", infos, queryParameters);
     }
 
     @POST
@@ -342,12 +323,18 @@ public class CertificateWrapperResource {
         }
     }
 
-    private BiFunction<String, String, List<String>> filterKeyUsagesbySearchParam() {
-        return (String usages, String searchParam) ->
-                Stream.of(usages.split(","))
+    private BiFunction<Optional<String>, String, List<String>> filterKeyUsagesbySearchParam() {
+        return (Optional<String> usages, String searchParam) -> {
+            if (usages.isPresent()) {
+                return Stream.of(usages.get().split(","))
                         .filter(x -> x.toLowerCase().trim().contains(searchParam.
                                 replace("*", "")
                                 .replace("?", "")))
                         .collect(toList());
+
+            } else {
+                return Collections.emptyList();
+            }
+        };
     }
 }
