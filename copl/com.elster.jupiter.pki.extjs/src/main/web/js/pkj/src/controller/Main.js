@@ -56,6 +56,10 @@ Ext.define('Pkj.controller.Main', {
                     {
                         text: Uni.I18n.translate('general.certificates', 'PKJ', 'Certificates'),
                         href: '#/administration/certificates'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.keyPairManagment', 'PKJ', 'Keypairs'),
+                        href: '#/administration/keypairs'
                     }
                 ]
             });

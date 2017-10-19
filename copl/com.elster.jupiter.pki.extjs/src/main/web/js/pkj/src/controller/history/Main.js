@@ -114,6 +114,29 @@ Ext.define('Pkj.controller.history.Main', {
                             }
                         }
                     }
+                },
+                keypairs: {
+                    title: Uni.I18n.translate('general.keypairs', 'PKJ', 'Key pairs'),
+                    privileges: Pkj.privileges.CertificateManagement.view,
+                    route: 'keypairs',
+                    controller: 'Pkj.controller.KeyPairs',
+                    action: 'showKeyPairs',
+                    items: {
+                        generate: {
+                            route: 'generate',
+                            title: Uni.I18n.translate('general.generateKeypair', 'PKJ', 'Generate key pair'),
+                            privileges: Pkj.privileges.CertificateManagement.adminCertificates,
+                            controller: 'Pkj.controller.KeyPairs',
+                            action: 'showGenerateKeyPairPage'
+                        },
+                        import: {
+                            route: 'import',
+                            title: Uni.I18n.translate('general.importKeypair', 'PKJ', 'Import key pair'),
+                            privileges: Pkj.privileges.CertificateManagement.adminCertificates,
+                            controller: 'Pkj.controller.KeyPairs',
+                            action: 'showImportKeyPairPage'
+                        }
+                    }
                 }
             }
         }
