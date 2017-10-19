@@ -88,11 +88,11 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
 
     private Optional<ReadingType> getReadingTypeByObisCode(String readingTypeStr, long lineNumber) {
         List<Integer> channelsList = IntStream.range(0, device.getChannels().size()).boxed()
-                .filter(o -> device.getChannels().get(o).getObisCode().toString().equals(readingTypeStr))
+                .filter(opt -> device.getChannels().get(opt).getObisCode().toString().equals(readingTypeStr))
                 .collect(Collectors.toList());
 
         List<Integer> registersList = IntStream.range(0, device.getRegisters().size()).boxed()
-                .filter(o -> device.getRegisters().get(0).getObisCode().toString().equals(readingTypeStr))
+                .filter(opt -> device.getRegisters().get(opt).getObisCode().toString().equals(readingTypeStr))
                 .collect(Collectors.toList());
 
         Optional<ReadingType> readingType = Optional.empty();
@@ -195,20 +195,20 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
             if (MacroPeriod.YEARLY == readingType.getMacroPeriod() && !(readingDate.getDayOfYear() == 1 && validTimeOfDay(readingDate))) {
                 throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_YEARLY_CHANNEL, lineNumber, readingType.getMRID(), readingDate.getZone());
             }
-            if (!validMinutes(readingType.getMeasuringPeriod(), readingDate)) {
-                throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_15_MINUTES_CHANNEL, lineNumber, readingType
-                        .getMRID(), readingDate.getZone());
+            if (readingType.getMeasuringPeriod()
+                    .isApplicable() && !validMinutes(readingType.getMeasuringPeriod(), readingDate)) {
+                throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_MINUTES_CHANNEL, lineNumber, readingType
+                        .getMRID(), readingType.getMeasuringPeriod().getMinutes(), readingDate.getZone());
             }
         }
     }
-
 
     private boolean validTimeOfDay(ZonedDateTime dateTime) {
         return dateTime.getHour() == 0 && dateTime.getMinute() == 0 && dateTime.getSecond() == 0 && dateTime.getNano() == 0;
     }
 
     private boolean validMinutes(TimeAttribute timeAttribute, ZonedDateTime dateTime) {
-        return (dateTime.getMinute() % timeAttribute.getMinutes()) == 0;
+        return timeAttribute.getMinutes() > 0 && (dateTime.getMinute() % timeAttribute.getMinutes()) == 0;
     }
 
     private ValueValidator createValueValidator(Device device, ReadingType readingType, FileImportLogger logger, long lineNumber) {
