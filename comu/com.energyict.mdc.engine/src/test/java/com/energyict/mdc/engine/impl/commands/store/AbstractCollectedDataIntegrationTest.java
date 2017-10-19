@@ -87,6 +87,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
@@ -128,14 +129,16 @@ public abstract class AbstractCollectedDataIntegrationTest {
     @BeforeClass
     public static void initializeDatabase() {
         initializeClock();
+        ComponentContext componentContext = mock(ComponentContext.class);
         BundleContext bundleContext = mock(BundleContext.class);
+        when(componentContext.getBundleContext()).thenReturn(bundleContext);
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("InMemoryPersistence");
         LicenseService licenseService = mock(LicenseService.class);
         bootstrapModule = new InMemoryBootstrapModule();
         EventAdmin eventAdmin = mock(EventAdmin.class);
         injector = Guice.createInjector(
-                new MockModule(bundleContext, eventAdmin, licenseService),
+                new MockModule(componentContext, eventAdmin, licenseService),
                 bootstrapModule,
                 new UtilModule(clock),
                 new ThreadSecurityModule(principal),
@@ -286,13 +289,13 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
     private static class MockModule extends AbstractModule {
 
-        private final BundleContext bundleContext;
+        private final ComponentContext componentContext;
         private final EventAdmin eventAdmin;
         private final LicenseService licenseService;
 
-        private MockModule(BundleContext bundleContext, EventAdmin eventAdmin, LicenseService licenseService) {
+        private MockModule(ComponentContext componentContext, EventAdmin eventAdmin, LicenseService licenseService) {
             super();
-            this.bundleContext = bundleContext;
+            this.componentContext = componentContext;
             this.eventAdmin = eventAdmin;
             this.licenseService = licenseService;
         }
@@ -303,7 +306,9 @@ public abstract class AbstractCollectedDataIntegrationTest {
             SerialComponentService serialComponentService = mock(SerialComponentService.class);
             bind(SerialComponentService.class).toInstance(serialComponentService);
             bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(BundleContext.class).toInstance(bundleContext);
+            bind(ComponentContext.class).toInstance(componentContext);
+            bind(BundleContext.class).toInstance(componentContext.getBundleContext())
+            ;
             bind(LicenseService.class).toInstance(licenseService);
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
