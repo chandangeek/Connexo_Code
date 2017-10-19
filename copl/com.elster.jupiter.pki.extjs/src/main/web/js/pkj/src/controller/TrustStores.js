@@ -269,7 +269,7 @@ Ext.define('Pkj.controller.TrustStores', {
 
     showTrustedStoreAndCertificatesPage: function(trustStoreRecord, certificateStore) {
         var me = this,
-            view = Ext.widget('truststore-certificates-view', {store:certificateStore});
+            view = Ext.widget('truststore-certificates-view', {store:certificateStore, trustStoreId: trustStoreRecord.get('id')});
 
         me.onTrustStoreCertificatesPage = true;
         view.loadTrustStoreRecord(trustStoreRecord);

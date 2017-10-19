@@ -11,10 +11,12 @@ Ext.define('Pkj.view.TrustedCertificatesView', {
         'Pkj.view.TrustStorePreviewForm',
         'Pkj.view.TrustStoreActionMenu',
         'Pkj.privileges.CertificateManagement',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Pkj.view.TrustedCertificateFilter'
     ],
 
     store: undefined,
+    trustStoreId: undefined,
 
     initComponent: function () {
         var me = this;
@@ -66,6 +68,10 @@ Ext.define('Pkj.view.TrustedCertificatesView', {
                             title: Uni.I18n.translate('general.trustedCertificates', 'PKJ', 'Trusted certificates'),
                             ui: 'medium',
                             items: [
+                                {
+                                    xtype: 'trustedCertificateFilter',
+                                    trustStoreId: me.trustStoreId
+                                },
                                 {
                                     xtype: 'preview-container',
                                     grid: {
