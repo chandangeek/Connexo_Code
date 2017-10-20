@@ -19,10 +19,15 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
         'Ldr.store.LogLevels'
     ],
 
-    edit: false,
+    run: false,
     returnLink: null,
     router: null,
     record: null,
+    setRun: function (run) {
+        if (this.returnLink) {
+            this.down('#cancel-link').href = this.returnLink;
+        }
+    },
     initComponent: function () {
         var me = this,
         tomorrowMidnight = new Date();
@@ -284,6 +289,7 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
             }
         ];
         me.callParent(arguments);
+        me.setRun(me.run);
     },
 
     recurrenceNumberFieldValidation: function (field) {

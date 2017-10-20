@@ -913,9 +913,10 @@ Ext.define('Dxp.controller.Tasks', {
                     returnLink: returnLink
                 });
 
-
+               var taskForm = view.down('#run-with-parameters-data-export-task-form');
                 me.getApplication().fireEvent('dataexporttaskload', record);
                 me.getApplication().fireEvent('changecontentevent', view);
+                taskForm.setTitle(Uni.I18n.translate('general.runTitle', 'DES', "Run '{0}'", [record.getData().name]));
 
             }
         });
