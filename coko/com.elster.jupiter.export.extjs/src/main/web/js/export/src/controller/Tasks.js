@@ -23,7 +23,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.view.tasks.AddReadingTypesToTaskBulk',
         'Uni.form.field.DateTime',
         'Dxp.view.tasks.AddDestination',
-        'Dxp.view.tasks.EventTypeWindow'
+        'Dxp.view.tasks.EventTypeWindow',
+        'Dxp.view.tasks.RunWithParameters'
     ],
 
     stores: [
@@ -130,6 +131,10 @@ Ext.define('Dxp.controller.Tasks', {
         {
             ref: 'addReadingTypesToTaskBulk',
             selector: 'AddReadingTypesToTaskBulk'
+        },
+        {
+            ref:'runWithParameters',
+            selector: 'data-export-tasks-run-with-parameters'
         }
     ],
 
@@ -361,7 +366,7 @@ Ext.define('Dxp.controller.Tasks', {
                             missingData.setVisible(true);
                             updatedData.setVisible(true);
                             continuousDataPreview.setVisible(true);
-                            if (record.getData().exportUpdate === 'false') {
+                            if (!record.getData().exportUpdate ) {
                                 updatedValuesData.setVisible(false);
                             } else {
                                 updatedValuesData.setVisible(true);
@@ -378,7 +383,7 @@ Ext.define('Dxp.controller.Tasks', {
                             dataValidation.setVisible(true);
                             missingData.setVisible(true);
                             updatedData.setVisible(true);
-                            if (record.getData().exportUpdate === 'false') {
+                            if (!record.getData().exportUpdate) {
                                 updatedValuesData.setVisible(false);
                             } else {
                                 updatedValuesData.setVisible(true);
@@ -505,7 +510,7 @@ Ext.define('Dxp.controller.Tasks', {
                         previewForm.down('#data-selector-exportPeriod-preview').show();
                         previewForm.down('#continuousData-preview').show();
                         previewForm.down('#updated-data').show();
-                        if (record.getData().task.standardDataSelector.exportUpdate === false) {
+                        if (!record.getData().task.standardDataSelector.exportUpdate) {
                             previewForm.down('#updated-values').hide();
                         } else {
                             previewForm.down('#updated-values').show();
@@ -528,7 +533,7 @@ Ext.define('Dxp.controller.Tasks', {
                         previewForm.down('#continuousData-preview').show();
                         previewForm.down('#updated-data').show();
                         // previewForm.down('#updated-values').hide();
-                        if (record.getData().task.standardDataSelector.exportUpdate === false) {
+                        if (!record.getData().task.standardDataSelector.exportUpdate) {
                             previewForm.down('#updated-values').hide();
                         } else {
                             previewForm.down('#updated-values').show();
@@ -890,6 +895,31 @@ Ext.define('Dxp.controller.Tasks', {
             }
         });
         me.recurrenceEnableDisable();
+    },
+
+    showRunWithParameters: function(taskId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            taskModel = me.getModel('Dxp.model.DataExportTask');
+
+        taskModel.load(taskId, {
+            success: function (record) {
+                var returnLink = me.fromDetails? router.getRoute('administration/dataexporttasks/dataexporttask').buildUrl({taskId: taskId}) :
+                    router.getRoute('administration/dataexporttasks').buildUrl(),
+                    view;
+                view = Ext.create('Dxp.view.tasks.RunWithParameters', {
+                    record: record,
+                    edit: true,
+                    returnLink: returnLink
+                });
+
+
+                me.getApplication().fireEvent('dataexporttaskload', record);
+                me.getApplication().fireEvent('changecontentevent', view);
+
+            }
+        });
+
     },
 
     showEditExportTask: function (taskId) {
@@ -1368,6 +1398,9 @@ Ext.define('Dxp.controller.Tasks', {
                 break;
             case 'editExportTask':
                 route = 'administration/dataexporttasks/dataexporttask/edit';
+                break;
+            case 'runWithParameters':
+                route = 'administration/dataexporttasks/dataexporttask/runWithParameters';
                 break;
             case 'removeTask':
                 me.removeTask(menu.record);
@@ -2915,7 +2948,7 @@ Ext.define('Dxp.controller.Tasks', {
     runHistoryTask: function (record) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
-                confirmText: Uni.I18n.translate('general.run', 'DES', 'Run'),
+                confirmText: Uni.I18n.translate('general.retry', 'DES', 'Retry'),
                 confirmation: function () {
                     me.submitHistoryRunTask(record, this);
                 }
@@ -2936,7 +2969,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('exportTasks.runMsg', 'DES', 'Data export task will be queued to run at the earliest possible time.'),
-            title: Uni.I18n.translate('general.runExportTaskx', 'DES', "Run export task {0}?", [record.data.name])
+            title: Uni.I18n.translate('general.retryExportTaskx', 'DES', "Retry export task {0}?", [record.data.name])
         });
     },
 
@@ -2980,7 +3013,7 @@ Ext.define('Dxp.controller.Tasks', {
                  }
                  });
                  }*/
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.runQueued', 'DES', 'Export task run queued'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.runQueued', 'DES', 'Export task retry queued'));
             },
             failure: function (response) {
                 var res = Ext.decode(response.responseText, true);

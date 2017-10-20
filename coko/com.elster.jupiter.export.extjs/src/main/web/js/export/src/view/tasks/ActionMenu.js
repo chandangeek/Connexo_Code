@@ -16,6 +16,13 @@ Ext.define('Dxp.view.tasks.ActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
+                itemId: 'runWithParameters',
+                text: Uni.I18n.translate('general.runWithParameters', 'DES', 'Run ...'),
+                action: 'runWithParameters',
+               // hidden: true,
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'edit-task',
                 text: Uni.I18n.translate('general.edit', 'DES', 'Edit'),
                 privileges: Dxp.privileges.DataExport.update,

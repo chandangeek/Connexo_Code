@@ -106,6 +106,13 @@ Ext.define('Dxp.controller.history.Export', {
                                     controller: 'Dxp.controller.Tasks',
                                     privileges: Dxp.privileges.DataExport.view,
                                     action: 'showDataSources'
+                                },
+                                runWithParameters: {
+                                    title: Uni.I18n.translate('general.runWithParameters', 'DES', 'Run with parameters'),
+                                    route: 'runWithParameters',
+                                    controller: 'Dxp.controller.Tasks',
+                                    action: 'showRunWithParameters',
+                                    privileges: Dxp.privileges.DataExport.view
                                 }
                             }
                         }

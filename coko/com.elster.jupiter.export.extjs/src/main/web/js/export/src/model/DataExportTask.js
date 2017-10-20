@@ -120,7 +120,7 @@ Ext.define('Dxp.model.DataExportTask', {
             persist: false,
             mapping: function (data) {
                 if ((data.standardDataSelector)) {
-                    return data.standardDataSelector.exportUpdate?'true':'false';
+                    return data.standardDataSelector.exportUpdate? true:false;
                 }
             }
         },
@@ -287,7 +287,7 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'exportUpdateForPreview',
             persist: false,
             convert: function(value,record){
-                return record.getData().exportUpdate==='true'?
+                return record.getData().exportUpdate ?
                     Uni.I18n.translate('general.exportWithinWindowX', 'DES', 'Export within the update window {0}',[record.getData().standardDataSelector.updatePeriod?record.getData().standardDataSelector.updatePeriod.name:Uni.I18n.translate('general.notDefined', 'DES', 'Not defined')]):
                     Uni.I18n.translate('general.noExportForUpdated', 'DES', "Don't export");
             }
