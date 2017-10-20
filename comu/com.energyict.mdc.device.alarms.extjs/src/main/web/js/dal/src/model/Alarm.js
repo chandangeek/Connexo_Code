@@ -22,11 +22,21 @@ Ext.define('Dal.model.Alarm', {
         {name: 'statusName', type: 'auto', mapping: 'status.name'},
         {name: 'clearedStatus', type: 'auto'},
         {
-            name: 'statusDetail',
+            name: 'statusDetailCleared',
             convert: function (value, rec) {
                 if (rec.get('clearedStatus').statusValue)
-                    return Ext.String.format(Uni.I18n.translate('device.alarms.statusDetail', 'DAL', '{0} has been cleared on {1}'),
-                        rec.get('alarmId'), Uni.DateTime.formatDateTimeShort(new Date(rec.get('clearedStatus').statusChangeDateTime)));
+                    return Ext.String.format(Uni.I18n.translate('device.alarms.statusDetail', 'DAL', 'has been cleared on {0}'),
+                        Uni.DateTime.formatDateTimeShort(new Date(rec.get('clearedStatus').statusChangeDateTime)));
+                return '';
+            }
+        },
+        {name: 'snoozedDateTime', type: 'auto'},
+        {
+            name: 'statusDetailSnoozed',
+            convert: function (value, rec) {
+                if (rec.get('status').id == 'status.snoozed')
+                    return Ext.String.format(Uni.I18n.translate('device.alarms.snoozeReasonDetail', 'DAL', 'has been snoozed until {0}'),
+                        Uni.DateTime.formatDateTimeShort(new Date(rec.getData().snoozedDateTime)));
                 return '';
             }
         },
@@ -95,16 +105,6 @@ Ext.define('Dal.model.Alarm', {
 
         {name: 'logbook', type: 'auto'},
         {name: 'version', type: 'int'},
-        {name: 'snoozedDateTime', type: 'auto'},
-        {
-            name: 'statusDetail',
-            convert: function (value, rec) {
-                if (rec.get('status').id == 'status.snoozed')
-                    return Ext.String.format(Uni.I18n.translate('device.alarms.snoozeReasonDetail', 'DAL', '{0} has been snoozed until {1}'),
-                        rec.get('issueId'), Uni.DateTime.formatDateTimeShort(new Date(rec.getData().snoozedDateTime)));
-                return '';
-            }
-        },
         {name: 'device', type: 'auto'},
         {name: 'alarmId', type: 'string'},
         {name: 'status_name', persist: false, mapping: 'status.name'},

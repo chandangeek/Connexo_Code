@@ -178,7 +178,8 @@ Ext.define('Dal.controller.Alarms', {
     showPreview: function (selectionModel, record) {
         this.callParent(arguments);
         var subEl = new Ext.get('alarm-status-field-sub-tpl');
-        subEl.setHTML(record.get('statusDetail'));
+        subEl.setHTML('<div>' + record.get('statusDetailCleared') + '</div>'
+            + '<div>' + record.get('statusDetailSnoozed') + '</div>');
     },
 
     setFilterItem: function (button) {
