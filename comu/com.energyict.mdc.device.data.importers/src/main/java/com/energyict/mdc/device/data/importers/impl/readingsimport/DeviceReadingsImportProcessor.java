@@ -5,11 +5,14 @@
 package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
@@ -253,12 +256,15 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
 
     private void addReading(ReadingType readingType, BigDecimal value, Instant timeStamp) {
         if (readingType.isRegular()) {
-            channelReadingsToStore.put(readingType, IntervalReadingImpl.of(timeStamp, value, Collections.emptyList()));
+            channelReadingsToStore.put(readingType, IntervalReadingImpl.of(timeStamp, value, Collections.singleton(ReadingQualityType
+                    .of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED))));
             if (!lastReadingPerChannel.containsKey(readingType) || timeStamp.isAfter(lastReadingPerChannel.get(readingType))) {
                 lastReadingPerChannel.put(readingType, timeStamp);
             }
         } else {
-            registerReadingsToStore.add(ReadingImpl.of(readingType.getMRID(), value, timeStamp));
+            ReadingImpl reading = ReadingImpl.of(readingType.getMRID(), value, timeStamp);
+            reading.addQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED));
+            registerReadingsToStore.add(reading);
         }
     }
 
