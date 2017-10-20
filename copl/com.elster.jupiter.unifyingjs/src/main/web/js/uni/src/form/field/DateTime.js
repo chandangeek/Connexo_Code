@@ -65,6 +65,8 @@ Ext.define('Uni.form.field.DateTime', {
      */
     minutesConfig: null,
 
+    secondsConfig: null,
+    minutesSecondsConfig:null,
     dateTimeSeparatorConfig: null,
     valueInMilliseconds: false,
 
@@ -101,9 +103,23 @@ Ext.define('Uni.form.field.DateTime', {
                 maxValue: 59,
                 minValue: 0
             },
+            secondsField = {
+               itemId: 'date-time-field-seconds',
+                flex:1,
+                hidden:true,
+                maxValue:59,
+                minValue: 0
+            },
             separator = {
                 xtype: 'component',
                 itemId: 'hours-minutes-separator',
+                html: ':',
+                margin: '0 5 0 5'
+            },
+            secondsSeparator = {
+                xtype: 'component',
+                itemId: 'minutes-seconds-separator',
+                hidden:true,
                 html: ':',
                 margin: '0 5 0 5'
             },
@@ -145,15 +161,18 @@ Ext.define('Uni.form.field.DateTime', {
             dateField.width = 130;
             hoursField.width = 80;
             minutesField.width = 80;
+            secondsField.width = 80;
         }
 
         Ext.apply(dateField, me.dateConfig);
         Ext.apply(hoursField, me.hoursConfig);
         Ext.apply(minutesField, me.minutesConfig);
+        Ext.apply(secondsField, me.secondsConfig);
         Ext.apply(separator, me.separatorConfig);
+        Ext.apply(secondsSeparator, me.minutesSecondsConfig);
         Ext.apply(dateTimeSeparator, me.dateTimeSeparatorConfig);
 
-        container.items = [dateTimeSeparator, hoursField, separator, minutesField];
+        container.items = [dateTimeSeparator, hoursField, separator, minutesField, secondsSeparator, secondsField];
         me.items = [dateField, container];
 
 
@@ -171,7 +190,8 @@ Ext.define('Uni.form.field.DateTime', {
         var me = this,
             dateField = me.down('#date-time-field-date'),
             hoursField = me.down('#date-time-field-hours'),
-            minutesField = me.down('#date-time-field-minutes');
+            minutesField = me.down('#date-time-field-minutes'),
+            secondsField = me.down('#date-time-field-seconds');
 
         if (!dateField.getEl().contains(event.target) && !hoursField.getEl().contains(event.target) && !minutesField.getEl().contains(event.target)) {
             me.fireEvent('blur', me, me.getValue());
@@ -207,7 +227,8 @@ Ext.define('Uni.form.field.DateTime', {
         var me = this,
             dateField = me.down('#date-time-field-date'),
             hoursField = me.down('#date-time-field-hours'),
-            minutesField = me.down('#date-time-field-minutes');
+            minutesField = me.down('#date-time-field-minutes'),
+            secondsField = me.down('#date-time-field-seconds');
         if (!Ext.isEmpty(value)) {
             me.eachItem(function (item) {
                 item.suspendEvent('change');
@@ -215,6 +236,7 @@ Ext.define('Uni.form.field.DateTime', {
             dateField.setValue(moment(value).startOf('day').toDate());
             hoursField.setValue(moment(value).hours());
             minutesField.setValue(moment(value).minutes());
+            secondsField.setValue(moment(value).seconds());
             me.fireEvent('change', me, value);
             me.eachItem(function (item) {
                 item.resumeEvent('change');
@@ -223,6 +245,7 @@ Ext.define('Uni.form.field.DateTime', {
             dateField.reset();
             hoursField.reset();
             minutesField.reset();
+            secondsField.reset();
         }
     },
 
@@ -230,7 +253,8 @@ Ext.define('Uni.form.field.DateTime', {
         var me = this,
             date = me.down('#date-time-field-date').getValue(),
             hours = me.down('#date-time-field-hours').getValue(),
-            minutes = me.down('#date-time-field-minutes').getValue();
+            minutes = me.down('#date-time-field-minutes').getValue(),
+            seconds=me.down('#date-time-field-seconds').getValue();
 
         if (Ext.isDate(date)) {
             date.setHours(0);
@@ -242,6 +266,9 @@ Ext.define('Uni.form.field.DateTime', {
             }
             if (minutes) {
                 date += minutes * 60000;
+            }
+            if (seconds) {
+                date += seconds * 6000;
             }
             if (me.valueInMilliseconds) {
                 return date;
@@ -281,16 +308,19 @@ Ext.define('Uni.form.field.DateTime', {
         var me = this,
             dateField = me.down('#date-time-field-date'),
             hoursField = me.down('#date-time-field-hours'),
-            minutesField = me.down('#date-time-field-minutes');
+            minutesField = me.down('#date-time-field-minutes'),
+            secondsField = me.down('#date-time-field-seconds');
 
         if (value != null && Ext.isDate(new Date(value))) {
             dateField[action](moment(value).startOf('day').toDate());
             hoursField[action](moment(value).hours());
             minutesField[action](moment(value).minutes());
+            secondsField[action](moment(value).seconds());
         } else {
             dateField[action](null);
             hoursField[action](null);
             minutesField[action](null);
+            secondsField[action](null);
         }
     },
 
