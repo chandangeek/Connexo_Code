@@ -22,15 +22,21 @@ Ext.define('Dal.model.AlarmAssignee', {
             type: 'json',
             root: 'data'
         },
-        buildUrl: function (request) {
+        buildUrl: function(request) {
             var idx = request.params.id,
-                params;
-
+                me = this,
+                url = this.url;
             if (idx) {
-                return this.url + '/' + request.params.id;
-            } else {
-                return this.url
+                url = this.url + '/' + request.params.id;
             }
+
+            if (me.noCache) {
+                url = Ext.urlAppend(url, Ext.String.format("{0}={1}", me.cacheString, Ext.Date.now()));
+            }
+
+            request.url = url;
+
+            return url;
         }
     }
 });
