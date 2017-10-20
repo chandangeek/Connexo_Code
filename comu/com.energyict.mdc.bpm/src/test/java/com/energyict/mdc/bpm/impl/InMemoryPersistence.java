@@ -99,6 +99,7 @@ import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
@@ -124,6 +125,7 @@ public class InMemoryPersistence {
     private User principal;
     private Injector injector;
     private TransactionService transactionService;
+    private ComponentContext componentContext;
     private BundleContext bundleContext;
     private EventAdmin eventAdmin;
     //private DataModel dataModel;
@@ -240,7 +242,9 @@ public class InMemoryPersistence {
     }
 
     private void initializeMocks(String testName) {
+        this.componentContext = mock(ComponentContext.class);
         this.bundleContext = mock(BundleContext.class);
+        when(this.componentContext.getBundleContext()).thenReturn(bundleContext);
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(User.class);
         GrantPrivilege superGrant = mock(GrantPrivilege.class);
@@ -279,8 +283,8 @@ public class InMemoryPersistence {
         @Override
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(ComponentContext.class).toInstance(componentContext);
             bind(BundleContext.class).toInstance(bundleContext);
-
             bind(KieResources.class).to(ResourceFactoryServiceImpl.class);
             bind(KnowledgeBaseFactoryService.class).to(KnowledgeBaseFactoryServiceImpl.class);
             bind(KnowledgeBuilderFactoryService.class).to(KnowledgeBuilderFactoryServiceImpl.class);
