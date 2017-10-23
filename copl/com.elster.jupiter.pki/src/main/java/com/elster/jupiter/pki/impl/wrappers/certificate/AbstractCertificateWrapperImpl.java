@@ -167,7 +167,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             this.subject = x500FormattedName(certificate.getSubjectDN().getName()).replaceAll("\\s+", "");
             this.issuer = x500FormattedName(certificate.getIssuerDN().getName()).replaceAll("\\s+", "");
             if (getCertificateKeyUsages(certificate).size() > 0) {
-                this.keyUsagesCsv = Joiner.on(", ").join(getCertificateKeyUsages(certificate).stream().map(Enum::name).collect(toList()));
+                this.keyUsagesCsv = stringifyKeyUsages(getCertificateKeyUsages(certificate), getCertificateExtendedKeyUsages(certificate));
             }
             this.save();
         } catch (CertificateEncodingException e) {

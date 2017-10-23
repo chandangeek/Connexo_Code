@@ -1292,6 +1292,7 @@ public class PKIServiceImplIT {
         List<CertificateWrapper> certificates = reloaded.stream().collect(toList());
         assertThat(certificates).hasSize(1);
         assertTrue(certificates.get(0).getStringifiedKeyUsages().get().contains(digitalSignature.toString()));
+        assertTrue(certificates.get(0).getStringifiedKeyUsages().get().contains(tlsWebServerAuthentication.toString()));
     }
 
     @Test
