@@ -219,6 +219,7 @@ import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
@@ -249,6 +250,8 @@ import static org.mockito.Mockito.when;
 
 public class DemoTest {
 
+    private static BundleContext bundleContext = mock(BundleContext.class) ;
+    private static ComponentContext componentContext = mock(ComponentContext.class) ;
     protected static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private PassphraseFactory passphraseFactory;
@@ -256,8 +259,11 @@ public class DemoTest {
     private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            when(componentContext.getBundleContext()).thenReturn(bundleContext);
+
             bind(FtpClientService.class).toInstance(mock(FtpClientService.class));
-            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(ComponentContext.class).toInstance(componentContext);
+            bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(DeviceMessageFileService.class).toInstance(mock(DeviceMessageFileService.class));
             bind(CollectedDataFactory.class).toInstance(mock(CollectedDataFactory.class));
