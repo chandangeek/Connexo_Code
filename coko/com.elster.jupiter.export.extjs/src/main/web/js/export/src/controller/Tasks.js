@@ -259,6 +259,9 @@ Ext.define('Dxp.controller.Tasks', {
             },
             '#history-grid-action-menu': {
                 click: this.historyGridActionMenu
+            },
+            'data-export-tasks-run-with-parameters #run-export-task-button': {
+                click: this.runWithParameters
             }
         });
     },
@@ -913,7 +916,7 @@ Ext.define('Dxp.controller.Tasks', {
                     returnLink: returnLink
                 });
 
-               var taskForm = view.down('#run-with-parameters-data-export-task-form');
+                var taskForm = view.down('#run-with-parameters-data-export-task-form');
                 me.getApplication().fireEvent('dataexporttaskload', record);
                 me.getApplication().fireEvent('changecontentevent', view);
                 taskForm.setTitle(Uni.I18n.translate('general.runTitle', 'DES', "Run '{0}'", [record.getData().name]));
@@ -1410,7 +1413,11 @@ Ext.define('Dxp.controller.Tasks', {
                 route = 'administration/dataexporttasks/dataexporttask/history';
                 break;
             case 'run':
-                me.runTask(menu.record);
+                me.runTask(menu.record,
+                    me.submitRunTask,
+                    Uni.I18n.translate('general.run', 'DES', 'Run'),
+                    Uni.I18n.translate('general.runExportTaskx', 'DES', "Run export task {0}?", [menu.record.data.name])
+                );
                 break;
         }
 
@@ -1418,12 +1425,12 @@ Ext.define('Dxp.controller.Tasks', {
         route && route.forward(router.arguments);
     },
 
-    runTask: function (record) {
+    runTask: function (record, submitFunc, confirm, title) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
-                confirmText: Uni.I18n.translate('general.run', 'DES', 'Run'),
+                confirmText: confirm,
                 confirmation: function () {
-                    me.submitRunTask(record, this);
+                    submitFunc.call(me, record, this);
                 }
             });
 
@@ -1442,7 +1449,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('exportTasks.runMsg', 'DES', 'Data export task will be queued to run at the earliest possible time.'),
-            title: Uni.I18n.translate('general.runExportTaskx', 'DES', "Run export task {0}?", [record.data.name])
+            title: title
         });
     },
 
@@ -2941,12 +2948,15 @@ Ext.define('Dxp.controller.Tasks', {
 
         switch (item.action) {
             case 'retryHistory':
-                me.runHistoryTask(menu.record);
+                me.runTask(menu.record,
+                    me.submitHistoryRunTask,
+                    Uni.I18n.translate('general.retry', 'DES', 'Retry'),
+                    Uni.I18n.translate('general.retryExportTaskx', 'DES', "Retry export task {0}?", [menu.record.data.name]));
                 break
         }
     },
 
-    runHistoryTask: function (record) {
+    /*runHistoryTask: function (record) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: Uni.I18n.translate('general.retry', 'DES', 'Retry'),
@@ -2972,7 +2982,7 @@ Ext.define('Dxp.controller.Tasks', {
             msg: Uni.I18n.translate('exportTasks.runMsg', 'DES', 'Data export task will be queued to run at the earliest possible time.'),
             title: Uni.I18n.translate('general.retryExportTaskx', 'DES', "Retry export task {0}?", [record.data.name])
         });
-    },
+     },*/
 
     submitHistoryRunTask: function (record, confWindow) {
         var me = this,
@@ -2987,7 +2997,6 @@ Ext.define('Dxp.controller.Tasks', {
             url: '/api/export/dataexporttask/history/' + id + '/trigger',
             method: 'PUT',
             jsonData: record.getProxy().getWriter().getRecordData(record),
-            isNotEdit: true,
             success: function () {
                 confWindow.destroy();
                 /*if (me.getPage()) {
@@ -3014,7 +3023,84 @@ Ext.define('Dxp.controller.Tasks', {
                  }
                  });
                  }*/
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.runQueued', 'DES', 'Export task retry queued'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.retryQueued', 'DES', 'Export task retry queued'));
+            },
+            failure: function (response) {
+                var res = Ext.decode(response.responseText, true);
+
+                if (response.status !== 409 && res && res.errors && res.errors.length) {
+                    confWindow.update(res.errors[0].msg);
+                    confWindow.setVisible(true);
+                } else {
+                    confWindow.destroy();
+                }
+            }
+        });
+    },
+
+    runWithParameters: function (button) {
+        var me = this,
+            runWithParameters = me.getRunWithParameters(),
+            record = runWithParameters.record;
+
+        me.runTask(record,
+            me.submitRunWithParameters,
+            Uni.I18n.translate('general.run', 'DES', 'Run'),
+            Uni.I18n.translate('general.title.runExportTask', 'DES', "Run export task?")
+        );
+    },
+
+    submitRunWithParameters: function (record, confWindow) {
+        var me = this,
+            runWithParameters = me.getRunWithParameters(),
+            record = runWithParameters.record,
+            startOn = moment(runWithParameters.down('#start-on').getValue()).valueOf(),
+            exportWindowStart = moment(runWithParameters.down('#export-window-start-date').getValue()).valueOf(),
+            exportWindowEnd = moment(runWithParameters.down('#export-window-end-date').getValue()).valueOf(),
+            updateDataStart = moment(runWithParameters.down('#updated-data-start-date').getValue()).valueOf(),
+            updateDataEnd = moment(runWithParameters.down('#updated-data-end-date').getValue()).valueOf(),
+            taskId = record.get('id'),
+            taskModel = me.getModel('Dxp.model.DataExportTask'),
+            grid, store, index, view;
+
+        Ext.Ajax.request({
+            url: '/api/export/dataexporttask/' + taskId + '/triggerWithParams',
+            method: 'PUT',
+            jsonData: {
+                startOn: startOn,
+                exportWindowStart: exportWindowStart,
+                exportWindowEnd: exportWindowEnd,
+                updateDataStart: updateDataStart,
+                updateDataEnd: updateDataEnd,
+                task: record.getRecordData()
+            },
+            success: function () {
+                confWindow.destroy();
+                /*if (me.getPage()) {
+                 view = me.getPage();
+                 grid = view.down('grid');
+                 store = grid.getStore();
+                 index = store.indexOf(record);
+                 view.down('preview-container').selectByDefault = false;
+                 store.load(function () {
+                 grid.getSelectionModel().select(index);
+                 });
+                 } else {
+                 taskModel.load(id, {
+                 success: function (rec) {
+                 view = me.getDetailsPage();
+                 view.down('dxp-tasks-action-menu').record = rec;
+                 view.down('dxp-tasks-preview-form').loadRecord(rec);
+                 if (record.get('status') === 'Busy') {
+                 view.down('#run').hide();
+                 }
+                 if (Ext.isFunction(rec.properties) && rec.properties().count()) {
+                 view.down('grouped-property-form').loadRecord(rec);
+                 }
+                 }
+                 });
+                 }*/
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.runQueued', 'DES', 'Export task run queued'));
             },
             failure: function (response) {
                 var res = Ext.decode(response.responseText, true);

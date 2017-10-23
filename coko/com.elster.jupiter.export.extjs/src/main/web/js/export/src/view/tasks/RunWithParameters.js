@@ -81,11 +81,11 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                                 },
                                 secondsConfig: {
                                     width: 55,
-                                    hidden:false,
+                                    hidden: false,
                                     value:me.defaultDate.getSeconds()
                                 },
                                 minutesSecondsConfig: {
-                                    hidden:false
+                                    hidden: false
                                 }
                             }
                         ]
@@ -99,7 +99,7 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.startDate', 'DES', 'Start date'),
                         itemId: 'start-date-export-window',
-                        hidden:me.record.getData().exportContinuousData !== 'false',
+                        hidden: me.record.getData().exportContinuousData !== 'false',
                         required: true,
                         layout: 'hbox',
                         items: [
@@ -126,11 +126,11 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                                 },
                                 secondsConfig: {
                                     width: 55,
-                                    hidden:false,
+                                    hidden: false,
                                     value: me.defaultDate.getSeconds()
                                 },
                                 minutesSecondsConfig: {
-                                    hidden:false
+                                    hidden: false
                                 }
                             }
                         ]
@@ -145,7 +145,7 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                         items: [
                             {
                                 xtype: 'date-time',
-                                itemId: 'export-window-start-date',
+                                itemId: 'export-window-end-date',
                                 layout: 'hbox',
                                 name: 'start-date',
                                 dateConfig: {
@@ -166,11 +166,11 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                                 },
                                 secondsConfig: {
                                     width: 55,
-                                    hidden:false,
+                                    hidden: false,
                                     value: me.defaultDate.getSeconds()
                                 },
                                 minutesSecondsConfig: {
-                                    hidden:false
+                                    hidden: false
                                 }
                             }
                         ]
@@ -178,14 +178,14 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                     {
                         title: Uni.I18n.translate('general.updatedData', 'DES', 'Updated data'),
                         itmeId:'updated-data-title',
-                        hidden:!me.record.getData().exportUpdate,
+                        hidden: !me.record.getData().exportUpdate,
                         ui: 'medium'
                     },
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.startDate', 'DES', 'Start date'),
                         itemId: 'start-date-updated-data',
-                        hidden:!me.record.getData().exportUpdate,
+                        hidden: !me.record.getData().exportUpdate,
                         required: true,
                         layout: 'hbox',
                         items: [
@@ -212,11 +212,11 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                                 },
                                 secondsConfig: {
                                     width: 55,
-                                    hidden:false,
+                                    hidden: false,
                                     value: me.defaultDate.getSeconds()
                                 },
                                 minutesSecondsConfig: {
-                                    hidden:false
+                                    hidden: false
                                 }
                             }
                         ]
@@ -226,13 +226,13 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.endDate', 'DES', 'End date'),
                         itemId: 'end-date-updated-data',
-                        hidden:!me.record.getData().exportUpdate,
+                        hidden: !me.record.getData().exportUpdate,
                         required: true,
                         layout: 'hbox',
                         items: [
                             {
                                 xtype: 'date-time',
-                                itemId: 'updated-data-start-date',
+                                itemId: 'updated-data-end-date',
                                 layout: 'hbox',
                                 name: 'start-date',
                                 dateConfig: {
@@ -253,11 +253,11 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                                 },
                                 secondsConfig: {
                                     width: 55,
-                                    hidden:false,
+                                    hidden: false,
                                     value: me.defaultDate.getSeconds()
                                 },
                                 minutesSecondsConfig: {
-                                    hidden:false
+                                    hidden: false
                                 }
                             }
                         ]
@@ -290,40 +290,5 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
         ];
         me.callParent(arguments);
         me.setRun(me.run);
-    },
-
-    recurrenceNumberFieldValidation: function (field) {
-        var value = field.getValue();
-
-        if (Ext.isEmpty(value) || value < field.minValue) {
-            field.setValue(field.minValue);
-        }
-    },
-
-    updateReadingTypesGrid: function() {
-        var me = this,
-            readingTypesGrid = me.down('#readingTypesGridPanel'),
-            emptyReadingTypesLabel = me.down('#noReadingTypesLabel');
-        if (readingTypesGrid.getStore().count() === 0) {
-            emptyReadingTypesLabel.show();
-            readingTypesGrid.hide();
-        } else {
-            emptyReadingTypesLabel.hide();
-            readingTypesGrid.show();
-        }
-    },
-
-    updateEventTypesGrid: function() {
-        var me = this,
-            eventTypesGrid = me.down('#eventTypesGridPanel'),
-            emptyEventTypesLabel = me.down('#noEventTypesLabel');
-        if (eventTypesGrid.getStore().count() === 0) {
-            emptyEventTypesLabel.show();
-            eventTypesGrid.hide();
-        } else {
-            emptyEventTypesLabel.hide();
-            eventTypesGrid.show();
-        }
     }
-
 });
