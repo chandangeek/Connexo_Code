@@ -11,7 +11,7 @@ Ext.define('Pkj.store.CertificateKeyUsages', {
         timeout: 120000,
         reader: {
             type: 'json',
-            root: 'keyusages'
+            root: 'keyUsages'
         },
         pageParam: false,
         startParam: false,
