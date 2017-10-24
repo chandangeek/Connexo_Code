@@ -46,10 +46,10 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name="PkiService",
-        service = { PkiService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
-        property = "name=" + PkiService.COMPONENTNAME,
+        service = { SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
+        property = "name=" + SecurityManagementService.COMPONENTNAME,
         immediate = true)
-public class PkiServiceImpl implements PkiService, TranslationKeyProvider, MessageSeedProvider {
+public class SecurityManagementServiceImpl implements SecurityManagementService, TranslationKeyProvider, MessageSeedProvider {
 
     private final Map<String, PrivateKeyFactory> privateKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, SymmetricKeyFactory> symmetricKeyFactories = new ConcurrentHashMap<>();
@@ -65,9 +65,9 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     private volatile UserService userService;
 
     @Inject
-    public PkiServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
-                          DataVaultService dataVaultService, PropertySpecService propertySpecService,
-                          EventService eventService, UserService userService) {
+    public SecurityManagementServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
+                                         DataVaultService dataVaultService, PropertySpecService propertySpecService,
+                                         EventService eventService, UserService userService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -80,7 +80,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
 
     // OSGi constructor
     @SuppressWarnings("unused")
-    public PkiServiceImpl() {
+    public SecurityManagementServiceImpl() {
 
     }
 
@@ -176,7 +176,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         this.dataModel = ormService.newDataModel(COMPONENTNAME, "Private Key Infrastructure");
         Stream.of(TableSpecs.values()).forEach(tableSpecs -> tableSpecs.addTo(dataModel, dataVaultService));
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("Pulse", PkiService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", SecurityManagementService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 //        initPrivileges();
     }
 
@@ -188,7 +188,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                 bind(UpgradeService.class).toInstance(upgradeService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Thesaurus.class).toInstance(thesaurus);
-                bind(PkiService.class).toInstance(PkiServiceImpl.this);
+                bind(SecurityManagementService.class).toInstance(SecurityManagementServiceImpl.this);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
@@ -378,7 +378,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
 
     @Override
     public String getComponentName() {
-        return PkiServiceImpl.COMPONENTNAME;
+        return SecurityManagementServiceImpl.COMPONENTNAME;
     }
 
     @Override
@@ -400,7 +400,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         return Arrays.asList(MessageSeeds.values());
     }
 
-    class ClientCertificateWrapperBuilder implements PkiService.ClientCertificateWrapperBuilder {
+    class ClientCertificateWrapperBuilder implements SecurityManagementService.ClientCertificateWrapperBuilder {
         private final ClientCertificateWrapper underConstruction;
 
         public ClientCertificateWrapperBuilder(ClientCertificateWrapper underConstruction) {
@@ -408,7 +408,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         }
 
         @Override
-        public PkiService.ClientCertificateWrapperBuilder alias(String alias) {
+        public SecurityManagementService.ClientCertificateWrapperBuilder alias(String alias) {
             underConstruction.setAlias(alias);
             return this;
         }

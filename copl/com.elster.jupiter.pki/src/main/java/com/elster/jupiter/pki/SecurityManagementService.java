@@ -13,10 +13,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * This is the main interface towards the PKI bundle. It provides access for the main PKI procedures.
+ * This is the main interface towards the security bundle. It provides access for the main PKI & HSM procedures.
  */
 @ProviderType
-public interface PkiService {
+public interface SecurityManagementService {
 
 
     enum AsymmetricKeyAlgorithms {

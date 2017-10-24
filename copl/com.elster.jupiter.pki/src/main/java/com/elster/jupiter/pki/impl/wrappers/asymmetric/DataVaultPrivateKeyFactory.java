@@ -10,7 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.ExpirationSupport;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SecurityValueWrapper;
@@ -62,7 +62,7 @@ public class DataVaultPrivateKeyFactory implements PrivateKeyFactory, Expiration
     @Override
     public PrivateKeyWrapper newPrivateKeyWrapper(KeyType keyType) {
         try {
-            switch (PkiService.AsymmetricKeyAlgorithms.valueOf(keyType.getKeyAlgorithm())) {
+            switch (SecurityManagementService.AsymmetricKeyAlgorithms.valueOf(keyType.getKeyAlgorithm())) {
                 case ECDSA:
                     return newEcdsaPrivateKey(keyType);
                 case RSA:
