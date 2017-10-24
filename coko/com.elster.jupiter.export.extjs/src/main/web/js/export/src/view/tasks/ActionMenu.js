@@ -17,7 +17,7 @@ Ext.define('Dxp.view.tasks.ActionMenu', {
             },
             {
                 itemId: 'runWithParameters',
-                text: Uni.I18n.translate('general.runWithParameters', 'DES', 'Run ...'),
+                text: Uni.I18n.translate('general.runParameters', 'DES', 'Run ...'),
                 action: 'runWithParameters',
                // hidden: true,
                 section: this.SECTION_ACTION
