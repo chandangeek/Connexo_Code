@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link DeviceMessageSpec} interface
- * that will replace all {@link PropertySpec}s of type {@link DeviceMessageFile} of type (@link {@link KeyAccessorType}
+ * that will replace all {@link PropertySpec}s of type {@link DeviceMessageFile} of type (@link {@link SecurityAccessorType}
  * with a similar PropertySpec (in terms of name, display name,...)
  * but with {@link PropertySpecPossibleValues} that contain only
  * resp. the DeviceMessageFile or KeyAccessorTypes that have been added to the {@link DeviceType}.
@@ -83,14 +83,14 @@ class DeviceMessageSpecWithPossibleValuesImpl implements DeviceMessageSpec {
             }
             this.copyPossibleValueBehavior(propertySpec, builder);
             return builder.finish();
-        } else if (this.relatesToKeyAccessorType(propertySpec)) {
+        } else if (this.relatesToSecurityAccessorType(propertySpec)) {
             PropertySpecBuilder<DeviceMessageFile> builder =
                     this.propertySpecService
                             .specForValuesOf(propertySpec.getValueFactory())
                             .named(propertySpec.getName(), propertySpec.getDisplayName())
                             .describedAs(propertySpec.getDescription())
-                            .addValues(deviceType.getKeyAccessorTypes().stream()
-                                    .sorted(Comparator.comparing(KeyAccessorType::getName))
+                            .addValues(deviceType.getSecurityAccessorTypes().stream()
+                                    .sorted(Comparator.comparing(SecurityAccessorType::getName))
                                     .collect(Collectors.toList()));
             if (propertySpec.isRequired()) {
                 builder.markRequired();
@@ -102,8 +102,8 @@ class DeviceMessageSpecWithPossibleValuesImpl implements DeviceMessageSpec {
         }
     }
 
-    private boolean relatesToKeyAccessorType(PropertySpec propertySpec) {
-        return propertySpec.isReference() && (KeyAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()));
+    private boolean relatesToSecurityAccessorType(PropertySpec propertySpec) {
+        return propertySpec.isReference() && (SecurityAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()));
     }
 
     private void copyPossibleValueBehavior(PropertySpec propertySpec, PropertySpecBuilder<?> builder) {

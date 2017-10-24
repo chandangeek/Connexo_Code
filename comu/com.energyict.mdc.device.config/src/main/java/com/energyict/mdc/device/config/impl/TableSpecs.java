@@ -13,7 +13,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -99,15 +99,15 @@ public enum TableSpecs {
     DTC_KEYACCESSORTYPE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<KeyAccessorType> table = dataModel.addTable(name(), KeyAccessorType.class);
-            table.map(KeyAccessorTypeImpl.class);
+            Table<SecurityAccessorType> table = dataModel.addTable(name(), SecurityAccessorType.class);
+            table.map(SecurityAccessorTypeImpl.class);
             Column id = table.addAutoIdColumn();
             table.setJournalTableName("DTC_KEYACCESSORTYPEJRNL");
             table.addAuditColumns();
             table.column("NAME")
                     .varChar()
                     .notNull()
-                    .map(KeyAccessorTypeImpl.Fields.NAME.fieldName())
+                    .map(SecurityAccessorTypeImpl.Fields.NAME.fieldName())
                     .since(Version.version(10, 3))
                     .add();
             Column deviceType = table.column("DEVICETYPEID")
@@ -117,22 +117,22 @@ public enum TableSpecs {
                     .add();
             table.column("DESCRIPTION")
                     .varChar()
-                    .map(KeyAccessorTypeImpl.Fields.DESCRIPTION.fieldName())
+                    .map(SecurityAccessorTypeImpl.Fields.DESCRIPTION.fieldName())
                     .since(Version.version(10, 3))
                     .add();
             table.column("DURATION").number()
                     .conversion(NUMBER2INT)
-                    .map(KeyAccessorTypeImpl.Fields.DURATION.fieldName() + ".count")
+                    .map(SecurityAccessorTypeImpl.Fields.DURATION.fieldName() + ".count")
                     .since(Version.version(10, 3))
                     .add();
             table.column("DURATIONCODE").number()
                     .conversion(NUMBER2INT)
-                    .map(KeyAccessorTypeImpl.Fields.DURATION.fieldName() + ".timeUnitCode")
+                    .map(SecurityAccessorTypeImpl.Fields.DURATION.fieldName() + ".timeUnitCode")
                     .since(Version.version(10, 3))
                     .add();
             table.column("ENCRYPTION")
                     .varChar()
-                    .map(KeyAccessorTypeImpl.Fields.ENCRYPTIONMETHOD.fieldName())
+                    .map(SecurityAccessorTypeImpl.Fields.ENCRYPTIONMETHOD.fieldName())
                     .since(Version.version(10, 3))
                     .add();
             Column keytypeid = table.column("KEYTYPEID")
@@ -147,19 +147,19 @@ public enum TableSpecs {
             table.foreignKey("FK_DTC_KEYACCESSOR_DEVTYPE")
                     .on(deviceType)
                     .references(DTC_DEVICETYPE.name())
-                    .map(KeyAccessorTypeImpl.Fields.DEVICETYPE.fieldName())
+                    .map(SecurityAccessorTypeImpl.Fields.DEVICETYPE.fieldName())
                     .reverseMap(DeviceTypeImpl.Fields.KEY_ACCESSOR_TYPE.fieldName())
                     .composition()
                     .add();
             table.foreignKey("FK_DTC_KEYACCCESSOR_KEYTYPE")
                     .on(keytypeid)
                     .references(KeyType.class)
-                    .map(KeyAccessorTypeImpl.Fields.KEYTYPE.fieldName())
+                    .map(SecurityAccessorTypeImpl.Fields.KEYTYPE.fieldName())
                     .add();
             table.foreignKey("FK_DTC_KEYACCCESSOR_TRUSTSTORE")
                     .on(trustStoreId)
                     .references(TrustStore.class)
-                    .map(KeyAccessorTypeImpl.Fields.TRUSTSTORE.fieldName())
+                    .map(SecurityAccessorTypeImpl.Fields.TRUSTSTORE.fieldName())
                     .add();
             table.primaryKey("PK_DTC_KEYACCESSOR").on(id).add();
         }

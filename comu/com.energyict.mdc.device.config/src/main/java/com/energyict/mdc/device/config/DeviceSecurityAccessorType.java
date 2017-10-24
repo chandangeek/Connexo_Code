@@ -4,12 +4,12 @@
 
 package com.energyict.mdc.device.config;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 
 /**
- * Specific interface with features for {@link KeyAccessorType}s in the device-realm
+ * Specific interface with features for {@link SecurityAccessorType}s in the device-realm
  */
-public interface DeviceKeyAccessorType extends KeyAccessorType {
+public interface DeviceSecurityAccessorType extends SecurityAccessorType {
     boolean currentUserIsAllowedToEditDeviceProperties();
     boolean currentUserIsAllowedToViewDeviceProperties();
 }

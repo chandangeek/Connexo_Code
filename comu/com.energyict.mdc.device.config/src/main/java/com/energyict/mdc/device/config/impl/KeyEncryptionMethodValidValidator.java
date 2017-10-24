@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.util.Checks;
 
 import javax.validation.ConstraintValidator;
@@ -16,7 +16,7 @@ import java.util.EnumSet;
  * Validate the KeyEncryptionMethod is present on KeyAccessorTypes that require one: Symmetric key, Asymmetric keys,
  * passphrases and ClientCertificates (the latter have a private key attached)
  */
-public class KeyEncryptionMethodValidValidator implements ConstraintValidator<KeyEncryptionMethodValid, KeyAccessorType> {
+public class KeyEncryptionMethodValidValidator implements ConstraintValidator<KeyEncryptionMethodValid, SecurityAccessorType> {
     private static final EnumSet<CryptographicType> SECRETS = EnumSet.of(CryptographicType.AsymmetricKey, CryptographicType.Passphrase,
             CryptographicType.SymmetricKey, CryptographicType.ClientCertificate);
     private String message;
@@ -27,9 +27,9 @@ public class KeyEncryptionMethodValidValidator implements ConstraintValidator<Ke
     }
 
     @Override
-    public boolean isValid(KeyAccessorType keyAccessorType, ConstraintValidatorContext constraintValidatorContext) {
-        if (SECRETS.contains(keyAccessorType.getKeyType().getCryptographicType())) {
-            if (Checks.is(keyAccessorType.getKeyEncryptionMethod()).emptyOrOnlyWhiteSpace()) {
+    public boolean isValid(SecurityAccessorType securityAccessorType, ConstraintValidatorContext constraintValidatorContext) {
+        if (SECRETS.contains(securityAccessorType.getKeyType().getCryptographicType())) {
+            if (Checks.is(securityAccessorType.getKeyEncryptionMethod()).emptyOrOnlyWhiteSpace()) {
                 fail(constraintValidatorContext);
                 return false;
             }
@@ -40,7 +40,7 @@ public class KeyEncryptionMethodValidValidator implements ConstraintValidator<Ke
     private void fail(ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
         context.buildConstraintViolationWithTemplate(message)
-                .addPropertyNode(KeyAccessorTypeImpl.Fields.ENCRYPTIONMETHOD.fieldName())
+                .addPropertyNode(SecurityAccessorTypeImpl.Fields.ENCRYPTIONMETHOD.fieldName())
                 .addConstraintViolation();
     }
 

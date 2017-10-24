@@ -35,7 +35,7 @@ public class TrustStoreDeletionEventHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         TrustStore source = (TrustStore) localEvent.getSource();
-        if (this.deviceConfigurationService.usedByKeyAccessorType(source)) {
+        if (this.deviceConfigurationService.usedBySecurityAccessorType(source)) {
             throw new VetoDeleteTrustStoreException(getThesaurus(), source);
         }
     }

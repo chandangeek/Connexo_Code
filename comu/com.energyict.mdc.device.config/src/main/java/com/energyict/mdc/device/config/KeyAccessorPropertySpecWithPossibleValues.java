@@ -3,7 +3,7 @@
  */
 package com.energyict.mdc.device.config;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySelectionMode;
@@ -21,10 +21,10 @@ import java.util.List;
  * only available in a DeviceType context
  */
 public class KeyAccessorPropertySpecWithPossibleValues implements PropertySpec {
-    private final Provider<List<KeyAccessorType>> keyAccessorTypeProvider;
+    private final Provider<List<SecurityAccessorType>> keyAccessorTypeProvider;
     private final PropertySpec propertySpec;
 
-    private KeyAccessorPropertySpecWithPossibleValues(Provider<List<KeyAccessorType>> keyAccessorTypeProvider, PropertySpec propertySpec) {
+    private KeyAccessorPropertySpecWithPossibleValues(Provider<List<SecurityAccessorType>> keyAccessorTypeProvider, PropertySpec propertySpec) {
         this.keyAccessorTypeProvider = keyAccessorTypeProvider;
         this.propertySpec = propertySpec;
         if (BasicPropertySpec.class.isAssignableFrom(propertySpec.getClass())) {
@@ -36,8 +36,8 @@ public class KeyAccessorPropertySpecWithPossibleValues implements PropertySpec {
      * If the PropertySpec is a reference to a KeyAccessorType, the possible values will be retrieved from the DeviceType
      * and added to as a wrapped version of the original PropertySpec
      */
-    public static PropertySpec addValuesIfApplicable(Provider<List<KeyAccessorType>> keyAccessorTypeProvider, PropertySpec propertySpec) {
-        if (propertySpec.isReference() && (KeyAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()))) {
+    public static PropertySpec addValuesIfApplicable(Provider<List<SecurityAccessorType>> keyAccessorTypeProvider, PropertySpec propertySpec) {
+        if (propertySpec.isReference() && (SecurityAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()))) {
             return new KeyAccessorPropertySpecWithPossibleValues(keyAccessorTypeProvider, propertySpec);
         } else {
             return propertySpec;

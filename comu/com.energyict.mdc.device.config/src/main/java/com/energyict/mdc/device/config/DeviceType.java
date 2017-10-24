@@ -6,7 +6,7 @@ package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
@@ -257,39 +257,39 @@ public interface DeviceType extends HasId, HasName {
     void update();
 
     /**
-     * Return a list of all known defined key accessor types on this device type
+     * Return a list of all known defined security accessor types on this device type
      * @return
      */
-    List<KeyAccessorType> getKeyAccessorTypes();
+    List<SecurityAccessorType> getSecurityAccessorTypes();
 
     /**
-     * Creates a new KeyAccessorType for the device type
-     * @param name The KeyAccessorType name. This name identifies the function of the key (or whatever value) on the
-     * device. It will be the link between shipment import and the key accessors
-     * @param keyType description of the key (or whatever value) stored
-     * methods are registered on the KeyService.
-     * @return The newly created KeyAccessorType
+     * Creates a new SecurityAccessorType for the device type
+     * @param name The SecurityAccessorType name. This name identifies the function of the key/certificate (or whatever value) on the
+     * device. It will be the link between shipment import and the Security accessors
+     * @param keyType description of the Security (or whatever value) stored
+     * methods are registered on the SecurityService.
+     * @return The newly created SecurityAccessorType
      */
-    KeyAccessorType.Builder addKeyAccessorType(String name, KeyType keyType);
+    SecurityAccessorType.Builder addSecurityAccessorType(String name, KeyType keyType);
 
 
     /**
-     * Gets a specific updater for a key accessor type of a device type
-     * @return An updater for a key accessor type of a device type
+     * Gets a specific updater for a security accessor type of a device type
+     * @return An updater for a security accessor type of a device type
      */
-    Optional<KeyAccessorTypeUpdater> getKeyAccessorTypeUpdater(KeyAccessorType keyAccessorType);
+    Optional<SecurityAccessorTypeUpdater> getSecurityAccessorTypeUpdater(SecurityAccessorType securityAccessorType);
 
     /**
-     * Gets the specific set of user actions of a key accessor type of a device type
+     * Gets the specific set of user actions of a security accessor type of a device type
      * @return a set of DeviceSecurityUserAction
      */
-    Set<DeviceSecurityUserAction> getKeyAccessorTypeUserActions(KeyAccessorType keyAccessorType);
+    Set<DeviceSecurityUserAction> getSecurityAccessorTypeUserActions(SecurityAccessorType securityAccessorType);
 
     /**
-     * removes the KeyAccessorType from the DeviceType
-     * @param keyAccessorType
+     * removes the SecurityAccessorType from the DeviceType
+     * @param securityAccessorType
      */
-    void removeKeyAccessorType(KeyAccessorType keyAccessorType);
+    void removeSecurityAccessorType(SecurityAccessorType securityAccessorType);
 
     interface DeviceTypeBuilder {
         DeviceTypeBuilder withRegisterTypes(List<RegisterType> registerTypes);

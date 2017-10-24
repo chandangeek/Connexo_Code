@@ -13,7 +13,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -422,12 +422,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
-    public void addConfigurationSecurityProperty(String name, KeyAccessorType keyAccessor) {
+    public void addConfigurationSecurityProperty(String name, SecurityAccessorType keyAccessor) {
         this.configurationSecurityProperties.add(new ConfigurationSecurityPropertyImpl(this, name, keyAccessor));
     }
 
     @Override
-    public void updateConfigurationSecurityProperty(String configurationSecurityPropertyName, KeyAccessorType keyAccessor) {
+    public void updateConfigurationSecurityProperty(String configurationSecurityPropertyName, SecurityAccessorType keyAccessor) {
         this.removeConfigurationSecurityProperty(configurationSecurityPropertyName);
         if (keyAccessor != null) {
             this.addConfigurationSecurityProperty(configurationSecurityPropertyName, keyAccessor);
@@ -455,7 +455,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         return result.values()
                 .stream()
-                .map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> this.getDeviceConfiguration().getDeviceType().getKeyAccessorTypes(), ps))
+                .map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> this.getDeviceConfiguration().getDeviceType().getSecurityAccessorTypes(), ps))
                 .collect(toSet());
     }
 
@@ -859,7 +859,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         builder.securitySuite(securitySuiteId);
         builder.requestSecurityLevel(requestSecurityLevelId);
         builder.responseSecurityLevel(responseSecurityLevelId);
-        getConfigurationSecurityProperties().forEach(each -> builder.addConfigurationSecurityProperty(each.getName(), each.getKeyAccessorType()));
+        getConfigurationSecurityProperties().forEach(each -> builder.addConfigurationSecurityProperty(each.getName(), each.getSecurityAccessorType()));
         return builder.build();
     }
 

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 
 import aQute.bnd.annotation.ProviderType;
@@ -26,7 +26,7 @@ public interface SecurityPropertySetBuilder {
 
     SecurityPropertySetBuilder responseSecurityLevel(int level);
 
-    SecurityPropertySetBuilder addConfigurationSecurityProperty(String name, KeyAccessorType keyAccessor);
+    SecurityPropertySetBuilder addConfigurationSecurityProperty(String name, SecurityAccessorType keyAccessor);
 
     /**
      * Gets the Set of {@link PropertySpec}s that are the result

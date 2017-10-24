@@ -30,7 +30,7 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -271,8 +271,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public Optional<KeyAccessorType> findAndLockKeyAccessorTypeByIdAndVersion(long id, long version) {
-        return this.getDataModel().mapper(KeyAccessorType.class).lockObjectIfVersion(version, id);
+    public Optional<SecurityAccessorType> findAndLockSecurityAccessorTypeByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(SecurityAccessorType.class).lockObjectIfVersion(version, id);
     }
 
     @Override
@@ -965,10 +965,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public boolean usedByKeyAccessorType(TrustStore trustStore) {
+    public boolean usedBySecurityAccessorType(TrustStore trustStore) {
         return !this.dataModel
-                .mapper(KeyAccessorTypeImpl.class)
-                .find(KeyAccessorTypeImpl.Fields.TRUSTSTORE.fieldName(), trustStore)
+                .mapper(SecurityAccessorTypeImpl.class)
+                .find(SecurityAccessorTypeImpl.Fields.TRUSTSTORE.fieldName(), trustStore)
                 .isEmpty();
     }
 
@@ -988,8 +988,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public Optional<KeyAccessorType> findKeyAccessorTypeById(long id) {
-        return this.getDataModel().mapper(KeyAccessorType.class).getOptional(id);
+    public Optional<SecurityAccessorType> findSecurityAccessorTypeById(long id) {
+        return this.getDataModel().mapper(SecurityAccessorType.class).getOptional(id);
     }
 
     @Override

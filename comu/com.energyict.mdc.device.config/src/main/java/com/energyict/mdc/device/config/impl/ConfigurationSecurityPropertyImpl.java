@@ -9,7 +9,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 
@@ -30,17 +30,17 @@ public class ConfigurationSecurityPropertyImpl implements ConfigurationSecurityP
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<SecurityPropertySet> securityPropertySet = Reference.empty();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<KeyAccessorType> keyAccessorType = Reference.empty();
+    private Reference<SecurityAccessorType> keyAccessorType = Reference.empty();
 
     @Inject
     public ConfigurationSecurityPropertyImpl() {
     }
 
-    public ConfigurationSecurityPropertyImpl(SecurityPropertySet securityPropertySet, String name, KeyAccessorType keyAccessorType) {
+    public ConfigurationSecurityPropertyImpl(SecurityPropertySet securityPropertySet, String name, SecurityAccessorType securityAccessorType) {
         super();
         this.securityPropertySet.set(securityPropertySet);
         this.name = name;
-        this.keyAccessorType.set(keyAccessorType);
+        this.keyAccessorType.set(securityAccessorType);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ConfigurationSecurityPropertyImpl implements ConfigurationSecurityP
         return securityPropertySet.get();
     }
 
-    public KeyAccessorType getKeyAccessorType() {
+    public SecurityAccessorType getSecurityAccessorType() {
         return keyAccessorType.orNull();
     }
 
@@ -60,8 +60,8 @@ public class ConfigurationSecurityPropertyImpl implements ConfigurationSecurityP
         this.name = name;
     }
 
-    protected void setKeyAccessorType(KeyAccessorType keyAccessorType) {
-        this.keyAccessorType.set(keyAccessorType);
+    protected void setKeyAccessorType(SecurityAccessorType securityAccessorType) {
+        this.keyAccessorType.set(securityAccessorType);
     }
 
     protected void setSecurityPropertySet(SecurityPropertySet securityPropertySet) {

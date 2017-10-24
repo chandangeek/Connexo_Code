@@ -12,16 +12,14 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.Blob;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.FileBlob;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.time.TimeDuration;
@@ -41,7 +39,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.KeyAccessorTypeUpdater;
+import com.energyict.mdc.device.config.SecurityAccessorTypeUpdater;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -68,21 +66,14 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
-import com.energyict.mdc.upl.meterdata.Device;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
-import com.google.common.io.ByteStreams;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
 import javax.validation.constraints.Size;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
@@ -149,7 +140,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private boolean deviceProtocolPluggableClassChanged = false;
     private boolean fileManagementEnabled = false;
     private List<ServerDeviceMessageFile> deviceMessageFiles = new ArrayList<>();
-    private List<KeyAccessorType> keyAccessors = new ArrayList<>();
+    private List<SecurityAccessorType> keyAccessors = new ArrayList<>();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -330,79 +321,79 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public List<KeyAccessorType> getKeyAccessorTypes() {
+    public List<SecurityAccessorType> getSecurityAccessorTypes() {
         return Collections.unmodifiableList(this.keyAccessors);
     }
 
     @Override
-    public KeyAccessorType.Builder addKeyAccessorType(String name, KeyType keyType) {
-        return new KeyAccessorTypeBuilder(name, keyType, this);
+    public SecurityAccessorType.Builder addSecurityAccessorType(String name, KeyType keyType) {
+        return new SecurityAccessorTypeBuilder(name, keyType, this);
     }
 
     @Override
-    public void removeKeyAccessorType(KeyAccessorType keyAccessorType) {
-        getKeyAccessorTypes().stream()
-                .filter(kat -> kat.getId() == keyAccessorType.getId())
+    public void removeSecurityAccessorType(SecurityAccessorType securityAccessorType) {
+        getSecurityAccessorTypes().stream()
+                .filter(kat -> kat.getId() == securityAccessorType.getId())
                 .findAny()
                 .ifPresent(kat->{
-                    ((KeyAccessorTypeImpl)kat).preDelete();
+                    ((SecurityAccessorTypeImpl)kat).preDelete();
                     this.keyAccessors.remove(kat);
                 });
     }
 
     @Override
-    public Optional<KeyAccessorTypeUpdater> getKeyAccessorTypeUpdater(KeyAccessorType keyAccessorType) {
-        return getKeyAccessorTypes().stream()
-                .filter(kat -> kat.getId() == keyAccessorType.getId())
+    public Optional<SecurityAccessorTypeUpdater> getSecurityAccessorTypeUpdater(SecurityAccessorType securityAccessorType) {
+        return getSecurityAccessorTypes().stream()
+                .filter(kat -> kat.getId() == securityAccessorType.getId())
                 .findAny()
-                .map(kat->((KeyAccessorTypeImpl) keyAccessorType).startUpdate());
+                .map(kat->((SecurityAccessorTypeImpl) securityAccessorType).startUpdate());
     }
 
     @Override
-    public Set<DeviceSecurityUserAction> getKeyAccessorTypeUserActions(KeyAccessorType keyAccessorType) {
-        return getKeyAccessorTypes().stream()
-                .filter(kat -> kat.getId() == keyAccessorType.getId())
+    public Set<DeviceSecurityUserAction> getSecurityAccessorTypeUserActions(SecurityAccessorType securityAccessorType) {
+        return getSecurityAccessorTypes().stream()
+                .filter(kat -> kat.getId() == securityAccessorType.getId())
                 .findAny()
-                .map(kat->((KeyAccessorTypeImpl) keyAccessorType).getUserActions())
+                .map(kat->((SecurityAccessorTypeImpl) securityAccessorType).getUserActions())
                 .orElse(Collections.emptySet());
     }
 
-    private class KeyAccessorTypeBuilder implements KeyAccessorType.Builder {
-        private final KeyAccessorTypeImpl underConstruction;
+    private class SecurityAccessorTypeBuilder implements SecurityAccessorType.Builder {
+        private final SecurityAccessorTypeImpl underConstruction;
 
-        private KeyAccessorTypeBuilder(String name, KeyType keyType, DeviceTypeImpl deviceType) {
-            underConstruction = getDataModel().getInstance(KeyAccessorTypeImpl.class);
+        private SecurityAccessorTypeBuilder(String name, KeyType keyType, DeviceTypeImpl deviceType) {
+            underConstruction = getDataModel().getInstance(SecurityAccessorTypeImpl.class);
             underConstruction.setName(name);
             underConstruction.setKeyType(keyType);
             underConstruction.setDeviceType(deviceType);
         }
 
         @Override
-        public KeyAccessorType.Builder keyEncryptionMethod(String keyEncryptionMethod) {
+        public SecurityAccessorType.Builder keyEncryptionMethod(String keyEncryptionMethod) {
             underConstruction.setKeyEncryptionMethod(keyEncryptionMethod);
             return this;
         }
 
         @Override
-        public KeyAccessorType.Builder description(String description) {
+        public SecurityAccessorType.Builder description(String description) {
             underConstruction.setDescription(description);
             return this;
         }
 
         @Override
-        public KeyAccessorType.Builder trustStore(TrustStore trustStore) {
+        public SecurityAccessorType.Builder trustStore(TrustStore trustStore) {
             underConstruction.setTrustStore(trustStore);
             return this;
         }
 
         @Override
-        public KeyAccessorType.Builder duration(TimeDuration duration) {
+        public SecurityAccessorType.Builder duration(TimeDuration duration) {
             underConstruction.setDuration(duration);
             return this;
         }
 
         @Override
-        public KeyAccessorType add() {
+        public SecurityAccessorType add() {
             if (!CERTIFICATES.contains(underConstruction.getKeyType().getCryptographicType())) {
                 underConstruction.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
                 underConstruction.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);

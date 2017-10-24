@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -158,15 +158,15 @@ public class DeviceMessageSpecWithPossibleValuesImplTest {
 
     @Test
     public void oneKeyAccessorTypeSpecWithPossibleValues() {
-        KeyAccessorType keyAccessorType1 = mock(KeyAccessorType.class);
-        when(keyAccessorType1.getName()).thenReturn("A");
-        KeyAccessorType keyAccessorType2 = mock(KeyAccessorType.class);
-        when(keyAccessorType2.getName()).thenReturn("C");
-        KeyAccessorType keyAccessorType3 = mock(KeyAccessorType.class);
-        when(keyAccessorType3.getName()).thenReturn("B");
-        when(this.deviceType.getKeyAccessorTypes()).thenReturn(Arrays.asList(keyAccessorType1, keyAccessorType2, keyAccessorType3));
+        SecurityAccessorType securityAccessorType1 = mock(SecurityAccessorType.class);
+        when(securityAccessorType1.getName()).thenReturn("A");
+        SecurityAccessorType securityAccessorType2 = mock(SecurityAccessorType.class);
+        when(securityAccessorType2.getName()).thenReturn("C");
+        SecurityAccessorType securityAccessorType3 = mock(SecurityAccessorType.class);
+        when(securityAccessorType3.getName()).thenReturn("B");
+        when(this.deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(securityAccessorType1, securityAccessorType2, securityAccessorType3));
         PropertySpec propertySpec = this.propertySpecService
-                .referenceSpec(KeyAccessorType.class)
+                .referenceSpec(SecurityAccessorType.class)
                 .named("AK", "Authentication key")
                 .describedAs("desc")
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
@@ -196,7 +196,7 @@ public class DeviceMessageSpecWithPossibleValuesImplTest {
         assertThat(possibleValues.getSelectionMode()).isEqualTo(PropertySelectionMode.COMBOBOX);
         assertThat(possibleValues.isExhaustive()).isTrue();
         assertThat(possibleValues.isEditable()).isTrue();
-        assertThat(possibleValues.getAllValues()).containsOnly(keyAccessorType1, keyAccessorType2, keyAccessorType3);
+        assertThat(possibleValues.getAllValues()).containsOnly(securityAccessorType1, securityAccessorType2, securityAccessorType3);
         assertThat(possibleValues.getDefault()).isNull();
     }
 

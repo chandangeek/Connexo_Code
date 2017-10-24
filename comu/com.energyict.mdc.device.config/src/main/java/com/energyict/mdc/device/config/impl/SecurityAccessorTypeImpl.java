@@ -8,17 +8,17 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceKeyAccessorType;
+import com.energyict.mdc.device.config.DeviceSecurityAccessorType;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.KeyAccessorTypeUpdater;
+import com.energyict.mdc.device.config.SecurityAccessorTypeUpdater;
 
 import com.google.inject.Inject;
 
@@ -38,7 +38,7 @@ import static java.util.stream.Collectors.toList;
 @KeyEncryptionMethodValid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 @DurationPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 @TrustStorePresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-public class KeyAccessorTypeImpl implements DeviceKeyAccessorType, PersistenceAware {
+public class SecurityAccessorTypeImpl implements DeviceSecurityAccessorType, PersistenceAware {
     private long id;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -90,7 +90,7 @@ public class KeyAccessorTypeImpl implements DeviceKeyAccessorType, PersistenceAw
 
     }
     @Inject
-    public KeyAccessorTypeImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService, Thesaurus thesaurus) {
+    public SecurityAccessorTypeImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.threadPrincipalService = threadPrincipalService;
         this.thesaurus = thesaurus;
@@ -161,7 +161,7 @@ public class KeyAccessorTypeImpl implements DeviceKeyAccessorType, PersistenceAw
 
     private void validateDelete() {
         if (getDeviceType().getConfigurations().stream().anyMatch(DeviceConfiguration::isActive)) { // TODO provide better check
-            throw new KeyAccessorTypeCanNotBeDeletedException(thesaurus);
+            throw new SecurityAccessorTypeCanNotBeDeletedException(thesaurus);
         }
     }
 
@@ -266,7 +266,7 @@ public class KeyAccessorTypeImpl implements DeviceKeyAccessorType, PersistenceAw
             return false;
         }
 
-        KeyAccessorTypeImpl that = (KeyAccessorTypeImpl) o;
+        SecurityAccessorTypeImpl that = (SecurityAccessorTypeImpl) o;
 
         return id == that.id;
 
@@ -278,50 +278,50 @@ public class KeyAccessorTypeImpl implements DeviceKeyAccessorType, PersistenceAw
     }
 
     @Override
-    public KeyAccessorTypeUpdater startUpdate() {
-        return new KeyAccessorTypeUpdaterImpl();
+    public SecurityAccessorTypeUpdater startUpdate() {
+        return new SecurityAccessorTypeUpdaterImpl();
     }
 
-    protected class KeyAccessorTypeUpdaterImpl implements KeyAccessorTypeUpdater {
+    protected class SecurityAccessorTypeUpdaterImpl implements SecurityAccessorTypeUpdater {
 
-        private KeyAccessorTypeUpdaterImpl() {
+        private SecurityAccessorTypeUpdaterImpl() {
 
         }
 
         @Override
         public Updater name(String name) {
-            KeyAccessorTypeImpl.this.setName(name);
+            SecurityAccessorTypeImpl.this.setName(name);
             return this;
         }
 
         @Override
         public Updater description(String description) {
-            KeyAccessorTypeImpl.this.setDescription(description);
+            SecurityAccessorTypeImpl.this.setDescription(description);
             return this;
         }
 
         @Override
         public Updater duration(TimeDuration duration) {
-            KeyAccessorTypeImpl.this.setDuration(duration);
+            SecurityAccessorTypeImpl.this.setDuration(duration);
             return this;
         }
 
         @Override
-        public KeyAccessorTypeUpdater addUserAction(DeviceSecurityUserAction userAction) {
-            KeyAccessorTypeImpl.this.addUserAction(userAction);
+        public SecurityAccessorTypeUpdater addUserAction(DeviceSecurityUserAction userAction) {
+            SecurityAccessorTypeImpl.this.addUserAction(userAction);
             return this;
         }
 
         @Override
-        public KeyAccessorTypeUpdater removeUserAction(DeviceSecurityUserAction userAction) {
-            KeyAccessorTypeImpl.this.removeUserAction(userAction);
+        public SecurityAccessorTypeUpdater removeUserAction(DeviceSecurityUserAction userAction) {
+            SecurityAccessorTypeImpl.this.removeUserAction(userAction);
             return this;
         }
 
         @Override
-        public KeyAccessorType complete() {
-            KeyAccessorTypeImpl.this.save();
-            return KeyAccessorTypeImpl.this;
+        public SecurityAccessorType complete() {
+            SecurityAccessorTypeImpl.this.save();
+            return SecurityAccessorTypeImpl.this;
         }
     }
 }

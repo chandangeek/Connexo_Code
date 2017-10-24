@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -14,7 +14,7 @@ import java.util.EnumSet;
 /**
  * Created by bvn on 3/13/17.
  */
-public class TrustStorePresentValidator implements ConstraintValidator<TrustStorePresent, KeyAccessorType> {
+public class TrustStorePresentValidator implements ConstraintValidator<TrustStorePresent, SecurityAccessorType> {
     private static final EnumSet<CryptographicType> CERTIFICATES = EnumSet.of(CryptographicType.Certificate, CryptographicType.ClientCertificate);
     private String message;
 
@@ -24,9 +24,9 @@ public class TrustStorePresentValidator implements ConstraintValidator<TrustStor
     }
 
     @Override
-    public boolean isValid(KeyAccessorType keyAccessorType, ConstraintValidatorContext constraintValidatorContext) {
-        if (CERTIFICATES.contains(keyAccessorType.getKeyType().getCryptographicType())) {
-            if (!keyAccessorType.getTrustStore().isPresent()) {
+    public boolean isValid(SecurityAccessorType securityAccessorType, ConstraintValidatorContext constraintValidatorContext) {
+        if (CERTIFICATES.contains(securityAccessorType.getKeyType().getCryptographicType())) {
+            if (!securityAccessorType.getTrustStore().isPresent()) {
                 fail(constraintValidatorContext);
                 return false;
             }
@@ -37,7 +37,7 @@ public class TrustStorePresentValidator implements ConstraintValidator<TrustStor
     private void fail(ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
         context.buildConstraintViolationWithTemplate(message)
-                .addPropertyNode(KeyAccessorTypeImpl.Fields.TRUSTSTORE.fieldName())
+                .addPropertyNode(SecurityAccessorTypeImpl.Fields.TRUSTSTORE.fieldName())
                 .addConstraintViolation();
     }
 

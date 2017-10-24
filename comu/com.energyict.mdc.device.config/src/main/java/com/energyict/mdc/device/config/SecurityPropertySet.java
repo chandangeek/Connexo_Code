@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
@@ -65,9 +65,9 @@ public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpe
 
     List<ConfigurationSecurityProperty> getConfigurationSecurityProperties();
 
-    void addConfigurationSecurityProperty(String name, KeyAccessorType keyAccessor);
+    void addConfigurationSecurityProperty(String name, SecurityAccessorType keyAccessor);
 
-    void updateConfigurationSecurityProperty(String configurationSecurityPropertyName, KeyAccessorType keyAccessor);
+    void updateConfigurationSecurityProperty(String configurationSecurityPropertyName, SecurityAccessorType keyAccessor);
 
     void removeConfigurationSecurityProperty(String configurationSecurityPropertyName);
 

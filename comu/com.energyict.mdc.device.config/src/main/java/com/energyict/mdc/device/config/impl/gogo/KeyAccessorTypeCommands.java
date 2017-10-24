@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config.impl.gogo;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
@@ -72,7 +72,7 @@ public class KeyAccessorTypeCommands {
     public void keyAccessorTypes(Long deviceTypeId) {
         DeviceType deviceType = deviceConfigurationService.findDeviceType(deviceTypeId)
                 .orElseThrow(() -> new RuntimeException("No such device type"));
-        List<List<?>> kats = deviceType.getKeyAccessorTypes()
+        List<List<?>> kats = deviceType.getSecurityAccessorTypes()
                 .stream()
                 .map(kat -> Arrays.asList(kat.getName(), kat.getKeyType().getName(), kat.getDuration(), kat.getKeyEncryptionMethod(), kat.getTrustStore().isPresent()?kat.getTrustStore().get().getName():""))
                 .collect(toList());
@@ -93,7 +93,7 @@ public class KeyAccessorTypeCommands {
                     .orElseThrow(() -> new RuntimeException("No such device type"));
             KeyType keyType = securityManagementService.getKeyType(keyTypeName)
                     .orElseThrow(() -> new RuntimeException("No such key type"));
-            KeyAccessorType.Builder builder = deviceType.addKeyAccessorType(name, keyType)
+            SecurityAccessorType.Builder builder = deviceType.addSecurityAccessorType(name, keyType)
                     .keyEncryptionMethod(keyEncryptionMethod)
                     .description("Created by gogo command")
                     .duration(TimeDuration.days(duration[0]));
@@ -117,7 +117,7 @@ public class KeyAccessorTypeCommands {
                     .orElseThrow(() -> new RuntimeException("No such key type"));
             TrustStore trustStore = securityManagementService.findTrustStore(trustStoreName)
                     .orElseThrow(() -> new RuntimeException("No such trust store"));
-            KeyAccessorType.Builder builder = deviceType.addKeyAccessorType(name, keyType)
+            SecurityAccessorType.Builder builder = deviceType.addSecurityAccessorType(name, keyType)
                     .trustStore(trustStore)
                     .keyEncryptionMethod(keyEncryptionMethod)
                     .description("Created by gogo command");

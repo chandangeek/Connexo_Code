@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -14,7 +14,7 @@ import java.util.EnumSet;
 /**
  * Validate the KeyAccessorType has a duration is required, that is, in case of Passphrase of symmetric key
  */
-public class DurationPresentValidator implements ConstraintValidator<DurationPresent, KeyAccessorType> {
+public class DurationPresentValidator implements ConstraintValidator<DurationPresent, SecurityAccessorType> {
     private static final EnumSet<CryptographicType> EXPIREABLE = EnumSet.of(CryptographicType.Passphrase, CryptographicType.SymmetricKey);
     private String message;
 
@@ -24,9 +24,9 @@ public class DurationPresentValidator implements ConstraintValidator<DurationPre
     }
 
     @Override
-    public boolean isValid(KeyAccessorType keyAccessorType, ConstraintValidatorContext constraintValidatorContext) {
-        if (EXPIREABLE.contains(keyAccessorType.getKeyType().getCryptographicType())) {
-            if (!keyAccessorType.getDuration().isPresent()) {
+    public boolean isValid(SecurityAccessorType securityAccessorType, ConstraintValidatorContext constraintValidatorContext) {
+        if (EXPIREABLE.contains(securityAccessorType.getKeyType().getCryptographicType())) {
+            if (!securityAccessorType.getDuration().isPresent()) {
                 fail(constraintValidatorContext);
                 return false;
             }
@@ -37,7 +37,7 @@ public class DurationPresentValidator implements ConstraintValidator<DurationPre
     private void fail(ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
         context.buildConstraintViolationWithTemplate(message)
-                .addPropertyNode(KeyAccessorTypeImpl.Fields.DURATION.fieldName())
+                .addPropertyNode(SecurityAccessorTypeImpl.Fields.DURATION.fieldName())
                 .addConstraintViolation();
     }
 

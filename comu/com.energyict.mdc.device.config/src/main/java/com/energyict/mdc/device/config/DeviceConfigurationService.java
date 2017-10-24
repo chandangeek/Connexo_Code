@@ -10,7 +10,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -359,7 +359,7 @@ public interface DeviceConfigurationService {
 
     TimeOfUseOptions newTimeOfUseOptions(DeviceType deviceType);
 
-    Optional<KeyAccessorType> findKeyAccessorTypeById(long id);
+    Optional<SecurityAccessorType> findSecurityAccessorTypeById(long id);
 
     /**
      * Return a list of all device configurations from whom devices are present in an EndDeviceGroup

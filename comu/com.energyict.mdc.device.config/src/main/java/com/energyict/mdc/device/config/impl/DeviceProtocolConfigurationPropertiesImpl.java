@@ -49,7 +49,7 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
                     .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs())
                     .orElse(Collections.emptyList())
                     .stream()
-                    .map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> deviceConfiguration.getDeviceType().getKeyAccessorTypes(), ps))
+                    .map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> deviceConfiguration.getDeviceType().getSecurityAccessorTypes(), ps))
                     .collect(toList());
         }
         return this.propertySpecs;

@@ -409,14 +409,14 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return super.getPropertySpecs().stream().
-                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getConfiguration().getDeviceType().getKeyAccessorTypes(), ps)).
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getConfiguration().getDeviceType().getSecurityAccessorTypes(), ps)).
                     collect(Collectors.toList());
         }
 
         @Override
         public Optional<PropertySpec> getPropertySpec(String name) {
             return super.getPropertySpec(name).
-                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getConfiguration().getDeviceType().getKeyAccessorTypes(), ps));
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getConfiguration().getDeviceType().getSecurityAccessorTypes(), ps));
         }
 
         @Override
@@ -437,14 +437,14 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
         @Override
         public List<PropertySpec> getPropertySpecs() {
             return this.connectionType.getPropertySpecs().stream().
-                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getConfiguration().getDeviceType().getKeyAccessorTypes(), ps)).
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getConfiguration().getDeviceType().getSecurityAccessorTypes(), ps)).
                     collect(Collectors.toList());
         }
 
         @Override
         public Optional<PropertySpec> getPropertySpec(String name) {
             return this.connectionType.getPropertySpec(name).
-                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getConfiguration().getDeviceType().getKeyAccessorTypes(), ps));
+                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getConfiguration().getDeviceType().getSecurityAccessorTypes(), ps));
         }
     }
 }

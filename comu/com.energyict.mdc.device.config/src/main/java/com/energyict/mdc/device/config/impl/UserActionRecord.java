@@ -6,7 +6,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 
 import java.time.Instant;
@@ -16,7 +16,7 @@ import java.time.Instant;
  */
 class UserActionRecord {
     private DeviceSecurityUserAction userAction;
-    private Reference<KeyAccessorType> keyAccessorType = ValueReference.absent();
+    private Reference<SecurityAccessorType> keyAccessorType = ValueReference.absent();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -29,9 +29,9 @@ class UserActionRecord {
     UserActionRecord() {
     }
 
-    UserActionRecord(KeyAccessorType keyAccessorType, DeviceSecurityUserAction userAction) {
+    UserActionRecord(SecurityAccessorType securityAccessorType, DeviceSecurityUserAction userAction) {
         this();
-        this.keyAccessorType.set(keyAccessorType);
+        this.keyAccessorType.set(securityAccessorType);
         this.userAction = userAction;
     }
 

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 
 /**
  * Models a security property for a particular {@link SecurityPropertySet}
@@ -22,11 +22,11 @@ public interface ConfigurationSecurityProperty {
     String getName();
 
     /**
-     * Gets the {@link KeyAccessorType} of this {@link ConfigurationSecurityProperty}
+     * Gets the {@link SecurityAccessorType} of this {@link ConfigurationSecurityProperty}
      *
-     * @return Gets the {@link KeyAccessorType} of this {@link ConfigurationSecurityProperty}
+     * @return Gets the {@link SecurityAccessorType} of this {@link ConfigurationSecurityProperty}
      */
-    KeyAccessorType getKeyAccessorType();
+    SecurityAccessorType getSecurityAccessorType();
 
     /**
      * Gets the {@link SecurityPropertySet} who owns this {@link ConfigurationSecurityProperty}
