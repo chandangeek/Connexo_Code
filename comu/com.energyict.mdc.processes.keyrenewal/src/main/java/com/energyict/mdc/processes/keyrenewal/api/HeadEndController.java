@@ -10,7 +10,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -52,11 +52,11 @@ public class HeadEndController {
     private void performOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
         serviceCall.log(LogLevel.INFO, "Handling key renewal.");
         EndDeviceCommand deviceCommand;
-        KeyAccessorType keyAccessorType = getKeyAccessorType(deviceCommandInfo.keyAccessorType, device);
-        if (keyAccessorType == null) {
+        SecurityAccessorType securityAccessorType = getKeyAccessorType(deviceCommandInfo.keyAccessorType, device);
+        if (securityAccessorType == null) {
             throw exceptionFactory.newException(MessageSeeds.UNKNOWN_KEYACCESSORTYPE);
         }
-        deviceCommand = headEndInterface.getCommandFactory().createKeyRenewalCommand(endDevice, keyAccessorType);
+        deviceCommand = headEndInterface.getCommandFactory().createKeyRenewalCommand(endDevice, securityAccessorType);
         CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, deviceCommandInfo.activationDate, serviceCall);
         completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
     }
@@ -90,14 +90,14 @@ public class HeadEndController {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COULD_NOT_FIND_DESTINATION_SPEC, CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION));
     }
 
-    protected KeyAccessorType getKeyAccessorType(String keyAccessType, Device device) {
-        return device.getDeviceType().getKeyAccessorTypes().stream().filter(keyAcccessorType -> keyAcccessorType.getName().equals(keyAccessType)).findFirst()
+    protected SecurityAccessorType getKeyAccessorType(String keyAccessType, Device device) {
+        return device.getDeviceType().getSecurityAccessorTypes().stream().filter(keyAcccessorType -> keyAcccessorType.getName().equals(keyAccessType)).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.UNKNOWN_KEYACCESSORTYPE));
     }
 
-    protected List<ComTaskExecution> getComTaskExecutions(Device device, KeyAccessorType keyAccessorType) {
+    protected List<ComTaskExecution> getComTaskExecutions(Device device, SecurityAccessorType securityAccessorType) {
         return device.getComTaskExecutions().stream().filter(comTaskExecution -> getComTaskEnablement(comTaskExecution).map(comTaskEnablement1 -> comTaskEnablement1.getSecurityPropertySet().getConfigurationSecurityProperties().stream()
-                .anyMatch(configurationSecurityProperty -> configurationSecurityProperty.getKeyAccessorType().equals(keyAccessorType))).orElse(false)).collect(Collectors.toList());
+                .anyMatch(configurationSecurityProperty -> configurationSecurityProperty.getSecurityAccessorType().equals(securityAccessorType))).orElse(false)).collect(Collectors.toList());
     }
 
     private Optional<ComTaskEnablement> getComTaskEnablement(ComTaskExecution comTaskExecution) {

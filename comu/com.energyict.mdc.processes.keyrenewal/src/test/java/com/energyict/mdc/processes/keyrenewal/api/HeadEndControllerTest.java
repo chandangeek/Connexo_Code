@@ -19,7 +19,7 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
@@ -77,7 +77,7 @@ public class HeadEndControllerTest {
     @Mock
     Device device;
     @Mock
-    KeyAccessorType keyAccessorType;
+    SecurityAccessorType securityAccessorType;
     @Mock
     ServiceCall serviceCall;
     @Mock
@@ -180,9 +180,9 @@ public class HeadEndControllerTest {
         deviceCommandInfo.keyAccessorType = KEY_ACCESSOR_TYPE;
         deviceCommandInfo.activationDate = Instant.now();
 
-        Mockito.doReturn(keyAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);
+        Mockito.doReturn(securityAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);
 
-        when(commandFactory.createKeyRenewalCommand(endDevice, keyAccessorType)).thenReturn(endDeviceCommand);
+        when(commandFactory.createKeyRenewalCommand(endDevice, securityAccessorType)).thenReturn(endDeviceCommand);
         PropertySpec keyAccessorTypeSpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
                 .named(KEY_ACCESSORTYPE_ATTRIBUTE_TRANSLATION_KEY)
@@ -195,7 +195,7 @@ public class HeadEndControllerTest {
         headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, device);
 
         // Asserts
-        verify(commandFactory).createKeyRenewalCommand(endDevice, keyAccessorType);
+        verify(commandFactory).createKeyRenewalCommand(endDevice, securityAccessorType);
         verify(headEndInterface).sendCommand(endDeviceCommand, deviceCommandInfo.activationDate, serviceCall);
         verify(completionOptions).whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), destinationSpec);
     }
@@ -207,7 +207,7 @@ public class HeadEndControllerTest {
         deviceCommandInfo.keyAccessorType = KEY_ACCESSOR_TYPE;
         deviceCommandInfo.activationDate = Instant.now();
 
-        Mockito.doReturn(keyAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);
+        Mockito.doReturn(securityAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);
 
         when(messageService.getDestinationSpec(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION)).thenReturn(Optional.empty());
 
@@ -226,8 +226,8 @@ public class HeadEndControllerTest {
 
         when(endDevice.getHeadEndInterface()).thenReturn(Optional.of(multiSenseHeadEndInterface));
 
-        Mockito.doReturn(keyAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);
-        Mockito.doReturn(comtasks).when(headEndController).getComTaskExecutions(device, keyAccessorType);
+        Mockito.doReturn(securityAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);
+        Mockito.doReturn(comtasks).when(headEndController).getComTaskExecutions(device, securityAccessorType);
         Mockito.doReturn(comtasks).when(headEndController).getFilteredList(comtasks);
 
 
