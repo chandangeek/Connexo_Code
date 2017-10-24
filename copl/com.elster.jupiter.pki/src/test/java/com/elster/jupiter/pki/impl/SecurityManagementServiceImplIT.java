@@ -89,7 +89,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PKIServiceImplIT {
+public class SecurityManagementServiceImplIT {
 
     private static PkiInMemoryPersistence inMemoryPersistence = new PkiInMemoryPersistence();
 
