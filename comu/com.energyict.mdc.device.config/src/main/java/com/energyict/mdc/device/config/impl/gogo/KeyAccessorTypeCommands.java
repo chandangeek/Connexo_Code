@@ -6,7 +6,7 @@ package com.energyict.mdc.device.config.impl.gogo;
 
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
@@ -40,7 +40,7 @@ public class KeyAccessorTypeCommands {
     public static final MysqlPrint MYSQL_PRINT = new MysqlPrint();
 
     private DeviceConfigurationService deviceConfigurationService;
-    private PkiService pkiService;
+    private SecurityManagementService securityManagementService;
     private TransactionService transactionService;
     private ThreadPrincipalService threadPrincipalService;
 
@@ -55,8 +55,8 @@ public class KeyAccessorTypeCommands {
     }
 
     @Reference
-    public void setPkiService(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @Reference
@@ -91,7 +91,7 @@ public class KeyAccessorTypeCommands {
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.findDeviceType(deviceTypeId)
                     .orElseThrow(() -> new RuntimeException("No such device type"));
-            KeyType keyType = pkiService.getKeyType(keyTypeName)
+            KeyType keyType = securityManagementService.getKeyType(keyTypeName)
                     .orElseThrow(() -> new RuntimeException("No such key type"));
             KeyAccessorType.Builder builder = deviceType.addKeyAccessorType(name, keyType)
                     .keyEncryptionMethod(keyEncryptionMethod)
@@ -113,9 +113,9 @@ public class KeyAccessorTypeCommands {
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.findDeviceType(deviceTypeId)
                     .orElseThrow(() -> new RuntimeException("No such device type"));
-            KeyType keyType = pkiService.getKeyType(keyTypeName)
+            KeyType keyType = securityManagementService.getKeyType(keyTypeName)
                     .orElseThrow(() -> new RuntimeException("No such key type"));
-            TrustStore trustStore = pkiService.findTrustStore(trustStoreName)
+            TrustStore trustStore = securityManagementService.findTrustStore(trustStoreName)
                     .orElseThrow(() -> new RuntimeException("No such trust store"));
             KeyAccessorType.Builder builder = deviceType.addKeyAccessorType(name, keyType)
                     .trustStore(trustStore)

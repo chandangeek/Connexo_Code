@@ -31,24 +31,20 @@ import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Membership;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
@@ -116,7 +112,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.io.InputStream;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -137,7 +132,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
@@ -177,7 +171,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile CalendarService calendarService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile CustomPropertySetService customPropertySetService;
-    private volatile PkiService pkiService;
+    private volatile SecurityManagementService securityManagementService;
 
     private final Set<Privilege> privileges = new HashSet<>();
 
@@ -207,7 +201,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                                           CustomPropertySetService customPropertySetService,
                                           UpgradeService upgradeService,
                                           DeviceMessageSpecificationService deviceMessageSpecificationService,
-                                          PkiService pkiService) {
+                                          SecurityManagementService securityManagementService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -230,7 +224,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setCalendarService(calendarService);
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.setCustomPropertySetService(customPropertySetService);
-        this.setPkiService(pkiService);
+        this.setSecurityManagementService(securityManagementService);
         setUpgradeService(upgradeService);
         this.activate();
     }
@@ -652,8 +646,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Reference
-    public void setPkiService(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     private Module getModule() {
@@ -678,7 +672,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(EstimationService.class).toInstance(estimationService);
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
-                bind(PkiService.class).toInstance(pkiService);
+                bind(SecurityManagementService.class).toInstance(securityManagementService);
             }
         };
     }

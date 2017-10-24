@@ -35,7 +35,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
@@ -281,7 +281,7 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
                     injector.getInstance(CustomPropertySetService.class),
                     UpgradeModule.FakeUpgradeService.getInstance(),
                     injector.getInstance(DeviceMessageSpecificationService.class),
-                    injector.getInstance(PkiService.class));
+                    injector.getInstance(SecurityManagementService.class));
             ctx.commit();
         }
         enhanceEventServiceForConflictCalculation();

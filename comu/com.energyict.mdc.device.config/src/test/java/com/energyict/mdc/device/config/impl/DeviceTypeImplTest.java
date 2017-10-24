@@ -987,9 +987,9 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     @Test
     @Transactional
     public void addKeyAccessorType() throws Exception {
-        inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128", "AES", 128).add();
+        inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128", "AES", 128).add();
 
-        Optional<KeyType> aes128 = inMemoryPersistence.getPkiService().getKeyType("AES128");
+        Optional<KeyType> aes128 = inMemoryPersistence.getSecurityManagementService().getKeyType("AES128");
         assertThat(deviceType.getKeyAccessorTypes()).isEmpty();
         this.deviceType.addKeyAccessorType("GUAK", aes128.get()).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
@@ -1004,9 +1004,9 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_IS_REQUIRED+"}", property = "keyEncryptionMethod")
     public void addKeyAccessorTypeWithoutKeyEncryptionMethod() throws Exception {
-        inMemoryPersistence.getPkiService().newSymmetricKeyType("AES256", "AES", 256).add();
+        inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES256", "AES", 256).add();
 
-        Optional<KeyType> aes128 = inMemoryPersistence.getPkiService().getKeyType("AES256");
+        Optional<KeyType> aes128 = inMemoryPersistence.getSecurityManagementService().getKeyType("AES256");
         assertThat(deviceType.getKeyAccessorTypes()).isEmpty();
         this.deviceType.addKeyAccessorType("GUAK", aes128.get()).description("general use AK").duration(TimeDuration.days(365)).add();
     }
@@ -1015,9 +1015,9 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_IS_REQUIRED+"}", property = "duration")
     public void addKeyAccessorTypeWithoutDuration() throws Exception {
-        inMemoryPersistence.getPkiService().newSymmetricKeyType("AES256", "AES", 256).add();
+        inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES256", "AES", 256).add();
 
-        Optional<KeyType> aes128 = inMemoryPersistence.getPkiService().getKeyType("AES256");
+        Optional<KeyType> aes128 = inMemoryPersistence.getSecurityManagementService().getKeyType("AES256");
         assertThat(deviceType.getKeyAccessorTypes()).isEmpty();
         this.deviceType.addKeyAccessorType("GUAK", aes128.get()).description("general use AK").keyEncryptionMethod("DataVault").add();
     }
@@ -1026,9 +1026,9 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_IS_REQUIRED+"}", property = "trustStore")
     public void addCertificateAccessorTypeMissingTrustStore() throws Exception {
-        inMemoryPersistence.getPkiService().newCertificateType("Friends").add();
+        inMemoryPersistence.getSecurityManagementService().newCertificateType("Friends").add();
 
-        Optional<KeyType> certs = inMemoryPersistence.getPkiService().getKeyType("Friends");
+        Optional<KeyType> certs = inMemoryPersistence.getSecurityManagementService().getKeyType("Friends");
         assertThat(deviceType.getKeyAccessorTypes()).isEmpty();
         this.deviceType.addKeyAccessorType("TLS", certs.get()).description("just certificates").add();
     }
@@ -1036,10 +1036,10 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     @Test
     @Transactional
     public void addCertificateAccessorType() throws Exception {
-        inMemoryPersistence.getPkiService().newCertificateType("Friends").add();
-        TrustStore main = inMemoryPersistence.getPkiService().newTrustStore("MAIN").add();
+        inMemoryPersistence.getSecurityManagementService().newCertificateType("Friends").add();
+        TrustStore main = inMemoryPersistence.getSecurityManagementService().newTrustStore("MAIN").add();
 
-        Optional<KeyType> certs = inMemoryPersistence.getPkiService().getKeyType("Friends");
+        Optional<KeyType> certs = inMemoryPersistence.getSecurityManagementService().getKeyType("Friends");
         assertThat(deviceType.getKeyAccessorTypes()).isEmpty();
         this.deviceType.addKeyAccessorType("TLS", certs.get())
                 .description("just certificates")
@@ -1058,9 +1058,9 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     @Test
     @Transactional
     public void testRemoveKeyAccessorType() throws Exception {
-        inMemoryPersistence.getPkiService().newSymmetricKeyType("AES256", "AES", 256).add();
+        inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES256", "AES", 256).add();
 
-        Optional<KeyType> aes128 = inMemoryPersistence.getPkiService().getKeyType("AES256");
+        Optional<KeyType> aes128 = inMemoryPersistence.getSecurityManagementService().getKeyType("AES256");
         KeyAccessorType keyAccessorType = this.deviceType.addKeyAccessorType("GUAK", aes128.get())
                 .description("general use AK")
                 .duration(TimeDuration.days(365))

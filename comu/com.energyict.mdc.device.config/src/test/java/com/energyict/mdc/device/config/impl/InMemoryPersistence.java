@@ -34,7 +34,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
@@ -135,7 +135,7 @@ public class InMemoryPersistence {
     private CalendarService calendarService;
     private PluggableService pluggableService;
     private CustomPropertySetService customPropertySetService;
-    private PkiService pkiService;
+    private SecurityManagementService securityManagementService;
 
     private boolean mockProtocolPluggableService;
     private ProtocolPluggableService protocolPluggableService;
@@ -178,7 +178,7 @@ public class InMemoryPersistence {
             injector.getInstance(Publisher.class);
             this.eventService = (EventServiceImpl) injector.getInstance(EventService.class);
             injector.getInstance(NlsService.class);
-            this.pkiService = this.injector.getInstance(PkiService.class);
+            this.securityManagementService = this.injector.getInstance(SecurityManagementService.class);
             finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
@@ -432,8 +432,8 @@ public class InMemoryPersistence {
         return deviceLifeCycleConfigurationService;
     }
 
-    public PkiService getPkiService() {
-        return pkiService;
+    public SecurityManagementService getSecurityManagementService() {
+        return securityManagementService;
     }
 
     private class MockModule extends AbstractModule {
