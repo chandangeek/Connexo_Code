@@ -127,6 +127,6 @@ public class SecurityExpirationSearchablePropertyTest {
     }
 
     private SecurityExpirationSearchableProperty getTestInstance() {
-        return new SecurityExpirationSearchableProperty(inMemoryPersistence.getDataModel(), inMemoryPersistence.getPkiService(), inMemoryPersistence.getPropertySpecService(), inMemoryPersistence.getThesaurus()).init(this.domain, securitySearchablePropertyGroup);
+        return new SecurityExpirationSearchableProperty(inMemoryPersistence.getDataModel(), inMemoryPersistence.getSecurityManagementService(), inMemoryPersistence.getPropertySpecService(), inMemoryPersistence.getThesaurus()).init(this.domain, securitySearchablePropertyGroup);
     }
 }

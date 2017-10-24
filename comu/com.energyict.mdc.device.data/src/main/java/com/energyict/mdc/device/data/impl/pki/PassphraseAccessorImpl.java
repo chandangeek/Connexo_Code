@@ -9,7 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.pki.PassphraseWrapper;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.energyict.mdc.device.data.PassphraseAccessor;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
@@ -22,17 +22,17 @@ import java.util.Optional;
  */
 public class PassphraseAccessorImpl extends AbstractKeyAccessorImpl<PassphraseWrapper> implements PassphraseAccessor {
     private final DataModel dataModel;
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
     private final Thesaurus thesaurus;
 
     private RefAny actualPassphraseWrapperReference;
     private RefAny tempPassphraseWrapperReference;
 
     @Inject
-    public PassphraseAccessorImpl(DataModel dataModel, PkiService pkiService, Thesaurus thesaurus) {
-        super(pkiService);
+    public PassphraseAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {
+        super(securityManagementService);
         this.dataModel = dataModel;
-        this.pkiService = pkiService;
+        this.securityManagementService = securityManagementService;
         this.thesaurus = thesaurus;
     }
 
@@ -71,7 +71,7 @@ public class PassphraseAccessorImpl extends AbstractKeyAccessorImpl<PassphraseWr
     }
 
     private void doRenewValue() {
-        PassphraseWrapper passphraseWrapper = pkiService.newPassphraseWrapper(getKeyAccessorType());
+        PassphraseWrapper passphraseWrapper = securityManagementService.newPassphraseWrapper(getKeyAccessorType());
         passphraseWrapper.generateValue();
         tempPassphraseWrapperReference = dataModel.asRefAny(passphraseWrapper);
         this.save();

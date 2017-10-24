@@ -64,7 +64,7 @@ import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
@@ -258,7 +258,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final CustomPropertySetService customPropertySetService;
     private final ServerDeviceService deviceService;
     private final LockService lockService;
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final ThreadPrincipalService threadPrincipalService;
@@ -354,7 +354,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             DeviceConfigurationService deviceConfigurationService,
             ServerDeviceService deviceService,
             LockService lockService,
-            PkiService pkiService) {
+            SecurityManagementService securityManagementService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -376,7 +376,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.lockService = lockService;
         // Helper to get activation info... from 'Kore'
         this.koreHelper = new SyncDeviceWithKoreForInfo(this, this.deviceService, this.readingTypeUtilService, clock, this.eventService);
-        this.pkiService = pkiService;
+        this.securityManagementService = securityManagementService;
         this.koreHelper.syncWithKore(this);
     }
 

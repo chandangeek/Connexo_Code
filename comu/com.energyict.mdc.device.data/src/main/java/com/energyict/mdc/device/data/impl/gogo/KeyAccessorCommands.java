@@ -9,7 +9,7 @@ import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PassphraseWrapper;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
@@ -77,7 +77,7 @@ public class KeyAccessorCommands {
     public static final MysqlPrint MYSQL_PRINT = new MysqlPrint();
 
     private volatile DeviceService deviceService;
-    private volatile PkiService pkiService;
+    private volatile SecurityManagementService securityManagementService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile EventService eventService;
@@ -88,8 +88,8 @@ public class KeyAccessorCommands {
     }
 
     @Reference
-    public void setPkiService(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @Reference
@@ -202,7 +202,7 @@ public class KeyAccessorCommands {
             if (key==null) {
                 throw new RuntimeException("The keystore does not contain a key with alias "+alias);
             }
-            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(certKeyAccessorType.getKeyType(), certKeyAccessorType.getKeyEncryptionMethod()).alias(alias).add();
+            ClientCertificateWrapper clientCertificateWrapper = securityManagementService.newClientCertificateWrapper(certKeyAccessorType.getKeyType(), certKeyAccessorType.getKeyEncryptionMethod()).alias(alias).add();
             clientCertificateWrapper.setCertificate((X509Certificate) certificate);
             clientCertificateWrapper.setCertificate((X509Certificate) certificate);
             PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) clientCertificateWrapper.getPrivateKeyWrapper();
@@ -240,7 +240,7 @@ public class KeyAccessorCommands {
                 PlaintextPassphrase actualValue = (PlaintextPassphrase) keyAccessor.getActualValue().get();
                 actualValue.setPassphrase(cleartextPassword);
             } else {
-                PassphraseWrapper passphraseWrapper = pkiService.newPassphraseWrapper(keyAccessorType);
+                PassphraseWrapper passphraseWrapper = securityManagementService.newPassphraseWrapper(keyAccessorType);
                 ((PlaintextPassphrase)passphraseWrapper).setPassphrase(cleartextPassword);
                 keyAccessor.setActualValue(passphraseWrapper);
                 keyAccessor.save();
@@ -277,7 +277,7 @@ public class KeyAccessorCommands {
                 throw new RuntimeException("The keystore does not contain a key with alias "+alias);
             }
 
-            SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(keyAccessorType);
+            SymmetricKeyWrapper symmetricKeyWrapper = securityManagementService.newSymmetricKeyWrapper(keyAccessorType);
             ((PlaintextSymmetricKey)symmetricKeyWrapper).setKey(new SecretKeySpec(key.getEncoded(), key.getAlgorithm()));
             Optional<KeyAccessor> keyAccessorOptional = device.getKeyAccessor(keyAccessorType);
             KeyAccessor<SymmetricKeyWrapper> keyAccessor;
@@ -314,7 +314,7 @@ public class KeyAccessorCommands {
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("No such key accessor type on the device type: " + certKatName));
 
-            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(certKeyAccessorType.getKeyType(), certKeyAccessorType.getKeyEncryptionMethod()).alias(alias).add();
+            ClientCertificateWrapper clientCertificateWrapper = securityManagementService.newClientCertificateWrapper(certKeyAccessorType.getKeyType(), certKeyAccessorType.getKeyEncryptionMethod()).alias(alias).add();
             clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
             X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -420,7 +420,7 @@ public class KeyAccessorCommands {
     }
 
     public void trustStores() {
-        List<List<?>> lists = pkiService.getAllTrustStores()
+        List<List<?>> lists = securityManagementService.getAllTrustStores()
                 .stream()
                 .map(ts -> Arrays.asList(ts.getName(), ts.getCertificates().size()))
                 .collect(toList());
@@ -436,7 +436,7 @@ public class KeyAccessorCommands {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            pkiService.newTrustStore(name).description("Created by GoGo command").add();
+            securityManagementService.newTrustStore(name).description("Created by GoGo command").add();
             context.commit();
         }
     }
@@ -450,7 +450,7 @@ public class KeyAccessorCommands {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            TrustStore trustStore = pkiService.findTrustStore(name)
+            TrustStore trustStore = securityManagementService.findTrustStore(name)
                     .orElseThrow(() -> new RuntimeException("No such trust store"));
             trustStore.delete();
             context.commit();

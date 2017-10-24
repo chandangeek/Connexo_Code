@@ -7,7 +7,7 @@ package com.energyict.mdc.device.data.impl.search;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.ExpirationFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -37,17 +37,17 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
     static final String PROPERTY_NAME = "device.security.expiration";
 
     private final DataModel dataModel;
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
     private final PropertySpecService propertySpecService;
 
     private SearchDomain searchDomain;
     private SearchablePropertyGroup group;
 
     @Inject
-    public SecurityExpirationSearchableProperty(DataModel datamodel, PkiService pkiService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public SecurityExpirationSearchableProperty(DataModel datamodel, SecurityManagementService securityManagementService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(thesaurus);
         this.dataModel = datamodel;
-        this.pkiService = pkiService;
+        this.securityManagementService = securityManagementService;
         this.propertySpecService = propertySpecService;
     }
 
@@ -177,7 +177,7 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
     }
 
     private void appendExpiredKeyClause(SqlBuilder sqlBuilder, String keyAccessorDiscriminator, String keyAccessorActualFieldName, String keyTableName, Expiration expiration, Instant when) {
-        Optional<Comparison> expirationCondition = pkiService.getExpirationCondition(expiration, when, keyTableName);
+        Optional<Comparison> expirationCondition = securityManagementService.getExpirationCondition(expiration, when, keyTableName);
         ComparisonFragment sqlFragment = new ComparisonFragment(this, expirationCondition.get().getFieldName(), expirationCondition.get());
         sqlBuilder.append(" UNION ");
         sqlBuilder.append("SELECT DEVICE FROM DDC_KEYACCESSOR, ");

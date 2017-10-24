@@ -10,15 +10,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.pki.PassphraseFactory;
-import com.elster.jupiter.pki.PkiService;
-import com.elster.jupiter.pki.PrivateKeyFactory;
-import com.elster.jupiter.pki.SymmetricKeyFactory;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.PkiModule;
-import com.elster.jupiter.pki.impl.PkiServiceImpl;
-import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
-import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultPassphraseFactory;
-import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
+import com.elster.jupiter.pki.impl.SecurityManagementServiceImpl;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -56,7 +50,7 @@ public class InMemoryPersistence {
     private Injector injector;
     public static final Instant EPOCH = ZonedDateTime.of(2017, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant();
     private static Clock clock = Clock.fixed(EPOCH, ZoneId.of("UTC"));
-    private PkiService pkiService;
+    private SecurityManagementService securityManagementService;
     private DataModel dataModel;
 
     public void activate() {
@@ -83,8 +77,8 @@ public class InMemoryPersistence {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(UserService.class);
-            pkiService = injector.getInstance(PkiService.class);
-            dataModel = ((PkiServiceImpl) pkiService).getDataModel();
+            securityManagementService = injector.getInstance(SecurityManagementService.class);
+            dataModel = ((SecurityManagementServiceImpl) securityManagementService).getDataModel();
             ctx.commit();
         }
     }
@@ -101,8 +95,8 @@ public class InMemoryPersistence {
         return injector.getInstance(ThreadPrincipalService.class);
     }
 
-    public PkiService getPkiService() {
-        return pkiService;
+    public SecurityManagementService getSecurityManagementService() {
+        return securityManagementService;
     }
 
     public PropertySpecService getPropertySpecService(){

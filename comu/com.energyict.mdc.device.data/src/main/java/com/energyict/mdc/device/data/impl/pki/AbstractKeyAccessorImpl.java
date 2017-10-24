@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.impl.pki;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
@@ -22,7 +22,7 @@ import java.util.Map;
 
 // TODO validate actual value is present, fix newBlaBla() first to take actual value!
 public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> implements KeyAccessor<T> {
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
 
     private Reference<KeyAccessorType> keyAccessorTypeReference = Reference.empty();
     private Reference<Device> deviceReference = Reference.empty();
@@ -43,8 +43,8 @@ public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> im
                     "P", PassphraseAccessorImpl.class,
                     "S", SymmetricKeyAccessorImpl.class);
 
-    protected AbstractKeyAccessorImpl(PkiService pkiService) {
-        this.pkiService = pkiService;
+    protected AbstractKeyAccessorImpl(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     public enum Fields {
@@ -85,7 +85,7 @@ public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> im
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return pkiService.getPropertySpecs(getKeyAccessorType());
+        return securityManagementService.getPropertySpecs(getKeyAccessorType());
     }
 
     @Override
