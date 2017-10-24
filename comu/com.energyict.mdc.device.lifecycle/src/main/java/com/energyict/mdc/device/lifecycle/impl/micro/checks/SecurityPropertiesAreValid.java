@@ -5,14 +5,14 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
@@ -51,7 +51,7 @@ public class SecurityPropertiesAreValid extends ConsolidatedServerMicroCheck {
                 .filter(securityPropertySet -> isUsedInAnyComTaskEnablement(securityPropertySet, deviceConfiguration.getComTaskEnablements()))
                 .collect(Collectors.toList());
 
-        Map<PropertySpec, Optional<KeyAccessorType>> propertySpecKeyAccessorTypeMapping = new HashMap<>();
+        Map<PropertySpec, Optional<SecurityAccessorType>> propertySpecKeyAccessorTypeMapping = new HashMap<>();
         for (SecurityPropertySet usedSecurityPropertySet : usedSecurityPropertySets) {
             usedSecurityPropertySet.getPropertySpecs().forEach(propertySpec ->
                     propertySpecKeyAccessorTypeMapping.put(propertySpec, findCorrespondingKeyAccessorType(usedSecurityPropertySet, propertySpec))
@@ -62,12 +62,12 @@ public class SecurityPropertiesAreValid extends ConsolidatedServerMicroCheck {
         return this.valid ? Optional.empty() : Optional.of(newViolation());
     }
 
-    private Optional<KeyAccessorType> findCorrespondingKeyAccessorType(SecurityPropertySet securityPropertySet, PropertySpec propertySpec) {
+    private Optional<SecurityAccessorType> findCorrespondingKeyAccessorType(SecurityPropertySet securityPropertySet, PropertySpec propertySpec) {
         return securityPropertySet.getConfigurationSecurityProperties()
                 .stream()
                 .filter(property -> property.getName().equals(propertySpec.getName()))
                 .findFirst()
-                .map(ConfigurationSecurityProperty::getKeyAccessorType);
+                .map(ConfigurationSecurityProperty::getSecurityAccessorType);
     }
 
     private boolean isUsedInAnyComTaskEnablement(SecurityPropertySet securityPropertySet, List<ComTaskEnablement> comTaskEnablements) {
@@ -76,7 +76,7 @@ public class SecurityPropertiesAreValid extends ConsolidatedServerMicroCheck {
                 .anyMatch(enablement -> enablement.getSecurityPropertySet().equals(securityPropertySet));
     }
 
-    private void checkIfValid(PropertySpec propertySpec, Optional<KeyAccessorType> keyAccessorTypeOptional, Device device) {
+    private void checkIfValid(PropertySpec propertySpec, Optional<SecurityAccessorType> keyAccessorTypeOptional, Device device) {
         if (keyAccessorTypeOptional.isPresent()) {
             checkIfDeviceHasValidKeyAccessorCorrespondingTo(propertySpec, keyAccessorTypeOptional.get(), device);
         } else if (propertySpec.isRequired()) {
@@ -84,17 +84,17 @@ public class SecurityPropertiesAreValid extends ConsolidatedServerMicroCheck {
         }
     }
 
-    private void checkIfDeviceHasValidKeyAccessorCorrespondingTo(PropertySpec propertySpec, KeyAccessorType keyAccessorType, Device device) {
-        Optional<KeyAccessor> keyAccessorOptional = device.getKeyAccessors()
+    private void checkIfDeviceHasValidKeyAccessorCorrespondingTo(PropertySpec propertySpec, SecurityAccessorType securityAccessorType, Device device) {
+        Optional<SecurityAccessor> keyAccessorOptional = device.getSecurityAccessors()
                 .stream()
-                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().equals(keyAccessorType))
+                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().equals(securityAccessorType))
                 .findFirst();
         if (keyAccessorOptional.isPresent()) {
             if (!keyAccessorOptional.get().getStatus().equals(KeyAccessorStatus.COMPLETE)) {
                 this.valid = false; // KeyAccessor is not complete
             }
         } else if (propertySpec.isRequired()){
-            this.valid = false; // Didn't found a matching key accessor for the a required key accessor type
+            this.valid = false; // Didn't found a matching security accessor for the a required security accessor type
         }
     }
 

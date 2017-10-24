@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -61,8 +61,8 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
                 .map(ComTaskExecution::getConnectionTask)
                 .flatMap(Functions.asStream())
                 .flatMap(ct->ct.getProperties().stream())
-                .filter(ctp->ctp.getValue() instanceof KeyAccessorType)
-                .map(ctp-> (KeyAccessorType)ctp.getValue())
+                .filter(ctp->ctp.getValue() instanceof SecurityAccessorType)
+                .map(ctp-> (SecurityAccessorType)ctp.getValue())
                 .map(device::getKeyAccessor)
                 .anyMatch(ka->!ka.isPresent() || !ka.get().getActualValue().isPresent());
 

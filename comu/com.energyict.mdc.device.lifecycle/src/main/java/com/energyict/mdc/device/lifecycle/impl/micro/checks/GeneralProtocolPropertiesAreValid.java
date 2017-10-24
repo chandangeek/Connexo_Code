@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
@@ -53,8 +53,8 @@ public class GeneralProtocolPropertiesAreValid extends ConsolidatedServerMicroCh
             return true;
         }
         return deviceProtocolProperties.stream()
-                .filter(prop->prop.getValue() instanceof KeyAccessorType)
-                .map(prop-> (KeyAccessorType)prop.getValue())
+                .filter(prop->prop.getValue() instanceof SecurityAccessorType)
+                .map(prop-> (SecurityAccessorType)prop.getValue())
                 .map(device::getKeyAccessor)
                 .anyMatch(ka->!ka.isPresent() || !ka.get().getActualValue().isPresent());
     }

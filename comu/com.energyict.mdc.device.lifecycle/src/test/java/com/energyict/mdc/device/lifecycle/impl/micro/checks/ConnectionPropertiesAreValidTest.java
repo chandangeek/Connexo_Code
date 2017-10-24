@@ -5,9 +5,9 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -142,16 +142,16 @@ public class ConnectionPropertiesAreValidTest {
         ConnectionTask ct1 = mock(ScheduledConnectionTask.class);
         ConnectionTaskProperty prop = mock(ConnectionTaskProperty.class);
         when(prop.getConnectionTask()).thenReturn(ct1);
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(prop.getValue()).thenReturn(keyAccessorType);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(prop.getValue()).thenReturn(securityAccessorType);
         when(ct1.getProperties()).thenReturn(Collections.singletonList(prop));
         when(ct1.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
         ComTaskExecution cte1 = mock(ComTaskExecution.class);
         when(cte1.getConnectionTask()).thenReturn(Optional.of(ct1));
         when(this.device.getComTaskExecutions()).thenReturn(Collections.singletonList(cte1));
-        KeyAccessor keyAccessor = mock(KeyAccessor.class);
-        when(keyAccessor.getActualValue()).thenReturn(Optional.of("someValue"));
-        when(device.getKeyAccessor(keyAccessorType)).thenReturn(Optional.of(keyAccessor));
+        SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
+        when(securityAccessor.getActualValue()).thenReturn(Optional.of("someValue"));
+        when(device.getKeyAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
 
         // Business method
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
@@ -166,14 +166,14 @@ public class ConnectionPropertiesAreValidTest {
         ConnectionTask ct1 = mock(ScheduledConnectionTask.class);
         ConnectionTaskProperty prop = mock(ConnectionTaskProperty.class);
         when(prop.getConnectionTask()).thenReturn(ct1);
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(prop.getValue()).thenReturn(keyAccessorType);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(prop.getValue()).thenReturn(securityAccessorType);
         when(ct1.getProperties()).thenReturn(Collections.singletonList(prop));
         when(ct1.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
         ComTaskExecution cte1 = mock(ComTaskExecution.class);
         when(cte1.getConnectionTask()).thenReturn(Optional.of(ct1));
         when(this.device.getComTaskExecutions()).thenReturn(Collections.singletonList(cte1));
-        when(device.getKeyAccessor(keyAccessorType)).thenReturn(Optional.empty());
+        when(device.getKeyAccessor(securityAccessorType)).thenReturn(Optional.empty());
 
         // Business method
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
@@ -189,16 +189,16 @@ public class ConnectionPropertiesAreValidTest {
         ConnectionTask ct1 = mock(ScheduledConnectionTask.class);
         ConnectionTaskProperty prop = mock(ConnectionTaskProperty.class);
         when(prop.getConnectionTask()).thenReturn(ct1);
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(prop.getValue()).thenReturn(keyAccessorType);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(prop.getValue()).thenReturn(securityAccessorType);
         when(ct1.getProperties()).thenReturn(Collections.singletonList(prop));
         when(ct1.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
         ComTaskExecution cte1 = mock(ComTaskExecution.class);
         when(cte1.getConnectionTask()).thenReturn(Optional.of(ct1));
         when(this.device.getComTaskExecutions()).thenReturn(Collections.singletonList(cte1));
-        KeyAccessor keyAccessor = mock(KeyAccessor.class);
-        when(keyAccessor.getActualValue()).thenReturn(Optional.empty());
-        when(device.getKeyAccessor(keyAccessorType)).thenReturn(Optional.of(keyAccessor));
+        SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
+        when(securityAccessor.getActualValue()).thenReturn(Optional.empty());
+        when(device.getKeyAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
 
         // Business method
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
