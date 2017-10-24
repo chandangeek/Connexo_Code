@@ -7,6 +7,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportRunParameters;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
@@ -449,10 +450,19 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
     }
 
     private Range<Instant> determineUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
+        Range<Instant> baseRange;
         TreeRangeSet<Instant> base = TreeRangeSet.create();
-        Range<Instant> baseRange = determineBaseUpdateInterval(occurrence, item);
-        base.add(baseRange);
-        base.remove(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());
+        Optional<Instant> adhocTime = ((DataExportOccurrenceImpl) occurrence).getTaskOccurrence().getAdhocTime();
+        if ((adhocTime.isPresent()) && ((DataExportOccurrenceImpl) occurrence).getTask().getRunParameters(adhocTime.get()).isPresent()) {
+            DataExportRunParameters runParameters = ((DataExportOccurrenceImpl) occurrence).getTask().getRunParameters(adhocTime.get()).get();
+            baseRange = Range.openClosed(runParameters.getUpdatePeriodStart(), runParameters.getUpdatePeriodEnd());
+            base.add(baseRange);
+            base.remove(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());
+        } else {
+            baseRange = determineBaseUpdateInterval(occurrence, item);
+            base.add(baseRange);
+            base.remove(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());
+        }
         return base.asRanges().stream().findFirst().orElse(baseRange);
     }
 

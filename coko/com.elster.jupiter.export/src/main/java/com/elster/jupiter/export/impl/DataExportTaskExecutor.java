@@ -22,6 +22,7 @@ import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -77,7 +78,9 @@ class DataExportTaskExecutor implements TaskExecutor {
         boolean success = false;
         String errorMessage = null;
         Exception thrown = null;
-        Logger occurrenceLogger = getLogger(occurrence);
+        Instant at = occurrence.getRetryTime().orElse(occurrence.getTriggerTime());
+
+        Logger occurrenceLogger = getLogger(occurrence, occurrence.getRecurrentTask().getHistory().getVersionAt(at).get());
         try {
             doExecute(dataExportOccurrence, occurrenceLogger);
             success = true;
@@ -107,9 +110,9 @@ class DataExportTaskExecutor implements TaskExecutor {
         }
     }
 
-    private Logger getLogger(TaskOccurrence occurrence) {
+    private Logger getLogger(TaskOccurrence occurrence, RecurrentTask recurrentTask) {
         Logger logger = Logger.getAnonymousLogger();
-        logger.addHandler(occurrence.createTaskLogHandler().asHandler());
+        logger.addHandler(occurrence.createTaskLogHandler(recurrentTask).asHandler());
         return logger;
     }
 
@@ -124,11 +127,13 @@ class DataExportTaskExecutor implements TaskExecutor {
     }
 
     private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
+        Instant at = occurrence.getRetryTime().orElse(occurrence.getTriggerTime());
+
         IExportTask task = occurrence.getTask();
 
-        Stream<ExportData> data = getDataSelector(task, logger).selectData(occurrence);
+        Stream<ExportData> data = getDataSelector(task, logger, occurrence).selectData(occurrence);
 
-        DataFormatter dataFormatter = getDataFormatter(task);
+        DataFormatter dataFormatter = getDataFormatter(task, occurrence);
 
         catchingUnexpected(loggingExceptions(logger, () -> dataFormatter.startExport(occurrence, logger))).run();
 
@@ -142,7 +147,7 @@ class DataExportTaskExecutor implements TaskExecutor {
                 formattedData = dataFormatter.processData(data);
             }
             Map<StructureMarker, Path> files = localFileWriter.writeToTempFiles(formattedData.getData());
-            task.getCompositeDestination().send(files, new TagReplacerFactoryForOccurrence(occurrence), logger, thesaurus);
+            task.getCompositeDestination(at).send(files, new TagReplacerFactoryForOccurrence(occurrence), logger, thesaurus);
         }).run();
 
         itemExporter.done();
@@ -174,8 +179,9 @@ class DataExportTaskExecutor implements TaskExecutor {
         return new ExceptionsToFatallyFailed(decorated);
     }
 
-    private DataFormatter getDataFormatter(IExportTask task) {
-        List<DataExportProperty> dataExportProperties = task.getDataExportProperties();
+    private DataFormatter getDataFormatter(IExportTask task, IDataExportOccurrence occurrence) {
+        Instant at = occurrence.getRetryTime().orElse(occurrence.getTriggerTime());
+        List<DataExportProperty> dataExportProperties = task.getDataExportProperties(at);
         DataFormatterFactory dataFormatterFactory = task.getDataFormatterFactory();
         Map<String, Object> propertyMap = dataExportProperties.stream()
                 .filter(dataExportProperty -> dataFormatterFactory.getPropertySpec(dataExportProperty.getName()).isPresent())
@@ -184,8 +190,9 @@ class DataExportTaskExecutor implements TaskExecutor {
         return dataFormatterFactory.createDataFormatter(propertyMap);
     }
 
-    private DataSelector getDataSelector(IExportTask task, Logger logger) {
-        List<DataExportProperty> dataExportProperties = task.getDataExportProperties();
+    private DataSelector getDataSelector(IExportTask task, Logger logger, IDataExportOccurrence occurrence) {
+        Instant at = occurrence.getRetryTime().orElse(occurrence.getTriggerTime());
+        List<DataExportProperty> dataExportProperties = task.getDataExportProperties(at);
         DataSelectorFactory dataSelectorFactory = task.getDataSelectorFactory();
         Map<String, Object> propertyMap = dataExportProperties.stream()
                 .filter(dataExportProperty -> dataSelectorFactory.getPropertySpec(dataExportProperty.getName()).isPresent())

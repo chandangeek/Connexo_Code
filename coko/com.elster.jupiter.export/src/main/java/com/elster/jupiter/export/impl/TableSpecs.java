@@ -6,6 +6,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.DataExportRunParameters;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.EndDeviceEventTypeFilter;
 import com.elster.jupiter.metering.MeteringService;
@@ -257,6 +258,23 @@ enum TableSpecs {
                     .reverseMap("destinations")
                     .composition()
                     .add();
+        }
+    },
+    DES_RUN_PARAMETERS(DataExportRunParameters.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(DataExportRunParametersImpl.class);
+            table.since(version(10, 4));
+            Column taskColumn = table.column("TASK").number().notNull().add();
+            Column createdDateTimeColumn = table.column("CREATEDATETIME").number().notNull().conversion(ColumnConversion.NUMBER2INSTANT).map("createDateTime").add();
+            table.column("EXPORT_PERIOD_START").number().conversion(ColumnConversion.NUMBER2INSTANT).map("exportPeriodStart").add();
+            table.column("EXPORT_PERIOD_END").number().conversion(ColumnConversion.NUMBER2INSTANT).map("exportPeriodEnd").add();
+            table.column("UPDATE_PERIOD_START").number().conversion(ColumnConversion.NUMBER2INSTANT).map("updatePeriodStart").add();
+            table.column("UPDATE_PERIOD_END").number().conversion(ColumnConversion.NUMBER2INSTANT).map("updatePeriodEnd").add();
+            table.primaryKey("DES_PK_RUNPARAMETERS").on(taskColumn, createdDateTimeColumn).add();
+            table.foreignKey("DES_FK_RUNPARAMS_TASK").on(taskColumn).references(DES_DATAEXPORTTASK.name())
+                    .map("task").reverseMap("runParameters").composition().add();
+
         }
     };
 

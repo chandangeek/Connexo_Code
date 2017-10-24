@@ -7,11 +7,13 @@ package com.elster.jupiter.export;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.util.conditions.Order;
 
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
 
+@ProviderType
 public interface DataExportOccurrenceFinder {
     DataExportOccurrenceFinder setId(long id);
 

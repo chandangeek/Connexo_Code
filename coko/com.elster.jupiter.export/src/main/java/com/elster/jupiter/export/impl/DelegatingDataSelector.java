@@ -8,6 +8,7 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.ExportData;
 
+import java.time.Instant;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -21,7 +22,8 @@ class DelegatingDataSelector implements DataSelector {
 
     @Override
     public Stream<ExportData> selectData(DataExportOccurrence dataExportOccurrence) {
-        return dataExportOccurrence.getTask().getStandardDataSelectorConfig()
+        Instant at = dataExportOccurrence.getRetryTime().orElse(dataExportOccurrence.getTriggerTime());
+        return dataExportOccurrence.getTask().getStandardDataSelectorConfig(at)
                 .map(selectorConfig -> selectorConfig.createDataSelector(logger))
                 .orElseThrow(IllegalStateException::new)
                 .selectData(dataExportOccurrence);

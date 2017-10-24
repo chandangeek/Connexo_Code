@@ -28,6 +28,7 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -87,12 +88,12 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
                 .stream())
                 .map(Membership::getMember)
                 .filterSubType(Meter.class)
-                .flatMap(this::readingTypeDataExportItems)
+                .flatMap(rt -> this.readingTypeDataExportItems(rt, occurrence.getRetryTime().orElse(occurrence.getTriggerTime())))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(ReadingContainer readingContainer) {
-        return getReadingTypes().stream()
+    private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(ReadingContainer readingContainer, Instant at) {
+        return getReadingTypes(at).stream()
                 .map(r -> getExportItems().stream()
                         .map(IReadingTypeDataExportItem.class::cast)
                         .filter(item -> r.equals(item.getReadingType()))
