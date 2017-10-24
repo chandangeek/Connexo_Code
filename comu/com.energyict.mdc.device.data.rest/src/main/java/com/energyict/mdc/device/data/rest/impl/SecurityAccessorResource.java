@@ -8,7 +8,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.TrustStore;
@@ -22,7 +22,7 @@ import com.elster.jupiter.rest.util.PathPrependingConstraintViolationException;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.rest.AliasInfo;
 import com.energyict.mdc.device.data.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -81,7 +81,7 @@ public class SecurityAccessorResource {
     private final SecurityAccessorInfoFactory securityAccessorInfoFactory;
     private final SecurityManagementService securityManagementService;
     private final ResourceHelper resourceHelper;
-    private final Provider<KeyAccessorPlaceHolder> keyAccessorPlaceHolderProvider;
+    private final Provider<SecurityAccessorPlaceHolder> keyAccessorPlaceHolderProvider;
     private final ExceptionFactory exceptionFactory;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final DeviceService deviceService;
@@ -92,7 +92,7 @@ public class SecurityAccessorResource {
     public SecurityAccessorResource(ResourceHelper resourceHelper,
                                     SecurityAccessorInfoFactory securityAccessorInfoFactory,
                                     SecurityManagementService securityManagementService,
-                                    Provider<KeyAccessorPlaceHolder> keyAccessorPlaceHolderProvider,
+                                    Provider<SecurityAccessorPlaceHolder> keyAccessorPlaceHolderProvider,
                                     ExceptionFactory exceptionFactory,
                                     MdcPropertyUtils mdcPropertyUtils, DeviceService deviceService, Thesaurus thesaurus) {
         this.securityAccessorInfoFactory = securityAccessorInfoFactory;
@@ -129,10 +129,10 @@ public class SecurityAccessorResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public Response getKey(@PathParam("name") String name, @PathParam("id") long keyAccessorTypeId) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
-        KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType)
-                .orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device));
-        return Response.ok(securityAccessorInfoFactory.asKey(keyAccessor)).build();
+        SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        SecurityAccessor securityAccessor = device.getKeyAccessor(securityAccessorType)
+                .orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(securityAccessorType, device));
+        return Response.ok(securityAccessorInfoFactory.asKey(securityAccessor)).build();
     }
 
     @GET
@@ -144,11 +144,11 @@ public class SecurityAccessorResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public Response getCertificate(@PathParam("name") String name, @PathParam("id") long keyAccessorTypeId, @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
-        KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType)
-                .orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device));
+        SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        SecurityAccessor securityAccessor = device.getKeyAccessor(securityAccessorType)
+                .orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(securityAccessorType, device));
 
-        return Response.ok(securityAccessorInfoFactory.asCertificate(keyAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider)).build();
+        return Response.ok(securityAccessorInfoFactory.asCertificate(securityAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider)).build();
     }
 
     @GET
@@ -174,11 +174,11 @@ public class SecurityAccessorResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public Response generateTempValue(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
-        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
-        KeyAccessor<SecurityValueWrapper> keyAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, keyAccessorType, securityAccessorInfo.version)
+        SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        SecurityAccessor<SecurityValueWrapper> securityAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, securityAccessorType, securityAccessorInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
-        keyAccessor.renew();
-        return Response.ok(securityAccessorInfoFactory.asKey(keyAccessor)).build();
+        securityAccessor.renew();
+        return Response.ok(securityAccessorInfoFactory.asKey(securityAccessor)).build();
     }
 
     @DELETE
@@ -190,11 +190,11 @@ public class SecurityAccessorResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public Response clearTempValue(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
-        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
-        KeyAccessor<SecurityValueWrapper> keyAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, keyAccessorType, securityAccessorInfo.version)
+        SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        SecurityAccessor<SecurityValueWrapper> securityAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, securityAccessorType, securityAccessorInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
-        keyAccessor.clearTempValue();
-        return Response.ok(securityAccessorInfoFactory.asKey(keyAccessor)).build();
+        securityAccessor.clearTempValue();
+        return Response.ok(securityAccessorInfoFactory.asKey(securityAccessor)).build();
     }
 
     @PUT
@@ -206,11 +206,11 @@ public class SecurityAccessorResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public Response swapKeyValues(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
-        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
-        KeyAccessor<SecurityValueWrapper> keyAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, keyAccessorType, securityAccessorInfo.version)
+        SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        SecurityAccessor<SecurityValueWrapper> securityAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, securityAccessorType, securityAccessorInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
-        keyAccessor.swapValues();
-        return Response.ok(securityAccessorInfoFactory.asKey(keyAccessor)).build();
+        securityAccessor.swapValues();
+        return Response.ok(securityAccessorInfoFactory.asKey(securityAccessor)).build();
     }
 
     @PUT
@@ -223,11 +223,11 @@ public class SecurityAccessorResource {
     public Response swapCertificateValues(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId,
                                           @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider, SecurityAccessorInfo securityAccessorInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
-        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
-        KeyAccessor<SecurityValueWrapper> keyAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, keyAccessorType, securityAccessorInfo.version)
+        SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        SecurityAccessor<SecurityValueWrapper> securityAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, securityAccessorType, securityAccessorInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
-        keyAccessor.swapValues();
-        return Response.ok(securityAccessorInfoFactory.asCertificate(keyAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider)).build();
+        securityAccessor.swapValues();
+        return Response.ok(securityAccessorInfoFactory.asCertificate(securityAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider)).build();
     }
 
     @PUT
@@ -239,11 +239,11 @@ public class SecurityAccessorResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public Response updateOrCreateKeyAccessor(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
-        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
 
-        Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(keyAccessorType);
+        Optional<SecurityAccessor> keyAccessor = device.getKeyAccessor(securityAccessorType);
 
-        BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator = (keyAccessor1, properties) -> {
+        BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator = (keyAccessor1, properties) -> {
             SecurityValueWrapper securityValueWrapper;
             if (keyAccessor1.getKeyAccessorType().getKeyType().getCryptographicType().equals(CryptographicType.Passphrase)) {
                 securityValueWrapper = securityManagementService.newPassphraseWrapper(keyAccessor1.getKeyAccessorType());
@@ -254,22 +254,22 @@ public class SecurityAccessorResource {
             return securityValueWrapper;
         };
 
-        BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater = (keyAccessor1, properties) -> {
+        BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater = (keyAccessor1, properties) -> {
             SecurityValueWrapper actualValue = keyAccessor1.getActualValue().get();
             actualValue.setProperties(properties);
             return actualValue;
         };
 
-        BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> tempValueUpdater = (keyAccessor1, properties) -> {
+        BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> tempValueUpdater = (keyAccessor1, properties) -> {
             SecurityValueWrapper tempValue = keyAccessor1.getTempValue().get();
             tempValue.setProperties(properties);
             return tempValue;
         };
 
-        KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(device, ka, securityAccessorInfo, securityValueWrapperCreator, actualValueUpdater, tempValueUpdater))
-                .orElseGet(() -> createKeyAccessor(device, keyAccessorType, securityAccessorInfo, securityValueWrapperCreator));
+        SecurityAccessor result = keyAccessor.map(ka -> updateKeyAccessor(device, ka, securityAccessorInfo, securityValueWrapperCreator, actualValueUpdater, tempValueUpdater))
+                .orElseGet(() -> createKeyAccessor(device, securityAccessorType, securityAccessorInfo, securityValueWrapperCreator));
         if (result==null) {
-            result = keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device);
+            result = keyAccessorPlaceHolderProvider.get().init(securityAccessorType, device);
         }
         return Response.ok().entity(securityAccessorInfoFactory.asKey(result)).build();
     }
@@ -285,11 +285,11 @@ public class SecurityAccessorResource {
                                                       @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider,
                                                       SecurityAccessorInfo securityAccessorInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
-        KeyAccessorType keyAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
+        SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
 
-        Optional<KeyAccessor> keyAccessor = device.getKeyAccessor(keyAccessorType);
+        Optional<SecurityAccessor> keyAccessor = device.getKeyAccessor(securityAccessorType);
 
-        BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> certificateReferenceGetter = (ignored, properties) -> {
+        BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> certificateReferenceGetter = (ignored, properties) -> {
             String alias;
             if (properties.containsKey(ALIAS)) {
                 alias = (String) properties.get(ALIAS);
@@ -308,22 +308,22 @@ public class SecurityAccessorResource {
             }
         };
 
-        BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater = (keyAccessor1, properties) -> {
+        BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater = (keyAccessor1, properties) -> {
             SecurityValueWrapper securityValueWrapper = certificateReferenceGetter.apply(keyAccessor1, properties);
             keyAccessor1.setActualValue(securityValueWrapper);
             keyAccessor1.save();
             return securityValueWrapper;
         };
 
-        BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> tempValueUpdater = (keyAccessor1, properties) -> {
+        BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> tempValueUpdater = (keyAccessor1, properties) -> {
             SecurityValueWrapper securityValueWrapper = certificateReferenceGetter.apply(keyAccessor1, properties);
             keyAccessor1.setTempValue(securityValueWrapper);
             keyAccessor1.save();
             return securityValueWrapper;
         };
 
-        KeyAccessor result = keyAccessor.map(ka -> updateKeyAccessor(device, ka, securityAccessorInfo, certificateReferenceGetter, actualValueUpdater, tempValueUpdater))
-                .orElseGet(() -> createKeyAccessor(device, keyAccessorType, securityAccessorInfo, certificateReferenceGetter));
+        SecurityAccessor result = keyAccessor.map(ka -> updateKeyAccessor(device, ka, securityAccessorInfo, certificateReferenceGetter, actualValueUpdater, tempValueUpdater))
+                .orElseGet(() -> createKeyAccessor(device, securityAccessorType, securityAccessorInfo, certificateReferenceGetter));
         return Response.ok().entity(securityAccessorInfoFactory.asCertificate(result, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider)).build();
     }
 
@@ -369,36 +369,36 @@ public class SecurityAccessorResource {
         return aliasSearchFilter;
     }
 
-    private KeyAccessorType findKeyAccessorTypeOrThrowException(@PathParam("id") long keyAccessorTypeId, Device device) {
+    private SecurityAccessorType findKeyAccessorTypeOrThrowException(@PathParam("id") long keyAccessorTypeId, Device device) {
         return device.getDeviceType()
-                .getKeyAccessorTypes()
+                .getSecurityAccessorTypes()
                 .stream()
                 .filter(kat -> kat.getId() == keyAccessorTypeId)
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
     }
 
-    private KeyAccessor<SecurityValueWrapper> createKeyAccessor(Device device, KeyAccessorType keyAccessorType,
-                                                                SecurityAccessorInfo securityAccessorInfo,
-                                                                BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator) {
-        List<PropertySpec> propertySpecs = securityManagementService.getPropertySpecs(keyAccessorType);
+    private SecurityAccessor<SecurityValueWrapper> createKeyAccessor(Device device, SecurityAccessorType securityAccessorType,
+                                                                     SecurityAccessorInfo securityAccessorInfo,
+                                                                     BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator) {
+        List<PropertySpec> propertySpecs = securityManagementService.getPropertySpecs(securityAccessorType);
         Map<String, Object> tempProperties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.tempProperties);
         Map<String, Object> actualProperties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.currentProperties);
         if (propertiesContainValues(actualProperties) || propertiesContainValues(tempProperties)) {
-            KeyAccessor<SecurityValueWrapper> keyAccessor = device.newKeyAccessor(keyAccessorType);
-            createActualValueOnKeyAccessor(securityValueWrapperCreator, actualProperties, keyAccessor);
-            createTempValueOnKeyAccessor(securityValueWrapperCreator, tempProperties, keyAccessor);
-            return keyAccessor;
+            SecurityAccessor<SecurityValueWrapper> securityAccessor = device.newKeyAccessor(securityAccessorType);
+            createActualValueOnKeyAccessor(securityValueWrapperCreator, actualProperties, securityAccessor);
+            createTempValueOnKeyAccessor(securityValueWrapperCreator, tempProperties, securityAccessor);
+            return securityAccessor;
         }
-        return keyAccessorPlaceHolderProvider.get().init(keyAccessorType, device);
+        return keyAccessorPlaceHolderProvider.get().init(securityAccessorType, device);
     }
 
-    private void createTempValueOnKeyAccessor(BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator, Map<String, Object> tempProperties, KeyAccessor<SecurityValueWrapper> keyAccessor) {
+    private void createTempValueOnKeyAccessor(BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator, Map<String, Object> tempProperties, SecurityAccessor<SecurityValueWrapper> securityAccessor) {
         try {
             if (propertiesContainValues(tempProperties)) {
-                SecurityValueWrapper securityValueWrapper = securityValueWrapperCreator.apply(keyAccessor, tempProperties);
-                keyAccessor.setTempValue(securityValueWrapper);
-                keyAccessor.save();
+                SecurityValueWrapper securityValueWrapper = securityValueWrapperCreator.apply(securityAccessor, tempProperties);
+                securityAccessor.setTempValue(securityValueWrapper);
+                securityAccessor.save();
             }
         } catch (ConstraintViolationException e) {
             throw new PathPrependingConstraintViolationException(thesaurus, e, TEMP_PROPERTIES);
@@ -407,12 +407,12 @@ public class SecurityAccessorResource {
         }
     }
 
-    private void createActualValueOnKeyAccessor(BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator, Map<String, Object> actualProperties, KeyAccessor<SecurityValueWrapper> keyAccessor) {
+    private void createActualValueOnKeyAccessor(BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator, Map<String, Object> actualProperties, SecurityAccessor<SecurityValueWrapper> securityAccessor) {
         try {
             if (propertiesContainValues(actualProperties)) {
-                SecurityValueWrapper securityValueWrapper = securityValueWrapperCreator.apply(keyAccessor, actualProperties);
-                keyAccessor.setActualValue(securityValueWrapper);
-                keyAccessor.save();
+                SecurityValueWrapper securityValueWrapper = securityValueWrapperCreator.apply(securityAccessor, actualProperties);
+                securityAccessor.setActualValue(securityValueWrapper);
+                securityAccessor.save();
             }
         } catch (ConstraintViolationException e) {
             throw new PathPrependingConstraintViolationException(thesaurus, e, CURRENT_PROPERTIES);
@@ -421,33 +421,34 @@ public class SecurityAccessorResource {
         }
     }
 
-    private KeyAccessor<SecurityValueWrapper> updateKeyAccessor(Device device, KeyAccessor keyAccessor,
-                                                                SecurityAccessorInfo securityAccessorInfo,
-                                                                BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> valueCreator,
-                                                                BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater,
-                                                                BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> tempValueUpdater) {
-        KeyAccessor<SecurityValueWrapper> lockedKeyAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, keyAccessor.getKeyAccessorType(), securityAccessorInfo.version)
+    private SecurityAccessor<SecurityValueWrapper> updateKeyAccessor(Device device, SecurityAccessor securityAccessor,
+                                                                     SecurityAccessorInfo securityAccessorInfo,
+                                                                     BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> valueCreator,
+                                                                     BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater,
+                                                                     BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> tempValueUpdater) {
+        SecurityAccessor<SecurityValueWrapper> lockedSecurityAccessor = deviceService.findAndLockKeyAccessorByIdAndVersion(device, securityAccessor
+                .getKeyAccessorType(), securityAccessorInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR));
-        List<PropertySpec> propertySpecs = lockedKeyAccessor.getPropertySpecs();
-        createOrUpdateTempValueOnKeyAccessor(lockedKeyAccessor, securityAccessorInfo, valueCreator, tempValueUpdater, propertySpecs);
-        Optional<KeyAccessor<SecurityValueWrapper>> result = createOrUpdateActualValueOnKeyAccessor(lockedKeyAccessor, securityAccessorInfo, propertySpecs, actualValueUpdater, valueCreator);
+        List<PropertySpec> propertySpecs = lockedSecurityAccessor.getPropertySpecs();
+        createOrUpdateTempValueOnKeyAccessor(lockedSecurityAccessor, securityAccessorInfo, valueCreator, tempValueUpdater, propertySpecs);
+        Optional<SecurityAccessor<SecurityValueWrapper>> result = createOrUpdateActualValueOnKeyAccessor(lockedSecurityAccessor, securityAccessorInfo, propertySpecs, actualValueUpdater, valueCreator);
 
-        return result.orElseGet(()->keyAccessorPlaceHolderProvider.get().init(lockedKeyAccessor.getKeyAccessorType(), device));
+        return result.orElseGet(()->keyAccessorPlaceHolderProvider.get().init(lockedSecurityAccessor.getKeyAccessorType(), device));
     }
 
-    private Optional<KeyAccessor<SecurityValueWrapper>> createOrUpdateActualValueOnKeyAccessor(
-            KeyAccessor<SecurityValueWrapper> keyAccessor,
+    private Optional<SecurityAccessor<SecurityValueWrapper>> createOrUpdateActualValueOnKeyAccessor(
+            SecurityAccessor<SecurityValueWrapper> securityAccessor,
             SecurityAccessorInfo securityAccessorInfo,
             List<PropertySpec> propertySpecs,
-            BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater,
-            BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> valueCreator) {
+            BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater,
+            BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> valueCreator) {
         try {
             Map<String, Object> properties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.currentProperties);
-            Optional<SecurityValueWrapper> actualValue = keyAccessor.getActualValue();
+            Optional<SecurityValueWrapper> actualValue = securityAccessor.getActualValue();
             if (actualValue.isPresent()) {
-                return updateActualValueOnKeyAccessor(keyAccessor, actualValueUpdater, properties, actualValue);
+                return updateActualValueOnKeyAccessor(securityAccessor, actualValueUpdater, properties, actualValue);
             } else { // this can only mean one thing: there was a temp value, but it may already have been deleted in this call
-                return createActualValueOnKeyAccessor(keyAccessor, properties, valueCreator);
+                return createActualValueOnKeyAccessor(securityAccessor, properties, valueCreator);
             }
         } catch (ConstraintViolationException e) {
             throw new PathPrependingConstraintViolationException(thesaurus, e, CURRENT_PROPERTIES);
@@ -456,61 +457,61 @@ public class SecurityAccessorResource {
         }
     }
 
-    private Optional<KeyAccessor<SecurityValueWrapper>> createActualValueOnKeyAccessor(
-            KeyAccessor<SecurityValueWrapper> keyAccessor, Map<String, Object> properties,
-            BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> valueCreator) {
+    private Optional<SecurityAccessor<SecurityValueWrapper>> createActualValueOnKeyAccessor(
+            SecurityAccessor<SecurityValueWrapper> securityAccessor, Map<String, Object> properties,
+            BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> valueCreator) {
         if (!properties.isEmpty()) {
-            SecurityValueWrapper securityValueWrapper = valueCreator.apply(keyAccessor, properties);
-            keyAccessor.setActualValue(securityValueWrapper);
-            keyAccessor.save();
-            return Optional.of(keyAccessor);
+            SecurityValueWrapper securityValueWrapper = valueCreator.apply(securityAccessor, properties);
+            securityAccessor.setActualValue(securityValueWrapper);
+            securityAccessor.save();
+            return Optional.of(securityAccessor);
         }
-        if (keyAccessor.getTempValue().isPresent()) {
-            return Optional.of(keyAccessor);
+        if (securityAccessor.getTempValue().isPresent()) {
+            return Optional.of(securityAccessor);
         }
         return Optional.empty();
     }
 
-    private Optional<KeyAccessor<SecurityValueWrapper>> updateActualValueOnKeyAccessor(
-            KeyAccessor<SecurityValueWrapper> keyAccessor,
-            BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater,
+    private Optional<SecurityAccessor<SecurityValueWrapper>> updateActualValueOnKeyAccessor(
+            SecurityAccessor<SecurityValueWrapper> securityAccessor,
+            BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> actualValueUpdater,
             Map<String, Object> properties, Optional<SecurityValueWrapper> actualValue) {
         if (propertiesContainValues(properties)) {
             if (propertiesDiffer(properties, actualValue.get().getProperties())) {
-                actualValueUpdater.apply(keyAccessor, properties);
+                actualValueUpdater.apply(securityAccessor, properties);
             }
-            return Optional.of(keyAccessor);
+            return Optional.of(securityAccessor);
         } else {
-            if (keyAccessor.getTempValue().isPresent()) {
-                keyAccessor.clearActualValue();
-                return Optional.of(keyAccessor);
+            if (securityAccessor.getTempValue().isPresent()) {
+                securityAccessor.clearActualValue();
+                return Optional.of(securityAccessor);
             } else {
-                keyAccessor.delete();
+                securityAccessor.delete();
                 return Optional.empty();
             }
         }
     }
 
-    private void createOrUpdateTempValueOnKeyAccessor(KeyAccessor<SecurityValueWrapper> keyAccessor,
+    private void createOrUpdateTempValueOnKeyAccessor(SecurityAccessor<SecurityValueWrapper> securityAccessor,
                                                       SecurityAccessorInfo securityAccessorInfo,
-                                                      BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> valueCreator,
-                                                      BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> tempValueUpdater,
+                                                      BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> valueCreator,
+                                                      BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> tempValueUpdater,
                                                       List<PropertySpec> propertySpecs) {
         try {
-            Optional<SecurityValueWrapper> tempValue = keyAccessor.getTempValue();
+            Optional<SecurityValueWrapper> tempValue = securityAccessor.getTempValue();
             Map<String, Object> properties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.tempProperties);
             if (tempValue.isPresent()) {
                 if (propertiesContainValues(properties)) {
                     if (propertiesDiffer(properties, tempValue.get().getProperties())) {
-                        tempValueUpdater.apply(keyAccessor, properties);
+                        tempValueUpdater.apply(securityAccessor, properties);
                     }
                 } else {
-                    keyAccessor.clearTempValue();
+                    securityAccessor.clearTempValue();
                 }
             } else if (!properties.isEmpty()) {
-                SecurityValueWrapper securityValueWrapper = valueCreator.apply(keyAccessor, properties);
-                keyAccessor.setTempValue(securityValueWrapper);
-                keyAccessor.save();
+                SecurityValueWrapper securityValueWrapper = valueCreator.apply(securityAccessor, properties);
+                securityAccessor.setTempValue(securityValueWrapper);
+                securityAccessor.save();
             }
         } catch (ConstraintViolationException e) {
             throw new PathPrependingConstraintViolationException(thesaurus, e, TEMP_PROPERTIES);
@@ -540,9 +541,9 @@ public class SecurityAccessorResource {
         return properties.values().stream().anyMatch(Objects::nonNull);
     }
 
-    private List<SecurityAccessorInfo> getSecurityAccessorInfos(Device device, Predicate<KeyAccessorType> keyAccessorPredicate,
-                                                                Function<KeyAccessor, SecurityAccessorInfo> infoCreator) {
-        return device.getDeviceType().getKeyAccessorTypes().stream()
+    private List<SecurityAccessorInfo> getSecurityAccessorInfos(Device device, Predicate<SecurityAccessorType> keyAccessorPredicate,
+                                                                Function<SecurityAccessor, SecurityAccessorInfo> infoCreator) {
+        return device.getDeviceType().getSecurityAccessorTypes().stream()
                 .filter(keyAccessorPredicate)
                 .map(kat -> device.getKeyAccessor(kat).orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(kat, device)))
                 .map(infoCreator)

@@ -5,12 +5,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
 
 import javax.inject.Inject;
@@ -24,22 +24,22 @@ import java.util.Optional;
 /**
  * This placeholder is a runtime-mock of KeyAccessors. Whenever the KeyAccessors for a device are retrieved from domain (Device::getKeyAccessors()),
  * only those KeyAccessors that actually exist are listed (surprised?), however, front end wants to display property specs even for the none-existing
- * key accessors, that is, KeyAccessorType (on device type) that do not (yet) have a KeyAccessor on the device. That's where this object comes in: it serves
+ * security accessors, that is, KeyAccessorType (on device type) that do not (yet) have a KeyAccessor on the device. That's where this object comes in: it serves
  * as place holder for the to-be-created KeyAccessors. This holder returns just enough info for MdcPropertyUtils and FrontEnd to do their job.
  * So REST does not use Device::getKeyAccessors() but instead builds its own list using Device::getKeyAccessor(KAT)
  */
-public class KeyAccessorPlaceHolder implements KeyAccessor {
+public class SecurityAccessorPlaceHolder implements SecurityAccessor {
     private final SecurityManagementService securityManagementService;
 
-    private KeyAccessorType kat;
+    private SecurityAccessorType kat;
     private Device device;
 
     @Inject
-    public KeyAccessorPlaceHolder(SecurityManagementService securityManagementService) {
+    public SecurityAccessorPlaceHolder(SecurityManagementService securityManagementService) {
         this.securityManagementService = securityManagementService;
     }
 
-    public KeyAccessor init(KeyAccessorType kat, Device device) {
+    public SecurityAccessor init(SecurityAccessorType kat, Device device) {
         this.kat = kat;
         this.device = device;
         return this;
@@ -51,7 +51,7 @@ public class KeyAccessorPlaceHolder implements KeyAccessor {
     }
 
     @Override
-    public KeyAccessorType getKeyAccessorType() {
+    public SecurityAccessorType getKeyAccessorType() {
         return kat;
     }
 
