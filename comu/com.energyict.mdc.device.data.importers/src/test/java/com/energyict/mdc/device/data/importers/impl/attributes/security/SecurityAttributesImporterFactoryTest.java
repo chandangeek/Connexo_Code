@@ -12,7 +12,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.properties.PropertySpec;
@@ -37,7 +37,6 @@ import org.hibernate.validator.internal.engine.path.PathImpl;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import javax.validation.Path;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.Collections;
@@ -82,7 +81,7 @@ public class SecurityAttributesImporterFactoryTest {
     @Mock
     private Logger logger;
     @Mock
-    private PkiService pkiService;
+    private SecurityManagementService securityManagementService;
     @Mock
     private BeanService beanService;
     @Mock
@@ -121,7 +120,7 @@ public class SecurityAttributesImporterFactoryTest {
     }
 
     private FileImporter createSecurityAttributesImporter() {
-        SecurityAttributesImportFactory factory = new SecurityAttributesImportFactory(context, pkiService);
+        SecurityAttributesImportFactory factory = new SecurityAttributesImportFactory(context, securityManagementService);
         Map<String, Object> properties = new HashMap<>();
         properties.put(DELIMITER.getPropertyKey(), ";");
         properties.put(NUMBER_FORMAT.getPropertyKey(), new SupportedNumberFormat.SupportedNumberFormatInfo(FORMAT3));
@@ -294,7 +293,7 @@ public class SecurityAttributesImporterFactoryTest {
 
         KeyAccessorType attr3 = mock(KeyAccessorType.class);
         PlaintextSymmetricKey newSymmetricKeyWrapper = mock(PlaintextSymmetricKey.class);
-        when(pkiService.newSymmetricKeyWrapper(attr3)).thenReturn(newSymmetricKeyWrapper);
+        when(securityManagementService.newSymmetricKeyWrapper(attr3)).thenReturn(newSymmetricKeyWrapper);
         when(attr3.getName()).thenReturn("kat3");
         when(attr3.getKeyType()).thenReturn(symmetricKeyType);
         when(device.getKeyAccessor(attr3)).thenReturn(Optional.empty());
@@ -340,7 +339,7 @@ public class SecurityAttributesImporterFactoryTest {
 
         KeyAccessorType attr3 = mock(KeyAccessorType.class);
         PlaintextSymmetricKey newSymmetricKeyWrapper = mock(PlaintextSymmetricKey.class);
-        when(pkiService.newSymmetricKeyWrapper(attr3)).thenReturn(newSymmetricKeyWrapper);
+        when(securityManagementService.newSymmetricKeyWrapper(attr3)).thenReturn(newSymmetricKeyWrapper);
         when(attr3.getName()).thenReturn("kat3");
         when(attr3.getKeyType()).thenReturn(symmetricKeyType);
         KeyAccessor keyAccessorWithoutActual = mock(KeyAccessor.class);
@@ -386,7 +385,7 @@ public class SecurityAttributesImporterFactoryTest {
 
         KeyAccessorType attr3 = mock(KeyAccessorType.class);
         PlaintextSymmetricKey newSymmetricKeyWrapper = mock(PlaintextSymmetricKey.class);
-        when(pkiService.newSymmetricKeyWrapper(attr3)).thenReturn(newSymmetricKeyWrapper);
+        when(securityManagementService.newSymmetricKeyWrapper(attr3)).thenReturn(newSymmetricKeyWrapper);
         when(attr3.getName()).thenReturn("kat3");
         when(attr3.getKeyType()).thenReturn(symmetricKeyType);
         KeyAccessor keyAccessorWithoutActual = mock(KeyAccessor.class);
@@ -432,7 +431,7 @@ public class SecurityAttributesImporterFactoryTest {
 
         KeyAccessorType attr3 = mock(KeyAccessorType.class);
         PlaintextSymmetricKey newSymmetricKeyWrapper = mock(PlaintextSymmetricKey.class);
-        when(pkiService.newSymmetricKeyWrapper(attr3)).thenReturn(newSymmetricKeyWrapper);
+        when(securityManagementService.newSymmetricKeyWrapper(attr3)).thenReturn(newSymmetricKeyWrapper);
         when(attr3.getName()).thenReturn("kat3");
         when(attr3.getKeyType()).thenReturn(symmetricKeyType);
         KeyAccessor keyAccessorWithoutActual = mock(KeyAccessor.class);

@@ -7,7 +7,7 @@ package com.energyict.mdc.device.data.importers.impl.attributes.connection;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
@@ -45,12 +45,12 @@ public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileI
 
     private boolean isFirstRow = true;
     private String connectionMethod;
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
 
-    ConnectionAttributesImportProcessor(DeviceDataImporterContext context, SupportedNumberFormat numberFormat, PkiService pkiService) {
+    ConnectionAttributesImportProcessor(DeviceDataImporterContext context, SupportedNumberFormat numberFormat, SecurityManagementService securityManagementService) {
         super(context);
         this.propertiesConverterConfig = PropertiesConverterConfig.newConfig().withNumberFormat(numberFormat);
-        this.pkiService = pkiService;
+        this.securityManagementService = securityManagementService;
     }
 
     @Override
@@ -220,8 +220,8 @@ public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileI
                     .orElse(device.newKeyAccessor(keyAccessorType));
             SecurityValueWrapper securityValueWrapper = keyAccessor.getActualValue()
                     .orElse(isKey(keyAccessorType) ?
-                            pkiService.newSymmetricKeyWrapper(keyAccessorType) :
-                            pkiService.newPassphraseWrapper(keyAccessorType));
+                            securityManagementService.newSymmetricKeyWrapper(keyAccessorType) :
+                            securityManagementService.newPassphraseWrapper(keyAccessorType));
             keyAccessor.setActualValue(securityValueWrapper);
             Map<String, Object> properties = new HashMap<>();
             properties.put(isKey(keyAccessorType)?"key":"passphrase", value);

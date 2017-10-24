@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.importers.impl.attributes.security;
 
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.SecurityValueWrapper;
@@ -34,11 +34,11 @@ import java.util.Map;
 public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImportProcessor<SecurityAttributesImportRecord> {
 
     private String securitySettingsName;
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
 
-    SecurityAttributesImportProcessor(DeviceDataImporterContext context, PkiService pkiService) {
+    SecurityAttributesImportProcessor(DeviceDataImporterContext context, SecurityManagementService securityManagementService) {
         super(context);
-        this.pkiService = pkiService;
+        this.securityManagementService = securityManagementService;
     }
 
     @Override
@@ -105,10 +105,10 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
         SecurityValueWrapper newValue;
         switch (keyAccessorType.getKeyType().getCryptographicType()) {
             case SymmetricKey:
-                newValue = pkiService.newSymmetricKeyWrapper(keyAccessorType);
+                newValue = securityManagementService.newSymmetricKeyWrapper(keyAccessorType);
                 break;
             case Passphrase:
-                newValue = pkiService.newPassphraseWrapper(keyAccessorType);
+                newValue = securityManagementService.newPassphraseWrapper(keyAccessorType);
                 break;
             default:
                 throw new IllegalStateException("Import of values of this security accessor is not supported: "+keyAccessorType.getName());

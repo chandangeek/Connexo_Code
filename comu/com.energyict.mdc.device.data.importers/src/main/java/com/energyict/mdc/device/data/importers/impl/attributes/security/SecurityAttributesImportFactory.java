@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.importers.impl.attributes.security;
 
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataCsvImporter;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
@@ -39,16 +39,16 @@ public class SecurityAttributesImportFactory extends AbstractDeviceDataFileImpor
     public static final String NAME = "SecurityAttributesImportFactory";
 
     private volatile DeviceDataImporterContext context;
-    private volatile PkiService pkiService;
+    private volatile SecurityManagementService securityManagementService;
 
     public SecurityAttributesImportFactory() {
     }
 
     @Inject
-    public SecurityAttributesImportFactory(DeviceDataImporterContext context, PkiService pkiService) {
+    public SecurityAttributesImportFactory(DeviceDataImporterContext context, SecurityManagementService securityManagementService) {
         super();
         setDeviceDataImporterContext(context);
-        setPkiService(pkiService);
+        setSecurityManagementService(securityManagementService);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class SecurityAttributesImportFactory extends AbstractDeviceDataFileImpor
         SupportedNumberFormat numberFormat = ((SupportedNumberFormat.SupportedNumberFormatInfo) properties.get(NUMBER_FORMAT.getPropertyKey())).getFormat();
 
         FileImportParser<SecurityAttributesImportRecord> parser = new FileImportDescriptionBasedParser(new SecurityAttributesImportDescription());
-        FileImportProcessor<SecurityAttributesImportRecord> processor = new SecurityAttributesImportProcessor(getContext(), pkiService);
+        FileImportProcessor<SecurityAttributesImportRecord> processor = new SecurityAttributesImportProcessor(getContext(), securityManagementService);
         FileImportLogger<FileImportRecord> logger = new DevicePerLineFileImportLogger(getContext());
         return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build();
     }
@@ -89,7 +89,7 @@ public class SecurityAttributesImportFactory extends AbstractDeviceDataFileImpor
     }
 
     @Reference
-    public void setPkiService(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 }
