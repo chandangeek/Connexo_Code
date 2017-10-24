@@ -7,6 +7,7 @@ package com.energyict.mdc.engine.impl;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.CertificateWrapperAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.KeyAccessorTypeAdapter;
@@ -49,8 +50,8 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
         return this.threadContextThreadLocal.get();
     }
 
-    private com.elster.jupiter.pki.KeyAccessorType toConnexoKeyAccessorType(KeyAccessorType keyAccessorType) {
-        return ((KeyAccessorTypeAdapter) keyAccessorType).getKeyAccessorType();
+    private SecurityAccessorType toConnexoKeyAccessorType(KeyAccessorType keyAccessorType) {
+        return ((KeyAccessorTypeAdapter) keyAccessorType).getSecurityAccessorType();
     }
 
     private com.energyict.mdc.protocol.api.device.offline.OfflineDevice toConnexoDevice(OfflineDevice device) {
@@ -69,10 +70,11 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
 
     @Override
     public Optional<Object> actualValue(KeyAccessorType keyAccessorType) {
-        com.elster.jupiter.pki.KeyAccessorType connexoKeyAccessorType = this.toConnexoKeyAccessorType(keyAccessorType);
+        SecurityAccessorType connexoSecurityAccessorType = this.toConnexoKeyAccessorType(keyAccessorType);
         Optional<OfflineKeyAccessor> offlineKeyAccessor = toConnexoDevice(threadContext().getDevice()).getAllOfflineKeyAccessors()
                 .stream()
-                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(connexoKeyAccessorType.getName()))
+                .filter(keyAccessor -> keyAccessor.getSecurityAccessorType().getName().equals(connexoSecurityAccessorType
+                        .getName()))
                 .findFirst();
         return (offlineKeyAccessor.isPresent() && offlineKeyAccessor.get().getActualValue().isPresent())
                 ? extractUplValueOutOf(offlineKeyAccessor, offlineKeyAccessor.get().getActualValue().get())
@@ -87,10 +89,10 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
 
     @Override
     public Optional<Object> passiveValue(KeyAccessorType keyAccessorType) {
-        com.elster.jupiter.pki.KeyAccessorType connexoKeyAccessorType = this.toConnexoKeyAccessorType(keyAccessorType);
+        SecurityAccessorType connexoSecurityAccessorType = this.toConnexoKeyAccessorType(keyAccessorType);
         Optional<OfflineKeyAccessor> offlineKeyAccessor = toConnexoDevice(threadContext().getDevice()).getAllOfflineKeyAccessors()
                 .stream()
-                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().equals(connexoKeyAccessorType))
+                .filter(keyAccessor -> keyAccessor.getSecurityAccessorType().equals(connexoSecurityAccessorType))
                 .findFirst();
         return (offlineKeyAccessor.isPresent() && offlineKeyAccessor.get().getTempValue().isPresent())
                 ? extractUplValueOutOf(offlineKeyAccessor, offlineKeyAccessor.get().getTempValue().get())

@@ -15,7 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
@@ -744,16 +744,16 @@ public class OfflineDeviceImplTest {
     public void getSecurityPropertySetAttributeToKeyAccessorTypeMappingTest() {
         Device device = createMockedDevice();
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        KeyAccessorType keyAccessorType1 = mock(KeyAccessorType.class);
-        KeyAccessorType keyAccessorType2 = mock(KeyAccessorType.class);
+        SecurityAccessorType securityAccessorType1 = mock(SecurityAccessorType.class);
+        SecurityAccessorType securityAccessorType2 = mock(SecurityAccessorType.class);
         ConfigurationSecurityProperty securityProperty1 = mock(ConfigurationSecurityProperty.class);
         ConfigurationSecurityProperty securityProperty2 = mock(ConfigurationSecurityProperty.class);
-        when(keyAccessorType1.getName()).thenReturn("KeyAccessorType_1");
-        when(keyAccessorType2.getName()).thenReturn("KeyAccessorType_2");
+        when(securityAccessorType1.getName()).thenReturn("KeyAccessorType_1");
+        when(securityAccessorType2.getName()).thenReturn("KeyAccessorType_2");
         when(securityProperty1.getName()).thenReturn("SecurityProperty1");
         when(securityProperty2.getName()).thenReturn("SecurityProperty2");
-        when(securityProperty1.getKeyAccessorType()).thenReturn(keyAccessorType1);
-        when(securityProperty2.getKeyAccessorType()).thenReturn(keyAccessorType2);
+        when(securityProperty1.getSecurityAccessorType()).thenReturn(securityAccessorType1);
+        when(securityProperty2.getSecurityAccessorType()).thenReturn(securityAccessorType2);
 
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getName()).thenReturn("MySecuritySet");

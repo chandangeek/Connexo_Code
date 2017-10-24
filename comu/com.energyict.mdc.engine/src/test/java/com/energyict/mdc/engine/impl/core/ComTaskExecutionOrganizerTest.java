@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ApplicationException;
@@ -15,7 +15,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -919,11 +919,11 @@ public class ComTaskExecutionOrganizerTest {
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
         when(device.getDeviceConfiguration().getComTaskEnablementFor(comTaskExecution.getComTask())).thenReturn(Optional.of(comTaskEnablement));
-        List<KeyAccessor> keyAccessors = securityPropertySet.getConfigurationSecurityProperties()
+        List<SecurityAccessor> securityAccessors = securityPropertySet.getConfigurationSecurityProperties()
                 .stream()
                 .map(property -> ((MyConfigurationSecurityProperty) property).getKeyAccessor())
                 .collect(Collectors.toList());
-        when(device.getKeyAccessors()).thenReturn(keyAccessors);
+        when(device.getSecurityAccessors()).thenReturn(securityAccessors);
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(topologyService).defineComTaskExecutionOrders(Collections.singletonList(comTaskExecution));
@@ -981,16 +981,16 @@ public class ComTaskExecutionOrganizerTest {
         when(deviceConfiguration.getComTaskEnablementFor(secondComTaskExecution.getComTask())).thenReturn(Optional.of(secondComTaskEnablement));
         when(device.getDeviceConfiguration().getSecurityPropertySets()).thenReturn(Arrays.asList(firstSecurityPropertySet, secondSecurityPropertySet));
 
-        List<KeyAccessor> keyAccessors = new ArrayList<>();
-        keyAccessors.addAll(firstSecurityPropertySet.getConfigurationSecurityProperties()
+        List<SecurityAccessor> securityAccessors = new ArrayList<>();
+        securityAccessors.addAll(firstSecurityPropertySet.getConfigurationSecurityProperties()
                 .stream()
                 .map(property -> ((MyConfigurationSecurityProperty) property).getKeyAccessor())
                 .collect(Collectors.toList()));
-        keyAccessors.addAll(secondSecurityPropertySet.getConfigurationSecurityProperties()
+        securityAccessors.addAll(secondSecurityPropertySet.getConfigurationSecurityProperties()
                 .stream()
                 .map(property -> ((MyConfigurationSecurityProperty) property).getKeyAccessor())
                 .collect(Collectors.toList()));
-        when(device.getKeyAccessors()).thenReturn(keyAccessors);
+        when(device.getSecurityAccessors()).thenReturn(securityAccessors);
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(topologyService).defineComTaskExecutionOrders(Arrays.asList(firstComTaskExecution, secondComTaskExecution));
@@ -1404,24 +1404,24 @@ public class ComTaskExecutionOrganizerTest {
     private MyConfigurationSecurityProperty createMockedConfigurationSecurityProperty(String name, String passPhrase) {
         MyConfigurationSecurityProperty configurationSecurityProperty = mock(MyConfigurationSecurityProperty.class);
         when(configurationSecurityProperty.getName()).thenReturn(name);
-        KeyAccessor keyAccessor = getPassPhraseKeyAccessor(name, passPhrase);
-        when(configurationSecurityProperty.getKeyAccessor()).thenReturn(keyAccessor);
-        KeyAccessorType keyAccessorType = keyAccessor.getKeyAccessorType();
-        when(configurationSecurityProperty.getKeyAccessorType()).thenReturn(keyAccessorType);
+        SecurityAccessor securityAccessor = getPassPhraseKeyAccessor(name, passPhrase);
+        when(configurationSecurityProperty.getKeyAccessor()).thenReturn(securityAccessor);
+        SecurityAccessorType securityAccessorType = securityAccessor.getKeyAccessorType();
+        when(configurationSecurityProperty.getSecurityAccessorType()).thenReturn(securityAccessorType);
         return configurationSecurityProperty;
     }
 
-    private KeyAccessor getPassPhraseKeyAccessor(String keyAccessorTypeName, String passPhrase) {
+    private SecurityAccessor getPassPhraseKeyAccessor(String keyAccessorTypeName, String passPhrase) {
         PlaintextPassphrase plaintextPassphrase = mock(PlaintextPassphrase.class);
         when(plaintextPassphrase.getPassphrase()).thenReturn(Optional.of(passPhrase));
 
-        KeyAccessor keyAccessor = mock(KeyAccessor.class);
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getName()).thenReturn(keyAccessorTypeName);
-        when(keyAccessor.getKeyAccessorType()).thenReturn(keyAccessorType);
-        when(keyAccessor.getDevice()).thenReturn(mock(Device.class));
-        when(keyAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
-        return keyAccessor;
+        SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getName()).thenReturn(keyAccessorTypeName);
+        when(securityAccessor.getKeyAccessorType()).thenReturn(securityAccessorType);
+        when(securityAccessor.getDevice()).thenReturn(mock(Device.class));
+        when(securityAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
+        return securityAccessor;
     }
 
     private ComTask createMockedTaskWithBasicCheckInMiddleOfProtocolTasks() {
@@ -1436,7 +1436,7 @@ public class ComTaskExecutionOrganizerTest {
 
     private interface MyConfigurationSecurityProperty extends ConfigurationSecurityProperty {
 
-        KeyAccessor getKeyAccessor();
+        SecurityAccessor getKeyAccessor();
 
     }
 }

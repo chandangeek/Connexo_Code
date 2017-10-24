@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -13,23 +13,23 @@ import java.util.Optional;
 public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements OfflineKeyAccessor {
 
     /**
-     * The {@link KeyAccessor} which is going offline
+     * The {@link SecurityAccessor} which is going offline
      */
-    private final KeyAccessor<T> keyAccessor;
+    private final SecurityAccessor<T> securityAccessor;
     private IdentificationService identificationService;
 
     private final Device device;
-    private KeyAccessorType keyAccessorType;
+    private SecurityAccessorType securityAccessorType;
     private Optional<T> actualValue;
     private Optional<T> tempValue;
     private int deviceId;
 
     private String deviceMRID;
 
-    public OfflineKeyAccessorImpl(KeyAccessor keyAccessor, IdentificationService identificationService) {
-        this.keyAccessor = keyAccessor;
+    public OfflineKeyAccessorImpl(SecurityAccessor securityAccessor, IdentificationService identificationService) {
+        this.securityAccessor = securityAccessor;
         this.identificationService = identificationService;
-        this.device = keyAccessor.getDevice();
+        this.device = securityAccessor.getDevice();
         goOffline();
     }
 
@@ -39,11 +39,11 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
      * Note that this may cause recursive calls to other objects that can go offline.
      */
     protected void goOffline() {
-        setDeviceId((int) this.keyAccessor.getDevice().getId());
-        setDeviceMRID(this.keyAccessor.getDevice().getmRID());
-        setKeyAccessorType(this.keyAccessor.getKeyAccessorType());
-        setActualValue(this.keyAccessor.getActualValue());
-        setTempValue(this.keyAccessor.getTempValue());
+        setDeviceId((int) this.securityAccessor.getDevice().getId());
+        setDeviceMRID(this.securityAccessor.getDevice().getmRID());
+        setSecurityAccessorType(this.securityAccessor.getKeyAccessorType());
+        setActualValue(this.securityAccessor.getActualValue());
+        setTempValue(this.securityAccessor.getTempValue());
     }
 
 
@@ -65,8 +65,8 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
     }
 
 
-    public KeyAccessor<T> getKeyAccessor() {
-        return keyAccessor;
+    public SecurityAccessor<T> getSecurityAccessor() {
+        return securityAccessor;
     }
 
     public IdentificationService getIdentificationService() {
@@ -87,8 +87,8 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
     }
 
     @Override
-    public KeyAccessorType getKeyAccessorType() {
-        return keyAccessorType;
+    public SecurityAccessorType getSecurityAccessorType() {
+        return securityAccessorType;
     }
 
     @Override
@@ -101,8 +101,8 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
         return tempValue;
     }
 
-    public void setKeyAccessorType(KeyAccessorType keyAccessorType) {
-        this.keyAccessorType = keyAccessorType;
+    public void setSecurityAccessorType(SecurityAccessorType securityAccessorType) {
+        this.securityAccessorType = securityAccessorType;
     }
 
     public void setActualValue(Optional<T> actualValue) {
