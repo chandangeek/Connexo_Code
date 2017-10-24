@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 
 import javax.validation.constraints.Size;
@@ -100,7 +100,7 @@ public class DlmsSecurityPkiProperties extends CommonBaseDeviceSecurityPropertie
                     .add();
             table.foreignKey("FK_PKI_CPS_"+this.databaseName())
                     .on(keyAccessorType)
-                    .references(KeyAccessorType.class)
+                    .references(SecurityAccessorType.class)
                     .map(this.javaName())
                     .add();
         }
@@ -109,14 +109,14 @@ public class DlmsSecurityPkiProperties extends CommonBaseDeviceSecurityPropertie
 
     @Size(max = Table.MAX_STRING_LENGTH)
     private String password;
-    private Reference<KeyAccessorType> authenticationKey = Reference.empty();
-    private Reference<KeyAccessorType> encryptionKey = Reference.empty();
+    private Reference<SecurityAccessorType> authenticationKey = Reference.empty();
+    private Reference<SecurityAccessorType> encryptionKey = Reference.empty();
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
         this.password = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecTranslationKeys.PASSWORD.toString());
-        this.authenticationKey.set((KeyAccessorType) propertyValues.getProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString()));
-        this.encryptionKey.set((KeyAccessorType) propertyValues.getProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString()));
+        this.authenticationKey.set((SecurityAccessorType) propertyValues.getProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString()));
+        this.encryptionKey.set((SecurityAccessorType) propertyValues.getProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString()));
     }
 
     @Override

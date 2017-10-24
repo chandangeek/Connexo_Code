@@ -9,7 +9,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.protocols.naming.CustomPropertySetComponentName;
@@ -113,7 +113,7 @@ public class OutboundIpConnectionPropertiesPersistenceSupport implements Persist
                 .add();
         table.foreignKey("FK_CONN_TLS_CERT_CLI")
                 .on(keyAccessorTypeClient)
-                .references(KeyAccessorType.class)
+                .references(SecurityAccessorType.class)
                 .map(OutboundIpConnectionProperties.Fields.TLS_CLIENT_CERTIFICATE.javaName())
                 .since(Version.version(10, 3))
                 .add();
@@ -124,7 +124,7 @@ public class OutboundIpConnectionPropertiesPersistenceSupport implements Persist
                 .add();
         table.foreignKey("FK_CONN_TLS_CERT_SER")
                 .on(keyAccessorTypeServer)
-                .references(KeyAccessorType.class)
+                .references(SecurityAccessorType.class)
                 .map(OutboundIpConnectionProperties.Fields.TLS_SERVER_CERTIFICATE.javaName())
                 .since(Version.version(10, 3))
                 .add();

@@ -11,7 +11,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType;
@@ -229,8 +229,8 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
     private BigDecimal postDialTries;
     @Size(max = Table.MAX_STRING_LENGTH)
     private String postDialCommand;
-    private Reference<KeyAccessorType> tlsClientCertificate = Reference.empty();
-    private Reference<KeyAccessorType> tlsServerCertificate = Reference.empty();
+    private Reference<SecurityAccessorType> tlsClientCertificate = Reference.empty();
+    private Reference<SecurityAccessorType> tlsServerCertificate = Reference.empty();
     @Size(max = Table.MAX_STRING_LENGTH)
     private String preferredCipherSuites;
     @Size(max = Table.MAX_STRING_LENGTH)
@@ -285,11 +285,11 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
     }
 
     protected void copyTlsClientCertificate(CustomPropertySetValues propertyValues) {
-        this.tlsClientCertificate.set((KeyAccessorType) propertyValues.getProperty(Fields.TLS_CLIENT_CERTIFICATE.propertySpecName()));
+        this.tlsClientCertificate.set((SecurityAccessorType) propertyValues.getProperty(Fields.TLS_CLIENT_CERTIFICATE.propertySpecName()));
     }
 
     protected void copyTlsServerCertificate(CustomPropertySetValues propertyValues) {
-        this.tlsServerCertificate.set((KeyAccessorType) propertyValues.getProperty(Fields.TLS_SERVER_CERTIFICATE.propertySpecName()));
+        this.tlsServerCertificate.set((SecurityAccessorType) propertyValues.getProperty(Fields.TLS_SERVER_CERTIFICATE.propertySpecName()));
     }
 
     protected void copyPostDialProperties(CustomPropertySetValues propertyValues) {

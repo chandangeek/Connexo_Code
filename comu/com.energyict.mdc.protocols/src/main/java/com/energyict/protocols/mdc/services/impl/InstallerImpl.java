@@ -8,7 +8,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
@@ -217,13 +217,13 @@ public class InstallerImpl implements FullInstaller {
         }
     }
 
-    private KeyAccessorType createNewKeyAccessorType(DeviceType deviceType, SecurityPropertySet securityPropertySet, PropertySpec propertySpec) {
+    private SecurityAccessorType createNewKeyAccessorType(DeviceType deviceType, SecurityPropertySet securityPropertySet, PropertySpec propertySpec) {
         String keyAccessorTypeName = securityPropertySet.getName().concat(" - ").concat(propertySpec.getName());
-        return deviceType.getKeyAccessorTypes()
+        return deviceType.getSecurityAccessorTypes()
                 .stream()
                 .filter(keyAccessorType -> keyAccessorType.getName().equals(keyAccessorTypeName))
                 .findFirst()
-                .orElseGet(() -> deviceType.addKeyAccessorType(keyAccessorTypeName, createOrGetKeyType(propertySpec))
+                .orElseGet(() -> deviceType.addSecurityAccessorType(keyAccessorTypeName, createOrGetKeyType(propertySpec))
                         .keyEncryptionMethod(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD)
                         .duration(TimeDuration.years(1))
                         .add());
@@ -241,7 +241,7 @@ public class InstallerImpl implements FullInstaller {
         securityPropertySet.getConfigurationSecurityProperties().forEach(
                 property -> {
                     if (oldProperties.hasValueFor(property.getName())) {
-                        getKeyAccessorValuePersister().persistKeyAccessorValue(device, property.getKeyAccessorType(), (String) oldProperties.getProperty(property.getName()));
+                        getKeyAccessorValuePersister().persistKeyAccessorValue(device, property.getSecurityAccessorType(), (String) oldProperties.getProperty(property.getName()));
                     }
                 }
         );
