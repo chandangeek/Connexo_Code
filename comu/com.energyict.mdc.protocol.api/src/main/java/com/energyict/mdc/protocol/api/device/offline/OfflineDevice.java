@@ -5,7 +5,7 @@
 package com.energyict.mdc.protocol.api.device.offline;
 
 import com.elster.jupiter.orm.MacException;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.SecurityCustomPropertySet;
@@ -41,7 +41,7 @@ public interface OfflineDevice extends Offline, com.energyict.mdc.upl.offline.Of
     List<OfflineKeyAccessor> getAllOfflineKeyAccessors();
 
     /**
-     * Gets a mapping of all security property set attributes to corresponding {@link KeyAccessorType} name
+     * Gets a mapping of all security property set attributes to corresponding {@link SecurityAccessorType} name
      * - represented as TypedProperties - for all of the {@link SecurityCustomPropertySet}s
      *
      * @return the mapping of all security property set attributes to corresponding KeyAccessorType name for all of the SecurityPropertySets

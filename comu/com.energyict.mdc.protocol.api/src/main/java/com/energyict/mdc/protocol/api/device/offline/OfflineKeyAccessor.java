@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.device.offline;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.Offline;
@@ -19,7 +19,7 @@ public interface OfflineKeyAccessor<T extends SecurityValueWrapper> extends Offl
     /**
      * Get the KeyAccessorType this value belongs to
      */
-    KeyAccessorType getKeyAccessorType();
+    SecurityAccessorType getSecurityAccessorType();
 
     /**
      * The actual value is the value to be used at present
