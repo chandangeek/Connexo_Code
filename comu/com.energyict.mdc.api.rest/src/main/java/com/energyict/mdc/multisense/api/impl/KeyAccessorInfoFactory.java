@@ -10,7 +10,7 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -28,7 +28,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * SelectableFieldFactory<KeyAccessorInfo, KeyAccessor>
  */
-public class KeyAccessorInfoFactory extends SelectableFieldFactory<KeyAccessorInfo, KeyAccessor> {
+public class KeyAccessorInfoFactory extends SelectableFieldFactory<KeyAccessorInfo, SecurityAccessor> {
 
     private final Provider<KeyAccessorTypeInfoFactory> keyAccessorTypeInfoFactoryProvider;
 
@@ -37,22 +37,22 @@ public class KeyAccessorInfoFactory extends SelectableFieldFactory<KeyAccessorIn
         this.keyAccessorTypeInfoFactoryProvider = keyAccessorTypeInfoFactoryProvider;
     }
 
-    public LinkInfo asLink(Device device, KeyAccessor keyAccessor, Relation relation, UriInfo uriInfo) {
+    public LinkInfo asLink(Device device, SecurityAccessor securityAccessor, Relation relation, UriInfo uriInfo) {
         KeyAccessorInfo info = new KeyAccessorInfo();
-        copySelectedFields(info, keyAccessor, uriInfo, Collections.singletonList("id"));
-        info.link = link(device, keyAccessor, relation, uriInfo);
+        copySelectedFields(info, securityAccessor, uriInfo, Collections.singletonList("id"));
+        info.link = link(device, securityAccessor, relation, uriInfo);
         return info;
     }
 
-    public List<LinkInfo> asLink(Collection<Pair<Device, KeyAccessor>> keyAccessors, Relation relation, UriInfo uriInfo) {
+    public List<LinkInfo> asLink(Collection<Pair<Device, SecurityAccessor>> keyAccessors, Relation relation, UriInfo uriInfo) {
         return keyAccessors.stream().map(i -> asLink(i.getFirst(), i.getLast(), relation, uriInfo)).collect(toList());
     }
 
-    private Link link(Device device, KeyAccessor keyAccessor, Relation relation, UriInfo uriInfo) {
+    private Link link(Device device, SecurityAccessor securityAccessor, Relation relation, UriInfo uriInfo) {
         return Link.fromUriBuilder(getDeviceUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Key accessor")
-                .build(device.getmRID(), keyAccessor.getKeyAccessorType().getName());
+                .build(device.getmRID(), securityAccessor.getKeyAccessorType().getName());
     }
 
     private UriBuilder getDeviceUriBuilder(UriInfo uriInfo) {
@@ -61,15 +61,15 @@ public class KeyAccessorInfoFactory extends SelectableFieldFactory<KeyAccessorIn
                 .path(KeyAccessorResource.class, "getKeyAccessor");
     }
 
-    public KeyAccessorInfo from(KeyAccessor keyAccessor, UriInfo uriInfo, Collection<String> fields) {
+    public KeyAccessorInfo from(SecurityAccessor securityAccessor, UriInfo uriInfo, Collection<String> fields) {
         KeyAccessorInfo info = new KeyAccessorInfo();
-        copySelectedFields(info, keyAccessor, uriInfo, fields);
+        copySelectedFields(info, securityAccessor, uriInfo, fields);
         return info;
     }
 
     @Override
-    protected Map<String, PropertyCopier<KeyAccessorInfo, KeyAccessor>> buildFieldMap() {
-        Map<String, PropertyCopier<KeyAccessorInfo, KeyAccessor>> map = new HashMap<>();
+    protected Map<String, PropertyCopier<KeyAccessorInfo, SecurityAccessor>> buildFieldMap() {
+        Map<String, PropertyCopier<KeyAccessorInfo, SecurityAccessor>> map = new HashMap<>();
         map.put("name", ((keyAccessorInfo, keyAccessor, uriInfo) -> keyAccessorInfo.name = keyAccessor.getKeyAccessorType().getName()));
         map.put("keyAccessorType", ((keyAccessorInfo, keyAccessor, uriInfo) -> keyAccessorInfo.keyAccessorType = keyAccessorTypeInfoFactoryProvider.get().asLink(
                 keyAccessor.getDevice().getDeviceType(),

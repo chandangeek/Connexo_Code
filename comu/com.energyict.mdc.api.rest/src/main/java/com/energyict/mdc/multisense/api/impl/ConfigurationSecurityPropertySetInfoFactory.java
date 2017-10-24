@@ -148,7 +148,7 @@ public class ConfigurationSecurityPropertySetInfoFactory extends SelectableField
                 configurationSecurityPropertySetInfo.properties.add(
                         keyAccessorTypeInfoFactoryProvider.get().asLink(
                                 securityPropertySet.getDeviceConfiguration().getDeviceType(),
-                                securityProperty.getKeyAccessorType(),
+                                securityProperty.getSecurityAccessorType(),
                                 Relation.REF_RELATION,
                                 uriInfo
                         )

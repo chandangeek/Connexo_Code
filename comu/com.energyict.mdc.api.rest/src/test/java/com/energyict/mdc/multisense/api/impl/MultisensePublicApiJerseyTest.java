@@ -51,7 +51,7 @@ import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -875,10 +875,10 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getClientSecurityPropertySpec()).thenReturn(Optional.of(bigDecimalPropertySpec));
         ConfigurationSecurityProperty configurationSecurityProperty = mock(ConfigurationSecurityProperty.class);
         when(configurationSecurityProperty.getName()).thenReturn(configurationSecurityPropertyName);
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getName()).thenReturn(configurationSecurityPropertyName);
-        when(keyAccessorType.getId()).thenReturn(keyAccessorTypeId);
-        when(configurationSecurityProperty.getKeyAccessorType()).thenReturn(keyAccessorType);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getName()).thenReturn(configurationSecurityPropertyName);
+        when(securityAccessorType.getId()).thenReturn(keyAccessorTypeId);
+        when(configurationSecurityProperty.getSecurityAccessorType()).thenReturn(securityAccessorType);
         when(mock.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(configurationSecurityProperty));
 
         when(deviceConfigurationService.findSecurityPropertySet(id)).thenReturn(Optional.of(mock));

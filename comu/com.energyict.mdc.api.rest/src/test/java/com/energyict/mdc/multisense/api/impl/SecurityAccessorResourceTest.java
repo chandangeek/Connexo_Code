@@ -4,13 +4,13 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
  * @author stijn
  * @since 07.06.17 - 09:47
  */
-public class KeyAccessorResourceTest extends MultisensePublicApiJerseyTest {
+public class SecurityAccessorResourceTest extends MultisensePublicApiJerseyTest {
 
     private Device device;
     private SecurityPropertySet sps1, sps2;
@@ -57,15 +57,15 @@ public class KeyAccessorResourceTest extends MultisensePublicApiJerseyTest {
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1, sps2));
         device = mockDevice("XAS", "10101010101011", deviceConfiguration, 1005L);
 
-        KeyAccessor keyAccessor1 = mock(KeyAccessor.class);
-        KeyAccessor keyAccessor2 = mock(KeyAccessor.class);
-        when(device.getKeyAccessors()).thenReturn(Arrays.asList(keyAccessor1, keyAccessor2));
-        KeyAccessorType keyAccessorType1 = sps1.getConfigurationSecurityProperties().get(0).getKeyAccessorType();
-        KeyAccessorType keyAccessorType2 = sps2.getConfigurationSecurityProperties().get(0).getKeyAccessorType();
-        when(keyAccessor1.getDevice()).thenReturn(device);
-        when(keyAccessor2.getDevice()).thenReturn(device);
-        when(keyAccessor1.getKeyAccessorType()).thenReturn(keyAccessorType1);
-        when(keyAccessor2.getKeyAccessorType()).thenReturn(keyAccessorType2);
+        SecurityAccessor securityAccessor1 = mock(SecurityAccessor.class);
+        SecurityAccessor securityAccessor2 = mock(SecurityAccessor.class);
+        when(device.getSecurityAccessors()).thenReturn(Arrays.asList(securityAccessor1, securityAccessor2));
+        SecurityAccessorType securityAccessorType1 = sps1.getConfigurationSecurityProperties().get(0).getSecurityAccessorType();
+        SecurityAccessorType securityAccessorType2 = sps2.getConfigurationSecurityProperties().get(0).getSecurityAccessorType();
+        when(securityAccessor1.getDevice()).thenReturn(device);
+        when(securityAccessor2.getDevice()).thenReturn(device);
+        when(securityAccessor1.getKeyAccessorType()).thenReturn(securityAccessorType1);
+        when(securityAccessor2.getKeyAccessorType()).thenReturn(securityAccessorType2);
     }
 
 

@@ -5,7 +5,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -67,8 +67,8 @@ public class ConfigurationKeyAccessorTypeResource {
         DeviceType devicetype = deviceConfigurationService.findDeviceType(deviceTypeId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE_TYPE));
 
-        List<KeyAccessorTypeInfo> infos = devicetype.getKeyAccessorTypes().stream()
-                .sorted(Comparator.comparing(KeyAccessorType::getName))
+        List<KeyAccessorTypeInfo> infos = devicetype.getSecurityAccessorTypes().stream()
+                .sorted(Comparator.comparing(SecurityAccessorType::getName))
                 .map(accessor -> keyAccessorTypeInfoFactory.from(accessor, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
 
@@ -96,12 +96,12 @@ public class ConfigurationKeyAccessorTypeResource {
     public KeyAccessorTypeInfo getKeyAccessorType(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("keyAccessorTypeName") String name, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         DeviceType devicetype = deviceConfigurationService.findDeviceType(deviceTypeId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE_TYPE));
-        KeyAccessorType keyAccessorType = getKeyAccessorType(name, devicetype);
-        return keyAccessorTypeInfoFactory.from(keyAccessorType, uriInfo, fieldSelection.getFields());
+        SecurityAccessorType securityAccessorType = getKeyAccessorType(name, devicetype);
+        return keyAccessorTypeInfoFactory.from(securityAccessorType, uriInfo, fieldSelection.getFields());
     }
 
-    private KeyAccessorType getKeyAccessorType(String name, DeviceType devicetype) {
-        return devicetype.getKeyAccessorTypes().stream().filter(keyAccessorType1 -> keyAccessorType1.getName().equals(name)).findFirst()
+    private SecurityAccessorType getKeyAccessorType(String name, DeviceType devicetype) {
+        return devicetype.getSecurityAccessorTypes().stream().filter(keyAccessorType1 -> keyAccessorType1.getName().equals(name)).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSORTYPE_FOR_DEVICE));
     }
 

@@ -12,7 +12,7 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
 import javax.inject.Inject;
@@ -100,13 +100,13 @@ public class DeviceSecurityPropertySetInfoFactory extends SelectableFieldFactory
         map.put("configuredSecurityPropertySet", ((deviceSecurityPropertySetInfo, source, uriInfo) ->
                 deviceSecurityPropertySetInfo.configuredSecurityPropertySet = configurationSecurityPropertySetInfoFactory.asLink(source.getLast(), Relation.REF_RELATION, uriInfo)));
         map.put("properties", (deviceSecurityPropertySetInfo, source, uriInfo) -> {
-            List<KeyAccessor> keyAccessors = findInvolvedKeyAccessors(source.getFirst(), source.getLast());
-            deviceSecurityPropertySetInfo.properties = new ArrayList<>(keyAccessors.size());
-            for (KeyAccessor keyAccessor : keyAccessors) {
+            List<SecurityAccessor> securityAccessors = findInvolvedKeyAccessors(source.getFirst(), source.getLast());
+            deviceSecurityPropertySetInfo.properties = new ArrayList<>(securityAccessors.size());
+            for (SecurityAccessor securityAccessor : securityAccessors) {
                 deviceSecurityPropertySetInfo.properties.add(
                         keyAccessorInfoFactoryProvider.get().asLink(
                                 source.getFirst(),
-                                keyAccessor,
+                                securityAccessor,
                                 Relation.REF_RELATION,
                                 uriInfo
                         )
@@ -116,11 +116,11 @@ public class DeviceSecurityPropertySetInfoFactory extends SelectableFieldFactory
         return map;
     }
 
-    private List<KeyAccessor> findInvolvedKeyAccessors(Device device, SecurityPropertySet securityPropertySet) {
-        return device.getKeyAccessors().stream()
+    private List<SecurityAccessor> findInvolvedKeyAccessors(Device device, SecurityPropertySet securityPropertySet) {
+        return device.getSecurityAccessors().stream()
                 .filter(keyAccessor ->
                         securityPropertySet.getConfigurationSecurityProperties().stream().anyMatch(configurationSecurityProperty ->
-                                configurationSecurityProperty.getKeyAccessorType().getId() == keyAccessor.getKeyAccessorType().getId()
+                                configurationSecurityProperty.getSecurityAccessorType().getId() == keyAccessor.getKeyAccessorType().getId()
                         )
                 )
                 .collect(Collectors.toList());

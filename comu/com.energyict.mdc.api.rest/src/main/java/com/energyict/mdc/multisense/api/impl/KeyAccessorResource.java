@@ -13,7 +13,7 @@ import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.security.Privileges;
 
@@ -66,7 +66,7 @@ public class KeyAccessorResource {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
 
-        List<KeyAccessorInfo> infos = device.getKeyAccessors().stream()
+        List<KeyAccessorInfo> infos = device.getSecurityAccessors().stream()
                 .sorted(Comparator.comparing(accessor -> accessor.getKeyAccessorType().getName()))
                 .map(accessor -> keyAccessorInfoFactory.from(accessor, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
@@ -94,12 +94,12 @@ public class KeyAccessorResource {
     public KeyAccessorInfo getKeyAccessor(@PathParam("mrid") String mrid, @PathParam("keyAccessorName") String name, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
-        KeyAccessor keyAccessor = getKeyAccessor(name, device);
-        return keyAccessorInfoFactory.from(keyAccessor, uriInfo, fieldSelection.getFields());
+        SecurityAccessor securityAccessor = getKeyAccessor(name, device);
+        return keyAccessorInfoFactory.from(securityAccessor, uriInfo, fieldSelection.getFields());
     }
 
-    private KeyAccessor getKeyAccessor(String name, Device device) {
-        return device.getKeyAccessors().stream().filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(name)).findFirst()
+    private SecurityAccessor getKeyAccessor(String name, Device device) {
+        return device.getSecurityAccessors().stream().filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(name)).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE));
     }
 
