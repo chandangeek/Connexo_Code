@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.adapters.upl;
 
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 
 /**
@@ -10,13 +11,13 @@ import com.energyict.mdc.upl.security.KeyAccessorType;
  */
 public class KeyAccessorTypeAdapter implements KeyAccessorType {
 
-    private final com.elster.jupiter.pki.KeyAccessorType keyAccessorType;
+    private final SecurityAccessorType securityAccessorType;
 
-    KeyAccessorTypeAdapter(com.elster.jupiter.pki.KeyAccessorType keyAccessorType) {
-        this.keyAccessorType = keyAccessorType;
+    KeyAccessorTypeAdapter(SecurityAccessorType securityAccessorType) {
+        this.securityAccessorType = securityAccessorType;
     }
 
-    public com.elster.jupiter.pki.KeyAccessorType getKeyAccessorType() {
-        return keyAccessorType;
+    public SecurityAccessorType getSecurityAccessorType() {
+        return securityAccessorType;
     }
 }

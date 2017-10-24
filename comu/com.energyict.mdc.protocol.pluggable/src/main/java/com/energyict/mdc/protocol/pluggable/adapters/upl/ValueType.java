@@ -2,7 +2,7 @@ package com.energyict.mdc.protocol.pluggable.adapters.upl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
@@ -79,7 +79,7 @@ public enum ValueType {
             return true;
         }
     },
-    KEY_ACCESSOR_TYPE("com.energyict.mdc.upl.security.KeyAccessorType", KeyAccessorType.class, Types.NUMERIC) {
+    KEY_ACCESSOR_TYPE("com.energyict.mdc.upl.security.KeyAccessorType", SecurityAccessorType.class, Types.NUMERIC) {
         @Override
         boolean isReference() {
             return true;

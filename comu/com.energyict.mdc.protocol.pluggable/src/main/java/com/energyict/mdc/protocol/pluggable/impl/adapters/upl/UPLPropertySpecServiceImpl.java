@@ -5,7 +5,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
@@ -212,7 +212,7 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
         NUMBER_LOOKUP("com.energyict.mdc.upl.properties.NumberLookup", NumberLookup.class),
         STRING_LOOKUP("com.energyict.mdc.upl.properties.StringLookup", StringLookup.class),
 
-        KEY_ACCESSOR_TYPE("com.energyict.mdc.upl.security.KeyAccessorType", KeyAccessorType.class);
+        KEY_ACCESSOR_TYPE("com.energyict.mdc.upl.security.KeyAccessorType", SecurityAccessorType.class);
 
         private final String uplClassName;
         private final Class connexoClass;
