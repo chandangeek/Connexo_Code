@@ -7,7 +7,7 @@ package com.energyict.protocols.mdc.services.impl;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -18,7 +18,6 @@ import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -42,7 +41,7 @@ import static com.elster.jupiter.orm.Version.version;
 public class DeviceProtocolUpgradeServiceImpl implements DeviceProtocolUpgradeService, ProtocolDeploymentListener {
 
     private volatile DataModel dataModel;
-    private volatile PkiService pkiService;
+    private volatile SecurityManagementService securityManagementService;
     private volatile DeviceService deviceService;
     private volatile UpgradeService upgradeService;
     private volatile DataVaultService dataVaultService;
@@ -56,10 +55,10 @@ public class DeviceProtocolUpgradeServiceImpl implements DeviceProtocolUpgradeSe
     }
 
     // For unit testing purposes
-    public DeviceProtocolUpgradeServiceImpl(OrmService ormService, PkiService pkiService, DeviceService deviceService, UpgradeService upgradeService, DataVaultService dataVaultService, ProtocolPluggableService pluggableServicedeviceService) {
+    public DeviceProtocolUpgradeServiceImpl(OrmService ormService, SecurityManagementService securityManagementService, DeviceService deviceService, UpgradeService upgradeService, DataVaultService dataVaultService, ProtocolPluggableService pluggableServicedeviceService) {
         this();
         setOrmService(ormService);
-        setPkiService(pkiService);
+        setSecurityManagementService(securityManagementService);
         setDeviceService(deviceService);
         setUpgradeService(upgradeService);
         setDataVaultService(dataVaultService);
@@ -72,8 +71,8 @@ public class DeviceProtocolUpgradeServiceImpl implements DeviceProtocolUpgradeSe
     }
 
     @Reference
-    public void setPkiService(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @Reference
@@ -109,7 +108,7 @@ public class DeviceProtocolUpgradeServiceImpl implements DeviceProtocolUpgradeSe
             public void configure() {
                 bind(DeviceProtocolUpgradeService.class).toInstance(DeviceProtocolUpgradeServiceImpl.this);
                 bind(DataModel.class).toInstance(dataModel);
-                bind(PkiService.class).toInstance(pkiService);
+                bind(SecurityManagementService.class).toInstance(securityManagementService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(ProtocolPluggableService.class).toInstance(pluggableServicedeviceService);

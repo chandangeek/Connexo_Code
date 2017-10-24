@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
@@ -50,17 +50,17 @@ public class InstallerImpl implements FullInstaller {
 
     private final DataModel dataModel;
     private final DeviceService deviceService;
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
     private final DataVaultService dataVaultService;
 
     private KeyAccessorValuePersister keyAccessorValuePersister;
 
     @Inject
-    InstallerImpl(DataModel dataModel, DeviceService deviceService, PkiService pkiService, DataVaultService dataVaultService) {
+    InstallerImpl(DataModel dataModel, DeviceService deviceService, SecurityManagementService securityManagementService, DataVaultService dataVaultService) {
         super();
         this.dataModel = dataModel;
         this.deviceService = deviceService;
-        this.pkiService = pkiService;
+        this.securityManagementService = securityManagementService;
         this.dataVaultService = dataVaultService;
     }
 
@@ -231,9 +231,9 @@ public class InstallerImpl implements FullInstaller {
 
     private KeyType createOrGetKeyType(PropertySpec propertySpec) {
         if (propertySpec.getName().equals("Password")) {
-            return pkiService.getKeyType("Password").orElseGet(() -> pkiService.newPassphraseType("Password").withSpecialCharacters().length(30).add());
+            return securityManagementService.getKeyType("Password").orElseGet(() -> securityManagementService.newPassphraseType("Password").withSpecialCharacters().length(30).add());
         } else {
-            return pkiService.getKeyType("AES 128").orElseGet(() -> pkiService.newSymmetricKeyType("AES 128", "AES", 128).add());
+            return securityManagementService.getKeyType("AES 128").orElseGet(() -> securityManagementService.newSymmetricKeyType("AES 128", "AES", 128).add());
         }
     }
 
@@ -249,7 +249,7 @@ public class InstallerImpl implements FullInstaller {
 
     private KeyAccessorValuePersister getKeyAccessorValuePersister() {
         if (keyAccessorValuePersister == null) {
-            keyAccessorValuePersister = new KeyAccessorValuePersister(pkiService);
+            keyAccessorValuePersister = new KeyAccessorValuePersister(securityManagementService);
         }
         return keyAccessorValuePersister;
     }

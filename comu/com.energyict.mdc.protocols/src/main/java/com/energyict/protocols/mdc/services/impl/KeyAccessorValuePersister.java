@@ -5,7 +5,7 @@
 package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.SecurityValueWrapper;
@@ -26,11 +26,11 @@ import java.util.Map;
  */
 public class KeyAccessorValuePersister {    //TODO: copy from demo - can we make this a service?
 
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
 
     @Inject
-    public KeyAccessorValuePersister(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public KeyAccessorValuePersister(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     /**
@@ -91,10 +91,10 @@ public class KeyAccessorValuePersister {    //TODO: copy from demo - can we make
         SecurityValueWrapper newValue;
         switch (keyAccessor.getKeyAccessorType().getKeyType().getCryptographicType()) {
             case SymmetricKey:
-                newValue = pkiService.newSymmetricKeyWrapper(keyAccessor.getKeyAccessorType());
+                newValue = securityManagementService.newSymmetricKeyWrapper(keyAccessor.getKeyAccessorType());
                 break;
             case Passphrase:
-                newValue = pkiService.newPassphraseWrapper(keyAccessor.getKeyAccessorType());
+                newValue = securityManagementService.newPassphraseWrapper(keyAccessor.getKeyAccessorType());
                 break;
             default:
                 throw new IllegalStateException("Import of values of this security accessor is not supported: " + keyAccessor.getKeyAccessorType().getName());
