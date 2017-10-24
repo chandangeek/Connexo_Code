@@ -9,7 +9,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyAccessorType.Builder;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -43,14 +43,14 @@ import java.util.stream.Collectors;
 
 public class SecurityAccessorResource {
     private final ResourceHelper resourceHelper;
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
     private final KeyFunctionTypeInfoFactory keyFunctionTypeInfoFactory;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public SecurityAccessorResource(ResourceHelper resourceHelper, PkiService pkiService, KeyFunctionTypeInfoFactory keyFunctionTypeInfoFactory, ExceptionFactory exceptionFactory) {
+    public SecurityAccessorResource(ResourceHelper resourceHelper, SecurityManagementService securityManagementService, KeyFunctionTypeInfoFactory keyFunctionTypeInfoFactory, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
-        this.pkiService = pkiService;
+        this.securityManagementService = securityManagementService;
         this.keyFunctionTypeInfoFactory = keyFunctionTypeInfoFactory;
         this.exceptionFactory = exceptionFactory;
     }
@@ -89,7 +89,7 @@ public class SecurityAccessorResource {
     @Path("/keytypes")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public List<KeyTypeInfo> getKeyTypes(@PathParam("deviceTypeId") long id) {
-        return pkiService.findAllKeyTypes()
+        return securityManagementService.findAllKeyTypes()
                 .stream()
                 .map(KeyTypeInfo::new)
                 .collect(Collectors.toList());
@@ -101,11 +101,11 @@ public class SecurityAccessorResource {
     @Path("/keytypes/{id}/keyencryptionmethods")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public List<KeyEncryptionMethodInfo> getKeyEncryptionMethods(@PathParam("id") long id) {
-        List<String> names = pkiService.findAllKeyTypes()
+        List<String> names = securityManagementService.findAllKeyTypes()
             .stream()
             .filter(keyType -> keyType.getId() == id)
             .findAny()
-            .map(keyType -> pkiService.getKeyEncryptionMethods(keyType.getCryptographicType()))
+            .map(keyType -> securityManagementService.getKeyEncryptionMethods(keyType.getCryptographicType()))
             .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_KEY_TYPE_FOUND, id));
         List<KeyEncryptionMethodInfo> result = new ArrayList<>();
         for (String name : names) {
@@ -124,13 +124,13 @@ public class SecurityAccessorResource {
         if (securityAccessorInfo.keyType == null || securityAccessorInfo.keyType.name == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "keyType");
         }
-        KeyType keyType = pkiService.getKeyType(securityAccessorInfo.keyType.name)
+        KeyType keyType = securityManagementService.getKeyType(securityAccessorInfo.keyType.name)
             .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_KEY_TYPE_FOUND_NAME, securityAccessorInfo.keyType.name));
         Builder keyFunctionTypeBuilder = deviceType.addKeyAccessorType(securityAccessorInfo.name, keyType)
                 .keyEncryptionMethod(securityAccessorInfo.storageMethod)
                 .description(securityAccessorInfo.description);
         if (keyType.getCryptographicType()!=null && !keyType.getCryptographicType().isKey()) {
-            TrustStore trustStore = pkiService.findTrustStore(securityAccessorInfo.trustStoreId)
+            TrustStore trustStore = securityManagementService.findTrustStore(securityAccessorInfo.trustStoreId)
                     .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_TRUST_STORE_FOUND, securityAccessorInfo.trustStoreId));
             keyFunctionTypeBuilder.trustStore(trustStore);
         }

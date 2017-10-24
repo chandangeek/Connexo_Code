@@ -30,7 +30,7 @@ public class TrustStoreResourceTest extends DeviceConfigurationApplicationJersey
         TrustStore trustStore2 = mockTrustStore(2L, "two");
         TrustStore trustStore3 = mockTrustStore(3L, "three");
 
-        when(pkiService.getAllTrustStores()).thenReturn(Arrays.asList(trustStore1, trustStore2, trustStore3));
+        when(securityManagementService.getAllTrustStores()).thenReturn(Arrays.asList(trustStore1, trustStore2, trustStore3));
 
         Response response = target("/truststores").request().get();
         JsonModel jsonModel = JsonModel.create((InputStream)response.getEntity());

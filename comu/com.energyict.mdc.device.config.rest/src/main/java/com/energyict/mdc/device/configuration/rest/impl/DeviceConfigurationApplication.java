@@ -18,7 +18,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -96,7 +96,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
     private volatile CalendarInfoFactory calendarInfoFactory;
     private volatile CalendarService calendarService;
     private volatile PropertyValueInfoService propertyValueInfoService;
-    private volatile PkiService pkiService;
+    private volatile SecurityManagementService securityManagementService;
     private volatile MdcPropertyUtils mdcPropertyUtils;
 
     @Override
@@ -218,8 +218,8 @@ public class DeviceConfigurationApplication extends Application implements Messa
     }
 
     @Reference
-    public void setPkiService(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @Reference
@@ -328,7 +328,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(estimationService).to(EstimationService.class);
             bind(deviceService).to(DeviceService.class);
             bind(userService).to(UserService.class);
-            bind(pkiService).to(PkiService.class);
+            bind(securityManagementService).to(SecurityManagementService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);

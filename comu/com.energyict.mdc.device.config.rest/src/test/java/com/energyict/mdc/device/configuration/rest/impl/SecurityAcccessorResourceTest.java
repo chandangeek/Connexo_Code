@@ -99,7 +99,7 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
         when(keyType.getName()).thenReturn("AES 128");
         when(keyType.getCryptographicType()).thenReturn(CryptographicType.SymmetricKey);
 
-        when(pkiService.getKeyType("AES 128")).thenReturn(Optional.of(keyType));
+        when(securityManagementService.getKeyType("AES 128")).thenReturn(Optional.of(keyType));
 
         KeyAccessorType.Builder builder = mock(KeyAccessorType.Builder.class);
         when(deviceType.addKeyAccessorType(NAME, keyType)).thenReturn(builder);

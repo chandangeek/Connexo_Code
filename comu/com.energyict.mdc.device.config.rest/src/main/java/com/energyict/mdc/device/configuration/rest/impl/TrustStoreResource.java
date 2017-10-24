@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -27,18 +27,18 @@ import static java.util.stream.Collectors.toList;
 @Path("/truststores")
 public class TrustStoreResource {
 
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
 
     @Inject
-    public TrustStoreResource(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public TrustStoreResource(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public PagedInfoList getTrustStores(@BeanParam JsonQueryParameters queryParameters) {
-        List<IdWithNameInfo> list = this.pkiService.getAllTrustStores().stream().map(IdWithNameInfo::new).collect(toList());
+        List<IdWithNameInfo> list = this.securityManagementService.getAllTrustStores().stream().map(IdWithNameInfo::new).collect(toList());
         return PagedInfoList.fromCompleteList("trustStores", list, queryParameters);
     }
 

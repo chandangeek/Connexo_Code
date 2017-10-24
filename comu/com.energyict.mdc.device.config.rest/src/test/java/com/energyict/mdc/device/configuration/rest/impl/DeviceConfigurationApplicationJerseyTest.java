@@ -32,7 +32,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
@@ -132,7 +132,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     @Mock
     MeteringGroupsService meteringGroupsService;
     @Mock
-    PkiService pkiService;
+    SecurityManagementService securityManagementService;
     MdcPropertyUtils mdcPropertyUtils;
 
     ReadingTypeInfoFactory readingTypeInfoFactory;
@@ -220,7 +220,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setCalendarService(calendarService);
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setObisCodeDescriptor(obisCodeDescriptor);
-        application.setPkiService(pkiService);
+        application.setSecurityManagementService(securityManagementService);
         mdcPropertyUtils = new MdcPropertyUtilsImpl(propertyValueInfoService, meteringGroupsService);
         application.setMdcPropertyUtils(mdcPropertyUtils);
         return application;
