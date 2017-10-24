@@ -10,7 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.PlaintextPassphrase;
@@ -26,7 +26,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
@@ -205,26 +205,26 @@ public class SecurityAttributesImporterFactoryTest {
         Device device = mock(Device.class);
         DeviceType deviceType = mock(DeviceType.class);
 
-        KeyAccessorType attr1 = mock(KeyAccessorType.class);
+        SecurityAccessorType attr1 = mock(SecurityAccessorType.class);
         when(attr1.getName()).thenReturn("kat1");
         when(attr1.getKeyType()).thenReturn(symmetricKeyType);
-        KeyAccessor keyAccessorAttr1 = mock(KeyAccessor.class);
+        SecurityAccessor securityAccessorAttr1 = mock(SecurityAccessor.class);
         PlaintextSymmetricKey symmetricKeyWrapper = mock(PlaintextSymmetricKey.class);
-        when(keyAccessorAttr1.getActualValue()).thenReturn(Optional.of(symmetricKeyWrapper));
-        when(keyAccessorAttr1.getTempValue()).thenReturn(Optional.empty());
-        when(device.getKeyAccessor(attr1)).thenReturn(Optional.of(keyAccessorAttr1));
+        when(securityAccessorAttr1.getActualValue()).thenReturn(Optional.of(symmetricKeyWrapper));
+        when(securityAccessorAttr1.getTempValue()).thenReturn(Optional.empty());
+        when(device.getKeyAccessor(attr1)).thenReturn(Optional.of(securityAccessorAttr1));
 
-        when(deviceType.getKeyAccessorTypes()).thenReturn(Arrays.asList(attr1));
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(attr1));
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceService.findDeviceByMrid("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         Set<PropertySpec> propertySpecs = new LinkedHashSet<>(Arrays.asList(
-                mockPropertySpec("attr1", new ReferenceValueFactory<KeyAccessor>(ormService, beanService), false)));
+                mockPropertySpec("attr1", new ReferenceValueFactory<SecurityAccessor>(ormService, beanService), false)));
         SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
         ConfigurationSecurityProperty securityPropertyAttr1 = mock(ConfigurationSecurityProperty.class);
         when(securityPropertyAttr1.getName()).thenReturn("attr1");
-        when(securityPropertyAttr1.getKeyAccessorType()).thenReturn(attr1);
+        when(securityPropertyAttr1.getSecurityAccessorType()).thenReturn(attr1);
         when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(securityPropertyAttr1));
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
 
@@ -248,28 +248,28 @@ public class SecurityAttributesImporterFactoryTest {
         Device device = mock(Device.class);
         DeviceType deviceType = mock(DeviceType.class);
 
-        KeyAccessorType attr2 = mock(KeyAccessorType.class);
+        SecurityAccessorType attr2 = mock(SecurityAccessorType.class);
         when(attr2.getName()).thenReturn("kat2");
         when(attr2.getKeyType()).thenReturn(passphraseKeyType);
-        KeyAccessor keyAccessorAttr2 = mock(KeyAccessor.class);
+        SecurityAccessor securityAccessorAttr2 = mock(SecurityAccessor.class);
         PlaintextPassphrase passphraseWrapper = mock(PlaintextPassphrase.class);
-        when(keyAccessorAttr2.getActualValue()).thenReturn(Optional.of(passphraseWrapper));
-        when(keyAccessorAttr2.getTempValue()).thenReturn(Optional.empty());
-        when(device.getKeyAccessor(attr2)).thenReturn(Optional.ofNullable(keyAccessorAttr2));
+        when(securityAccessorAttr2.getActualValue()).thenReturn(Optional.of(passphraseWrapper));
+        when(securityAccessorAttr2.getTempValue()).thenReturn(Optional.empty());
+        when(device.getKeyAccessor(attr2)).thenReturn(Optional.ofNullable(securityAccessorAttr2));
 
-        when(deviceType.getKeyAccessorTypes()).thenReturn(Arrays.asList(attr2));
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(attr2));
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceService.findDeviceByMrid("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         Set<PropertySpec> propertySpecs = new LinkedHashSet<>(Arrays.asList(
-                mockPropertySpec("attr2", new ReferenceValueFactory<KeyAccessor>(ormService, beanService), false)));
+                mockPropertySpec("attr2", new ReferenceValueFactory<SecurityAccessor>(ormService, beanService), false)));
         SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
 
         ConfigurationSecurityProperty securityPropertyAttr2 = mock(ConfigurationSecurityProperty.class);
         when(securityPropertyAttr2.getName()).thenReturn("attr2");
-        when(securityPropertyAttr2.getKeyAccessorType()).thenReturn(attr2);
+        when(securityPropertyAttr2.getSecurityAccessorType()).thenReturn(attr2);
         when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(securityPropertyAttr2));
         createSecurityAttributesImporter().process(importOccurrence);
 
@@ -291,29 +291,29 @@ public class SecurityAttributesImporterFactoryTest {
         Device device = mock(Device.class);
         DeviceType deviceType = mock(DeviceType.class);
 
-        KeyAccessorType attr3 = mock(KeyAccessorType.class);
+        SecurityAccessorType attr3 = mock(SecurityAccessorType.class);
         PlaintextSymmetricKey newSymmetricKeyWrapper = mock(PlaintextSymmetricKey.class);
         when(securityManagementService.newSymmetricKeyWrapper(attr3)).thenReturn(newSymmetricKeyWrapper);
         when(attr3.getName()).thenReturn("kat3");
         when(attr3.getKeyType()).thenReturn(symmetricKeyType);
         when(device.getKeyAccessor(attr3)).thenReturn(Optional.empty());
-        KeyAccessor newKeyAccessor = mock(KeyAccessor.class);
-        when(newKeyAccessor.getActualValue()).thenReturn(Optional.empty(), Optional.of(newSymmetricKeyWrapper));
-        when(newKeyAccessor.getTempValue()).thenReturn(Optional.empty());
-        when(device.newKeyAccessor(attr3)).thenReturn(newKeyAccessor);
+        SecurityAccessor newSecurityAccessor = mock(SecurityAccessor.class);
+        when(newSecurityAccessor.getActualValue()).thenReturn(Optional.empty(), Optional.of(newSymmetricKeyWrapper));
+        when(newSecurityAccessor.getTempValue()).thenReturn(Optional.empty());
+        when(device.newKeyAccessor(attr3)).thenReturn(newSecurityAccessor);
 
-        when(deviceType.getKeyAccessorTypes()).thenReturn(Arrays.asList(attr3));
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(attr3));
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceService.findDeviceByMrid("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         Set<PropertySpec> propertySpecs = new LinkedHashSet<>(Arrays.asList(
-                mockPropertySpec("attr3", new ReferenceValueFactory<KeyAccessor>(ormService, beanService), false)));
+                mockPropertySpec("attr3", new ReferenceValueFactory<SecurityAccessor>(ormService, beanService), false)));
         SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
         ConfigurationSecurityProperty securityPropertyAttr3 = mock(ConfigurationSecurityProperty.class);
         when(securityPropertyAttr3.getName()).thenReturn("attr3");
-        when(securityPropertyAttr3.getKeyAccessorType()).thenReturn(attr3);
+        when(securityPropertyAttr3.getSecurityAccessorType()).thenReturn(attr3);
         when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(securityPropertyAttr3));
 
         createSecurityAttributesImporter().process(importOccurrence);
@@ -337,29 +337,29 @@ public class SecurityAttributesImporterFactoryTest {
         Device device = mock(Device.class);
         DeviceType deviceType = mock(DeviceType.class);
 
-        KeyAccessorType attr3 = mock(KeyAccessorType.class);
+        SecurityAccessorType attr3 = mock(SecurityAccessorType.class);
         PlaintextSymmetricKey newSymmetricKeyWrapper = mock(PlaintextSymmetricKey.class);
         when(securityManagementService.newSymmetricKeyWrapper(attr3)).thenReturn(newSymmetricKeyWrapper);
         when(attr3.getName()).thenReturn("kat3");
         when(attr3.getKeyType()).thenReturn(symmetricKeyType);
-        KeyAccessor keyAccessorWithoutActual = mock(KeyAccessor.class);
-        when(device.getKeyAccessor(attr3)).thenReturn(Optional.ofNullable(keyAccessorWithoutActual));
-        when(keyAccessorWithoutActual.getActualValue()).thenReturn(Optional.empty(), Optional.of(newSymmetricKeyWrapper));
-        when(keyAccessorWithoutActual.getTempValue()).thenReturn(Optional.empty());
-        when(device.newKeyAccessor(attr3)).thenReturn(keyAccessorWithoutActual);
+        SecurityAccessor securityAccessorWithoutActual = mock(SecurityAccessor.class);
+        when(device.getKeyAccessor(attr3)).thenReturn(Optional.ofNullable(securityAccessorWithoutActual));
+        when(securityAccessorWithoutActual.getActualValue()).thenReturn(Optional.empty(), Optional.of(newSymmetricKeyWrapper));
+        when(securityAccessorWithoutActual.getTempValue()).thenReturn(Optional.empty());
+        when(device.newKeyAccessor(attr3)).thenReturn(securityAccessorWithoutActual);
 
-        when(deviceType.getKeyAccessorTypes()).thenReturn(Arrays.asList(attr3));
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(attr3));
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceService.findDeviceByMrid("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         Set<PropertySpec> propertySpecs = new LinkedHashSet<>(Arrays.asList(
-                mockPropertySpec("attr3", new ReferenceValueFactory<KeyAccessor>(ormService, beanService), false)));
+                mockPropertySpec("attr3", new ReferenceValueFactory<SecurityAccessor>(ormService, beanService), false)));
         SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
         ConfigurationSecurityProperty securityPropertyAttr3 = mock(ConfigurationSecurityProperty.class);
         when(securityPropertyAttr3.getName()).thenReturn("attr3");
-        when(securityPropertyAttr3.getKeyAccessorType()).thenReturn(attr3);
+        when(securityPropertyAttr3.getSecurityAccessorType()).thenReturn(attr3);
         when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(securityPropertyAttr3));
 
         createSecurityAttributesImporter().process(importOccurrence);
@@ -383,33 +383,33 @@ public class SecurityAttributesImporterFactoryTest {
         Device device = mock(Device.class);
         DeviceType deviceType = mock(DeviceType.class);
 
-        KeyAccessorType attr3 = mock(KeyAccessorType.class);
+        SecurityAccessorType attr3 = mock(SecurityAccessorType.class);
         PlaintextSymmetricKey newSymmetricKeyWrapper = mock(PlaintextSymmetricKey.class);
         when(securityManagementService.newSymmetricKeyWrapper(attr3)).thenReturn(newSymmetricKeyWrapper);
         when(attr3.getName()).thenReturn("kat3");
         when(attr3.getKeyType()).thenReturn(symmetricKeyType);
-        KeyAccessor keyAccessorWithoutActual = mock(KeyAccessor.class);
-        when(device.getKeyAccessor(attr3)).thenReturn(Optional.ofNullable(keyAccessorWithoutActual));
-        when(keyAccessorWithoutActual.getActualValue()).thenReturn(Optional.empty(), Optional.of(newSymmetricKeyWrapper));
-        when(keyAccessorWithoutActual.getTempValue()).thenReturn(Optional.empty());
-        when(device.newKeyAccessor(attr3)).thenReturn(keyAccessorWithoutActual);
+        SecurityAccessor securityAccessorWithoutActual = mock(SecurityAccessor.class);
+        when(device.getKeyAccessor(attr3)).thenReturn(Optional.ofNullable(securityAccessorWithoutActual));
+        when(securityAccessorWithoutActual.getActualValue()).thenReturn(Optional.empty(), Optional.of(newSymmetricKeyWrapper));
+        when(securityAccessorWithoutActual.getTempValue()).thenReturn(Optional.empty());
+        when(device.newKeyAccessor(attr3)).thenReturn(securityAccessorWithoutActual);
         ConstraintViolation<?> constraintViolation = mock(ConstraintViolation.class);
         when(constraintViolation.getMessage()).thenReturn("Illegal key size");
         when(constraintViolation.getPropertyPath()).thenReturn(PathImpl.createPathFromString(""));
         doThrow(new ConstraintViolationException(Collections.singleton(constraintViolation))).when(newSymmetricKeyWrapper).setProperties(any(Map.class));
 
-        when(deviceType.getKeyAccessorTypes()).thenReturn(Arrays.asList(attr3));
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(attr3));
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceService.findDeviceByMrid("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         Set<PropertySpec> propertySpecs = new LinkedHashSet<>(Arrays.asList(
-                mockPropertySpec("attr3", new ReferenceValueFactory<KeyAccessor>(ormService, beanService), false)));
+                mockPropertySpec("attr3", new ReferenceValueFactory<SecurityAccessor>(ormService, beanService), false)));
         SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
         ConfigurationSecurityProperty securityPropertyAttr3 = mock(ConfigurationSecurityProperty.class);
         when(securityPropertyAttr3.getName()).thenReturn("attr3");
-        when(securityPropertyAttr3.getKeyAccessorType()).thenReturn(attr3);
+        when(securityPropertyAttr3.getSecurityAccessorType()).thenReturn(attr3);
         when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(securityPropertyAttr3));
 
         createSecurityAttributesImporter().process(importOccurrence);
@@ -429,33 +429,33 @@ public class SecurityAttributesImporterFactoryTest {
         Device device = mock(Device.class);
         DeviceType deviceType = mock(DeviceType.class);
 
-        KeyAccessorType attr3 = mock(KeyAccessorType.class);
+        SecurityAccessorType attr3 = mock(SecurityAccessorType.class);
         PlaintextSymmetricKey newSymmetricKeyWrapper = mock(PlaintextSymmetricKey.class);
         when(securityManagementService.newSymmetricKeyWrapper(attr3)).thenReturn(newSymmetricKeyWrapper);
         when(attr3.getName()).thenReturn("kat3");
         when(attr3.getKeyType()).thenReturn(symmetricKeyType);
-        KeyAccessor keyAccessorWithoutActual = mock(KeyAccessor.class);
-        when(device.getKeyAccessor(attr3)).thenReturn(Optional.ofNullable(keyAccessorWithoutActual));
-        when(keyAccessorWithoutActual.getActualValue()).thenReturn(Optional.empty(), Optional.of(newSymmetricKeyWrapper));
-        when(keyAccessorWithoutActual.getTempValue()).thenReturn(Optional.empty());
-        when(device.newKeyAccessor(attr3)).thenReturn(keyAccessorWithoutActual);
+        SecurityAccessor securityAccessorWithoutActual = mock(SecurityAccessor.class);
+        when(device.getKeyAccessor(attr3)).thenReturn(Optional.ofNullable(securityAccessorWithoutActual));
+        when(securityAccessorWithoutActual.getActualValue()).thenReturn(Optional.empty(), Optional.of(newSymmetricKeyWrapper));
+        when(securityAccessorWithoutActual.getTempValue()).thenReturn(Optional.empty());
+        when(device.newKeyAccessor(attr3)).thenReturn(securityAccessorWithoutActual);
         ConstraintViolation<?> constraintViolation = mock(ConstraintViolation.class);
         when(constraintViolation.getMessage()).thenReturn("Illegal key size");
         when(constraintViolation.getPropertyPath()).thenReturn(PathImpl.createPathFromString("key"));
         doThrow(new ConstraintViolationException(Collections.singleton(constraintViolation))).when(newSymmetricKeyWrapper).setProperties(any(Map.class));
 
-        when(deviceType.getKeyAccessorTypes()).thenReturn(Arrays.asList(attr3));
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(attr3));
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceService.findDeviceByMrid("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         Set<PropertySpec> propertySpecs = new LinkedHashSet<>(Arrays.asList(
-                mockPropertySpec("attr3", new ReferenceValueFactory<KeyAccessor>(ormService, beanService), false)));
+                mockPropertySpec("attr3", new ReferenceValueFactory<SecurityAccessor>(ormService, beanService), false)));
         SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
         ConfigurationSecurityProperty securityPropertyAttr3 = mock(ConfigurationSecurityProperty.class);
         when(securityPropertyAttr3.getName()).thenReturn("attr3");
-        when(securityPropertyAttr3.getKeyAccessorType()).thenReturn(attr3);
+        when(securityPropertyAttr3.getSecurityAccessorType()).thenReturn(attr3);
         when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(securityPropertyAttr3));
 
         createSecurityAttributesImporter().process(importOccurrence);

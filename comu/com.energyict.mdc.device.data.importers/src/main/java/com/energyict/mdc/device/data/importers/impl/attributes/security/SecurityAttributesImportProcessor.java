@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.data.importers.impl.attributes.security;
 
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
@@ -14,7 +14,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
@@ -74,13 +74,13 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
                             .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_VALUE_FOR_SECURITY_PROPERTY, data.getLineNumber(), propertySpec
                                     .getName()));
 
-                    KeyAccessorType keyAccessorType = securityProperty.getKeyAccessorType();
-                    KeyAccessor<SecurityValueWrapper> keyAccessor = device.getKeyAccessor(keyAccessorType)
-                            .orElseGet(() -> device.newKeyAccessor(keyAccessorType));
-                    if (!keyAccessor.getActualValue().isPresent()) {
-                        createNewActualValue(keyAccessor, keyAccessorType);
+                    SecurityAccessorType securityAccessorType = securityProperty.getSecurityAccessorType();
+                    SecurityAccessor<SecurityValueWrapper> securityAccessor = device.getKeyAccessor(securityAccessorType)
+                            .orElseGet(() -> device.newKeyAccessor(securityAccessorType));
+                    if (!securityAccessor.getActualValue().isPresent()) {
+                        createNewActualValue(securityAccessor, securityAccessorType);
                     }
-                    setPropertyOnSecurityAccessor(data, propertySpec, keyAccessor.getActualValue().get());
+                    setPropertyOnSecurityAccessor(data, propertySpec, securityAccessor.getActualValue().get());
                 }
             } catch (ConstraintViolationException e) {
                 throw new PropertySpecAwareConstraintViolationException(propertySpec, e);
@@ -101,20 +101,21 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
         actualValue.setProperties(properties);
     }
 
-    private void createNewActualValue(KeyAccessor<SecurityValueWrapper> keyAccessor, KeyAccessorType keyAccessorType) {
+    private void createNewActualValue(SecurityAccessor<SecurityValueWrapper> securityAccessor, SecurityAccessorType securityAccessorType) {
         SecurityValueWrapper newValue;
-        switch (keyAccessorType.getKeyType().getCryptographicType()) {
+        switch (securityAccessorType.getKeyType().getCryptographicType()) {
             case SymmetricKey:
-                newValue = securityManagementService.newSymmetricKeyWrapper(keyAccessorType);
+                newValue = securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
                 break;
             case Passphrase:
-                newValue = securityManagementService.newPassphraseWrapper(keyAccessorType);
+                newValue = securityManagementService.newPassphraseWrapper(securityAccessorType);
                 break;
             default:
-                throw new IllegalStateException("Import of values of this security accessor is not supported: "+keyAccessorType.getName());
+                throw new IllegalStateException("Import of values of this security accessor is not supported: "+ securityAccessorType
+                        .getName());
         }
-        keyAccessor.setActualValue(newValue);
-        keyAccessor.save();
+        securityAccessor.setActualValue(newValue);
+        securityAccessor.save();
     }
 
     private void validateSecuritySettingsNameUniquenessInFile(SecurityAttributesImportRecord data) {

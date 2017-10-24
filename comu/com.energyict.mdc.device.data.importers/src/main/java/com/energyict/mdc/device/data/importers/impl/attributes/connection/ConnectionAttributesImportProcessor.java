@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.importers.impl.attributes.connection;
 
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.InvalidValueException;
@@ -17,7 +17,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
@@ -187,7 +187,7 @@ public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileI
                 .forEach(propertySpec -> {
                     String name = propertySpec.getName();
                     String value = data.getConnectionAttributes().get(name);
-                    if (propertySpec.isReference() && (KeyAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()))) {
+                    if (propertySpec.isReference() && (SecurityAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()))) {
                         keyAccessorSetter.accept(name, value);
                     } else {
                         propertySetter.accept(name, parseStringToValue(propertySpec, value, data));
@@ -202,35 +202,35 @@ public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileI
      */
     private class KeyAccessorSetter {
         private final Device device;
-        private final Function<String, KeyAccessorType> keyAccessorTypeGetter;
+        private final Function<String, SecurityAccessorType> keyAccessorTypeGetter;
 
         KeyAccessorSetter(Device device, ConnectionTask task) {
             this.device = device;
-            this.keyAccessorTypeGetter = name -> (KeyAccessorType) task.getProperty(name).getValue();
+            this.keyAccessorTypeGetter = name -> (SecurityAccessorType) task.getProperty(name).getValue();
         }
 
         KeyAccessorSetter(Device device, PartialConnectionTask partialConnectionTask) {
             this.device = device;
-            this.keyAccessorTypeGetter = name -> (KeyAccessorType) partialConnectionTask.getProperty(name).getValue();
+            this.keyAccessorTypeGetter = name -> (SecurityAccessorType) partialConnectionTask.getProperty(name).getValue();
         }
 
         void setKeyAccessor(String name, Object value) {
-            KeyAccessorType keyAccessorType = keyAccessorTypeGetter.apply(name);
-            KeyAccessor<SecurityValueWrapper> keyAccessor = device.getKeyAccessor(keyAccessorType)
-                    .orElse(device.newKeyAccessor(keyAccessorType));
-            SecurityValueWrapper securityValueWrapper = keyAccessor.getActualValue()
-                    .orElse(isKey(keyAccessorType) ?
-                            securityManagementService.newSymmetricKeyWrapper(keyAccessorType) :
-                            securityManagementService.newPassphraseWrapper(keyAccessorType));
-            keyAccessor.setActualValue(securityValueWrapper);
+            SecurityAccessorType securityAccessorType = keyAccessorTypeGetter.apply(name);
+            SecurityAccessor<SecurityValueWrapper> securityAccessor = device.getKeyAccessor(securityAccessorType)
+                    .orElse(device.newKeyAccessor(securityAccessorType));
+            SecurityValueWrapper securityValueWrapper = securityAccessor.getActualValue()
+                    .orElse(isKey(securityAccessorType) ?
+                            securityManagementService.newSymmetricKeyWrapper(securityAccessorType) :
+                            securityManagementService.newPassphraseWrapper(securityAccessorType));
+            securityAccessor.setActualValue(securityValueWrapper);
             Map<String, Object> properties = new HashMap<>();
-            properties.put(isKey(keyAccessorType)?"key":"passphrase", value);
+            properties.put(isKey(securityAccessorType)?"key":"passphrase", value);
             securityValueWrapper.setProperties(properties);
-            keyAccessor.save();
+            securityAccessor.save();
         }
 
-        private boolean isKey(KeyAccessorType keyAccessorType) {
-            return keyAccessorType.getKeyType().getCryptographicType().equals(CryptographicType.SymmetricKey);
+        private boolean isKey(SecurityAccessorType securityAccessorType) {
+            return securityAccessorType.getKeyType().getCryptographicType().equals(CryptographicType.SymmetricKey);
         }
     }
 
