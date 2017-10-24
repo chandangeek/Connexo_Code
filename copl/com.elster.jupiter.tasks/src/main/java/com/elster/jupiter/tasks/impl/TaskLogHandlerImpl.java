@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.tasks.impl;
 
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskLogHandler;
 
 import java.time.Instant;
@@ -18,6 +19,11 @@ public class TaskLogHandlerImpl extends Handler implements TaskLogHandler {
     public TaskLogHandlerImpl(TaskOccurrenceImpl taskOccurrence) {
         this.taskOccurrence = taskOccurrence;
         this.setLevel( Level.parse(taskOccurrence.getRecurrentTask().getLogLevel()+"") );
+    }
+
+    public TaskLogHandlerImpl(TaskOccurrenceImpl taskOccurrence, RecurrentTask recurrentTask) {
+        this.taskOccurrence = taskOccurrence;
+        this.setLevel(Level.parse(recurrentTask.getLogLevel() + ""));
     }
 
     @Override

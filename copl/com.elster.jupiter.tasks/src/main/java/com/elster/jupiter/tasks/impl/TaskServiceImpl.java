@@ -57,7 +57,6 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -212,7 +211,7 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
         if (isLaunched()) {
             throw new TaskServiceAlreadyLaunched();
         }
-        TaskOccurrenceLauncher taskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(threadPrincipalService, transactionService, getDueTaskFetcher());
+        TaskOccurrenceLauncher taskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(threadPrincipalService, transactionService, getDueTaskFetcher(), clock);
         TaskScheduler taskScheduler = new TaskScheduler(taskOccurrenceLauncher, 1, TimeUnit.MINUTES, factory -> Executors.newScheduledThreadPool(1, factory));
         schedulerThread = new Thread(threadPrincipalService.withContextAdded(taskScheduler, () -> "TaskService"));
         schedulerThread.setName("SchedulerThread");

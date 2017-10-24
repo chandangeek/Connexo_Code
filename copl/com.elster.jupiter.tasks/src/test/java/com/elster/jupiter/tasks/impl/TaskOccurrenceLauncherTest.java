@@ -10,6 +10,10 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
+
+import java.time.Clock;
+import java.util.Arrays;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,9 +22,6 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-
-import java.time.Clock;
-import java.util.Arrays;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -61,7 +62,7 @@ public class TaskOccurrenceLauncherTest {
 //        when(serviceLocator.getMessageService().getDestinationSpec(DS_NAME1)).thenReturn(Optional.of(destinationSpec1));
 //        when(serviceLocator.getMessageService().getDestinationSpec(DS_NAME2)).thenReturn(Optional.of(destinationSpec2));
 //        when(serviceLocator.getJsonService()).thenReturn(jsonService);
-        when(dueTaskFetcher.dueTasks()).thenReturn(Arrays.asList(recurrentTask1, recurrentTask2));
+        when(dueTaskFetcher.dueTasks(clock.instant())).thenReturn(Arrays.asList(recurrentTask1, recurrentTask2));
         when(recurrentTask1.getDestination()).thenReturn(destinationSpec1);
         when(recurrentTask1.createScheduledTaskOccurrence()).thenReturn(taskOccurrence1);
         when(taskOccurrence1.getId()).thenReturn(1L);
@@ -84,7 +85,7 @@ public class TaskOccurrenceLauncherTest {
             }
         });
 
-        launcher = new DefaultTaskOccurrenceLauncher(threadPrincipalService, transactionService, dueTaskFetcher);
+        launcher = new DefaultTaskOccurrenceLauncher(threadPrincipalService, transactionService, dueTaskFetcher, clock);
     }
 
     @After

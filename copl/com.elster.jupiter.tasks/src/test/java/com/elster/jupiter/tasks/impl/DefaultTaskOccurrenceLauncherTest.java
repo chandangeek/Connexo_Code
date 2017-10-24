@@ -10,6 +10,10 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
+
+import java.time.Clock;
+import java.util.Arrays;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,11 +22,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.util.Arrays;
-
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultTaskOccurrenceLauncherTest {
@@ -52,9 +55,9 @@ public class DefaultTaskOccurrenceLauncherTest {
 
     @Before
     public void setUp() {
-        defaultTaskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(threadPrincipalService, transactionService, dueTaskFetcher);
+        defaultTaskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(threadPrincipalService, transactionService, dueTaskFetcher, clock);
 
-        when(dueTaskFetcher.dueTasks()).thenReturn(Arrays.asList(task1, task2));
+        when(dueTaskFetcher.dueTasks(clock.instant())).thenReturn(Arrays.asList(task1, task2));
 //        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
 //        when(serviceLocator.getJsonService()).thenReturn(jsonService);
 //        when(serviceLocator.getClock()).thenReturn(clock);

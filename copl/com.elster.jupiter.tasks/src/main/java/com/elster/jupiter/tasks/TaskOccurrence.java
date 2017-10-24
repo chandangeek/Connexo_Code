@@ -19,6 +19,10 @@ public interface TaskOccurrence {
 
     Instant getTriggerTime();
 
+    Optional<Instant> getRetryTime();
+
+    Optional<Instant> getAdhocTime();
+
     RecurrentTask getRecurrentTask();
 
     Optional<Instant> getStartDate();
@@ -44,6 +48,8 @@ public interface TaskOccurrence {
     LogEntryFinder getLogsFinder();
 
     TaskLogHandler createTaskLogHandler();
+
+    TaskLogHandler createTaskLogHandler(RecurrentTask recurrentTask);
 
     boolean wasScheduled();
 

@@ -9,7 +9,8 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 
-import java.util.logging.Level;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.logging.Logger;
 
 /**
@@ -22,16 +23,18 @@ class DefaultTaskOccurrenceLauncher implements TaskOccurrenceLauncher {
     private final DueTaskFetcher dueTaskFetcher;
     private final TransactionService transactionService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final Clock clock;
 
     /**
      * @param threadPrincipalService
      * @param transactionService
      * @param dueTaskFetcher
      */
-    public DefaultTaskOccurrenceLauncher(ThreadPrincipalService threadPrincipalService, TransactionService transactionService, DueTaskFetcher dueTaskFetcher) {
+    public DefaultTaskOccurrenceLauncher(ThreadPrincipalService threadPrincipalService, TransactionService transactionService, DueTaskFetcher dueTaskFetcher, Clock clock) {
         this.threadPrincipalService = threadPrincipalService;
         this.transactionService = transactionService;
         this.dueTaskFetcher = dueTaskFetcher;
+        this.clock = clock;
     }
 
     @Override
@@ -50,14 +53,15 @@ class DefaultTaskOccurrenceLauncher implements TaskOccurrenceLauncher {
     }
 
     private void launchOccurrencesForDueTasks() {
-        getDueTasks().forEach(RecurrentTaskImpl::launchOccurrence);
+        Instant now = clock.instant();
+        getDueTasks(now).forEach(recurrentTask -> recurrentTask.launchOccurrence(now));
     }
 
     private TaskOccurrenceMessage asMessage(TaskOccurrence taskOccurrence) {
         return new TaskOccurrenceMessage(taskOccurrence);
     }
 
-    private Iterable<RecurrentTaskImpl> getDueTasks() {
-        return dueTaskFetcher.dueTasks();
+    private Iterable<RecurrentTaskImpl> getDueTasks(Instant at) {
+        return dueTaskFetcher.dueTasks(at);
     }
 }

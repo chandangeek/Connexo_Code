@@ -50,7 +50,7 @@ public interface RecurrentTask extends HasName, HasAuditInfo {
     void setScheduleExpression(ScheduleExpression scheduleExpression);
 
     void triggerNow();
-    
+
     /*
      * Note that runNow has different transactional behavior as triggerNow or a normal scheduled execution
      * When using runNow both execute and postExecute will be executed as part of the caller's transaction.
@@ -78,4 +78,12 @@ public interface RecurrentTask extends HasName, HasAuditInfo {
     void setLogLevel(int level);
 
     int getLogLevel();
+
+    /**
+     * @since v4.0
+     */
+    void triggerAt(Instant at, Instant trigger);
+
+    void triggerNow(TaskOccurrence taskOccurrence);
+
 }

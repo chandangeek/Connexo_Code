@@ -33,6 +33,8 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     private long recurrentTaskId;
     private RecurrentTask recurrentTask;
     private Instant triggerTime;
+    private Instant retryTime;
+    private Instant adhocTime;
     private boolean scheduled = true;
     private Instant startDate;
     private Instant endDate;
@@ -63,6 +65,18 @@ class TaskOccurrenceImpl implements TaskOccurrence {
         return taskOccurrence;
     }
 
+    static TaskOccurrenceImpl createAdHoc(DataModel dataModel, RecurrentTask recurrentTask, Instant triggerTime, Instant adhocTime) {
+        TaskOccurrenceImpl taskOccurrence = dataModel.getInstance(TaskOccurrenceImpl.class).initAdHoc(recurrentTask, triggerTime, adhocTime);
+        taskOccurrence.scheduled = false;
+        return taskOccurrence;
+    }
+
+    static TaskOccurrenceImpl createRetryAdHoc(DataModel dataModel, RecurrentTask recurrentTask, Instant triggerTime, Instant retryTime) {
+        TaskOccurrenceImpl taskOccurrence = dataModel.getInstance(TaskOccurrenceImpl.class).init(recurrentTask, triggerTime, retryTime);
+        taskOccurrence.scheduled = false;
+        return taskOccurrence;
+    }
+
     @Override
     public String getPayLoad() {
         return getRecurrentTask().getPayLoad();
@@ -71,6 +85,16 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     @Override
     public Instant getTriggerTime() {
         return triggerTime;
+    }
+
+    @Override
+    public Optional<Instant> getRetryTime() {
+        return Optional.ofNullable(retryTime);
+    }
+
+    @Override
+    public Optional<Instant> getAdhocTime() {
+        return Optional.ofNullable(adhocTime);
     }
 
     @Override
@@ -133,6 +157,11 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     }
 
     @Override
+    public TaskLogHandler createTaskLogHandler(RecurrentTask recurrentTask) {
+        return new TaskLogHandlerImpl(this, recurrentTask);
+    }
+
+    @Override
     public boolean wasScheduled() {
         return scheduled;
     }
@@ -161,6 +190,22 @@ class TaskOccurrenceImpl implements TaskOccurrence {
         this.recurrentTask = recurrentTask;
         this.recurrentTaskId = recurrentTask.getId();
         this.triggerTime = triggerTime;
+        return this;
+    }
+
+    TaskOccurrenceImpl init(RecurrentTask recurrentTask, Instant triggerTime, Instant retryTime) {
+        this.recurrentTask = recurrentTask;
+        this.recurrentTaskId = recurrentTask.getId();
+        this.triggerTime = triggerTime;
+        this.retryTime = retryTime;
+        return this;
+    }
+
+    TaskOccurrenceImpl initAdHoc(RecurrentTask recurrentTask, Instant triggerTime, Instant adhocTime) {
+        this.recurrentTask = recurrentTask;
+        this.recurrentTaskId = recurrentTask.getId();
+        this.triggerTime = triggerTime;
+        this.adhocTime = adhocTime;
         return this;
     }
 

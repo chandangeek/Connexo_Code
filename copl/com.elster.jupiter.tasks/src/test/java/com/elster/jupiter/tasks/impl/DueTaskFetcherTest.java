@@ -91,14 +91,14 @@ public class DueTaskFetcherTest {
     public void testNoTasks() throws SQLException {
         when(fetcher.iterator()).thenReturn(Collections.<RecurrentTaskImpl>emptySet().iterator());
 
-        assertThat(new DueTaskFetcher(dataModel, messageService, cronExpressionParser, clock).dueTasks()).isEmpty();
+        assertThat(new DueTaskFetcher(dataModel, messageService, cronExpressionParser, clock).dueTasks(clock.instant())).isEmpty();
     }
 
     @Test
     public void testOneTasks() throws SQLException {
         when(fetcher.iterator()).thenReturn(singletonList(task1).iterator());
 
-        Iterable<RecurrentTaskImpl> recurrentTasks = dueTaskFetcher.dueTasks();
+        Iterable<RecurrentTaskImpl> recurrentTasks = dueTaskFetcher.dueTasks(clock.instant());
 
         assertThat(recurrentTasks).hasSize(1);
     }
@@ -107,7 +107,7 @@ public class DueTaskFetcherTest {
     public void testProperWrappingOfSQLException() throws SQLException {
         when(fetcher.iterator()).thenThrow(SQLException.class);
 
-        dueTaskFetcher.dueTasks();
+        dueTaskFetcher.dueTasks(clock.instant());
     }
 
 }

@@ -17,15 +17,6 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -37,6 +28,16 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -146,7 +147,7 @@ public class TaskServiceImplTest {
     public void testLaunchStartsScanningForDueTasks() throws InterruptedException {
         final CountDownLatch jobEndedLatch = new CountDownLatch(1);
 
-        when(dueTaskFetcher.dueTasks()).thenReturn(Arrays.asList(recurrentTask));
+        when(dueTaskFetcher.dueTasks(clock.instant())).thenReturn(Arrays.asList(recurrentTask));
         when(recurrentTask.createScheduledTaskOccurrence()).thenReturn(taskOccurrence);
         when(recurrentTask.getDestination()).thenReturn(destination);
         when(destination.message(anyString())).thenReturn(messageBuilder);

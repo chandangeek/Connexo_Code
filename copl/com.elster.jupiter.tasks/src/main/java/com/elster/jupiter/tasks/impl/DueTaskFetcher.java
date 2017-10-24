@@ -40,21 +40,22 @@ class DueTaskFetcher {
         this.clock = clock;
     }
 
-    Iterable<RecurrentTaskImpl> dueTasks() {
+    Iterable<RecurrentTaskImpl> dueTasks(Instant at) {
         try (Connection connection = dataModel.getConnection(false)) {
-            return dueTasks(connection);
+            return dueTasks(at, connection);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
 
-    private Iterable<RecurrentTaskImpl> dueTasks(Connection connection) throws SQLException {
-        Instant now = clock.instant();
+    private Iterable<RecurrentTaskImpl> dueTasks(Instant at, Connection connection) throws SQLException {
         DataMapper<RecurrentTaskImpl> mapper = dataModel.mapper(RecurrentTaskImpl.class);
         SqlBuilder builder = mapper.builder("a");
         builder.append(" where nextExecution < ");
-        builder.addLong(now.toEpochMilli());
-        builder.append(" for update skip locked");
+        builder.addLong(at.toEpochMilli());
+        builder.append(" OR (a.ID in (select RECURRENTTASKID from  TSK_ADHOC_EXECUTION b where b.nextExecution < ");
+        builder.addLong(at.toEpochMilli());
+        builder.append(")) for update skip locked");
         try(Fetcher<RecurrentTaskImpl> fetcher = mapper.fetcher(builder)) {
         	return getRecurrentTasks(fetcher);
         }

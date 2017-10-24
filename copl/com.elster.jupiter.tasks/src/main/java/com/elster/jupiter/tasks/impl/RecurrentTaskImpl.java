@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskAdHocExecution;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.conditions.Operator;
@@ -24,17 +25,20 @@ import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NOT_UNIQUE + "}")
 class RecurrentTaskImpl implements RecurrentTask {
@@ -62,6 +66,8 @@ class RecurrentTaskImpl implements RecurrentTask {
     private final MessageService messageService;
     private final DataModel dataModel;
     private final JsonService jsonService;
+    @Valid
+    private List<TaskAdHocExecution> adhocExecutions = new ArrayList<>();
 
     @SuppressWarnings("unused") // Managed by ORM
     private long version;
@@ -137,7 +143,9 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public Instant getNextExecution() {
-        return nextExecution;
+        Optional<Instant> minNextExecution = adhocExecutions.stream().map(exec -> exec.getNextExecution()).min(Instant::compareTo);
+        return minNextExecution.isPresent() && (nextExecution.compareTo(minNextExecution.get()) > 0) ?
+                minNextExecution.get() : nextExecution;
     }
 
     TaskOccurrenceImpl createScheduledTaskOccurrence() {
@@ -148,6 +156,19 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     TaskOccurrenceImpl createAdHocTaskOccurrence() {
         TaskOccurrenceImpl occurrence = TaskOccurrenceImpl.createAdHoc(dataModel, this, clock.instant());
+        occurrence.save();
+        return occurrence;
+    }
+
+    TaskOccurrenceImpl createAdHocTaskOccurrence(Instant adhocTime) {
+        TaskOccurrenceImpl occurrence = TaskOccurrenceImpl.createAdHoc(dataModel, this, clock.instant(), adhocTime);
+        occurrence.save();
+        return occurrence;
+    }
+
+    TaskOccurrenceImpl createAdHocTaskOccurrence(TaskOccurrence taskOccurrence) {
+        Instant at = taskOccurrence.getRetryTime().isPresent() ? taskOccurrence.getRetryTime().get() : taskOccurrence.getTriggerTime();
+        TaskOccurrenceImpl occurrence = TaskOccurrenceImpl.createRetryAdHoc(dataModel, this, clock.instant(), at);
         occurrence.save();
         return occurrence;
     }
@@ -206,6 +227,17 @@ class RecurrentTaskImpl implements RecurrentTask {
     }
 
     @Override
+    public void triggerAt(Instant at, Instant trigger) {
+        addAdHocExecution(at, trigger);
+    }
+
+    @Override
+    public void triggerNow(TaskOccurrence taskOccurrence) {
+        TaskOccurrenceImpl newTaskOccurrence = createAdHocTaskOccurrence(taskOccurrence);
+        enqueue(newTaskOccurrence);
+    }
+
+    @Override
     public TaskOccurrenceImpl runNow(TaskExecutor executor) {
         TaskOccurrenceImpl taskOccurrence = createAdHocTaskOccurrence();
         taskOccurrence.start();
@@ -229,18 +261,36 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @TransactionRequired
     TaskOccurrenceImpl launchOccurrence() {
+        return null;
+
+    }
+
+    @TransactionRequired
+    void launchOccurrence(Instant at) {
         try {
-            TaskOccurrenceImpl taskOccurrence = createScheduledTaskOccurrence();
-            String json = toJson(taskOccurrence);
-            getDestination().message(json).send();
-            if (taskOccurrence.wasScheduled()) {
-                updateNextExecution();
-                dataModel.mapper(RecurrentTask.class).update(this, "nextExecution");
+            if (nextExecution.compareTo(at) <= 0) {
+                TaskOccurrenceImpl taskOccurrence = createScheduledTaskOccurrence();
+
+                String json = toJson(taskOccurrence);
+                getDestination().message(json).send();
+                if (taskOccurrence.wasScheduled()) {
+                    updateNextExecution();
+                    dataModel.mapper(RecurrentTask.class).update(this, "nextExecution");
+                }
             }
-            return taskOccurrence;
+            List<TaskAdHocExecution> taskExec = getAdhocExecutions().stream()
+                    .filter(taskAdHocExecution -> taskAdHocExecution.getNextExecution().compareTo(at) <= 0)
+                    .collect(Collectors.toList());
+            taskExec.forEach(taskAdHocExecution1 -> {
+                TaskOccurrenceImpl taskOccurrence = createAdHocTaskOccurrence(taskAdHocExecution1.getTriggerTime());
+
+                String json = toJson(taskOccurrence);
+                getDestination().message(json).send();
+                getAdhocExecutions().removeIf(taskAdHocExecution2 -> taskAdHocExecution1.getId() == taskAdHocExecution2.getId());
+            });
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, "Failed to schedule task for RecurrentTask " + this.getName(), e);
-            return null;
+            return;
         }
     }
 
@@ -337,5 +387,16 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     public int getLogLevel() {
         return logLevel;
+    }
+
+    private void addAdHocExecution(Instant nextExecution, Instant triggerTime) {
+        TaskAdHocExecutionImpl adHocExecution = dataModel.getInstance(TaskAdHocExecutionImpl.class).init(this, nextExecution, triggerTime);
+        Save.CREATE.validate(dataModel, adHocExecution);
+        adhocExecutions.add(adHocExecution);
+        save();
+    }
+
+    public List<TaskAdHocExecution> getAdhocExecutions() {
+        return adhocExecutions;
     }
 }

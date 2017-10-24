@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskAdHocExecution;
 import com.elster.jupiter.tasks.TaskLogEntry;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
@@ -44,6 +45,25 @@ enum TableSpecs {
             table.column("LOGLEVEL").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("logLevel").since(Version.version(10,3)).installValue("900").add();
         }
     },
+    TSK_ADHOC_EXECUTION {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<TaskAdHocExecution> table = dataModel.addTable(name(), TaskAdHocExecution.class);
+            table.map(TaskAdHocExecutionImpl.class);
+            table.setJournalTableName("TSK_ADHOC_EXECUTIONJRNL");
+            table.since(Version.version(10, 4));
+            Column idColumn = table.addAutoIdColumn();
+            Column recurrentIdColumn = table.column("RECURRENTTASKID").number().notNull().conversion(NUMBER2LONG).map("recurrentTaskId").add();
+            table.column("NEXTEXECUTION").number().conversion(NUMBER2INSTANT).map("nextExecution").notAudited().add();
+            table.column("TRIGGERTIME").number().conversion(NUMBER2INSTANT).map("triggerTime").add();
+            table.addAuditColumns();
+            table.foreignKey("TSK_FKADHOC_EXECUTION").references(TSK_RECURRENT_TASK.name()).map("recurrentTask")
+                    .reverseMap("adhocExecutions")
+                    .composition()
+                    .on(recurrentIdColumn).add();
+            table.primaryKey("TSK_PK_ADHOC_EXECUTION").on(idColumn).add();
+        }
+    },
     TSK_TASK_OCCURRENCE {
         @Override
         void addTo(DataModel dataModel) {
@@ -52,6 +72,8 @@ enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column recurrentIdColumn = table.column("RECURRENTTASKID").number().notNull().conversion(NUMBER2LONG).map("recurrentTaskId").add();
             Column trigger = table.column("TRIGGERTIME").number().conversion(NUMBER2INSTANT).map("triggerTime").add();
+            table.column("RETRYTIME").number().conversion(NUMBER2INSTANT).map("retryTime").since(Version.version(10, 4)).add();
+            table.column("ADHOCTIME").number().conversion(NUMBER2INSTANT).map("adhocTime").since(Version.version(10, 4)).add();
             table.column("SCHEDULED").bool().map("scheduled").add();
             table.column("STARTDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("startDate").add();
             table.column("ENDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("endDate").add();
