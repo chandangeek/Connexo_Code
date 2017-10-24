@@ -59,7 +59,7 @@ public class TrustStoreResourceTest extends PkiApplicationTest {
         List<TrustStore> trustStores = new ArrayList<>();
         trustStores.add(mockTrustStore("store 1", 1001));
         trustStores.add(mockTrustStore("store 2", 1002));
-        when(pkiService.getAllTrustStores()).thenReturn(trustStores);
+        when(securityManagementService.getAllTrustStores()).thenReturn(trustStores);
 
         String response = target("/truststores").request().get(String.class);
         JsonModel model = JsonModel.model(response);
@@ -70,7 +70,7 @@ public class TrustStoreResourceTest extends PkiApplicationTest {
     @Test
     public void getTrustStore() throws Exception {
         TrustStore store = mockTrustStore(TRUST_STORE_NAME, 1001);
-        when(pkiService.findTrustStore(1001)).thenReturn(Optional.of(store));
+        when(securityManagementService.findTrustStore(1001)).thenReturn(Optional.of(store));
 
         String response = target("/truststores/" + 1001).request().get(String.class);
         JsonModel model = JsonModel.model(response);
@@ -82,7 +82,7 @@ public class TrustStoreResourceTest extends PkiApplicationTest {
     @Test
     public void testImportTrustedCertificate() throws Exception {
         TrustStore store = mockTrustStore(TRUST_STORE_NAME, 1001);
-        when(pkiService.findTrustStore(1001)).thenReturn(Optional.of(store));
+        when(securityManagementService.findTrustStore(1001)).thenReturn(Optional.of(store));
 
         String fileName = "myRootCA.cert";
         Form form = new Form();
@@ -111,7 +111,7 @@ public class TrustStoreResourceTest extends PkiApplicationTest {
     @Test
     public void testImportKeyStore() throws Exception {
         TrustStore store = mockTrustStore(TRUST_STORE_NAME, 1001);
-        when(pkiService.findTrustStore(1001)).thenReturn(Optional.of(store));
+        when(securityManagementService.findTrustStore(1001)).thenReturn(Optional.of(store));
 
         String fileName = "SM2016MDMCA-chain.jks";
         Form form = new Form();
@@ -140,7 +140,7 @@ public class TrustStoreResourceTest extends PkiApplicationTest {
     @Ignore // blocked by NoClassDefFound OptomisticLockException
     public void testImportKeyStoreWrongPassword() throws Exception {
         TrustStore store = mockTrustStore(TRUST_STORE_NAME, 1001);
-        when(pkiService.findTrustStore(1001)).thenReturn(Optional.of(store));
+        when(securityManagementService.findTrustStore(1001)).thenReturn(Optional.of(store));
 
         String fileName = "SM2016MDMCA-chain.jks";
         Form form = new Form();
@@ -165,7 +165,7 @@ public class TrustStoreResourceTest extends PkiApplicationTest {
     @Ignore // blocked by NoClassDefFound OptomisticLockException
     public void testImportIllegalKeyStore() throws Exception {
         TrustStore store = mockTrustStore(TRUST_STORE_NAME, 1001);
-        when(pkiService.findTrustStore(1001)).thenReturn(Optional.of(store));
+        when(securityManagementService.findTrustStore(1001)).thenReturn(Optional.of(store));
 
         String fileName = "myRootCA.cert";
         Form form = new Form();

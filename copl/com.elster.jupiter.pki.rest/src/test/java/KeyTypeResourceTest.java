@@ -38,7 +38,7 @@ public class KeyTypeResourceTest extends PkiApplicationTest {
                 mockKeyType(6, "BEACON", CryptographicType.Certificate),
                 mockKeyType(7, "SUBCA", CryptographicType.TrustedCertificate),
                 mockKeyType(4, "NIST P-358", CryptographicType.AsymmetricKey));
-        when(pkiService.getKeyTypes()).thenReturn(keyTypes);
+        when(securityManagementService.getKeyTypes()).thenReturn(keyTypes);
     }
 
     @Test

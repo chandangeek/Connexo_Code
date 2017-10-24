@@ -22,9 +22,9 @@ public class KeyEncryptionMethodResourceTest extends PkiApplicationTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        when(pkiService.getKeyEncryptionMethods(CryptographicType.AsymmetricKey)).thenReturn(Arrays.asList("AS1", "AS2"));
-        when(pkiService.getKeyEncryptionMethods(CryptographicType.SymmetricKey)).thenReturn(Arrays.asList("SYM1", "SYM2", "SYM3"));
-        when(pkiService.getKeyEncryptionMethods(CryptographicType.Passphrase)).thenReturn(Arrays.asList("P1"));
+        when(securityManagementService.getKeyEncryptionMethods(CryptographicType.AsymmetricKey)).thenReturn(Arrays.asList("AS1", "AS2"));
+        when(securityManagementService.getKeyEncryptionMethods(CryptographicType.SymmetricKey)).thenReturn(Arrays.asList("SYM1", "SYM2", "SYM3"));
+        when(securityManagementService.getKeyEncryptionMethods(CryptographicType.Passphrase)).thenReturn(Arrays.asList("P1"));
     }
 
     @Test

@@ -5,7 +5,7 @@
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.rest.impl.CsrInfo;
 
@@ -67,7 +67,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
     @Test
     public void testImportCertificate() throws Exception {
         CertificateWrapper certificateWrapper = mock(CertificateWrapper.class);
-        when(pkiService.newCertificateWrapper(anyString())).thenReturn(certificateWrapper);
+        when(securityManagementService.newCertificateWrapper(anyString())).thenReturn(certificateWrapper);
 
         String fileName = "myRootCA.cert";
         Form form = new Form();
@@ -89,7 +89,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<X509Certificate> certificateArgumentCaptor = ArgumentCaptor.forClass(X509Certificate.class);
-        verify(pkiService, times(1)).newCertificateWrapper(stringArgumentCaptor.capture());
+        verify(securityManagementService, times(1)).newCertificateWrapper(stringArgumentCaptor.capture());
         verify(certificateWrapper, times(1)).setCertificate(certificateArgumentCaptor.capture());
         assertThat(stringArgumentCaptor.getValue()).isEqualTo("myCert");
         assertThat(certificateArgumentCaptor.getValue().getIssuerDN().getName()).contains("CN=MyRootCA");
@@ -105,14 +105,14 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         csrInfo.L = "hell";
 
         KeyType keyType = mock(KeyType.class);
-        when(pkiService.getKeyType(123L)).thenReturn(Optional.of(keyType));
-        PkiService.ClientCertificateWrapperBuilder builder = mock(PkiService.ClientCertificateWrapperBuilder.class);
+        when(securityManagementService.getKeyType(123L)).thenReturn(Optional.of(keyType));
+        SecurityManagementService.ClientCertificateWrapperBuilder builder = mock(SecurityManagementService.ClientCertificateWrapperBuilder.class);
         when(builder.alias("brandNew")).thenReturn(builder);
         ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
         when(builder.add()).thenReturn(certificateWrapper);
         PrivateKeyWrapper privateKeyWrapper = mock(PrivateKeyWrapper.class);
         when(certificateWrapper.getPrivateKeyWrapper()).thenReturn(privateKeyWrapper);
-        when(pkiService.newClientCertificateWrapper(keyType, "vault")).thenReturn(builder);
+        when(securityManagementService.newClientCertificateWrapper(keyType, "vault")).thenReturn(builder);
         when(certificateWrapper.getCertificate()).thenReturn(Optional.empty());
         when(certificateWrapper.getExpirationTime()).thenReturn(Optional.empty());
         when(certificateWrapper.getAllKeyUsages()).thenReturn(Optional.empty());
@@ -141,7 +141,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         Clock clock = Clock.fixed(Instant.ofEpochMilli(1488240000000L), ZoneId.systemDefault());
 
         ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
-        when(pkiService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
+        when(securityManagementService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
         when(certificateWrapper.getAlias()).thenReturn("root");
         when(certificateWrapper.getVersion()).thenReturn(135L);
         when(certificateWrapper.getCertificate()).thenReturn(Optional.of(loadCertificate("myRootCA.cert")));
@@ -173,7 +173,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         Clock clock = Clock.fixed(Instant.ofEpochMilli(1488240000000L), ZoneId.systemDefault());
 
         ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
-        when(pkiService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
+        when(securityManagementService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
         when(certificateWrapper.getAlias()).thenReturn("root");
         when(certificateWrapper.getVersion()).thenReturn(135L);
         when(certificateWrapper.getCertificate()).thenReturn(Optional.of(loadCertificate("honeywell.com.cert")));
@@ -194,7 +194,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         Clock clock = Clock.fixed(Instant.ofEpochMilli(1488240000000L), ZoneId.systemDefault());
 
         ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
-        when(pkiService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
+        when(securityManagementService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
         when(certificateWrapper.getAlias()).thenReturn("root");
         when(certificateWrapper.getVersion()).thenReturn(135L);
         when(certificateWrapper.getCertificate()).thenReturn(Optional.of(loadCertificate("fishy.cert.pem")));
@@ -213,7 +213,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
     @Test
     public void testDownloadCertificate() throws Exception {
         ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
-        when(pkiService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
+        when(securityManagementService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
         X509Certificate x509Certificate = loadCertificate("myRootCA.cert");
         when(certificateWrapper.getCertificate()).thenReturn(Optional.of(x509Certificate));
         when(certificateWrapper.getAlias()).thenReturn("downloadedRootCa");
@@ -229,7 +229,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
     @Ignore
     public void testDownloadCSRButThereIsNone() throws Exception {
         ClientCertificateWrapper certificateWrapper = mock(ClientCertificateWrapper.class);
-        when(pkiService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
+        when(securityManagementService.findCertificateWrapper(12345)).thenReturn(Optional.of(certificateWrapper));
         when(certificateWrapper.getCertificate()).thenReturn(Optional.empty());
         when(certificateWrapper.getCSR()).thenReturn(Optional.empty());
         when(certificateWrapper.hasCSR()).thenReturn(false);

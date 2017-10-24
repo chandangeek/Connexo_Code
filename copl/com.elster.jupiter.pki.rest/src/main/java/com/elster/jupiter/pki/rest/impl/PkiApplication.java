@@ -6,7 +6,7 @@ package com.elster.jupiter.pki.rest.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -26,7 +26,7 @@ public class PkiApplication extends Application {
 
     public static final String COMPONENT_NAME = "PIR";
 
-    private volatile PkiService pkiService;
+    private volatile SecurityManagementService securityManagementService;
     private volatile TransactionService transactionService;
     private volatile Thesaurus thesaurus;
 
@@ -47,7 +47,7 @@ public class PkiApplication extends Application {
         hashSet.add(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(pkiService).to(PkiService.class);
+                bind(securityManagementService).to(SecurityManagementService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(thesaurus).to(Thesaurus.class);
                 bind(TrustStoreInfoFactory.class).to(TrustStoreInfoFactory.class);
@@ -64,8 +64,8 @@ public class PkiApplication extends Application {
     }
 
     @Reference
-    public void setPkiService(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @Reference
