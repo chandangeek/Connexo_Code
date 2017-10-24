@@ -5,6 +5,7 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportDestination;
+import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportTask;
@@ -71,6 +72,59 @@ public class DataExportTaskInfoFactory {
             }
         }
         exportTask.getDestinations().forEach(destination -> info.destinations.add(typeOf(destination).toInfo(destination)));
+        return info;
+    }
+
+    public DataExportTaskInfo asInfoWithHistory(ExportTask dataExportTask, DataExportOccurrence dataExportOccurrence) {
+        DataExportTaskInfo info = new DataExportTaskInfo();
+        Instant versionAt = dataExportOccurrence.getRetryTime().orElse(dataExportOccurrence.getTriggerTime());
+
+        info.id = dataExportTask.getId();
+        info.name = dataExportTask.getName();
+        info.active = dataExportTask.isActive();
+        info.logLevel = dataExportOccurrence.getRecurrentTask().getHistory().getVersionAt(versionAt).get().getLogLevel();
+        info.dataProcessor =
+                new ProcessorInfo(
+                        dataExportTask.getDataFormatterFactory().getName(),
+                        dataExportTask.getDataFormatterFactory().getDisplayName(),
+                        propertyValueInfoService.getPropertyInfos(
+                                dataExportTask.getDataFormatterPropertySpecs(),
+                                dataExportTask.getProperties()));
+        String selector = dataExportTask.getDataSelectorFactory().getName();
+        SelectorType selectorType = SelectorType.forSelector(selector);
+        info.dataSelector =
+                new SelectorInfo(
+                        dataExportTask.getDataSelectorFactory().getName(),
+                        dataExportTask.getDataSelectorFactory().getDisplayName(),
+                        propertyValueInfoService.getPropertyInfos(
+                                dataExportTask.getDataSelectorPropertySpecs(),
+                                dataExportTask.getProperties()),
+                        selectorType);
+        dataExportTask.getStandardDataSelectorConfig().ifPresent(selectorConfig -> selectorConfig.apply(
+                new DataSelectorConfig.DataSelectorConfigVisitor() {
+                    @Override
+                    public void visit(MeterReadingSelectorConfig config) {
+                        info.standardDataSelector = standardDataSelectorInfoFactory.asInfo(config);
+                    }
+
+                    @Override
+                    public void visit(UsagePointReadingSelectorConfig config) {
+                        info.standardDataSelector = standardDataSelectorInfoFactory.asInfo(config);
+                    }
+
+                    @Override
+                    public void visit(EventSelectorConfig config) {
+                        info.standardDataSelector = standardDataSelectorInfoFactory.asInfo(config);
+                    }
+                }
+        ));
+
+        Instant nextExecution = dataExportTask.getNextExecution();
+        if (nextExecution != null) {
+            info.nextRun = nextExecution;
+        }
+        dataExportTask.getLastRun().ifPresent(lastRun -> info.lastRun = lastRun);
+        info.version = dataExportTask.getVersion();
         return info;
     }
 

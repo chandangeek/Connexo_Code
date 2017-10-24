@@ -29,6 +29,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -50,6 +51,7 @@ public class DataExportApplication extends Application implements MessageSeedPro
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile AppService appService;
+    private volatile Clock clock;
 
     private NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -88,6 +90,11 @@ public class DataExportApplication extends Application implements MessageSeedPro
     @Reference
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Reference
@@ -142,6 +149,7 @@ public class DataExportApplication extends Application implements MessageSeedPro
                 bind(DataExportTaskInfoFactory.class).to(DataExportTaskInfoFactory.class);
                 bind(DataExportTaskHistoryInfoFactory.class).to(DataExportTaskHistoryInfoFactory.class);
                 bind(StandardDataSelectorInfoFactory.class).to(StandardDataSelectorInfoFactory.class);
+                bind(clock).to(Clock.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);

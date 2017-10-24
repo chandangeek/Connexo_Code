@@ -6,6 +6,7 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportRunParameters;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
@@ -102,28 +103,30 @@ public class DataExportTaskHistoryInfoFactory {
 
     public DataExportTaskHistoryInfo asInfo(History<ExportTask> history, DataExportOccurrence dataExportOccurrence) {
         DataExportTaskHistoryInfo info = new DataExportTaskHistoryInfo();
+        Instant versionAt = dataExportOccurrence.getRetryTime().orElse(dataExportOccurrence.getTriggerTime());
         populateMinimalInfo(info, dataExportOccurrence);
-        ExportTask version = history.getVersionAt(dataExportOccurrence.getStartDate().get())
+        ExportTask version = history.getVersionAt(versionAt)
                 .orElseGet(() -> history.getVersionAt(dataExportOccurrence.getTask().getCreateTime())
                         .orElseGet(dataExportOccurrence::getTask));
 
-        info.task = dataExportTaskInfoFactory.asInfoWithoutHistory(version);
+        // set task from history
+        info.task = dataExportTaskInfoFactory.asInfoWithHistory(version, dataExportOccurrence);
         // set standard data selector configuration from history
-        version.getStandardDataSelectorConfig(dataExportOccurrence.getStartDate().get())
+        version.getStandardDataSelectorConfig(versionAt)
                 .ifPresent(selectorConfig -> populateStandardDataSelectorHistoricalData(info, selectorConfig, dataExportOccurrence));
         // set custom data selector properties from history
         info.task.dataSelector.properties = propertyValueInfoService.getPropertyInfos(
-                version.getDataSelectorPropertySpecs(), version.getProperties(dataExportOccurrence.getStartDate().get())
+                version.getDataSelectorPropertySpecs(), version.getProperties(versionAt)
         );
         // set data formatter properties from history
         info.task.dataProcessor.properties = propertyValueInfoService.getPropertyInfos(
-                version.getDataFormatterPropertySpecs(), version.getProperties(dataExportOccurrence.getStartDate().get())
+                version.getDataFormatterPropertySpecs(), version.getProperties(versionAt)
         );
         // set destination from history
-        version.getDestinations(dataExportOccurrence.getStartDate().get()).stream()
+        version.getDestinations(versionAt).stream()
                 .sorted((d1, d2) -> d1.getCreateTime().compareTo(d2.getCreateTime()))
                 .forEach(destination -> info.task.destinations.add(typeOf(destination).toInfo(destination)));
-        Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(dataExportOccurrence.getStartDate().get());
+        Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(versionAt);
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
             info.task.schedule = null;
         } else if (foundSchedule.isPresent()) {
@@ -164,18 +167,26 @@ public class DataExportTaskHistoryInfoFactory {
 
                     private void setReadingTypes(ReadingDataSelectorConfig config) {
                         info.task.standardDataSelector.readingTypes = new ArrayList<>();
-                        for (ReadingType readingType : config.getReadingTypes(dataExportOccurrence.getStartDate().get())) {
+                        Instant at = dataExportOccurrence.getRetryTime().orElse(dataExportOccurrence.getTriggerTime());
+                        for (ReadingType readingType : config.getReadingTypes(at)) {
                             info.task.standardDataSelector.readingTypes.add(readingTypeInfoFactory.from(readingType));
                         }
                     }
 
                     private void addStrategy(ReadingDataSelectorConfig config) {
-                        Optional<RelativePeriod> updatePeriod = config.getStrategy().getUpdatePeriod();
-                        if (updatePeriod.isPresent()) {
-                            Range<Instant> interval = updatePeriod.get()
-                                    .getOpenClosedInterval(ZonedDateTime.ofInstant(dataExportOccurrence.getTriggerTime(), ZoneId.systemDefault()));
-                            info.updatePeriodFrom = interval.lowerEndpoint();
-                            info.updatePeriodTo = interval.upperEndpoint();
+                        if ((dataExportOccurrence.getAdhocTime().isPresent())
+                                && (dataExportOccurrence.getTask().getRunParameters(dataExportOccurrence.getAdhocTime().get()).isPresent())) {
+                            DataExportRunParameters runParameters = dataExportOccurrence.getTask().getRunParameters(dataExportOccurrence.getAdhocTime().get()).get();
+                            info.updatePeriodFrom = runParameters.getUpdatePeriodStart();
+                            info.updatePeriodTo = runParameters.getUpdatePeriodEnd();
+                        } else {
+                            Optional<RelativePeriod> updatePeriod = config.getStrategy().getUpdatePeriod();
+                            if (updatePeriod.isPresent()) {
+                                Range<Instant> interval = updatePeriod.get()
+                                        .getOpenClosedInterval(ZonedDateTime.ofInstant(dataExportOccurrence.getTriggerTime(), ZoneId.systemDefault()));
+                                info.updatePeriodFrom = interval.lowerEndpoint();
+                                info.updatePeriodTo = interval.upperEndpoint();
+                            }
                         }
                     }
                 }

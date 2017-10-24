@@ -79,6 +79,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -105,12 +106,13 @@ public class DataExportTaskResource {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final DataExportTaskInfoFactory dataExportTaskInfoFactory;
     private final DataExportTaskHistoryInfoFactory dataExportTaskHistoryInfoFactory;
+    private final Clock clock;
 
     @Inject
     public DataExportTaskResource(DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService,
                                   MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus,
                                   PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory,
-                                  DataSourceInfoFactory dataSourceInfoFactory, DataExportTaskInfoFactory dataExportTaskInfoFactory, DataExportTaskHistoryInfoFactory dataExportTaskHistoryInfoFactory) {
+                                  DataSourceInfoFactory dataSourceInfoFactory, DataExportTaskInfoFactory dataExportTaskInfoFactory, DataExportTaskHistoryInfoFactory dataExportTaskHistoryInfoFactory, Clock clock) {
         this.dataExportService = dataExportService;
         this.timeService = timeService;
         this.meteringGroupsService = meteringGroupsService;
@@ -122,6 +124,7 @@ public class DataExportTaskResource {
         this.dataSourceInfoFactory = dataSourceInfoFactory;
         this.dataExportTaskInfoFactory = dataExportTaskInfoFactory;
         this.dataExportTaskHistoryInfoFactory = dataExportTaskHistoryInfoFactory;
+        this.clock = clock;
     }
 
     @GET
@@ -264,6 +267,28 @@ public class DataExportTaskResource {
                         .withMessageBody(MessageSeeds.RUN_TASK_CONCURRENT_BODY, info.name)
                         .supplier());
         exportTask.triggerNow();
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("/{id}/triggerWithParams")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.RUN_DATA_EXPORT_TASK})
+    @Transactional
+    public Response triggerWithParametersDataExportTask(@PathParam("id") long id, DataExportTaskRunInfo runInfo) {
+        runInfo.task.id = id;
+        ExportTask exportTask = dataExportService.findAndLockExportTask(runInfo.task.id, runInfo.task.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(runInfo.task.name)
+                        .withActualVersion(() -> dataExportService.findExportTask(runInfo.task.id)
+                                .map(ExportTask::getVersion)
+                                .orElse(null))
+                        .withMessageTitle(MessageSeeds.RUN_TASK_CONCURRENT_TITLE, runInfo.task.name)
+                        .withMessageBody(MessageSeeds.RUN_TASK_CONCURRENT_BODY, runInfo.task.name)
+                        .supplier());
+
+        Instant triggerTime = clock.instant();
+        exportTask.addExportRunParameters(triggerTime, runInfo.exportWindowStart, runInfo.exportWindowEnd, runInfo.updateDataStart, runInfo.updateDataEnd);
+        exportTask.triggerAt(runInfo.startOn, triggerTime);
         return Response.status(Response.Status.OK).build();
     }
 
@@ -582,16 +607,6 @@ public class DataExportTaskResource {
     @RolesAllowed({Privileges.Constants.RUN_DATA_EXPORT_TASK})
     @Transactional
     public Response triggerDataExportHistoryTask(@PathParam("historyId") long historyId, DataExportTaskHistoryInfo historyInfo) {
-        /*info.id = id;
-        ExportTask exportTask = dataExportService.findAndLockExportTask(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> dataExportService.findExportTask(info.id)
-                                .map(ExportTask::getVersion)
-                                .orElse(null))
-                        .withMessageTitle(MessageSeeds.RUN_TASK_CONCURRENT_TITLE, info.name)
-                        .withMessageBody(MessageSeeds.RUN_TASK_CONCURRENT_BODY, info.name)
-                        .supplier());
-        exportTask.triggerNow();*/
         dataExportService.findExportTask(historyInfo.task.id)
                 .ifPresent(exportTask ->
                 {
@@ -599,13 +614,8 @@ public class DataExportTaskResource {
                             .setId(historyId).stream()
                             .findFirst()
                             .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
-                    History<ExportTask> history = exportTask.getHistory();
-                    ExportTask historyExportTask = history
-                            .getVersionAt(dataExportOccurrence.getStartDate().get())
-                            .orElseGet(() -> history.getVersionAt(dataExportOccurrence.getTask().getCreateTime())
-                                    .orElseGet(dataExportOccurrence::getTask));
-                    historyExportTask.triggerNow();
-                    //dataExportOccurrence.getTask().triggerNow();
+
+                    exportTask.retryNow(dataExportOccurrence);
                 });
         return Response.status(Response.Status.OK).build();
     }
