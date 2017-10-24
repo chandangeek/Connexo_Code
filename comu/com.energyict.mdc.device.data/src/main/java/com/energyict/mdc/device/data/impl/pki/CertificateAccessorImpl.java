@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import java.security.cert.CertificateEncodingException;
 import java.util.Optional;
 
-public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<CertificateWrapper> implements CertificateAccessor {
+public class CertificateAccessorImpl extends AbstractSecurityAccessorImpl<CertificateWrapper> implements CertificateAccessor {
     private final DataModel dataModel;
     private final SecurityManagementService securityManagementService;
     private final Thesaurus thesaurus;

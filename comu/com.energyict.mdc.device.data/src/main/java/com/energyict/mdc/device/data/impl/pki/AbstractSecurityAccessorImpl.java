@@ -5,12 +5,12 @@
 package com.energyict.mdc.device.data.impl.pki;
 
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
 
 import com.google.common.collect.ImmutableMap;
@@ -21,10 +21,10 @@ import java.util.Map;
 
 
 // TODO validate actual value is present, fix newBlaBla() first to take actual value!
-public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> implements KeyAccessor<T> {
+public abstract class AbstractSecurityAccessorImpl<T extends SecurityValueWrapper> implements SecurityAccessor<T> {
     private final SecurityManagementService securityManagementService;
 
-    private Reference<KeyAccessorType> keyAccessorTypeReference = Reference.empty();
+    private Reference<SecurityAccessorType> keyAccessorTypeReference = Reference.empty();
     private Reference<Device> deviceReference = Reference.empty();
     private boolean swapped=false;
 
@@ -37,13 +37,13 @@ public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> im
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    public static final Map<String, Class<? extends KeyAccessor>> IMPLEMENTERS =
+    public static final Map<String, Class<? extends SecurityAccessor>> IMPLEMENTERS =
             ImmutableMap.of(
                     "C", CertificateAccessorImpl.class,
                     "P", PassphraseAccessorImpl.class,
                     "S", SymmetricKeyAccessorImpl.class);
 
-    protected AbstractKeyAccessorImpl(SecurityManagementService securityManagementService) {
+    protected AbstractSecurityAccessorImpl(SecurityManagementService securityManagementService) {
         this.securityManagementService = securityManagementService;
     }
 
@@ -70,12 +70,12 @@ public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> im
         }
     }
 
-    public void init(KeyAccessorType keyAccessorType, Device device) {
-        this.keyAccessorTypeReference.set(keyAccessorType);
+    public void init(SecurityAccessorType securityAccessorType, Device device) {
+        this.keyAccessorTypeReference.set(securityAccessorType);
         this.deviceReference.set(device);
     }
 
-    public KeyAccessorType getKeyAccessorType() {
+    public SecurityAccessorType getKeyAccessorType() {
         return keyAccessorTypeReference.get();
     }
 

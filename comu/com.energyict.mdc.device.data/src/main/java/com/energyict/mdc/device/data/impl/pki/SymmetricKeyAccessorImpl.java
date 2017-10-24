@@ -20,7 +20,7 @@ import java.util.Optional;
 /**
  * Created by bvn on 2/28/17.
  */
-public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricKeyWrapper> implements SymmetricKeyAccessor {
+public class SymmetricKeyAccessorImpl extends AbstractSecurityAccessorImpl<SymmetricKeyWrapper> implements SymmetricKeyAccessor {
     private final DataModel dataModel;
     private final SecurityManagementService securityManagementService;
     private final Thesaurus thesaurus;

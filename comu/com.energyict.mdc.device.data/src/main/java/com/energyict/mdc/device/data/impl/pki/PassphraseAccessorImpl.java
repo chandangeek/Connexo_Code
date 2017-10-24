@@ -20,7 +20,7 @@ import java.util.Optional;
 /**
  * Created by bvn on 2/28/17.
  */
-public class PassphraseAccessorImpl extends AbstractKeyAccessorImpl<PassphraseWrapper> implements PassphraseAccessor {
+public class PassphraseAccessorImpl extends AbstractSecurityAccessorImpl<PassphraseWrapper> implements PassphraseAccessor {
     private final DataModel dataModel;
     private final SecurityManagementService securityManagementService;
     private final Thesaurus thesaurus;

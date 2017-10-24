@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 
@@ -21,7 +21,7 @@ import java.util.Optional;
  * process (TempValue).
  */
 @ProviderType
-public interface KeyAccessor<T extends SecurityValueWrapper> {
+public interface SecurityAccessor<T extends SecurityValueWrapper> {
 
     /**
      * Get the device this KeyAccessor holds a value for
@@ -31,7 +31,7 @@ public interface KeyAccessor<T extends SecurityValueWrapper> {
     /**
      * Get the KeyAccessorType this value belongs to
      */
-    KeyAccessorType getKeyAccessorType();
+    SecurityAccessorType getKeyAccessorType();
 
     /**
      * The actual value is the value to be used at present. A KeyAccessor could also exist with only a tempValue, without
@@ -83,7 +83,7 @@ public interface KeyAccessor<T extends SecurityValueWrapper> {
     void clearActualValue();
 
     /**
-     * Allows for the key accessor to be updated only
+     * Allows for the security accessor to be updated only
      */
     void save();
 

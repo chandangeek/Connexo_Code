@@ -63,7 +63,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -109,7 +109,7 @@ import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -266,7 +266,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final DeviceConfigurationService deviceConfigurationService;
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
-    private final List<KeyAccessor> keyAccessors = new ArrayList<>();
+    private final List<SecurityAccessor> keyAccessors = new ArrayList<>();
 
     @SuppressWarnings("unused")
     private long id;
@@ -1291,15 +1291,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public TypedProperties getSecurityProperties(SecurityPropertySet securityPropertySet) {
         TypedProperties securityProperties = TypedProperties.empty();
         for (ConfigurationSecurityProperty configurationSecurityProperty : securityPropertySet.getConfigurationSecurityProperties()) {
-            Optional<KeyAccessor> optionalKeyAccessor = getKeyAccessors()
+            Optional<SecurityAccessor> optionalKeyAccessor = getSecurityAccessors()
                     .stream()
-                    .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(configurationSecurityProperty.getKeyAccessorType().getName()))
+                    .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(configurationSecurityProperty.getSecurityAccessorType().getName()))
                     .findFirst();
 
             if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualValue().isPresent()) {
 
                 Object actualValue = optionalKeyAccessor.get().getActualValue().get();
-                Object adaptedValue = TypedPropertiesValueAdapter.adaptActualValueToUPLValue(actualValue, configurationSecurityProperty.getKeyAccessorType());
+                Object adaptedValue = TypedPropertiesValueAdapter.adaptActualValueToUPLValue(actualValue, configurationSecurityProperty.getSecurityAccessorType());
                 securityProperties.setProperty(configurationSecurityProperty.getName(), adaptedValue);
             }
         }
@@ -3295,33 +3295,34 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public List<KeyAccessor> getKeyAccessors() {
+    public List<SecurityAccessor> getSecurityAccessors() {
         return Collections.unmodifiableList(this.keyAccessors);
     }
 
     @Override
-    public Optional<KeyAccessor> getKeyAccessor(KeyAccessorType keyAccessorType) {
-        return this.keyAccessors.stream().filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId() == keyAccessorType.getId()).findAny();
+    public Optional<SecurityAccessor> getKeyAccessor(SecurityAccessorType securityAccessorType) {
+        return this.keyAccessors.stream().filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId() == securityAccessorType
+                .getId()).findAny();
     }
 
     @Override
-    public KeyAccessor newKeyAccessor(KeyAccessorType keyAccessorType) {
-        switch (keyAccessorType.getKeyType().getCryptographicType()) {
+    public SecurityAccessor newKeyAccessor(SecurityAccessorType securityAccessorType) {
+        switch (securityAccessorType.getKeyType().getCryptographicType()) {
             case Certificate:
             case ClientCertificate:
             case TrustedCertificate:
                 CertificateAccessorImpl certificateAccessor = dataModel.getInstance(CertificateAccessorImpl.class);
-                certificateAccessor.init(keyAccessorType, this);
+                certificateAccessor.init(securityAccessorType, this);
                 this.keyAccessors.add(certificateAccessor);
                 return certificateAccessor;
             case SymmetricKey:
                 SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(SymmetricKeyAccessorImpl.class);
-                symmetricKeyAccessor.init(keyAccessorType, this);
+                symmetricKeyAccessor.init(securityAccessorType, this);
                 this.keyAccessors.add(symmetricKeyAccessor);
                 return symmetricKeyAccessor;
             case Passphrase:
                 PassphraseAccessorImpl passphraseAccessor = dataModel.getInstance(PassphraseAccessorImpl.class);
-                passphraseAccessor.init(keyAccessorType, this);
+                passphraseAccessor.init(securityAccessorType, this);
                 this.keyAccessors.add(passphraseAccessor);
                 return passphraseAccessor;
             case AsymmetricKey:
@@ -3331,8 +3332,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public void removeKeyAccessor(KeyAccessor keyAccessor) {
-        this.getKeyAccessor(keyAccessor.getKeyAccessorType()).ifPresent(keyAccessors::remove);
+    public void removeKeyAccessor(SecurityAccessor securityAccessor) {
+        this.getKeyAccessor(securityAccessor.getKeyAccessorType()).ifPresent(keyAccessors::remove);
     }
 
 }

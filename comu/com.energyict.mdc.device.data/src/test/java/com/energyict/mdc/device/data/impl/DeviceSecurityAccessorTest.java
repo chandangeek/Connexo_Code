@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.properties.PropertySpec;
@@ -34,11 +34,11 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 4/12/17.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DeviceKeyAccessorTest {
+public class DeviceSecurityAccessorTest {
     @Mock
     SecurityManagementService securityManagementService;
     @Mock
-    KeyAccessorType keyAccessorType;
+    SecurityAccessorType securityAccessorType;
     @Mock
     DataModel dataModel;
     @Mock
@@ -52,10 +52,10 @@ public class DeviceKeyAccessorTest {
         when(propertySpec1.getName()).thenReturn("prop1");
         PropertySpec propertySpec2 = mock(PropertySpec.class);
         when(propertySpec2.getName()).thenReturn("prop2");
-        when(securityManagementService.getPropertySpecs(keyAccessorType)).thenReturn(Arrays.asList(propertySpec1, propertySpec2));
+        when(securityManagementService.getPropertySpecs(securityAccessorType)).thenReturn(Arrays.asList(propertySpec1, propertySpec2));
         when(dataModel.asRefAny(anyObject())).then(invocation->new FakeRefAny(invocation.getArguments()[0]));
         symmetricKeyAccessor = new SymmetricKeyAccessorImpl(dataModel, securityManagementService, null);
-        symmetricKeyAccessor.init(keyAccessorType, device);
+        symmetricKeyAccessor.init(securityAccessorType, device);
     }
 
     @Test
