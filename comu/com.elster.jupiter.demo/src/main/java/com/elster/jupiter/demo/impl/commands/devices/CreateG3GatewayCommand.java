@@ -13,7 +13,7 @@ import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -46,7 +46,7 @@ public class CreateG3GatewayCommand {
 
     private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final ConnectionTaskService connectionTaskService;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
@@ -60,14 +60,14 @@ public class CreateG3GatewayCommand {
     @Inject
     public CreateG3GatewayCommand(DeviceService deviceService,
                                   ProtocolPluggableService protocolPluggableService,
-                                  PkiService pkiService,
+                                  SecurityManagementService securityManagementService,
                                   ConnectionTaskService connectionTaskService,
                                   Provider<DeviceBuilder> deviceBuilderProvider,
                                   Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
                                   Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
-        this.pkiService = pkiService;
+        this.securityManagementService = securityManagementService;
         this.connectionTaskService = connectionTaskService;
         this.deviceBuilderProvider = deviceBuilderProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
@@ -196,7 +196,7 @@ public class CreateG3GatewayCommand {
 
     private KeyAccessorValuePersister getKeyAccessorValuePersister() {
         if (keyAccessorValuePersister == null) {
-            keyAccessorValuePersister = new KeyAccessorValuePersister(pkiService);
+            keyAccessorValuePersister = new KeyAccessorValuePersister(securityManagementService);
         }
         return keyAccessorValuePersister;
     }

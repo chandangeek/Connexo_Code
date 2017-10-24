@@ -7,7 +7,7 @@ package com.elster.jupiter.demo.impl.builders;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -20,7 +20,7 @@ import java.util.Optional;
 
 public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet, SecurityPropertySetBuilder> {
 
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
 
     private DeviceConfiguration deviceConfiguration;
     private BigDecimal client;
@@ -28,9 +28,9 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
     private int encLevel;
 
     @Inject
-    public SecurityPropertySetBuilder(PkiService pkiService) {
+    public SecurityPropertySetBuilder(SecurityManagementService securityManagementService) {
         super(SecurityPropertySetBuilder.class);
-        this.pkiService = pkiService;
+        this.securityManagementService = securityManagementService;
     }
 
     public SecurityPropertySetBuilder withDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
@@ -96,9 +96,9 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
 
     private KeyType createOrGetKeyType(String keyAccessorTypeName) {
         if (keyAccessorTypeName.equals("Password")) {
-            return pkiService.getKeyType("Password").orElseGet(() -> pkiService.newPassphraseType("Password").withSpecialCharacters().length(30).add());
+            return securityManagementService.getKeyType("Password").orElseGet(() -> securityManagementService.newPassphraseType("Password").withSpecialCharacters().length(30).add());
         } else {
-            return pkiService.getKeyType("AES 128").orElseGet(() -> pkiService.newSymmetricKeyType("AES 128", "AES", 128).add());
+            return securityManagementService.getKeyType("AES 128").orElseGet(() -> securityManagementService.newSymmetricKeyType("AES 128", "AES", 128).add());
         }
     }
 }

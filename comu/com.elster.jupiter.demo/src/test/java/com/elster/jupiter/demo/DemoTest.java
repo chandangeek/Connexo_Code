@@ -65,7 +65,6 @@ import com.elster.jupiter.metering.impl.search.UsagePointSearchDomain;
 import com.elster.jupiter.metering.imports.impl.MeteringImportsModule;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImporterFactory;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.nls.impl.NlsServiceImpl;
@@ -73,9 +72,9 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.PassphraseFactory;
 import com.elster.jupiter.pki.PassphraseWrapper;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.PkiModule;
-import com.elster.jupiter.pki.impl.PkiServiceImpl;
+import com.elster.jupiter.pki.impl.SecurityManagementServiceImpl;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultPassphraseFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
@@ -241,7 +240,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.core.api.Assertions.in;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -813,7 +811,7 @@ public class DemoTest {
     }
 
     private void preparePKIService() {
-        PkiServiceImpl pkiService = (PkiServiceImpl) injector.getInstance(PkiService.class);
+        SecurityManagementServiceImpl pkiService = (SecurityManagementServiceImpl) injector.getInstance(SecurityManagementService.class);
         pkiService.addPrivateKeyFactory(injector.getInstance(DataVaultPrivateKeyFactory.class));
         pkiService.addSymmetricKeyFactory(injector.getInstance(DataVaultSymmetricKeyFactory.class));
         pkiService.addPassphraseFactory(injector.getInstance(DataVaultPassphraseFactory.class));
