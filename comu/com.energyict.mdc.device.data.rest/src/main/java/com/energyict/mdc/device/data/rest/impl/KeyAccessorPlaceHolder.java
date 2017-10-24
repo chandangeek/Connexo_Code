@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
@@ -29,14 +29,14 @@ import java.util.Optional;
  * So REST does not use Device::getKeyAccessors() but instead builds its own list using Device::getKeyAccessor(KAT)
  */
 public class KeyAccessorPlaceHolder implements KeyAccessor {
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
 
     private KeyAccessorType kat;
     private Device device;
 
     @Inject
-    public KeyAccessorPlaceHolder(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public KeyAccessorPlaceHolder(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     public KeyAccessor init(KeyAccessorType kat, Device device) {
@@ -126,7 +126,7 @@ public class KeyAccessorPlaceHolder implements KeyAccessor {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return pkiService.getPropertySpecs(kat);
+        return securityManagementService.getPropertySpecs(kat);
     }
 
     @Override

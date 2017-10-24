@@ -38,7 +38,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -65,7 +65,6 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
 import com.energyict.mdc.device.data.kpi.rest.KpiResource;
@@ -170,7 +169,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile UserService userService;
-    private volatile PkiService pkiService;
+    private volatile SecurityManagementService securityManagementService;
     private volatile MdcPropertyUtils mdcPropertyUtils;
     private volatile IssueActionService issueActionService;
     private volatile IssueCreationService issueCreationService;
@@ -247,8 +246,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
-    public void setPkiService(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @Reference
@@ -347,7 +346,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 .join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(TopologyService.COMPONENT_NAME, Layer.DOMAIN))
-                .join(nlsService.getThesaurus(PkiService.COMPONENTNAME, Layer.DOMAIN));
+                .join(nlsService.getThesaurus(SecurityManagementService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -662,7 +661,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(calendarService).to(CalendarService.class);
             bind(deviceAlarmService).to(DeviceAlarmService.class);
             bind(userService).to(UserService.class);
-            bind(pkiService).to(PkiService.class);
+            bind(securityManagementService).to(SecurityManagementService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(TimeOfUseInfoFactory.class).to(TimeOfUseInfoFactory.class);
             bind(MeterActivationInfoFactory.class).to(MeterActivationInfoFactory.class);

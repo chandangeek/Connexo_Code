@@ -9,7 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.properties.PropertySpec;
@@ -79,7 +79,7 @@ public class SecurityAccessorResource {
     private final Set<CryptographicType> KEYS = EnumSet.of(CryptographicType.SymmetricKey, CryptographicType.Passphrase);
 
     private final SecurityAccessorInfoFactory securityAccessorInfoFactory;
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
     private final ResourceHelper resourceHelper;
     private final Provider<KeyAccessorPlaceHolder> keyAccessorPlaceHolderProvider;
     private final ExceptionFactory exceptionFactory;
@@ -91,13 +91,13 @@ public class SecurityAccessorResource {
     @Inject
     public SecurityAccessorResource(ResourceHelper resourceHelper,
                                     SecurityAccessorInfoFactory securityAccessorInfoFactory,
-                                    PkiService pkiService,
+                                    SecurityManagementService securityManagementService,
                                     Provider<KeyAccessorPlaceHolder> keyAccessorPlaceHolderProvider,
                                     ExceptionFactory exceptionFactory,
                                     MdcPropertyUtils mdcPropertyUtils, DeviceService deviceService, Thesaurus thesaurus) {
         this.securityAccessorInfoFactory = securityAccessorInfoFactory;
         this.resourceHelper = resourceHelper;
-        this.pkiService = pkiService;
+        this.securityManagementService = securityManagementService;
         this.keyAccessorPlaceHolderProvider = keyAccessorPlaceHolderProvider;
         this.exceptionFactory = exceptionFactory;
         this.mdcPropertyUtils = mdcPropertyUtils;
@@ -246,9 +246,9 @@ public class SecurityAccessorResource {
         BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator = (keyAccessor1, properties) -> {
             SecurityValueWrapper securityValueWrapper;
             if (keyAccessor1.getKeyAccessorType().getKeyType().getCryptographicType().equals(CryptographicType.Passphrase)) {
-                securityValueWrapper = pkiService.newPassphraseWrapper(keyAccessor1.getKeyAccessorType());
+                securityValueWrapper = securityManagementService.newPassphraseWrapper(keyAccessor1.getKeyAccessorType());
             } else {
-                securityValueWrapper = pkiService.newSymmetricKeyWrapper(keyAccessor1.getKeyAccessorType());
+                securityValueWrapper = securityManagementService.newSymmetricKeyWrapper(keyAccessor1.getKeyAccessorType());
             }
             securityValueWrapper.setProperties(properties);
             return securityValueWrapper;
@@ -304,7 +304,7 @@ public class SecurityAccessorResource {
                         .findAny()
                         .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUSTED_CERTIFICATE, ALIAS));
             } else {
-                return pkiService.findCertificateWrapper(alias).orElseThrow(()-> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_CERTIFICATE, ALIAS));
+                return securityManagementService.findCertificateWrapper(alias).orElseThrow(()-> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_CERTIFICATE, ALIAS));
             }
         };
 
@@ -334,8 +334,8 @@ public class SecurityAccessorResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
             com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public PagedInfoList aliasSource(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
-        PkiService.AliasSearchFilter aliasSearchFilter = getAliasSearchFilter(params, uriInfo.getQueryParameters());
-        List<AliasInfo> collect = pkiService.getAliasesByFilter(aliasSearchFilter)
+        SecurityManagementService.AliasSearchFilter aliasSearchFilter = getAliasSearchFilter(params, uriInfo.getQueryParameters());
+        List<AliasInfo> collect = securityManagementService.getAliasesByFilter(aliasSearchFilter)
                 .from(queryParameters)
                 .stream()
                 .map(CertificateWrapper::getAlias)
@@ -344,8 +344,8 @@ public class SecurityAccessorResource {
         return PagedInfoList.fromPagedList("aliases", collect, queryParameters);
     }
 
-    private PkiService.AliasSearchFilter getAliasSearchFilter(StandardParametersBean params, MultivaluedMap<String, String> uriParams) {
-        PkiService.AliasSearchFilter aliasSearchFilter = new PkiService.AliasSearchFilter();
+    private SecurityManagementService.AliasSearchFilter getAliasSearchFilter(StandardParametersBean params, MultivaluedMap<String, String> uriParams) {
+        SecurityManagementService.AliasSearchFilter aliasSearchFilter = new SecurityManagementService.AliasSearchFilter();
         String alias = null;
 
         if (uriParams.containsKey("alias")) {
@@ -353,7 +353,7 @@ public class SecurityAccessorResource {
         }
         if (uriParams.containsKey("trustStore")) {
             Long trustStoreId = Long.valueOf(params.getFirst("trustStore"));
-            aliasSearchFilter.trustStore = pkiService.findTrustStore(trustStoreId)
+            aliasSearchFilter.trustStore = securityManagementService.findTrustStore(trustStoreId)
                     .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUST_STORE, "trustStore"));
         }
         if (alias ==null || alias.isEmpty() ) {
@@ -381,7 +381,7 @@ public class SecurityAccessorResource {
     private KeyAccessor<SecurityValueWrapper> createKeyAccessor(Device device, KeyAccessorType keyAccessorType,
                                                                 SecurityAccessorInfo securityAccessorInfo,
                                                                 BiFunction<KeyAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator) {
-        List<PropertySpec> propertySpecs = pkiService.getPropertySpecs(keyAccessorType);
+        List<PropertySpec> propertySpecs = securityManagementService.getPropertySpecs(keyAccessorType);
         Map<String, Object> tempProperties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.tempProperties);
         Map<String, Object> actualProperties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.currentProperties);
         if (propertiesContainValues(actualProperties) || propertiesContainValues(tempProperties)) {
@@ -554,7 +554,7 @@ public class SecurityAccessorResource {
         @Override
         public List<?> getPropertyPossibleValues(PropertySpec propertySpec, PropertyType propertyType) {
             if (propertySpec.getName().equals("trustStore")) {
-                return pkiService.getAllTrustStores();
+                return securityManagementService.getAllTrustStores();
             }
             return Collections.emptyList();
         }
