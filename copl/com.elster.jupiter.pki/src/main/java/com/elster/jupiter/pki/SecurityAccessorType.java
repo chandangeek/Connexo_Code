@@ -9,16 +9,16 @@ import aQute.bnd.annotation.ConsumerType;
 import java.util.Optional;
 
 /**
- * KeyAccessor links a KeyType to a DeviceType. By configuring KeyTypes on a DeviceType, the user identifies which
+ * SecurityAccessor links a KeyType to a DeviceType. By configuring KeyTypes on a DeviceType, the user identifies which
  * keys/certificates are required or make sense for devices of this type, the user assigns a function to the key/certificate.
  * Key requirement is based on which keys the underlying protocol actually needs.
  * <p>
- * The KeyAccessorType also has a name. This name will identify a key for a certain purpose. E.g. the Shipment file will
- * map keys to KeyAccessorType by name, that is, the keys from the shipment file will be labelled, the label matches the
- * name of a KeyAccessor.
+ * The SecurityAccessorType also has a name. This name will identify a key for a certain purpose. E.g. the Shipment file will
+ * map keys to SecurityAccessorType by name, that is, the keys from the shipment file will be labelled, the label matches the
+ * name of a SecurityAccessor.
  */
 @ConsumerType
-public interface KeyAccessorType extends HasId, HasName  {
+public interface SecurityAccessorType extends HasId, HasName  {
 
     /**
      * The KeyAccessorType system assigned id
@@ -98,7 +98,7 @@ public interface KeyAccessorType extends HasId, HasName  {
          */
         Builder duration(TimeDuration duration);
 
-        KeyAccessorType add();
+        SecurityAccessorType add();
     }
 
     interface Updater {
@@ -108,6 +108,6 @@ public interface KeyAccessorType extends HasId, HasName  {
 
         Updater duration(TimeDuration duration);
 
-        KeyAccessorType complete();
+        SecurityAccessorType complete();
     }
 }

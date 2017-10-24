@@ -6,7 +6,7 @@ package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.ExpirationSupport;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
@@ -52,9 +52,9 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory, Expira
     }
 
     @Override
-    public SymmetricKeyWrapper newSymmetricKey(KeyAccessorType keyAccessorType) {
+    public SymmetricKeyWrapper newSymmetricKey(SecurityAccessorType securityAccessorType) {
         PlaintextSymmetricKeyImpl symmetricKeyWrapper = dataModel.getInstance(PlaintextSymmetricKeyImpl.class)
-                .init(keyAccessorType.getKeyType(), keyAccessorType.getDuration().get());
+                .init(securityAccessorType.getKeyType(), securityAccessorType.getDuration().get());
         symmetricKeyWrapper.save();
         return symmetricKeyWrapper;
     }

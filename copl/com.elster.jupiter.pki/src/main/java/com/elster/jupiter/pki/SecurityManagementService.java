@@ -111,10 +111,10 @@ public interface SecurityManagementService {
 
     /**
      * List the PropertySpecs that can be expected for the described Wrapper type
-     * @param keyAccessorType The key accessor describing the KeyEncryptionMethod and {@link CryptographicType}
+     * @param securityAccessorType The security accessor describing the KeyEncryptionMethod and {@link CryptographicType}
      * @return List of to-be-expected property specs
      */
-    List<PropertySpec> getPropertySpecs(KeyAccessorType keyAccessorType);
+    List<PropertySpec> getPropertySpecs(SecurityAccessorType securityAccessorType);
 
     /**
      * Get an existing KeyType by name.
@@ -150,20 +150,20 @@ public interface SecurityManagementService {
     /**
      * Creates a new SymmetricKeyWrapper. The PkiService will delegate the actual creation and storage to the appropriate
      * factory given the provided key encryption method.
-     * @param keyAccessorType Contains all information required by the pkiService and factories to figure out what has
+     * @param securityAccessorType Contains all information required by the pkiService and factories to figure out what has
      * to be done.
      * @return a new symmetric key wrapper of the required type and encryption method, without value.
      */
-    SymmetricKeyWrapper newSymmetricKeyWrapper(KeyAccessorType keyAccessorType);
+    SymmetricKeyWrapper newSymmetricKeyWrapper(SecurityAccessorType securityAccessorType);
 
     /**
      * Creates a new PassphraseWrapper. The PkiService will delegate the actual creation and storage to the appropriate
      * factory given the provided key encryption method.
-     * @param keyAccessorType Contains all information required by the pkiService and factories to figure out what has
+     * @param securityAccessorType Contains all information required by the pkiService and factories to figure out what has
      * to be done.
      * @return a new passphrase wrapper of the required type and encryption method, without value.
      */
-    PassphraseWrapper newPassphraseWrapper(KeyAccessorType keyAccessorType);
+    PassphraseWrapper newPassphraseWrapper(SecurityAccessorType securityAccessorType);
 
     CertificateWrapper newCertificateWrapper(String alias);
 

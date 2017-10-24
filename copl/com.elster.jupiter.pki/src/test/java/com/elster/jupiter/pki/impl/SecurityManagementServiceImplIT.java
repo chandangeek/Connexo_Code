@@ -10,7 +10,7 @@ import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.PlaintextPassphrase;
@@ -369,12 +369,12 @@ public class SecurityManagementServiceImplIT {
     @Transactional
     public void testGeneratePlaintextSymmetricAesKey() {
         KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128C", "AES", 128).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
         PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getSecurityManagementService()
-                .newSymmetricKeyWrapper(keyAccessorType);
+                .newSymmetricKeyWrapper(securityAccessorType);
         symmetricKeyWrapper.generateValue();
 
         assertThat(symmetricKeyWrapper.getKey()).isPresent();
@@ -395,12 +395,12 @@ public class SecurityManagementServiceImplIT {
     @Transactional
     public void testGeneratePlaintextPasswordKey() {
         KeyType created = inMemoryPersistence.getSecurityManagementService().newPassphraseType("SECRET").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
         PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getSecurityManagementService()
-                .newPassphraseWrapper(keyAccessorType);
+                .newPassphraseWrapper(securityAccessorType);
         passphraseWrapper.generateValue();
 
         assertThat(passphraseWrapper.getPassphrase()).isPresent();
@@ -637,12 +637,12 @@ public class SecurityManagementServiceImplIT {
                 .withLowerCaseCharacters()
                 .length(120)
                 .add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(passwordType);
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(passwordType);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
 
-        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getSecurityManagementService().newPassphraseWrapper(keyAccessorType);
+        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getSecurityManagementService().newPassphraseWrapper(securityAccessorType);
         passphraseWrapper.generateValue();
 
         assertThat(passphraseWrapper.getPassphrase()).isPresent();
@@ -831,7 +831,7 @@ public class SecurityManagementServiceImplIT {
                 .RSA()
                 .keySize(1024)
                 .add();
-        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        SecurityAccessorType certificateAccessorType = mock(SecurityAccessorType.class);
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         when(certificateAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
 
@@ -858,7 +858,7 @@ public class SecurityManagementServiceImplIT {
                 .DSA()
                 .keySize(512)
                 .add();
-        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        SecurityAccessorType certificateAccessorType = mock(SecurityAccessorType.class);
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         when(certificateAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
 
@@ -936,7 +936,7 @@ public class SecurityManagementServiceImplIT {
                 .keySize(512)
                 .add();
 
-        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        SecurityAccessorType certificateAccessorType = mock(SecurityAccessorType.class);
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         when(certificateAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
 
@@ -953,10 +953,10 @@ public class SecurityManagementServiceImplIT {
                 .DSA()
                 .keySize(512)
                 .add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(certificateType);
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
-        List<PropertySpec> propertySpecs = inMemoryPersistence.getSecurityManagementService().getPropertySpecs(keyAccessorType);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(certificateType);
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        List<PropertySpec> propertySpecs = inMemoryPersistence.getSecurityManagementService().getPropertySpecs(securityAccessorType);
 
         assertThat(propertySpecs).hasSize(1);
         assertThat(propertySpecs.get(0).getName()).isEqualTo("alias");
@@ -992,10 +992,10 @@ public class SecurityManagementServiceImplIT {
     @Transactional
     public void testGetPropertySpecsSymmetricKey() throws Exception {
         KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128-props", "AES", 128).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
-        List<PropertySpec> propertySpecs = inMemoryPersistence.getSecurityManagementService().getPropertySpecs(keyAccessorType);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        List<PropertySpec> propertySpecs = inMemoryPersistence.getSecurityManagementService().getPropertySpecs(securityAccessorType);
 
         assertThat(propertySpecs).hasSize(1);
         assertThat(propertySpecs.get(0).getName()).isEqualTo("key");
@@ -1006,13 +1006,13 @@ public class SecurityManagementServiceImplIT {
     @Transactional
     public void testGetAndUpdatePropertiesSymmetricKey() throws Exception {
         KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128-props-update", "AES", 128).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
 
         SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getSecurityManagementService()
-                .newSymmetricKeyWrapper(keyAccessorType);
+                .newSymmetricKeyWrapper(securityAccessorType);
         symmetricKeyWrapper.generateValue();
 
         Map<String, Object> properties = symmetricKeyWrapper.getProperties();
@@ -1027,13 +1027,13 @@ public class SecurityManagementServiceImplIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INVALID_HEX_VALUE + "}", property = "key")
     public void testUpdatePropertiesSymmetricKeyWithImproperHexStringKey() throws Exception {
         KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128-props-plain", "AES", 128).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
 
         SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getSecurityManagementService()
-                .newSymmetricKeyWrapper(keyAccessorType);
+                .newSymmetricKeyWrapper(securityAccessorType);
 
         Map<String, Object> map = new HashMap<>();
         map.put("key", "kjkjkjkjkjkjkjkjkjkjkjkjkjkjkjkk"); // incorrect symmetric key
@@ -1045,13 +1045,13 @@ public class SecurityManagementServiceImplIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INVALID_KEY_SIZE + "}", property = "key")
     public void testUpdatePropertiesSymmetricKeyWithImproperSecretKey() throws Exception {
         KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128-props-sk", "AES", 128).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
 
         SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getSecurityManagementService()
-                .newSymmetricKeyWrapper(keyAccessorType);
+                .newSymmetricKeyWrapper(securityAccessorType);
 
         Map<String, Object> map = new HashMap<>();
         map.put("key", "0011223344556677889900112233445566"); // incorrect symmetric key
@@ -1062,12 +1062,12 @@ public class SecurityManagementServiceImplIT {
     @Transactional
     public void getExpiredSymmetricKeyTest(){
         KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128D", "AES", 128).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
         PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getSecurityManagementService()
-                .newSymmetricKeyWrapper(keyAccessorType);
+                .newSymmetricKeyWrapper(securityAccessorType);
         symmetricKeyWrapper.generateValue();
 
        assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
@@ -1080,12 +1080,12 @@ public class SecurityManagementServiceImplIT {
     @Transactional
     public void getExpiredWithinOneWeekSymmetricKeyTest(){
         KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128E", "AES", 128).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
         PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getSecurityManagementService()
-                .newSymmetricKeyWrapper(keyAccessorType);
+                .newSymmetricKeyWrapper(securityAccessorType);
         symmetricKeyWrapper.generateValue();
 
        assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
@@ -1098,12 +1098,12 @@ public class SecurityManagementServiceImplIT {
     @Transactional
     public void getExpiredWithinOneMonthSymmetricKeyTest(){
         KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128F", "AES", 128).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
         PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getSecurityManagementService()
-                .newSymmetricKeyWrapper(keyAccessorType);
+                .newSymmetricKeyWrapper(securityAccessorType);
         symmetricKeyWrapper.generateValue();
 
        assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
@@ -1116,12 +1116,12 @@ public class SecurityManagementServiceImplIT {
     @Transactional
     public void getExpiredWithinThreeMonthSymmetricKeyTest(){
         KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128G", "AES", 128).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
         PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getSecurityManagementService()
-                .newSymmetricKeyWrapper(keyAccessorType);
+                .newSymmetricKeyWrapper(securityAccessorType);
         symmetricKeyWrapper.generateValue();
 
        assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
@@ -1134,12 +1134,12 @@ public class SecurityManagementServiceImplIT {
     @Transactional
     public void getExpiredPassPhraseTest(){
         KeyType created = inMemoryPersistence.getSecurityManagementService().newPassphraseType("SECRETB").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
         PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getSecurityManagementService()
-                .newPassphraseWrapper(keyAccessorType);
+                .newPassphraseWrapper(securityAccessorType);
         passphraseWrapper.generateValue();
 
         assertThat(passphraseWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
@@ -1152,12 +1152,12 @@ public class SecurityManagementServiceImplIT {
     @Transactional
     public void getExpiredWithinOneWeekPassPhraseTest(){
         KeyType created = inMemoryPersistence.getSecurityManagementService().newPassphraseType("SECRETC").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
         PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getSecurityManagementService()
-                .newPassphraseWrapper(keyAccessorType);
+                .newPassphraseWrapper(securityAccessorType);
         passphraseWrapper.generateValue();
 
         assertThat(passphraseWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
@@ -1170,12 +1170,12 @@ public class SecurityManagementServiceImplIT {
     @Transactional
     public void getExpiredWithinOneMonthPassPhraseTest(){
         KeyType created = inMemoryPersistence.getSecurityManagementService().newPassphraseType("SECRETD").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
         PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getSecurityManagementService()
-                .newPassphraseWrapper(keyAccessorType);
+                .newPassphraseWrapper(securityAccessorType);
         passphraseWrapper.generateValue();
 
         assertThat(passphraseWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
@@ -1188,12 +1188,12 @@ public class SecurityManagementServiceImplIT {
     @Transactional
     public void getExpiredWithinThreeMonthPassPhraseTest(){
         KeyType created = inMemoryPersistence.getSecurityManagementService().newPassphraseType("SECRETE").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
         PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getSecurityManagementService()
-                .newPassphraseWrapper(keyAccessorType);
+                .newPassphraseWrapper(securityAccessorType);
         passphraseWrapper.generateValue();
 
         assertThat(passphraseWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());

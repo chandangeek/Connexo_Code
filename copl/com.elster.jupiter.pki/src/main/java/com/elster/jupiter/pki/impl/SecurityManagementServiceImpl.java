@@ -267,8 +267,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs(KeyAccessorType keyAccessorType) {
-        switch (keyAccessorType.getKeyType().getCryptographicType()) {
+    public List<PropertySpec> getPropertySpecs(SecurityAccessorType securityAccessorType) {
+        switch (securityAccessorType.getKeyType().getCryptographicType()) {
             case Certificate:
                 return getDataModel().getInstance(RequestableCertificateWrapperImpl.class).getPropertySpecs();
             case ClientCertificate:
@@ -276,9 +276,9 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
             case TrustedCertificate:
                 return getDataModel().getInstance(TrustedCertificateImpl.class).getPropertySpecs();
             case SymmetricKey:
-                return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
+                return getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
             case Passphrase:
-                return getPassphraseFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
+                return getPassphraseFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
             case AsymmetricKey:
                 return Collections.emptyList(); // There is currently no need for visibility on asymmetric keys
             default:
@@ -315,8 +315,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
-    public SymmetricKeyWrapper newSymmetricKeyWrapper(KeyAccessorType keyAccessorType) {
-        return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).newSymmetricKey(keyAccessorType);
+    public SymmetricKeyWrapper newSymmetricKeyWrapper(SecurityAccessorType securityAccessorType) {
+        return getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).newSymmetricKey(securityAccessorType);
     }
 
     @Override
@@ -348,8 +348,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
-    public PassphraseWrapper newPassphraseWrapper(KeyAccessorType keyAccessorType) {
-        return getPassphraseFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).newPassphraseWrapper(keyAccessorType);
+    public PassphraseWrapper newPassphraseWrapper(SecurityAccessorType securityAccessorType) {
+        return getPassphraseFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).newPassphraseWrapper(securityAccessorType);
     }
 
     private PassphraseFactory getPassphraseFactoryOrThrowException(String keyEncryptionMethod) {
