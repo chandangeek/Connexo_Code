@@ -128,11 +128,10 @@ Ext.define('Cfg.controller.DataValidationKpi', {
     showAddDataValidationKpi: function () {
         var me = this,
             widget = Ext.widget('cfg-data-validation-kpi-add'),
-            deviceGroupStore = widget.down('combobox[name=deviceGroup]').getStore(),
+            deviceGroupStore = widget.down('comboboxwithemptycomponent[name=deviceGroup]').getStore(),
             kpiModel = Ext.ModelManager.getModel('Cfg.model.DataValidationKpi'),
             form = widget.down('#frm-data-validation-kpi-add'),
             deviceGroupCombo = widget.down('#cmb-device-group'),
-            deviceGroupDisplayField = widget.down('#device-group-field'),
             createEditBtn = widget.down('#create-add-button');
 
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -143,9 +142,6 @@ Ext.define('Cfg.controller.DataValidationKpi', {
                     form.loadRecord(Ext.create(kpiModel));
                 } else {
                     Ext.suspendLayouts();
-                    deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('datavalidationkpis.noDeviceGroup', 'CFG', 'No device group available.') + '</span>');
-                    deviceGroupDisplayField.show();
-                    deviceGroupCombo.hide();
                     createEditBtn.disable();
                     Ext.resumeLayouts(true);
                 }
@@ -153,6 +149,7 @@ Ext.define('Cfg.controller.DataValidationKpi', {
                 widget.setLoading(false);
             }
         });
+
     },
 
     saveDataValidationKPI: function () {

@@ -5,6 +5,9 @@
 Ext.define('Cfg.view.datavalidationkpis.Add', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.cfg-data-validation-kpi-add',
+    requires: [
+        'Uni.view.form.ComboBoxWithEmptyComponent'
+    ],
     content: [
         {
             xtype: 'form',
@@ -26,22 +29,25 @@ Ext.define('Cfg.view.datavalidationkpis.Add', {
                     width: 600
                 },
                 {
-                    xtype: 'combobox',
-                    name: 'deviceGroup',
-                    emptyText: Uni.I18n.translate('datavalidationkpis.selectDeviceGroup', 'CFG', 'Select a device group...'),
-                    itemId: 'cmb-device-group',
+                    xtype: 'comboboxwithemptycomponent',
                     fieldLabel: Uni.I18n.translate('general.deviceGroup', 'CFG', 'Device group'),
-                    store: 'Cfg.store.DataValidationGroups',
-                    queryMode: 'local',
-                    editable: false,
-                    displayField: 'name',
-                    valueField: 'id',
-                    allowBlank: false,
-                    required: true,
-                    width: 600,
-                    listeners: {
-                        afterrender: function (field) {
-                            field.focus(false, 200);
+                    itemId: 'cmb-device-group',
+                    config: {
+                        name: 'deviceGroup',
+                        emptyText: Uni.I18n.translate('datavalidationkpis.selectDeviceGroup', 'CFG', 'Select a device group...'),
+                        store: 'Cfg.store.DataValidationGroups',
+                        queryMode: 'local',
+                        displayField: 'name',
+                        noObjectsText: Uni.I18n.translate('general.noDeviceGroup', 'CFG', 'No device group defined yet'),
+                        valueField: 'id',
+                        required: true,
+                        allowBlank: false,
+                        editable: false,
+                        width: 600,
+                        listeners: {
+                            afterrender: function (field) {
+                                field.focus(false, 200);
+                            }
                         }
                     }
                 },
