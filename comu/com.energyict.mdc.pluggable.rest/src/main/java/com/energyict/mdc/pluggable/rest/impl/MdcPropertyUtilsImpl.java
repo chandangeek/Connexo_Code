@@ -7,7 +7,7 @@ package com.energyict.mdc.pluggable.rest.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.BoundedBigDecimalPropertySpec;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
@@ -179,8 +179,8 @@ public class MdcPropertyUtilsImpl implements MdcPropertyUtils {
                 }
             } else if (propertyType instanceof com.elster.jupiter.properties.rest.SimplePropertyType) {
                 com.elster.jupiter.properties.rest.SimplePropertyType simplePropertyType = (com.elster.jupiter.properties.rest.SimplePropertyType) propertyType;
-                if ((propertySpec.isReference() && (KeyAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())))) {
-                    possibleValues = device.getDeviceType().getKeyAccessorTypes();
+                if ((propertySpec.isReference() && (SecurityAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())))) {
+                    possibleValues = device.getDeviceType().getSecurityAccessorTypes();
                 } else if (com.elster.jupiter.properties.rest.SimplePropertyType.IDWITHNAME.equals(simplePropertyType)) {
                     possibleValues = device.getDeviceType().getDeviceMessageFiles();
                 }
