@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
@@ -523,7 +523,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(456L, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(101, OK_VERSION)).thenReturn(Optional.of(sps1));
 
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
         PropertyInfo propertyInfo = new PropertyInfo("EncryptionKey", "", new PropertyValueInfo<>("AABBCCDDEEFF", ""), new PropertyTypeInfo(), true);
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn("EncryptionKey");
@@ -543,7 +543,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
                         .findAny()
                         .orElse(null);
             } else {
-                return keyAccessorType;
+                return securityAccessorType;
             }
         });
 
@@ -569,7 +569,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         verify(sps1).setRequestSecurityLevelId(info.requestSecurityLevelId);
         verify(sps1).setResponseSecurityLevelId(info.responseSecurityLevelId);
         verify(sps1).removeConfigurationSecurityProperty("Password"); //V Verify the old attribute is removed
-        verify(sps1).addConfigurationSecurityProperty("EncryptionKey", keyAccessorType); //V Verify the new attribute is added
+        verify(sps1).addConfigurationSecurityProperty("EncryptionKey", securityAccessorType); //V Verify the new attribute is added
     }
 
     @Test
@@ -743,7 +743,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         }
 
         @Override
-        public com.energyict.mdc.device.config.SecurityPropertySetBuilder addConfigurationSecurityProperty(String name, KeyAccessorType keyAccessor) {
+        public com.energyict.mdc.device.config.SecurityPropertySetBuilder addConfigurationSecurityProperty(String name, SecurityAccessorType keyAccessor) {
             return this;
         }
 

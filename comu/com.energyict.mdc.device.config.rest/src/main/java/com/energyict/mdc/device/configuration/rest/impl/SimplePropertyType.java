@@ -4,14 +4,14 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.rest.PropertyType;
 
 /**
  * Created by bvn on 2/2/17.
  */
 public enum SimplePropertyType implements PropertyType {
-    IDWITHNAME(KeyAccessorType.class, true),
+    IDWITHNAME(SecurityAccessorType.class, true),
     ;
 
     private Class discriminatorClass;

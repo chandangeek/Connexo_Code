@@ -5,14 +5,14 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.KeyAccessorTypeUpdater;
+import com.energyict.mdc.device.config.SecurityAccessorTypeUpdater;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfo;
 
 import com.jayway.jsonpath.JsonModel;
@@ -43,10 +43,10 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
     @Test
     public void testGetAllKeyFunctionTypesOfDeviceType() throws Exception {
         DeviceType deviceType = mockDeviceType("device type 1", 66);
-        KeyAccessorType keyFunctionType = mockKeyFunctionType(1, "Name", "Epic description");
-        KeyAccessorType keyFunctionType2 = mockKeyFunctionType(2, "Name2", "Epic description2");
+        SecurityAccessorType keyFunctionType = mockKeyFunctionType(1, "Name", "Epic description");
+        SecurityAccessorType keyFunctionType2 = mockKeyFunctionType(2, "Name2", "Epic description2");
         when(deviceConfigurationService.findDeviceType(66)).thenReturn(Optional.of(deviceType));
-        when(deviceType.getKeyAccessorTypes()).thenReturn(Arrays.asList(keyFunctionType, keyFunctionType2));
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(keyFunctionType, keyFunctionType2));
 
         Map<String, Object> map = target("/devicetypes/66/securityaccessors").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(2);
@@ -62,9 +62,9 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
     @Test
     public void getKeyFunctionType() throws Exception {
         DeviceType deviceType = mockDeviceType("device type 1", 66);
-        KeyAccessorType keyFunctionType = mockKeyFunctionType(1, NAME, DESCRIPTION);
+        SecurityAccessorType keyFunctionType = mockKeyFunctionType(1, NAME, DESCRIPTION);
         when(deviceConfigurationService.findDeviceType(66)).thenReturn(Optional.of(deviceType));
-        when(deviceType.getKeyAccessorTypes()).thenReturn(Collections.singletonList(keyFunctionType));
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(Collections.singletonList(keyFunctionType));
 
         String response = target("/devicetypes/66/securityaccessors/1").request().get(String.class);
 
@@ -101,11 +101,11 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
 
         when(securityManagementService.getKeyType("AES 128")).thenReturn(Optional.of(keyType));
 
-        KeyAccessorType.Builder builder = mock(KeyAccessorType.Builder.class);
-        when(deviceType.addKeyAccessorType(NAME, keyType)).thenReturn(builder);
+        SecurityAccessorType.Builder builder = mock(SecurityAccessorType.Builder.class);
+        when(deviceType.addSecurityAccessorType(NAME, keyType)).thenReturn(builder);
         when(builder.keyEncryptionMethod(anyString())).thenReturn(builder);
         when(builder.description(anyString())).thenReturn(builder);
-        KeyAccessorType addedKeyFunctionTypeDoesntMatter = mockKeyFunctionType(1, NAME, DESCRIPTION);
+        SecurityAccessorType addedKeyFunctionTypeDoesntMatter = mockKeyFunctionType(1, NAME, DESCRIPTION);
         when(builder.add()).thenReturn(addedKeyFunctionTypeDoesntMatter);
 
         info.keyType = new KeyTypeInfo();
@@ -114,7 +114,7 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
         info.keyType.requiresDuration = true;
 
         target("/devicetypes/66/securityaccessors").request().post(Entity.json(info));
-        verify(deviceType).addKeyAccessorType(NAME, keyType);
+        verify(deviceType).addSecurityAccessorType(NAME, keyType);
         verify(builder).description(DESCRIPTION);
         verify(builder).duration(info.duration.asTimeDuration());
         verify(builder).add();
@@ -123,8 +123,8 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
     @Test
     public void editKeyFunctionTypeOfDeviceType() throws Exception {
         DeviceType deviceType = mockDeviceType("device type 1", 66);
-        KeyAccessorType keyFunctionType = mockKeyFunctionType(1, "Name", "Epic description");
-        when(deviceType.getKeyAccessorTypes()).thenReturn(Collections.singletonList(keyFunctionType));
+        SecurityAccessorType keyFunctionType = mockKeyFunctionType(1, "Name", "Epic description");
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(Collections.singletonList(keyFunctionType));
         when(deviceConfigurationService.findAndLockDeviceType(66, 1)).thenReturn(Optional.of(deviceType));
         SecurityAccessorInfo info = new SecurityAccessorInfo();
         info.id = 1;
@@ -135,12 +135,12 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
         ExecutionLevelInfo executionLevelInfo = new ExecutionLevelInfo();
         executionLevelInfo.id = "edit.device.security.properties.level1";
         info.editLevels = Collections.singletonList(executionLevelInfo);
-        KeyAccessorTypeUpdater updater = mock(KeyAccessorTypeUpdater.class);
-        when(deviceType.getKeyAccessorTypeUpdater(keyFunctionType)).thenReturn(Optional.of(updater));
+        SecurityAccessorTypeUpdater updater = mock(SecurityAccessorTypeUpdater.class);
+        when(deviceType.getSecurityAccessorTypeUpdater(keyFunctionType)).thenReturn(Optional.of(updater));
         when(updater.complete()).thenReturn(keyFunctionType);
 
         target("/devicetypes/66/securityaccessors/1").request().put(Entity.json(info));
-        verify(deviceType).getKeyAccessorTypeUpdater(keyFunctionType);
+        verify(deviceType).getSecurityAccessorTypeUpdater(keyFunctionType);
         verify(updater).description(info.description);
         verify(updater).name(info.name);
         verify(updater).duration(info.duration.asTimeDuration());
@@ -150,18 +150,18 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
     @Test
     public void deleteKeyFunctionTypeOfDeviceType() throws Exception {
         DeviceType deviceType = mockDeviceType("device type 1", 66);
-        KeyAccessorType keyFunctionType = mockKeyFunctionType(1, "Name", "Epic description");
-        when(deviceType.getKeyAccessorTypes()).thenReturn(Collections.singletonList(keyFunctionType));
+        SecurityAccessorType keyFunctionType = mockKeyFunctionType(1, "Name", "Epic description");
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(Collections.singletonList(keyFunctionType));
         when(deviceConfigurationService.findAndLockDeviceType(66, 1)).thenReturn(Optional.of(deviceType));
         SecurityAccessorInfo info = new SecurityAccessorInfo();
         info.parent = new VersionInfo<>("device type 1", 1L);
 
         target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
-        verify(deviceType).removeKeyAccessorType(keyFunctionType);
+        verify(deviceType).removeSecurityAccessorType(keyFunctionType);
     }
 
-    private KeyAccessorType mockKeyFunctionType(long id, String name, String description) {
-        KeyAccessorType keyFunctionType = mock(KeyAccessorType.class);
+    private SecurityAccessorType mockKeyFunctionType(long id, String name, String description) {
+        SecurityAccessorType keyFunctionType = mock(SecurityAccessorType.class);
         when(keyFunctionType.getName()).thenReturn(name);
         when(keyFunctionType.getDescription()).thenReturn(description);
         when(keyFunctionType.getId()).thenReturn(id);

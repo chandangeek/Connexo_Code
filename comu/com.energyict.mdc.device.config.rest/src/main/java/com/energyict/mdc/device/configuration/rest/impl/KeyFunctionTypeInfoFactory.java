@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.elster.jupiter.users.Group;
@@ -28,26 +28,27 @@ public class KeyFunctionTypeInfoFactory {
         this.userService = userService;
     }
 
-    public SecurityAccessorInfo from(KeyAccessorType keyAccessorType, DeviceType deviceType) {
+    public SecurityAccessorInfo from(SecurityAccessorType securityAccessorType, DeviceType deviceType) {
         SecurityAccessorInfo info = new SecurityAccessorInfo();
-        info.id = keyAccessorType.getId();
-        info.name = keyAccessorType.getName();
-        info.description = keyAccessorType.getDescription();
-        info.keyType = new KeyTypeInfo(keyAccessorType.getKeyType());
-        info.storageMethod = info.keyType.isKey ? keyAccessorType.getKeyEncryptionMethod() : null;
-        info.trustStoreId = !info.keyType.isKey && keyAccessorType.getTrustStore().isPresent() ? keyAccessorType.getTrustStore().get().getId() : 0;
-        if (keyAccessorType.getKeyType().getCryptographicType().requiresDuration() && keyAccessorType.getDuration().isPresent()) {
-            info.duration = new TimeDurationInfo(keyAccessorType.getDuration().get());
+        info.id = securityAccessorType.getId();
+        info.name = securityAccessorType.getName();
+        info.description = securityAccessorType.getDescription();
+        info.keyType = new KeyTypeInfo(securityAccessorType.getKeyType());
+        info.storageMethod = info.keyType.isKey ? securityAccessorType.getKeyEncryptionMethod() : null;
+        info.trustStoreId = !info.keyType.isKey && securityAccessorType.getTrustStore().isPresent() ? securityAccessorType
+                .getTrustStore().get().getId() : 0;
+        if (securityAccessorType.getKeyType().getCryptographicType().requiresDuration() && securityAccessorType.getDuration().isPresent()) {
+            info.duration = new TimeDurationInfo(securityAccessorType.getDuration().get());
         }
         info.parent = new VersionInfo<>(deviceType.getName(), deviceType.getVersion());
         return info;
     }
 
-    public SecurityAccessorInfo withSecurityLevels(KeyAccessorType keyAccessorType, DeviceType deviceType) {
-        SecurityAccessorInfo info = from(keyAccessorType, deviceType);
+    public SecurityAccessorInfo withSecurityLevels(SecurityAccessorType securityAccessorType, DeviceType deviceType) {
+        SecurityAccessorInfo info = from(securityAccessorType, deviceType);
         Set<DeviceSecurityUserAction> allUserActions = EnumSet.allOf(DeviceSecurityUserAction.class);
         List<Group> groups = userService.getGroups();
-        Set<DeviceSecurityUserAction> keyAccessorTypeUserActions = deviceType.getKeyAccessorTypeUserActions(keyAccessorType);
+        Set<DeviceSecurityUserAction> keyAccessorTypeUserActions = deviceType.getSecurityAccessorTypeUserActions(securityAccessorType);
         info.editLevels = executionLevelInfoFactory.getEditPrivileges(keyAccessorTypeUserActions, groups);
         info.defaultEditLevels = executionLevelInfoFactory.getEditPrivileges(allUserActions, groups);
         info.viewLevels = executionLevelInfoFactory.getViewPrivileges(keyAccessorTypeUserActions, groups);

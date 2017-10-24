@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyType;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
@@ -44,7 +44,7 @@ public class KeyAccessorTypePropertyConverter implements PropertyValueConverter 
 
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
-        return (propertySpec.isReference() && KeyAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()));
+        return (propertySpec.isReference() && SecurityAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()));
     }
 
     @Override
@@ -60,12 +60,12 @@ public class KeyAccessorTypePropertyConverter implements PropertyValueConverter 
         } else {
             id = (Integer)infoValue;
         }
-        return deviceConfigurationService.findKeyAccessorTypeById(id).orElse(null);
+        return deviceConfigurationService.findSecurityAccessorTypeById(id).orElse(null);
     }
 
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
-        KeyAccessorType keyAccessorType = (KeyAccessorType) domainValue;
-        return new LongIdWithNameInfo(keyAccessorType.getId(), keyAccessorType.getName());
+        SecurityAccessorType securityAccessorType = (SecurityAccessorType) domainValue;
+        return new LongIdWithNameInfo(securityAccessorType.getId(), securityAccessorType.getName());
     }
 }

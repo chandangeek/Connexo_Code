@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -141,7 +141,7 @@ public class SecurityPropertySetResource {
                 .responseSecurityLevel(info.responseSecurityLevelId);
         if (info.properties != null && !info.properties.isEmpty()) {
             for (PropertySpec propertySpec : builder.getPropertySpecs()) {
-                KeyAccessorType newKeyAccessor = (KeyAccessorType) mdcPropertyUtils.findPropertyValue(propertySpec, info.properties);   // Cast to KeyAccessorType should work fine
+                SecurityAccessorType newKeyAccessor = (SecurityAccessorType) mdcPropertyUtils.findPropertyValue(propertySpec, info.properties);   // Cast to KeyAccessorType should work fine
                 if (newKeyAccessor != null) {                                                                                           // unless front-end has send wrong data, but then it's ok to throw an error
                     builder.addConfigurationSecurityProperty(propertySpec.getName(), newKeyAccessor);
                 }
@@ -173,7 +173,7 @@ public class SecurityPropertySetResource {
         List<ConfigurationSecurityProperty> configurationSecurityProperties = securityPropertySet.getConfigurationSecurityProperties();
         if (info.properties != null && !info.properties.isEmpty()) {
             for (PropertySpec propertySpec : securityPropertySet.getPropertySpecs()) {
-                KeyAccessorType keyAccessor = (KeyAccessorType) mdcPropertyUtils.findPropertyValue(propertySpec, info.properties);  // Cast to KeyAccessorType should work fine
+                SecurityAccessorType keyAccessor = (SecurityAccessorType) mdcPropertyUtils.findPropertyValue(propertySpec, info.properties);  // Cast to KeyAccessorType should work fine
                 // unless front-end has send wrong data, but then it's ok to throw an error
                 Optional<ConfigurationSecurityProperty> existingSecurityProperty = configurationSecurityProperties.stream()
                         .filter(property -> property.getName().equals(propertySpec.getName()))
