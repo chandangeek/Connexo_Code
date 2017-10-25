@@ -438,7 +438,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         }
     }
 
-    class KeypairWrapperBuilder implements PkiService.KeypairWrapperBuilder {
+    class KeypairWrapperBuilder implements SecurityManagementService.KeypairWrapperBuilder {
         private final KeypairWrapper underConstruction;
 
         public KeypairWrapperBuilder(KeypairWrapper underConstruction) {
@@ -446,7 +446,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         }
 
         @Override
-        public PkiService.KeypairWrapperBuilder alias(String alias) {
+        public SecurityManagementService.KeypairWrapperBuilder alias(String alias) {
             underConstruction.setAlias(alias);
             return this;
         }
