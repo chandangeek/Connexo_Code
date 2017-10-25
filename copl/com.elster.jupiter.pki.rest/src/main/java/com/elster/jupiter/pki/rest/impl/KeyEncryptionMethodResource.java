@@ -5,7 +5,7 @@
 package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -26,11 +26,11 @@ import static java.util.stream.Collectors.toList;
  */
 @Path("/keyencryptionmethods")
 public class KeyEncryptionMethodResource {
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
 
     @Inject
-    public KeyEncryptionMethodResource(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public KeyEncryptionMethodResource(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @GET
@@ -38,7 +38,7 @@ public class KeyEncryptionMethodResource {
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/asymmetric")
     public PagedInfoList getKeyEncryptionMethodsForAsymmetricKeys(@BeanParam JsonQueryParameters queryParameters) {
-        List<IdWithNameInfo> collect = pkiService.getKeyEncryptionMethods(CryptographicType.AsymmetricKey)
+        List<IdWithNameInfo> collect = securityManagementService.getKeyEncryptionMethods(CryptographicType.AsymmetricKey)
                 .stream()
                 .map(kem -> new IdWithNameInfo(kem, kem))
                 .collect(toList());
@@ -50,7 +50,7 @@ public class KeyEncryptionMethodResource {
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/symmetric")
     public PagedInfoList getKeyEncryptionMethodsForSymmetricKeys(@BeanParam JsonQueryParameters queryParameters) {
-        List<IdWithNameInfo> collect = pkiService.getKeyEncryptionMethods(CryptographicType.SymmetricKey)
+        List<IdWithNameInfo> collect = securityManagementService.getKeyEncryptionMethods(CryptographicType.SymmetricKey)
                 .stream()
                 .map(kem -> new IdWithNameInfo(kem, kem))
                 .collect(toList());
@@ -63,7 +63,7 @@ public class KeyEncryptionMethodResource {
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/passphrase")
     public PagedInfoList getKeyEncryptionMethodsForPassphrases(@BeanParam JsonQueryParameters queryParameters) {
-        List<IdWithNameInfo> collect = pkiService.getKeyEncryptionMethods(CryptographicType.Passphrase)
+        List<IdWithNameInfo> collect = securityManagementService.getKeyEncryptionMethods(CryptographicType.Passphrase)
                 .stream()
                 .map(kem -> new IdWithNameInfo(kem, kem))
                 .collect(toList());

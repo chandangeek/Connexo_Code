@@ -3,7 +3,7 @@
  */
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.rest.impl.PkiApplication;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.Transaction;
@@ -18,14 +18,14 @@ import static org.mockito.Mockito.when;
 public class PkiApplicationTest extends FelixRestApplicationJerseyTest {
 
     @Mock
-    PkiService pkiService;
+    SecurityManagementService securityManagementService;
     @Mock
     RestQueryService restQueryService;
 
     @Override
     protected Application getApplication() {
         PkiApplication application = new PkiApplication();
-        application.setPkiService(pkiService);
+        application.setSecurityManagementService(securityManagementService);
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         return application;
