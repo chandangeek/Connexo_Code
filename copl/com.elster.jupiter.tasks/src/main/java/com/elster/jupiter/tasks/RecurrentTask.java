@@ -86,4 +86,5 @@ public interface RecurrentTask extends HasName, HasAuditInfo {
 
     void triggerNow(TaskOccurrence taskOccurrence);
 
+    int getLogLevel(Instant at);
 }

@@ -143,9 +143,11 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public Instant getNextExecution() {
-        Optional<Instant> minNextExecution = adhocExecutions.stream().map(exec -> exec.getNextExecution()).min(Instant::compareTo);
-        return minNextExecution.isPresent() && (nextExecution.compareTo(minNextExecution.get()) > 0) ?
-                minNextExecution.get() : nextExecution;
+        List<Instant> executions = adhocExecutions.stream().map(exec -> exec.getNextExecution()).collect(Collectors.toList());
+        if (nextExecution != null) {
+            executions.add(nextExecution);
+        }
+        return executions.stream().min(Instant::compareTo).orElse(null);
     }
 
     TaskOccurrenceImpl createScheduledTaskOccurrence() {
@@ -268,7 +270,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     @TransactionRequired
     void launchOccurrence(Instant at) {
         try {
-            if (nextExecution.compareTo(at) <= 0) {
+            if ((nextExecution != null) && (nextExecution.compareTo(at) <= 0)) {
                 TaskOccurrenceImpl taskOccurrence = createScheduledTaskOccurrence();
 
                 String json = toJson(taskOccurrence);
@@ -387,6 +389,10 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     public int getLogLevel() {
         return logLevel;
+    }
+
+    public int getLogLevel(Instant at) {
+        return getHistory().getVersionAt(at).get().getLogLevel();
     }
 
     private void addAdHocExecution(Instant nextExecution, Instant triggerTime) {
