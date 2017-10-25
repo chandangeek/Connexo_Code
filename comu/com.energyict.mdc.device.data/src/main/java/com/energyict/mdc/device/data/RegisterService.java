@@ -15,5 +15,5 @@ import java.util.Optional;
 @ProviderType
 public interface RegisterService {
 
-    Optional<Register> find(RegisterIdentifier identifier);
+    Optional<Register> findByIdentifier(RegisterIdentifier identifier);
 }

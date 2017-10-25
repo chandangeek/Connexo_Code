@@ -16,17 +16,17 @@ import java.util.Set;
  * This is a DeviceIdentifier that uniquely identifies a Device which you have given in the Constructor.
  */
 @XmlRootElement
-public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements DeviceIdentifier {
+public final class DeviceIdentifierForAlreadyKnownDevice implements DeviceIdentifier {
 
     private Device device;
 
     /**
-     * Constructor only to be used by JSON (de)marshalling
+     * Constructor only to be used by JSON (de)marshalling or in unit tests
      */
-    public DeviceIdentifierForAlreadyKnownDeviceBySerialNumber() {
+    public DeviceIdentifierForAlreadyKnownDevice() {
     }
 
-    public DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(Device device) {
+    public DeviceIdentifierForAlreadyKnownDevice(Device device) {
         this();
         this.device = device;
     }
@@ -38,7 +38,11 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
 
     @Override
     public String toString() {
-        return "device having serial number '" + ((com.energyict.mdc.device.data.Device) this.device).getSerialNumber() + "'";
+        return "device having MRID " + getmRID();
+    }
+
+    private String getmRID() {
+        return ((com.energyict.mdc.device.data.Device) device).getmRID();
     }
 
     @Override
@@ -50,7 +54,7 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
             return false;
         }
 
-        DeviceIdentifierForAlreadyKnownDeviceBySerialNumber that = (DeviceIdentifierForAlreadyKnownDeviceBySerialNumber) o;
+        DeviceIdentifierForAlreadyKnownDevice that = (DeviceIdentifierForAlreadyKnownDevice) o;
 
         return ((com.energyict.mdc.device.data.Device) this.device).getId() == ((com.energyict.mdc.device.data.Device) that.device).getId();
 
@@ -64,12 +68,12 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
         @Override
         public String getTypeName() {
-            return "SerialNumber";
+            return "Actual";
         }
 
         @Override
         public Set<String> getRoles() {
-            return new HashSet<>(Arrays.asList("actual", "serialNumber"));
+            return new HashSet<>(Arrays.asList("actual", "mRID"));
         }
 
         @Override
@@ -78,8 +82,8 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
                 case "actual": {
                     return device;
                 }
-                case "serialNumber": {
-                    return ((com.energyict.mdc.device.data.Device) device).getSerialNumber();
+                case "mRID": {
+                    return getmRID();
                 }
                 default: {
                     throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());

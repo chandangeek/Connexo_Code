@@ -7,7 +7,6 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -234,7 +233,7 @@ public class CommandlyTestProtocol implements DeviceProtocol {
 
             @Override
             public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-                return Arrays.asList(new ConnexoToUPLPropertSpecAdapter(getPasswordPropertySpec()), new ConnexoToUPLPropertSpecAdapter(getUserNamePropertySpec()));
+                return Arrays.asList(ConnexoToUPLPropertSpecAdapter.adaptTo(getPasswordPropertySpec()), ConnexoToUPLPropertSpecAdapter.adaptTo(getUserNamePropertySpec()));
             }
         });
     }

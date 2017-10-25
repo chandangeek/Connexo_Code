@@ -12,13 +12,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.SecurityAccessor;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
  * Listens for delete events of {@link com.elster.jupiter.pki.CertificateWrapper}s
- * and will veto the deletion if the {@link com.elster.jupiter.pki.CertificateWrapper} is still referenced by any {@link com.energyict.mdc.device.data.KeyAccessor}
+ * and will veto the deletion if the {@link com.elster.jupiter.pki.CertificateWrapper} is still referenced by any {@link SecurityAccessor}
  */
 @Component(name="com.energyict.mdc.device.config.delete.certificate.eventhandler", service = TopicHandler.class, immediate = true)
 public class CertificateDeletionEventHandler implements TopicHandler {

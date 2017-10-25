@@ -28,6 +28,13 @@ public final class LogBookIdentifierById implements LogBookIdentifier {
     private final ObisCode obisCode;
     private final DeviceIdentifier deviceIdentifier;
 
+    // For JSON serialization only or in unit tests
+    public LogBookIdentifierById() {
+        this.logBookId = 0;
+        this.obisCode = null;
+        this.deviceIdentifier = null;
+    }
+
     public LogBookIdentifierById(long logBookId, ObisCode obisCode, DeviceIdentifier deviceIdentifier) {
         super();
         this.logBookId = logBookId;

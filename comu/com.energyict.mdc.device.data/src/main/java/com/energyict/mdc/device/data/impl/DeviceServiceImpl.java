@@ -23,7 +23,7 @@ import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.VoidTransaction;
@@ -49,7 +49,7 @@ import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
@@ -60,7 +60,7 @@ import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActio
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
-import com.energyict.mdc.device.data.impl.pki.AbstractKeyAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.AbstractSecurityAccessorImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -91,9 +91,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -108,6 +110,36 @@ import static com.energyict.mdc.device.data.impl.SyncDeviceWithKoreMeter.MULTIPL
  */
 @LiteralSql
 class DeviceServiceImpl implements ServerDeviceService {
+
+    /**
+     * Enum listing up all different Introspector types that can be used in method DeviceServiceImpl#find(com.energyict.mdc.upl.meterdata.identifiers.Introspector)
+     */
+    public enum IntrospectorTypes {
+        SerialNumber("serialNumber"),
+        LikeSerialNumber("serialNumberGrepPattern"),
+        DatabaseId("databaseValue"),
+        CallHomeId("callHomeId"),
+        SystemTitle("systemTitle"),
+        PropertyBased("propertyName", "propertyValue"),
+        ConnectionTypePropertyBased("connectionTypeClass", "propertyName", "propertyValue"),
+        mRID("databaseValue"),
+        Actual("actual", "mRID"),
+        Null();
+
+        private final String[] roles;
+
+        IntrospectorTypes(String... roles) {
+            this.roles = roles;
+        }
+
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList(roles));
+        }
+
+        public static Optional<IntrospectorTypes> forName(String name) {
+            return Arrays.stream(values()).filter(type -> type.name().equals(name)).findFirst();
+        }
+    }
 
     private final MeteringService meteringService;
     private final DeviceDataModelService deviceDataModelService;
@@ -293,8 +325,11 @@ class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public Optional<KeyAccessor<SecurityValueWrapper>> findAndLockKeyAccessorByIdAndVersion(Device device, KeyAccessorType keyAccessorType, long version) {
-        return Optional.ofNullable((KeyAccessor<SecurityValueWrapper>)this.deviceDataModelService.dataModel().mapper(KeyAccessor.class).lockObjectIfVersion(version, device.getId(), keyAccessorType.getId()).orElse(null));
+    public Optional<SecurityAccessor<SecurityValueWrapper>> findAndLockKeyAccessorByIdAndVersion(Device device, SecurityAccessorType securityAccessorType, long version) {
+        return Optional.ofNullable((SecurityAccessor<SecurityValueWrapper>) this.deviceDataModelService.dataModel()
+                .mapper(SecurityAccessor.class)
+                .lockObjectIfVersion(version, device.getId(), securityAccessorType.getId())
+                .orElse(null));
     }
 
     @Override
@@ -312,7 +347,7 @@ class DeviceServiceImpl implements ServerDeviceService {
         return getDeviceMapper().find(DeviceFields.SERIALNUMBER.fieldName(), serialNumber);
     }
 
-    private List<Device> findDevicesBySerialNumberPattern(String serialNumberPattern) {
+    protected List<Device> findDevicesBySerialNumberPattern(String serialNumberPattern) {
         return this.deviceDataModelService.dataModel().query(Device.class).select(where("serialNumberPattern").like(serialNumberPattern));
     }
 
@@ -325,7 +360,7 @@ class DeviceServiceImpl implements ServerDeviceService {
     public Optional<Device> findDeviceByIdentifier(DeviceIdentifier identifier) {
         try {
             return this.exactlyOne(this.find(identifier.forIntrospection()), identifier);
-        } catch (UnsupportedDeviceIdentifierTypeName | IllegalArgumentException e) {
+        } catch (UnsupportedDeviceIdentifierTypeName | IllegalArgumentException | NotUniqueException e) {
             return Optional.empty();
         }
     }
@@ -341,46 +376,42 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @SuppressWarnings("unchecked")
     private List<Device> find(Introspector introspector) throws UnsupportedDeviceIdentifierTypeName {
-        switch (introspector.getTypeName()) {
-            case "SerialNumber": {
-                return this.findDevicesBySerialNumber((String) introspector.getValue("serialNumber"));
-            }
-            case "LikeSerialNumber": {
-                return this.findDevicesBySerialNumberPattern((String) introspector.getValue("serialNumberGrepPattern"));
-            }
-            case "DatabaseId": {
-                return this
-                        .findDeviceById(Long.valueOf(introspector.getValue("databaseValue").toString()))
-                        .map(Collections::singletonList)
-                        .orElseGet(Collections::emptyList);
-            }
-            case "CallHomeId": {
-                String callHomeID = (String) introspector.getValue("callHomeId");
-                return this.findDevicesByPropertySpecValue(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, callHomeID);
-            }
-            case "systemTitle": {
-                String systemTitle = (String) introspector.getValue("systemTitle");
-                return this.findDevicesByPropertySpecValue("DeviceSystemTitle", systemTitle);
-            }
-            case "PhoneNumber": {
-                Class<ConnectionType> connectionTypeClass = (Class) introspector.getValue("connectionTypeClass");
-                return this.findDevicesByConnectionTypeAndProperty(
-                        connectionTypeClass,
-                        (String) introspector.getValue("propertyName"),
-                        (String) introspector.getValue("phoneNumber"));
-            }
-            case "mRID": {
-                return this
-                        .findDeviceByMrid((String) introspector.getValue("databaseValue"))
-                        .map(Collections::singletonList)
-                        .orElseGet(Collections::emptyList);
-            }
-            case "Actual": {
-                return Collections.singletonList((Device) introspector.getValue("actual"));
-            }
-            default: {
-                throw new UnsupportedDeviceIdentifierTypeName();
-            }
+        if (introspector.getTypeName().equals(IntrospectorTypes.SerialNumber.name())) {
+            return this.findDevicesBySerialNumber((String) introspector.getValue(IntrospectorTypes.SerialNumber.roles[0]));
+        } else if (introspector.getTypeName().equals(IntrospectorTypes.LikeSerialNumber.name())) {
+            return this.findDevicesBySerialNumberPattern((String) introspector.getValue(IntrospectorTypes.LikeSerialNumber.roles[0]));
+        } else if (introspector.getTypeName().equals(IntrospectorTypes.DatabaseId.name())) {
+            return this
+                    .findDeviceById(Long.valueOf(introspector.getValue(IntrospectorTypes.DatabaseId.roles[0]).toString()))
+                    .map(Collections::singletonList)
+                    .orElseGet(Collections::emptyList);
+        } else if (introspector.getTypeName().equals(IntrospectorTypes.CallHomeId.name())) {
+            String callHomeID = (String) introspector.getValue(IntrospectorTypes.CallHomeId.roles[0]);
+            return this.findDevicesByPropertySpecValue(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, callHomeID);
+        } else if (introspector.getTypeName().equals(IntrospectorTypes.SystemTitle.name())) {
+            String systemTitle = (String) introspector.getValue(IntrospectorTypes.SystemTitle.roles[0]);
+            return this.findDevicesByPropertySpecValue("DeviceSystemTitle", systemTitle);
+        } else if (introspector.getTypeName().equals(IntrospectorTypes.PropertyBased.name())) {
+            return this.findDevicesByPropertySpecValue(
+                    (String) introspector.getValue(IntrospectorTypes.PropertyBased.roles[0]),
+                    (String) introspector.getValue(IntrospectorTypes.PropertyBased.roles[1]));
+        } else if (introspector.getTypeName().equals(IntrospectorTypes.ConnectionTypePropertyBased.name())) {
+            Class<ConnectionType> connectionTypeClass = (Class) introspector.getValue(IntrospectorTypes.ConnectionTypePropertyBased.roles[0]);
+            return this.findDevicesByConnectionTypeAndProperty(
+                    connectionTypeClass,
+                    (String) introspector.getValue(IntrospectorTypes.ConnectionTypePropertyBased.roles[1]),
+                    (String) introspector.getValue(IntrospectorTypes.ConnectionTypePropertyBased.roles[2]));
+        } else if (introspector.getTypeName().equals(IntrospectorTypes.mRID.name())) {
+            return this
+                    .findDeviceByMrid((String) introspector.getValue(IntrospectorTypes.mRID.roles[0]))
+                    .map(Collections::singletonList)
+                    .orElseGet(Collections::emptyList);
+        } else if (introspector.getTypeName().equals(IntrospectorTypes.Actual.name())) {
+            return Collections.singletonList((Device) introspector.getValue(IntrospectorTypes.Actual.roles[0]));
+        } else if (introspector.getTypeName().equals(IntrospectorTypes.Null.name())) {
+            throw new UnsupportedOperationException("NullDeviceIdentifier is not capable of finding a device because it is a marker for a missing device");
+        } else {
+            throw new UnsupportedDeviceIdentifierTypeName();
         }
     }
 
@@ -418,7 +449,7 @@ class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public List<Device> findDevicesByPropertySpecValue(String propertySpecName, String propertySpecValue) {
+    public List<Device> findDevicesByPropertySpecValue(String propertySpecName, String propertySpecValue) { //TODO: warning - we don't take the config level into account!
         Condition condition = where("deviceProperties.propertyName").isEqualTo(propertySpecName).and(where("deviceProperties.propertyValue").isEqualTo(propertySpecValue));
         return this.deviceDataModelService.dataModel().query(Device.class, DeviceProtocolProperty.class).select(condition);
     }
@@ -453,7 +484,8 @@ class DeviceServiceImpl implements ServerDeviceService {
         Device modifiedDevice = null;
         try {
             modifiedDevice = deviceDataModelService.getTransactionService()
-                    .execute(() -> new DeviceConfigChangeExecutor(this, deviceDataModelService.clock(), ((DeviceImpl) lockResult.getFirst()).getEventService()).execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService.deviceConfigurationService()
+                    .execute(() -> new DeviceConfigChangeExecutor(this, deviceDataModelService.clock(), ((DeviceImpl) lockResult.getFirst()).getEventService()).execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService
+                            .deviceConfigurationService()
                             .findDeviceConfiguration(destinationDeviceConfigId)
                             .get()));
         } finally {
@@ -585,9 +617,9 @@ class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public boolean usedByKeyAccessor(CertificateWrapper certificate) {
         return !deviceDataModelService.dataModel()
-                .query(KeyAccessor.class)
-                .select(where(AbstractKeyAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
-                        .or(where(AbstractKeyAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)))
+                .query(SecurityAccessor.class)
+                .select(where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
+                        .or(where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)))
                 .isEmpty();
     }
 

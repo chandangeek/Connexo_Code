@@ -40,5 +40,4 @@ public class CanNotFindForIdentifier extends ComServerRuntimeException {
     public static CanNotFindForIdentifier message(MessageIdentifier messageIdentifier, MessageSeed messageSeed) {
         return new CanNotFindForIdentifier(messageSeed, messageIdentifier);
     }
-
 }

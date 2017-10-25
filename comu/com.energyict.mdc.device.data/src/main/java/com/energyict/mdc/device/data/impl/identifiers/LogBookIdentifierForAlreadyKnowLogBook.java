@@ -27,6 +27,12 @@ public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier
     private final LogBook logBook;
     private final DeviceIdentifier deviceIdentifier;
 
+    // For JSON serialization only or in unit tests
+    public LogBookIdentifierForAlreadyKnowLogBook() {
+        this.logBook = null;
+        this.deviceIdentifier = null;
+    }
+
     public LogBookIdentifierForAlreadyKnowLogBook(LogBook logBook, DeviceIdentifier deviceIdentifier) {
         this.logBook = logBook;
         this.deviceIdentifier = deviceIdentifier;

@@ -7,14 +7,19 @@ package com.energyict.mdc.device.data.impl;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+
 import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.elster.jupiter.util.streams.Currying.use;
 
@@ -26,12 +31,36 @@ import static com.elster.jupiter.util.streams.Currying.use;
  */
 public class LogBookServiceImpl implements ServerLogBookService {
 
+    /**
+     * Enum listing up all different Introspector types that can be used in method LogBookServiceImpl#findByIdentifier(LogBookIdentifier)
+     */
+    public enum IntrospectorTypes {
+        DatabaseId("databaseValue"),
+        DeviceIdentifierAndObisCode("device", "obisCode"),
+        Actual("actual", "databaseValue");
+
+        private final String[] roles;
+
+        IntrospectorTypes(String... roles) {
+            this.roles = roles;
+        }
+
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList(roles));
+        }
+
+        public static Optional<IntrospectorTypes> forName(String name) {
+            return Arrays.stream(values()).filter(type -> type.name().equals(name)).findFirst();
+        }
+    }
+
     private final DeviceDataModelService deviceDataModelService;
 
     @Inject
     public LogBookServiceImpl(DeviceDataModelService deviceDataModelService) {
         super();
         this.deviceDataModelService = deviceDataModelService;
+        Services.logBookFinder(this);
     }
 
     @Override
@@ -45,6 +74,11 @@ public class LogBookServiceImpl implements ServerLogBookService {
     }
 
     @Override
+    public Optional<com.energyict.mdc.upl.meterdata.LogBook> find(LogBookIdentifier identifier) {
+        return this.findByIdentifier(identifier).map(com.energyict.mdc.upl.meterdata.LogBook.class::cast);
+    }
+
+    @Override
     public Optional<LogBook> findByIdentifier(LogBookIdentifier identifier) {
         try {
             return this.doFind(identifier);
@@ -55,33 +89,22 @@ public class LogBookServiceImpl implements ServerLogBookService {
 
     private Optional<LogBook> doFind(LogBookIdentifier identifier) throws UnsupportedLogBookIdentifierTypeName {
         Introspector introspector = identifier.forIntrospection();
-        switch (introspector.getTypeName()) {
-            case "Null": {
-                throw new UnsupportedOperationException("NullLogBookIdentifier is not capable of finding a log book because it serves as a marker for a missing log book");
-            }
-            case "Actual": {
-                return Optional.of((LogBook) introspector.getValue("actual"));
-            }
-            case "Other": {
-                return this.findByIdentifier((LogBookIdentifier) introspector.getValue("other"));
-            }
-            case "DatabaseId": {
-                return this.findById(Long.valueOf(introspector.getValue("databaseValue").toString()));
-            }
-            case "DeviceIdentifierAndObisCode": {
-                DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue("device");
-                ObisCode logBookObisCode = (ObisCode) introspector.getValue("obisCode");
-                return this.deviceDataModelService.deviceService()
-                            .findDeviceByIdentifier(deviceIdentifier)
-                            .flatMap(use(this::findByDeviceAndObisCode).with(logBookObisCode));
-            }
-            default: {
-                throw new UnsupportedLogBookIdentifierTypeName();
-            }
+        if (introspector.getTypeName().equals(IntrospectorTypes.Actual.name())) {
+            return Optional.of((LogBook) introspector.getValue(IntrospectorTypes.Actual.roles[0]));
+        } else if (introspector.getTypeName().equals(IntrospectorTypes.DatabaseId.name())) {
+            return this.findById(Long.valueOf(introspector.getValue(IntrospectorTypes.DatabaseId.roles[0]).toString()));
+        } else if (introspector.getTypeName().equals(IntrospectorTypes.DeviceIdentifierAndObisCode.name())) {
+            DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue(IntrospectorTypes.DeviceIdentifierAndObisCode.roles[0]);
+            ObisCode logBookObisCode = (ObisCode) introspector.getValue(IntrospectorTypes.DeviceIdentifierAndObisCode.roles[1]);
+            return this.deviceDataModelService.deviceService()
+                    .findDeviceByIdentifier(deviceIdentifier)
+                    .flatMap(use(this::findByDeviceAndObisCode).with(logBookObisCode));
+        } else {
+            throw new UnsupportedLogBookIdentifierTypeName();
         }
     }
 
-    private Optional<LogBook> findByDeviceAndObisCode(Device device, ObisCode obisCode) {
+    protected Optional<LogBook> findByDeviceAndObisCode(Device device, ObisCode obisCode) {
         return device
                 .getLogBooks()
                 .stream()

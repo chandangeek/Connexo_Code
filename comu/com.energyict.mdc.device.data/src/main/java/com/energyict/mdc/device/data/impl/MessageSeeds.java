@@ -183,7 +183,7 @@ public enum MessageSeeds implements MessageSeed {
     VALIDATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2157, "ValidationPropertyCannotBeOverridden", "Validation rule property with key ''{0}'' can''t be overridden"),
     ESTIMATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2158, "EstimationPropertyCannotBeOverridden", "Estimation rule property with key ''{0}'' can''t be overridden"),
     NO_BASIC_CHECK_COMTASK(2159, Keys.NO_BASIC_CHECK_COMTASK, "A basic check comtask could not be located"),
-    COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE(2160, Keys.COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE, "The device command ''{0}'' should have a 'key accessor reference' attribute"),
+    COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE(2160, Keys.COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE, "The device command ''{0}'' should have a 'security accessor reference' attribute"),
     CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL(2161, Keys.CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL, "The connection function is not supported by the device protocol");
 
     private final int number;

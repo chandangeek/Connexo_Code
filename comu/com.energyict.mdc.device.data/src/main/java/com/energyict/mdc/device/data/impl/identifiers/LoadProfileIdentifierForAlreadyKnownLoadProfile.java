@@ -42,7 +42,7 @@ public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProf
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(loadProfile.getDevice());
+        return new DeviceIdentifierForAlreadyKnownDevice(loadProfile.getDevice());
     }
 
     @Override

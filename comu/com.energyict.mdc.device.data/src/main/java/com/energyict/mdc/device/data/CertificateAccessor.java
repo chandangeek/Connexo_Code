@@ -9,5 +9,5 @@ import com.elster.jupiter.pki.CertificateWrapper;
 /**
  * Accessor for a CertificateWrapper.
  */
-public interface CertificateAccessor extends KeyAccessor<CertificateWrapper> {
+public interface CertificateAccessor extends SecurityAccessor<CertificateWrapper> {
 }
