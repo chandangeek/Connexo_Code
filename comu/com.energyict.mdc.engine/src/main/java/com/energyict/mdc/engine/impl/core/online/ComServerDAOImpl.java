@@ -375,7 +375,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     private Optional<Register> findRegister(RegisterIdentifier identifier) {
         return this.serviceProvider
                 .registerService()
-                .find(identifier);
+                .findByIdentifier(identifier);
     }
 
     @Override

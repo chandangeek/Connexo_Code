@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.channel.serial.OpticalDriver;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.exceptions.ComCommandException;
@@ -16,13 +15,15 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
+
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.HalfDuplexEnabler;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 public class HandHeldUnitEnablerCommand extends SimpleComCommand {
 
@@ -47,10 +48,10 @@ public class HandHeldUnitEnablerCommand extends SimpleComCommand {
                     }
 
                     //If the old protocol implements HalfDuplexEnabler, provide the HalfDuplexController
-                    if ((deviceProtocol instanceof MeterProtocolAdapter) && (((MeterProtocolAdapter) deviceProtocol).getMeterProtocol() instanceof HalfDuplexEnabler)) {
-                        ((HalfDuplexEnabler) ((MeterProtocolAdapter) deviceProtocol).getMeterProtocol()).setHalfDuplexController(serialCommunicationChannel);
-                    } else if ((deviceProtocol instanceof SmartMeterProtocolAdapter) && (((SmartMeterProtocolAdapter) deviceProtocol).getSmartMeterProtocol() instanceof HalfDuplexEnabler)) {
-                        ((HalfDuplexEnabler) ((SmartMeterProtocolAdapter) deviceProtocol).getSmartMeterProtocol()).setHalfDuplexController(serialCommunicationChannel);
+                    if ((deviceProtocol instanceof MeterProtocolAdapter) && (((MeterProtocolAdapter) deviceProtocol).getUplMeterProtocol() instanceof HalfDuplexEnabler)) {
+                        ((HalfDuplexEnabler) ((MeterProtocolAdapter) deviceProtocol).getUplMeterProtocol()).setHalfDuplexController(serialCommunicationChannel);
+                    } else if ((deviceProtocol instanceof SmartMeterProtocolAdapter) && (((SmartMeterProtocolAdapter) deviceProtocol).getUplSmartMeterProtocol() instanceof HalfDuplexEnabler)) {
+                        ((HalfDuplexEnabler) ((SmartMeterProtocolAdapter) deviceProtocol).getUplSmartMeterProtocol()).setHalfDuplexController(serialCommunicationChannel);
                     }
 
                 } else {

@@ -11,7 +11,7 @@ import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
@@ -187,7 +187,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         if (context.needsRegisters()) {
             setAllOfflineRegisters(convertToOfflineRegister(createCompleteRegisterList()));
         }
-        setAllKeyAccessors(convertToOfflineKeyAccessors(this.device.getKeyAccessors()));
+        setAllKeyAccessors(convertToOfflineKeyAccessors(this.device.getSecurityAccessors()));
         setSecurityPropertySetAttributeToKeyAccessorTypeMapping(this.device);
         if (context.needsPendingMessages()) {
             try {
@@ -333,9 +333,9 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         return registers.stream().map(register -> new OfflineRegisterImpl(register, serviceProvider.identificationService())).collect(Collectors.toList());
     }
 
-    private List<OfflineKeyAccessor> convertToOfflineKeyAccessors(final List<KeyAccessor> keyAccessors) {
-        List<OfflineKeyAccessor> offlineKeyAccesssors = new ArrayList<>(keyAccessors.size());
-        offlineKeyAccesssors.addAll(keyAccessors.stream().map(keyAccessor -> new OfflineKeyAccessorImpl(keyAccessor, serviceProvider.identificationService())).collect(Collectors.toList()));
+    private List<OfflineKeyAccessor> convertToOfflineKeyAccessors(final List<SecurityAccessor> securityAccessors) {
+        List<OfflineKeyAccessor> offlineKeyAccesssors = new ArrayList<>(securityAccessors.size());
+        offlineKeyAccesssors.addAll(securityAccessors.stream().map(keyAccessor -> new OfflineKeyAccessorImpl(keyAccessor, serviceProvider.identificationService())).collect(Collectors.toList()));
         return offlineKeyAccesssors;
     }
 
@@ -640,7 +640,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
 
     private void addSecurityPropertySetAttributeToKeyAccessorTypeMappings(SecurityPropertySet securityPropertySet) {
         TypedProperties mappings = TypedProperties.empty();
-        securityPropertySet.getConfigurationSecurityProperties().stream().forEach(each -> mappings.setProperty(each.getName(), each.getKeyAccessorType().getName()));
+        securityPropertySet.getConfigurationSecurityProperties().stream().forEach(each -> mappings.setProperty(each.getName(), each.getSecurityAccessorType().getName()));
         securityPropertySetAttributeToKeyAccessorTypeMapping.put(securityPropertySet.getName(), mappings);
     }
 

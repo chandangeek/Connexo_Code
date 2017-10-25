@@ -8,7 +8,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceBySerialNumber;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
@@ -24,7 +23,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -93,20 +91,5 @@ public class OfflineLogBookImplTest {
         LogBookType logBookType = mock(LogBookType.class);
         when(logBookType.getId()).thenReturn(LOGBOOK_TYPE_ID);
         return logBookType;
-    }
-
-    @Test
-    public void deviceIdentifierForKnownDeviceBySerialNumberShouldBeUsedTest() {
-        LogBookType logBookType = getMockedLogBookType();
-        LogBookSpec logBookSpec = getMockedLogBookSpec(logBookType);
-        Device device = getMockedDevice();
-        LogBook logBook = getMockedLogBook(logBookType, logBookSpec, device);
-        DeviceIdentifierForAlreadyKnownDeviceBySerialNumber deviceIdentifierForAlreadyKnownDevice = new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(device);
-        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(Device.class))).thenReturn(deviceIdentifierForAlreadyKnownDevice);
-
-        //Business Methods
-        OfflineLogBook offlineLogBook = new OfflineLogBookImpl(logBook, this.identificationService);
-
-        assertThat(offlineLogBook.getDeviceIdentifier().forIntrospection().getTypeName()).isEqualTo("SerialNumber");
     }
 }

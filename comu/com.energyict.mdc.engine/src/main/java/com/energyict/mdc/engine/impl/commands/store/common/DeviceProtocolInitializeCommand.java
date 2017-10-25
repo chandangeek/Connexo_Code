@@ -16,8 +16,9 @@ import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 import com.energyict.mdc.upl.issue.Problem;
+
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 public class DeviceProtocolInitializeCommand extends SimpleComCommand {
 

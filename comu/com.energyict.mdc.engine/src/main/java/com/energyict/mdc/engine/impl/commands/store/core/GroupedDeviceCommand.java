@@ -325,7 +325,7 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
 
     @Override
     public String getDescriptionTitle() {
-        return ComCommandDescriptionTitle.GroupedDeviceCommand.getDescription();
+        return "Groups commands per device and securityset";
     }
 
     private boolean checkIfCommandExists(ComCommandTypes comCommandTypes) {

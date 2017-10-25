@@ -17,7 +17,6 @@ import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
 import com.energyict.mdc.engine.impl.commands.collect.RegisterCommand;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
-import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -128,7 +127,7 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         assertThat(readRegistersCommand.getIssues()).isEmpty();
         assertThat(readRegistersCommand.getProblems()).isEmpty();
         assertThat(readRegistersCommand.getWarnings()).isEmpty();
-        assertEquals(ComCommandDescriptionTitle.ReadRegistersCommandImpl.getDescription() + " {registers: (1.1.1.1.1.1)}", journalMessage);
+        assertEquals("Read out the device registers {registers: (1.1.1.1.1.1)}", journalMessage);
     }
 
     @Test
@@ -168,8 +167,8 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         String debugJournalMessage = readRegistersCommand.toJournalMessageDescription(LogLevel.DEBUG);
 
         assertThat(readRegistersCommand.getOfflineRegisters()).hasSize(4);
-        assertEquals(ComCommandDescriptionTitle.ReadRegistersCommandImpl.getDescription() + " {nrOfRegistersToRead: 4}", infoJournalMessage);
-        assertEquals(ComCommandDescriptionTitle.ReadRegistersCommandImpl.getDescription() + " {registers: (1.0.1.8.1.255 - 1.2 Wh), (1.0.1.8.2.255 - 1.2 Wh), (1.0.1.8.3.255 - 1.2 Wh), (1.0.1.8.4.255 - 1.2 Wh)}", debugJournalMessage);
+        assertEquals("Read out the device registers {nrOfRegistersToRead: 4}", infoJournalMessage);
+        assertEquals("Read out the device registers {registers: (1.0.1.8.1.255 - 1.2 Wh), (1.0.1.8.2.255 - 1.2 Wh), (1.0.1.8.3.255 - 1.2 Wh), (1.0.1.8.4.255 - 1.2 Wh)}", debugJournalMessage);
     }
 
     @Test
@@ -208,8 +207,8 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         String debugJournalMessage = readRegistersCommand.toJournalMessageDescription(LogLevel.DEBUG);
 
         assertThat(readRegistersCommand.getOfflineRegisters()).hasSize(3);
-        assertEquals(ComCommandDescriptionTitle.ReadRegistersCommandImpl.getDescription() + " {nrOfRegistersToRead: 3}", infoJournalMessage);
-        assertEquals(ComCommandDescriptionTitle.ReadRegistersCommandImpl.getDescription() + " {nrOfWarnings: 0; nrOfProblems: 1; registers: (1.0.1.8.1.255 - 1.2 Wh), (1.0.1.8.2.255 - 1.2 Wh), (1.0.1.8.4.255 - 1.2 Wh)}", debugJournalMessage);
+        assertEquals("Read out the device registers {nrOfRegistersToRead: 3}", infoJournalMessage);
+        assertEquals("Read out the device registers {nrOfWarnings: 0; nrOfProblems: 1; registers: (1.0.1.8.1.255 - 1.2 Wh), (1.0.1.8.2.255 - 1.2 Wh), (1.0.1.8.4.255 - 1.2 Wh)}", debugJournalMessage);
         assertEquals(readRegistersCommand.getIssues().size(), 1);
         assertEquals(readRegistersCommand.getIssues().get(0).getDescription(), "anyChannelObisCodeRequiresSerialNumber");
     }

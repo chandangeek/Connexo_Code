@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.transaction.TransactionService;
@@ -12,7 +12,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
@@ -82,39 +82,39 @@ public class DeviceProtocolSecurityPropertySetImplTest {
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getLocalValue("SymmetricKey")).isEqualTo("MySymmetricKey");
     }
 
-    private ConfigurationSecurityProperty getConfigurationSecurityProperty(KeyAccessor keyAccessor, String name) {
+    private ConfigurationSecurityProperty getConfigurationSecurityProperty(SecurityAccessor securityAccessor, String name) {
         ConfigurationSecurityProperty configurationSecurityProperty = mock(ConfigurationSecurityProperty.class);
         when(configurationSecurityProperty.getName()).thenReturn(name);
-        KeyAccessorType keyAccessorType = keyAccessor.getKeyAccessorType();
-        when(configurationSecurityProperty.getKeyAccessorType()).thenReturn(keyAccessorType);
+        SecurityAccessorType securityAccessorType = securityAccessor.getKeyAccessorType();
+        when(configurationSecurityProperty.getSecurityAccessorType()).thenReturn(securityAccessorType);
         return configurationSecurityProperty;
     }
 
-    private KeyAccessor getSymmetricKeyKeyAccessor(String keyAccessorTypeName, byte[] symmetricKey) {
+    private SecurityAccessor getSymmetricKeyKeyAccessor(String keyAccessorTypeName, byte[] symmetricKey) {
         PlaintextSymmetricKey plaintextSymmetricKey = mock(PlaintextSymmetricKey.class);
         SecretKey secretKey = mock(SecretKey.class);
         when(secretKey.getEncoded()).thenReturn(symmetricKey);
         when(plaintextSymmetricKey.getKey()).thenReturn(Optional.of(secretKey));
 
-        KeyAccessor keyAccessor = mock(KeyAccessor.class);
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getName()).thenReturn(keyAccessorTypeName);
-        when(keyAccessor.getKeyAccessorType()).thenReturn(keyAccessorType);
-        when(keyAccessor.getDevice()).thenReturn(device);
-        when(keyAccessor.getActualValue()).thenReturn(Optional.of(plaintextSymmetricKey));
-        return keyAccessor;
+        SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getName()).thenReturn(keyAccessorTypeName);
+        when(securityAccessor.getKeyAccessorType()).thenReturn(securityAccessorType);
+        when(securityAccessor.getDevice()).thenReturn(device);
+        when(securityAccessor.getActualValue()).thenReturn(Optional.of(plaintextSymmetricKey));
+        return securityAccessor;
     }
 
-    private KeyAccessor getPassPhraseKeyAccessor(String keyAccessorTypeName, String passPhrase) {
+    private SecurityAccessor getPassPhraseKeyAccessor(String keyAccessorTypeName, String passPhrase) {
         PlaintextPassphrase plaintextPassphrase = mock(PlaintextPassphrase.class);
         when(plaintextPassphrase.getPassphrase()).thenReturn(Optional.of(passPhrase));
 
-        KeyAccessor keyAccessor = mock(KeyAccessor.class);
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getName()).thenReturn(keyAccessorTypeName);
-        when(keyAccessor.getKeyAccessorType()).thenReturn(keyAccessorType);
-        when(keyAccessor.getDevice()).thenReturn(device);
-        when(keyAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
-        return keyAccessor;
+        SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getName()).thenReturn(keyAccessorTypeName);
+        when(securityAccessor.getKeyAccessorType()).thenReturn(securityAccessorType);
+        when(securityAccessor.getDevice()).thenReturn(device);
+        when(securityAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
+        return securityAccessor;
     }
 }

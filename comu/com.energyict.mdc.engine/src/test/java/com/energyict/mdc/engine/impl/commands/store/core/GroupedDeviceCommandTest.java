@@ -5,7 +5,6 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
@@ -36,11 +35,9 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.exceptions.DataParseException;
+import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
@@ -49,9 +46,14 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.upl.io.ConnectionCommunicationException;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataParseException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -314,14 +316,15 @@ public class GroupedDeviceCommandTest extends CommonCommandImplTests {
 
     private ComCommand mockConnectionErrorFailureComCommand(GroupedDeviceCommand groupedDeviceCommand) {
         AddPropertiesCommand addPropertiesCommand = spy(new AddPropertiesCommand(groupedDeviceCommand, TypedProperties.empty(), TypedProperties.empty(), null));
-        doThrow(ConnectionCommunicationException.allowedAttemptsExceeded(new Exception(), 1)).when(addPropertiesCommand)
+        doThrow(new ConnectionCommunicationException(com.energyict.mdc.engine.impl.commands.MessageSeeds.UNEXPECTED_IO_EXCEPTION, new IOException("For testing purposes only")))
+                .when(addPropertiesCommand)
                 .doExecute(any(DeviceProtocol.class), any(ExecutionContext.class));
         return addPropertiesCommand;
     }
 
     private ComCommand mockNoneConnectionErrorFailureComCommand(GroupedDeviceCommand groupedDeviceCommand) {
         AddPropertiesCommand addPropertiesCommand = spy(new AddPropertiesCommand(groupedDeviceCommand, TypedProperties.empty(), TypedProperties.empty(), null));
-        doThrow(new DataParseException(new IndexOutOfBoundsException("You did not parse it right ..."), MessageSeeds.COULD_NOT_PARSE_REGISTER_DATA)).when(addPropertiesCommand)
+        doThrow(new DataParseException(new IndexOutOfBoundsException("You did not parse it right ..."), MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA)).when(addPropertiesCommand)
                 .doExecute(any(DeviceProtocol.class), any(ExecutionContext.class));
         return addPropertiesCommand;
     }
@@ -398,7 +401,7 @@ public class GroupedDeviceCommandTest extends CommonCommandImplTests {
         DaisyChainedLogOnCommand daisyChainedLogOnCommand = getDaisyChainedLogOnCommand(groupedDeviceCommand2, comTaskExecution2);
         ReadRegistersCommand readRegistersCommand = getReadRegistersCommand(groupedDeviceCommand2, comTaskExecution2);
         LogOffCommand logOffCommand = getLogOffCommand(groupedDeviceCommand2, comTaskExecution1);
-        doThrow(new CommunicationException(MessageSeeds.CIPHERING_EXCEPTION)).when(deviceProtocol1).logOn();
+        doThrow(new CommunicationException(MessageSeeds.DEVICEPROTOCOL_LEGACY_ISSUE)).when(deviceProtocol1).logOn();
 
         commandRoot.execute(true);
         verify(logOnCommand, times(1)).execute(deviceProtocol1, executionContext);

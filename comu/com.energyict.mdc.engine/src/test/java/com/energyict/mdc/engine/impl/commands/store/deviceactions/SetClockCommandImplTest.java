@@ -8,7 +8,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ClockTaskOptions;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.FakeIssueService;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -55,8 +54,7 @@ public class SetClockCommandImplTest {
         String journalEntry = setClockCommand.toJournalMessageDescription(LogLevel.DEBUG);
 
         // Asserts
-        assertEquals(ComCommandDescriptionTitle.SetClockCommandImpl.getDescription()
-                + " {executionState: NOT_EXECUTED; completionCode: Ok; minimumDifference: 10 seconds; maximumDifference: 100 seconds; timeDifference: 45 seconds}", journalEntry);
+        assertEquals("Set the device time {executionState: NOT_EXECUTED; completionCode: Ok; minimumDifference: 10 seconds; maximumDifference: 100 seconds; timeDifference: 45 seconds}", journalEntry);
     }
 
     @Test

@@ -18,7 +18,6 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.exceptions.ObisCodeParseException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -28,6 +27,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.exceptions.DataParseException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -274,7 +274,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                         && meterChannelInfo.getMeterIdentifier().equalsIgnoreCase(localChannelInfo.getMeterIdentifier());
             }
         } catch (IllegalArgumentException e) {
-            throw new ObisCodeParseException(e);
+            throw new DataParseException(e, MessageSeeds.COULD_NOT_PARSE_OBIS_CODE);
         }
     }
 

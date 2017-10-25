@@ -7,10 +7,8 @@ package com.energyict.mdc.engine.impl.commands.store.legacy;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.util.time.StopWatch;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.channel.serial.OpticalDriver;
 import com.energyict.mdc.channel.serial.ServerSerialPort;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.exceptions.ComCommandException;
@@ -35,12 +33,10 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import com.energyict.dialer.connection.ConnectionException;
 
 import java.io.InputStream;
 import java.util.EnumSet;
@@ -49,6 +45,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -237,7 +239,7 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
-            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::adaptTo).collect(Collectors.toList());
         }
 
         @Override

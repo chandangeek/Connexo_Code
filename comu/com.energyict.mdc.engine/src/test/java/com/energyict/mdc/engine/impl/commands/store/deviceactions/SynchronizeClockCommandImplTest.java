@@ -11,7 +11,6 @@ import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ClockTaskOptions;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -70,7 +69,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         SynchronizeClockCommandImpl command = new SynchronizeClockCommandImpl(groupedDeviceCommand, clockCommand, comTaskExecution);
         String journalMessage = command.toJournalMessageDescription(LogLevel.DEBUG);
 
-        assertEquals(ComCommandDescriptionTitle.SynchronizeClockCommandImpl.getDescription() + " {executionState: NOT_EXECUTED; completionCode: Ok; minimumDifference: 5 seconds; maximumDifference: 600 seconds; maximumClockShift: 111 seconds; timeDifference: 45 seconds}", journalMessage);
+        assertEquals("Synchronize the device time {executionState: NOT_EXECUTED; completionCode: Ok; minimumDifference: 5 seconds; maximumDifference: 600 seconds; maximumClockShift: 111 seconds; timeDifference: 45 seconds}", journalMessage);
     }
 
     @Test

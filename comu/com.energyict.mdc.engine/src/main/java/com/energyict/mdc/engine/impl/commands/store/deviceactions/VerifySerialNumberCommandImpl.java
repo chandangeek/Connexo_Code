@@ -14,8 +14,8 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
-import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
+
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 
 /**
  * Proper implementation for a {@link VerifySerialNumberCommand}
@@ -45,15 +45,14 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
      */
     @Override
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        if (!(MeterProtocolAdapter.class.isAssignableFrom(deviceProtocol.getClass()))) {
-            String meterSerialNumber = deviceProtocol.getSerialNumber();
-            if (meterSerialNumber == null) {
-                addIssue(getIssueService().newWarning(deviceProtocol, MessageSeeds.NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER, offlineDevice.getSerialNumber(), deviceProtocol.getClass().getSimpleName()), CompletionCode.ConfigurationWarning);
-            } else if (!meterSerialNumber.equals(offlineDevice.getSerialNumber())) {
-                addIssue(getIssueService().newProblem(getCommandType(), MessageSeeds.CONFIG_SERIAL_NUMBER_MISMATCH, meterSerialNumber, offlineDevice.getSerialNumber()), CompletionCode.ConfigurationError);
-            }
-        } else {
-            addIssue(getIssueService().newWarning(deviceProtocol, MessageSeeds.NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER, offlineDevice.getSerialNumber(), deviceProtocol.getClass().getSimpleName()), CompletionCode.ConfigurationWarning);
+        String meterSerialNumber = deviceProtocol.getSerialNumber();
+        if (meterSerialNumber == null) {
+            addIssue(
+                    getIssueService().newWarning(deviceProtocol, MessageSeeds.NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER, offlineDevice.getSerialNumber(), deviceProtocol.getClass().getSimpleName()),
+                    CompletionCode.ConfigurationWarning
+            );
+        } else if (!meterSerialNumber.equals(offlineDevice.getSerialNumber())) {
+            addIssue(getIssueService().newProblem(getCommandType(), MessageSeeds.CONFIG_SERIAL_NUMBER_MISMATCH, meterSerialNumber, offlineDevice.getSerialNumber()), CompletionCode.ConfigurationError);
         }
     }
 

@@ -6,7 +6,6 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -21,7 +20,6 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -39,6 +37,8 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
@@ -47,14 +47,6 @@ import com.energyict.protocol.ProtocolReadingQualities;
 import com.energyict.protocol.exceptions.ConnectionException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.ZoneId;
@@ -65,6 +57,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -266,7 +267,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
 
         command.execute(deviceProtocol, executionContext);
         String journalMessage = command.toJournalMessageDescription(LogLevel.INFO);
-        assertEquals(ComCommandDescriptionTitle.CreateMeterEventsFromStatusFlagsCommandImpl.getDescription() + " {No events created from profile load profile having OBIS code 0.0.99.98.0.255 on device with deviceIdentifier 'null'}", journalMessage);
+        assertEquals("Create meter events from load profile reading qualities {No events created from profile load profile having OBIS code 0.0.99.98.0.255 on device with deviceIdentifier 'null'}", journalMessage);
     }
 
     @Test
@@ -283,7 +284,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         initializeDeviceLoadProfileWith(ProtocolReadingQualities.DEVICE_ERROR);
         command.execute(deviceProtocol, executionContext);
         String journalMessage = command.toJournalMessageDescription(LogLevel.INFO);
-        assertEquals(ComCommandDescriptionTitle.CreateMeterEventsFromStatusFlagsCommandImpl.getDescription() + " {Created 1 event(s) from profile load profile having OBIS code 0.0.99.98.0.255 on device with deviceIdentifier 'null'}", journalMessage);
+        assertEquals("Create meter events from load profile reading qualities {Created 1 event(s) from profile load profile having OBIS code 0.0.99.98.0.255 on device with deviceIdentifier 'null'}", journalMessage);
     }
 
     @Test

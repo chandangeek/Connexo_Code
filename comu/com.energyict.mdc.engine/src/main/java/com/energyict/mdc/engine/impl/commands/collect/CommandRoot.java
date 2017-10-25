@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -94,6 +95,8 @@ public interface CommandRoot extends Iterable<GroupedDeviceCommand> {
         Clock clock();
 
         Thesaurus thesaurus();
+
+        NlsService nlsService();
 
         DeviceService deviceService();
 

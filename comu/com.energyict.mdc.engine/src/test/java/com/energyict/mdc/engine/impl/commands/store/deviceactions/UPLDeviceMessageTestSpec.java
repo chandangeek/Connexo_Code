@@ -24,10 +24,10 @@ import static org.mockito.Mockito.when;
 public enum UPLDeviceMessageTestSpec implements DeviceMessageSpec {
 
     TEST_SPEC_WITH_SIMPLE_SPECS(
-            mockPropertySpec("testMessageSpec.simpleBigDecimal", ConnexoToUPLValueFactoryAdapter.adapt(new BigDecimalFactory())),
-            mockPropertySpec("testMessageSpec.simpleString", ConnexoToUPLValueFactoryAdapter.adapt(new StringFactory()))),
+            mockPropertySpec("testMessageSpec.simpleBigDecimal", ConnexoToUPLValueFactoryAdapter.adaptTo(new BigDecimalFactory())),
+            mockPropertySpec("testMessageSpec.simpleString", ConnexoToUPLValueFactoryAdapter.adaptTo(new StringFactory()))),
     TEST_SPEC_WITH_EXTENDED_SPECS(
-            mockPropertySpec("testMessageSpec.activationdate", ConnexoToUPLValueFactoryAdapter.adapt(new TemporalAmountValueFactory()))),
+            mockPropertySpec("testMessageSpec.activationdate", ConnexoToUPLValueFactoryAdapter.adaptTo(new TemporalAmountValueFactory()))),
     TEST_SPEC_WITHOUT_SPECS;
 
     private List<PropertySpec> deviceMessagePropertySpecs;

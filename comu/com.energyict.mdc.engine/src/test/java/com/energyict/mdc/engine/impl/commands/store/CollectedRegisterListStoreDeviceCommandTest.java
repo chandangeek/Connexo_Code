@@ -126,7 +126,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
         when(registerIdentifier.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         when(registerIdentifier.getRegisterObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
-        when(this.registerService.find(registerIdentifier)).thenReturn(Optional.of(register));
+        when(this.registerService.findByIdentifier(registerIdentifier)).thenReturn(Optional.of(register));
 
         CollectedRegister collectedRegister = createCollectedRegister(registerIdentifier);
 
@@ -182,7 +182,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
         when(registerIdentifier.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         when(registerIdentifier.getRegisterObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
-        when(this.registerService.find(registerIdentifier)).thenReturn(Optional.of(register));
+        when(this.registerService.findByIdentifier(registerIdentifier)).thenReturn(Optional.of(register));
 
         CollectedRegister collectedRegister = createCollectedRegister(registerIdentifier);
 
@@ -262,7 +262,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
         when(registerIdentifier.getDeviceIdentifier()).thenReturn(dataLoggerIdentifier);
         when(registerIdentifier.getRegisterObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
-        when(this.registerService.find(registerIdentifier)).thenReturn(Optional.of(slaveRegister));
+        when(this.registerService.findByIdentifier(registerIdentifier)).thenReturn(Optional.of(slaveRegister));
 
         CollectedRegister collectedRegister = createCollectedRegister(registerIdentifier);
 
@@ -345,7 +345,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         when(registerType.getReadingType()).thenReturn(readingType);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
         RegisterIdentifierByAlreadyKnownRegister registerIdentifier = new RegisterIdentifierByAlreadyKnownRegister(register);
-        doReturn(Optional.of(device)).when(this.registerService).find(registerIdentifier);
+        doReturn(Optional.of(device)).when(this.registerService).findByIdentifier(registerIdentifier);
         return register;
     }
 }

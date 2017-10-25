@@ -6,7 +6,6 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
@@ -15,6 +14,8 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+
+import com.energyict.cbo.Unit;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -50,8 +51,8 @@ public class PreStoreRegisters {
         for (CollectedRegister collectedRegister : collectedRegisterList.getCollectedRegisters()) {
             if (collectedRegister.getResultType().equals(ResultType.Supported)) {
                 Optional<OfflineRegister> offlineRegister = this.comServerDAO.findOfflineRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadTime().toInstant());
-                DeviceIdentifier deviceIdentifier = offlineRegister.get().getDeviceIdentifier();
                 if (offlineRegister.isPresent()) {
+                    DeviceIdentifier deviceIdentifier = offlineRegister.get().getDeviceIdentifier();
                     String readingTypeMRID = offlineRegister.get().getReadingTypeMRID();
                     Reading reading = MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister, readingTypeMRID);
                     if (!collectedRegister.isTextRegister() && collectedRegister.getCollectedQuantity() != null) {

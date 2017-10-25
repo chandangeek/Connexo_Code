@@ -32,27 +32,27 @@ import java.util.concurrent.TimeoutException;
 public class DataAccessException extends ComServerRuntimeException {
 
     public DataAccessException(SQLException cause, MessageSeed messageSeed) {
-        super(cause, messageSeed, cause.getMessage());
+        super(cause, messageSeed);
     }
 
     public DataAccessException(JSONException cause, MessageSeed messageSeed) {
-        super(cause, messageSeed, cause.getMessage());
+        super(cause, messageSeed);
     }
 
     public DataAccessException(IOException cause, MessageSeed messageSeed) {
-        super(cause, messageSeed, cause.getMessage());
+        super(cause, messageSeed);
     }
 
     public DataAccessException(InterruptedException cause, MessageSeed messageSeed) {
-        super(cause, messageSeed, cause.getMessage());
+        super(cause, messageSeed);
     }
 
     public DataAccessException(ExecutionException cause, MessageSeed messageSeed) {
-        super(cause, messageSeed, cause.getMessage());
+        super(cause, messageSeed);
     }
 
     public DataAccessException(TimeoutException cause, MessageSeed messageSeed) {
-        super(cause, messageSeed, cause.getMessage());
+        super(cause, messageSeed);
     }
 
 }

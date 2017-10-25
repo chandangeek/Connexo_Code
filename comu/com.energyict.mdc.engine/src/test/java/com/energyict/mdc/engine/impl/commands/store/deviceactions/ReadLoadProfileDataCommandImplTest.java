@@ -11,7 +11,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadLoadProfileDataCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -95,6 +94,6 @@ public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
         assertEquals("There should be 1 collected data object in the list", 1, loadProfileCommand.getCollectedData().size());
         assertTrue("The collected data should be CollectedLoadProfile", loadProfileCommand.getCollectedData().get(0) instanceof CollectedLoadProfile);
         assertEquals("Should have 10 intervals", 10, ((CollectedLoadProfile) loadProfileCommand.getCollectedData().get(0)).getCollectedIntervalData().size());
-        assertThat(journalMessage).matches(ComCommandDescriptionTitle.ReadLoadProfileDataCommandImpl.getDescription() + " \\{collectedProfiles: \\(.* - Supported - channels: CHN1, CHN2 - dataPeriod: \\[.*\\]\\)\\}");
+        assertThat(journalMessage).matches("Read out the load profiles \\{collectedProfiles: \\(.* - Supported - channels: CHN1, CHN2 - dataPeriod: \\[.*\\]\\)\\}");
     }
 }

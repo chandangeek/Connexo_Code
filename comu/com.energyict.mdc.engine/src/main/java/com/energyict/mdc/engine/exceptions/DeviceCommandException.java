@@ -18,8 +18,12 @@ public class DeviceCommandException extends ComServerRuntimeException {
         super(messageSeed, messageArguments);
     }
 
+    private DeviceCommandException(Throwable cause, MessageSeed messageSeed) {
+        super(cause, messageSeed);
+    }
+
     public static DeviceCommandException errorDuringFutureGetCall(ExecutionException e, MessageSeed messageSeed) {
-        return new DeviceCommandException(messageSeed, e);
+        return new DeviceCommandException(e, messageSeed);
     }
 
 }

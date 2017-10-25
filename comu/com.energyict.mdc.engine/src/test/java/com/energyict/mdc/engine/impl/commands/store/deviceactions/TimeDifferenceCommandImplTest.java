@@ -9,7 +9,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -73,7 +72,7 @@ public class TimeDifferenceCommandImplTest extends CommonCommandImplTests {
         GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
 
         TimeDifferenceCommandImpl command = new TimeDifferenceCommandImpl(groupedDeviceCommand);
-        assertEquals(ComCommandDescriptionTitle.TimeDifferenceCommandImpl.getDescription() + " {timeDifference: not read}", command.toJournalMessageDescription(LogLevel.ERROR));
+        assertEquals("Read out the device time difference {timeDifference: not read}", command.toJournalMessageDescription(LogLevel.ERROR));
     }
 
     @Test

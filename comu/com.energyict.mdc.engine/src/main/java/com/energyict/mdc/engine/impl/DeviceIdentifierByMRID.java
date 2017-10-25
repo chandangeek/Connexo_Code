@@ -24,7 +24,7 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier {
     private String mrid;
 
     /**
-     * Constructor only to be used by JSON (de)marshalling
+     * Constructor only to be used by JSON (de)marshalling or in unit tests
      */
     public DeviceIdentifierByMRID() {
     }
