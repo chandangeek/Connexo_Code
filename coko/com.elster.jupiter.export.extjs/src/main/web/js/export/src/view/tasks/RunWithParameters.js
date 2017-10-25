@@ -24,7 +24,7 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
     router: null,
     record: null,
     setRun: function (run) {
-        if (this.returnLink) {
+         if (this.returnLink) {
             this.down('#cancel-link').href = this.returnLink;
         }
     },
@@ -56,6 +56,7 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.startOn', 'DES', 'Start on'),
                         required: true,
+                        name: 'startOn',
                         layout: 'hbox',
                         items: [
                             {
@@ -99,8 +100,9 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.startDate', 'DES', 'Start date'),
                         itemId: 'start-date-export-window',
-                        hidden: me.record.getData().exportContinuousData !== 'false',
+                        hidden: me.record.get('exportContinuousData') !== 'false',
                         required: true,
+                        name: 'exportWindowStart',
                         layout: 'hbox',
                         items: [
                             {
@@ -141,6 +143,7 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                         fieldLabel: Uni.I18n.translate('general.endDate', 'DES', 'End date'),
                         itemId: 'end-date-export-window',
                         required: true,
+                        name: 'exportWindowEnd',
                         layout: 'hbox',
                         items: [
                             {
@@ -176,16 +179,17 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                         ]
                     },
                     {
-                        title: Uni.I18n.translate('general.updatedData', 'DES', 'Updated data'),
+                        title: Uni.I18n.translate('general.updateWindowExportTask', 'DES', 'Update window'),
                         itmeId:'updated-data-title',
-                        hidden: !me.record.getData().exportUpdate,
+                        hidden: !me.record.get('exportUpdate'),
                         ui: 'medium'
                     },
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.startDate', 'DES', 'Start date'),
                         itemId: 'start-date-updated-data',
-                        hidden: !me.record.getData().exportUpdate,
+                        hidden: !me.record.get('exportUpdate'),
+                        name: 'updateDataStart',
                         required: true,
                         layout: 'hbox',
                         items: [
@@ -226,7 +230,8 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.endDate', 'DES', 'End date'),
                         itemId: 'end-date-updated-data',
-                        hidden: !me.record.getData().exportUpdate,
+                        hidden: !me.record.get('exportUpdate'),
+                        name: 'updateDataEnd',
                         required: true,
                         layout: 'hbox',
                         items: [
