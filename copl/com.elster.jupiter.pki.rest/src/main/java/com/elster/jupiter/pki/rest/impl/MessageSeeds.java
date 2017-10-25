@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.pki.rest.impl;
 
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
@@ -45,7 +45,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return PkiService.COMPONENTNAME;
+        return SecurityManagementService.COMPONENTNAME;
     }
 
     @Override
