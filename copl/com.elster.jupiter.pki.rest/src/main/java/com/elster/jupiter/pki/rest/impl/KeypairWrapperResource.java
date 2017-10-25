@@ -3,7 +3,7 @@ package com.elster.jupiter.pki.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeypairWrapper;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -44,13 +44,13 @@ public class KeypairWrapperResource {
 
     private static final long MAX_FILE_SIZE = 2048;
 
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
     private final KeypairInfoFactory keypairInfoFactory;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public KeypairWrapperResource(PkiService pkiService, KeypairInfoFactory keypairInfoFactory, ExceptionFactory exceptionFactory) {
-        this.pkiService = pkiService;
+    public KeypairWrapperResource(SecurityManagementService securityManagementService, KeypairInfoFactory keypairInfoFactory, ExceptionFactory exceptionFactory) {
+        this.securityManagementService = securityManagementService;
         this.keypairInfoFactory = keypairInfoFactory;
         this.exceptionFactory = exceptionFactory;
     }
@@ -59,7 +59,7 @@ public class KeypairWrapperResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public PagedInfoList getKeypairs(@BeanParam JsonQueryParameters queryParameters) {
-        List<KeypairWrapperInfo> infoList = pkiService.findAllKeypairs()
+        List<KeypairWrapperInfo> infoList = securityManagementService.findAllKeypairs()
                 .from(queryParameters)
                 .stream()
                 .map(keypairInfoFactory::asInfo)
@@ -72,7 +72,7 @@ public class KeypairWrapperResource {
     @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response downloadPublicKey(@PathParam("id") long keypairId) {
-        KeypairWrapper keypairWrapper = pkiService.findKeypairWrapper(keypairId)
+        KeypairWrapper keypairWrapper = securityManagementService.findKeypairWrapper(keypairId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_KEYPAIR));
         PublicKey publicKey = keypairWrapper.getPublicKey()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_PUBLIC_KEY_PRESENT));
@@ -103,12 +103,12 @@ public class KeypairWrapperResource {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "keyEncryptionMethod");
         }
 
-        KeyType keyType = pkiService.findAllKeyTypes()
+        KeyType keyType = securityManagementService.findAllKeyTypes()
                 .stream()
                 .filter(keyType1 -> keyType1.getName().equals(keypairWrapperInfo.keyType.name))
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_KEY_TYPE));
-        KeypairWrapper keypairWrapper = pkiService.newKeypairWrapper(keypairWrapperInfo.alias, keyType, keypairWrapperInfo.keyEncryptionMethod);
+        KeypairWrapper keypairWrapper = securityManagementService.newKeypairWrapper(keypairWrapperInfo.alias, keyType, keypairWrapperInfo.keyEncryptionMethod);
         keypairWrapper.generateValue();
         return keypairInfoFactory.asInfo(keypairWrapper);
     }
@@ -130,7 +130,7 @@ public class KeypairWrapperResource {
         if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
             throw new LocalizedFieldValidationException(MessageSeeds.IMPORTFILE_TOO_BIG, "file");
         }
-        KeypairWrapper keypairWrapper = pkiService.findAndLockKeypairWrapper(keypairWrapperId, version)
+        KeypairWrapper keypairWrapper = securityManagementService.findAndLockKeypairWrapper(keypairWrapperId, version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_KEYPAIR));
         try {
             doImportPublicKeyForKeypairWrapper(publicKeyInputStream, keypairWrapper);
@@ -157,7 +157,7 @@ public class KeypairWrapperResource {
         if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
             throw new LocalizedFieldValidationException(MessageSeeds.IMPORTFILE_TOO_BIG, "file");
         }
-        KeypairWrapper keypairWrapper = pkiService.findAndLockKeypairWrapper(keypairWrapperId, version)
+        KeypairWrapper keypairWrapper = securityManagementService.findAndLockKeypairWrapper(keypairWrapperId, version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_KEYPAIR));
         try {
             doImportKeypairForKeypairWrapper(keypairInputStream, keypairWrapper);
@@ -187,7 +187,7 @@ public class KeypairWrapperResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response removeKeypair(@PathParam("id") long keypairId) {
-        KeypairWrapper keypairWrapper = pkiService.findKeypairWrapper(keypairId)
+        KeypairWrapper keypairWrapper = securityManagementService.findKeypairWrapper(keypairId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_KEYPAIR));
         keypairWrapper.delete();
         return Response.status(Response.Status.OK).build();
