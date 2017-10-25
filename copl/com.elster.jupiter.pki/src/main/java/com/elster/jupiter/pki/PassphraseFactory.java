@@ -21,10 +21,10 @@ public interface PassphraseFactory {
 
     /**
      * Create a new, persisted instance of the {@link PassphraseWrapper}'s implementation
-     * @param keyAccessorType Container of information required to create the actual class.
+     * @param securityAccessorType Container of information required to create the actual class.
      * @return Persisted implementation of {@link PassphraseWrapper} for the KeyEncryptionMethod
      */
-    PassphraseWrapper newPassphraseWrapper(KeyAccessorType keyAccessorType);
+    PassphraseWrapper newPassphraseWrapper(SecurityAccessorType securityAccessorType);
 
     /**
      * Report the expected property specs for {@link PassphraseWrapper} implementation for the KeyEncryptionMethod

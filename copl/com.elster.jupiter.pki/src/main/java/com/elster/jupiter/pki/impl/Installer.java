@@ -4,7 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -44,14 +44,14 @@ public class Installer implements FullInstaller, PrivilegesProvider {
 
     @Override
     public String getModuleName() {
-        return PkiServiceImpl.COMPONENTNAME;
+        return SecurityManagementServiceImpl.COMPONENTNAME;
     }
 
     @Override
     public List<ResourceDefinition> getModuleResources() {
         return Arrays.asList(
                 this.userService.createModuleResourceWithPrivileges(
-                        PkiService.COMPONENTNAME,
+                        SecurityManagementService.COMPONENTNAME,
                         Privileges.RESOURCE_CERTIFICATE.getKey(),
                         Privileges.RESOURCE_CERTIFICATES_DESCRIPTION.getKey(),
                         Arrays.asList(Privileges.Constants.VIEW_CERTIFICATES,

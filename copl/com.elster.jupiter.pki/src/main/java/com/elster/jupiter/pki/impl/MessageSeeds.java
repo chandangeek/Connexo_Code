@@ -1,6 +1,6 @@
 package com.elster.jupiter.pki.impl;
 
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import aQute.bnd.annotation.ProviderType;
@@ -92,7 +92,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return PkiService.COMPONENTNAME;
+        return SecurityManagementService.COMPONENTNAME;
     }
 
     public static class Keys {
