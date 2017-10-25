@@ -366,14 +366,14 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
-    public DeviceSecretImporter getDeviceSecretImporter(KeyAccessorType keyAccessorType) {
-        switch (keyAccessorType.getKeyType().getCryptographicType()) {
+    public DeviceSecretImporter getDeviceSecretImporter(SecurityAccessorType securityAccessorType) {
+        switch (securityAccessorType.getKeyType().getCryptographicType()) {
             case SymmetricKey:
-                return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getDeviceKeyImporter(keyAccessorType);
+                return getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getDeviceKeyImporter(securityAccessorType);
             case Passphrase:
-                return getPassphraseFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getDevicePassphraseImporter(keyAccessorType);
+                return getPassphraseFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getDevicePassphraseImporter(securityAccessorType);
             default:
-                throw new UnsupportedImportOperation(thesaurus, keyAccessorType);
+                throw new UnsupportedImportOperation(thesaurus, securityAccessorType);
         }
     }
 
@@ -474,7 +474,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         }
     }
 
-    class KeypairWrapperBuilder implements PkiService.KeypairWrapperBuilder {
+    class KeypairWrapperBuilder implements SecurityManagementService.KeypairWrapperBuilder {
         private final KeypairWrapper underConstruction;
 
         public KeypairWrapperBuilder(KeypairWrapper underConstruction) {
@@ -482,7 +482,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         }
 
         @Override
-        public PkiService.KeypairWrapperBuilder alias(String alias) {
+        public SecurityManagementService.KeypairWrapperBuilder alias(String alias) {
             underConstruction.setAlias(alias);
             return this;
         }

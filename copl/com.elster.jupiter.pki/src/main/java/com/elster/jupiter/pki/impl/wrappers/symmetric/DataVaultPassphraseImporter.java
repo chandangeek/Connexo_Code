@@ -1,9 +1,9 @@
 package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PlaintextPassphrase;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
 
 import java.util.Optional;
 
@@ -12,17 +12,17 @@ import java.util.Optional;
  */
 public class DataVaultPassphraseImporter extends AbstractDataVaultImporter {
 
-    private final KeyAccessorType keyAccessorType;
-    private final PkiService pkiService;
+    private final SecurityAccessorType securityAccessorType;
+    private final SecurityManagementService securityManagementService;
 
-    public DataVaultPassphraseImporter(KeyAccessorType keyAccessorType, Thesaurus thesaurus, PkiService pkiService, Optional<String> certificateAlias) {
-        super(thesaurus, pkiService, certificateAlias);
-        this.keyAccessorType = keyAccessorType;
-        this.pkiService = pkiService;
+    public DataVaultPassphraseImporter(SecurityAccessorType securityAccessorType, Thesaurus thesaurus, SecurityManagementService securityManagementService, Optional<String> certificateAlias) {
+        super(thesaurus, securityManagementService, certificateAlias);
+        this.securityAccessorType = securityAccessorType;
+        this.securityManagementService = securityManagementService;
     }
 
     public PlaintextPassphrase createPlaintextWrapper(byte[] bytes) {
-        PlaintextPassphrase instance = (PlaintextPassphrase) pkiService.newPassphraseWrapper(keyAccessorType);
+        PlaintextPassphrase instance = (PlaintextPassphrase) securityManagementService.newPassphraseWrapper(securityAccessorType);
         instance.setPassphrase(new String(bytes));
         return instance;
     }

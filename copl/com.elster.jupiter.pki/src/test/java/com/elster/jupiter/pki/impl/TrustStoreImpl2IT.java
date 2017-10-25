@@ -87,9 +87,9 @@ public class TrustStoreImpl2IT {
 
     @Before
     public void setUp() throws Exception {
-        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).addPrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
-        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).addSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
-        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).addPassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
+        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).addPrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
+        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).addSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
+        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).addPassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
         rootCertificate = generateSelfSignedCertificate("CN=ROOT");
         subCa1 = generateCertificate("CN=SubCA1", "CN=ROOT", rootCertificate.getLast());
         subCa2 = generateCertificate("CN=SubCA2", "CN=ROOT", rootCertificate.getLast());
@@ -100,15 +100,15 @@ public class TrustStoreImpl2IT {
 
     @After
     public void tearDown() throws Exception {
-        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).removePrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
-        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).removeSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
-        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).removePassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
+        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).removePrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
+        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).removeSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
+        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).removePassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
     }
 
     @Test
     @Transactional
     public void testBasicValidation() {
-        TrustStore trustStore = inMemoryPersistence.getPkiService().newTrustStore("main1").add();
+        TrustStore trustStore = inMemoryPersistence.getSecurityManagementService().newTrustStore("main1").add();
         trustStore.addCertificate("root", rootCertificate.getFirst());
         trustStore.addCertificate("SubCa1", subCa1.getFirst());
         trustStore.addCertificate("SubCa2", subCa2.getFirst());
@@ -123,7 +123,7 @@ public class TrustStoreImpl2IT {
     @Test
     @Transactional
     public void testValidationSelfSigned() {
-        TrustStore trustStore = inMemoryPersistence.getPkiService().newTrustStore("main3").add();
+        TrustStore trustStore = inMemoryPersistence.getSecurityManagementService().newTrustStore("main3").add();
         trustStore.addCertificate("root", rootCertificate.getFirst());
         try {
             trustStore.validate(rootCertificate.getFirst());
@@ -142,7 +142,7 @@ public class TrustStoreImpl2IT {
             NoSuchProviderException,
             InvalidKeyException,
             IOException, InvalidAlgorithmParameterException {
-        TrustStore trustStore = inMemoryPersistence.getPkiService().newTrustStore("main2").add();
+        TrustStore trustStore = inMemoryPersistence.getSecurityManagementService().newTrustStore("main2").add();
         trustStore.addCertificate("root", rootCertificate.getFirst());
         trustStore.addCertificate("SubCa1", subCa1.getFirst());
         trustStore.addCertificate("SubCa2", subCa2.getFirst());

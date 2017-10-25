@@ -108,7 +108,7 @@ public class PkiGogoCommand {
     }
 
     public void keypairs() {
-        List<List<?>> lists = pkiService.findAllKeypairs()
+        List<List<?>> lists = securityManagementService.findAllKeypairs()
                 .stream()
                 .sorted(Comparator.comparing(KeypairWrapper::getAlias))
                 .map(keypair -> Arrays.asList(keypair.getId(), keypair.getAlias(), keypair.getKeyType()
@@ -123,11 +123,11 @@ public class PkiGogoCommand {
 
     public void generateKeypair(String alias, int keyTypeId) {
         threadPrincipalService.set(() -> "Console");
-        KeyType keyType = pkiService.getKeyType(keyTypeId)
+        KeyType keyType = securityManagementService.getKeyType(keyTypeId)
                 .orElseThrow(() -> new IllegalArgumentException("No key type with id " + keyTypeId));
 
         try (TransactionContext context = transactionService.getContext()) {
-            KeypairWrapper keypairWrapper = pkiService.newKeypairWrapper(alias, keyType, "DataVault");
+            KeypairWrapper keypairWrapper = securityManagementService.newKeypairWrapper(alias, keyType, "DataVault");
             keypairWrapper.generateValue();
             context.commit();
         }
@@ -140,7 +140,7 @@ public class PkiGogoCommand {
     public void deleteKeypair(int keyPairId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            pkiService.findKeypairWrapper(keyPairId)
+            securityManagementService.findKeypairWrapper(keyPairId)
                     .orElseThrow(() -> new IllegalArgumentException("No keypair with id " + keyPairId))
                     .delete();
             context.commit();
@@ -153,7 +153,7 @@ public class PkiGogoCommand {
     }
 
     public void exportPublicKey(String alias) throws IOException {
-        KeypairWrapper keypairWrapper = pkiService.findKeypairWrapper(alias)
+        KeypairWrapper keypairWrapper = securityManagementService.findKeypairWrapper(alias)
                 .orElseThrow(() -> new IllegalArgumentException("No such keypair"));
         FileOutputStream fileOutputStream = null;
         try {
@@ -178,10 +178,10 @@ public class PkiGogoCommand {
 
     public void importPublicKey(String alias, Long keyTypeId, String file) {
         threadPrincipalService.set(() -> "Console");
-        KeyType keyType = pkiService.getKeyType(keyTypeId)
+        KeyType keyType = securityManagementService.getKeyType(keyTypeId)
                 .orElseThrow(() -> new IllegalArgumentException("No key type with id " + keyTypeId));
         try (TransactionContext context = transactionService.getContext()) {
-            KeypairWrapper keypairWrapper = pkiService.newPublicKeyWrapper(alias, keyType);
+            KeypairWrapper keypairWrapper = securityManagementService.newPublicKeyWrapper(alias, keyType);
             FileInputStream fileInputStream = new FileInputStream(file);
             byte[] bytes = ByteStreams.toByteArray(fileInputStream);
             keypairWrapper.setPublicKey(bytes);
@@ -201,10 +201,10 @@ public class PkiGogoCommand {
 
     public void importKeypair(String alias, Long keyTypeId, String privateKeyFile) {
         threadPrincipalService.set(() -> "Console");
-        KeyType keyType = pkiService.getKeyType(keyTypeId)
+        KeyType keyType = securityManagementService.getKeyType(keyTypeId)
                 .orElseThrow(() -> new IllegalArgumentException("No key type with id " + keyTypeId));
         try (TransactionContext context = transactionService.getContext()) {
-            KeypairWrapper keypairWrapper = pkiService.newKeypairWrapper(alias, keyType, "DataVault");
+            KeypairWrapper keypairWrapper = securityManagementService.newKeypairWrapper(alias, keyType, "DataVault");
             FileInputStream fileInputStream = new FileInputStream(privateKeyFile);
             byte[] privateKeyBytes = ByteStreams.toByteArray(fileInputStream);
             PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);

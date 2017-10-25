@@ -13,6 +13,7 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.PassphraseFactory;
 import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.PlaintextPassphrase;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.pki.impl.wrappers.SoftwareSecurityDataModel;
@@ -41,7 +42,7 @@ public class DataVaultPassphraseFactory implements PassphraseFactory, Expiration
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
-    private volatile PkiService pkiService;
+    private volatile SecurityManagementService securityManagementService;
 
     // OSGi
     @SuppressWarnings("unused")
@@ -64,8 +65,8 @@ public class DataVaultPassphraseFactory implements PassphraseFactory, Expiration
     }
 
     @Reference
-    public void setPkiService(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @Reference
@@ -104,7 +105,7 @@ public class DataVaultPassphraseFactory implements PassphraseFactory, Expiration
     }
 
     @Override
-    public DeviceSecretImporter getDevicePassphraseImporter(KeyAccessorType keyAccessorType) {
-        return new DataVaultPassphraseImporter(keyAccessorType, thesaurus, pkiService, certificateAlias);
+    public DeviceSecretImporter getDevicePassphraseImporter(SecurityAccessorType securityAccessorType) {
+        return new DataVaultPassphraseImporter(securityAccessorType, thesaurus, securityManagementService, certificateAlias);
     }
 }

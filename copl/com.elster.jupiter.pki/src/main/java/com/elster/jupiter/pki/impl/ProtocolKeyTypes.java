@@ -70,8 +70,8 @@ public enum ProtocolKeyTypes {
         }
 
         @Override
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService
                     .newClientCertificateType(getName(), "SHA256withRSA")
                     .description("Client certificates with RSA 1024 bit keys. This certificate will be linked to a private key.")
                     .RSA()

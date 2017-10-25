@@ -10,8 +10,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.ExpirationSupport;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
-import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.DeviceSecretImporter;
@@ -38,7 +38,7 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory, Expira
     public static final String KEY_ENCRYPTION_METHOD = "DataVault";
 
     private volatile DataModel dataModel;
-    private volatile PkiService pkiService;
+    private volatile SecurityManagementService securityManagementService;
     private volatile Thesaurus thesaurus;
 
     private Optional<String> certificateAlias = Optional.empty();
@@ -64,8 +64,8 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory, Expira
     }
 
     @Reference
-    public void setPkiService(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @Reference
@@ -105,8 +105,8 @@ public class DataVaultSymmetricKeyFactory implements SymmetricKeyFactory, Expira
     }
 
     @Override
-    public DeviceSecretImporter getDeviceKeyImporter(KeyAccessorType keyAccessorType) {
-        return new DataVaultSymmetricKeyImporter(keyAccessorType, thesaurus, pkiService, certificateAlias);
+    public DeviceSecretImporter getDeviceKeyImporter(SecurityAccessorType securityAccessorType) {
+        return new DataVaultSymmetricKeyImporter(securityAccessorType, thesaurus, securityManagementService, certificateAlias);
     }
 
 }

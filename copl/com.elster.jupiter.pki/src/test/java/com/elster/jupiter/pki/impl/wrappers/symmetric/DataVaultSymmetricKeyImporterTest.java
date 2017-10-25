@@ -5,15 +5,14 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.pki.ClientCertificateWrapper;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeypairWrapper;
-import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
-import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -66,7 +65,7 @@ public class DataVaultSymmetricKeyImporterTest {
     @Mock
     private DataModel dataModel;
     @Mock
-    private PkiService pkiService;
+    private SecurityManagementService securityManagementService;
     @Mock
     private DataVaultService dataVaultService;
     @Mock
@@ -130,16 +129,16 @@ public class DataVaultSymmetricKeyImporterTest {
         KeypairWrapper keypairWrapper = mock(KeypairWrapper.class);
         when(keypairWrapper.getPrivateKeyWrapper()).thenReturn(Optional.of(privateKeyWrapper));
         when(keypairWrapper.hasPrivateKey()).thenReturn(true);
-        when(pkiService.findKeypairWrapper("ImportKey")).thenReturn(Optional.of(keypairWrapper));
+        when(securityManagementService.findKeypairWrapper("ImportKey")).thenReturn(Optional.of(keypairWrapper));
 
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
         KeyType keyType = mock(KeyType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(keyType);
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyType()).thenReturn(keyType);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
         when(keyType.getKeyAlgorithm()).thenReturn(ASYMMETRIC_ALGORITHM);
-        DeviceSecretImporter deviceKeyImporter = new DataVaultSymmetricKeyImporter(keyAccessorType, thesaurus, pkiService, Optional.of("ImportKey"));
+        DeviceSecretImporter deviceKeyImporter = new DataVaultSymmetricKeyImporter(securityAccessorType, thesaurus, securityManagementService, Optional.of("ImportKey"));
         PlaintextSymmetricKey plaintextSymmetricKeyWrapper = mock(PlaintextSymmetricKey.class);
-        when(pkiService.newSymmetricKeyWrapper(keyAccessorType)).thenReturn(plaintextSymmetricKeyWrapper);
+        when(securityManagementService.newSymmetricKeyWrapper(securityAccessorType)).thenReturn(plaintextSymmetricKeyWrapper);
         SecurityValueWrapper securityValueWrapper = deviceKeyImporter.importSecret(encryptedDeviceSecret, iv, encryptedWrapKey, SYMMETRIC_ALGORITHM, ASYMMETRIC_ALGORITHM);
 
         ArgumentCaptor<SecretKey> secretKeyArgumentCaptor = ArgumentCaptor.forClass(SecretKey.class);

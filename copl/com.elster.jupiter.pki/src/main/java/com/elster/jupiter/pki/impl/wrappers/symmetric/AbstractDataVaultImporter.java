@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.pki.KeyImportFailedException;
 import com.elster.jupiter.pki.KeypairWrapper;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 
@@ -32,12 +32,12 @@ abstract public class AbstractDataVaultImporter implements DeviceSecretImporter 
     public static final String IMPORT_KEY = "com.elster.jupiter.shipment.importer.keypair.alias";
 
     private final Thesaurus thesaurus;
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
     private final Optional<String> keypairAlias;
 
-    public AbstractDataVaultImporter(Thesaurus thesaurus, PkiService pkiService, Optional<String> keypairAlias) {
+    public AbstractDataVaultImporter(Thesaurus thesaurus, SecurityManagementService securityManagementService, Optional<String> keypairAlias) {
         this.thesaurus = thesaurus;
-        this.pkiService = pkiService;
+        this.securityManagementService = securityManagementService;
         this.keypairAlias = keypairAlias;
     }
 
@@ -64,7 +64,7 @@ abstract public class AbstractDataVaultImporter implements DeviceSecretImporter 
         if (!keypairAlias.isPresent()) {
             throw new KeyImportFailedException(thesaurus, MessageSeeds.NO_IMPORT_KEY_DEFINED, IMPORT_KEY);
         }
-        Optional<KeypairWrapper> keypairWrapper = pkiService.findKeypairWrapper(keypairAlias.get());
+        Optional<KeypairWrapper> keypairWrapper = securityManagementService.findKeypairWrapper(keypairAlias.get());
         if (!keypairWrapper.isPresent()) {
             throw new KeyImportFailedException(thesaurus, MessageSeeds.IMPORT_KEY_NOT_FOUND, keypairAlias.get());
         }

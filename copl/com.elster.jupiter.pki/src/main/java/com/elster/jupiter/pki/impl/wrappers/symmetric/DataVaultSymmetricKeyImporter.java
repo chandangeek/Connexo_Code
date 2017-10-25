@@ -1,9 +1,9 @@
 package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Optional;
@@ -13,18 +13,18 @@ import java.util.Optional;
  */
 public class DataVaultSymmetricKeyImporter extends AbstractDataVaultImporter {
 
-    private final KeyAccessorType keyAccessorType;
-    private final PkiService pkiService;
+    private final SecurityAccessorType securityAccessorType;
+    private final SecurityManagementService securityManagementService;
 
-    public DataVaultSymmetricKeyImporter(KeyAccessorType keyAccessorType, Thesaurus thesaurus, PkiService pkiService, Optional<String> certificateAlias) {
-        super(thesaurus, pkiService, certificateAlias);
-        this.keyAccessorType = keyAccessorType;
-        this.pkiService = pkiService;
+    public DataVaultSymmetricKeyImporter(SecurityAccessorType securityAccessorType, Thesaurus thesaurus, SecurityManagementService securityManagementService, Optional<String> certificateAlias) {
+        super(thesaurus, securityManagementService, certificateAlias);
+        this.securityAccessorType = securityAccessorType;
+        this.securityManagementService = securityManagementService;
     }
 
     public PlaintextSymmetricKey createPlaintextWrapper(byte[] bytes) {
-        PlaintextSymmetricKey instance = (PlaintextSymmetricKey) pkiService.newSymmetricKeyWrapper(keyAccessorType);
-        SecretKeySpec secretKeySpec = new SecretKeySpec(bytes, keyAccessorType.getKeyType().getKeyAlgorithm());
+        PlaintextSymmetricKey instance = (PlaintextSymmetricKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
+        SecretKeySpec secretKeySpec = new SecretKeySpec(bytes, securityAccessorType.getKeyType().getKeyAlgorithm());
         instance.setKey(secretKeySpec);
         return instance;
     }

@@ -180,11 +180,11 @@ public interface SecurityManagementService {
     SymmetricKeyWrapper newSymmetricKeyWrapper(SecurityAccessorType securityAccessorType);
 
     /**
-     * Returns a DeviceSecretImporter, capable of importing a secret (Passphrase, Key or whatever) for the appropriate {@link KeyAccessorType}
-     * @param keyAccessorType
+     * Returns a DeviceSecretImporter, capable of importing a secret (Passphrase, Key or whatever) for the appropriate {@link SecurityAccessorType}
+     * @param securityAccessorType
      * @return
      */
-    DeviceSecretImporter getDeviceSecretImporter(KeyAccessorType keyAccessorType);
+    DeviceSecretImporter getDeviceSecretImporter(SecurityAccessorType securityAccessorType);
 
     /**
      * Creates a new PassphraseWrapper. The PkiService will delegate the actual creation and storage to the appropriate
