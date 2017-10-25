@@ -8,7 +8,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 
 /**
  * Models the different event types that are produced by this bundle.
@@ -35,7 +35,7 @@ public enum EventType {
     public void install(EventService eventService) {
         EventTypeBuilder builder = eventService.buildEventTypeWithTopic(topic())
                 .name(name())
-                .component(PkiService.COMPONENTNAME)
+                .component(SecurityManagementService.COMPONENTNAME)
                 .category("Crud")
                 .scope("System")
                 .withProperty("id", ValueType.LONG, "id");

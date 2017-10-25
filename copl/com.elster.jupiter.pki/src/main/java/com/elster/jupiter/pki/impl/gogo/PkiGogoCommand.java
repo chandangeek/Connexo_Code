@@ -6,7 +6,7 @@ package com.elster.jupiter.pki.impl.gogo;
 
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeypairWrapper;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -41,7 +41,7 @@ import static java.util.stream.Collectors.toList;
 public class PkiGogoCommand {
     public static final MysqlPrint MYSQL_PRINT = new MysqlPrint();
 
-    private volatile PkiService pkiService;
+    private volatile SecurityManagementService securityManagementService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile TransactionService transactionService;
 
@@ -59,12 +59,12 @@ public class PkiGogoCommand {
     }
 
     @Reference
-    public void setPkiService(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     public void keytypes() {
-        List<List<?>> collect = pkiService.findAllKeyTypes()
+        List<List<?>> collect = securityManagementService.findAllKeyTypes()
                 .stream()
                 .sorted(Comparator.comparing(KeyType::getId))
                 .map(keytype -> Arrays.asList(keytype.getId(), keytype.getName(), keytype.getCryptographicType().name(), keytype.getKeyAlgorithm()))
@@ -74,7 +74,7 @@ public class PkiGogoCommand {
     }
 
     public void certificateStore() {
-        List<List<?>> certs = pkiService.findAllCertificates()
+        List<List<?>> certs = securityManagementService.findAllCertificates()
                 .stream()
                 .map(cert -> Arrays.asList(cert.getAlias(), cert.getCertificate().isPresent()))
                 .collect(toList());
@@ -92,7 +92,7 @@ public class PkiGogoCommand {
 
         try (TransactionContext context = transactionService.getContext()) {
 
-            pkiService.findCertificateWrapper(alias)
+            securityManagementService.findCertificateWrapper(alias)
                     .orElseThrow(() -> new IllegalArgumentException("No such certificate"))
                     .delete();
             context.commit();

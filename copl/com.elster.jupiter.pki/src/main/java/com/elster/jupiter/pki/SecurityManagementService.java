@@ -1,19 +1,22 @@
 package com.elster.jupiter.pki;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.conditions.Comparison;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * This is the main interface towards the PKI bundle. It provides access for the main PKI procedures.
+ * This is the main interface towards the security bundle. It provides access for the main PKI & HSM procedures.
  */
 @ProviderType
-public interface PkiService {
+public interface SecurityManagementService {
 
 
     enum AsymmetricKeyAlgorithms {
@@ -108,10 +111,10 @@ public interface PkiService {
 
     /**
      * List the PropertySpecs that can be expected for the described Wrapper type
-     * @param keyAccessorType The key accessor describing the KeyEncryptionMethod and {@link CryptographicType}
+     * @param securityAccessorType The security accessor describing the KeyEncryptionMethod and {@link CryptographicType}
      * @return List of to-be-expected property specs
      */
-    List<PropertySpec> getPropertySpecs(KeyAccessorType keyAccessorType);
+    List<PropertySpec> getPropertySpecs(SecurityAccessorType securityAccessorType);
 
     /**
      * List the PropertySpecs that are required to import a wrapper of the mentioned type.
@@ -163,23 +166,26 @@ public interface PkiService {
     /**
      * Creates a new SymmetricKeyWrapper. The PkiService will delegate the actual creation and storage to the appropriate
      * factory given the provided key encryption method.
-     * @param keyAccessorType Contains all information required by the pkiService and factories to figure out what has
+     * @param securityAccessorType Contains all information required by the pkiService and factories to figure out what has
      * to be done.
      * @return a new symmetric key wrapper of the required type and encryption method, without value.
      */
-    SymmetricKeyWrapper newSymmetricKeyWrapper(KeyAccessorType keyAccessorType);
+    SymmetricKeyWrapper newSymmetricKeyWrapper(SecurityAccessorType securityAccessorType);
 
     /**
      * Creates a new PassphraseWrapper. The PkiService will delegate the actual creation and storage to the appropriate
      * factory given the provided key encryption method.
-     * @param keyAccessorType Contains all information required by the pkiService and factories to figure out what has
+     * @param securityAccessorType Contains all information required by the pkiService and factories to figure out what has
      * to be done.
      * @return a new passphrase wrapper of the required type and encryption method, without value.
      */
-    PassphraseWrapper newPassphraseWrapper(KeyAccessorType keyAccessorType);
+    PassphraseWrapper newPassphraseWrapper(SecurityAccessorType securityAccessorType);
 
     CertificateWrapper newCertificateWrapper(String alias);
 
+    List<SecurityValueWrapper> getExpired(Expiration expiration, Instant when);
+
+    Optional<Comparison> getExpirationCondition(Expiration expiration, Instant when, String securityValueWrapperTableName);
     /**
      * Creates a new Client certificate wrapper.
      *
@@ -279,7 +285,7 @@ public interface PkiService {
         public TrustStore trustStore;
     }
 
-    public interface PasswordTypeBuilder {
+    interface PasswordTypeBuilder {
         PasswordTypeBuilder description(String description);
         PasswordTypeBuilder length(int length);
         PasswordTypeBuilder withLowerCaseCharacters();
@@ -289,7 +295,7 @@ public interface PkiService {
         KeyType add();
     }
 
-    public interface ClientCertificateWrapperBuilder {
+    interface ClientCertificateWrapperBuilder {
         ClientCertificateWrapperBuilder alias(String alias);
         ClientCertificateWrapper add();
     }
@@ -304,7 +310,7 @@ public interface PkiService {
         KeyType add();
     }
 
-    public interface ClientCertificateTypeBuilder {
+    interface ClientCertificateTypeBuilder {
         ClientCertificateTypeBuilder description(String description);
         ClientCertificateTypeBuilder setKeyUsages(EnumSet<KeyUsage> keyUsages);
         ClientCertificateTypeBuilder setExtendedKeyUsages(EnumSet<ExtendedKeyUsage> keyUsages);
@@ -313,17 +319,17 @@ public interface PkiService {
         AsyncCurveBuilder ECDSA();
     }
 
-    public interface AsyncKeySizeBuilder {
+    interface AsyncKeySizeBuilder {
         AsyncKeySizeBuilder keySize(int keySize);
         KeyType add();
     }
 
-    public interface AsyncCurveBuilder {
+    interface AsyncCurveBuilder {
         AsyncCurveBuilder curve(String curveName);
         KeyType add();
     }
 
-    public interface TrustStoreBuilder {
+    interface TrustStoreBuilder {
         /**
          * Clarify the purpose of this TrustStore by adding a human understandable description.
          * This field is optional.
@@ -333,7 +339,7 @@ public interface PkiService {
         TrustStore add();
     }
 
-    public interface KeyTypeBuilder {
+    interface KeyTypeBuilder {
         KeyTypeBuilder description(String description);
         KeyType add();
     }

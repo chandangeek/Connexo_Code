@@ -10,13 +10,14 @@ import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
@@ -24,6 +25,7 @@ import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultPassphraseFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
+import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 
@@ -72,6 +74,7 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -86,7 +89,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PKIServiceImplIT {
+public class SecurityManagementServiceImplIT {
 
     private static PkiInMemoryPersistence inMemoryPersistence = new PkiInMemoryPersistence();
 
@@ -103,30 +106,35 @@ public class PKIServiceImplIT {
         inMemoryPersistence.activate();
     }
 
+    @AfterClass
+    public static void uninstall(){
+        inMemoryPersistence.deactivate();
+    }
+
     @Before
     public void setUp() throws Exception {
-        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).addPrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
-        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).addSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
-        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).addPassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
+        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).addPrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
+        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).addSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
+        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).addPassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
         Security.addProvider(new BouncyCastleProvider());
         certificateFactory = CertificateFactory.getInstance("X.509", "BC");
     }
 
     @After
     public void tearDown() throws Exception {
-        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).removePrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
-        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).removeSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
-        ((PkiServiceImpl) inMemoryPersistence.getPkiService()).removePassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
+        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).removePrivateKeyFactory(inMemoryPersistence.getDataVaultPrivateKeyFactory());
+        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).removeSymmetricKeyFactory(inMemoryPersistence.getDataVaultSymmetricKeyFactory());
+        ((SecurityManagementServiceImpl) inMemoryPersistence.getSecurityManagementService()).removePassphraseFactory(inMemoryPersistence.getDataVaultPassphraseFactory());
     }
 
     @Test
     @Transactional
     public void testCreateSymmetricKeyType() {
-        KeyType created = inMemoryPersistence.getPkiService()
+        KeyType created = inMemoryPersistence.getSecurityManagementService()
                 .newSymmetricKeyType("AES128", "AES", 128)
                 .description("hello")
                 .add();
-        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("AES128");
+        Optional<KeyType> keyType = inMemoryPersistence.getSecurityManagementService().getKeyType("AES128");
         assertThat(keyType).isPresent();
         assertThat(keyType.get().getName()).isEqualTo("AES128");
         assertThat(keyType.get().getKeyAlgorithm()).isEqualTo("AES");
@@ -139,7 +147,7 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testCreatePassphraseKeyType() {
-        KeyType created = inMemoryPersistence.getPkiService()
+        KeyType created = inMemoryPersistence.getSecurityManagementService()
                 .newPassphraseType("Basic")
                 .withUpperCaseCharacters()
                 .withLowerCaseCharacters()
@@ -148,7 +156,7 @@ public class PKIServiceImplIT {
                 .length(20)
                 .description("hello")
                 .add();
-        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("Basic");
+        Optional<KeyType> keyType = inMemoryPersistence.getSecurityManagementService().getKeyType("Basic");
         assertThat(keyType).isPresent();
         assertThat(keyType.get().getName()).isEqualTo("Basic");
         assertThat(keyType.get().getCryptographicType()).isEqualTo(CryptographicType.Passphrase);
@@ -165,7 +173,7 @@ public class PKIServiceImplIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INVALIDPASSPHRASELENGTH + "}")
     public void testCreatePassphraseKeyTypeWithInvalidLength() {
-        KeyType created = inMemoryPersistence.getPkiService()
+        KeyType created = inMemoryPersistence.getSecurityManagementService()
                 .newPassphraseType("Basic")
                 .withUpperCaseCharacters()
                 .withLowerCaseCharacters()
@@ -179,7 +187,7 @@ public class PKIServiceImplIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NOVALIDCHARACTERS + "}")
     public void testCreatePassphraseKeyTypeNoChars() {
-        KeyType created = inMemoryPersistence.getPkiService()
+        KeyType created = inMemoryPersistence.getSecurityManagementService()
                 .newPassphraseType("Basic")
                 .length(100)
                 .description("hello")
@@ -189,13 +197,13 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testCreateCertificateWithRSAKeyType() {
-        KeyType created = inMemoryPersistence.getPkiService()
+        KeyType created = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("RSA2048", "SHA256withRSA")
                 .description("boe")
                 .RSA()
                 .keySize(2048)
                 .add();
-        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("RSA2048");
+        Optional<KeyType> keyType = inMemoryPersistence.getSecurityManagementService().getKeyType("RSA2048");
         assertThat(keyType).isPresent();
         assertThat(keyType.get().getName()).isEqualTo("RSA2048");
         assertThat(keyType.get().getKeyAlgorithm()).isEqualTo("RSA");
@@ -209,10 +217,10 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testCreateClientCertificateDSAKeyType() {
-        KeyType created = inMemoryPersistence.getPkiService()
+        KeyType created = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("DSA1024", "SHA256withDSA")
                 .DSA().keySize(1024).add();
-        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("DSA1024");
+        Optional<KeyType> keyType = inMemoryPersistence.getSecurityManagementService().getKeyType("DSA1024");
         assertThat(keyType).isPresent();
         assertThat(keyType.get().getName()).isEqualTo("DSA1024");
         assertThat(keyType.get().getKeyAlgorithm()).isEqualTo("DSA");
@@ -225,13 +233,13 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testCreateECKeyType() {
-        KeyType created = inMemoryPersistence.getPkiService()
+        KeyType created = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("NIST P-256", "SHA256withECDSA")
                 .description("check")
                 .ECDSA()
                 .curve("secp256r1")
                 .add();
-        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("NIST P-256");
+        Optional<KeyType> keyType = inMemoryPersistence.getSecurityManagementService().getKeyType("NIST P-256");
         assertThat(keyType).isPresent();
         assertThat(keyType.get().getName()).isEqualTo("NIST P-256");
         assertThat(keyType.get().getKeyAlgorithm()).isEqualTo("ECDSA");
@@ -245,7 +253,7 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testCreateClientCertificateTypeWithKeyUsages() throws Exception {
-        inMemoryPersistence.getPkiService()
+        inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("TLS Server", "SHA256withRSA")
                 .description("Example client cert")
                 .setKeyUsages(EnumSet.of(KeyUsage.keyAgreement, KeyUsage.keyCertSign))
@@ -254,7 +262,7 @@ public class PKIServiceImplIT {
                 .curve("secp256r1")
                 .add();
 
-        Optional<KeyType> keyType = inMemoryPersistence.getPkiService().getKeyType("TLS Server");
+        Optional<KeyType> keyType = inMemoryPersistence.getSecurityManagementService().getKeyType("TLS Server");
         assertThat(keyType).isPresent();
         assertThat(keyType.get().getName()).isEqualTo("TLS Server");
         assertThat(keyType.get().getKeyAlgorithm()).isEqualTo("ECDSA");
@@ -270,13 +278,13 @@ public class PKIServiceImplIT {
             NoSuchAlgorithmException,
             InvalidAlgorithmParameterException,
             InvalidKeyException, NoSuchProviderException {
-        KeyType keyType = inMemoryPersistence.getPkiService()
+        KeyType keyType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("NIST P-256K", "SHA256withECDSA")
                 .ECDSA()
                 .curve("secp256k1")
                 .add();
 
-        PrivateKeyWrapper privateKeyWrapper = inMemoryPersistence.getPkiService().newPrivateKeyWrapper(keyType, DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
+        PrivateKeyWrapper privateKeyWrapper = inMemoryPersistence.getSecurityManagementService().newPrivateKeyWrapper(keyType, DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
         privateKeyWrapper.generateValue();
 
         assertThat(privateKeyWrapper.getPrivateKey().getEncoded()).isNotEmpty();
@@ -301,13 +309,13 @@ public class PKIServiceImplIT {
             NoSuchAlgorithmException,
             InvalidAlgorithmParameterException,
             InvalidKeyException, NoSuchProviderException {
-        KeyType keyType = inMemoryPersistence.getPkiService()
+        KeyType keyType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("Some RSA key", "SHA256withRSA")
                 .RSA()
                 .keySize(2048)
                 .add();
 
-        PrivateKeyWrapper privateKeyWrapper = inMemoryPersistence.getPkiService().newPrivateKeyWrapper(keyType, DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
+        PrivateKeyWrapper privateKeyWrapper = inMemoryPersistence.getSecurityManagementService().newPrivateKeyWrapper(keyType, DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
         privateKeyWrapper.generateValue();
 
         assertThat(privateKeyWrapper.getPrivateKey().getEncoded()).isNotEmpty();
@@ -332,13 +340,13 @@ public class PKIServiceImplIT {
             NoSuchAlgorithmException,
             InvalidAlgorithmParameterException,
             InvalidKeyException, NoSuchProviderException {
-        KeyType keyType = inMemoryPersistence.getPkiService()
+        KeyType keyType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("Some DSA key", "sha256withDSA")
                 .DSA()
                 .keySize(512)
                 .add();
 
-        PrivateKeyWrapper privateKeyWrapper = inMemoryPersistence.getPkiService().newPrivateKeyWrapper(keyType, DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
+        PrivateKeyWrapper privateKeyWrapper = inMemoryPersistence.getSecurityManagementService().newPrivateKeyWrapper(keyType, DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
         privateKeyWrapper.generateValue();
 
         assertThat(privateKeyWrapper.getPrivateKey().getEncoded()).isNotEmpty();
@@ -360,13 +368,13 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testGeneratePlaintextSymmetricAesKey() {
-        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128B", "AES", 128).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
-        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getPkiService()
-                .newSymmetricKeyWrapper(keyAccessorType);
+        KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128C", "AES", 128).add();
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getSecurityManagementService()
+                .newSymmetricKeyWrapper(securityAccessorType);
         symmetricKeyWrapper.generateValue();
 
         assertThat(symmetricKeyWrapper.getKey()).isPresent();
@@ -386,13 +394,13 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testGeneratePlaintextPasswordKey() {
-        KeyType created = inMemoryPersistence.getPkiService().newPassphraseType("SECRET").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
-        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getPkiService()
-                .newPassphraseWrapper(keyAccessorType);
+        KeyType created = inMemoryPersistence.getSecurityManagementService().newPassphraseType("SECRET").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getSecurityManagementService()
+                .newPassphraseWrapper(securityAccessorType);
         passphraseWrapper.generateValue();
 
         assertThat(passphraseWrapper.getPassphrase()).isPresent();
@@ -412,14 +420,14 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testCreateTrustedCertificate() throws Exception {
-        TrustStore main = inMemoryPersistence.getPkiService()
+        TrustStore main = inMemoryPersistence.getSecurityManagementService()
                 .newTrustStore("main")
                 .description("Main trust store")
                 .add();
         X509Certificate certificate = loadCertificate("myRootCA.cert");
         main.addCertificate("myCert", certificate);
 
-        Optional<TrustStore> reloaded = inMemoryPersistence.getPkiService().findTrustStore("main");
+        Optional<TrustStore> reloaded = inMemoryPersistence.getSecurityManagementService().findTrustStore("main");
         assertThat(reloaded).isPresent();
         assertThat(reloaded.get().getDescription()).isEqualTo("Main trust store");
         assertThat(reloaded.get().getName()).isEqualTo("main");
@@ -440,13 +448,13 @@ public class PKIServiceImplIT {
     public void testCreateTrustStoreFromKeyStore() throws Exception {
         KeyStore keyStore = KeyStore.getInstance("JCEKS");
         keyStore.load(this.getClass().getResourceAsStream("SM2016MDMCA-chain.jks"), "changeit".toCharArray());
-        TrustStore main = inMemoryPersistence.getPkiService()
+        TrustStore main = inMemoryPersistence.getSecurityManagementService()
                 .newTrustStore("imported")
                 .description("Imported from keystore")
                 .add();
         main.loadKeyStore(keyStore);
 
-        Optional<TrustStore> loaded = inMemoryPersistence.getPkiService().findTrustStore("imported");
+        Optional<TrustStore> loaded = inMemoryPersistence.getSecurityManagementService().findTrustStore("imported");
         assertThat(loaded).isPresent();
         assertThat(loaded.get().getCertificates()).hasSize(2);
         assertThat(loaded.get().getCertificates().stream().map(CertificateWrapper::getAlias).collect(toList())).containsOnly("sm_2016_mdm_ca", "sm_2016_root_ca");
@@ -457,14 +465,14 @@ public class PKIServiceImplIT {
     public void testCreateTrustStoreFromKeyStoreWithDuplicateAliases() throws Exception {
         KeyStore keyStore = KeyStore.getInstance("JCEKS");
         keyStore.load(this.getClass().getResourceAsStream("SM2016MDMCA-chain.jks"), "changeit".toCharArray());
-        TrustStore main = inMemoryPersistence.getPkiService()
+        TrustStore main = inMemoryPersistence.getSecurityManagementService()
                 .newTrustStore("duplicates")
                 .description("Imported from keystore")
                 .add();
         main.loadKeyStore(keyStore);
         main.loadKeyStore(keyStore); // <-- DUPLICATES
 
-        Optional<TrustStore> loaded = inMemoryPersistence.getPkiService().findTrustStore("duplicates");
+        Optional<TrustStore> loaded = inMemoryPersistence.getSecurityManagementService().findTrustStore("duplicates");
         assertThat(loaded).isPresent();
         assertThat(loaded.get().getCertificates()).hasSize(2);
         assertThat(loaded.get().getCertificates().stream().map(CertificateWrapper::getAlias).collect(toList())).containsOnly("sm_2016_mdm_ca", "sm_2016_root_ca");
@@ -473,7 +481,7 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testAddCRLtoTrustedCertificate() throws Exception {
-        TrustStore main = inMemoryPersistence.getPkiService()
+        TrustStore main = inMemoryPersistence.getSecurityManagementService()
                 .newTrustStore("CRL")
                 .description("Main trust store")
                 .add();
@@ -481,7 +489,7 @@ public class PKIServiceImplIT {
         TrustedCertificate trustedCertificate = main.addCertificate("myRootCA", certificate);
 
         trustedCertificate.setCRL(certificateFactory.generateCRL(CertPathValidatorTest.class.getResourceAsStream("mySubCA.revoked.crl.pem")));
-        Optional<TrustStore> reloaded = inMemoryPersistence.getPkiService().findTrustStore("CRL");
+        Optional<TrustStore> reloaded = inMemoryPersistence.getSecurityManagementService().findTrustStore("CRL");
         assertThat(reloaded).isPresent();
         TrustedCertificate trustedCertificateReloaded = reloaded.get().getCertificates().get(0);
         assertThat(trustedCertificateReloaded.getCRL()).isPresent();
@@ -491,10 +499,10 @@ public class PKIServiceImplIT {
     @Transactional
     public void testImportCertificate() throws Exception {
         X509Certificate certificate = loadCertificate("bvn.cert");
-        CertificateWrapper certificateWrapper = inMemoryPersistence.getPkiService().newCertificateWrapper("bvn");
+        CertificateWrapper certificateWrapper = inMemoryPersistence.getSecurityManagementService().newCertificateWrapper("bvn");
         certificateWrapper.setCertificate(certificate);
 
-        Optional<CertificateWrapper> reloaded = inMemoryPersistence.getPkiService().findCertificateWrapper("bvn");
+        Optional<CertificateWrapper> reloaded = inMemoryPersistence.getSecurityManagementService().findCertificateWrapper("bvn");
         assertThat(reloaded).isPresent();
         assertThat(reloaded.get().getCertificate()).isPresent();
         assertThat(reloaded.get().getStatus()).isEqualTo("Available");
@@ -508,7 +516,7 @@ public class PKIServiceImplIT {
     public void testImportCertificateWithLargeAlias() throws Exception {
         StringBuilder alias = new StringBuilder();
         IntStream.range(1, 260).forEach(i -> alias.append("A")); // max == 256
-        inMemoryPersistence.getPkiService().newCertificateWrapper(alias.toString());
+        inMemoryPersistence.getSecurityManagementService().newCertificateWrapper(alias.toString());
     }
 
     @Test
@@ -517,17 +525,17 @@ public class PKIServiceImplIT {
     public void testImportCertificateWithHugeAlias_CXO_6591() throws Exception {
         StringBuilder alias = new StringBuilder();
         IntStream.range(1, 5000).forEach(i -> alias.append("A"));
-        inMemoryPersistence.getPkiService().newCertificateWrapper(alias.toString());
+        inMemoryPersistence.getSecurityManagementService().newCertificateWrapper(alias.toString());
     }
 
     @Test
     @Transactional
     public void testImportCertificate_CXO_6608() throws Exception {
         X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
-        CertificateWrapper certificateWrapper = inMemoryPersistence.getPkiService().newCertificateWrapper("cxo-6608");
+        CertificateWrapper certificateWrapper = inMemoryPersistence.getSecurityManagementService().newCertificateWrapper("cxo-6608");
         certificateWrapper.setCertificate(certificate);
 
-        Optional<CertificateWrapper> reloaded = inMemoryPersistence.getPkiService().findCertificateWrapper("cxo-6608");
+        Optional<CertificateWrapper> reloaded = inMemoryPersistence.getSecurityManagementService().findCertificateWrapper("cxo-6608");
         assertThat(reloaded).isPresent();
         assertThat(reloaded.get().getCertificate()).isPresent();
         assertThat(reloaded.get().getStatus()).isEqualTo("Available");
@@ -536,12 +544,12 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testFindAndLockTrustStore() throws Exception {
-        TrustStore main = inMemoryPersistence.getPkiService()
+        TrustStore main = inMemoryPersistence.getSecurityManagementService()
                 .newTrustStore("LOCK")
                 .description("Versioned trust store")
                 .add();
 
-        Optional<TrustStore> correct = inMemoryPersistence.getPkiService()
+        Optional<TrustStore> correct = inMemoryPersistence.getSecurityManagementService()
                 .findAndLockTrustStoreByIdAndVersion(main.getId(), main.getVersion());
 
         assertThat(correct).isPresent();
@@ -550,12 +558,12 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testFindAndLockTrustStoreIncorrectVersion() throws Exception {
-        TrustStore main = inMemoryPersistence.getPkiService()
+        TrustStore main = inMemoryPersistence.getSecurityManagementService()
                 .newTrustStore("LOCK2")
                 .description("Versioned trust store")
                 .add();
 
-        Optional<TrustStore> incorrect = inMemoryPersistence.getPkiService()
+        Optional<TrustStore> incorrect = inMemoryPersistence.getSecurityManagementService()
                 .findAndLockTrustStoreByIdAndVersion(main.getId(), main.getVersion() + 1);
 
         assertThat(incorrect).isEmpty();
@@ -564,31 +572,31 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testRemoveCertificateFromTrustStore() throws Exception {
-        TrustStore main = inMemoryPersistence.getPkiService()
+        TrustStore main = inMemoryPersistence.getSecurityManagementService()
                 .newTrustStore("DEL")
                 .description("Main trust store")
                 .add();
         X509Certificate certificate = loadCertificate("myRootCA.cert");
         main.addCertificate("MyRootCa", certificate);
 
-        Optional<TrustStore> reloaded = inMemoryPersistence.getPkiService().findTrustStore("DEL");
+        Optional<TrustStore> reloaded = inMemoryPersistence.getSecurityManagementService().findTrustStore("DEL");
         assertThat(reloaded.get().getCertificates()).hasSize(1);
         reloaded.get().removeCertificate("MyRootCa");
-        Optional<TrustStore> rereloaded = inMemoryPersistence.getPkiService().findTrustStore("DEL");
+        Optional<TrustStore> rereloaded = inMemoryPersistence.getSecurityManagementService().findTrustStore("DEL");
         assertThat(rereloaded.get().getCertificates()).isEmpty();
     }
 
     @Test
     @Transactional
     public void testCreateClientCertificate() throws Exception {
-        KeyType certificateType = inMemoryPersistence.getPkiService()
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("TLS-CC", "SHA256withECDSA")
                 .ECDSA()
                 .curve("secp256r1")
                 .add();
-        ClientCertificateWrapper comserver = inMemoryPersistence.getPkiService()
+        ClientCertificateWrapper comserver = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-cc").add();
-        Optional<ClientCertificateWrapper> comserver1 = inMemoryPersistence.getPkiService()
+        Optional<ClientCertificateWrapper> comserver1 = inMemoryPersistence.getSecurityManagementService()
                 .findClientCertificateWrapper("comserver-cc");
         assertThat(comserver1).isPresent();
     }
@@ -596,14 +604,14 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testCreateCsrForECKey() throws Exception {
-        KeyType certificateType = inMemoryPersistence.getPkiService()
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("TLS-EC", "SHA256withECDSA")
                 .setKeyUsages(EnumSet.of(KeyUsage.cRLSign))
                 .setExtendedKeyUsages(EnumSet.of(ExtendedKeyUsage.digitalSignature, ExtendedKeyUsage.tlsWebClientAuthentication))
                 .ECDSA()
                 .curve("secp256r1")
                 .add();
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver").add();
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getSecurityManagementService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver").add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -623,18 +631,18 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testCreatePasswordWrapper() throws Exception {
-        KeyType passwordType = inMemoryPersistence.getPkiService()
+        KeyType passwordType = inMemoryPersistence.getSecurityManagementService()
                 .newPassphraseType("Setec Astronomy")
                 .withUpperCaseCharacters()
                 .withLowerCaseCharacters()
                 .length(120)
                 .add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(passwordType);
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(passwordType);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
 
-        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getPkiService().newPassphraseWrapper(keyAccessorType);
+        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getSecurityManagementService().newPassphraseWrapper(securityAccessorType);
         passphraseWrapper.generateValue();
 
         assertThat(passphraseWrapper.getPassphrase()).isPresent();
@@ -646,7 +654,7 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testExtensionsOnCSR() throws Exception {
-        KeyType certificateType = inMemoryPersistence.getPkiService()
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("TLS-EC-2", "SHA256withECDSA")
                 .setKeyUsages(EnumSet.of(KeyUsage.cRLSign, KeyUsage.decipherOnly))
                 .setExtendedKeyUsages(EnumSet.of(ExtendedKeyUsage.digitalSignature, ExtendedKeyUsage.tlsWebClientAuthentication))
@@ -654,7 +662,7 @@ public class PKIServiceImplIT {
                 .curve("secp256r1")
                 .add();
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comsrvr").add();
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getSecurityManagementService().newClientCertificateWrapper(certificateType, "DataVault").alias("comsrvr").add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -675,20 +683,20 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testCreateCsrForRSAKey() throws Exception {
-        KeyType certificateType = inMemoryPersistence.getPkiService()
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("TLS-RSA", "SHA256withRSA")
                 .RSA()
                 .keySize(1024)
                 .add();
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-rsa").add();
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getSecurityManagementService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-rsa").add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
         x500NameBuilder.addRDN(BCStyle.CN, "ComserverTlsClient");
         clientCertificateWrapper.generateCSR(x500NameBuilder.build());
 
-        Optional<ClientCertificateWrapper> reloaded = inMemoryPersistence.getPkiService()
+        Optional<ClientCertificateWrapper> reloaded = inMemoryPersistence.getSecurityManagementService()
                 .findClientCertificateWrapper("comserver-rsa");
         // Assertions
         assertThat(reloaded).isPresent();
@@ -704,13 +712,13 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testImportCertificateForExistingCsr() throws Exception {
-        KeyType certificateType = inMemoryPersistence.getPkiService()
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("TLS-RSA-Import", "SHA256withRSA")
                 .RSA()
                 .keySize(1024)
                 .add();
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-import").add();
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getSecurityManagementService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-import").add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -724,7 +732,7 @@ public class PKIServiceImplIT {
         X509Certificate certificate = generateCertificateFromCSR(x500NameBuilder, clientCertificateWrapper.getCSR().get().getSubjectPublicKeyInfo());
         clientCertificateWrapper.setCertificate(certificate);
         // Assertions
-        Optional<ClientCertificateWrapper> reloaded = inMemoryPersistence.getPkiService()
+        Optional<ClientCertificateWrapper> reloaded = inMemoryPersistence.getSecurityManagementService()
                 .findClientCertificateWrapper("comserver-import");
         assertThat(reloaded).isPresent();
         assertThat(reloaded.get().getCSR()).isPresent();
@@ -735,13 +743,13 @@ public class PKIServiceImplIT {
     @Transactional
     @Expected(value = PkiLocalizedException.class, message = "The certificate''s subject distinguished name does not match the CSR")
     public void testImportCertificateForExistingCsrWithSubjectDnMismatch() throws Exception {
-        KeyType certificateType = inMemoryPersistence.getPkiService()
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("TLS-DN-MISMATCH", "SHA256withRSA")
                 .RSA()
                 .keySize(1024)
                 .add();
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-dn-mismatch").add();
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getSecurityManagementService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-dn-mismatch").add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -766,14 +774,14 @@ public class PKIServiceImplIT {
     @Transactional
     @Expected(value = PkiLocalizedException.class, message = "The certificate''s key usage extension does not match the CSR")
     public void testImportCertificateForExistingCsrWithKeyUsageMismatch() throws Exception {
-        KeyType certificateType = inMemoryPersistence.getPkiService()
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("TLS-DN-KEYUSAGE", "SHA256withRSA")
                 .setKeyUsages(EnumSet.of(KeyUsage.digitalSignature))
                 .RSA()
                 .keySize(1024)
                 .add();
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-ku-mismatch").add();
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getSecurityManagementService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-ku-mismatch").add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -792,14 +800,14 @@ public class PKIServiceImplIT {
     @Transactional
     @Expected(value = PkiLocalizedException.class, message = "The certificate''s extended key usage extension does not match the CSR")
     public void testImportCertificateForExistingCsrWithExtendedKeyUsageMismatch() throws Exception {
-        KeyType certificateType = inMemoryPersistence.getPkiService()
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("TLS-DN-EXTENDEDKEYUSAGE", "SHA256withRSA")
                 .setExtendedKeyUsages(EnumSet.of(ExtendedKeyUsage.emailProtection))
                 .RSA()
                 .keySize(1024)
                 .add();
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-eku-mismatch").add();
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getSecurityManagementService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-eku-mismatch").add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -818,16 +826,16 @@ public class PKIServiceImplIT {
     @Transactional
     @Expected(value = PkiLocalizedException.class, message = "The certificate''s public key does not match the CSR")
     public void testImportMismatchingCertificateForExistingCsr() throws Exception {
-        KeyType certificateType = inMemoryPersistence.getPkiService()
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("TLS-RSA-mismatch", "SHA256withRSA")
                 .RSA()
                 .keySize(1024)
                 .add();
-        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        SecurityAccessorType certificateAccessorType = mock(SecurityAccessorType.class);
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         when(certificateAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("import-mismatch").add();
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getSecurityManagementService().newClientCertificateWrapper(certificateType, "DataVault").alias("import-mismatch").add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -845,16 +853,16 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testCreateCsrForDSAKey() throws Exception {
-        KeyType certificateType = inMemoryPersistence.getPkiService()
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("TLS-DSA", "SHA256withDSA")
                 .DSA()
                 .keySize(512)
                 .add();
-        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        SecurityAccessorType certificateAccessorType = mock(SecurityAccessorType.class);
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         when(certificateAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-dsa").add();
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getSecurityManagementService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-dsa").add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
 
         X500NameBuilder x500NameBuilder = new X500NameBuilder();
@@ -878,37 +886,37 @@ public class PKIServiceImplIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.ALIAS_UNIQUE + "}", property = "alias")
     public void testDuplicateAliasForCertificate() throws Exception {
-        KeyType certificateType = inMemoryPersistence.getPkiService()
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("TLS-DUPLICATE", "SHA256withDSA")
                 .DSA()
                 .keySize(512)
                 .add();
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-dup").add();
-        ClientCertificateWrapper duplicate = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-dup").add();
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getSecurityManagementService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-dup").add();
+        ClientCertificateWrapper duplicate = inMemoryPersistence.getSecurityManagementService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-dup").add();
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.ALIAS_UNIQUE + "}", property = "alias")
     public void testDuplicateAliasForDifferentCertificates() throws Exception {
-        KeyType certificateType = inMemoryPersistence.getPkiService()
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("TLS-DUPLICATE2", "SHA256withDSA")
                 .DSA()
                 .keySize(512)
                 .add();
 
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-dup1").add();
-        CertificateWrapper duplicate = inMemoryPersistence.getPkiService().newCertificateWrapper("comserver-dup1");
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getSecurityManagementService().newClientCertificateWrapper(certificateType, "DataVault").alias("comserver-dup1").add();
+        CertificateWrapper duplicate = inMemoryPersistence.getSecurityManagementService().newCertificateWrapper("comserver-dup1");
         duplicate.save();
     }
 
     @Test
     @Transactional
     public void testNoDuplicateAliasForCertificatesInKeyStores() throws Exception {
-        TrustStore ts1 = inMemoryPersistence.getPkiService().newTrustStore("ts1").add();
-        TrustStore ts2 = inMemoryPersistence.getPkiService().newTrustStore("ts2").add();
-        KeyType certificateType = inMemoryPersistence.getPkiService()
+        TrustStore ts1 = inMemoryPersistence.getSecurityManagementService().newTrustStore("ts1").add();
+        TrustStore ts2 = inMemoryPersistence.getSecurityManagementService().newTrustStore("ts2").add();
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("TLS-DUPLICATE3", "SHA256withDSA")
                 .DSA()
                 .keySize(512)
@@ -922,33 +930,33 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testNoDuplicateAliasForCertificatesInAndOutOfKeyStore() throws Exception {
-        TrustStore ts1 = inMemoryPersistence.getPkiService().newTrustStore("ts3").add();
-        KeyType certificateType = inMemoryPersistence.getPkiService().newClientCertificateType("TLS-DUPLICATE4", "SHA256withDSA")
+        TrustStore ts1 = inMemoryPersistence.getSecurityManagementService().newTrustStore("ts3").add();
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService().newClientCertificateType("TLS-DUPLICATE4", "SHA256withDSA")
                 .DSA()
                 .keySize(512)
                 .add();
 
-        KeyAccessorType certificateAccessorType = mock(KeyAccessorType.class);
+        SecurityAccessorType certificateAccessorType = mock(SecurityAccessorType.class);
         when(certificateAccessorType.getKeyType()).thenReturn(certificateType);
         when(certificateAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
 
         X509Certificate certificate = loadCertificate("myRootCA.cert");
         ts1.addCertificate("myCert3", certificate);
-        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getPkiService().newClientCertificateWrapper(certificateType, "DataVault").alias("myCert3").add();
+        ClientCertificateWrapper clientCertificateWrapper = inMemoryPersistence.getSecurityManagementService().newClientCertificateWrapper(certificateType, "DataVault").alias("myCert3").add();
     }
 
     @Test
     @Transactional
     public void testGetPropertySpecsCertificate() throws Exception {
-        KeyType certificateType = inMemoryPersistence.getPkiService()
+        KeyType certificateType = inMemoryPersistence.getSecurityManagementService()
                 .newClientCertificateType("TLS-props", "SHA256withDSA")
                 .DSA()
                 .keySize(512)
                 .add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(certificateType);
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
-        List<PropertySpec> propertySpecs = inMemoryPersistence.getPkiService().getPropertySpecs(keyAccessorType);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(certificateType);
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        List<PropertySpec> propertySpecs = inMemoryPersistence.getSecurityManagementService().getPropertySpecs(securityAccessorType);
 
         assertThat(propertySpecs).hasSize(1);
         assertThat(propertySpecs.get(0).getName()).isEqualTo("alias");
@@ -958,14 +966,14 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testGetPropertySpecsTrustedCertificate() throws Exception {
-        TrustStore main = inMemoryPersistence.getPkiService()
+        TrustStore main = inMemoryPersistence.getSecurityManagementService()
                 .newTrustStore("daverit")
                 .description("Main trust store")
                 .add();
         X509Certificate x509Certificate = loadCertificate("myRootCA.cert");
         main.addCertificate("myCert", x509Certificate);
 
-        Optional<TrustStore> reloaded = inMemoryPersistence.getPkiService().findTrustStore("daverit");
+        Optional<TrustStore> reloaded = inMemoryPersistence.getSecurityManagementService().findTrustStore("daverit");
         TrustedCertificate certificate = reloaded.get().getCertificates().get(0);
         List<PropertySpec> propertySpecs = certificate.getPropertySpecs();
         assertThat(propertySpecs).hasSize(2);
@@ -983,11 +991,11 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testGetPropertySpecsSymmetricKey() throws Exception {
-        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128-props", "AES", 128).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
-        List<PropertySpec> propertySpecs = inMemoryPersistence.getPkiService().getPropertySpecs(keyAccessorType);
+        KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128-props", "AES", 128).add();
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        List<PropertySpec> propertySpecs = inMemoryPersistence.getSecurityManagementService().getPropertySpecs(securityAccessorType);
 
         assertThat(propertySpecs).hasSize(1);
         assertThat(propertySpecs.get(0).getName()).isEqualTo("key");
@@ -997,14 +1005,14 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void testGetAndUpdatePropertiesSymmetricKey() throws Exception {
-        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128-props-update", "AES", 128).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128-props-update", "AES", 128).add();
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
 
-        SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getPkiService()
-                .newSymmetricKeyWrapper(keyAccessorType);
+        SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getSecurityManagementService()
+                .newSymmetricKeyWrapper(securityAccessorType);
         symmetricKeyWrapper.generateValue();
 
         Map<String, Object> properties = symmetricKeyWrapper.getProperties();
@@ -1018,14 +1026,14 @@ public class PKIServiceImplIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INVALID_HEX_VALUE + "}", property = "key")
     public void testUpdatePropertiesSymmetricKeyWithImproperHexStringKey() throws Exception {
-        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128-props-plain", "AES", 128).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
+        KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128-props-plain", "AES", 128).add();
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
 
-        SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getPkiService()
-                .newSymmetricKeyWrapper(keyAccessorType);
+        SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getSecurityManagementService()
+                .newSymmetricKeyWrapper(securityAccessorType);
 
         Map<String, Object> map = new HashMap<>();
         map.put("key", "kjkjkjkjkjkjkjkjkjkjkjkjkjkjkjkk"); // incorrect symmetric key
@@ -1036,18 +1044,162 @@ public class PKIServiceImplIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INVALID_KEY_SIZE + "}", property = "key")
     public void testUpdatePropertiesSymmetricKeyWithImproperSecretKey() throws Exception {
-        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128-props-sk", "AES", 128).add();
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getKeyType()).thenReturn(created);
-        when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
-        when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
+        KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128-props-sk", "AES", 128).add();
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
 
-        SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getPkiService()
-                .newSymmetricKeyWrapper(keyAccessorType);
+        SymmetricKeyWrapper symmetricKeyWrapper = inMemoryPersistence.getSecurityManagementService()
+                .newSymmetricKeyWrapper(securityAccessorType);
 
         Map<String, Object> map = new HashMap<>();
         map.put("key", "0011223344556677889900112233445566"); // incorrect symmetric key
         symmetricKeyWrapper.setProperties(map);
+    }
+
+    @Test
+    @Transactional
+    public void getExpiredSymmetricKeyTest(){
+        KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128D", "AES", 128).add();
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getSecurityManagementService()
+                .newSymmetricKeyWrapper(securityAccessorType);
+        symmetricKeyWrapper.generateValue();
+
+       assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getSecurityManagementService().getExpired(new Expiration(Expiration.Type.EXPIRED), ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void getExpiredWithinOneWeekSymmetricKeyTest(){
+        KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128E", "AES", 128).add();
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getSecurityManagementService()
+                .newSymmetricKeyWrapper(securityAccessorType);
+        symmetricKeyWrapper.generateValue();
+
+       assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getSecurityManagementService().getExpired(new Expiration(Expiration.Type.EXPIRES_1WEEK), ZonedDateTime.of(2019, 4, 4, 6, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void getExpiredWithinOneMonthSymmetricKeyTest(){
+        KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128F", "AES", 128).add();
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getSecurityManagementService()
+                .newSymmetricKeyWrapper(securityAccessorType);
+        symmetricKeyWrapper.generateValue();
+
+       assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getSecurityManagementService().getExpired(new Expiration(Expiration.Type.EXPIRES_1MONTH), ZonedDateTime.of(2019, 4, 3, 14, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void getExpiredWithinThreeMonthSymmetricKeyTest(){
+        KeyType created = inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128G", "AES", 128).add();
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) inMemoryPersistence.getSecurityManagementService()
+                .newSymmetricKeyWrapper(securityAccessorType);
+        symmetricKeyWrapper.generateValue();
+
+       assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getSecurityManagementService().getExpired(new Expiration(Expiration.Type.EXPIRES_3MONTHS), ZonedDateTime.of(2019, 1, 5, 14, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void getExpiredPassPhraseTest(){
+        KeyType created = inMemoryPersistence.getSecurityManagementService().newPassphraseType("SECRETB").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getSecurityManagementService()
+                .newPassphraseWrapper(securityAccessorType);
+        passphraseWrapper.generateValue();
+
+        assertThat(passphraseWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getSecurityManagementService().getExpired(new Expiration(Expiration.Type.EXPIRED), ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void getExpiredWithinOneWeekPassPhraseTest(){
+        KeyType created = inMemoryPersistence.getSecurityManagementService().newPassphraseType("SECRETC").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getSecurityManagementService()
+                .newPassphraseWrapper(securityAccessorType);
+        passphraseWrapper.generateValue();
+
+        assertThat(passphraseWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getSecurityManagementService().getExpired(new Expiration(Expiration.Type.EXPIRES_1WEEK), ZonedDateTime.of(2019, 4, 4, 6, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void getExpiredWithinOneMonthPassPhraseTest(){
+        KeyType created = inMemoryPersistence.getSecurityManagementService().newPassphraseType("SECRETD").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getSecurityManagementService()
+                .newPassphraseWrapper(securityAccessorType);
+        passphraseWrapper.generateValue();
+
+        assertThat(passphraseWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getSecurityManagementService().getExpired(new Expiration(Expiration.Type.EXPIRES_1MONTH), ZonedDateTime.of(2019, 4, 3, 14, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void getExpiredWithinThreeMonthPassPhraseTest(){
+        KeyType created = inMemoryPersistence.getSecurityManagementService().newPassphraseType("SECRETE").withLowerCaseCharacters().withUpperCaseCharacters().length(20).add();
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getKeyType()).thenReturn(created);
+        when(securityAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(2)));
+        when(securityAccessorType.getKeyEncryptionMethod()).thenReturn(DataVaultPassphraseFactory.KEY_ENCRYPTION_METHOD);
+        PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) inMemoryPersistence.getSecurityManagementService()
+                .newPassphraseWrapper(securityAccessorType);
+        passphraseWrapper.generateValue();
+
+        assertThat(passphraseWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+
+        List<SecurityValueWrapper> securityValues = inMemoryPersistence.getSecurityManagementService().getExpired(new Expiration(Expiration.Type.EXPIRES_3MONTHS), ZonedDateTime.of(2019, 1, 5, 14, 0, 0, 0, ZoneId.of("UTC")).toInstant());
+        assertThat(securityValues.isEmpty()).isFalse();
     }
 
     private X509Certificate createSelfSignedCertificate(String myself) throws Exception {
@@ -1090,6 +1242,8 @@ public class PKIServiceImplIT {
                 .setProvider("BC")
                 .getCertificate(certificateBuilder.build(contentSigner));
     }
+
+
 
 
 }

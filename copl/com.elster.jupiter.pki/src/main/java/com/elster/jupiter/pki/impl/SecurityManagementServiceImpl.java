@@ -19,11 +19,13 @@ import com.elster.jupiter.pki.impl.wrappers.certificate.RequestableCertificateWr
 import com.elster.jupiter.pki.impl.wrappers.certificate.TrustedCertificateImpl;
 import com.elster.jupiter.pki.impl.wrappers.keypair.KeypairWrapperImpl;
 import com.elster.jupiter.pki.security.Privileges;
+import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
@@ -35,6 +37,7 @@ import org.osgi.service.component.annotations.*;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Security;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -43,14 +46,11 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-/**
- * Created by bvn on 1/26/17.
- */
 @Component(name="PkiService",
-        service = { PkiService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
-        property = "name=" + PkiService.COMPONENTNAME,
+        service = { SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
+        property = "name=" + SecurityManagementService.COMPONENTNAME,
         immediate = true)
-public class PkiServiceImpl implements PkiService, TranslationKeyProvider, MessageSeedProvider {
+public class SecurityManagementServiceImpl implements SecurityManagementService, TranslationKeyProvider, MessageSeedProvider {
 
     private final Map<String, PrivateKeyFactory> privateKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, SymmetricKeyFactory> symmetricKeyFactories = new ConcurrentHashMap<>();
@@ -66,9 +66,9 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     private volatile UserService userService;
 
     @Inject
-    public PkiServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
-                          DataVaultService dataVaultService, PropertySpecService propertySpecService,
-                          EventService eventService, UserService userService) {
+    public SecurityManagementServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
+                                         DataVaultService dataVaultService, PropertySpecService propertySpecService,
+                                         EventService eventService, UserService userService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -80,7 +80,8 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     // OSGi constructor
-    public PkiServiceImpl() {
+    @SuppressWarnings("unused")
+    public SecurityManagementServiceImpl() {
 
     }
 
@@ -156,7 +157,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         this.dataVaultService = dataVaultService;
     }
 
-    DataModel getDataModel() {
+    public DataModel getDataModel() {
         return dataModel;
     }
 
@@ -176,7 +177,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         this.dataModel = ormService.newDataModel(COMPONENTNAME, "Private Key Infrastructure");
         Stream.of(TableSpecs.values()).forEach(tableSpecs -> tableSpecs.addTo(dataModel, dataVaultService));
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("Pulse", PkiService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", SecurityManagementService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 //        initPrivileges();
     }
 
@@ -188,7 +189,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                 bind(UpgradeService.class).toInstance(upgradeService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Thesaurus.class).toInstance(thesaurus);
-                bind(PkiService.class).toInstance(PkiServiceImpl.this);
+                bind(SecurityManagementService.class).toInstance(SecurityManagementServiceImpl.this);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
@@ -267,8 +268,8 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs(KeyAccessorType keyAccessorType) {
-        switch (keyAccessorType.getKeyType().getCryptographicType()) {
+    public List<PropertySpec> getPropertySpecs(SecurityAccessorType securityAccessorType) {
+        switch (securityAccessorType.getKeyType().getCryptographicType()) {
             case Certificate:
                 return getDataModel().getInstance(RequestableCertificateWrapperImpl.class).getPropertySpecs();
             case ClientCertificate:
@@ -276,9 +277,9 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
             case TrustedCertificate:
                 return getDataModel().getInstance(TrustedCertificateImpl.class).getPropertySpecs();
             case SymmetricKey:
-                return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
+                return getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
             case Passphrase:
-                return getPassphraseFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
+                return getPassphraseFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
             case AsymmetricKey:
                 return Collections.emptyList(); // There is currently no need for visibility on asymmetric keys
             default:
@@ -315,8 +316,29 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public SymmetricKeyWrapper newSymmetricKeyWrapper(KeyAccessorType keyAccessorType) {
-        return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).newSymmetricKey(keyAccessorType);
+    public SymmetricKeyWrapper newSymmetricKeyWrapper(SecurityAccessorType securityAccessorType) {
+        return getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).newSymmetricKey(securityAccessorType);
+    }
+
+    @Override
+    public List<SecurityValueWrapper> getExpired(Expiration expiration, Instant when) {
+        List<SecurityValueWrapper> all = new ArrayList<>();
+        allFactoriesSupportingExpiration().forEach(es -> all.addAll(es.findExpired(expiration, when)));
+        this.findExpiredCertificates(expiration, when).stream().forEach(all::add);
+        return all;
+    }
+
+    private List<ExpirationSupport> allFactoriesSupportingExpiration(){
+        List<ExpirationSupport> factoriesSupportingExpiration = new ArrayList<>();
+        privateKeyFactories.values().stream().filter(pkf -> pkf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
+        symmetricKeyFactories.values().stream().filter(skf -> skf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
+        passphraseFactories.values().stream().filter(ppf -> ppf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
+        return factoriesSupportingExpiration;
+    }
+
+    @Override
+    public Optional<Comparison> getExpirationCondition(Expiration expiration, Instant when, String securityValueWrapperTableName) {
+        return allFactoriesSupportingExpiration().stream().map(es -> es.isExpiredCondition(expiration, when)).filter(c -> c.getFieldName().startsWith(securityValueWrapperTableName)).findAny();
     }
 
     private SymmetricKeyFactory getSymmetricKeyFactoryOrThrowException(String keyEncryptionMethod) {
@@ -327,8 +349,8 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public PassphraseWrapper newPassphraseWrapper(KeyAccessorType keyAccessorType) {
-        return getPassphraseFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).newPassphraseWrapper(keyAccessorType);
+    public PassphraseWrapper newPassphraseWrapper(SecurityAccessorType securityAccessorType) {
+        return getPassphraseFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).newPassphraseWrapper(securityAccessorType);
     }
 
     private PassphraseFactory getPassphraseFactoryOrThrowException(String keyEncryptionMethod) {
@@ -374,7 +396,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
 
     @Override
     public String getComponentName() {
-        return PkiServiceImpl.COMPONENTNAME;
+        return SecurityManagementServiceImpl.COMPONENTNAME;
     }
 
     @Override
@@ -396,7 +418,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         return Arrays.asList(MessageSeeds.values());
     }
 
-    class ClientCertificateWrapperBuilder implements PkiService.ClientCertificateWrapperBuilder {
+    class ClientCertificateWrapperBuilder implements SecurityManagementService.ClientCertificateWrapperBuilder {
         private final ClientCertificateWrapper underConstruction;
 
         public ClientCertificateWrapperBuilder(ClientCertificateWrapper underConstruction) {
@@ -404,7 +426,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         }
 
         @Override
-        public PkiService.ClientCertificateWrapperBuilder alias(String alias) {
+        public SecurityManagementService.ClientCertificateWrapperBuilder alias(String alias) {
             underConstruction.setAlias(alias);
             return this;
         }
@@ -478,6 +500,12 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         return DefaultFinder.of(CertificateWrapper.class,
                 where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)),
                 getDataModel()).sorted(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName(), true);
+    }
+
+    private List<CertificateWrapper> findExpiredCertificates(Expiration expiration, Instant when){
+        return dataModel.query(CertificateWrapper.class).select(
+                    where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR))
+                    .and(expiration.isExpired("expirationTime", when)));
     }
 
     @Override
