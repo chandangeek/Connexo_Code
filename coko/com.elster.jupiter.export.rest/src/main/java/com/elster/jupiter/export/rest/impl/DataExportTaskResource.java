@@ -44,6 +44,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
@@ -261,10 +262,10 @@ public class DataExportTaskResource {
     }
 
     @PUT
+    @Transactional
     @Path("/{id}/triggerWithParams")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.RUN_DATA_EXPORT_TASK})
-    @Transactional
     public Response triggerWithParametersDataExportTask(@PathParam("id") long id, DataExportTaskRunInfo runInfo) {
         runInfo.task.id = id;
         ExportTask exportTask = dataExportService.findAndLockExportTask(runInfo.task.id, runInfo.task.version)
@@ -275,6 +276,12 @@ public class DataExportTaskResource {
                         .withMessageTitle(MessageSeeds.RUN_TASK_CONCURRENT_TITLE, runInfo.task.name)
                         .withMessageBody(MessageSeeds.RUN_TASK_CONCURRENT_BODY, runInfo.task.name)
                         .supplier());
+
+        RestValidationBuilder validationBuilder = new RestValidationBuilder();
+        validationBuilder.notEmpty(runInfo.startOn, "startOn");
+        validateExportWindow(validationBuilder, runInfo, exportTask);
+        validateUpdateData(validationBuilder, runInfo, exportTask);
+        validationBuilder.validate();
 
         Instant triggerTime = clock.instant();
         exportTask.addExportRunParameters(triggerTime, runInfo.exportWindowStart, runInfo.exportWindowEnd, runInfo.updateDataStart, runInfo.updateDataEnd);
@@ -823,5 +830,41 @@ public class DataExportTaskResource {
     private DataExportOccurrence findDataExportOccurrenceOrThrowException(long occurrenceId) {
         return dataExportService.findDataExportOccurrence(occurrenceId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private void validateExportWindow(RestValidationBuilder validationBuilder, DataExportTaskRunInfo runInfo, ExportTask exportTask) {
+        Optional<DataSelectorConfig> selector = exportTask.getStandardDataSelectorConfig();
+        validationBuilder.notEmpty(runInfo.exportWindowEnd, "exportWindowEnd");
+        if (selector.isPresent() && !selector.get().isExportContinuousData()) {
+            validationBuilder.notEmpty(runInfo.exportWindowStart, "exportWindowStart");
+            if ((runInfo.exportWindowStart != null) && (runInfo.exportWindowEnd != null) && runInfo.exportWindowStart.isAfter(runInfo.exportWindowEnd)) {
+                validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.END_DATE_MUST_BE_GREATER_THAN_START_DATE, "exportWindowEnd"));
+            }
+        }
+    }
+
+    private void validateUpdateData(RestValidationBuilder validationBuilder, DataExportTaskRunInfo runInfo, ExportTask exportTask) {
+        exportTask.getStandardDataSelectorConfig().ifPresent(selectorConfig -> selectorConfig.apply(
+                new DataSelectorConfig.DataSelectorConfigVisitor() {
+                    @Override
+                    public void visit(MeterReadingSelectorConfig config) {
+                        if (config.getStrategy().isExportUpdate()) {
+                            validationBuilder.notEmpty(runInfo.updateDataStart, "updateDataStart");
+                            validationBuilder.notEmpty(runInfo.updateDataEnd, "updateDataEnd");
+                            if ((runInfo.updateDataStart != null) && (runInfo.updateDataEnd != null) && runInfo.updateDataStart.isAfter(runInfo.updateDataEnd)) {
+                                validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.END_DATE_MUST_BE_GREATER_THAN_START_DATE, "updateDataEnd"));
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void visit(UsagePointReadingSelectorConfig config) {
+                    }
+
+                    @Override
+                    public void visit(EventSelectorConfig config) {
+                    }
+                }
+        ));
     }
 }

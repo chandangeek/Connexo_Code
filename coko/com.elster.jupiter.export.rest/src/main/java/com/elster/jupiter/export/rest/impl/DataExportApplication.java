@@ -19,6 +19,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -60,6 +61,7 @@ public class DataExportApplication extends Application implements MessageSeedPro
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
+                RestValidationExceptionMapper.class,
                 DataExportTaskResource.class,
                 ExportDirectoryResource.class,
                 FieldResource.class,

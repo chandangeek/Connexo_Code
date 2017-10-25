@@ -15,6 +15,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 
 import org.mockito.Answers;
 import org.mockito.Mock;
@@ -40,6 +41,8 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
     protected AppService appService;
     @Mock
     protected PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    protected Clock clock;
 
     @Override
     protected Application getApplication() {
@@ -55,6 +58,7 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         application.setTimeService(timeService);
         application.setAppService(appService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setClock(clock);
         return application;
     }
 }

@@ -19,7 +19,7 @@ public enum MessageSeeds implements MessageSeed {
     RUN_TASK_CONCURRENT_TITLE(4, "RunTaskConcurrentTitle", "Failed to run ''{0}''", Level.SEVERE),
     RUN_TASK_CONCURRENT_BODY(5, "RunTaskConcurrentMessage", "{0} has changed since the page was last updated.", Level.SEVERE),
     NOT_SUPPORTED_PROPERTY_VALUE(6, "NotSupportedPropertyValue", "This value is only available for usage point", Level.SEVERE),
-        ;
+    END_DATE_MUST_BE_GREATER_THAN_START_DATE(7, "EndDateMustBeGreaterThanStartDate", "End date must be greater than Start date.", Level.SEVERE),;
 
     private final int number;
     private final String key;

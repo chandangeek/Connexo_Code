@@ -46,6 +46,7 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.LongIdWithNameInfo;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativePeriod;
@@ -133,6 +134,8 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     private QueryStream queryStream;
     @Mock
     private History<ExportTask> exportTaskHistory;
+    @Mock
+    protected RecurrentTask recurrentTask;
 
     private DataExportTaskBuilder builder;
 
@@ -168,6 +171,8 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         when(exportTask.getLastOccurrence()).thenReturn(Optional.empty());
         when(exportTask.getLastRun()).thenReturn(Optional.empty());
         when(exportTask.getVersion()).thenReturn(OK_VERSION);
+
+        when(occurrence.getRecurrentTask()).thenReturn(recurrentTask);
 
         when(this.dataSelectorFactory.getName()).thenReturn("DataSelectorFactor");
         when(this.dataSelectorFactory.getDisplayName()).thenReturn("DataSelectorFactor");
@@ -667,6 +672,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         when(exportTask.getHistory()).thenReturn(exportTaskHistory);
         when(occurrence.getStartDate()).thenReturn(Optional.of(Instant.now()));
         when(occurrence.getEndDate()).thenReturn(Optional.of(Instant.now()));
+        when(occurrence.getRetryTime()).thenReturn(Optional.of(Instant.now()));
         when(occurrence.getDefaultSelectorOccurrence()).thenReturn(Optional.empty());
         when(exportTaskHistory.getVersionAt(any(Instant.class))).thenReturn(Optional.of(exportTask));
         when(exportTask.getStandardDataSelectorConfig(any(Instant.class))).thenReturn(Optional.empty());
@@ -712,13 +718,14 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         when(dataExportService.findDataExportOccurrence(anyLong())).thenReturn(Optional.of(dataExportOccurrence));
         when(dataExportOccurrence.getTask()).thenReturn(exportTask);
         when(exportTask.getHistory()).thenReturn(history);
-        when(exportTask.getStandardDataSelectorConfig(Instant.EPOCH)).thenReturn(Optional.empty());
-        when(exportTask.getScheduleExpression(Instant.EPOCH)).thenReturn(Optional.empty());
+        when(exportTask.getStandardDataSelectorConfig(any(Instant.class))).thenReturn(Optional.empty());
+        when(exportTask.getScheduleExpression(any(Instant.class))).thenReturn(Optional.empty());
         when(dataExportOccurrence.getId()).thenReturn(13L);
         when(dataExportOccurrence.getStartDate()).thenReturn(Optional.of(Instant.EPOCH));
         when(dataExportOccurrence.getEndDate()).thenReturn(Optional.of(Instant.EPOCH));
         when(dataExportOccurrence.getDefaultSelectorOccurrence()).thenReturn(Optional.empty());
-
+        when(dataExportOccurrence.getRetryTime()).thenReturn(Optional.of(Instant.now()));
+        when(dataExportOccurrence.getRecurrentTask()).thenReturn(recurrentTask);
         Response response = target("/dataexporttask/history/" + occurrenceId).request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
