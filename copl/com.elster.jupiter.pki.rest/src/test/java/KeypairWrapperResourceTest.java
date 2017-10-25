@@ -45,7 +45,7 @@ public class KeypairWrapperResourceTest extends PkiApplicationTest {
         KeypairWrapper keypair1 = mockKeypair("pair 1", 123L);
 
         Finder<KeypairWrapper> keypairFinder = mockUtils.mockFinder(Arrays.asList(keypair1));
-        when(pkiService.findAllKeypairs()).thenReturn(keypairFinder);
+        when(securityManagementService.findAllKeypairs()).thenReturn(keypairFinder);
 
         Response response = target("/keypairs").request().get();
 
@@ -64,7 +64,7 @@ public class KeypairWrapperResourceTest extends PkiApplicationTest {
     @Test
     public void testDeleteKeypair() throws Exception {
         KeypairWrapper keypair1 = mockKeypair("pair 1", 123L);
-        when(pkiService.findKeypairWrapper(123L)).thenReturn(Optional.of(keypair1));
+        when(securityManagementService.findKeypairWrapper(123L)).thenReturn(Optional.of(keypair1));
 
         Response delete = target("/keypairs/123").request().delete();
         assertThat(delete.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -78,7 +78,7 @@ public class KeypairWrapperResourceTest extends PkiApplicationTest {
         rsa.initialize(1024);
         KeyPair keyPair = rsa.generateKeyPair();
         when(keypair1.getPublicKey()).thenReturn(Optional.of(keyPair.getPublic()));
-        when(pkiService.findKeypairWrapper(123L)).thenReturn(Optional.of(keypair1));
+        when(securityManagementService.findKeypairWrapper(123L)).thenReturn(Optional.of(keypair1));
 
         Response response = target("/keypairs/123/download/publickey").request().get();
 
