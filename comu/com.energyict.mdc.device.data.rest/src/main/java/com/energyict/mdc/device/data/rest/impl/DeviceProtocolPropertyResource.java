@@ -5,7 +5,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.EndDeviceStage;
-import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.Transactional;
@@ -15,7 +14,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.pluggable.rest.PropertyDefaultValuesProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import javax.annotation.security.RolesAllowed;
@@ -23,7 +21,6 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
 import java.util.List;
 
 /**

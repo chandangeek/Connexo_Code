@@ -319,6 +319,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>ids</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.alarms.rest</artifactId>
+        </dependency>
 
         <!--INTEGRATION TESTS-->
         <dependency>

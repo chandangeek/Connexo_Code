@@ -10,8 +10,10 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.rest.ObjectMapperProvider;
+import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -62,7 +64,6 @@ import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.pluggable.rest.impl.MdcPropertyUtilsImpl;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -163,8 +164,10 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static ServiceCallService serviceCallService;
     private static BpmService bpmService;
     private static ThreadPrincipalService threadPrincipalService;
-    private static PkiService pkiService;
+    private static SecurityManagementService securityManagementService;
     private static MdcPropertyUtils mdcPropertyUtils;
+    private static OrmService ormService;
+    private static IssueInfoFactoryService issueInfoFactoryService;
     private static RegisteredDevicesKpiService registeredDevicesKpiService;
 
     @Rule
@@ -193,7 +196,9 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         threadPrincipalService = mock(ThreadPrincipalService.class);
         registeredDevicesKpiService = mock(RegisteredDevicesKpiService.class);
         userService = mock(UserService.class);
-        pkiService = mock(PkiService.class);
+        securityManagementService = mock(SecurityManagementService.class);
+        ormService = mock(OrmService.class);
+        issueInfoFactoryService = mock(IssueInfoFactoryService.class);
         obisCodeDescriptor = mock(ObisCodeDescriptor.class);
         when(obisCodeDescriptor.describe(any(ObisCode.class))).thenReturn("obisCodeDescription");
         inMemoryPersistence = new InMemoryIntegrationPersistence();
@@ -413,8 +418,10 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setMeteringTranslationService(inMemoryPersistence.getMeteringTranslationService());
         application.setDeviceLifeCycleConfigurationService(inMemoryPersistence.getDeviceLifeCycleConfigurationService());
         application.setObisCodeDescriptor(obisCodeDescriptor);
-        application.setPkiService(pkiService);
+        application.setSecurityManagementService(securityManagementService);
         application.setMdcPropertyUtils(inMemoryPersistence.getMdcPropertyUtils());
+        application.setIssueInfoFactoryService(issueInfoFactoryService);
+        application.setOrmService(ormService);
         application.setRegisteredDevicesKpiService(registeredDevicesKpiService);
         return application;
     }

@@ -26,6 +26,8 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -38,7 +40,9 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -227,7 +231,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     ObisCodeDescriptor obisCodeDescriptor;
     @Mock
-    PkiService pkiService;
+    SecurityManagementService securityManagementService;
     MdcPropertyUtils mdcPropertyUtils;
     @Mock
     protected
@@ -239,6 +243,14 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     LocationService locationService;
     @Mock
     static SecurityContext securityContext;
+    @Mock
+    IssueInfoFactoryService issueInfoFactoryService;
+    @Mock
+    OrmService ormService;
+    @Mock
+    DataModel dataModel;
+    @Mock
+    IssueActionService issueActionService;
 
     protected ChannelInfoFactory channelInfoFactory;
     ReadingTypeInfoFactory readingTypeInfoFactory;
@@ -254,6 +266,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
 
     @Before
     public void setup() {
+        when(ormService.getDataModel(anyString())).thenReturn(Optional.empty());
         when(obisCodeDescriptor.describe(any(ObisCode.class))).thenReturn("obisCodeDescription");
         readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
         channelInfoFactory = new ChannelInfoFactory(clock, topologyService, readingTypeInfoFactory);
@@ -294,6 +307,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
                 return classes;
             }
         };
+        when(issueService.getIssueActionService()).thenReturn(issueActionService);
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setMasterDataService(masterDataService);
@@ -345,7 +359,9 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setDeviceAlarmService(deviceAlarmService);
         application.setUserService(userService);
         application.setObisCodeDescriptor(obisCodeDescriptor);
-        application.setPkiService(pkiService);
+        application.setSecurityManagementService(securityManagementService);
+        application.setIssueInfoFactoryService(issueInfoFactoryService);
+        application.setOrmService(ormService);
         application.setRegisteredDevicesKpiService(registeredDevicesKpiService);
         return application;
     }

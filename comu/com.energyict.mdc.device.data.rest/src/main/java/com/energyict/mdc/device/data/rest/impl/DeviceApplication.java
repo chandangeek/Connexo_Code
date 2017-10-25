@@ -16,6 +16,12 @@ import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.I18N;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
+import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
+import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
+import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueAssignmentService;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
@@ -31,7 +37,8 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -88,6 +95,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -161,8 +169,14 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile UserService userService;
-    private volatile PkiService pkiService;
+    private volatile SecurityManagementService securityManagementService;
     private volatile MdcPropertyUtils mdcPropertyUtils;
+    private volatile IssueActionService issueActionService;
+    private volatile IssueCreationService issueCreationService;
+    private volatile IssueAssignmentService issueAssignmentService;
+    private volatile IssueInfoFactoryService issueInfoFactoryService;
+    private volatile OrmService ormService;
+
     private volatile RegisteredDevicesKpiService registeredDevicesKpiService;
 
     @Override
@@ -227,13 +241,13 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
-    public void setUserService(UserService userService){
+    public void setUserService(UserService userService) {
         this.userService = userService;
     }
 
     @Reference
-    public void setPkiService(PkiService pkiService){
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @Reference
@@ -262,7 +276,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
-    public void setDeviceAlarmService(DeviceAlarmService deviceAlarmService){
+    public void setDeviceAlarmService(DeviceAlarmService deviceAlarmService) {
         this.deviceAlarmService = deviceAlarmService;
     }
 
@@ -289,6 +303,9 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
+        this.issueActionService = issueService.getIssueActionService();
+        this.issueCreationService = issueService.getIssueCreationService();
+        this.issueAssignmentService = issueService.getIssueAssignmentService();
     }
 
     @Reference
@@ -311,6 +328,15 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.yellowfinGroupsService = yellowfinGroupsService;
     }
 
+    @Reference
+    public void setIssueInfoFactoryService(IssueInfoFactoryService issueInfoFactoryService) {
+        this.issueInfoFactoryService = issueInfoFactoryService;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
+    }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
@@ -320,7 +346,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 .join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(TopologyService.COMPONENT_NAME, Layer.DOMAIN))
-                .join(nlsService.getThesaurus(PkiService.COMPONENTNAME, Layer.DOMAIN));
+                .join(nlsService.getThesaurus(SecurityManagementService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -379,11 +405,6 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Override
-    public List<MessageSeed> getSeeds() {
-        return Arrays.asList(MessageSeeds.values());
-    }
-
-    @Override
     public List<TranslationKey> getKeys() {
         Set<String> uniqueIds = new HashSet<>();
         List<TranslationKey> keys = new ArrayList<>();
@@ -424,6 +445,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         keys.addAll(Arrays.asList(LocationTranslationKeys.values()));
         keys.addAll(Arrays.asList(KeyAccessorStatus.values()));
         return keys;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Reference
@@ -635,21 +661,26 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(calendarService).to(CalendarService.class);
             bind(deviceAlarmService).to(DeviceAlarmService.class);
             bind(userService).to(UserService.class);
-            bind(pkiService).to(PkiService.class);
+            bind(securityManagementService).to(SecurityManagementService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(TimeOfUseInfoFactory.class).to(TimeOfUseInfoFactory.class);
             bind(MeterActivationInfoFactory.class).to(MeterActivationInfoFactory.class);
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
+            bind(ormService).to(OrmService.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(ChannelInfoFactory.class).to(ChannelInfoFactory.class);
             bind(ReadingQualityInfoFactory.class).to(ReadingQualityInfoFactory.class);
             bind(ChannelValidationRuleInfoFactory.class).to(ChannelValidationRuleInfoFactory.class);
             bind(ChannelEstimationRuleInfoFactory.class).to(ChannelEstimationRuleInfoFactory.class);
-            bind(KeyAccessorPlaceHolder.class).to(KeyAccessorPlaceHolder.class);
+            bind(SecurityAccessorPlaceHolder.class).to(SecurityAccessorPlaceHolder.class);
             bind(ExecutionLevelInfoFactory.class).to(ExecutionLevelInfoFactory.class);
             bind(ChannelReferenceDataCopier.class).to(ChannelReferenceDataCopier.class);
             bind(CommandInfoFactory.class).to(CommandInfoFactory.class);
             bind(registeredDevicesKpiService).to(RegisteredDevicesKpiService.class);
+            bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
+            bind(issueActionService).to(IssueActionService.class);
+            bind(issueInfoFactoryService).to(IssueInfoFactoryService.class);
+            bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
         }
     }
 }

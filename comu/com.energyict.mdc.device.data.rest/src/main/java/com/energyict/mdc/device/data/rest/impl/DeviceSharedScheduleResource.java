@@ -6,12 +6,12 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
@@ -29,7 +29,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @DeviceStagesRestricted({EndDeviceStage.POST_OPERATIONAL})
@@ -38,11 +37,13 @@ public class DeviceSharedScheduleResource {
 
     private final ResourceHelper resourceHelper;
     private final SchedulingService schedulingService;
+    private final ConcurrentModificationExceptionFactory concurrentModExFactory;
 
     @Inject
-    public DeviceSharedScheduleResource(ResourceHelper resourceHelper, SchedulingService schedulingService) {
+    public DeviceSharedScheduleResource(ResourceHelper resourceHelper, SchedulingService schedulingService, ConcurrentModificationExceptionFactory concurrentModExFactory) {
         this.resourceHelper = resourceHelper;
         this.schedulingService = schedulingService;
+        this.concurrentModExFactory = concurrentModExFactory;
     }
 
     @PUT
@@ -53,9 +54,7 @@ public class DeviceSharedScheduleResource {
     public Response addComScheduleOnDevice(ScheduleIdsInfo info) {
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         List<ComSchedule> comSchedules = info.scheduleIds.stream()
-                .map(schedulingService::findSchedule)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .map(this::findAndLockComScheduleTasks)
                 .collect(Collectors.toList());
         checkValidity(comSchedules, device);
         comSchedules.forEach(comSchedule -> {
@@ -76,7 +75,7 @@ public class DeviceSharedScheduleResource {
     public Response removeComSchedulesOnDevice(@PathParam("mRID") String mrid, ScheduleIdsInfo info) {
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         info.scheduleIds.stream()
-                .map(schedulingService::findSchedule)
+                .map(schedulesIds -> schedulingService.findSchedule(schedulesIds.id))
                 .forEach(comSchedule -> comSchedule.ifPresent(device::removeComSchedule));
 
         return Response.status(Response.Status.OK).build();
@@ -125,8 +124,15 @@ public class DeviceSharedScheduleResource {
                 .isPresent();
     }
 
+    private ComSchedule findAndLockComScheduleTasks(ScheduleIdAndVersion scheduleIdAndVersion) {
+        return schedulingService.findAndLockComScheduleByIdAndVersion(scheduleIdAndVersion.id, scheduleIdAndVersion.version)
+                .orElseThrow(concurrentModExFactory.contextDependentConflictOn(scheduleIdAndVersion.getClass().getName())
+                        .withActualVersion(() -> schedulingService.findSchedule(scheduleIdAndVersion.id)
+                                .map(ComSchedule::getVersion).orElse(null)).supplier());
+    }
+
     static class ScheduleIdsInfo {
-        public List<Long> scheduleIds;
+        public List<ScheduleIdAndVersion> scheduleIds;
         public DeviceInfo device;
 
         public ScheduleIdsInfo() {
@@ -144,6 +150,19 @@ public class DeviceSharedScheduleResource {
         @Override
         public String getLocalizedMessage() {
             return message;
+        }
+    }
+
+    static class ScheduleIdAndVersion {
+        public long id;
+        public long version;
+
+        public ScheduleIdAndVersion() {
+        }
+
+        public ScheduleIdAndVersion(long id, long version) {
+            this.id = id;
+            this.version = version;
         }
     }
 }
