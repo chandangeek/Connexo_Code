@@ -1,6 +1,6 @@
 package com.elster.jupiter.pki.rest.impl;
 
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 
@@ -8,8 +8,8 @@ import java.util.Optional;
 
 public class DataSearchFilterFactory {
 
-    public PkiService.DataSearchFilter asFilter(JsonQueryFilter jsonQueryFilter, Optional<TrustStore> trustStore) {
-        PkiService.DataSearchFilter dataSearchFilter = new PkiService.DataSearchFilter();
+    public SecurityManagementService.DataSearchFilter asFilter(JsonQueryFilter jsonQueryFilter, Optional<TrustStore> trustStore) {
+        SecurityManagementService.DataSearchFilter dataSearchFilter = new SecurityManagementService.DataSearchFilter();
 
         JsonFilterParametersBean params = new JsonFilterParametersBean(jsonQueryFilter);
 

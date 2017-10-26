@@ -4,12 +4,7 @@
 
 package com.elster.jupiter.pki.rest.impl;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.*;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.rest.util.*;
@@ -27,7 +22,6 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.NoSuchProviderException;
 import java.security.cert.*;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -92,16 +86,16 @@ public class TrustStoreResource {
         TrustStore trustStore = findTrustStoreOrThrowException(id);
         List<? extends CertificateWrapper> certificates;
         if (jsonQueryFilter.hasFilters()) {
-            PkiService.DataSearchFilter dataSearchFilter = getDataSearchFilter(jsonQueryFilter,id);
-            certificates = pkiService.findTrustedCertificatesByFilter(dataSearchFilter);
+            SecurityManagementService.DataSearchFilter dataSearchFilter = getDataSearchFilter(jsonQueryFilter,id);
+            certificates = securityManagementService.findTrustedCertificatesByFilter(dataSearchFilter);
         } else {
             certificates = trustStore.getCertificates();
         }
         return asPagedInfoList(certificateInfoFactory.asInfo(certificates), "certificates", queryParameters);
     }
 
-    private PkiService.DataSearchFilter getDataSearchFilter(JsonQueryFilter jsonQueryFilter,long trustStoreId) {
-        return dataSearchFilterFactory.asFilter(jsonQueryFilter,pkiService.findTrustStore(trustStoreId));
+    private SecurityManagementService.DataSearchFilter getDataSearchFilter(JsonQueryFilter jsonQueryFilter,long trustStoreId) {
+        return dataSearchFilterFactory.asFilter(jsonQueryFilter,securityManagementService.findTrustStore(trustStoreId));
     }
 
     @GET
