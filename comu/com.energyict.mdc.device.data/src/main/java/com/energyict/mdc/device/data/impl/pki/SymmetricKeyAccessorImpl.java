@@ -8,7 +8,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.energyict.mdc.device.data.SymmetricKeyAccessor;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
@@ -20,19 +20,19 @@ import java.util.Optional;
 /**
  * Created by bvn on 2/28/17.
  */
-public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricKeyWrapper> implements SymmetricKeyAccessor {
+public class SymmetricKeyAccessorImpl extends AbstractSecurityAccessorImpl<SymmetricKeyWrapper> implements SymmetricKeyAccessor {
     private final DataModel dataModel;
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
     private final Thesaurus thesaurus;
 
     private RefAny actualSymmetricKeyWrapperReference;
     private RefAny tempSymmetricKeyWrapperReference;
 
     @Inject
-    public SymmetricKeyAccessorImpl(DataModel dataModel, PkiService pkiService, Thesaurus thesaurus) {
-        super(pkiService);
+    public SymmetricKeyAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {
+        super(securityManagementService);
         this.dataModel = dataModel;
-        this.pkiService = pkiService;
+        this.securityManagementService = securityManagementService;
         this.thesaurus = thesaurus;
     }
 
@@ -71,7 +71,7 @@ public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricK
     }
 
     private void doRenewValue() {
-        SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(getKeyAccessorType());
+        SymmetricKeyWrapper symmetricKeyWrapper = securityManagementService.newSymmetricKeyWrapper(getKeyAccessorType());
         symmetricKeyWrapper.generateValue();
         tempSymmetricKeyWrapperReference = dataModel.asRefAny(symmetricKeyWrapper);
         this.save();

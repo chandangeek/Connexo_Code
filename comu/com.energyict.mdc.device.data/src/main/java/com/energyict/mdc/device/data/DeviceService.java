@@ -8,7 +8,7 @@ import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
@@ -80,13 +80,13 @@ public interface DeviceService {
     Optional<Device> findAndLockDeviceBymRIDAndVersion(String mRID, long version);
 
     /**
-     * If the key accessor identified by device & key accessor type exists AND has the expected version, the corresponding
-     * key accessor will be returned
+     * If the security accessor identified by device & security accessor type exists AND has the expected version, the corresponding
+     * security accessor will be returned
      * @param device Part of KeyAccessor primary key
-     * @param keyAccessorType Part of KeyAccessor primary key
+     * @param securityAccessorType Part of KeyAccessor primary key
      * @param version The expected version
      */
-    Optional<KeyAccessor<SecurityValueWrapper>> findAndLockKeyAccessorByIdAndVersion(Device device, KeyAccessorType keyAccessorType, long version);
+    Optional<SecurityAccessor<SecurityValueWrapper>> findAndLockKeyAccessorByIdAndVersion(Device device, SecurityAccessorType securityAccessorType, long version);
 
     /**
      * Finds the Device based on his unique internal name

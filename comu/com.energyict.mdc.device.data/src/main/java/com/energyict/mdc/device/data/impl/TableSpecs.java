@@ -17,7 +17,7 @@ import com.elster.jupiter.orm.Encrypter;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -34,7 +34,7 @@ import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.PassiveCalendar;
@@ -45,7 +45,7 @@ import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActio
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
-import com.energyict.mdc.device.data.impl.pki.AbstractKeyAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.AbstractSecurityAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
 import com.energyict.mdc.device.data.impl.properties.ChannelValidationRuleOverriddenPropertiesImpl;
 import com.energyict.mdc.device.data.impl.properties.ValidationEstimationOverriddenPropertyImpl;
@@ -1081,8 +1081,8 @@ public enum TableSpecs {
     DDC_KEYACCESSOR {
         @Override
         void addTo(DataModel dataModel, Encrypter encrypter) {
-            Table<KeyAccessor> table = dataModel.addTable(name(), KeyAccessor.class).since(version(10, 3));
-            table.map(AbstractKeyAccessorImpl.IMPLEMENTERS);
+            Table<SecurityAccessor> table = dataModel.addTable(name(), SecurityAccessor.class).since(version(10, 3));
+            table.map(AbstractSecurityAccessorImpl.IMPLEMENTERS);
             Column device = table.column("DEVICE").number().notNull().add();
             Column keyAccessorType = table.column("KEYACCESSORTYPE").number().notNull().add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
@@ -1091,7 +1091,7 @@ public enum TableSpecs {
             Column tempCertificate = table.column("TEMP_CERT").number().add();
             table.column("SWAPPED")
                     .bool()
-                    .map(AbstractKeyAccessorImpl.Fields.SWAPPED.fieldName())
+                    .map(AbstractSecurityAccessorImpl.Fields.SWAPPED.fieldName())
                     .add();
             table.addAuditColumns();
 
@@ -1099,24 +1099,24 @@ public enum TableSpecs {
             table.foreignKey("FK_KA_DEVICE")
                     .on(device)
                     .references(Device.class)
-                    .map(AbstractKeyAccessorImpl.Fields.DEVICE.fieldName())
+                    .map(AbstractSecurityAccessorImpl.Fields.DEVICE.fieldName())
                     .reverseMap(DeviceFields.KEY_ACCESSORS.fieldName())
                     .composition()
                     .add();
             table.foreignKey("TYPE")
                     .on(keyAccessorType)
-                    .references(KeyAccessorType.class)
-                    .map(AbstractKeyAccessorImpl.Fields.KEY_ACCESSOR_TYPE.fieldName())
+                    .references(SecurityAccessorType.class)
+                    .map(AbstractSecurityAccessorImpl.Fields.KEY_ACCESSOR_TYPE.fieldName())
                     .add();
             table.foreignKey("FK_KA_ACT_CERT")
                     .on(actualCertificate)
                     .references(CertificateWrapper.class)
-                    .map(AbstractKeyAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName())
+                    .map(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName())
                     .add();
             table.foreignKey("FK_KA_TEMP_CERT")
                     .on(tempCertificate)
                     .references(CertificateWrapper.class)
-                    .map(AbstractKeyAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName())
+                    .map(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName())
                     .add();
             table.addRefAnyColumns("ACTUALSYMKEY", false, SymmetricKeyAccessorImpl.Fields.SYMM_KEY_WRAPPER_ACTUAL.fieldName());
             table.addRefAnyColumns("TEMPSYMKEY", false, SymmetricKeyAccessorImpl.Fields.SYMM_KEY_WRAPPER_TEMP.fieldName());

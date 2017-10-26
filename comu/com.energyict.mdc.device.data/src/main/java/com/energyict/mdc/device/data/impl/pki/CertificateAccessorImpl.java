@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.energyict.mdc.device.data.CertificateAccessor;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
@@ -22,19 +22,19 @@ import javax.inject.Inject;
 import java.security.cert.CertificateEncodingException;
 import java.util.Optional;
 
-public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<CertificateWrapper> implements CertificateAccessor {
+public class CertificateAccessorImpl extends AbstractSecurityAccessorImpl<CertificateWrapper> implements CertificateAccessor {
     private final DataModel dataModel;
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
     private final Thesaurus thesaurus;
 
     private Reference<CertificateWrapper> actualCertificate = Reference.empty();
     private Reference<CertificateWrapper> tempCertificate = Reference.empty();
 
     @Inject
-    public CertificateAccessorImpl(DataModel dataModel, PkiService pkiService, Thesaurus thesaurus) {
-        super(pkiService);
+    public CertificateAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {
+        super(securityManagementService);
         this.dataModel = dataModel;
-        this.pkiService = pkiService;
+        this.securityManagementService = securityManagementService;
         this.thesaurus = thesaurus;
     }
 
@@ -106,7 +106,7 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
     }
 
     private void doRenewCertificate() throws CertificateEncodingException { // TODO can NOT renew non-ClientCertificate types
-        ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(getKeyAccessorType().getKeyType(), getKeyAccessorType().getKeyEncryptionMethod())
+        ClientCertificateWrapper clientCertificateWrapper = securityManagementService.newClientCertificateWrapper(getKeyAccessorType().getKeyType(), getKeyAccessorType().getKeyEncryptionMethod())
                 .alias(actualCertificate.get().getAlias()+"-new)")
                 .add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
