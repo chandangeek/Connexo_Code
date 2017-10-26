@@ -4,12 +4,19 @@
 
 package com.elster.jupiter.pki.rest.impl;
 
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.pki.*;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.RequestableCertificateWrapper;
 import com.elster.jupiter.pki.security.Privileges;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Checks;
+
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -20,7 +27,14 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -33,11 +47,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -45,24 +56,22 @@ import static java.util.stream.Collectors.toList;
 public class CertificateWrapperResource {
 
     private static final long MAX_FILE_SIZE = 2048;
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
     private final CertificateInfoFactory certificateInfoFactory;
     private final ExceptionFactory exceptionFactory;
-    private final DataSearchFilterFactory dataSearchFilterFactory;
 
     @Inject
-    public CertificateWrapperResource(PkiService pkiService, CertificateInfoFactory certificateInfoFactory, DataSearchFilterFactory dataSearchFilterFactory, ExceptionFactory exceptionFactory/*, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, TrustedCertificateInfoFactory trustedCertificateInfoFactory*/) {
-        this.pkiService = pkiService;
+    public CertificateWrapperResource(SecurityManagementService securityManagementService, CertificateInfoFactory certificateInfoFactory, ExceptionFactory exceptionFactory/*, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, TrustedCertificateInfoFactory trustedCertificateInfoFactory*/) {
+        this.securityManagementService = securityManagementService;
         this.certificateInfoFactory = certificateInfoFactory;
-        this.dataSearchFilterFactory = dataSearchFilterFactory;
         this.exceptionFactory = exceptionFactory;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public PagedInfoList getCertificates(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        List<CertificateWrapperInfo> infoList = findCertficates(jsonQueryFilter)
+    public PagedInfoList getCertificates(@BeanParam JsonQueryParameters queryParameters) {
+        List<CertificateWrapperInfo> infoList = securityManagementService.findAllCertificates()
                 .from(queryParameters)
                 .stream()
                 .map(certificateInfoFactory::asInfo)
@@ -159,7 +168,7 @@ public class CertificateWrapperResource {
         if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
             throw new LocalizedFieldValidationException(MessageSeeds.CERTIFICATE_TOO_BIG, "file");
         }
-        CertificateWrapper certificateWrapper = pkiService.newCertificateWrapper(alias);
+        CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper(alias);
         return doImportCertificateForCertificateWrapper(certificateInputStream, certificateWrapper);
     }
 
@@ -169,7 +178,7 @@ public class CertificateWrapperResource {
     @Path("/{id}")
     @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public CertificateWrapperInfo getCertificate(@PathParam("id") long certificateId) {
-        CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
+        CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
 
         return certificateInfoFactory.asInfo(certificateWrapper);
@@ -181,7 +190,7 @@ public class CertificateWrapperResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response removeCertificate(@PathParam("id") long certificateId) {
-        CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
+        CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
         certificateWrapper.delete();
         return Response.status(Response.Status.OK).build();
@@ -198,13 +207,13 @@ public class CertificateWrapperResource {
             @FormDataParam("file") InputStream certificateInputStream,
             @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
             @FormDataParam("version") long version) {
-        if (contentDispositionHeader == null) {
+        if (contentDispositionHeader==null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "file");
         }
         if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
             throw new LocalizedFieldValidationException(MessageSeeds.CERTIFICATE_TOO_BIG, "file");
         }
-        CertificateWrapper certificateWrapper = pkiService.findAndLockCertificateWrapper(certificateWrapperId, version)
+        CertificateWrapper certificateWrapper = securityManagementService.findAndLockCertificateWrapper(certificateWrapperId, version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
         return doImportCertificateForCertificateWrapper(certificateInputStream, certificateWrapper);
     }
@@ -216,21 +225,21 @@ public class CertificateWrapperResource {
     @Path("/csr")
     @Transactional
     public Response createCertificateWrapperWithKeysAndCSR(CsrInfo csrInfo) {
-        if (csrInfo.keyTypeId == null) {
+        if (csrInfo.keyTypeId==null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "keyTypeId");
         }
-        if (csrInfo.alias == null) {
+        if (csrInfo.alias==null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "alias");
         }
-        if (csrInfo.keyEncryptionMethod == null) {
+        if (csrInfo.keyEncryptionMethod==null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "keyEncryptionMethod");
         }
-        if (csrInfo.CN == null) {
+        if (csrInfo.CN==null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "CN");
         }
-        KeyType keyType = pkiService.getKeyType(csrInfo.keyTypeId)
+        KeyType keyType = securityManagementService.getKeyType(csrInfo.keyTypeId)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_KEY_TYPE, "keyType"));
-        ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(keyType, csrInfo.keyEncryptionMethod).alias(csrInfo.alias).add();
+        ClientCertificateWrapper clientCertificateWrapper = securityManagementService.newClientCertificateWrapper(keyType, csrInfo.keyEncryptionMethod).alias(csrInfo.alias).add();
         X500Name x500Name = getX500Name(csrInfo);
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
         clientCertificateWrapper.generateCSR(x500Name);
@@ -239,10 +248,10 @@ public class CertificateWrapperResource {
 
     @GET
     @Path("{id}/download/csr")
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response downloadCsr(@PathParam("id") long certificateId) {
-        CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
+        CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
         if (!certificateWrapper.hasCSR()) {
             throw exceptionFactory.newException(MessageSeeds.NO_CSR_PRESENT);
@@ -257,7 +266,7 @@ public class CertificateWrapperResource {
             };
             return Response
                     .ok(streamingOutput, MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = " + certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "") + ".csr")
+                    .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename = "+certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "")+".csr")
                     .build();
         } catch (IOException e) {
             throw exceptionFactory.newException(MessageSeeds.FAILED_TO_READ_CSR, e);
@@ -266,10 +275,10 @@ public class CertificateWrapperResource {
 
     @GET
     @Path("{id}/download/certificate")
-    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON+";charset=UTF-8"})
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
     public Response downloadCertificate(@PathParam("id") long certificateId) {
-        CertificateWrapper certificateWrapper = pkiService.findCertificateWrapper(certificateId)
+        CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
         if (!certificateWrapper.getCertificate().isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.NO_CERTIFICATE_PRESENT);
@@ -282,7 +291,7 @@ public class CertificateWrapperResource {
             };
             return Response
                     .ok(streamingOutput, MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = " + certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "") + ".cert")
+                    .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename = "+certificateWrapper.getAlias().replaceAll("[^a-zA-Z0-9-_]", "")+".cert")
                     .build();
         } catch (CertificateEncodingException e) {
             throw exceptionFactory.newException(MessageSeeds.FAILED_TO_READ_CERTIFICATE, e);
@@ -310,7 +319,7 @@ public class CertificateWrapperResource {
         try {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
             X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(certificateInputStream);
-            if (certificate == null) {
+            if (certificate==null) {
                 throw new LocalizedFieldValidationException(MessageSeeds.NOT_A_VALID_CERTIFICATE, "file");
             }
             certificateWrapper.setCertificate(certificate);

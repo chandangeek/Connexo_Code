@@ -6,7 +6,7 @@ package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -32,12 +32,12 @@ import static java.util.stream.Collectors.toList;
 @Path("/keytypes")
 public class KeyTypeResource {
 
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public KeyTypeResource(PkiService pkiService, ExceptionFactory exceptionFactory) {
-        this.pkiService = pkiService;
+    public KeyTypeResource(SecurityManagementService securityManagementService, ExceptionFactory exceptionFactory) {
+        this.securityManagementService = securityManagementService;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -52,7 +52,7 @@ public class KeyTypeResource {
                         .anyMatch(ct -> ct.equals(keyType.getCryptographicType()));
         }
         try {
-            List<IdWithNameInfo> collect = pkiService.getKeyTypes().stream().filter(cryptoTypeFilter).map(IdWithNameInfo::new).collect(toList());
+            List<IdWithNameInfo> collect = securityManagementService.getKeyTypes().stream().filter(cryptoTypeFilter).map(IdWithNameInfo::new).collect(toList());
             return PagedInfoList.fromCompleteList("keyTypes", collect, queryParameters);
         } catch (IllegalArgumentException e) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CRYPTOGRAPHIC_TYPE);
@@ -63,7 +63,7 @@ public class KeyTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/forCsrCreation")
     public PagedInfoList getClientCertificateKeyTypes(@BeanParam JsonQueryParameters queryParameters) {
-        List<IdWithNameInfo> collect = pkiService.getKeyTypes()
+        List<IdWithNameInfo> collect = securityManagementService.getKeyTypes()
                 .stream()
                 .filter(kt -> EnumSet.of(CryptographicType.ClientCertificate).contains(kt.getCryptographicType()))
                 .map(IdWithNameInfo::new)
