@@ -3041,28 +3041,21 @@ Ext.define('Dxp.controller.Tasks', {
     runWithParameters: function (button) {
         var me = this,
             runWithParameters = me.getRunWithParameters(),
-            record = runWithParameters.record;
-
-        me.runTask(record,
-            me.submitRunWithParameters,
-            Uni.I18n.translate('general.run', 'DES', 'Run'),
-            Uni.I18n.translate('general.title.runExportTask', 'DES', "Run export task?")
-        );
-    },
-
-    submitRunWithParameters: function (record, confWindow) {
-        var me = this,
-            runWithParameters = me.getRunWithParameters(),
             record = runWithParameters.record,
+            formErrorsPanel = runWithParameters.down('#form-errors'),
+            formRunWithParameters = runWithParameters.down('#run-with-parameters-data-export-task-form').getForm(),
             startOn = moment(runWithParameters.down('#start-on').getValue()).valueOf(),
             exportWindowStart = moment(runWithParameters.down('#export-window-start-date').getValue()).valueOf(),
             exportWindowEnd = moment(runWithParameters.down('#export-window-end-date').getValue()).valueOf(),
             updateDataStart = moment(runWithParameters.down('#updated-data-start-date').getValue()).valueOf(),
             updateDataEnd = moment(runWithParameters.down('#updated-data-end-date').getValue()).valueOf(),
             taskId = record.get('id'),
-            taskModel = me.getModel('Dxp.model.DataExportTask'),
-            grid, store, index, view;
+            taskModel = me.getModel('Dxp.model.DataExportTask');
 
+        formRunWithParameters.clearInvalid();
+        if (!formErrorsPanel.isHidden()) {
+            formErrorsPanel.hide();
+        }
         Ext.Ajax.request({
             url: '/api/export/dataexporttask/' + taskId + '/triggerWithParams',
             method: 'PUT',
@@ -3075,42 +3068,20 @@ Ext.define('Dxp.controller.Tasks', {
                 task: record.getRecordData()
             },
             success: function () {
-                confWindow.destroy();
-                /*if (me.getPage()) {
-                 view = me.getPage();
-                 grid = view.down('grid');
-                 store = grid.getStore();
-                 index = store.indexOf(record);
-                 view.down('preview-container').selectByDefault = false;
-                 store.load(function () {
-                 grid.getSelectionModel().select(index);
-                 });
-                 } else {
-                 taskModel.load(id, {
-                 success: function (rec) {
-                 view = me.getDetailsPage();
-                 view.down('dxp-tasks-action-menu').record = rec;
-                 view.down('dxp-tasks-preview-form').loadRecord(rec);
-                 if (record.get('status') === 'Busy') {
-                 view.down('#run').hide();
-                 }
-                 if (Ext.isFunction(rec.properties) && rec.properties().count()) {
-                 view.down('grouped-property-form').loadRecord(rec);
-                 }
-                 }
-                 });
-                 }*/
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.runQueued', 'DES', 'Export task run queued'));
+                window.location.assign(runWithParameters.returnLink);
             },
             failure: function (response) {
-                var res = Ext.decode(response.responseText, true);
-
-                if (response.status !== 409 && res && res.errors && res.errors.length) {
-                    confWindow.update(res.errors[0].msg);
-                    confWindow.setVisible(true);
-                } else {
-                    confWindow.destroy();
+                if (response.status == 400) {
+                    var json = Ext.decode(response.responseText, true);
+                    if (json && json.errors) {
+                        formRunWithParameters.markInvalid(json.errors);
+                    }
                 }
+                formErrorsPanel.show();
+            },
+            callback: function () {
+            //    mainView.setLoading(false);
             }
         });
     }

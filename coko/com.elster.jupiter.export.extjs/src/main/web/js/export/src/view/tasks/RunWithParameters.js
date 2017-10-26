@@ -102,17 +102,15 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                         itemId: 'start-date-export-window',
                         hidden: me.record.get('exportContinuousData') !== 'false',
                         required: true,
-                        name: 'exportWindowStart',
                         layout: 'hbox',
                         items: [
                             {
                                 xtype: 'date-time',
                                 itemId: 'export-window-start-date',
                                 layout: 'hbox',
-                                name: 'start-date',
+                                name: 'exportWindowStart',
                                 dateConfig: {
                                     allowBlank: true,
-                                    value: new Date(),
                                     editable: false,
                                     format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                                 },
@@ -120,16 +118,16 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                                     fieldLabel: Uni.I18n.translate('general.at', 'DES', 'at'),
                                     labelWidth: 10,
                                     margin: '0 0 0 10',
-                                    value: me.defaultDate.getHours()
+                                    allowNoValue: true
                                 },
                                 minutesConfig: {
                                     width: 55,
-                                    value: me.defaultDate.getMinutes()
+                                    allowNoValue: true
                                 },
                                 secondsConfig: {
                                     width: 55,
                                     hidden: false,
-                                    value: me.defaultDate.getSeconds()
+                                    allowNoValue: true
                                 },
                                 minutesSecondsConfig: {
                                     hidden: false
@@ -143,17 +141,15 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                         fieldLabel: Uni.I18n.translate('general.endDate', 'DES', 'End date'),
                         itemId: 'end-date-export-window',
                         required: true,
-                        name: 'exportWindowEnd',
                         layout: 'hbox',
                         items: [
                             {
                                 xtype: 'date-time',
                                 itemId: 'export-window-end-date',
                                 layout: 'hbox',
-                                name: 'start-date',
+                                name: 'exportWindowEnd',
                                 dateConfig: {
                                     allowBlank: true,
-                                    value: new Date(),
                                     editable: false,
                                     format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                                 },
@@ -161,16 +157,16 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                                     fieldLabel: Uni.I18n.translate('general.at', 'DES', 'at'),
                                     labelWidth: 10,
                                     margin: '0 0 0 10',
-                                    value: me.defaultDate.getHours()
+                                    allowNoValue: true
                                 },
                                 minutesConfig: {
                                     width: 55,
-                                    value: me.defaultDate.getMinutes()
+                                    allowNoValue: true
                                 },
                                 secondsConfig: {
                                     width: 55,
                                     hidden: false,
-                                    value: me.defaultDate.getSeconds()
+                                    allowNoValue: true
                                 },
                                 minutesSecondsConfig: {
                                     hidden: false
@@ -189,7 +185,6 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                         fieldLabel: Uni.I18n.translate('general.startDate', 'DES', 'Start date'),
                         itemId: 'start-date-updated-data',
                         hidden: !me.record.get('exportUpdate'),
-                        name: 'updateDataStart',
                         required: true,
                         layout: 'hbox',
                         items: [
@@ -197,10 +192,9 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                                 xtype: 'date-time',
                                 itemId: 'updated-data-start-date',
                                 layout: 'hbox',
-                                name: 'start-date',
+                                name: 'updateDataStart',
                                 dateConfig: {
                                     allowBlank: true,
-                                    value: new Date(),
                                     editable: false,
                                     format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                                 },
@@ -208,16 +202,16 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                                     fieldLabel: Uni.I18n.translate('general.at', 'DES', 'at'),
                                     labelWidth: 10,
                                     margin: '0 0 0 10',
-                                    value: me.defaultDate.getHours()
+                                    allowNoValue: true
                                 },
                                 minutesConfig: {
                                     width: 55,
-                                    value: me.defaultDate.getMinutes()
+                                    allowNoValue: true
                                 },
                                 secondsConfig: {
                                     width: 55,
                                     hidden: false,
-                                    value: me.defaultDate.getSeconds()
+                                    allowNoValue: true
                                 },
                                 minutesSecondsConfig: {
                                     hidden: false
@@ -231,7 +225,6 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                         fieldLabel: Uni.I18n.translate('general.endDate', 'DES', 'End date'),
                         itemId: 'end-date-updated-data',
                         hidden: !me.record.get('exportUpdate'),
-                        name: 'updateDataEnd',
                         required: true,
                         layout: 'hbox',
                         items: [
@@ -239,10 +232,9 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                                 xtype: 'date-time',
                                 itemId: 'updated-data-end-date',
                                 layout: 'hbox',
-                                name: 'start-date',
+                                name: 'updateDataEnd',
                                 dateConfig: {
                                     allowBlank: true,
-                                    value: new Date(),
                                     editable: false,
                                     format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                                 },
@@ -250,16 +242,16 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                                     fieldLabel: Uni.I18n.translate('general.at', 'DES', 'at'),
                                     labelWidth: 10,
                                     margin: '0 0 0 10',
-                                    value: me.defaultDate.getHours()
+                                    allowNoValue: true
                                 },
                                 minutesConfig: {
                                     width: 55,
-                                    value: me.defaultDate.getMinutes()
+                                    allowNoValue: true
                                 },
                                 secondsConfig: {
                                     width: 55,
                                     hidden: false,
-                                    value: me.defaultDate.getSeconds()
+                                    allowNoValue: true
                                 },
                                 minutesSecondsConfig: {
                                     hidden: false
