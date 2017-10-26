@@ -200,14 +200,19 @@ Ext.define('Uni.form.field.DateTime', {
     },
 
     formatDisplayOfTime: function (value) {
-        var result = '00';
+        var me = this,
+            result = '00';
 
-        if (value) {
+        if (value && me.allowNoValue != true) {
             if (value < 10 && value > 0) {
                 result = '0' + value;
             } else if (value >= 10) {
                 result = value;
             }
+            return result;
+        }
+        else if (me.allowNoValue){
+            return '';
         }
         return result;
     },
