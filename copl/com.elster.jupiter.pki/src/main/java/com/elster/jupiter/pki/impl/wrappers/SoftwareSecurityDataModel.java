@@ -6,6 +6,7 @@ package com.elster.jupiter.pki.impl.wrappers;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -33,9 +34,9 @@ import java.util.stream.Stream;
  * OSGi Component that will create the datamodel for the factories in the SSM bundle.
  * This approach was taken because the factories can have their respective tables in the same component
  */
-@Component(name="SoftwareSecurityDataModel",
+@Component(name = "SoftwareSecurityDataModel",
         service = SoftwareSecurityDataModel.class,
-        property = {"name="+SoftwareSecurityDataModel.COMPONENTNAME},
+        property = {"name=" + SoftwareSecurityDataModel.COMPONENTNAME},
         immediate = true)
 public class SoftwareSecurityDataModel {
     public static final String COMPONENTNAME = "SSM";
@@ -47,6 +48,7 @@ public class SoftwareSecurityDataModel {
     private volatile UpgradeService upgradeService;
     private volatile EventService eventService;
     private volatile UserService userService;
+    private volatile MessageService messageService;
     private PkiService pkiService;
 
     // OSGi
@@ -56,7 +58,8 @@ public class SoftwareSecurityDataModel {
     @Inject // Testing purposes
     public SoftwareSecurityDataModel(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
                                      DataVaultService dataVaultService, PropertySpecService propertySpecService,
-                                     PkiService pkiService, EventService eventService, UserService userService) {
+                                     PkiService pkiService, EventService eventService, UserService userService,
+                                     MessageService messageService) {
         this.setOrmService(ormService);
         this.setUpGradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -65,6 +68,7 @@ public class SoftwareSecurityDataModel {
         this.setPkiService(pkiService);
         this.setEventService(eventService);
         this.setUserService(userService);
+        this.setMessageService(messageService);
         activate();
     }
 
@@ -86,6 +90,11 @@ public class SoftwareSecurityDataModel {
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     @Reference
@@ -135,6 +144,7 @@ public class SoftwareSecurityDataModel {
                 bind(PkiService.class).toInstance(pkiService);
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
+                bind(MessageService.class).toInstance(messageService);
             }
         };
     }

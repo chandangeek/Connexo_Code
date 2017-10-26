@@ -8,6 +8,8 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -29,12 +31,14 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import javax.xml.crypto.Data;
 import java.security.Security;
 import java.time.Instant;
 import java.util.*;
@@ -43,10 +47,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name="PkiService",
-        service = { PkiService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
+@Component(name = "PkiService",
+        service = {PkiService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = "name=" + PkiService.COMPONENTNAME,
         immediate = true)
 public class PkiServiceImpl implements PkiService, TranslationKeyProvider, MessageSeedProvider {
@@ -63,11 +68,12 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     private volatile PropertySpecService propertySpecService;
     private volatile EventService eventService;
     private volatile UserService userService;
+    private volatile MessageService messageService;
 
     @Inject
     public PkiServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
                           DataVaultService dataVaultService, PropertySpecService propertySpecService,
-                          EventService eventService, UserService userService) {
+                          EventService eventService, UserService userService, MessageService messageService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -75,6 +81,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         this.setPropertySpecService(propertySpecService);
         this.setEventService(eventService);
         this.setUserService(userService);
+        this.setMessageService(messageService);
         this.activate();
     }
 
@@ -88,10 +95,14 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     public List<String> getKeyEncryptionMethods(CryptographicType cryptographicType) {
         switch (cryptographicType) {
             case ClientCertificate: // ClientCertificates are linked to an asymmetric key
-            case AsymmetricKey: return privateKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
-            case SymmetricKey: return symmetricKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
-            case Passphrase: return passphraseFactories.keySet().stream().sorted().collect(Collectors.toList());
-            default: return Collections.emptyList(); // No encryption methods for other cryptographic elements
+            case AsymmetricKey:
+                return privateKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
+            case SymmetricKey:
+                return symmetricKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
+            case Passphrase:
+                return passphraseFactories.keySet().stream().sorted().collect(Collectors.toList());
+            default:
+                return Collections.emptyList(); // No encryption methods for other cryptographic elements
         }
     }
 
@@ -170,14 +181,45 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
     @Activate
     public void activate() {
         Security.addProvider(new BouncyCastleProvider());
         this.dataModel = ormService.newDataModel(COMPONENTNAME, "Private Key Infrastructure");
         Stream.of(TableSpecs.values()).forEach(tableSpecs -> tableSpecs.addTo(dataModel, dataVaultService));
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("Pulse", PkiService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
-//        initPrivileges();
+        upgradeService.register(InstallIdentifier.identifier("Pulse", PkiService.COMPONENTNAME),
+                dataModel,
+                Installer.class,
+//                Collections.EMPTY_MAP);
+                ImmutableMap.of(version(10, 4), UpgraderV10_41.class));
+
+
+//        DataModel model = getMessagingModel();
+//        upgradeService.register(
+//                InstallIdentifier.identifier("Pulse", messageService.COMPONENTNAME),
+//                model,
+//                Installer.class,
+//                ImmutableMap.of(version(10, 4), UpgraderV10_41.class));
+
+
+//        if (dataModel.getName().equals("PKI")) {
+//            System.out.println("size: " + ormService.getDataModels());
+//        }
+//        Optional<DataModel> message = ormService.getDataModel(MessageService.COMPONENTNAME);
+//        if (message.isPresent()) {
+//            DataModel model = message.get();
+//            model.register(this.getModule());
+//            upgradeService.register(InstallIdentifier.identifier("Pulse", MessageService.COMPONENTNAME),
+//                    dataModel,
+//                    Installer.class,
+//                    ImmutableMap.of(
+//                            version(10, 4), UpgraderV10_41.class));
+//        }
     }
 
     private AbstractModule getModule() {
@@ -192,9 +234,21 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
+                bind(MessageService.class).toInstance(messageService);
             }
         };
     }
+
+//    private DataModel getMessagingModel() {
+//        DataModel model = upgradeService.newNonOrmDataModel();
+//        model.register(new AbstractModule() {
+//            @Override
+//            protected void configure() {
+//                bind(OrmService.class).toInstance(ormService);
+//            }
+//        });
+//        return model;
+//    }
 
     @Override
     public TrustStoreBuilder newTrustStore(String name) {
@@ -327,7 +381,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         return all;
     }
 
-    private List<ExpirationSupport> allFactoriesSupportingExpiration(){
+    private List<ExpirationSupport> allFactoriesSupportingExpiration() {
         List<ExpirationSupport> factoriesSupportingExpiration = new ArrayList<>();
         privateKeyFactories.values().stream().filter(pkf -> pkf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
         symmetricKeyFactories.values().stream().filter(skf -> skf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
@@ -459,16 +513,16 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                 getDataModel()).sorted(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName(), true);
     }
 
-    private List<CertificateWrapper> findExpiredCertificates(Expiration expiration, Instant when){
+    private List<CertificateWrapper> findExpiredCertificates(Expiration expiration, Instant when) {
         return dataModel.query(CertificateWrapper.class).select(
-                    where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR))
-                    .and(expiration.isExpired("expirationTime", when)));
+                where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR))
+                        .and(expiration.isExpired("expirationTime", when)));
     }
 
     @Override
     public Finder<CertificateWrapper> getAliasesByFilter(AliasSearchFilter searchFilter) {
         Condition searchCondition;
-        if (searchFilter.trustStore ==null) {
+        if (searchFilter.trustStore == null) {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
                     .likeIgnoreCase(searchFilter.alias)
                     .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
@@ -548,6 +602,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                 underConstruction.setCurve(curveName);
                 return this;
             }
+
             @Override
             public KeyType add() {
                 underConstruction.save();
