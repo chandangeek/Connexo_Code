@@ -130,7 +130,7 @@ public class SecurityAccessorResource {
     public Response getKey(@PathParam("name") String name, @PathParam("id") long keyAccessorTypeId) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
-        SecurityAccessor securityAccessor = device.getKeyAccessor(securityAccessorType)
+        SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType)
                 .orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(securityAccessorType, device));
         return Response.ok(securityAccessorInfoFactory.asKey(securityAccessor)).build();
     }
@@ -145,7 +145,7 @@ public class SecurityAccessorResource {
     public Response getCertificate(@PathParam("name") String name, @PathParam("id") long keyAccessorTypeId, @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
-        SecurityAccessor securityAccessor = device.getKeyAccessor(securityAccessorType)
+        SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType)
                 .orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(securityAccessorType, device));
 
         return Response.ok(securityAccessorInfoFactory.asCertificate(securityAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider)).build();
@@ -241,7 +241,7 @@ public class SecurityAccessorResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
         SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
 
-        Optional<SecurityAccessor> keyAccessor = device.getKeyAccessor(securityAccessorType);
+        Optional<SecurityAccessor> keyAccessor = device.getSecurityAccessor(securityAccessorType);
 
         BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> securityValueWrapperCreator = (keyAccessor1, properties) -> {
             SecurityValueWrapper securityValueWrapper;
@@ -287,7 +287,7 @@ public class SecurityAccessorResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
         SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
 
-        Optional<SecurityAccessor> keyAccessor = device.getKeyAccessor(securityAccessorType);
+        Optional<SecurityAccessor> keyAccessor = device.getSecurityAccessor(securityAccessorType);
 
         BiFunction<SecurityAccessor<SecurityValueWrapper>, Map<String, Object>, SecurityValueWrapper> certificateReferenceGetter = (ignored, properties) -> {
             String alias;
@@ -385,7 +385,7 @@ public class SecurityAccessorResource {
         Map<String, Object> tempProperties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.tempProperties);
         Map<String, Object> actualProperties = getPropertiesAsMap(propertySpecs, securityAccessorInfo.currentProperties);
         if (propertiesContainValues(actualProperties) || propertiesContainValues(tempProperties)) {
-            SecurityAccessor<SecurityValueWrapper> securityAccessor = device.newKeyAccessor(securityAccessorType);
+            SecurityAccessor<SecurityValueWrapper> securityAccessor = device.newSecurityAccessor(securityAccessorType);
             createActualValueOnKeyAccessor(securityValueWrapperCreator, actualProperties, securityAccessor);
             createTempValueOnKeyAccessor(securityValueWrapperCreator, tempProperties, securityAccessor);
             return securityAccessor;
@@ -545,7 +545,7 @@ public class SecurityAccessorResource {
                                                                 Function<SecurityAccessor, SecurityAccessorInfo> infoCreator) {
         return device.getDeviceType().getSecurityAccessorTypes().stream()
                 .filter(keyAccessorPredicate)
-                .map(kat -> device.getKeyAccessor(kat).orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(kat, device)))
+                .map(kat -> device.getSecurityAccessor(kat).orElseGet(() -> keyAccessorPlaceHolderProvider.get().init(kat, device)))
                 .map(infoCreator)
                 .sorted(Comparator.comparing(ka -> ka.name.toLowerCase()))
                 .collect(toList());
