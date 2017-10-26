@@ -67,7 +67,7 @@ public class KeyAccessorTypeResource {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
         SecurityAccessorType securityAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
-        device.getKeyAccessor(securityAccessorType).get().renew();
+        device.getSecurityAccessor(securityAccessorType).get().renew();
         return Response.ok().build();
     }
 
@@ -91,7 +91,7 @@ public class KeyAccessorTypeResource {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
         SecurityAccessorType securityAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
-        device.getKeyAccessor(securityAccessorType).get().swapValues();
+        device.getSecurityAccessor(securityAccessorType).get().swapValues();
 
         return Response.ok().build();
     }
@@ -116,7 +116,7 @@ public class KeyAccessorTypeResource {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
         SecurityAccessorType securityAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
-        device.getKeyAccessor(securityAccessorType).get().clearTempValue();
+        device.getSecurityAccessor(securityAccessorType).get().clearTempValue();
 
         return Response.ok().build();
     }
