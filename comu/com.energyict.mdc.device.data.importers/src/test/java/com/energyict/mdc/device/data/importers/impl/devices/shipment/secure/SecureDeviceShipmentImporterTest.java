@@ -4,18 +4,18 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.DeviceSecretImporter;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SymmetricAlgorithm;
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 
 import java.text.MessageFormat;
@@ -65,7 +65,7 @@ public class SecureDeviceShipmentImporterTest {
     @Mock
     DeviceService deviceService;
     @Mock
-    PkiService pkiService;
+    SecurityManagementService securityManagementService;
 
     private TestHandler testHandler;
 
@@ -82,7 +82,7 @@ public class SecureDeviceShipmentImporterTest {
         when(fileImportOccurrence.getLogger()).thenReturn(logger);
         SymmetricAlgorithm symmetricAlgorithm = mock(SymmetricAlgorithm.class);
         when(symmetricAlgorithm.getCipherName()).thenReturn("AES");
-        when(pkiService.getSymmetricAlgorithm("http://www.w3.org/2001/04/xmlenc#aes256-cbc")).thenReturn(Optional.of(symmetricAlgorithm));
+        when(securityManagementService.getSymmetricAlgorithm("http://www.w3.org/2001/04/xmlenc#aes256-cbc")).thenReturn(Optional.of(symmetricAlgorithm));
     }
 
     @Test
@@ -101,11 +101,11 @@ public class SecureDeviceShipmentImporterTest {
         when(newDevice.getDeviceType()).thenReturn(deviceType);
         when(deviceService.newDevice(eq(deviceConfig), anyString(), any(Instant.class))).thenReturn(newDevice);
         when(deviceService.newDevice(eq(deviceConfig), anyString(), anyString(), any(Instant.class))).thenReturn(newDevice);
-        KeyAccessor keyAccessor = mock(KeyAccessor.class);
+        SecurityAccessor keyAccessor = mock(SecurityAccessor.class);
         when(keyAccessor.getActualValue()).thenReturn(Optional.empty());
         when(keyAccessor.getTempValue()).thenReturn(Optional.empty());
         DeviceSecretImporter deviceSecretImporter = mock(DeviceSecretImporter.class);
-        List<KeyAccessorType> keyAccessorTypes = Stream.of("NTP_HASH", "MK_DC", "EAP_PSK_DC", "WEB_PORTAL_LOGIN_RO", "WEB_PORTAL_LOGIN_RW",
+        List<SecurityAccessorType> keyAccessorTypes = Stream.of("NTP_HASH", "MK_DC", "EAP_PSK_DC", "WEB_PORTAL_LOGIN_RO", "WEB_PORTAL_LOGIN_RW",
                 "WEB_PORTAL_LOGIN_ADMIN", "Priv_DC_SSH_cl", "Pub_DC_SSH_sv", "DLMS_WAN_DMGMT_MC_GUEK", "DLMS_WAN_DBROAD_MC_GUEK",
                 "DLMS_WAN_DMGMT_RW_GUEK", "DLMS_WAN_DBROAD_RW_GUEK", "DLMS_WAN_DMGMT_FU_GUEK", "DLMS_WAN_DBROAD_FU_GUEK",
                 "DLMS_WAN_DMGMT_MC_GAK", "DLMS_WAN_DBROAD_MC_GAK", "DLMS_WAN_DMGMT_RW_GAK", "DLMS_WAN_DBROAD_RW_GAK",
@@ -113,15 +113,15 @@ public class SecureDeviceShipmentImporterTest {
                 "DLMS_WAN_DBROAD_MC_LLS", "DLMS_WAN_DMGMT_RW_LLS", "DLMS_WAN_DBROAD_RW_LLS", "DLMS_WAN_DMGMT_FU_LLS",
                 "DLMS_WAN_DBROAD_FU_LLS", "DLMS_WAN_DMGMT_MC_HLS", "DLMS_WAN_DBROAD_MC_HLS", "DLMS_WAN_DMGMT_RW_HLS",
                 "DLMS_WAN_DBROAD_RW_HLS", "DLMS_WAN_DMGMT_FU_HLS", "DLMS_WAN_DBROAD_FU_HLS").map(name -> {
-            KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+            SecurityAccessorType keyAccessorType = mock(SecurityAccessorType.class);
             when(keyAccessorType.getName()).thenReturn(name);
             when(newDevice.getSecurityAccessor(keyAccessorType)).thenReturn(Optional.of(keyAccessor));
-            when(pkiService.getDeviceSecretImporter(keyAccessorType)).thenReturn(deviceSecretImporter);
+            when(securityManagementService.getDeviceSecretImporter(keyAccessorType)).thenReturn(deviceSecretImporter);
             return keyAccessorType;
         }).collect(toList());
-        when(deviceType.getKeyAccessorTypes()).thenReturn(keyAccessorTypes);
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(keyAccessorTypes);
 
-        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, pkiService);
+        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService);
         when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("example-shipment-file-v1.5.xml"));
 
         secureDeviceShipmentImporter.process(fileImportOccurrence);
@@ -147,7 +147,7 @@ public class SecureDeviceShipmentImporterTest {
 
         when(deviceConfigurationService.findDeviceTypeByName("Beacon-3100/SM765")).thenReturn(Optional.empty());
 
-        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, pkiService);
+        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService);
         when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("example-shipment-file-v1.5.xml"));
 
         try {
@@ -168,7 +168,7 @@ public class SecureDeviceShipmentImporterTest {
 
         when(deviceConfigurationService.findDeviceTypeByName("Beacon-3100/SM765")).thenReturn(Optional.empty());
 
-        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, pkiService);
+        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService);
         when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("example-shipment-file-v1.5.xml"));
 
         try {
@@ -185,7 +185,7 @@ public class SecureDeviceShipmentImporterTest {
 
     @Test
     public void importShipmentFileMeters() throws Exception {
-        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, pkiService);
+        SecureDeviceShipmentImporter secureDeviceShipmentImporter = new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService);
         when(fileImportOccurrence.getContents()).thenReturn(this.getClass().getResourceAsStream("Shipment file example - meters.xml"));
 
         try {
