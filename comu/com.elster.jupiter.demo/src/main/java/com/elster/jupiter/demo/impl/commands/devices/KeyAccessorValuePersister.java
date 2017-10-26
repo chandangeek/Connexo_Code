@@ -66,7 +66,7 @@ public class KeyAccessorValuePersister {
                 .stream()
                 .filter(keyAccessor -> keyAccessor.getKeyAccessorType().equals(securityAccessorType))
                 .findFirst()
-                .orElseGet(() -> device.newKeyAccessor(securityAccessorType));
+                .orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
     }
 
     private void createNewActualValue(SecurityAccessor<SecurityValueWrapper> securityAccessor) {
