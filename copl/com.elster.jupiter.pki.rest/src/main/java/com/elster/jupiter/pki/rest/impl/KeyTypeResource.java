@@ -75,7 +75,7 @@ public class KeyTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/asymmetric")
     public PagedInfoList getAssymetricKeyTypes(@BeanParam JsonQueryParameters queryParameters) {
-        List<IdWithNameInfo> collect = pkiService.getKeyTypes()
+        List<IdWithNameInfo> collect = securityManagementService.getKeyTypes()
                 .stream()
                 .filter(kt -> EnumSet.of(CryptographicType.ClientCertificate).contains(kt.getCryptographicType()))
                 .map(IdWithNameInfo::new)
