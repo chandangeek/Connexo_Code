@@ -7,7 +7,7 @@ package com.elster.jupiter.pki.impl.gogo;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeyUsage;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 
 import java.util.EnumSet;
 
@@ -23,8 +23,8 @@ public enum ProtocolKeyTypes {
             return "AES 128";
         }
 
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newSymmetricKeyType(getName(), "AES", 128).description("An 128 bit key suited for AES encryption").add();
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService.newSymmetricKeyType(getName(), "AES", 128).description("An 128 bit key suited for AES encryption").add();
         }
     },
     AES_192 {
@@ -32,8 +32,8 @@ public enum ProtocolKeyTypes {
             return "AES 192";
         }
 
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newSymmetricKeyType(getName(), "AES", 192).description("An 192 bit key suited for AES encryption").add();
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService.newSymmetricKeyType(getName(), "AES", 192).description("An 192 bit key suited for AES encryption").add();
         }
     },
     AES_256 {
@@ -41,8 +41,8 @@ public enum ProtocolKeyTypes {
             return "AES 256";
         }
 
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newSymmetricKeyType(getName(), "AES", 256).description("an 256 bit key suited for AES encryption").add();
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService.newSymmetricKeyType(getName(), "AES", 256).description("an 256 bit key suited for AES encryption").add();
         }
     },
     TRUSTED_CERTIFICATE {
@@ -50,8 +50,8 @@ public enum ProtocolKeyTypes {
             return "SubCA certificate";
         }
 
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newTrustedCertificateType(getName()).description("Certificate located in a trust store, belongs to a (sub)CA").add();
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService.newTrustedCertificateType(getName()).description("Certificate located in a trust store, belongs to a (sub)CA").add();
         }
     },
     PASSWORD {
@@ -59,8 +59,8 @@ public enum ProtocolKeyTypes {
             return "Password";
         }
 
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newPassphraseType(getName()).length(20).withLowerCaseCharacters().withUpperCaseCharacters().description("Generic password").add();
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService.newPassphraseType(getName()).length(20).withLowerCaseCharacters().withUpperCaseCharacters().description("Generic password").add();
         }
     },
     TLS_CLIENT_SUITE_1 {
@@ -70,8 +70,8 @@ public enum ProtocolKeyTypes {
         }
 
         @Override
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService
                     .newClientCertificateType(getName(), "SHA256withECDSA")
                     .description("Client certificates to be used for DLMS/TLS Suite 1, using EC key on curve SECP256R1. This certificate will be linked to a private key.")
                     .setKeyUsages(EnumSet.of(KeyUsage.keyAgreement, KeyUsage.digitalSignature))
@@ -88,8 +88,8 @@ public enum ProtocolKeyTypes {
         }
 
         @Override
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService
                     .newClientCertificateType(getName(), "SHA256withECDSA")
                     .description("Certificates to be used for DLMS/TLS Suite 2, using EC key on curve SECP384R1. This certificate will be linked to a private key.")
                     .setKeyUsages(EnumSet.of(KeyUsage.keyAgreement, KeyUsage.digitalSignature))
@@ -106,8 +106,8 @@ public enum ProtocolKeyTypes {
         }
 
         @Override
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService
                     .newClientCertificateType(getName(), "SHA256withECDSA")
                     .description("Client certificates to be used for DLMS signing (ECDSA), using EC key on curve SECP256R1. This certificate will be linked to a private key.")
                     .setKeyUsages(EnumSet.of(KeyUsage.digitalSignature))
@@ -123,8 +123,8 @@ public enum ProtocolKeyTypes {
         }
 
         @Override
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService
                     .newClientCertificateType(getName(), "SHA256withECDSA")
                     .description("Client certificates to be used for DLMS signing (ECDSA), using EC key on curve SECP384R1. This certificate will be linked to a private key.")
                     .setKeyUsages(EnumSet.of(KeyUsage.digitalSignature))
@@ -140,8 +140,8 @@ public enum ProtocolKeyTypes {
         }
 
         @Override
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService
                     .newClientCertificateType(getName(), "SHA256withECDSA")
                     .description("Client certificates to be used for DLMS key agreement (ECDH), using EC key on curve SECP256R1. This certificate will be linked to a private key.")
                     .setKeyUsages(EnumSet.of(KeyUsage.keyAgreement))
@@ -157,8 +157,8 @@ public enum ProtocolKeyTypes {
         }
 
         @Override
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService
                     .newClientCertificateType(getName(), "SHA256withECDSA")
                     .description("Client certificates to be used for DLMS key agreement (ECDH), using EC key on curve SECP384R1. This certificate will be linked to a private key.")
                     .setKeyUsages(EnumSet.of(KeyUsage.keyAgreement))
@@ -174,8 +174,8 @@ public enum ProtocolKeyTypes {
         }
 
         @Override
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService
                     .newCertificateType(getName())
                     .description("General purpose certificate")
                     .add();
@@ -184,6 +184,6 @@ public enum ProtocolKeyTypes {
 
     abstract public String getName();
 
-    abstract public KeyType createKeyType(PkiService pkiService);
+    abstract public KeyType createKeyType(SecurityManagementService securityManagementService);
 
 }

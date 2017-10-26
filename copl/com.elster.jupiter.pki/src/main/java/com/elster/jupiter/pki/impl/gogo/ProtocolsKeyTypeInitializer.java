@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.pki.impl.gogo;
 
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -16,12 +16,12 @@ import java.util.stream.Stream;
 
 @Component(name = "ProtocolsKeyTypeInitializer", immediate = true)
 public class ProtocolsKeyTypeInitializer {
-    private PkiService pkiService;
+    private SecurityManagementService securityManagementService;
     private TransactionService transactionService;
 
     @Reference
-    public void setPkiService(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @Reference
@@ -32,7 +32,7 @@ public class ProtocolsKeyTypeInitializer {
     @Activate
     public void activate() {
         try (TransactionContext context = transactionService.getContext()) {
-            Stream.of(ProtocolKeyTypes.values()).forEach(kt -> pkiService.getKeyType(kt.getName()).orElseGet(()->kt.createKeyType(pkiService)));
+            Stream.of(ProtocolKeyTypes.values()).forEach(kt -> securityManagementService.getKeyType(kt.getName()).orElseGet(()->kt.createKeyType(securityManagementService)));
             context.commit();
         }
     }

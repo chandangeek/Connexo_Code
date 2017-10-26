@@ -2,8 +2,6 @@ package com.elster.jupiter.pki;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.properties.Expiration;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Comparison;
 
@@ -11,16 +9,15 @@ import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.conditions.Condition;
 
 import java.time.Instant;
-import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * This is the main interface towards the PKI bundle. It provides access for the main PKI procedures.
+ * This is the main interface towards the security bundle. It provides access for the main PKI & HSM procedures.
  */
 @ProviderType
-public interface PkiService {
+public interface SecurityManagementService {
 
 
     enum AsymmetricKeyAlgorithms {
@@ -115,10 +112,10 @@ public interface PkiService {
 
     /**
      * List the PropertySpecs that can be expected for the described Wrapper type
-     * @param keyAccessorType The key accessor describing the KeyEncryptionMethod and {@link CryptographicType}
+     * @param securityAccessorType The security accessor describing the KeyEncryptionMethod and {@link CryptographicType}
      * @return List of to-be-expected property specs
      */
-    List<PropertySpec> getPropertySpecs(KeyAccessorType keyAccessorType);
+    List<PropertySpec> getPropertySpecs(SecurityAccessorType securityAccessorType);
 
     /**
      * Get an existing KeyType by name.
@@ -154,20 +151,20 @@ public interface PkiService {
     /**
      * Creates a new SymmetricKeyWrapper. The PkiService will delegate the actual creation and storage to the appropriate
      * factory given the provided key encryption method.
-     * @param keyAccessorType Contains all information required by the pkiService and factories to figure out what has
+     * @param securityAccessorType Contains all information required by the pkiService and factories to figure out what has
      * to be done.
      * @return a new symmetric key wrapper of the required type and encryption method, without value.
      */
-    SymmetricKeyWrapper newSymmetricKeyWrapper(KeyAccessorType keyAccessorType);
+    SymmetricKeyWrapper newSymmetricKeyWrapper(SecurityAccessorType securityAccessorType);
 
     /**
      * Creates a new PassphraseWrapper. The PkiService will delegate the actual creation and storage to the appropriate
      * factory given the provided key encryption method.
-     * @param keyAccessorType Contains all information required by the pkiService and factories to figure out what has
+     * @param securityAccessorType Contains all information required by the pkiService and factories to figure out what has
      * to be done.
      * @return a new passphrase wrapper of the required type and encryption method, without value.
      */
-    PassphraseWrapper newPassphraseWrapper(KeyAccessorType keyAccessorType);
+    PassphraseWrapper newPassphraseWrapper(SecurityAccessorType securityAccessorType);
 
     CertificateWrapper newCertificateWrapper(String alias);
 
@@ -302,6 +299,7 @@ public interface PkiService {
     Condition getSearchCondition(DataSearchFilter dataSearchFilter);
 
      interface PasswordTypeBuilder {
+
         PasswordTypeBuilder description(String description);
         PasswordTypeBuilder length(int length);
         PasswordTypeBuilder withLowerCaseCharacters();

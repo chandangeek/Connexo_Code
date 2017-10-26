@@ -50,10 +50,10 @@ import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name="PkiService",
-        service = { PkiService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
-        property = "name=" + PkiService.COMPONENTNAME,
+        service = { SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
+        property = "name=" + SecurityManagementService.COMPONENTNAME,
         immediate = true)
-public class PkiServiceImpl implements PkiService, TranslationKeyProvider, MessageSeedProvider {
+public class SecurityManagementServiceImpl implements SecurityManagementService, TranslationKeyProvider, MessageSeedProvider {
 
     private final Map<String, PrivateKeyFactory> privateKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, SymmetricKeyFactory> symmetricKeyFactories = new ConcurrentHashMap<>();
@@ -70,9 +70,9 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     private volatile QueryService queryService;
 
     @Inject
-    public PkiServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
-                          DataVaultService dataVaultService, PropertySpecService propertySpecService,
-                          EventService eventService, UserService userService, QueryService queryService) {
+    public SecurityManagementServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
+                                         DataVaultService dataVaultService, PropertySpecService propertySpecService,
+                                         EventService eventService, UserService userService, QueryService queryService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -86,7 +86,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
 
     // OSGi constructor
     @SuppressWarnings("unused")
-    public PkiServiceImpl() {
+    public SecurityManagementServiceImpl() {
 
     }
 
@@ -162,6 +162,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         this.dataVaultService = dataVaultService;
     }
 
+    public DataModel getDataModel() {
     @Reference
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
@@ -203,7 +204,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                 bind(UpgradeService.class).toInstance(upgradeService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Thesaurus.class).toInstance(thesaurus);
-                bind(PkiService.class).toInstance(PkiServiceImpl.this);
+                bind(SecurityManagementService.class).toInstance(SecurityManagementServiceImpl.this);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
@@ -283,8 +284,8 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs(KeyAccessorType keyAccessorType) {
-        switch (keyAccessorType.getKeyType().getCryptographicType()) {
+    public List<PropertySpec> getPropertySpecs(SecurityAccessorType securityAccessorType) {
+        switch (securityAccessorType.getKeyType().getCryptographicType()) {
             case Certificate:
                 return getDataModel().getInstance(RequestableCertificateWrapperImpl.class).getPropertySpecs();
             case ClientCertificate:
@@ -292,9 +293,9 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
             case TrustedCertificate:
                 return getDataModel().getInstance(TrustedCertificateImpl.class).getPropertySpecs();
             case SymmetricKey:
-                return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
+                return getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
             case Passphrase:
-                return getPassphraseFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
+                return getPassphraseFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
             case AsymmetricKey:
                 return Collections.emptyList(); // There is currently no need for visibility on asymmetric keys
             default:
@@ -331,8 +332,8 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public SymmetricKeyWrapper newSymmetricKeyWrapper(KeyAccessorType keyAccessorType) {
-        return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).newSymmetricKey(keyAccessorType);
+    public SymmetricKeyWrapper newSymmetricKeyWrapper(SecurityAccessorType securityAccessorType) {
+        return getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).newSymmetricKey(securityAccessorType);
     }
 
     @Override
@@ -364,8 +365,8 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public PassphraseWrapper newPassphraseWrapper(KeyAccessorType keyAccessorType) {
-        return getPassphraseFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).newPassphraseWrapper(keyAccessorType);
+    public PassphraseWrapper newPassphraseWrapper(SecurityAccessorType securityAccessorType) {
+        return getPassphraseFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).newPassphraseWrapper(securityAccessorType);
     }
 
     private PassphraseFactory getPassphraseFactoryOrThrowException(String keyEncryptionMethod) {
@@ -416,7 +417,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         return Arrays.asList(MessageSeeds.values());
     }
 
-    class ClientCertificateWrapperBuilder implements PkiService.ClientCertificateWrapperBuilder {
+    class ClientCertificateWrapperBuilder implements SecurityManagementService.ClientCertificateWrapperBuilder {
         private final ClientCertificateWrapper underConstruction;
 
         public ClientCertificateWrapperBuilder(ClientCertificateWrapper underConstruction) {
@@ -424,7 +425,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         }
 
         @Override
-        public PkiService.ClientCertificateWrapperBuilder alias(String alias) {
+        public SecurityManagementService.ClientCertificateWrapperBuilder alias(String alias) {
             underConstruction.setAlias(alias);
             return this;
         }

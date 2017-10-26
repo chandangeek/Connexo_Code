@@ -10,7 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pki.PassphraseFactory;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
@@ -50,7 +50,7 @@ public class PkiInMemoryPersistence {
     private Injector injector;
     public static final Instant EPOCH = ZonedDateTime.of(2017, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant();
     private static Clock clock = Clock.fixed(EPOCH, ZoneId.of("UTC"));
-    private PkiService pkiService;
+    private SecurityManagementService securityManagementService;
 
     public void activate() {
         injector = Guice.createInjector(
@@ -75,7 +75,7 @@ public class PkiInMemoryPersistence {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(UserService.class);
-            pkiService = injector.getInstance(PkiService.class);
+            securityManagementService = injector.getInstance(SecurityManagementService.class);
             ctx.commit();
         }
     }
@@ -92,8 +92,8 @@ public class PkiInMemoryPersistence {
         return injector.getInstance(ThreadPrincipalService.class);
     }
 
-    public PkiService getPkiService() {
-        return pkiService;
+    public SecurityManagementService getSecurityManagementService() {
+        return securityManagementService;
     }
 
     public UserService getUserService() {

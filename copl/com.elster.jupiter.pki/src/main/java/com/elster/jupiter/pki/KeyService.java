@@ -11,16 +11,16 @@ public interface KeyService {
 
     /**
      * Generates a new private key
-     * @param keyAccessorType contains all required information do determine which key to generate (KeyType) and how to store it (KeyEncryptionMethod)
+     * @param securityAccessorType contains all required information do determine which key to generate (KeyType) and how to store it (KeyEncryptionMethod)
      * @return Persisted PrivateKey container
      */
-    PrivateKeyWrapper generatePrivateKey(KeyAccessorType keyAccessorType);
+    PrivateKeyWrapper generatePrivateKey(SecurityAccessorType securityAccessorType);
 
     /**
      * Generates a new symmetrical key
-     * @param keyAccessorType contains all required information do determine which key to generate (KeyType) and how to store it (KeyEncryptionMethod)
+     * @param securityAccessorType contains all required information do determine which key to generate (KeyType) and how to store it (KeyEncryptionMethod)
      * @return Persisted symmetric key container
      */
-    SymmetricKeyWrapper generateSymmetricKey(KeyAccessorType keyAccessorType);
+    SymmetricKeyWrapper generateSymmetricKey(SecurityAccessorType securityAccessorType);
 
 }

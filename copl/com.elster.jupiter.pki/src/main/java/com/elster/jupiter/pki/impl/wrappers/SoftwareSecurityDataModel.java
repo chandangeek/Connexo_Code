@@ -11,9 +11,9 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.Installer;
-import com.elster.jupiter.pki.impl.PkiServiceImpl;
+import com.elster.jupiter.pki.impl.SecurityManagementServiceImpl;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -47,7 +47,7 @@ public class SoftwareSecurityDataModel {
     private volatile UpgradeService upgradeService;
     private volatile EventService eventService;
     private volatile UserService userService;
-    private PkiService pkiService;
+    private SecurityManagementService securityManagementService;
 
     // OSGi
     public SoftwareSecurityDataModel() {
@@ -56,13 +56,13 @@ public class SoftwareSecurityDataModel {
     @Inject // Testing purposes
     public SoftwareSecurityDataModel(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
                                      DataVaultService dataVaultService, PropertySpecService propertySpecService,
-                                     PkiService pkiService, EventService eventService, UserService userService) {
+                                     SecurityManagementService securityManagementService, EventService eventService, UserService userService) {
         this.setOrmService(ormService);
         this.setUpGradeService(upgradeService);
         this.setNlsService(nlsService);
         this.setPropertySpecService(propertySpecService);
         this.setDataVaultService(dataVaultService);
-        this.setPkiService(pkiService);
+        this.setSecurityManagementService(securityManagementService);
         this.setEventService(eventService);
         this.setUserService(userService);
         activate();
@@ -74,8 +74,8 @@ public class SoftwareSecurityDataModel {
     }
 
     @Reference
-    public void setPkiService(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @Reference
@@ -90,7 +90,7 @@ public class SoftwareSecurityDataModel {
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(PkiServiceImpl.COMPONENTNAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(SecurityManagementServiceImpl.COMPONENTNAME, Layer.DOMAIN);
     }
 
     @Reference
@@ -132,7 +132,7 @@ public class SoftwareSecurityDataModel {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
-                bind(PkiService.class).toInstance(pkiService);
+                bind(SecurityManagementService.class).toInstance(securityManagementService);
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
             }
