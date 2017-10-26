@@ -52,6 +52,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     public static final String CLIENT_CERTIFICATE_DISCRIMINATOR = "C";
     public static final String TRUSTED_CERTIFICATE_DISCRIMINATOR = "T";
     public static final String CERTIFICATE_DISCRIMINATOR = "R";
+    private static final int DESCRIPTION_LENGTH = 300;
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -98,14 +99,12 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     private String alias;
     private byte[] certificate;
     private Instant expirationTime;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String subject;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String issuer;
-    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String keyUsagesCsv;
-    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String extendedKeyUsagesCsv;
     private Instant lastReadDate;
     @SuppressWarnings("unused")
     private String userName;
