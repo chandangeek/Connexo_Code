@@ -5,8 +5,6 @@
 package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.pki.impl.importers.CertificateImporterFactory;
-import com.elster.jupiter.pki.impl.importers.CertificateImporterMessageHandler;
 
 public enum TranslationKeys implements TranslationKey {
 
@@ -15,10 +13,7 @@ public enum TranslationKeys implements TranslationKey {
     REQUESTED("Requested", "Requested"),
     EXPIRED("Expired", "Expired"),
     NOT_YET_VALID("notYetValid", "Not yet valid"),
-    TRUSTSTORE("TrustStore", "Trust store"),
-
-    CERTIFICATES_FILE_IMPORTER(CertificateImporterFactory.NAME, "Certificate importer [STD]"),
-    CERTIFICATE_MESSAGE_SUBSCRIBER(CertificateImporterMessageHandler.SUBSCRIBER_NAME, "Handle certificate import");
+    TRUSTSTORE("TrustStore", "Trust store");
 
     private final String key;
     private final String defaultFormat;
