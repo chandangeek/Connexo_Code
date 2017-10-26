@@ -4,9 +4,9 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 
 public class AliasParameterFilter extends AbstractParameter {
 
-    public AliasParameterFilter(PkiService service, JsonQueryFilter filter) {
+    public AliasParameterFilter(SecurityManagementService securityManagementService, JsonQueryFilter filter) {
         searchParam = "alias";
-        pkiService = service;
+        service = securityManagementService;
         jsonFilter = filter;
 
         setProperties();

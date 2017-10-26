@@ -4,9 +4,9 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 
 public class KeyUsagesParameterFilter extends AbstractParameter {
 
-    public KeyUsagesParameterFilter(PkiService service, JsonQueryFilter filter) {
+    public KeyUsagesParameterFilter(SecurityManagementService securityManagementService, JsonQueryFilter filter) {
         searchParam = "keyUsages";
-        pkiService = service;
+        service = securityManagementService;
         jsonFilter = filter;
 
         setProperties();

@@ -1,14 +1,12 @@
 package com.elster.jupiter.pki;
 
-import com.elster.jupiter.pki.AbstractParameter;
-import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 
 public class IssuerParameterFilter extends AbstractParameter {
 
-    public IssuerParameterFilter(PkiService service, JsonQueryFilter filter) {
+    public IssuerParameterFilter(SecurityManagementService securityManagementService, JsonQueryFilter filter) {
         searchParam = "issuer";
-        pkiService = service;
+        service = securityManagementService;
         jsonFilter = filter;
 
         setProperties();

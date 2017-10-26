@@ -4,8 +4,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
-import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.RequestableCertificateWrapper;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.upgrade.Upgrader;
@@ -15,15 +15,16 @@ import java.security.cert.CertificateParsingException;
 import java.util.stream.Collectors;
 
 public class UpgraderV10_4 implements Upgrader {
+    private final SecurityManagementService securityManagementService;
+
     private final DataModel dataModel;
-    private final PkiService pkiService;
     private final Thesaurus thesaurus;
 
     @Inject
-    UpgraderV10_4(DataModel dataModel, PkiService pkiService, Thesaurus thesaurus) {
+    UpgraderV10_4(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {
         super();
+        this.securityManagementService = securityManagementService;
         this.dataModel = dataModel;
-        this.pkiService = pkiService;
         this.thesaurus = thesaurus;
     }
 
@@ -36,7 +37,7 @@ public class UpgraderV10_4 implements Upgrader {
     }
 
     private void updateCertificates() {
-        pkiService.findAllCertificates().find().stream()
+        securityManagementService.findAllCertificates().find().stream()
                 .map(x -> {
                     RequestableCertificateWrapper csr = (RequestableCertificateWrapper) x;
                     if (csr.hasCSR()) {
@@ -45,8 +46,7 @@ public class UpgraderV10_4 implements Upgrader {
                         try {
                             csr.getCertificate().ifPresent(cert -> csr.setSubject(cert.getSubjectDN().toString()));
                             csr.getCertificate().ifPresent(cert -> csr.setIssuer(cert.getIssuerDN().toString()));
-                            csr.setKeyUsagesCsv(csr.stringifyKeyUsages(csr.getKeyUsages(),csr.getExtendedKeyUsages()));
-//                            csr.setExtendedKeyUsagesCsv(csr.stringifyExtendedKeyUsages(csr.getExtendedKeyUsages()));
+                            csr.setKeyUsagesCsv(csr.stringifyKeyUsages(csr.getKeyUsages(), csr.getExtendedKeyUsages()));
                             csr.save();
                         } catch (CertificateParsingException e) {
                             throw new PkiLocalizedException(thesaurus, MessageSeeds.COULD_NOT_READ_KEY_USAGES);
@@ -59,14 +59,14 @@ public class UpgraderV10_4 implements Upgrader {
 
 
     private void updateTrustedCertificates() {
-        pkiService.getAllTrustStores().stream()
+        securityManagementService.getAllTrustStores().stream()
                 .map(x -> {
                     for (TrustedCertificate trustedCertificate : x.getCertificates()) {
                         try {
-                        trustedCertificate.getCertificate().ifPresent(cert -> trustedCertificate.setSubject(cert.getSubjectDN().toString()));
-                        trustedCertificate.getCertificate().ifPresent(cert -> trustedCertificate.setIssuer(cert.getIssuerDN().toString()));
-                        trustedCertificate.setKeyUsagesCsv(trustedCertificate.stringifyKeyUsages(trustedCertificate.getKeyUsages(),trustedCertificate.getExtendedKeyUsages()));
-                        trustedCertificate.save();
+                            trustedCertificate.getCertificate().ifPresent(cert -> trustedCertificate.setSubject(cert.getSubjectDN().toString()));
+                            trustedCertificate.getCertificate().ifPresent(cert -> trustedCertificate.setIssuer(cert.getIssuerDN().toString()));
+                            trustedCertificate.setKeyUsagesCsv(trustedCertificate.stringifyKeyUsages(trustedCertificate.getKeyUsages(), trustedCertificate.getExtendedKeyUsages()));
+                            trustedCertificate.save();
                         } catch (CertificateParsingException e) {
                             throw new PkiLocalizedException(thesaurus, MessageSeeds.COULD_NOT_READ_KEY_USAGES);
                         }

@@ -6,7 +6,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 
 public abstract class AbstractParameter {
     public JsonQueryFilter jsonFilter;
-    public PkiService pkiService;
+    public SecurityManagementService service;
     public TrustStore trustStore;
     public String searchParam;
     public String searchValue;
@@ -23,7 +23,7 @@ public abstract class AbstractParameter {
             trustStoreId = jsonFilter.getLong("trustStore");
         }
         if (trustStoreId != null) {
-            trustStore = pkiService.findTrustStore(trustStoreId)
+            trustStore = service.findTrustStore(trustStoreId)
                     .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUSTSTORE, "trustStore"));
         }
         if (searchValue == null || searchValue.isEmpty()) {

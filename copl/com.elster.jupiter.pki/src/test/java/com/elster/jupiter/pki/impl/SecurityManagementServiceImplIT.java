@@ -7,21 +7,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
-import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.ClientCertificateWrapper;
-import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.ExtendedKeyUsage;
-import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.KeyUsage;
-import com.elster.jupiter.pki.PlaintextPassphrase;
-import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
-import com.elster.jupiter.pki.PlaintextSymmetricKey;
-import com.elster.jupiter.pki.PrivateKeyWrapper;
-import com.elster.jupiter.pki.SecurityValueWrapper;
-import com.elster.jupiter.pki.SymmetricKeyWrapper;
-import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.TrustedCertificate;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.pki.*;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.DataVaultPrivateKeyFactory;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultPassphraseFactory;
@@ -518,7 +505,7 @@ public class SecurityManagementServiceImplIT {
     public void testImportCertificateWithLargeAlias() throws Exception {
         StringBuilder alias = new StringBuilder();
         IntStream.range(1, 260).forEach(i -> alias.append("A")); // max == 256
-        inMemoryPersistence.getPkiService().newCertificateWrapper(alias.toString());
+        inMemoryPersistence.getSecurityManagementService().newCertificateWrapper(alias.toString());
     }
 
     @Test
@@ -871,7 +858,7 @@ public class SecurityManagementServiceImplIT {
         x500NameBuilder.addRDN(BCStyle.CN, "ComserverTlsClient");
         PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
                 .generateCSR(x500NameBuilder.build(), certificateType.getSignatureAlgorithm());
-        clientCertificateWrapper.setCSR(pkcs10CertificationRequest);
+        clientCertificateWrapper.setCSR(pkcs10CertificationRequest,certificateType.getKeyUsages(),certificateType.getExtendedKeyUsages());
         clientCertificateWrapper.save();
 
         // Assertions
@@ -1250,14 +1237,14 @@ public class SecurityManagementServiceImplIT {
     public void testFindCertificatesByAliasParameterFilter() throws Exception {
         cleanup(inMemoryPersistence);
 
-        PkiService pkiService = inMemoryPersistence.getPkiService();
+        SecurityManagementService securityManagementService = inMemoryPersistence.getSecurityManagementService();
         X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
-        CertificateWrapper certificateWrapper = pkiService.newCertificateWrapper("myCert1");
+        CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("myCert1");
         certificateWrapper.setCertificate(certificate);
 
         JsonQueryFilter jsonQueryFilter = new JsonQueryFilter("[{\"property\":\"alias\",\"value\":\"myCert1\"}]");
 
-        Finder<CertificateWrapper> reloaded = pkiService.getAliasesByFilter(new AliasParameterFilter(pkiService, jsonQueryFilter));
+        Finder<CertificateWrapper> reloaded = securityManagementService.getAliasesByFilter(new AliasParameterFilter(securityManagementService, jsonQueryFilter));
 
         List<CertificateWrapper> certificates = reloaded.stream().collect(toList());
         assertThat(certificates).hasSize(1);
@@ -1269,14 +1256,14 @@ public class SecurityManagementServiceImplIT {
     public void testFindCertificatesBySubjectParameterFilter() throws Exception {
         cleanup(inMemoryPersistence);
 
-        PkiService pkiService = inMemoryPersistence.getPkiService();
+        SecurityManagementService securityManagementService = inMemoryPersistence.getSecurityManagementService();
         X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
-        CertificateWrapper certificateWrapper = pkiService.newCertificateWrapper("myCert2");
+        CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("myCert2");
         certificateWrapper.setCertificate(certificate);
 
         JsonQueryFilter jsonQueryFilter = new JsonQueryFilter("[{\"property\":\"alias\",\"value\":\"myCert1\"},{\"property\":\"subject\",\"value\":\"CN=test,OU=unit,O=org,C=BE\"}]");
 
-        Finder<CertificateWrapper> reloaded = pkiService.getSubjectsByFilter(new SubjectParameterFilter(pkiService, jsonQueryFilter));
+        Finder<CertificateWrapper> reloaded = securityManagementService.getSubjectsByFilter(new SubjectParameterFilter(securityManagementService, jsonQueryFilter));
 
         List<CertificateWrapper> certificates = reloaded.stream().collect(toList());
         assertThat(certificates).hasSize(1);
@@ -1288,14 +1275,14 @@ public class SecurityManagementServiceImplIT {
     public void testFindCertificatesByIssuerParameterFilter() throws Exception {
         cleanup(inMemoryPersistence);
 
-        PkiService pkiService = inMemoryPersistence.getPkiService();
+        SecurityManagementService securityManagementService = inMemoryPersistence.getSecurityManagementService();
         X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
-        CertificateWrapper certificateWrapper = pkiService.newCertificateWrapper("myCert4");
+        CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("myCert4");
         certificateWrapper.setCertificate(certificate);
 
         JsonQueryFilter jsonQueryFilter = new JsonQueryFilter("[{\"property\":\"issuer\",\"value\":\"CN=RA,OU=Smartenergy,O=Honeywell,ST=Westvlaanderen,C=BE\"}]");
 
-        Finder<CertificateWrapper> reloaded = pkiService.getIssuersByFilter(new IssuerParameterFilter(pkiService, jsonQueryFilter));
+        Finder<CertificateWrapper> reloaded = securityManagementService.getIssuersByFilter(new IssuerParameterFilter(securityManagementService, jsonQueryFilter));
 
         List<CertificateWrapper> certificates = reloaded.stream().collect(toList());
         assertThat(certificates).hasSize(1);
@@ -1307,14 +1294,14 @@ public class SecurityManagementServiceImplIT {
     public void testFindCertificatesByKeyUsagesParameterFilter() throws Exception {
         cleanup(inMemoryPersistence);
 
-        PkiService pkiService = inMemoryPersistence.getPkiService();
+        SecurityManagementService securityManagementService = inMemoryPersistence.getSecurityManagementService();
         X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
-        CertificateWrapper certificateWrapper = pkiService.newCertificateWrapper("myCert5");
+        CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper("myCert5");
         certificateWrapper.setCertificate(certificate);
 
         JsonQueryFilter jsonQueryFilter = new JsonQueryFilter("[{\"property\":\"keyUsages\",\"value\":[\"" + digitalSignature + "\"]}]");
 
-        Finder<CertificateWrapper> reloaded = pkiService.getKeyUsagesByFilter(new KeyUsagesParameterFilter(pkiService, jsonQueryFilter));
+        Finder<CertificateWrapper> reloaded = securityManagementService.getKeyUsagesByFilter(new KeyUsagesParameterFilter(securityManagementService, jsonQueryFilter));
 
         List<CertificateWrapper> certificates = reloaded.stream().collect(toList());
         assertThat(certificates).hasSize(1);
@@ -1328,10 +1315,10 @@ public class SecurityManagementServiceImplIT {
         cleanup(inMemoryPersistence);
 
         X509Certificate certificate = loadCertificate("TestCSR2.cert.der");
-        CertificateWrapper certificateWrapper = inMemoryPersistence.getPkiService().newCertificateWrapper("alias");
+        CertificateWrapper certificateWrapper = inMemoryPersistence.getSecurityManagementService().newCertificateWrapper("alias");
         certificateWrapper.setCertificate(certificate);
 
-        Finder<CertificateWrapper> reloaded = inMemoryPersistence.getPkiService().findCertificatesByFilter(createFilter("alias", Optional.empty()));
+        Finder<CertificateWrapper> reloaded = inMemoryPersistence.getSecurityManagementService().findCertificatesByFilter(createFilter("alias", Optional.empty()));
 
         List<CertificateWrapper> certificates = reloaded.stream().collect(toList());
         assertThat(certificates).hasSize(1);
@@ -1343,24 +1330,24 @@ public class SecurityManagementServiceImplIT {
     public void testFindTrustedCertificatesByDataSearchFilter() throws Exception {
         cleanup(inMemoryPersistence);
 
-        TrustStore main = inMemoryPersistence.getPkiService()
+        TrustStore main = inMemoryPersistence.getSecurityManagementService()
                 .newTrustStore("main5")
                 .description("Main trust store")
                 .add();
         X509Certificate certificate = loadCertificate("myRootCA.cert");
         main.addCertificate("myCert", certificate);
 
-        TrustStore trustStore = inMemoryPersistence.getPkiService().findTrustStore("main5").get();
+        TrustStore trustStore = inMemoryPersistence.getSecurityManagementService().findTrustStore("main5").get();
 
-        List<CertificateWrapper> certificates = inMemoryPersistence.getPkiService()
+        List<CertificateWrapper> certificates = inMemoryPersistence.getSecurityManagementService()
                 .findTrustedCertificatesByFilter(createFilter("myCert", Optional.of(trustStore)));
 
         assertThat(certificates).hasSize(1);
         assertEquals("myCert", certificates.get(0).getAlias());
     }
 
-    private PkiService.DataSearchFilter createFilter(String alias, Optional<TrustStore> trustStore) {
-        PkiService.DataSearchFilter filter = new PkiService.DataSearchFilter();
+    private SecurityManagementService.DataSearchFilter createFilter(String alias, Optional<TrustStore> trustStore) {
+        SecurityManagementService.DataSearchFilter filter = new SecurityManagementService.DataSearchFilter();
         filter.trustStore = trustStore;
         filter.alias = Optional.of(Collections.singletonList(alias));
         filter.subject = Optional.empty();
@@ -1373,7 +1360,7 @@ public class SecurityManagementServiceImplIT {
     }
 
     private void cleanup(PkiInMemoryPersistence persistence) throws SQLException {
-        Connection connection = ((PkiServiceImpl) persistence.getPkiService()).getDataModel().getConnection(true);
+        Connection connection = ((SecurityManagementServiceImpl) persistence.getSecurityManagementService()).getDataModel().getConnection(true);
         PreparedStatement preparedStatement = connection.prepareStatement("DELETE PKI_CERTIFICATE");
         preparedStatement.execute();
         connection.close();
