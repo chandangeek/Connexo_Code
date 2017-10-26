@@ -323,7 +323,7 @@ public class KeyAccessorCommands {
             x500NameBuilder.addRDN(BCStyle.CN, cn);
             PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
                     .generateCSR(x500NameBuilder.build(), certSecurityAccessorType.getKeyType().getSignatureAlgorithm());
-            clientCertificateWrapper.setCSR(pkcs10CertificationRequest);
+            clientCertificateWrapper.setCSR(pkcs10CertificationRequest, certSecurityAccessorType.getKeyType().getKeyUsages(), certSecurityAccessorType.getKeyType().getExtendedKeyUsages());
             clientCertificateWrapper.save();
             context.commit();
         } catch (Exception e) {
