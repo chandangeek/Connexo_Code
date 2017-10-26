@@ -43,7 +43,7 @@ public class ConnectionTypeInfo {
                 .getPropertySpecs().stream()
                 .map(propertySpec ->
                     deviceConfigurationOption.map(deviceConfiguration1 ->
-                                 KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> deviceConfiguration1.getDeviceType().getKeyAccessorTypes(), propertySpec))
+                                 KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> deviceConfiguration1.getDeviceType().getSecurityAccessorTypes(), propertySpec))
                             .orElse(propertySpec)
                 )
                 .collect(toList());

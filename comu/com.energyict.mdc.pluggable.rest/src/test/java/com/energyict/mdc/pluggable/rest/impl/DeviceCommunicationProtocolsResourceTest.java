@@ -5,7 +5,7 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
@@ -158,7 +158,7 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.isReference()).thenReturn(true);
         ValueFactory referenceValueFactory = mock(ValueFactory.class);
-        when(referenceValueFactory.getValueType()).thenReturn(KeyAccessorType.class);
+        when(referenceValueFactory.getValueType()).thenReturn(SecurityAccessorType.class);
         when(propertySpec.getValueFactory()).thenReturn(referenceValueFactory);
 
         ConnectionType tlsConnectionType = mock(ConnectionType.class);
@@ -168,10 +168,10 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
         doReturn(deviceProtocolSupportedConnectionTypes).when(deviceProtocol).getSupportedConnectionTypes();
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         DeviceType deviceType = mock(DeviceType.class);
-        KeyAccessorType kat1 = mockKeyAccessorType("key1", 1L);
-        KeyAccessorType kat2 = mockKeyAccessorType("key2", 2L);
-        KeyAccessorType kat3 = mockKeyAccessorType("key3", 3L);
-        when(deviceType.getKeyAccessorTypes()).thenReturn(Arrays.asList(kat1, kat2, kat3));
+        SecurityAccessorType kat1 = mockKeyAccessorType("key1", 1L);
+        SecurityAccessorType kat2 = mockKeyAccessorType("key2", 2L);
+        SecurityAccessorType kat3 = mockKeyAccessorType("key3", 3L);
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(kat1, kat2, kat3));
         when(deviceConfig.getDeviceType()).thenReturn(deviceType);
         when(deviceConfigurationService.findDeviceConfiguration(12345)).thenReturn(Optional.of(deviceConfig));
         ConnectionTypePluggableClass connectionTypePluggableCass = createMockedConnectionTypePluggableCass(tlsConnectionType);
@@ -179,8 +179,8 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
         when(protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(Collections.singletonList(connectionTypePluggableCass));
         when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any(Function.class))).thenReturn(new PropertyInfo("someProperty", "Key", new PropertyValueInfo<Object>(), new PropertyTypeInfo(), false));
         PropertyValueConverter propertyValueConverter = mock(PropertyValueConverter.class);
-        when(propertyValueConverter.convertValueToInfo(any(PropertySpec.class), any(KeyAccessorType.class))).thenAnswer(invocationOnMock -> {
-            return new IdWithNameInfo(((KeyAccessorType)invocationOnMock.getArguments()[1]).getId(),((KeyAccessorType)invocationOnMock.getArguments()[1]).getName());
+        when(propertyValueConverter.convertValueToInfo(any(PropertySpec.class), any(SecurityAccessorType.class))).thenAnswer(invocationOnMock -> {
+            return new IdWithNameInfo(((SecurityAccessorType)invocationOnMock.getArguments()[1]).getId(),((SecurityAccessorType)invocationOnMock.getArguments()[1]).getName());
         });
         when(propertyValueInfoService.getConverter(any(PropertySpec.class))).thenReturn(propertyValueConverter);
         when(connectionTypePluggableCass.getProperties(any(List.class))).thenReturn(TypedProperties.empty());
@@ -198,8 +198,8 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
         assertThat(jsonModel.<String>get("[0].properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues[2].name")).isEqualTo("key3");
     }
 
-    private KeyAccessorType mockKeyAccessorType(String name, long id) {
-        KeyAccessorType kat1 = mock(KeyAccessorType.class);
+    private SecurityAccessorType mockKeyAccessorType(String name, long id) {
+        SecurityAccessorType kat1 = mock(SecurityAccessorType.class);
         when(kat1.getName()).thenReturn(name);
         when(kat1.getId()).thenReturn(id);
         return kat1;
