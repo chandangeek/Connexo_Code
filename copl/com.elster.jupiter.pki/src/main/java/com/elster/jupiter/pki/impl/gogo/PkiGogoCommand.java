@@ -181,7 +181,7 @@ public class PkiGogoCommand {
         KeyType keyType = securityManagementService.getKeyType(keyTypeId)
                 .orElseThrow(() -> new IllegalArgumentException("No key type with id " + keyTypeId));
         try (TransactionContext context = transactionService.getContext()) {
-            KeypairWrapper keypairWrapper = securityManagementService.newPublicKeyWrapper(alias, keyType);
+            KeypairWrapper keypairWrapper = securityManagementService.newKeypairWrapper(alias, keyType, "DataVault");
             FileInputStream fileInputStream = new FileInputStream(file);
             byte[] bytes = ByteStreams.toByteArray(fileInputStream);
             keypairWrapper.setPublicKey(bytes);
