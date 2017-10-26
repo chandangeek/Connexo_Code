@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.importers.impl;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.importers.impl.attributes.connection.ConnectionAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.attributes.security.SecurityAttributesImportFactory;
+import com.energyict.mdc.device.data.importers.impl.certificatesimport.DeviceCertificatesImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.activation.DeviceActivationDeactivationImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.commission.DeviceCommissioningImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.decommission.DeviceDecommissioningImportFactory;
@@ -65,6 +66,7 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_REMOVE_IMPORTER(DeviceRemoveImportFactory.NAME, "Devices remove importer [STD]"),
     DEVICE_CONNECTION_ATTRIBUTES_IMPORTER(ConnectionAttributesImportFactory.NAME, "Device connection attributes importer [STD]"),
     DEVICE_SECURITY_ATTRIBUTES_IMPORTER(SecurityAttributesImportFactory.NAME, "Device security attributes importer [STD]"),
+    DEVICE_CERTIFICATES_IMPORTER(DeviceCertificatesImporterFactory.NAME,"Certifcate importer [STD]"),
 
     STRING_FORMAT("StringFormat", "string"),
     NUMBER_FORMAT("NumberFormat", "number"),
