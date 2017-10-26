@@ -3,13 +3,13 @@ package com.energyict.mdc.device.data.importers.impl.devices.shipment.secure;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.DeviceSecretImporter;
+import com.elster.jupiter.pki.KeyImportFailedException;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SymmetricAlgorithm;
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.DeviceSecretImporter;
-import com.elster.jupiter.pki.KeyImportFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -17,7 +17,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.Body;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.NamedEncryptedDataType;
@@ -83,14 +83,16 @@ public class SecureDeviceShipmentImporter implements FileImporter {
     private CertificateFactory certificateFactory;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceService deviceService;
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
 
-    public SecureDeviceShipmentImporter(Thesaurus thesaurus, TrustStore trustStore, DeviceConfigurationService deviceConfigurationService, DeviceService deviceService, PkiService pkiService) {
+    public SecureDeviceShipmentImporter(Thesaurus thesaurus, TrustStore trustStore,
+                                        DeviceConfigurationService deviceConfigurationService, DeviceService deviceService,
+                                        SecurityManagementService securityManagementService) {
         this.thesaurus = thesaurus;
         this.trustStore = trustStore;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceService = deviceService;
-        this.pkiService = pkiService;
+        this.securityManagementService = securityManagementService;
     }
 
     @Override
@@ -215,15 +217,15 @@ public class SecureDeviceShipmentImporter implements FileImporter {
 
     private void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, Map<String, WrapKey> wrapKeyMap, Logger logger) {
         String securityAccessorName = deviceKey.getName();
-        Optional<KeyAccessorType> keyAccessorTypeOptional = device.getDeviceType()
-                .getKeyAccessorTypes()
+        Optional<SecurityAccessorType> securityAccessorTypeOptional = device.getDeviceType()
+                .getSecurityAccessorTypes()
                 .stream()
                 .filter(kat -> kat.getName().equals(securityAccessorName))
                 .findAny();
-        if (!keyAccessorTypeOptional.isPresent()) {
+        if (!securityAccessorTypeOptional.isPresent()) {
             log(logger, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE, device.getName(), securityAccessorName);
         } else {
-            final KeyAccessorType keyAccessorType = keyAccessorTypeOptional.get();
+            final SecurityAccessorType securityAccessorType = securityAccessorTypeOptional.get();
             final WrapKey wrapKey = wrapKeyMap.get(deviceKey.getWrapKeyLabel());
             if (wrapKey==null) {
                 throw new ImportFailedException(MessageSeeds.WRAP_KEY_NOT_FOUND, securityAccessorName, device.getName(), deviceKey.getWrapKeyLabel());
@@ -240,15 +242,15 @@ public class SecureDeviceShipmentImporter implements FileImporter {
             System.arraycopy(encryptedDeviceKey, 0, initializationVector, 0, 16);
             System.arraycopy(encryptedDeviceKey, 16, cipher, 0, encryptedDeviceKey.length - 16);
 
-            DeviceSecretImporter deviceSecretImporter = pkiService.getDeviceSecretImporter(keyAccessorType);
+            DeviceSecretImporter deviceSecretImporter = securityManagementService.getDeviceSecretImporter(securityAccessorType);
 
-            if (device.getKeyAccessor(keyAccessorType).isPresent() && device.getKeyAccessor(keyAccessorType).get().getActualValue().isPresent()) {
+            if (device.getSecurityAccessor(securityAccessorType).isPresent() && device.getSecurityAccessor(securityAccessorType).get().getActualValue().isPresent()) {
                 log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
             } else {
-                KeyAccessor keyAccessor = device.getKeyAccessor(keyAccessorType).orElseGet(()->device.newKeyAccessor(keyAccessorType));
+                SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType).orElseGet(()->device.newSecurityAccessor(securityAccessorType));
                 SecurityValueWrapper newWrapperValue = deviceSecretImporter.importSecret(encryptedDeviceKey, initializationVector, encryptedSymmetricKey, symmetricAlgorithm, asymmetricAlgorithm);
-                keyAccessor.setActualValue(newWrapperValue);
-                keyAccessor.save();
+                securityAccessor.setActualValue(newWrapperValue);
+                securityAccessor.save();
             }
         }
     }
@@ -266,7 +268,7 @@ public class SecureDeviceShipmentImporter implements FileImporter {
     private String getSymmetricAlgorithm(NamedEncryptedDataType deviceKey) throws
             KeyImportFailedException {
         if (deviceKey.getEncryptionMethod() != null && deviceKey.getEncryptionMethod().getAlgorithm() != null) {
-            return pkiService.getSymmetricAlgorithm(deviceKey.getEncryptionMethod().getAlgorithm())
+            return securityManagementService.getSymmetricAlgorithm(deviceKey.getEncryptionMethod().getAlgorithm())
                     .map(SymmetricAlgorithm::getCipherName)
                     .orElse(DEFAULT_SYMMETRIC_ALGORITHM);
         } else {

@@ -7,7 +7,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.KeypairWrapper;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -19,7 +19,6 @@ import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.security.PublicKey;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -36,7 +35,7 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
     public static final String NAME = "SecureDeviceShipmentImporterFactory";
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
-    private volatile PkiService pkiService;
+    private volatile SecurityManagementService securityManagementService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
 
@@ -49,7 +48,7 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
     public FileImporter createImporter(Map<String, Object> properties) {
         TrustStore trustStore = (TrustStore) properties.get(SecureDeviceShipmentImporterProperty.TRUSTSTORE.getPropertyKey());
 //        PublicKey publicKey = (PublicKey) properties.get(SecureDeviceShipmentImporterProperty.PUBLICKEY.getPropertyKey());
-        return new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, pkiService);
+        return new SecureDeviceShipmentImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService);
     }
 
     @Override
@@ -75,7 +74,7 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Stream.of(SecureDeviceShipmentImporterProperty.values())
-                .map(e -> e.getPropertySpec(propertySpecService, thesaurus, pkiService))
+                .map(e -> e.getPropertySpec(propertySpecService, thesaurus, securityManagementService))
                 .collect(toList());
     }
 
@@ -90,8 +89,8 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
     }
 
     @Reference
-    public void setPkiService(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @Reference
@@ -107,7 +106,7 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
     static enum SecureDeviceShipmentImporterProperty {
         TRUSTSTORE(TranslationKeys.DEVICE_DATA_IMPORTER_TRUSTSTORE, TranslationKeys.DEVICE_DATA_IMPORTER_TRUSTSTORE_DESCRIPTION) {
             @Override
-            public PropertySpec getPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, PkiService pkiService) {
+            public PropertySpec getPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, SecurityManagementService pkiService) {
                 return propertySpecService
                         .referenceSpec(TrustStore.class)
                         .named(this.getPropertyKey(), this.getNameTranslationKey())
@@ -120,7 +119,7 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
         },
         PUBLICKEY(TranslationKeys.DEVICE_DATA_IMPORTER_PUBLICKEY, TranslationKeys.DEVICE_DATA_IMPORTER_PUBLICKEY_DESCRIPTION) {
             @Override
-            public PropertySpec getPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, PkiService pkiService) {
+            public PropertySpec getPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, SecurityManagementService pkiService) {
                 return propertySpecService
                         .referenceSpec(KeypairWrapper.class)
                         .named(this.getPropertyKey(), this.getNameTranslationKey())
@@ -152,7 +151,7 @@ public class SecureDeviceShipmentImporterFactory implements FileImporterFactory 
             return NAME + "." + this.nameTranslationKey.getKey();
         }
 
-        public abstract PropertySpec getPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, PkiService pkiService);
+        public abstract PropertySpec getPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, SecurityManagementService pkiService);
 
     }
 }

@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl.devices.shipment.secure;
 
-import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
@@ -34,7 +33,6 @@ import java.util.logging.StreamHandler;
 import java.util.stream.Stream;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -117,7 +115,7 @@ public class SecureDeviceShipmentImporterTest {
                 "DLMS_WAN_DBROAD_RW_HLS", "DLMS_WAN_DMGMT_FU_HLS", "DLMS_WAN_DBROAD_FU_HLS").map(name -> {
             KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
             when(keyAccessorType.getName()).thenReturn(name);
-            when(newDevice.getKeyAccessor(keyAccessorType)).thenReturn(Optional.of(keyAccessor));
+            when(newDevice.getSecurityAccessor(keyAccessorType)).thenReturn(Optional.of(keyAccessor));
             when(pkiService.getDeviceSecretImporter(keyAccessorType)).thenReturn(deviceSecretImporter);
             return keyAccessorType;
         }).collect(toList());
