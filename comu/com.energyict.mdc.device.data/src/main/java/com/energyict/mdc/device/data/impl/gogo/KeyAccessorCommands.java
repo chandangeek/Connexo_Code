@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.impl.gogo;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -119,7 +120,7 @@ public class KeyAccessorCommands {
                 .orElseThrow(() -> new RuntimeException("No such device"));
         List<List<?>> collection = new ArrayList<>();
         for (SecurityAccessorType securityAccessorType : device.getDeviceType().getSecurityAccessorTypes()) {
-            Optional<SecurityAccessor> keyAccessor = device.getKeyAccessor(securityAccessorType);
+            Optional<SecurityAccessor> keyAccessor = device.getSecurityAccessor(securityAccessorType);
             String actualExtraValue = "";
             String tempExtraValue = "";
             if (keyAccessor.isPresent()) {
@@ -183,7 +184,7 @@ public class KeyAccessorCommands {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            KeyType keyType = pkiService.getKeyType("RSA 1024")
+            KeyType keyType = securityManagementService.getKeyType("RSA 1024")
                     .orElseThrow(() -> new RuntimeException("No such key type: RSA 1024"));
 
             KeyStore pkcs12 = KeyStore.getInstance("pkcs12");
@@ -196,7 +197,7 @@ public class KeyAccessorCommands {
             if (key==null) {
                 throw new RuntimeException("The keystore does not contain a key with alias "+alias);
             }
-            ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(keyType, "DataVault")
+            ClientCertificateWrapper clientCertificateWrapper = securityManagementService.newClientCertificateWrapper(keyType, "DataVault")
                     .alias(certificateAlias).add();
             clientCertificateWrapper.setCertificate((X509Certificate) certificate);
             PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) clientCertificateWrapper.getPrivateKeyWrapper();
@@ -246,8 +247,8 @@ public class KeyAccessorCommands {
             privateKeyWrapper.setPrivateKey((PrivateKey) key);
             privateKeyWrapper.save();
 
-            SecurityAccessor securityAccessor = device.getKeyAccessor(certSecurityAccessorType)
-                    .orElseGet(()->device.newKeyAccessor(certSecurityAccessorType));
+            SecurityAccessor securityAccessor = device.getSecurityAccessor(certSecurityAccessorType)
+                    .orElseGet(()->device.newSecurityAccessor(certSecurityAccessorType));
             securityAccessor.setActualValue(clientCertificateWrapper);
             securityAccessor.save();
             context.commit();
@@ -272,7 +273,7 @@ public class KeyAccessorCommands {
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("No such security accessor type on the device type: " + keyAccessorTypeName));
 
-            SecurityAccessor securityAccessor = device.getKeyAccessor(securityAccessorType).orElseGet(()->device.newKeyAccessor(securityAccessorType));
+            SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType).orElseGet(()->device.newSecurityAccessor(securityAccessorType));
             if (securityAccessor.getActualValue().isPresent()) {
                 PlaintextPassphrase actualValue = (PlaintextPassphrase) securityAccessor.getActualValue().get();
                 actualValue.setPassphrase(cleartextPassword);
@@ -316,7 +317,7 @@ public class KeyAccessorCommands {
 
             SymmetricKeyWrapper symmetricKeyWrapper = securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
             ((PlaintextSymmetricKey)symmetricKeyWrapper).setKey(new SecretKeySpec(key.getEncoded(), key.getAlgorithm()));
-            Optional<SecurityAccessor> keyAccessorOptional = device.getKeyAccessor(securityAccessorType);
+            Optional<SecurityAccessor> keyAccessorOptional = device.getSecurityAccessor(securityAccessorType);
             SecurityAccessor<SymmetricKeyWrapper> securityAccessor;
             if (keyAccessorOptional.isPresent()) {
                 if (keyAccessorOptional.get().getActualValue().isPresent()) {
@@ -324,7 +325,7 @@ public class KeyAccessorCommands {
                 }
                 securityAccessor = keyAccessorOptional.get();
             } else {
-                securityAccessor = device.newKeyAccessor(securityAccessorType);
+                securityAccessor = device.newSecurityAccessor(securityAccessorType);
             }
             securityAccessor.setActualValue(symmetricKeyWrapper);
             securityAccessor.save();
@@ -386,7 +387,7 @@ public class KeyAccessorCommands {
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("No such security accessor type on the device type: " + keyAccessorTypeName));
 
-            SecurityAccessor securityAccessor = device.getKeyAccessor(securityAccessorType)
+            SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType)
                     .orElseThrow(() -> new RuntimeException("No security accessor for security accessor type " + keyAccessorTypeName));
 
             securityAccessor.renew();
@@ -416,7 +417,7 @@ public class KeyAccessorCommands {
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("No such security accessor type on the device type: " + keyAccessorTypeName));
 
-            SecurityAccessor securityAccessor = device.getKeyAccessor(securityAccessorType)
+            SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType)
                     .orElseThrow(() -> new RuntimeException("No security accessor for security accessor type " + keyAccessorTypeName));
 
             securityAccessor.swapValues();
@@ -446,7 +447,7 @@ public class KeyAccessorCommands {
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("No such security accessor type on the device type: " + keyAccessorTypeName));
 
-            SecurityAccessor securityAccessor = device.getKeyAccessor(securityAccessorType)
+            SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType)
                     .orElseThrow(() -> new RuntimeException("No security accessor for security accessor type " + keyAccessorTypeName));
 
             securityAccessor.clearTempValue();

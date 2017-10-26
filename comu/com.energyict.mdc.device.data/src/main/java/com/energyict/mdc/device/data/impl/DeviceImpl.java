@@ -3300,13 +3300,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public Optional<SecurityAccessor> getKeyAccessor(SecurityAccessorType securityAccessorType) {
+    public Optional<SecurityAccessor> getSecurityAccessor(SecurityAccessorType securityAccessorType) {
         return this.keyAccessors.stream().filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId() == securityAccessorType
                 .getId()).findAny();
     }
 
     @Override
-    public SecurityAccessor newKeyAccessor(SecurityAccessorType securityAccessorType) {
+    public SecurityAccessor newSecurityAccessor(SecurityAccessorType securityAccessorType) {
         switch (securityAccessorType.getKeyType().getCryptographicType()) {
             case Certificate:
             case ClientCertificate:
@@ -3332,8 +3332,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public void removeKeyAccessor(SecurityAccessor securityAccessor) {
-        this.getKeyAccessor(securityAccessor.getKeyAccessorType()).ifPresent(keyAccessors::remove);
+    public void removeSecurityAccessor(SecurityAccessor securityAccessor) {
+        this.getSecurityAccessor(securityAccessor.getKeyAccessorType()).ifPresent(keyAccessors::remove);
     }
 
 }

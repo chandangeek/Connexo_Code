@@ -493,27 +493,27 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
     void setModelVersion(String modelVersion);
 
     /**
-     * Returns all KeyAccessors defined for this device. The returned list will contain accessors of all kinds: certfificates, keys and passphrases
-     * @return all KeyAccessors defined for this device.
+     * Returns all SecurityAccessors defined for this device. The returned list will contain accessors of all kinds: certfificates, keys and passphrases
+     * @return all SecurityAccessors defined for this device.
      */
     public List<SecurityAccessor> getSecurityAccessors();
 
     /**
-     * Get the KeyAccessor (aka 'value') for a KeyAccessorType, if any
-     * @param securityAccessorType The KAt whose value will be retrieved.
-     * @return The actual value (KeyAccessor), or Optional.empty() if no value could be found
+     * Get the SecurityAccessor (aka 'value') for a SecurityAccessorType, if any
+     * @param securityAccessorType The {@link SecurityAccessorType} whose value will be retrieved.
+     * @return The actual value (SecurityAccessor), or Optional.empty() if no value could be found
      */
-    public Optional<SecurityAccessor> getKeyAccessor(SecurityAccessorType securityAccessorType);
+    public Optional<SecurityAccessor> getSecurityAccessor(SecurityAccessorType securityAccessorType);
 
     /**
-     * Creates a new KeyAccessor for a certain KeyAccessorType. The KeyAccessor is merely an empty placeholder at this point.
+     * Creates a new SecurityAccessor for a certain SecurityAccessorType. The SecurityAccessor is merely an empty placeholder at this point.
      * Users can set the value by calling the setter.
      * @param securityAccessorType The type of security accessor to be created
      * @return An empty security accessor.
      */
-    public SecurityAccessor newKeyAccessor(SecurityAccessorType securityAccessorType);
+    public SecurityAccessor newSecurityAccessor(SecurityAccessorType securityAccessorType);
 
-    public void removeKeyAccessor(SecurityAccessor securityAccessor);
+    public void removeSecurityAccessor(SecurityAccessor securityAccessor);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.

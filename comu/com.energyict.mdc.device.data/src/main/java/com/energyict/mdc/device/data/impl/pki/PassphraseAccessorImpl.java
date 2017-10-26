@@ -121,7 +121,7 @@ public class PassphraseAccessorImpl extends AbstractSecurityAccessorImpl<Passphr
         if (tempPassphraseWrapperReference!=null && tempPassphraseWrapperReference.isPresent()) {
             ((PassphraseWrapper)tempPassphraseWrapperReference.get()).delete();
         }
-        getDevice().removeKeyAccessor(this);
+        getDevice().removeSecurityAccessor(this);
     }
 
     @Override
