@@ -193,7 +193,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.data.rest</artifactId>
-                <version>4.1.0${revision}</version>
+                <version>5.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
