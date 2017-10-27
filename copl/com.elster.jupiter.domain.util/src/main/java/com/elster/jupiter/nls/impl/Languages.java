@@ -28,6 +28,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -262,9 +263,11 @@ final class Languages {
                     .forEach(this::add);
         }
 
-        private void add(TranslationCsvEntry entry) {
-            ComponentAndLayer componentAndLayer = ComponentAndLayer.from(entry);
-            this.translations.put(componentAndLayer, SimpleTranslation.from(entry));
+        private void add(Optional<TranslationCsvEntry> entry) {
+            if(entry.isPresent()) {
+                ComponentAndLayer componentAndLayer = ComponentAndLayer.from(entry.get());
+                this.translations.put(componentAndLayer, SimpleTranslation.from(entry.get()));
+            }
         }
 
         private void registerAsMBean() {
