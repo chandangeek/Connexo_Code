@@ -1416,7 +1416,8 @@ Ext.define('Dxp.controller.Tasks', {
                 me.runTask(menu.record,
                     me.submitRunTask,
                     Uni.I18n.translate('general.run', 'DES', 'Run'),
-                    Uni.I18n.translate('general.runExportTaskx', 'DES', "Run export task {0}?", [menu.record.data.name])
+                    Uni.I18n.translate('general.runExportTaskx', 'DES', "Run export task {0}?", [menu.record.data.name]),
+                    Uni.I18n.translate('exportTasks.runMsg', 'DES', 'Data export task will be queued to run at the earliest possible time.')
                 );
                 break;
         }
@@ -1425,30 +1426,30 @@ Ext.define('Dxp.controller.Tasks', {
         route && route.forward(router.arguments);
     },
 
-    runTask: function (record, submitFunc, confirm, title) {
+    runTask: function (record, submitFunc, confirm, title, msg) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: confirm,
                 confirmation: function () {
                     submitFunc.call(me, record, this);
+                },
+                renderer: function(value){
+                    return value;
                 }
             });
 
         confirmationWindow.insert(1,
             {
-                xtype: 'panel',
+                xtype: 'displayfield',
                 itemId: 'date-errors',
-                hidden: true,
-                bodyStyle: {
-                    color: '#eb5642',
-                    padding: '0 0 15px 65px'
-                },
-                html: ''
+                //value: Uni.I18n.translate('exportTasks.runMsgStartedOn', 'DES', "Data export task started on {0} will be queued to run at the earliest possible time.", [menu.record.get('startedOn_formatted')]),
+                value: msg,
+                htmlEncode: false,
+                margin: '-15 0 10 50'
             }
         );
 
         confirmationWindow.show({
-            msg: Uni.I18n.translate('exportTasks.runMsg', 'DES', 'Data export task will be queued to run at the earliest possible time.'),
             title: title
         });
     },
@@ -2951,7 +2952,9 @@ Ext.define('Dxp.controller.Tasks', {
                 me.runTask(menu.record,
                     me.submitHistoryRunTask,
                     Uni.I18n.translate('general.retry', 'DES', 'Retry'),
-                    Uni.I18n.translate('general.retryExportTaskx', 'DES', "Retry export task {0}?", [menu.record.data.name]));
+                    Uni.I18n.translate('general.retryExportTaskx', 'DES', "Retry export task {0}?", [menu.record.data.name]),
+                    Uni.I18n.translate('exportTasks.runMsgStartedOn', 'DES', "Data export task started on {0} will be queued to run at the earliest possible time.", [menu.record.get('startedOn_formatted')])
+            );
                 break
         }
     },
