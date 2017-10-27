@@ -46,6 +46,12 @@ public class DeviceReadingsImporterFactory extends AbstractDeviceDataFileImporte
         setDeviceDataImporterContext(context);
     }
 
+    /**
+     * Creates the actual importer using the actual values of importer properties.
+     *
+     * @param properties Represent the importer properties: Number Format (see {@link SupportedNumberFormat}),
+     * Date Format, Time Zone and Delimiter, which separates the values in the file.
+     */
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
         String delimiter = (String) properties.get(DELIMITER.getPropertyKey());

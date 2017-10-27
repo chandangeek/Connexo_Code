@@ -50,7 +50,7 @@ public enum MessageSeeds implements MessageSeed {
     READING_DATE_INCORRECT_FOR_MONTHLY_CHANNEL(213, "ReadingDateIncorrectForMonthlyChannel", "Can''t process line {0}: Reading date is incorrect for reading type {1}. Reading date of monthly reading must be the 1st day of the month and time of the day must be midnight in device timezone ({2}).", Level.WARNING),
     READING_DATE_INCORRECT_FOR_YEARLY_CHANNEL(214, "ReadingDateIncorrectForYearlyChannel", "Can''t process line {0}: Reading date is incorrect for reading type {1}. Reading date of yearly reading must be the 1st day of the year and time of the day must be midnight in device timezone ({2}).", Level.WARNING),
     READING_DATE_INCORRECT_FOR_MINUTES_CHANNEL(215, "ReadingDateIncorrectForYearlyChannel", "Can''t process line {0}: Reading date is incorrect for reading type {1}. Reading date of minutes reading must be divisible by {2} ({3}).", Level.WARNING),
-    READING_TYPE_DUPLICATED_OBIS_CODE(216, "ReadingTypeDuplicatedObisCode", "Can''t process line {0}: Found duplicated obis code in the system for {1}.", Level.WARNING),
+    READING_TYPE_DUPLICATED_OBIS_CODE(216, "ReadingTypeDuplicatedObisCode", "Can''t process line {0}: Channel or register obis code {1} is duplicated on device {2}.", Level.WARNING),
 
     NO_CONNECTION_METHOD_ON_DEVICE(301, "NoSuchConnectionMethodOnDevice", "Can''t process line {0}: Connection method {1} is not supported on the device.", Level.WARNING),
     CONNECTION_METHOD_IS_NOT_UNIQUE_IN_FILE(302, "ConnectionMethodIsNotUniqueInFile", "Failure in line {0}: Connection method name is not unique in the file.", Level.SEVERE),

@@ -63,6 +63,16 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
         super(context);
     }
 
+    /**
+     * Processes the readings from file (each row represents a device reading).
+     * The processor supports register and channel readings by CIM code, OBIS code and Channel/register name.
+     * If the obis code is duplicated then the reading is not added and an error message is shown. Also allows time intervals lesser than 1 day.
+     * The values are stored along with the reading quality code that indicates they were manually added.
+     *
+     * @param data Represents device reading import record, which is a single row in the file.
+     * @param logger Represents the message handler.
+     * @throws ProcessorException
+     */
     @Override
     public void process(DeviceReadingsImportRecord data, FileImportLogger logger) throws ProcessorException {
         setDevice(data, logger);
@@ -100,7 +110,8 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
 
         Optional<ReadingType> readingType = Optional.empty();
         if (registersList.size() > 1 || channelsList.size() > 1 || (channelsList.size() + registersList.size() > 1)) {
-            throw new ProcessorException(MessageSeeds.READING_TYPE_DUPLICATED_OBIS_CODE, lineNumber, readingTypeStr);
+            throw new ProcessorException(MessageSeeds.READING_TYPE_DUPLICATED_OBIS_CODE, lineNumber, readingTypeStr, device
+                    .getName());
         }
         if (channelsList.size() == 1) {
             readingType = Optional.ofNullable(device.getChannels().get(channelsList.get(0)).getReadingType());
