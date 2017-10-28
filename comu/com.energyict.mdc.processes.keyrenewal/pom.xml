@@ -14,7 +14,7 @@
     </parent>
 
     <artifactId>mdc.processes.keyrenewal.rest</artifactId>
-    <version>1.1.0${revision}</version>
+    <version>2.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.process.keyRenewal.rest</name>
     <description>
