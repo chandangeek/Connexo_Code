@@ -21,7 +21,6 @@ import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.export.security.Privileges;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -33,7 +32,6 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
-import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
@@ -82,7 +80,8 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -130,22 +129,13 @@ public class DataExportTaskResource {
     public PagedInfoList getDataExportTasks(@BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         String applicationName = getApplicationNameFromCode(appCode);
         ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(applicationName);
-        queryParameters.getStart().ifPresent(finder::setStart);
-        queryParameters.getLimit().ifPresent(finder::setLimit);
+        finder.setStart(queryParameters.getStart().orElse(0));
+        finder.setLimit(queryParameters.getLimit().orElse(0) + 1);
         List<DataExportTaskInfo> infos = finder.stream()
                 .map(dataExportTaskInfoFactory::asInfoWithMinimalHistory)
                 .sorted((dt1, dt2) -> dt1.name.compareToIgnoreCase(dt2.name))
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("dataExportTasks", infos, queryParameters);
-    }
-    private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
-        Set<ReadingType> readingTypes = new LinkedHashSet<>();
-        usagePoint.getMeterActivations()
-                .stream()
-                .map(MeterActivation::getReadingTypes)
-                .flatMap(Collection::stream)
-                .forEach(readingTypes::add);
-        return readingTypes;
     }
 
     @GET
@@ -160,8 +150,7 @@ public class DataExportTaskResource {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint.get());
         MetrologyContract metrologyContract = findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, purposeId);
 
-        ReadingTypeInfos readingTypeInfos = new ReadingTypeInfos(collectReadingTypes(usagePoint.get()));
-
+        Collection<Set<ReadingType>> readingTypeInfos = metrologyContract.sortReadingTypesByDependencyLevel();
 
         ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(applicationName);
         List<DataExportTaskInfo> infos = finder.stream()
@@ -172,10 +161,8 @@ public class DataExportTaskResource {
             Optional<UsagePointGroup> group = meteringGroupsService.findUsagePointGroup(((Number)dataExportTaskInfo.standardDataSelector.usagePointGroup.id).longValue());
 
             if((group.isPresent() && isMember(usagePoint.get(), group.get())) &&
-               (dataExportTaskInfo.standardDataSelector.purpose == null ||
-                (dataExportTaskInfo.standardDataSelector.purpose!=null  &&
-                 metrologyContract.getMetrologyPurpose().getId()== dataExportTaskInfo.standardDataSelector.purpose.id) &&
-                 containsAtLeastOneReadingType(readingTypeInfos.readingTypes, dataExportTaskInfo.standardDataSelector.readingTypes))){
+               (dataExportTaskInfo.standardDataSelector.purpose == null || (dataExportTaskInfo.standardDataSelector.purpose!=null  && metrologyContract.getMetrologyPurpose().getName().equals(dataExportTaskInfo.standardDataSelector.purpose.name))) &&
+                containsAtLeastOneReadingType(readingTypeInfos, dataExportTaskInfo.standardDataSelector.readingTypes)){
                  filteredTasks.add(dataExportTaskInfo);
             }
         }
@@ -183,11 +170,14 @@ public class DataExportTaskResource {
         return PagedInfoList.fromPagedList("dataExportTasks", filteredTasks, queryParameters);
     }
 
-    private boolean containsAtLeastOneReadingType(List<ReadingTypeInfo> readingTypesFromUsagePoint, List<ReadingTypeInfo> readingTypesFromExportTask) {
+    private boolean containsAtLeastOneReadingType(Collection<Set<ReadingType>> readingTypesFromUsagePoint, List<ReadingTypeInfo> readingTypesFromExportTask) {
         for(ReadingTypeInfo rtFromExportTask:readingTypesFromExportTask){
-            for(ReadingTypeInfo rtFromUsagePoint:readingTypesFromUsagePoint) {
-                if (rtFromExportTask.mRID == rtFromUsagePoint.mRID) {
-                    return true;
+            Iterator iter = readingTypesFromUsagePoint.iterator();
+            while (iter.hasNext()) {
+                for (Object readingType : (HashSet)iter.next()) {
+                    if(((ReadingType)readingType).getMRID().equals(rtFromExportTask.mRID)) {
+                        return true;
+                    }
                 }
             }
         }
