@@ -44,6 +44,7 @@ import javax.ws.rs.core.SecurityContext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -111,7 +112,7 @@ public class IssueResourceHelper {
         IssueActionType action = issueActionService.findActionType(request.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         List<PropertySpec> propertySpecs = action.createIssueAction().get().setIssue(issue).getPropertySpecs();
         Map<String, Object> properties = new HashMap<>();
-        if(propertySpecs!=null && !propertySpecs.isEmpty()){
+        if (propertySpecs != null && !propertySpecs.isEmpty()) {
             for (PropertySpec propertySpec : propertySpecs) {
                 Object value = propertyValueInfoService.findPropertyValue(propertySpec, request.properties);
                 if (value != null) {
@@ -155,22 +156,25 @@ public class IssueResourceHelper {
                 .flatMap(s -> issueService.findStatus(s).map(Stream::of).orElse(Stream.empty()))
                 .forEach(filter::addStatus);
         if (jsonFilter.hasProperty(IssueRestModuleConst.REASON)) {
-            issueService.findReason(jsonFilter.getString(IssueRestModuleConst.REASON))
-                    .ifPresent(filter::setIssueReason);
+            jsonFilter.getStringList(IssueRestModuleConst.REASON)
+                    .stream().map(issueService::findReason)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .forEach(filter::setIssueReason);
         }
         if (jsonFilter.hasProperty(IssueRestModuleConst.METER)) {
             meteringService.findEndDeviceByName(jsonFilter.getString(IssueRestModuleConst.METER))
                     .ifPresent(filter::addDevice);
         }
 
-        if(jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().allMatch(s-> s == null)){
+        if (jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().allMatch(s -> s == null)) {
             jsonFilter.getStringList(IssueRestModuleConst.ASSIGNEE).stream().map(id -> userService.getUser(Long.valueOf(id)).orElse(null))
                     .filter(user -> user != null)
                     .forEach(filter::addAssignee);
-            if(jsonFilter.getStringList(IssueRestModuleConst.ASSIGNEE).stream().anyMatch(id -> id.equals("-1"))){
+            if (jsonFilter.getStringList(IssueRestModuleConst.ASSIGNEE).stream().anyMatch(id -> id.equals("-1"))) {
                 filter.setUnassignedSelected();
             }
-        }else {
+        } else {
             jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE)
                     .stream().map(id -> userService.getUser(id).orElse(null))
                     .filter(user -> user != null)
@@ -181,19 +185,19 @@ public class IssueResourceHelper {
         }
 
 
-        if(jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP).stream().allMatch(s-> s == null)){
+        if (jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP).stream().allMatch(s -> s == null)) {
             jsonFilter.getStringList(IssueRestModuleConst.WORKGROUP).stream().map(id -> userService.getWorkGroup(Long.valueOf(id)).orElse(null))
                     .filter(workGroup -> workGroup != null)
                     .forEach(filter::addWorkGroupAssignee);
-            if(jsonFilter.getStringList(IssueRestModuleConst.WORKGROUP).stream().anyMatch(id -> id.equals("-1"))){
+            if (jsonFilter.getStringList(IssueRestModuleConst.WORKGROUP).stream().anyMatch(id -> id.equals("-1"))) {
                 filter.setUnassignedWorkGroupSelected();
             }
-        }else{
+        } else {
             jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP)
                     .stream().map(id -> userService.getWorkGroup(id).orElse(null))
                     .filter(workGroup -> workGroup != null)
                     .forEach(filter::addWorkGroupAssignee);
-            if(jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP).stream().anyMatch(id -> id == -1L)){
+            if (jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP).stream().anyMatch(id -> id == -1L)) {
                 filter.setUnassignedWorkGroupSelected();
             }
         }
@@ -202,6 +206,13 @@ public class IssueResourceHelper {
                 .flatMap(it -> issueService.findIssueType(it).map(Stream::of).orElse(Stream.empty()))
                 .forEach(filter::addIssueType);
         getDueDates(jsonFilter).stream().forEach(dd -> filter.addDueDate(dd.startTime, dd.endTime));
+
+        if (jsonFilter.getLong(IssueRestModuleConst.START_INTERVAL) != null) {
+            filter.setStartCreateTime(jsonFilter.getLong(IssueRestModuleConst.START_INTERVAL));
+        }
+        if (jsonFilter.getLong(IssueRestModuleConst.END_INTERVAL) != null) {
+            filter.setEndCreateTime(jsonFilter.getLong(IssueRestModuleConst.END_INTERVAL));
+        }
         return filter;
     }
 
@@ -210,7 +221,7 @@ public class IssueResourceHelper {
         return filter.getStringList(IssueRestModuleConst.DUE_DATE).stream().map(dd -> {
             try {
                 return issueDueDateInfoAdapter.unmarshal(dd);
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter");
             }
         }).collect(Collectors.toList());
@@ -221,7 +232,7 @@ public class IssueResourceHelper {
         return filter.getStringList(IssueRestModuleConst.ASSIGNEE).stream().map(ai -> {
             try {
                 return issueAssigneeInfoAdapter.unmarshal(ai);
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter");
             }
         }).collect(Collectors.toList());

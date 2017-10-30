@@ -127,6 +127,7 @@ public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest {
         doReturn(issueFinder).when(issueService).findIssues(any(IssueFilter.class), anyVararg());
         when(issueService.findStatus(anyString())).thenReturn(Optional.empty());
         when(issue.getSnoozeDateTime()).thenReturn(Optional.empty());
+        when(issue.getDevice().getLocation()).thenReturn(Optional.empty());
         List<? extends Issue> issues = Collections.singletonList(issue);
         doReturn(issues).when(issueFinder).find();
         Map response = target("/topissues/issues").request().get(Map.class);

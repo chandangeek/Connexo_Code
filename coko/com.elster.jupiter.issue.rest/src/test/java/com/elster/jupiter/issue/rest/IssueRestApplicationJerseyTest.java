@@ -63,6 +63,7 @@ import org.mockito.Mock;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -209,7 +210,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     }
 
     protected OpenIssue mockIssue(long id, IssueReason reason, IssueStatus status, IssueAssignee assingee, Meter meter) {
-        OpenIssue issue = mock(OpenIssue.class);
+        OpenIssue issue = mock(OpenIssue.class, RETURNS_DEEP_STUBS);
         when(issue.getId()).thenReturn(id);
         when(issue.getReason()).thenReturn(reason);
         when(issue.getStatus()).thenReturn(status);
@@ -222,6 +223,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(issue.getVersion()).thenReturn(1L);
         com.elster.jupiter.issue.share.Priority priority = com.elster.jupiter.issue.share.Priority.DEFAULT;
         when(issue.getPriority()).thenReturn(priority);
+        when(issue.getDevice().getLocation()).thenReturn(Optional.empty());
         return issue;
     }
 

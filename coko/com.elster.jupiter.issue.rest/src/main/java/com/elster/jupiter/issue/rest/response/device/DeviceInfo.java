@@ -5,19 +5,25 @@
 package com.elster.jupiter.issue.rest.response.device;
 
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class DeviceInfo {
     private long id;
     private String serialNumber;
+    private String mRID;
     private String name;
     private UsagePointInfo usagePoint;
+    private String location;
     private ServiceLocationInfo serviceLocation;
     private ServiceCategoryInfo serviceCategory;
     private long version;
@@ -25,9 +31,11 @@ public class DeviceInfo {
     public DeviceInfo(EndDevice endDevice){
         if (endDevice != null) {
             this.id = endDevice.getId();
+            this.mRID = endDevice.getMRID();
             this.name = endDevice.getName();
             this.serialNumber = endDevice.getSerialNumber();
             this.version = endDevice.getVersion();
+            this.location = getFormattedLocation(endDevice);
             fetchDetails(endDevice);
         }
     }
@@ -100,5 +108,35 @@ public class DeviceInfo {
             this.setServiceLocation(usagePoint.getServiceLocation().orElse(null));
             this.setServiceCategory(usagePoint.getServiceCategory());
         }
+    }
+
+    public String getmRID() {
+        return mRID;
+    }
+
+    public void setmRID(String mRID) {
+        this.mRID = mRID;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    private String getFormattedLocation(EndDevice endDevice){
+        Optional<Location> location = endDevice.getLocation();
+        String formattedLocation = "";
+        if (location.isPresent()) {
+            List<List<String>> formattedLocationMembers = location.get().format();
+            formattedLocationMembers.stream().skip(1).forEach(list ->
+                    list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(list.indexOf(member), "\\r\\n" + member)));
+            formattedLocation = formattedLocationMembers.stream()
+                    .flatMap(List::stream).filter(Objects::nonNull)
+                    .collect(Collectors.joining(", "));
+        }
+        return formattedLocation;
     }
 }

@@ -23,4 +23,6 @@ public class IssueRestModuleConst {
     public static final String DUE_DATE = "dueDate";
     public static final String DEVICE_GROUP = "deviceGroup";
     public static final String FIELD = "field";
+    public static final String START_INTERVAL = "startIntervalFrom";
+    public static final String END_INTERVAL = "startIntervalTo";
 }
