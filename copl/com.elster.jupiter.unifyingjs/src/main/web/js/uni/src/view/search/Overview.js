@@ -33,7 +33,8 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.view.search.field.TimeOfDay',
         'Uni.view.search.field.Quantity',
         'Uni.view.search.field.Location',
-        'Uni.view.search.field.HasString'
+        'Uni.view.search.field.HasString',
+        'Uni.view.search.field.Expiration'
     ],
 
     padding: '16 16 16 16',

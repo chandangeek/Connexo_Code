@@ -92,7 +92,8 @@ Ext.define('Uni.service.Search', {
         'Date:com.energyict.mdc.dynamic.DateFactory': 'uni-search-criteria-date',
         'Date:com.energyict.mdc.dynamic.DateAndTimeFactory': 'uni-search-criteria-clock',
         'TimeOfDay:com.energyict.mdc.dynamic.TimeOfDayFactory': 'uni-search-criteria-timeofday',
-        'ObisCode:com.energyict.mdc.dynamic.ObisCodeValueFactory': 'uni-search-criteria-obis'
+        'ObisCode:com.energyict.mdc.dynamic.ObisCodeValueFactory': 'uni-search-criteria-obis',
+        'Expiration:com.elster.jupiter.properties.ExpirationFactory': 'uni-search-criteria-expiration'
     },
 
     fieldMap: {
