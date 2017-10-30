@@ -25,8 +25,12 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Finder;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -62,6 +66,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -128,6 +133,12 @@ public class MeterReadingDataSelectorImplTest {
     private Logger logger;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Thesaurus thesaurus;
+    @Mock
+    private DataMapper<ReadingTypeInDataSelector> readingTypeInDataSelector;
+    @Mock
+    Finder.JournalFinder<ReadingTypeInDataSelector> readingTypeInDataSelectorJrnl;
+    @Mock
+    TaskOccurrence taskOccurrence;
 
     @Before
     public void setUp() {
@@ -198,6 +209,20 @@ public class MeterReadingDataSelectorImplTest {
         doReturn(validationEvaluator).when(validationService).getEvaluator();
         doReturn(Optional.of(occurrence)).when(occurrence).getDefaultSelectorOccurrence();
         doReturn(true).when(validationEvaluator).isValidationEnabled(any(), any());
+
+        doReturn(Optional.empty()).when(occurrence).getRetryTime();
+        //doReturn(Instant.now()).when(occurrence).getTriggerTime();
+        when(dataModel.<ReadingTypeInDataSelector>mapper(any())).thenReturn(readingTypeInDataSelector);
+
+        ReadingTypeInDataSelector readingTypeSelector = mock(ReadingTypeInDataSelector.class);
+        JournalEntry<ReadingTypeInDataSelector> readingTypeJournal = new JournalEntry<>(Instant.ofEpochMilli(1455245L), readingTypeSelector);
+
+        when(readingTypeInDataSelector.at(any())).thenReturn(readingTypeInDataSelectorJrnl);
+        when(readingTypeInDataSelectorJrnl.find(anyMap())).thenReturn(Arrays.asList(readingTypeJournal));
+        when(readingTypeSelector.getReadingType()).thenReturn(readingType);
+
+        doReturn(taskOccurrence).when(occurrence).getTaskOccurrence();
+        doReturn(Optional.empty()).when(taskOccurrence).getAdhocTime();
     }
 
     @Test
@@ -357,7 +382,7 @@ public class MeterReadingDataSelectorImplTest {
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
         when(meter1.getReadingQualities(ImmutableSet.of(QualityCodeSystem.MDC), QualityCodeIndex.SUSPECT, readingType, EXPORTED_INTERVAL)).thenReturn(Collections.singletonList(suspectReadingQuality));
         when(suspectReadingQuality.getReadingTimestamp()).thenReturn(END.toInstant());
-
+        when(occurrence.getRetryTime()).thenReturn(Optional.empty());
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
 
         MeterReadingSelectorConfigImpl selectorConfig = MeterReadingSelectorConfigImpl.from(dataModel, task, exportPeriod);
@@ -369,6 +394,7 @@ public class MeterReadingDataSelectorImplTest {
                 .setUpdateWindow(updateWindow)
                 .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_INTERVAL)
                 .setValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL);
+
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
         List<ExportData> collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());

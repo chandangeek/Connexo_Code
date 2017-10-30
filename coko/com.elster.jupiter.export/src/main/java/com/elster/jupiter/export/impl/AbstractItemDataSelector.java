@@ -452,9 +452,9 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
     private Range<Instant> determineUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         Range<Instant> baseRange;
         TreeRangeSet<Instant> base = TreeRangeSet.create();
-        Optional<Instant> adhocTime = ((DataExportOccurrenceImpl) occurrence).getTaskOccurrence().getAdhocTime();
-        if ((adhocTime.isPresent()) && ((DataExportOccurrenceImpl) occurrence).getTask().getRunParameters(adhocTime.get()).isPresent()) {
-            DataExportRunParameters runParameters = ((DataExportOccurrenceImpl) occurrence).getTask().getRunParameters(adhocTime.get()).get();
+        Optional<Instant> adhocTime = ((IDataExportOccurrence) occurrence).getTaskOccurrence().getAdhocTime();
+        if ((adhocTime.isPresent()) && ((IDataExportOccurrence) occurrence).getTask().getRunParameters(adhocTime.get()).isPresent()) {
+            DataExportRunParameters runParameters = ((IDataExportOccurrence) occurrence).getTask().getRunParameters(adhocTime.get()).get();
             baseRange = Range.openClosed(runParameters.getUpdatePeriodStart(), runParameters.getUpdatePeriodEnd());
             base.add(baseRange);
             base.remove(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());
