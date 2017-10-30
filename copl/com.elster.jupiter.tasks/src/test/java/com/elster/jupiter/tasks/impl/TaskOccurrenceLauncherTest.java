@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.tasks.impl;
 
+import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -12,6 +13,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 
 import java.time.Clock;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 
 import org.junit.After;
@@ -35,6 +37,7 @@ public class TaskOccurrenceLauncherTest {
     private static final String DS_NAME2 = "DSName2";
 
     private TaskOccurrenceLauncher launcher;
+    private static final ZonedDateTime NOW = ZonedDateTime.of(2018, 6, 15, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
 
     @Mock
     private DestinationSpec destinationSpec1, destinationSpec2;
@@ -62,7 +65,7 @@ public class TaskOccurrenceLauncherTest {
 //        when(serviceLocator.getMessageService().getDestinationSpec(DS_NAME1)).thenReturn(Optional.of(destinationSpec1));
 //        when(serviceLocator.getMessageService().getDestinationSpec(DS_NAME2)).thenReturn(Optional.of(destinationSpec2));
 //        when(serviceLocator.getJsonService()).thenReturn(jsonService);
-        when(dueTaskFetcher.dueTasks(clock.instant())).thenReturn(Arrays.asList(recurrentTask1, recurrentTask2));
+        when(dueTaskFetcher.dueTasks(any())).thenReturn(Arrays.asList(recurrentTask1, recurrentTask2));
         when(recurrentTask1.getDestination()).thenReturn(destinationSpec1);
         when(recurrentTask1.createScheduledTaskOccurrence()).thenReturn(taskOccurrence1);
         when(taskOccurrence1.getId()).thenReturn(1L);
@@ -71,7 +74,7 @@ public class TaskOccurrenceLauncherTest {
         when(recurrentTask2.createScheduledTaskOccurrence()).thenReturn(taskOccurrence2);
         when(destinationSpec1.message(anyString())).thenReturn(messageBuilder);
         when(destinationSpec2.message(anyString())).thenReturn(messageBuilder);
-
+        when(clock.instant()).thenReturn(NOW.toInstant());
         when(transactionService.execute(any())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -96,7 +99,7 @@ public class TaskOccurrenceLauncherTest {
     public void testRun() throws Exception {
         launcher.run();
 
-        verify(recurrentTask1).launchOccurrence();
-        verify(recurrentTask2).launchOccurrence();
+        verify(recurrentTask1).launchOccurrence(NOW.toInstant());
+        verify(recurrentTask2).launchOccurrence(NOW.toInstant());
     }
 }

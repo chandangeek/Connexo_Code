@@ -87,7 +87,7 @@ public class TaskServiceImplTest {
 
     @Before
     public void setUp() throws SQLException {
-
+        when(clock.instant()).thenReturn(NOW);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.<RecurrentTask>mapper(any())).thenReturn(recurrentTaskFactory);
@@ -97,10 +97,11 @@ public class TaskServiceImplTest {
                 return ((Transaction<?>) invocationOnMock.getArguments()[0]).perform();
             }
         });
-        when(clock.instant()).thenReturn(NOW);
+
         when(threadPrincipalService.withContextAdded(any(), any())).thenAnswer(invocation -> invocation.getArguments()[0]);
 
         taskService = new TaskServiceImpl();
+        taskService.setClock(clock);
         taskService.setDueTaskFetcher(dueTaskFetcher);
         taskService.setScheduleExpressionParser(cronExpressionParser);
         taskService.setOrmService(ormService);
@@ -147,7 +148,7 @@ public class TaskServiceImplTest {
     public void testLaunchStartsScanningForDueTasks() throws InterruptedException {
         final CountDownLatch jobEndedLatch = new CountDownLatch(1);
 
-        when(dueTaskFetcher.dueTasks(clock.instant())).thenReturn(Arrays.asList(recurrentTask));
+        when(dueTaskFetcher.dueTasks(any())).thenReturn(Arrays.asList(recurrentTask));
         when(recurrentTask.createScheduledTaskOccurrence()).thenReturn(taskOccurrence);
         when(recurrentTask.getDestination()).thenReturn(destination);
         when(destination.message(anyString())).thenReturn(messageBuilder);
@@ -155,9 +156,10 @@ public class TaskServiceImplTest {
             @Override
             public TaskOccurrenceImpl answer(InvocationOnMock invocationOnMock) throws Throwable {
                 jobEndedLatch.countDown();
+                //return null;
                 return taskOccurrence;
             }
-        }).when(recurrentTask).launchOccurrence();
+        }).when(recurrentTask).launchOccurrence(NOW);
 
         try {
             taskService.launch();

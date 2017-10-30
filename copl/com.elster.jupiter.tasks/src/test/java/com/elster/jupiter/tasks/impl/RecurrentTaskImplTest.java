@@ -25,6 +25,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -206,12 +207,13 @@ public class RecurrentTaskImplTest extends EqualsContractTest {
 
         when(jsonService.serialize(any())).thenReturn(SERIALIZED1);
         when(destination.message(SERIALIZED1)).thenReturn(builder);
-
-        TaskOccurrenceImpl taskOccurrence = recurrentTask.launchOccurrence();
+        recurrentTask.setNextExecution(NOW);
+        List<TaskOccurrenceImpl> taskOccurrence = recurrentTask.launchOccurrence(NOW);
 
         verify(destination).message(SERIALIZED1);
         verify(builder).send();
         verify(recurrentTaskFactory).update(recurrentTask, "nextExecution");
+        assertThat(taskOccurrence.size()).isNotEqualTo(0);
         assertThat(taskOccurrence).isNotNull();
 
     }

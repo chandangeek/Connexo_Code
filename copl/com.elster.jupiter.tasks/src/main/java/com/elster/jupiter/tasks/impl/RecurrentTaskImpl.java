@@ -262,13 +262,8 @@ class RecurrentTaskImpl implements RecurrentTask {
     }
 
     @TransactionRequired
-    TaskOccurrenceImpl launchOccurrence() {
-        return null;
-
-    }
-
-    @TransactionRequired
-    void launchOccurrence(Instant at) {
+    List<TaskOccurrenceImpl> launchOccurrence(Instant at) {
+        List<TaskOccurrenceImpl> taskOccurrences = new ArrayList<>();
         try {
             if ((nextExecution != null) && (nextExecution.compareTo(at) <= 0)) {
                 TaskOccurrenceImpl taskOccurrence = createScheduledTaskOccurrence();
@@ -279,6 +274,7 @@ class RecurrentTaskImpl implements RecurrentTask {
                     updateNextExecution();
                     dataModel.mapper(RecurrentTask.class).update(this, "nextExecution");
                 }
+                taskOccurrences.add(taskOccurrence);
             }
             List<TaskAdHocExecution> taskExec = getAdhocExecutions().stream()
                     .filter(taskAdHocExecution -> taskAdHocExecution.getNextExecution().compareTo(at) <= 0)
@@ -289,10 +285,13 @@ class RecurrentTaskImpl implements RecurrentTask {
                 String json = toJson(taskOccurrence);
                 getDestination().message(json).send();
                 getAdhocExecutions().removeIf(taskAdHocExecution2 -> taskAdHocExecution1.getId() == taskAdHocExecution2.getId());
+                taskOccurrences.add(taskOccurrence);
             });
+
+            return taskOccurrences;
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, "Failed to schedule task for RecurrentTask " + this.getName(), e);
-            return;
+            return taskOccurrences;
         }
     }
 

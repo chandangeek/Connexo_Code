@@ -324,7 +324,9 @@ public class RecurrentTaskIT {
         DataMapper<RecurrentTask> dataModel = instance.getDataModel(TaskService.COMPONENTNAME).get().mapper(RecurrentTask.class);
         assertThat(dataModel.getJournal(recurrentTaskId)).isEmpty();
 
-        transactionService.builder().principal(() -> "RecurrentTaskIT").run(recurrentTask::launchOccurrence);
+        transactionService.builder().principal(() -> "RecurrentTaskIT").run(() -> {
+            recurrentTask.launchOccurrence(now);
+        });
         assertThat(dataModel.getJournal(recurrentTaskId)).isEmpty();
         transactionService.builder().principal(() -> "RecurrentTaskIT").run(() -> {
             recurrentTask.updateLastRun(now);
