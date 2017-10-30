@@ -203,7 +203,7 @@ Ext.define('Uni.form.field.DateTime', {
         var me = this,
             result = '00';
 
-        if (value && me.allowNoValue != true) {
+        if (value) {
             if (value < 10 && value > 0) {
                 result = '0' + value;
             } else if (value >= 10) {
@@ -252,6 +252,39 @@ Ext.define('Uni.form.field.DateTime', {
             minutesField.reset();
             secondsField.reset();
         }
+    },
+
+    getValueWithValidation: function () {
+        var me = this,
+            date = me.down('#date-time-field-date').getValue(),
+            hours = me.down('#date-time-field-hours').getValue(),
+            minutes = me.down('#date-time-field-minutes').getValue(),
+            seconds=me.down('#date-time-field-seconds').getValue();
+
+        if (Ext.isDate(date) && hours && minutes && seconds) {
+            date.setHours(0);
+            date.setMinutes(0);
+            date.setSeconds(0);
+            date = date.getTime();
+            if (hours) {
+                date += hours * 3600000;
+            }
+            if (minutes) {
+                date += minutes * 60000;
+            }
+            if (seconds) {
+                date += seconds * 6000;
+            }
+            if (me.valueInMilliseconds) {
+                return date;
+            }
+            date = new Date(date);
+            return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
+        } else if (!Ext.isDate(date)) {
+            me.down('#date-time-field-date').setValue(null);
+            return null;
+        }
+        return null;
     },
 
     getValue: function () {
