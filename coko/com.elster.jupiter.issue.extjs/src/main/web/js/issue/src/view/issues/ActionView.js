@@ -9,6 +9,7 @@ Ext.define('Isu.view.issues.ActionView', {
     ],
     alias: 'widget.issue-action-view',
     router: null,
+    actionItemId: null,
     initComponent: function () {
         var me = this;
 
@@ -18,7 +19,8 @@ Ext.define('Isu.view.issues.ActionView', {
                 itemId: 'issue-action-view-form',
                 title: ' ',
                 ui: 'large',
-                router: me.router
+                router: me.router,
+                actionItemId: me.actionItemId
             }
         ];
 

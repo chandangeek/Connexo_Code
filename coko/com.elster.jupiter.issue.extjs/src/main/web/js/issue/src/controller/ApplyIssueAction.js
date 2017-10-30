@@ -33,6 +33,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
 
     actionUrl: '/api/isu/issues/{0}/actions',
     assignUrl: '/api/isu/issues/{0}/{1}',
+    queryParams: null,
+    actionItemId: 'issue-action-apply',
     init: function () {
         this.control({
             'issue-action-view issue-action-form #issue-action-apply': {
@@ -71,10 +73,10 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                         me.applyAction(null, null, actionRecord, clipboard.get('issue') || issueRecord);
                         clipboard.clear('issue');
                     } else {
-                        var widget = Ext.widget('issue-action-view', {router: router}),
+                        var widget = Ext.widget('issue-action-view', {router: router, actionItemId: me.actionItemId}),
                             form = widget.down('#issue-action-view-form'),
                             cancelLink = form.down('#issue-action-cancel'),
-                            queryParamsForCancel = fromOverview ? router.queryParams : null;
+                            queryParamsForCancel = fromOverview ? router.queryParams : me.queryParams;
 
                         cancelLink.href = router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).buildUrl(null, queryParamsForCancel);
                         app.fireEvent('changecontentevent', widget);
@@ -83,7 +85,9 @@ Ext.define('Isu.controller.ApplyIssueAction', {
 
                         //todo: this definitely should be refactored. BE should send action button translation instead of this splitting
                         if (form.title === 'Close issue' || form.title === 'Close alarm' || form.title === 'Notify user' || form.title === 'Assign issue' || form.title === 'Assign alarm' || form.title === "Snooze") {
-                            form.down('#issue-action-apply').setText(form.title.split(' ')[0]);
+                            form.down('#issue-action-apply') && form.down('#issue-action-apply').setText(form.title.split(' ')[0]);
+                            form.down('#alarm-action-apply') && form.down('#alarm-action-apply').setText(form.title.split(' ')[0]);
+                            form.down('#device-issue-action-apply') && form.down('#device-issue-action-apply').setText(form.title.split(' ')[0]);
                         }
                     }
                 }
@@ -121,7 +125,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             fromOverview = router.queryParams.fromOverview === 'true',
-            queryParamsForBackUrl = fromOverview ? router.queryParams : null,
+            queryParamsForBackUrl = fromOverview ? router.queryParams : me.queryParams,
             backUrl = router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).buildUrl(null, queryParamsForBackUrl),
             record,
             requestOptions;
@@ -141,13 +145,19 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             failure: function (record, operation) {
                 var responseText = Ext.decode(operation.response.responseText, true);
 
-                if (operation.response.status === 400 && responseText.errors && !actionRecord) {
+                var response = operation.response,
+                    errors = Ext.decode(response.responseText, true);
+
+                if (response.status === 400 && responseText.errors && !actionRecord) {
                     errorPanel.show();
                     basicForm.markInvalid(responseText.errors);
                 }
-                if (operation.response.status === 200 && responseText.actions) {
+                if (response.status === 200 && responseText.actions) {
                     window.location.href = backUrl;
                     me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('issues.applyAction.failureTitle', 'ISU', 'Couldn\'t perform your action'), actionRecord.get('issue').title + '.' + responseText.actions[0].message, responseText.actions[0].errorCode);
+                }
+                if (me.getWizard && errors && Ext.isArray(errors.errors) && !Ext.isEmpty(errors.errors)) {
+                    me.getWizard().markInvalid(errors.errors);
                 }
 
             },
@@ -210,6 +220,10 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 }
                 else if (mainView && mainView.down('alarms-grid')) {
                     var grid = mainView.down('alarms-grid');
+                    grid.getStore().load();
+                }
+                else if (mainView && mainView.down('issues-alarms-grid')) {
+                    var grid = mainView.down('issues-alarms-grid');
                     grid.getStore().load();
                 }
                 else {

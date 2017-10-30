@@ -192,7 +192,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
             },
             failure: function (response) {
                 var json = Ext.decode(response.responseText, true);
-                if (json && json.errors) {
+                if (json && json.errors && json.errors.length > 0) {
                     confirmationWindow.down('#issue-snooze-until-date').markInvalid(json.errors[0].msg);
 
                 }
@@ -275,7 +275,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
         var snoozeVisible = predefinedItems.filter(function (menu) {
             return menu.action === 'snooze';
         })[0];
-        snoozeVisible.hidden = ((me.record.getData().status.id == 'status.resolved') || (me.record.getData().status.id == 'status.wont.fix'));
+        snoozeVisible.hidden = ((me.record.get('status').id == 'status.resolved') || (me.record.get('status').id == 'status.wont.fix'));
         snoozeVisible.record = me.record;
 
         // add predefined actions

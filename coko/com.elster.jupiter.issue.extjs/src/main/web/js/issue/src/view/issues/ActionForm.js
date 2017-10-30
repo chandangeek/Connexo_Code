@@ -39,7 +39,7 @@ Ext.define('Isu.view.issues.ActionForm', {
                 defaultType: 'button',
                 items: [
                     {
-                        itemId: 'issue-action-apply',
+                        itemId: me.actionItemId,
                         ui: 'action',
                         text: Uni.I18n.translate('general.apply', 'ISU', 'Apply'),
                         action: 'applyAction'

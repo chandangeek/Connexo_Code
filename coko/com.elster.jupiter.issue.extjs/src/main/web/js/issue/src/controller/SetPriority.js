@@ -23,7 +23,7 @@ Ext.define('Isu.controller.SetPriority', {
             }
         });
     },
-
+    queryParams: {},
     setPriority: function (issueId) {
         var me = this,
                 viewport = Ext.ComponentQuery.query('viewport')[0],
@@ -35,7 +35,7 @@ Ext.define('Isu.controller.SetPriority', {
 
         var widget = Ext.widget('issue-set-priority', {
             router: router,
-            returnLink: router.getRoute(router.currentRoute.replace(fromDetails ?'/setpriority': '/view/setpriority', '')).buildUrl()
+            returnLink: router.getRoute(router.currentRoute.replace(fromDetails ? '/setpriority' : '/view/setpriority', '')).buildUrl({}, me.queryParams)
         });
         viewport.setLoading();
 
@@ -66,7 +66,7 @@ Ext.define('Isu.controller.SetPriority', {
             returnUrl = form.returnLink,
             router = me.getController('Uni.controller.history.Router'),
             issueType = router.queryParams.issueType,
-            forAlarm = issueType === 'alarm',
+            forAlarm = (issueType === 'alarm') || (issueType === 'devicealarm'),
             record,
             updatedData,
             acknowledgeMessage;
