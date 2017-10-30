@@ -10,7 +10,7 @@ Ext.define('Dxp.view.tasks.ActionMenu', {
         this.items = [
             {
                 itemId: 'run',
-                text: Uni.I18n.translate('general.run', 'DES', 'Run'),
+                text: Uni.I18n.translate('general.runNow', 'DES', 'Run now'),
                 action: 'run',
                 hidden: true,
                 section: this.SECTION_ACTION
