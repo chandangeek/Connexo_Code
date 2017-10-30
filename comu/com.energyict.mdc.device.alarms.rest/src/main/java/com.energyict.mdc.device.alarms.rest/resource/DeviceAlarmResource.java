@@ -20,6 +20,7 @@ import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
+import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.SingleSnoozeTransaction;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
@@ -135,7 +136,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         }
         List<? extends DeviceAlarm> deviceAlarms = finder.find();
         List<DeviceAlarmInfo> deviceAlarmInfos = deviceAlarms.stream()
-                .map(deviceAlarmInfoFactory::asInfo)
+                .map(alm -> deviceAlarmInfoFactory.asInfo(alm, DeviceInfo.class))
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", deviceAlarmInfos, queryParams);
     }
@@ -144,9 +145,9 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     @Path("/{id}")
     @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response getAlarmById(@PathParam("id") long id) {
+    public DeviceAlarmInfo getAlarmById(@PathParam("id") long id) {
         Optional<? extends DeviceAlarm> deviceAlarm = getDeviceAlarmService().findAlarm(id);
-        return deviceAlarm.map(i -> Response.ok().entity(deviceAlarmInfoFactory.asInfo(i)).build())
+        return deviceAlarm.map(alm -> deviceAlarmInfoFactory.asInfo(alm, DeviceInfo.class))
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
