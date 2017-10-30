@@ -10,8 +10,6 @@
   "local": true,
   "requires": [
     "com.elster.jupiter.unifyingjs",
-    "com.elster.jupiter.issue.extjs",
-    "com.energyict.comserver.comserver.core.extjs"
-
+    "com.elster.jupiter.issue.extjs"
   ]
 }

@@ -18,7 +18,7 @@ Ext.define('Dal.controller.ApplyAction', {
             'alarms-action-menu #unassign-alarm': {
                 click: this.unassign
             },
-            'alarms-action-view alarm-action-form #alarm-action-apply' : {
+            'alarms-action-view alarm-action-form #alarm-action-apply': {
                 click: this.applyAction
             }
         });
