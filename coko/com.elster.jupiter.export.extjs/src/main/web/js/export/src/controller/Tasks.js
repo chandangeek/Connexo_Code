@@ -3002,30 +3002,6 @@ Ext.define('Dxp.controller.Tasks', {
             jsonData: record.getProxy().getWriter().getRecordData(record),
             success: function () {
                 confWindow.destroy();
-                /*if (me.getPage()) {
-                 view = me.getPage();
-                 grid = view.down('grid');
-                 store = grid.getStore();
-                 index = store.indexOf(record);
-                 view.down('preview-container').selectByDefault = false;
-                 store.load(function () {
-                 grid.getSelectionModel().select(index);
-                 });
-                 } else {
-                 taskModel.load(id, {
-                 success: function (rec) {
-                 view = me.getDetailsPage();
-                 view.down('dxp-tasks-action-menu').record = rec;
-                 view.down('dxp-tasks-preview-form').loadRecord(rec);
-                 if (record.get('status') === 'Busy') {
-                 view.down('#run').hide();
-                 }
-                 if (Ext.isFunction(rec.properties) && rec.properties().count()) {
-                 view.down('grouped-property-form').loadRecord(rec);
-                 }
-                 }
-                 });
-                 }*/
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.retryQueued', 'DES', 'Export task retry queued'));
             },
             failure: function (response) {
@@ -3048,10 +3024,10 @@ Ext.define('Dxp.controller.Tasks', {
             formErrorsPanel = runWithParameters.down('#form-errors'),
             formRunWithParameters = runWithParameters.down('#run-with-parameters-data-export-task-form').getForm(),
             startOn = moment(runWithParameters.down('#start-on').getValue()).valueOf(),
-            exportWindowStart = moment(runWithParameters.down('#export-window-start-date').getValue()).valueOf(),
-            exportWindowEnd = moment(runWithParameters.down('#export-window-end-date').getValue()).valueOf(),
-            updateDataStart = moment(runWithParameters.down('#updated-data-start-date').getValue()).valueOf(),
-            updateDataEnd = moment(runWithParameters.down('#updated-data-end-date').getValue()).valueOf(),
+            exportWindowStart = moment(runWithParameters.down('#export-window-start-date').getValueWithValidation()).valueOf(),
+            exportWindowEnd = moment(runWithParameters.down('#export-window-end-date').getValueWithValidation()).valueOf(),
+            updateDataStart = moment(runWithParameters.down('#updated-data-start-date').getValueWithValidation()).valueOf(),
+            updateDataEnd = moment(runWithParameters.down('#updated-data-end-date').getValueWithValidation()).valueOf(),
             taskId = record.get('id'),
             taskModel = me.getModel('Dxp.model.DataExportTask');
 
