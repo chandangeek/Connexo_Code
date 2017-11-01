@@ -19,19 +19,22 @@ Ext.define('Uni.view.search.field.Numeric', {
     },
     defaultOperatorMap: {
         '==': 'uni-search-internal-numberfield',
+        '!=': 'uni-search-internal-numberfield',
+        '>': 'uni-search-internal-numberfield',
+        '>=': 'uni-search-internal-numberfield',
+        '<': 'uni-search-internal-numberfield',
+        '<=': 'uni-search-internal-numberfield',
         'BETWEEN': 'uni-search-internal-numberrange'
     },
     customOperatorMap: undefined,
 
     onValueChange: function () {
-        var value = this.getValue(),
-            clearBtn = this.down('button[action=reset]');
+        var me = this,
+            value = me.getValue(),
+            clearBtn = me.down('#clearall');
 
-        this.callParent(arguments);
-
-        if (clearBtn) {
-            clearBtn.setDisabled(!!Ext.isEmpty(value));
-        }
+        me.callParent(arguments);
+        clearBtn.setDisabled(false);
     },
 
     cleanup: function () {

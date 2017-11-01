@@ -28,6 +28,11 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
     removable: false,
     items: [],
     operator: '==',
+    operator: '!=',
+    operator: '>',
+    operator: '>=',
+    operator: '<',
+    operator: '<=',
     operatorMap: {
         '==': 'uni-search-internal-input',
         '!=': 'uni-search-internal-input',
@@ -43,22 +48,26 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
         var me = this,
             xtype = this.operatorMap[value];
 
+        if(me.rendered && (oldValue == 'BETWEEN' || value == 'BETWEEN' )) {
+            me.remove(me.getField());
+        }
         if (xtype) {
             Ext.suspendLayouts();
-
-            me.remove(me.getField());
-            me.field = me.add(Ext.apply({
-                xtype: xtype,
-                listeners: {
-                    change: function() {
-                        me.fireEvent('change', me.getValue())
-                    },
-                    reset: function() {
-                        me.fireEvent('reset')
+            if (!me.rendered || (oldValue == 'BETWEEN' || value == 'BETWEEN' )) {
+                me.field = me.add(Ext.apply({
+                    xtype: xtype,
+                    listeners: {
+                        change: function () {
+                            me.fireEvent('change', me.getValue())
+                        },
+                        reset: function () {
+                            me.fireEvent('reset')
+                        }
                     }
-                }
-            }, me.itemsDefaultConfig));
-
+                }, me.itemsDefaultConfig));
+            }else{
+                me.getField().operator = value;
+            }
             Ext.resumeLayouts(true);
 
             if (me.rendered) {
@@ -97,7 +106,6 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
     },
 
     reset: function() {
-        this.down('#filter-operator').reset();
         this.getField().reset();
     },
 

@@ -22,7 +22,7 @@ Ext.define('Uni.view.search.field.TimeOfDay', {
             removable: false,
             operatorMap: {
                 '==': 'uni-search-internal-timeOfDayField',
-                //'!=': 'uni-search-internal-timeOfDayField',
+                '!=': 'uni-search-internal-timeOfDayField',
                 //'>': 'uni-search-internal-timeOfDayField',
                 //'>=': 'uni-search-internal-timeOfDayField',
                 //'<': 'uni-search-internal-timeOfDayField',
