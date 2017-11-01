@@ -72,6 +72,11 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
             Range<Instant> instantRange = Range.openClosed(runParameters.getExportPeriodStart(), runParameters.getExportPeriodEnd());
             exportedDataInterval = Interval.of(instantRange);
             exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
+        } else if ((occurrence.getRetryTime().isPresent()) && (task.getRunParameters(occurrence.getRetryTime().get()).isPresent())) {
+            DataExportRunParameters runParameters = task.getRunParameters(occurrence.getRetryTime().get()).get();
+            Range<Instant> instantRange = Range.openClosed(runParameters.getExportPeriodStart(), runParameters.getExportPeriodEnd());
+            exportedDataInterval = Interval.of(instantRange);
+            exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
         } else {
             task.getStandardDataSelectorConfig(at)
                     .map(selector -> selector.getExportPeriod().getOpenClosedInterval(at.atZone(ZoneId.systemDefault())))
