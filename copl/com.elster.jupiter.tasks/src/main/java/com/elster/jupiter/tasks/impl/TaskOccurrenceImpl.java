@@ -71,8 +71,8 @@ class TaskOccurrenceImpl implements TaskOccurrence {
         return taskOccurrence;
     }
 
-    static TaskOccurrenceImpl createRetryAdHoc(DataModel dataModel, RecurrentTask recurrentTask, Instant triggerTime, Instant retryTime) {
-        TaskOccurrenceImpl taskOccurrence = dataModel.getInstance(TaskOccurrenceImpl.class).init(recurrentTask, triggerTime, retryTime);
+    static TaskOccurrenceImpl createRetryAdHoc(DataModel dataModel, RecurrentTask recurrentTask, Instant triggerTime, Instant retryTime, Instant adhocTime) {
+        TaskOccurrenceImpl taskOccurrence = dataModel.getInstance(TaskOccurrenceImpl.class).init(recurrentTask, triggerTime, retryTime, adhocTime);
         taskOccurrence.scheduled = false;
         return taskOccurrence;
     }
@@ -193,11 +193,12 @@ class TaskOccurrenceImpl implements TaskOccurrence {
         return this;
     }
 
-    TaskOccurrenceImpl init(RecurrentTask recurrentTask, Instant triggerTime, Instant retryTime) {
+    TaskOccurrenceImpl init(RecurrentTask recurrentTask, Instant triggerTime, Instant retryTime, Instant adhocTime) {
         this.recurrentTask = recurrentTask;
         this.recurrentTaskId = recurrentTask.getId();
         this.triggerTime = triggerTime;
         this.retryTime = retryTime;
+        this.adhocTime = adhocTime;
         return this;
     }
 
