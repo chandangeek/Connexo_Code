@@ -369,7 +369,7 @@ Ext.define('Dxp.controller.Tasks', {
                             missingData.setVisible(true);
                             updatedData.setVisible(true);
                             continuousDataPreview.setVisible(true);
-                            if (!record.getData().exportUpdate ) {
+                            if (record.getData().exportUpdate === 'false') {
                                 updatedValuesData.setVisible(false);
                             } else {
                                 updatedValuesData.setVisible(true);
@@ -386,7 +386,7 @@ Ext.define('Dxp.controller.Tasks', {
                             dataValidation.setVisible(true);
                             missingData.setVisible(true);
                             updatedData.setVisible(true);
-                            if (!record.getData().exportUpdate) {
+                            if (record.getData().exportUpdate === 'false') {
                                 updatedValuesData.setVisible(false);
                             } else {
                                 updatedValuesData.setVisible(true);
@@ -513,7 +513,7 @@ Ext.define('Dxp.controller.Tasks', {
                         previewForm.down('#data-selector-exportPeriod-preview').show();
                         previewForm.down('#continuousData-preview').show();
                         previewForm.down('#updated-data').show();
-                        if (!record.getData().task.standardDataSelector.exportUpdate) {
+                        if (record.getData().task.standardDataSelector.exportUpdate === false) {
                             previewForm.down('#updated-values').hide();
                         } else {
                             previewForm.down('#updated-values').show();
@@ -536,7 +536,7 @@ Ext.define('Dxp.controller.Tasks', {
                         previewForm.down('#continuousData-preview').show();
                         previewForm.down('#updated-data').show();
                         // previewForm.down('#updated-values').hide();
-                        if (!record.getData().task.standardDataSelector.exportUpdate) {
+                        if (record.getData().task.standardDataSelector.exportUpdate === false) {
                             previewForm.down('#updated-values').hide();
                         } else {
                             previewForm.down('#updated-values').show();
