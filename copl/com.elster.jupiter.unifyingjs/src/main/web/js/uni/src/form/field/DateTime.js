@@ -104,7 +104,7 @@ Ext.define('Uni.form.field.DateTime', {
                 minValue: 0
             },
             secondsField = {
-               itemId: 'date-time-field-seconds',
+                itemId: 'date-time-field-seconds',
                 flex:1,
                 hidden:true,
                 maxValue:59,
@@ -203,7 +203,7 @@ Ext.define('Uni.form.field.DateTime', {
         var me = this,
             result = '00';
 
-        if (value) {
+        if (Ext.isNumber(value)) {
             if (value < 10 && value > 0) {
                 result = '0' + value;
             } else if (value >= 10) {
@@ -211,7 +211,7 @@ Ext.define('Uni.form.field.DateTime', {
             }
             return result;
         }
-        else if (me.allowNoValue){
+        else if (me.allowNoValue) {
             return '';
         }
         return result;
@@ -261,7 +261,7 @@ Ext.define('Uni.form.field.DateTime', {
             minutes = me.down('#date-time-field-minutes').getValue(),
             seconds=me.down('#date-time-field-seconds').getValue();
 
-        if (Ext.isDate(date) && hours && minutes && seconds) {
+        if (Ext.isDate(date) && Ext.isNumber(hours) && Ext.isNumber(minutes) && Ext.isNumber(seconds)) {
             date.setHours(0);
             date.setMinutes(0);
             date.setSeconds(0);
