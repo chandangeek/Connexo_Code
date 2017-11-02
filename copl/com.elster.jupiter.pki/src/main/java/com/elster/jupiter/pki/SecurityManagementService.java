@@ -1,11 +1,14 @@
 package com.elster.jupiter.pki;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Comparison;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.conditions.Condition;
 
 import java.time.Instant;
 import java.util.EnumSet;
@@ -236,7 +239,69 @@ public interface SecurityManagementService {
         public TrustStore trustStore;
     }
 
-    interface PasswordTypeBuilder {
+    Finder<CertificateWrapper> getAliasesByFilter(AliasParameterFilter aliasParameterFilter);
+
+    /**
+     * List all known subjects from the certificate store that match the search filter.
+     * @param searchFilter Search filter for subject, possibly containing wildcards for subject
+     * @return Finder for matching subjects. If more results are available
+     * than requested, limit+1 results will be returned.
+     */
+    Finder<CertificateWrapper> getSubjectsByFilter(SubjectParameterFilter searchFilter);
+
+    /**
+     * List all known issuers from the certificate store that match the search filter.
+     * @param searchFilter Search filter for issuer, possibly containing wildcards for issuer
+     * @return Finder for matching issuers. If more results are available
+     * than requested, limit+1 results will be returned.
+     */
+    Finder<CertificateWrapper> getIssuersByFilter(IssuerParameterFilter searchFilter);
+
+    /**
+     * List all known keyUsages from the certificate store that match the search filter.
+     * @param searchFilter Search filter for extendedKeyUsages, possibly containing wildcards for keyUsages
+     * @return Finder for matching keyUsages. If more results are available
+     * than requested, limit+1 results will be returned.
+     */
+    Finder<CertificateWrapper> getKeyUsagesByFilter(KeyUsagesParameterFilter searchFilter);
+
+    /**
+     * List all known certificates from the certificate store that match the search filter.
+     *
+     * @param dataSearchFilter Search filter for alias, subject, issuer and expiration dates,
+     *                         possibly containing wildcards for alias, subject and issuer
+     * @return Finder for matching certificates. If more results are available
+     * than requested, limit+1 results will be returned.
+     */
+    Finder<CertificateWrapper> findCertificatesByFilter(DataSearchFilter dataSearchFilter);
+
+    /**
+     * List all known trusted certificates from the trust store that match the search filter.
+     * @param dataSearchFilter Search filter for alias, subject, issuer and expiration dates,
+     *                         possibly containing wildcards for alias, subject and issuer
+     * @return Finder for matching certificates. If more results are available
+     * than requested, limit+1 results will be returned.
+     */
+    List<CertificateWrapper> findTrustedCertificatesByFilter(DataSearchFilter dataSearchFilter);
+
+    class DataSearchFilter {
+        public Optional<TrustStore> trustStore;
+        public Optional<List<String>> alias;
+        public Optional<List<String>> subject;
+        public Optional<List<String>> issuer;
+        public Optional<List<String>> keyUsages;
+        public Optional<Instant> intervalFrom;
+        public Optional<Instant> intervalTo;
+    }
+
+    QueryService getQueryService() ;
+
+    Query<CertificateWrapper> getCertificateWrapperQuery();
+
+    Condition getSearchCondition(DataSearchFilter dataSearchFilter);
+
+     interface PasswordTypeBuilder {
+
         PasswordTypeBuilder description(String description);
         PasswordTypeBuilder length(int length);
         PasswordTypeBuilder withLowerCaseCharacters();
