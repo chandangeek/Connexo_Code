@@ -190,7 +190,7 @@ Ext.define('Dxp.view.tasks.RunWithParameters', {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.startDate', 'DES', 'Start date'),
                         itemId: 'start-date-updated-data',
-                        hidden: !me.record.get('exportUpdate'),
+                        hidden: me.record.get('exportUpdate') === 'false',
                         required: true,
                         layout: 'hbox',
                         items: [
