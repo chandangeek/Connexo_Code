@@ -22,11 +22,11 @@ Ext.define('Uni.view.search.field.Clock', {
             removable: false,
             operatorMap: {
                 '==': 'uni-search-internal-clock',
-                //'!=': 'uni-search-internal-clock',
-                //'>': 'uni-search-internal-clock',
-                //'>=': 'uni-search-internal-clock',
-                //'<': 'uni-search-internal-clock',
-                //'<=': 'uni-search-internal-clock',
+                '!=': 'uni-search-internal-clock',
+                '>': 'uni-search-internal-clock',
+                '>=': 'uni-search-internal-clock',
+                '<': 'uni-search-internal-clock',
+                '<=': 'uni-search-internal-clock',
                 'BETWEEN': 'uni-search-internal-clockrange'
             },
             listeners: {
