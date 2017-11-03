@@ -59,6 +59,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
                 select: this.showIssueAndAlarmPreview
             }
         });
+        this.getController('Mdc.controller.setup.ApplyAlarmAction');
     },
 
     showDeviceHistory: function (deviceId) {

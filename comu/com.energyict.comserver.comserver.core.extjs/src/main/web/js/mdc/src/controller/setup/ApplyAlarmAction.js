@@ -13,10 +13,10 @@ Ext.define('Mdc.controller.setup.ApplyAlarmAction', {
             'issue-action-view issue-action-form #device-alarm-action-apply': {
                 click: this.applyAction
             },
-            'issues-action-menu #assign-to-me': {
+            'issues-alarms-action-menu #assign-alarm-to-me': {
                 click: this.assignToMe
             },
-            'issues-action-menu #unassign': {
+            'issues-alarms-action-menu #unassign-alarm': {
                 click: this.unassign
             }
         });
