@@ -23,20 +23,52 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.users.PreferenceType;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserPreference;
+import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.data.*;
-import com.energyict.mdc.device.data.importers.impl.*;
+import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.*;
+import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
+import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
+import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.SupportedNumberFormatInfo;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
+
+import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TimeZone;
+import java.util.UUID;
+import java.util.logging.Logger;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,22 +77,26 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.ByteArrayInputStream;
-import java.math.BigDecimal;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.logging.Logger;
-
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
-import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.*;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.NUMBER_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT1;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT2;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT3;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT4;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceReadingsImporterFactoryTest {
@@ -105,6 +141,8 @@ public class DeviceReadingsImporterFactoryTest {
         when(context.getThesaurus()).thenReturn(thesaurus);
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
         when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
+        when(meteringService.getReadingTypeByName(anyString())).thenReturn(Optional.empty());
+        when(meteringService.getReadingType(anyString())).thenReturn(Optional.empty());
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {
@@ -411,7 +449,6 @@ public class DeviceReadingsImporterFactoryTest {
         importer.process(importOccurrence);
 
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(thesaurus.getFormat(MessageSeeds.NOT_SUPPORTED_READING_TYPE).format(2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0"));
         verify(logger, never()).severe(Matchers.anyString());
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
     }
@@ -663,8 +700,8 @@ public class DeviceReadingsImporterFactoryTest {
         Device device1 = mockDevice("VPB0001");
         Device device2 = mockDevice("VPB0002");
         Device device3 = mockDevice("VPB0003");
-        mockRegister(device1, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
-        mockRegister(device3, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1");
+        mockRegisterWithDetails(device1, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Alias name 1", "");
+        mockRegisterWithDetails(device3, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1", "Alias name 3", "");
 
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
@@ -801,10 +838,235 @@ public class DeviceReadingsImporterFactoryTest {
         verify(device).store(Matchers.any());
     }
 
-    private Register mockRegister(Device device, String readingTypeMRID) {
-        ReadingType readingType = mockReadingType(readingTypeMRID, false);
+    @Test
+    public void testImportResultSuccessForChannelByMrid() {
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
+                "VPB0001;01/08/2015 01:00;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;100.134\n" +
+                "VPB0001;02/08/2015 02:00;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;100.24546";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDeviceInState("VPB0001", DefaultState.ACTIVE);
+        mockChannel(device, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1");
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG)
+                .format(2, "100.13"));
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG)
+                .format(3, "100.24"));
+        verifyNoMoreInteractions(logger);
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN)
+                .format(2, 1, 2));
+        verify(device).store(Matchers.any());
+    }
+
+    @Test
+    public void testImportResultSuccessForRegisterByMrid() {
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
+                "VPB0001;01/08/2015 01:00;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;100.134\n" +
+                "VPB0001;02/08/2015 02:00;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;100.24546";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDeviceInState("VPB0001", DefaultState.ACTIVE);
+        mockRegister(device, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1");
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG)
+                .format(2, "100.13"));
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG)
+                .format(3, "100.24"));
+        verifyNoMoreInteractions(logger);
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN)
+                .format(2, 1, 2));
+        verify(device).store(Matchers.any());
+    }
+
+    @Test
+    public void testImportResultSuccessForRegisterByAliasName() {
+        String csv = "Device name;Reading date;Reading type;Reading Value\n" +
+                "VPB0001;01/08/2015 01:00;Alias Name;100.134\n" +
+                "VPB0001;02/08/2015 02:00;Alias Name;100.24546";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDeviceInState("VPB0001", DefaultState.ACTIVE);
+        mockRegisterWithDetails(device, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1", "Alias Name", "");
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG)
+                .format(2, "100.13"));
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG)
+                .format(3, "100.24"));
+        verifyNoMoreInteractions(logger);
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN)
+                .format(2, 1, 2));
+        verify(device).store(Matchers.any());
+    }
+
+    @Test
+    public void testImportResultSuccessForChannelByAliasName() {
+        String csv = "Device name;Reading date;Reading type;Reading Value\n" +
+                "VPB0001;01/08/2015 01:00;Alias Name;100.134\n" +
+                "VPB0001;02/08/2015 02:00;Alias Name;100.24546";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDeviceInState("VPB0001", DefaultState.ACTIVE);
+        mockChannelWithDetails(device, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1", "Alias Name", "");
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG)
+                .format(2, "100.13"));
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG)
+                .format(3, "100.24"));
+        verifyNoMoreInteractions(logger);
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN)
+                .format(2, 1, 2));
+        verify(device).store(Matchers.any());
+    }
+
+    @Test
+    public void testImportResultSuccessForChannelByObisCode() {
+        String csv = "Device name;Reading date;Reading type;Reading Value\n" +
+                "VPB0001;01/08/2015 01:00;1.0.1.8.0.251;100.134\n" +
+                "VPB0001;02/08/2015 02:00;1.0.1.8.0.251;100.24546";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDeviceInState("VPB0001", DefaultState.ACTIVE);
+        mockChannelWithDetails(device, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1", "", "1.0.1.8.0.251");
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG)
+                .format(2, "100.13"));
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG)
+                .format(3, "100.24"));
+        verifyNoMoreInteractions(logger);
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN)
+                .format(2, 1, 2));
+        verify(device).store(Matchers.any());
+    }
+
+    @Test
+    public void testImportResultSuccessForRegisterByObisCode() {
+        String csv = "Device name;Reading date;Reading type;Reading Value\n" +
+                "VPB0001;01/08/2015 01:00;1.0.1.8.0.251;100.134\n" +
+                "VPB0001;02/08/2015 02:00;1.0.1.8.0.251;100.24546";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDeviceInState("VPB0001", DefaultState.ACTIVE);
+        mockRegisterWithDetails(device, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1", "", "1.0.1.8.0.251");
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG)
+                .format(2, "100.13"));
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG)
+                .format(3, "100.24"));
+        verifyNoMoreInteractions(logger);
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN)
+                .format(2, 1, 2));
+        verify(device).store(Matchers.any());
+    }
+
+    @Test
+    public void testImportResultSuccessForChannelWithTimeperiod() {
+        String csv = "Device name;Reading date;Reading type;Reading Value\n" +
+                "VPB0001;01/08/2015 01:00;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;100.146\n" +
+                "VPB0001;01/08/2015 01:15;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;100.234\n" +
+                "VPB0001;01/08/2015 01:30;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;100.334\n" +
+                "VPB0001;01/08/2015 01:45;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;100.44546";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDevice("VPB0001");
+        ReadingType readingType = mockReadingType("11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1", false);
+        when(readingType.isRegular()).thenReturn(true);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+
+        NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
+        when(registerSpec.getOverflowValue()).thenReturn(Optional.of(BigDecimal.valueOf(999L)));
+        when(registerSpec.getNumberOfFractionDigits()).thenReturn(2);
+
         Register register = mock(Register.class);
         when(device.getRegisters()).thenReturn(Collections.singletonList(register));
+        when(register.getReadingType()).thenReturn(readingType);
+        when(register.getRegisterSpec()).thenReturn(registerSpec);
+        when(register.getRegisterSpec().isTextual()).thenReturn(false);
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG)
+                .format(2, "100.14"));
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG)
+                .format(3, "100.23"));
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG)
+                .format(4, "100.33"));
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG)
+                .format(5, "100.44"));
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG)
+                .format(5, "100.44"));
+        verifyNoMoreInteractions(logger);
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN)
+                .format(4, 1, 4));
+        verify(device).store(Matchers.any());
+    }
+
+    @Test
+    public void testImportResultFailForChannelWithTimeperiod() {
+        String csv = "Device name;Reading date;Reading type;Reading Value\n" +
+                "VPB0001;01/08/2015 01:01;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;100.146\n" +
+                "VPB0001;01/08/2015 01:18;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;100.234\n" +
+                "VPB0001;01/08/2015 01:31;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;100.334\n" +
+                "VPB0001;01/08/2015 01:40;11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1;100.44546";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDevice("VPB0001");
+        ReadingType readingType = mockReadingType("11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1", false);
+        when(readingType.isRegular()).thenReturn(true);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+
+        NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
+        when(registerSpec.getOverflowValue()).thenReturn(Optional.of(BigDecimal.valueOf(999L)));
+        when(registerSpec.getNumberOfFractionDigits()).thenReturn(2);
+
+        Register register = mock(Register.class);
+        when(device.getRegisters()).thenReturn(Collections.singletonList(register));
+        when(register.getReadingType()).thenReturn(readingType);
+        when(register.getRegisterSpec()).thenReturn(registerSpec);
+        when(register.getRegisterSpec().isTextual()).thenReturn(false);
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_MINUTES_CHANNEL)
+                .format(2, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1", "15", "GMT"));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_MINUTES_CHANNEL)
+                .format(3, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1", "15", "GMT"));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_MINUTES_CHANNEL)
+                .format(4, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1", "15", "GMT"));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_MINUTES_CHANNEL)
+                .format(5, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1", "15", "GMT"));
+        verifyNoMoreInteractions(logger);
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED)
+                .format());
+    }
+
+    private Register mockRegister(Device device, String readingTypeMRID) {
+        return mockRegisterWithDetails(device, readingTypeMRID, null, null);
+    }
+
+    private Register mockRegisterWithDetails(Device device, String readingTypeMRID, String fullAliasName, String obisCode) {
+        ReadingType readingType;
+        if (fullAliasName != null && !fullAliasName.isEmpty()) {
+            readingType = mockReadingTypeWithDetails(readingTypeMRID, fullAliasName, false);
+        } else {
+            readingType = mockReadingType(readingTypeMRID, false);
+        }
+        Register register = mock(Register.class);
+        when(device.getRegisters()).thenReturn(Collections.singletonList(register));
+        if (obisCode != null && !obisCode.isEmpty()) {
+            when(device.getRegisters().get(0).getObisCode()).thenReturn(ObisCode.fromString(obisCode));
+        }
         when(register.getReadingType()).thenReturn(readingType);
         NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
         when(register.getRegisterSpec()).thenReturn(registerSpec);
@@ -813,11 +1075,19 @@ public class DeviceReadingsImporterFactoryTest {
         return register;
     }
 
-    private Channel mockChannel(Device device, String readingTypeMRID) {
-        ReadingType readingType = mockReadingType(readingTypeMRID, true);
+    private Channel mockChannelWithDetails(Device device, String readingTypeMRID, String fullAliasName, String obisCode) {
+        ReadingType readingType;
+        if (fullAliasName != null && !fullAliasName.isEmpty()) {
+            readingType = mockReadingTypeWithDetails(readingTypeMRID, fullAliasName, true);
+        } else {
+            readingType = mockReadingType(readingTypeMRID, true);
+        }
         LoadProfile loadProfile = mock(LoadProfile.class);
         Channel channel = mock(Channel.class);
         when(device.getChannels()).thenReturn(Collections.singletonList(channel));
+        if (obisCode != null && !obisCode.isEmpty()) {
+            when(device.getChannels().get(0).getObisCode()).thenReturn(ObisCode.fromString(obisCode));
+        }
         when(channel.getReadingType()).thenReturn(readingType);
         when(channel.getLoadProfile()).thenReturn(loadProfile);
         ChannelSpec channelSpec = mock(ChannelSpec.class);
@@ -829,6 +1099,10 @@ public class DeviceReadingsImporterFactoryTest {
         when(device.getLoadProfileUpdaterFor(loadProfile)).thenReturn(loadProfileUpdater);
         when(loadProfileUpdater.setLastReadingIfLater(Matchers.any())).thenReturn(loadProfileUpdater);
         return channel;
+    }
+
+    private Channel mockChannel(Device device, String readingTypeMRID) {
+        return mockChannelWithDetails(device, readingTypeMRID, null, null);
     }
 
     private Device mockDevice(String deviceName) {
@@ -852,10 +1126,18 @@ public class DeviceReadingsImporterFactoryTest {
     }
 
     private ReadingType mockReadingType(String mRID, boolean isRegular) {
+        return mockReadingTypeWithDetails(mRID, null, isRegular);
+    }
+
+    private ReadingType mockReadingTypeWithDetails(String mRID, String fullAliasName, boolean isRegular) {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn(mRID);
         when(readingType.isRegular()).thenReturn(isRegular);
-        if(isRegular) {
+        if (fullAliasName != null && !fullAliasName.isEmpty()) {
+            when(readingType.getFullAliasName()).thenReturn(fullAliasName);
+            when(meteringService.getReadingTypeByName(fullAliasName)).thenReturn(Optional.of(readingType));
+        }
+        if (isRegular) {
             when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
         }
         when(meteringService.getReadingType(mRID)).thenReturn(Optional.of(readingType));

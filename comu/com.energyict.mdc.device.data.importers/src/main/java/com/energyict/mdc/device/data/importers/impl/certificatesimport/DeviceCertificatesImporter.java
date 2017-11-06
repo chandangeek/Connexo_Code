@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl.certificatesimport;
 
-
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.nls.Thesaurus;
@@ -9,7 +8,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 
-import java.util.List;
+import java.io.File;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
