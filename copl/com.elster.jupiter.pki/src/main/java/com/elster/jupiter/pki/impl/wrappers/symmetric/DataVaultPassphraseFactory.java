@@ -6,7 +6,7 @@ package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.ExpirationSupport;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.PassphraseFactory;
 import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.PlaintextPassphrase;
@@ -53,9 +53,9 @@ public class DataVaultPassphraseFactory implements PassphraseFactory, Expiration
     }
 
     @Override
-    public PassphraseWrapper newPassphraseWrapper(KeyAccessorType keyAccessorType) {
+    public PassphraseWrapper newPassphraseWrapper(SecurityAccessorType securityAccessorType) {
         PlaintextPassphraseImpl plaintextPassphrase = dataModel.getInstance(PlaintextPassphraseImpl.class)
-                .init(keyAccessorType.getKeyType(), keyAccessorType.getDuration().get());
+                .init(securityAccessorType.getKeyType(), securityAccessorType.getDuration().get());
         plaintextPassphrase.save();
         return plaintextPassphrase;
     }

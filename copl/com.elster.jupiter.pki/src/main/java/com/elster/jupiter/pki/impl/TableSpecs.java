@@ -11,6 +11,7 @@ import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
+import javafx.scene.chart.ValueAxis;
 
 import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
@@ -98,6 +99,21 @@ public enum TableSpecs {
                     .number()
                     .conversion(NUMBER2INSTANT)
                     .map(AbstractCertificateWrapperImpl.Fields.LAST_READ_DATE.fieldName())
+                    .add();
+            table.column("SUBJECT")
+                    .varChar()
+                    .map(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName())
+                    .since(Version.version(10, 4))
+                    .add();
+            table.column("ISSUER")
+                    .varChar()
+                    .map(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName())
+                    .since(Version.version(10, 4))
+                    .add();
+            table.column("KEYUSAGESCSV")
+                    .varChar()
+                    .map(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName())
+                    .since(Version.version(10, 4))
                     .add();
             Column trustStoreColumn = table.column("TRUSTSTORE")
                     .number()

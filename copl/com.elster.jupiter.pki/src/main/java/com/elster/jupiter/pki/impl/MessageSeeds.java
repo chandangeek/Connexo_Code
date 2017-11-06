@@ -1,13 +1,11 @@
 package com.elster.jupiter.pki.impl;
 
-import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Defines all the {@link MessageSeed}s of the PKI module.
@@ -46,8 +44,10 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_PASSWORD_LENGTH(1028, Keys.INVALIDPASSPHRASELENGTH, "Invalid passphrase length"),
     INVALID_KEY_SIZE(1029, Keys.INVALID_KEY_SIZE, "Invalid key size"),
     INVALID_HEX_VALUE(1030,Keys.INVALID_HEX_VALUE, "Not a properly hex encoded key"),
+    NO_SUCH_TRUSTSTORE(1031, "noSuchTrustStore", "The trust store could not be found"),
+    INVALID_DN(1032, "InvalidDN", "Invalid distinguished name encountered");
 
-    INVALID_FILE_FORMAT(1031,"InvalidFileFormat","Not a valid zip file");
+
 
     private final int number;
     private final String key;
@@ -87,7 +87,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return PkiService.COMPONENTNAME;
+        return SecurityManagementService.COMPONENTNAME;
     }
 
     public static class Keys {
@@ -98,21 +98,12 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIELD_IS_REQUIRED = "field.required";
         public static final String NO_SUCH_ENCRYPTION_METHOD = "no.such.encryption.method";
         public static final String DUPLICATE_KEY_ENCRYPTION_REGISTRATION = "key.encryption.duplication";
+        public static final String CERTIFICATE_DOES_NOT_MATCH_CSR = "certificate.mismatch.csr";
         public static final String INVALID_VALUE = "validation.invalid.value";
         public static final String INVALID_HEX_VALUE = "validation.invalid.hex.value";
         public static final String NOVALIDCHARACTERS = "NoValidCharacters";
         public static final String INVALIDPASSPHRASELENGTH = "InvalidPassphraseLength";
         public static final String INVALID_KEY_SIZE = "InvalidKeySize";
-    }
-
-    public void log(Logger logger, Thesaurus thesaurus, Object... args) {
-        NlsMessageFormat format = thesaurus.getFormat(this);
-        logger.log(getLevel(), format.format(args));
-    }
-
-    public void log(Logger logger, Thesaurus thesaurus, Throwable t, Object... args) {
-        NlsMessageFormat format = thesaurus.getFormat(this);
-        logger.log(getLevel(), format.format(args), t);
     }
 
 }

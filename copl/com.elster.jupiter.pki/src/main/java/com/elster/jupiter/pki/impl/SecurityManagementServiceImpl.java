@@ -7,6 +7,8 @@ package com.elster.jupiter.pki.impl;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
@@ -29,6 +31,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.osgi.service.component.annotations.*;
@@ -43,13 +46,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name="PkiService",
-        service = { PkiService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
-        property = "name=" + PkiService.COMPONENTNAME,
+@Component(name = "PkiService",
+        service = {SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        property = "name=" + SecurityManagementService.COMPONENTNAME,
         immediate = true)
-public class PkiServiceImpl implements PkiService, TranslationKeyProvider, MessageSeedProvider {
+public class SecurityManagementServiceImpl implements SecurityManagementService, TranslationKeyProvider, MessageSeedProvider {
 
     private final Map<String, PrivateKeyFactory> privateKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, SymmetricKeyFactory> symmetricKeyFactories = new ConcurrentHashMap<>();
@@ -63,11 +67,12 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     private volatile PropertySpecService propertySpecService;
     private volatile EventService eventService;
     private volatile UserService userService;
+    private volatile QueryService queryService;
 
     @Inject
-    public PkiServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
-                          DataVaultService dataVaultService, PropertySpecService propertySpecService,
-                          EventService eventService, UserService userService) {
+    public SecurityManagementServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService,
+                                         DataVaultService dataVaultService, PropertySpecService propertySpecService,
+                                         EventService eventService, UserService userService, QueryService queryService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
@@ -75,12 +80,13 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         this.setPropertySpecService(propertySpecService);
         this.setEventService(eventService);
         this.setUserService(userService);
+        this.setQueryService(queryService);
         this.activate();
     }
 
     // OSGi constructor
     @SuppressWarnings("unused")
-    public PkiServiceImpl() {
+    public SecurityManagementServiceImpl() {
 
     }
 
@@ -88,10 +94,14 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     public List<String> getKeyEncryptionMethods(CryptographicType cryptographicType) {
         switch (cryptographicType) {
             case ClientCertificate: // ClientCertificates are linked to an asymmetric key
-            case AsymmetricKey: return privateKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
-            case SymmetricKey: return symmetricKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
-            case Passphrase: return passphraseFactories.keySet().stream().sorted().collect(Collectors.toList());
-            default: return Collections.emptyList(); // No encryption methods for other cryptographic elements
+            case AsymmetricKey:
+                return privateKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
+            case SymmetricKey:
+                return symmetricKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
+            case Passphrase:
+                return passphraseFactories.keySet().stream().sorted().collect(Collectors.toList());
+            default:
+                return Collections.emptyList(); // No encryption methods for other cryptographic elements
         }
     }
 
@@ -156,6 +166,11 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         this.dataVaultService = dataVaultService;
     }
 
+    @Reference
+    public void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
+    }
+
     public DataModel getDataModel() {
         return dataModel;
     }
@@ -176,8 +191,12 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         this.dataModel = ormService.newDataModel(COMPONENTNAME, "Private Key Infrastructure");
         Stream.of(TableSpecs.values()).forEach(tableSpecs -> tableSpecs.addTo(dataModel, dataVaultService));
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("Pulse", PkiService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
-//        initPrivileges();
+        upgradeService.register(
+                InstallIdentifier.identifier("Pulse", SecurityManagementService.COMPONENTNAME),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(
+                        version(10, 4), UpgraderV10_4.class));
     }
 
     private AbstractModule getModule() {
@@ -188,10 +207,11 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                 bind(UpgradeService.class).toInstance(upgradeService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Thesaurus.class).toInstance(thesaurus);
-                bind(PkiService.class).toInstance(PkiServiceImpl.this);
+                bind(SecurityManagementService.class).toInstance(SecurityManagementServiceImpl.this);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
+                bind(QueryService.class).toInstance(queryService);
             }
         };
     }
@@ -267,8 +287,8 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs(KeyAccessorType keyAccessorType) {
-        switch (keyAccessorType.getKeyType().getCryptographicType()) {
+    public List<PropertySpec> getPropertySpecs(SecurityAccessorType securityAccessorType) {
+        switch (securityAccessorType.getKeyType().getCryptographicType()) {
             case Certificate:
                 return getDataModel().getInstance(RequestableCertificateWrapperImpl.class).getPropertySpecs();
             case ClientCertificate:
@@ -276,9 +296,9 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
             case TrustedCertificate:
                 return getDataModel().getInstance(TrustedCertificateImpl.class).getPropertySpecs();
             case SymmetricKey:
-                return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
+                return getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
             case Passphrase:
-                return getPassphraseFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
+                return getPassphraseFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
             case AsymmetricKey:
                 return Collections.emptyList(); // There is currently no need for visibility on asymmetric keys
             default:
@@ -315,8 +335,8 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public SymmetricKeyWrapper newSymmetricKeyWrapper(KeyAccessorType keyAccessorType) {
-        return getSymmetricKeyFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).newSymmetricKey(keyAccessorType);
+    public SymmetricKeyWrapper newSymmetricKeyWrapper(SecurityAccessorType securityAccessorType) {
+        return getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).newSymmetricKey(securityAccessorType);
     }
 
     @Override
@@ -327,7 +347,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         return all;
     }
 
-    private List<ExpirationSupport> allFactoriesSupportingExpiration(){
+    private List<ExpirationSupport> allFactoriesSupportingExpiration() {
         List<ExpirationSupport> factoriesSupportingExpiration = new ArrayList<>();
         privateKeyFactories.values().stream().filter(pkf -> pkf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
         symmetricKeyFactories.values().stream().filter(skf -> skf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
@@ -348,8 +368,8 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public PassphraseWrapper newPassphraseWrapper(KeyAccessorType keyAccessorType) {
-        return getPassphraseFactoryOrThrowException(keyAccessorType.getKeyEncryptionMethod()).newPassphraseWrapper(keyAccessorType);
+    public PassphraseWrapper newPassphraseWrapper(SecurityAccessorType securityAccessorType) {
+        return getPassphraseFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).newPassphraseWrapper(securityAccessorType);
     }
 
     private PassphraseFactory getPassphraseFactoryOrThrowException(String keyEncryptionMethod) {
@@ -378,7 +398,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
 
     @Override
     public String getComponentName() {
-        return PkiServiceImpl.COMPONENTNAME;
+        return SecurityManagementServiceImpl.COMPONENTNAME;
     }
 
     @Override
@@ -400,7 +420,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         return Arrays.asList(MessageSeeds.values());
     }
 
-    class ClientCertificateWrapperBuilder implements PkiService.ClientCertificateWrapperBuilder {
+    class ClientCertificateWrapperBuilder implements SecurityManagementService.ClientCertificateWrapperBuilder {
         private final ClientCertificateWrapper underConstruction;
 
         public ClientCertificateWrapperBuilder(ClientCertificateWrapper underConstruction) {
@@ -408,7 +428,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         }
 
         @Override
-        public PkiService.ClientCertificateWrapperBuilder alias(String alias) {
+        public SecurityManagementService.ClientCertificateWrapperBuilder alias(String alias) {
             underConstruction.setAlias(alias);
             return this;
         }
@@ -459,16 +479,16 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                 getDataModel()).sorted(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName(), true);
     }
 
-    private List<CertificateWrapper> findExpiredCertificates(Expiration expiration, Instant when){
+    private List<CertificateWrapper> findExpiredCertificates(Expiration expiration, Instant when) {
         return dataModel.query(CertificateWrapper.class).select(
-                    where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR))
-                    .and(expiration.isExpired("expirationTime", when)));
+                where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR))
+                        .and(expiration.isExpired("expirationTime", when)));
     }
 
     @Override
     public Finder<CertificateWrapper> getAliasesByFilter(AliasSearchFilter searchFilter) {
         Condition searchCondition;
-        if (searchFilter.trustStore ==null) {
+        if (searchFilter.trustStore == null) {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
                     .likeIgnoreCase(searchFilter.alias)
                     .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
@@ -482,6 +502,165 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                 .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName() + ")", true)
                 .maxPageSize(thesaurus, 100);
     }
+
+    @Override
+    public Finder<CertificateWrapper> getAliasesByFilter(AliasParameterFilter searchFilter) {
+        Condition searchCondition;
+        if (searchFilter.trustStore == null) {
+            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
+                    .likeIgnoreCase(searchFilter.searchValue)
+                    .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
+        } else {
+            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
+                    .likeIgnoreCase(searchFilter.searchValue)
+                    .and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(searchFilter.trustStore));
+        }
+        return DefaultFinder.of(CertificateWrapper.class,
+                searchCondition, getDataModel())
+                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName() + ")", true)
+                .maxPageSize(thesaurus, 100);
+    }
+
+    @Override
+    public Finder<CertificateWrapper> getSubjectsByFilter(SubjectParameterFilter searchFilter) {
+        Condition searchCondition;
+        if (searchFilter.trustStore == null) {
+            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName())
+                    .likeIgnoreCase(searchFilter.searchValue)
+                    .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)))
+                    .and(where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName()).isNotNull());
+        } else {
+            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName())
+                    .likeIgnoreCase(searchFilter.searchValue)
+                    .and(where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName()).isNotNull())
+                    .and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(searchFilter.trustStore));
+        }
+
+        return DefaultFinder.of(CertificateWrapper.class,
+                searchCondition, getDataModel())
+                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName() + ")", true)
+                .maxPageSize(thesaurus, 100);
+    }
+
+    public Finder<CertificateWrapper> getIssuersByFilter(IssuerParameterFilter searchFilter) {
+        Condition searchCondition;
+        if (searchFilter.trustStore == null) {
+            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName())
+                    .likeIgnoreCase(searchFilter.searchValue)
+                    .and(where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName()).isNotNull())
+                    .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
+
+        } else {
+            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName())
+                    .likeIgnoreCase(searchFilter.searchValue)
+                    .and(where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName()).isNotNull())
+                    .and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(searchFilter.trustStore));
+        }
+
+        return DefaultFinder.of(CertificateWrapper.class,
+                searchCondition, getDataModel())
+                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName() + ")", true)
+                .maxPageSize(thesaurus, 100);
+    }
+
+    @Override
+    public Finder<CertificateWrapper> getKeyUsagesByFilter(KeyUsagesParameterFilter searchFilter) {
+        Condition searchCondition;
+        if (searchFilter.trustStore == null) {
+            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName())
+                    .likeIgnoreCase(searchFilter.searchValue)
+                    .and(where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName()).isNotNull())
+                    .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
+        } else {
+            searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName())
+                    .likeIgnoreCase(searchFilter.searchValue)
+                    .and(where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName()).isNotNull())
+                    .and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(searchFilter.trustStore));
+        }
+
+        return DefaultFinder.of(CertificateWrapper.class,
+                searchCondition, getDataModel())
+                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName() + ")", true)
+                .maxPageSize(thesaurus, 100);
+    }
+
+    @Override
+    public Finder<CertificateWrapper> findCertificatesByFilter(DataSearchFilter dataSearchFilter) {
+        return DefaultFinder.of(CertificateWrapper.class,
+                getSearchCondition(dataSearchFilter), getDataModel())
+                .maxPageSize(thesaurus, 100);
+    }
+
+    @Override
+    public List<CertificateWrapper> findTrustedCertificatesByFilter(DataSearchFilter dataSearchFilter) {
+        List<CertificateWrapper> trustedCertificates = new ArrayList<>();
+        Query<CertificateWrapper> query = getCertificateWrapperQuery();
+        List<CertificateWrapper> pagedList = query.select(getSearchCondition(dataSearchFilter));
+
+        pagedList.forEach((CertificateWrapper certificateWrapper) -> trustedCertificates.add(certificateWrapper));
+        return trustedCertificates;
+    }
+
+    @Override
+    public Condition getSearchCondition(DataSearchFilter dataSearchFilter) {
+        Condition searchCondition = Condition.TRUE;
+
+        if (dataSearchFilter.alias.isPresent()) {
+            searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName()).isNotNull()
+                    .and(where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName()).in(dataSearchFilter.alias.get())));
+        }
+        if (dataSearchFilter.subject.isPresent()) {
+            searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName()).isNotNull()
+                    .and(where(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName()).in(dataSearchFilter.subject.get())));
+        }
+        if (dataSearchFilter.issuer.isPresent()) {
+            searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName()).isNotNull()
+                    .and(where(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName()).in(dataSearchFilter.issuer.get())));
+        }
+        if (dataSearchFilter.keyUsages.isPresent()) {
+            Condition UsageIn = Condition.FALSE;
+
+            for (String keyUsage : dataSearchFilter.keyUsages.get()) {
+                UsageIn = UsageIn.or(where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName()).likeIgnoreCase("*" + keyUsage + "*"));
+            }
+
+            searchCondition = searchCondition
+                    .and(where(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName()).isNotNull()
+                            .and(UsageIn));
+        }
+        if (dataSearchFilter.intervalFrom.isPresent() && dataSearchFilter.intervalTo.isPresent()) {
+            searchCondition = searchCondition
+                    .and(where(AbstractCertificateWrapperImpl.Fields.EXPIRATION.fieldName())
+                            .between(dataSearchFilter.intervalFrom.get().toEpochMilli()).and(dataSearchFilter.intervalTo.get().toEpochMilli()));
+        } else if (dataSearchFilter.intervalFrom.isPresent()) {
+            searchCondition = searchCondition
+                    .and(where(AbstractCertificateWrapperImpl.Fields.EXPIRATION.fieldName())
+                            .isGreaterThanOrEqual(dataSearchFilter.intervalFrom.get().toEpochMilli()));
+
+        } else if (dataSearchFilter.intervalTo.isPresent()) {
+            searchCondition = searchCondition
+                    .and(where(AbstractCertificateWrapperImpl.Fields.EXPIRATION.fieldName())
+                            .isLessThanOrEqual(dataSearchFilter.intervalTo.get().toEpochMilli()));
+        }
+
+        if (dataSearchFilter.trustStore.isPresent()) {
+            searchCondition = searchCondition.and(where(AbstractCertificateWrapperImpl.Fields.TRUST_STORE.fieldName()).isEqualTo(dataSearchFilter.trustStore.get()));
+        } else {
+            searchCondition = searchCondition.and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
+        }
+
+        return searchCondition;
+    }
+
+    @Override
+    public QueryService getQueryService() {
+        return queryService;
+    }
+
+    public Query<CertificateWrapper> getCertificateWrapperQuery() {
+        return getQueryService().wrap(dataModel.query(CertificateWrapper.class));
+    }
+
 
     private class ClientCertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {
         private final KeyTypeImpl underConstruction;
@@ -548,6 +727,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
                 underConstruction.setCurve(curveName);
                 return this;
             }
+
             @Override
             public KeyType add() {
                 underConstruction.save();

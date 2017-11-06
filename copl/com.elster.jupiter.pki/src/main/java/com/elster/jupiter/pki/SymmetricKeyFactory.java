@@ -22,10 +22,10 @@ public interface SymmetricKeyFactory{
     /**
      * Create a new, persisted instance of the {@link SymmetricKeyWrapper}'s implementation
      *
-     * @param keyAccessorType Container of information required to create the actual class.
+     * @param securityAccessorType Container of information required to create the actual class.
      * @return Persisted implementation of {@link SymmetricKeyWrapper} for the KeyEncryptionMethod
      */
-    SymmetricKeyWrapper newSymmetricKey(KeyAccessorType keyAccessorType); // TODO parameter could be reduced to KeyType
+    SymmetricKeyWrapper newSymmetricKey(SecurityAccessorType securityAccessorType); // TODO parameter could be reduced to KeyType
 
     /**
      * Report the expected property specs for {@link SymmetricKeyWrapper} implementation for the KeyEncryptionMethod

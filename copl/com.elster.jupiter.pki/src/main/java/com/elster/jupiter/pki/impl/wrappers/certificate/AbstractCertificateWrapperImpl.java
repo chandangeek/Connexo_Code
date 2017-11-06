@@ -9,6 +9,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.pki.CertificateFormatter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyUsage;
@@ -20,9 +21,14 @@ import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
+import javax.security.auth.x500.X500Principal;
 import javax.validation.constraints.Size;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -36,21 +42,17 @@ import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 @UniqueAlias(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ALIAS_UNIQUE + "}")
-public abstract class AbstractCertificateWrapperImpl implements CertificateWrapper {
+public abstract class AbstractCertificateWrapperImpl implements CertificateWrapper, CertificateFormatter {
     public static final String CLIENT_CERTIFICATE_DISCRIMINATOR = "C";
     public static final String TRUSTED_CERTIFICATE_DISCRIMINATOR = "T";
     public static final String CERTIFICATE_DISCRIMINATOR = "R";
+    private static final int DESCRIPTION_LENGTH = 300;
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -73,8 +75,10 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         TRUST_STORE("trustStoreReference"),
         LAST_READ_DATE("lastReadDate"),
         ALIAS("alias"),
-        ID("id")
-        ;
+        ID("id"),
+        SUBJECT("subject"),
+        ISSUER("issuer"),
+        KEY_USAGES("keyUsagesCsv");
 
         private final String fieldName;
 
@@ -87,11 +91,20 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         }
     }
 
+    private final Map<String, Integer> rdsOrder = new HashMap<>();
+    private final ExceptionFactory exceptionFactory;
+
     private long id;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String alias;
     private byte[] certificate;
     private Instant expirationTime;
+    @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String subject;
+    @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String issuer;
+    @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String keyUsagesCsv;
     private Instant lastReadDate;
     @SuppressWarnings("unused")
     private String userName;
@@ -102,11 +115,12 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    public AbstractCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService) {
+    public AbstractCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService, ExceptionFactory exceptionFactory) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.eventService = eventService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @Override
@@ -149,9 +163,16 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         try {
             this.certificate = certificate.getEncoded();
             this.expirationTime = certificate.getNotAfter().toInstant();
+            this.subject = x500FormattedName(certificate.getSubjectDN().getName()).replaceAll("\\s+", "");
+            this.issuer = x500FormattedName(certificate.getIssuerDN().getName()).replaceAll("\\s+", "");
+            if (getCertificateKeyUsages(certificate).size() > 0) {
+                this.keyUsagesCsv = stringifyKeyUsages(getCertificateKeyUsages(certificate), getCertificateExtendedKeyUsages(certificate));
+            }
             this.save();
         } catch (CertificateEncodingException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_ENCODING_EXCEPTION, e);
+        } catch (InvalidNameException e) {
+            throw exceptionFactory.newException(MessageSeeds.INVALID_DN);
         }
     }
 
@@ -167,6 +188,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
 
     /**
      * Method can be implemented by sub-classes if they wish to override/extend status
+     *
      * @return
      */
     protected Optional<TranslationKeys> getInternalStatus() {
@@ -293,8 +315,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             void copyToMap(Map<String, Object> properties, AbstractCertificateWrapperImpl certificateWrapper) {
                 properties.put(getPropertyName(), certificateWrapper.getAlias());
             }
-        },
-        ;
+        },;
 
         private final String propertyName;
 
@@ -303,7 +324,9 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         }
 
         abstract PropertySpec asPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus);
+
         abstract void copyFromMap(Map<String, Object> properties, AbstractCertificateWrapperImpl certificateWrapper);
+
         abstract void copyToMap(Map<String, Object> properties, AbstractCertificateWrapperImpl certificateWrapper);
 
         String getPropertyName() {
@@ -329,4 +352,41 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     public Optional<Instant> getLastReadDate() {
         return Optional.ofNullable(this.lastReadDate);
     }
+
+    @Override
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public String getIssuer() {
+        return issuer;
+    }
+
+    @Override
+    public void setIssuer(String issuer) {
+        this.issuer = issuer;
+    }
+
+    public String stringifyKeyUsages(Set<KeyUsage> keyUsages, Set<ExtendedKeyUsage> extendedKeyUsages) {
+        List<String> collect = keyUsages.stream().map(Enum::name).collect(toList());
+        collect.addAll(extendedKeyUsages.stream().map(Enum::name).collect(toList()));
+        return Joiner.on(", ").join(collect);
+    }
+
+    public Optional<String> getStringifiedKeyUsages() {
+        return keyUsagesCsv != null ? Optional.of(keyUsagesCsv) : Optional.empty();
+    }
+
+    public void setKeyUsagesCsv(String keyUsages) {
+        this.keyUsagesCsv = keyUsages;
+    }
+
+    public String getKeyUsagesCsv() {
+        return this.keyUsagesCsv;
+    }
+
 }
