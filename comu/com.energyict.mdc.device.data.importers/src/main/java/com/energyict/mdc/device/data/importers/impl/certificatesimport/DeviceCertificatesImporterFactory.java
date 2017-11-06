@@ -34,8 +34,9 @@ public class DeviceCertificatesImporterFactory extends AbstractDeviceDataFileImp
 
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
-        return new DeviceCertificatesImporter(getContext().getThesaurus());
+        return new DeviceCertificatesImporter(getContext().getThesaurus(), getContext().getDeviceService());
     }
+
     @Override
     public String getName() {
         return NAME;

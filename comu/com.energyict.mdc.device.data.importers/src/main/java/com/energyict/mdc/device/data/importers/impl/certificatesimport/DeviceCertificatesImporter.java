@@ -1,20 +1,26 @@
 package com.energyict.mdc.device.data.importers.impl.certificatesimport;
 
+
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.impl.MessageSeeds;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 
-import java.io.File;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class DeviceCertificatesImporter implements FileImporter {
     private final Thesaurus thesaurus;
 
+    private volatile DeviceService deviceService;
 
-    DeviceCertificatesImporter(Thesaurus thesaurus) {
+    DeviceCertificatesImporter(Thesaurus thesaurus, DeviceService deviceService) {
         this.thesaurus = thesaurus;
+        this.deviceService = deviceService;
     }
 
     @Override
@@ -22,17 +28,32 @@ public class DeviceCertificatesImporter implements FileImporter {
         String fileName = fileImportOccurrence.getFileName();
         String status = fileImportOccurrence.getStatusName();
 
-        boolean fileExists = new File(fileName).exists();
-
-        System.out.println(fileName + " " + status);
-
         try {
             ZipInputStream zis = new ZipInputStream(fileImportOccurrence.getContents());
             ZipEntry zipEntry = zis.getNextEntry();
             while (zipEntry != null) {
-                System.out.println(zipEntry.getName() + " " + zipEntry.isDirectory());
+                if (!(zipEntry.isDirectory() && zipEntry.getName().contains("/"))) {
+                    String serialNumber = zipEntry.getName().split("/")[0];
+                    List<Device> devices = deviceService.findDevicesBySerialNumber(serialNumber);
+                    if (!devices.isEmpty()) {
+                        devices.forEach(device -> {
+                            List<SecurityAccessorType> accessorTypes=  device.getDeviceType().getSecurityAccessorTypes();
+                            accessorTypes.forEach(securityAccessorType ->  {
+                                System.out.println("secAccName:  "+securityAccessorType.getName());
+                                System.out.println("keyTypeName: "+securityAccessorType.getKeyType().getName());
+                            });
 
-//                deviceService.findDeviceByName(deviceName).ifPresent(device -> {
+                        });
+                        System.out.println("size: " + devices.size());
+                    } else {
+                        System.out.println("no devices found");
+                    }
+                }
+
+
+//                String deviceName =
+//
+//                deviceService.findDevicdeByName(deviceName).ifPresent(device -> {
 
 //            String fileName = zipEntry.getName();
 //            File newFile = new File("c:/mytemp/unzipCertificates/" + fileName);
@@ -49,7 +70,7 @@ public class DeviceCertificatesImporter implements FileImporter {
         } catch (Exception e) {
 //            new ExceptionLogFormatter(thesaurus, fileImportOccurrence.getLogger()).log(e);
 //            throw new RuntimeException(thesaurus.getFormat(TranslationKeys.CERTIFICATE_IMPORT_FAILED).format());
-            throw  new RuntimeException("invalid zip");
+            throw new RuntimeException("invalid zip");
         }
 
 
@@ -107,7 +128,7 @@ public class DeviceCertificatesImporter implements FileImporter {
     }
 
     private void log(FileImportOccurrence fileImportOccurrence, MessageSeeds messageSeeds) {
-        messageSeeds.log(fileImportOccurrence.getLogger(), thesaurus);
+//        messageSeeds.log(fileImportOccurrence.getLogger(), thesaurus);
     }
 
     private void markFailure(FileImportOccurrence fileImportOccurrence) {
