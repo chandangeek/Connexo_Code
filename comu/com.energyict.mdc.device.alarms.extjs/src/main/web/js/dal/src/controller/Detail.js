@@ -128,7 +128,8 @@ Ext.define('Dal.controller.Detail', {
                     me.getIssueDetailForm().loadRecord(record);
                     var subEl = new Ext.get('alarm-status-field-sub-tpl');
 
-                    subEl.setHTML(record.get('statusDetail'));
+                    subEl.setHTML('<div>' + record.get('statusDetailCleared') + '</div>'
+                        + '<div>' + record.get('statusDetailSnoozed') + '</div>');
 
                     Ext.resumeLayouts(true);
                     if ((typeof me.getActionMenu === "function") && me.getActionMenu()) {
