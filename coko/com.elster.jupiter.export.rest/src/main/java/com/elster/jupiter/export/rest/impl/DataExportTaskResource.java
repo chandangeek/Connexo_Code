@@ -137,6 +137,7 @@ public class DataExportTaskResource {
         finder.setLimit(queryParameters.getLimit().orElse(0) + 1);
         List<DataExportTaskInfo> infos = finder.stream()
                 .map(dataExportTaskInfoFactory::asInfoWithMinimalHistory)
+                .sorted((dt1, dt2) -> dt1.name.compareToIgnoreCase(dt2.name))
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("dataExportTasks", infos, queryParameters);
     }
