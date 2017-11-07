@@ -79,7 +79,7 @@ enum TableSpecs {
             table.column("ENDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("endDate").add();
             table.column("STATUS").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
 
-            table.foreignKey("TSK_FKOCCURRENCE_TASK").references(TSK_RECURRENT_TASK.name()).map("recurrentTask").on(recurrentIdColumn).add();
+            table.foreignKey("TSK_FKOCCURRENCE_TASK").references(TSK_RECURRENT_TASK.name()).onDelete(DeleteRule.CASCADE).map("recurrentTask").on(recurrentIdColumn).add();
             table.primaryKey("TSK_PK_TASK_OCCURRENCE").on(idColumn).add();
             table.partitionOn(trigger);
         }
