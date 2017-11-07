@@ -707,6 +707,8 @@ sub activate_sso {
                 print $FH "<VirtualHost *:80>\n";
                 print $FH "ServerName \${HOSTNAME}\n";
                 print $FH "\n";
+                print $FH "AllowEncodedSlashes NoDecode\n";
+                print $FH "\n";
                 print $FH "RewriteEngine On\n";
                 print $FH "   ProxyPreserveHost on\n";
                 print $FH "\n";
@@ -723,8 +725,8 @@ sub activate_sso {
                 print $FH "   DirectoryIndex index.html\n";
                 print $FH "\n";
                 print $FH "   RewriteRule ^/apps/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/apps/\$1 [P]\n";
-                print $FH "   RewriteRule ^/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/api/\$1 [P]\n";
-                print $FH "   RewriteRule ^/public/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/public/api/\$1 [P]\n";
+                print $FH "   RewriteRule ^/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/api/\$1 [P,NE]\n";
+                print $FH "   RewriteRule ^/public/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/public/api/\$1 [P,NE]\n";
                 print $FH "</VirtualHost>\n";
                 close $FH;
             }
