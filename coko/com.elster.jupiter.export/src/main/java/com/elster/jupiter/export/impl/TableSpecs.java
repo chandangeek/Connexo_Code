@@ -273,7 +273,7 @@ enum TableSpecs {
             table.column("UPDATE_PERIOD_END").number().conversion(ColumnConversion.NUMBER2INSTANT).map("updatePeriodEnd").add();
             table.primaryKey("DES_PK_RUNPARAMETERS").on(taskColumn, createdDateTimeColumn).add();
             table.foreignKey("DES_FK_RUNPARAMS_TASK").on(taskColumn).references(DES_DATAEXPORTTASK.name())
-                    .map("task").reverseMap("runParameters").composition().add();
+                    .onDelete(DeleteRule.CASCADE).map("task").reverseMap("runParameters").composition().add();
 
         }
     };
