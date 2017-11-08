@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
@@ -42,6 +43,7 @@ public class DeviceDataImporterContext {
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile UserService userService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile SecurityManagementService securityManagementService;
     private volatile Clock clock;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile DataModel dataModel;
@@ -61,6 +63,7 @@ public class DeviceDataImporterContext {
                                      FiniteStateMachineService finiteStateMachineService,
                                      UserService userService,
                                      ThreadPrincipalService threadPrincipalService,
+                                     SecurityManagementService securityManagementService,
                                      Clock clock,
                                      MetrologyConfigurationService metrologyConfigurationService, OrmService ormService) {
         setPropertySpecService(propertySpecService);
@@ -74,6 +77,7 @@ public class DeviceDataImporterContext {
         setFiniteStateMachineService(finiteStateMachineService);
         setUserService(userService);
         setThreadPrincipalService(threadPrincipalService);
+        setSecurityManagementService(securityManagementService);
         setClock(clock);
         setMetrologyConfigurationService(metrologyConfigurationService);
         setOrmService(ormService);
@@ -181,6 +185,15 @@ public class DeviceDataImporterContext {
 
     public ThreadPrincipalService getThreadPrincipalService() {
         return threadPrincipalService;
+    }
+
+    @Reference
+    public final void setSecurityManagementService(SecurityManagementService securityManagementService){
+        this.securityManagementService = securityManagementService;
+    }
+
+    public SecurityManagementService getSecurityManagementService() {
+        return securityManagementService;
     }
 
     public Clock getClock() {

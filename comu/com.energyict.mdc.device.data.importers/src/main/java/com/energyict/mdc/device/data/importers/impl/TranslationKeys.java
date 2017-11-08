@@ -43,6 +43,11 @@ public enum TranslationKeys implements TranslationKey {
     READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS("ReadingsImportResultSuccessWithWarnAndErrors", "Finished successfully with (some) failures and notes. {0} readings of {1} devices processed successfully of which {2} readings contain a note, {3} readings of {4} devices skipped due to errors."),
     READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN("ReadingsImportResultSuccessWithWarn", "Finished successfully with (some) notes. {0} readings of {1} devices processed successfully of which {2} readings contain a note."),
 
+    CERTIFICATES_IMPORT_RESULT_SUCCESS("CertificatesImportResultSuccess", "Finished successfully. {0} certificates of {1} device(s) processed successfully."),
+    CERTIFICATES_IMPORT_RESULT_SUCCESS_WITH_WARN("ReadingsImportResultSuccessWithWarn", "Finished successfully with (some) notes. {0} readings of {1} devices processed successfully of which {2} readings contain a note."),
+    CERTIFICATES_IMPORT_RESULT_FAIL("ReadingsImportResultFail", "Failed to complete. {0} readings of {1} devices processed successfully."),
+
+
     // Properties translations
     DEVICE_DATA_IMPORTER_DELIMITER("delimiter", "Delimiter"),
     DEVICE_DATA_IMPORTER_DELIMITER_DESCRIPTION("delimiter", "The character that delimits the values for the different properties to import"),
