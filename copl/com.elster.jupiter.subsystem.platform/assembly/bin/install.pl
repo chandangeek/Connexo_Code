@@ -725,6 +725,7 @@ sub activate_sso {
                 print $FH "   DirectoryIndex index.html\n";
                 print $FH "\n";
                 print $FH "   RewriteRule ^/apps/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/apps/\$1 [P]\n";
+                print $FH "   RewriteRule ^/soap/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/soap/\$1 [P]\n";
                 print $FH "   RewriteRule ^/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/api/\$1 [P,NE]\n";
                 print $FH "   RewriteRule ^/public/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/public/api/\$1 [P,NE]\n";
                 print $FH "</VirtualHost>\n";
