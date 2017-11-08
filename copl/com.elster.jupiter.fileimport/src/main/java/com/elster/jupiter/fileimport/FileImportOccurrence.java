@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.Finder;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.io.File;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
@@ -37,10 +38,15 @@ public interface FileImportOccurrence {
      */
     InputStream getContents();
 
-    /**
+      /**
      * @return the name of the file
      */
     String getFileName();
+
+    /**
+     * @return the path of the file
+     */
+    String getPath();
 
     /**
      * @return the current State

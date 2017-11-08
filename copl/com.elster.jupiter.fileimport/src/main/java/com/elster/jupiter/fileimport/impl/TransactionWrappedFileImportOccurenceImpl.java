@@ -47,6 +47,11 @@ class TransactionWrappedFileImportOccurenceImpl implements FileImportOccurrence 
     }
 
     @Override
+    public String getPath(){
+        return fileImportOccurrence.getPath();
+    }
+
+    @Override
     public Status getStatus() {
         return fileImportOccurrence.getStatus();
     }

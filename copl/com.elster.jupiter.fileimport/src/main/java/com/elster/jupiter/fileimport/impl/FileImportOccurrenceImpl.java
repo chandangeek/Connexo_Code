@@ -18,6 +18,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -34,6 +35,8 @@ import java.util.Optional;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -172,6 +175,11 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
     }
 
     @Override
+    public String getPath() {
+        return fileImportService.getBasePath().resolve(path).toString();
+    }
+
+    @Override
     public Optional<Instant> getStartDate() {
         return Optional.ofNullable(startDate);
     }
@@ -253,6 +261,7 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
             Path filePath = fileImportService.getBasePath().resolve(path);
             if (Files.exists(filePath)) {
                 Path target = targetPath(filePath);
+                System.out.println("target: "+target);
                 fileUtils.move(filePath, target);
                 path = fileImportService.getBasePath().relativize(target);
             }
