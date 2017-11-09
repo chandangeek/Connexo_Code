@@ -82,7 +82,8 @@ public class DataExportTaskInfoFactory {
         info.id = dataExportTask.getId();
         info.name = dataExportTask.getName();
         info.active = dataExportTask.isActive();
-        info.logLevel = dataExportOccurrence.getRecurrentTask().getLogLevel(versionAt);
+        info.logLevel = dataExportOccurrence.getRetryTime().isPresent() ? dataExportOccurrence.getRecurrentTask().getLogLevel(versionAt) :
+                dataExportOccurrence.getRecurrentTask().getLogLevel();
         info.dataProcessor =
                 new ProcessorInfo(
                         dataExportTask.getDataFormatterFactory().getName(),
