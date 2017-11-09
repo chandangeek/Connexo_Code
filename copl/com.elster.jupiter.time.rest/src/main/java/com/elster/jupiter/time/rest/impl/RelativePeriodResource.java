@@ -7,17 +7,19 @@ package com.elster.jupiter.time.rest.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
-import com.elster.jupiter.time.CannotDeleteUsedRelativePeriodException;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeOperation;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
+import com.elster.jupiter.time.RelativePeriodUsageInfo;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.RelativeDatePreviewInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
@@ -33,6 +35,7 @@ import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -52,11 +55,14 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Path("/relativeperiods")
 public class RelativePeriodResource {
@@ -103,6 +109,35 @@ public class RelativePeriodResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public RelativePeriodInfo getRelativePeriod(@PathParam("id") long id) {
         return RelativePeriodInfo.withCategories(getRelativePeriodOrThrowException(id));
+    }
+
+
+    @Path("/{id}/usage")
+    @GET
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD, Privileges.Constants.VIEW_RELATIVE_PERIOD})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getUsage(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+
+        Set<String> categories = filter.getLongList("category")
+                .stream()
+                .map(this::getCategoryName)
+                .collect(Collectors.toSet());
+
+       List<RelativePeriodUsageInfo> usageInfos = timeService.getTaskProviders()
+                .stream()
+                .filter(provider -> categories.isEmpty() || categories.contains(provider.getType()))
+                .map(provider -> provider.getUsageReferences(id))
+                .flatMap(List::stream)
+                .sorted(Comparator.comparing(RelativePeriodUsageInfo::getTask, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromCompleteList("usage", usageInfos, queryParameters);
+    }
+
+    private String getCategoryName(long categoryId){
+        return timeService.findRelativePeriodCategory(categoryId)
+                .map(RelativePeriodCategory::getName)
+                .orElse(null);
     }
 
     @POST
