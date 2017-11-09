@@ -200,6 +200,7 @@ public class DataExportTaskExecutorTest {
         when(selectorConfig.getStrategy()).thenReturn(dataExportStrategy);
         when(dataExportStrategy.adjustedExportPeriod(eq(dataExportOccurrence), any(ReadingTypeDataExportItem.class))).thenReturn(Range.all());
         when(task.getStandardDataSelectorConfig(any())).thenReturn(Optional.of(selectorConfig));
+        when(task.getStandardDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
         when(occurrence.createTaskLogHandler()).thenReturn(taskLogHandler);
 

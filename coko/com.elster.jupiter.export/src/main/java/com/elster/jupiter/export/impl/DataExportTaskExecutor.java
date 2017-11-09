@@ -78,9 +78,9 @@ class DataExportTaskExecutor implements TaskExecutor {
         boolean success = false;
         String errorMessage = null;
         Exception thrown = null;
-        Instant at = occurrence.getRetryTime().orElse(occurrence.getTriggerTime());
 
-        Logger occurrenceLogger = getLogger(occurrence, occurrence.getRecurrentTask().getHistory().getVersionAt(at).get());
+        Logger occurrenceLogger = occurrence.getRetryTime().isPresent() ? getLogger(occurrence, occurrence.getRecurrentTask().getHistory().getVersionAt(occurrence.getRetryTime().get()).get()) :
+                getLogger(occurrence, occurrence.getRecurrentTask());
         try {
             doExecute(dataExportOccurrence, occurrenceLogger);
             success = true;
