@@ -90,6 +90,12 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
     }
 
     @Override
+    public DataExportOccurrenceFinder setId(long id) {
+        this.condition = this.condition.and(where("TASKOCC").isEqualTo(id));
+        return this;
+    }
+
+    @Override
     public List<? extends DataExportOccurrence> find() {
         return stream().select();
     }

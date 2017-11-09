@@ -37,8 +37,10 @@ import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskLogHandler;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
@@ -102,6 +104,7 @@ public class DataExportTaskExecutorTest {
     @Rule
     public TestRule timeZone = Using.timeZoneOfMcMurdo();
 
+    private ZonedDateTime createTime;
     private ZonedDateTime exportPeriodStart;
     private ZonedDateTime exportPeriodEnd;
     private ZonedDateTime triggerTime;
@@ -169,6 +172,8 @@ public class DataExportTaskExecutorTest {
     private Destination destination;
     @Mock
     private MeterReadingSelector dataSelector;
+    @Mock
+    private RecurrentTask recurrentTask;
 
     private Logger logger = Logger.getAnonymousLogger();
 
@@ -177,6 +182,7 @@ public class DataExportTaskExecutorTest {
 
     @Before
     public void setUp() {
+        createTime = ZonedDateTime.of(2012, 11, 01, 6, 0, 0, 0, ZoneId.systemDefault());
         exportPeriodStart = ZonedDateTime.of(2012, 11, 10, 6, 0, 0, 0, ZoneId.systemDefault());
         lastExported = ZonedDateTime.of(2012, 11, 5, 6, 0, 0, 0, ZoneId.systemDefault());
         exportPeriodEnd = ZonedDateTime.of(2012, 11, 11, 6, 0, 0, 0, ZoneId.systemDefault());
@@ -193,9 +199,25 @@ public class DataExportTaskExecutorTest {
         when(selectorConfig.addExportItem(meter1, readingType1)).thenReturn(newItem);
         when(selectorConfig.getStrategy()).thenReturn(dataExportStrategy);
         when(dataExportStrategy.adjustedExportPeriod(eq(dataExportOccurrence), any(ReadingTypeDataExportItem.class))).thenReturn(Range.all());
+        when(task.getStandardDataSelectorConfig(any())).thenReturn(Optional.of(selectorConfig));
         when(task.getStandardDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
         when(occurrence.createTaskLogHandler()).thenReturn(taskLogHandler);
+
+        when(occurrence.getRetryTime()).thenReturn(Optional.empty());
+        when(occurrence.getTriggerTime()).thenReturn(triggerTime.toInstant());
+        when(occurrence.getRecurrentTask()).thenReturn(recurrentTask);
+        when(recurrentTask.getCreateTime()).thenReturn(createTime.toInstant());
+        when(occurrence.createTaskLogHandler(any())).thenReturn(taskLogHandler);
+        when(taskLogHandler.asHandler()).thenReturn(logRecorder);
+        when(dataExportOccurrence.getRetryTime()).thenReturn(Optional.empty());
+        when(dataExportOccurrence.getTriggerTime()).thenReturn(triggerTime.toInstant());
+
+
+        History<? extends RecurrentTask> history = new History<>(Collections.emptyList(), recurrentTask);
+        doReturn(history).when(recurrentTask).getHistory();
+        when(recurrentTask.getLogLevel()).thenReturn(900);
+
         when(taskLogHandler.asHandler()).thenReturn(logRecorder);
         when(dataExportService.createExportOccurrence(occurrence)).thenReturn(dataExportOccurrence);
         when(dataExportService.findDataExportOccurrence(occurrence)).thenReturn(Optional.of(dataExportOccurrence));
@@ -207,8 +229,8 @@ public class DataExportTaskExecutorTest {
         when(dataExportOccurrence.getTriggerTime()).thenReturn(triggerTime.toInstant());
         when(task.getDataFormatterFactory()).thenReturn(dataFormatterFactory);
         when(task.getDataSelectorFactory()).thenReturn(dataSelectorFactory);
-        when(task.getDataExportProperties()).thenReturn(Collections.singletonList(dataExportProperty));
-        when(task.getCompositeDestination()).thenReturn(destination);
+        when(task.getDataExportProperties(any())).thenReturn(Collections.singletonList(dataExportProperty));
+        when(task.getCompositeDestination(any())).thenReturn(destination);
         when(task.hasDefaultSelector()).thenReturn(true);
         when(dataExportProperty.getName()).thenReturn("name");
         when(dataExportProperty.getValue()).thenReturn("CSV");

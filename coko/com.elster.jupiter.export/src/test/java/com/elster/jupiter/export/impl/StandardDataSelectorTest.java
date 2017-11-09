@@ -27,7 +27,10 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Finder;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskLogHandler;
@@ -67,9 +70,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -146,6 +151,12 @@ public class StandardDataSelectorTest {
     private Logger logger;
     @Mock
     private ValidationEvaluator evaluator;
+    @Mock
+    private DataMapper<ReadingTypeInDataSelector> readingTypeInDataSelector;
+    @Mock
+    Finder.JournalFinder<ReadingTypeInDataSelector> readingTypeInDataSelectorJrnl;
+    @Mock
+    TaskOccurrence taskOccurrence;
 
     @Before
     public void setUp() {
@@ -178,6 +189,7 @@ public class StandardDataSelectorTest {
         when(dataExportService.findDataExportOccurrence(occurrence)).thenReturn(Optional.of(dataExportOccurrence));
         StandardDataSelectorFactory dataSelectorFactory = new StandardDataSelectorFactory(thesaurus);
         when(dataExportService.getDataSelectorFactory(DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR)).thenReturn(Optional.of(dataSelectorFactory));
+        when(dataExportOccurrence.getRetryTime()).thenReturn(Optional.empty());
         when(dataExportOccurrence.getTask()).thenReturn(task);
         when(dataExportOccurrence.getDefaultSelectorOccurrence()).thenReturn(Optional.of((DefaultSelectorOccurrence) dataExportOccurrence));
         when(((DefaultSelectorOccurrence) dataExportOccurrence).getExportedDataInterval()).thenReturn(exportPeriod);
@@ -222,6 +234,13 @@ public class StandardDataSelectorTest {
         when(reading2.getSource()).thenReturn("reading2");
         when(validationService.getEvaluator()).thenReturn(evaluator);
         when(threadPrincipalService.getLocale()).thenReturn(Locale.US);
+
+        when(dataModel.<ReadingTypeInDataSelector>mapper(any())).thenReturn(readingTypeInDataSelector);
+        ReadingTypeInDataSelector readingTypeSelector = mock(ReadingTypeInDataSelector.class);
+        JournalEntry<ReadingTypeInDataSelector> readingTypeJournal = new JournalEntry<>(Instant.ofEpochMilli(1455245L), readingTypeSelector);
+        when(readingTypeInDataSelector.at(any())).thenReturn(readingTypeInDataSelectorJrnl);
+        when(readingTypeInDataSelectorJrnl.find(anyMap())).thenReturn(Arrays.asList(readingTypeJournal));
+        when(readingTypeSelector.getReadingType()).thenReturn(readingType1);
     }
 
     @After

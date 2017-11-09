@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.export;
 
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 
@@ -40,6 +41,10 @@ public interface DataExportOccurrence {
 
     Instant getTriggerTime();
 
+    Optional<Instant> getRetryTime();
+
+    Optional<Instant> getAdhocTime();
+
     boolean wasScheduled();
 
     Long getId();
@@ -49,4 +54,6 @@ public interface DataExportOccurrence {
     LogEntryFinder getLogsFinder();
 
     int nthSince(Instant since);
+
+    RecurrentTask getRecurrentTask();
 }

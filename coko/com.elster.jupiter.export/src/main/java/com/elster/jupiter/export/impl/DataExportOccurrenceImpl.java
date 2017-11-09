@@ -4,12 +4,15 @@
 
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.export.DataExportRunParameters;
 import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -63,13 +66,26 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
         taskOccurrence.set(occurrence);
         readingTask.set(task);
         //TODO ZoneId !!
+        Instant at = occurrence.getRetryTime().orElse(occurrence.getTriggerTime());
 
-        task.getStandardDataSelectorConfig()
-                .map(selector -> selector.getExportPeriod().getOpenClosedInterval(occurrence.getTriggerTime().atZone(ZoneId.systemDefault())))
-                .ifPresent(instantRange -> {
-                    exportedDataInterval = Interval.of(instantRange);
-                    exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
-                });
+        if ((occurrence.getAdhocTime().isPresent()) && (task.getRunParameters(occurrence.getAdhocTime().get()).isPresent())) {
+            DataExportRunParameters runParameters = task.getRunParameters(occurrence.getAdhocTime().get()).get();
+            Range<Instant> instantRange = Range.openClosed(runParameters.getExportPeriodStart(), runParameters.getExportPeriodEnd());
+            exportedDataInterval = Interval.of(instantRange);
+            exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
+        } else if ((occurrence.getRetryTime().isPresent()) && (task.getRunParameters(occurrence.getRetryTime().get()).isPresent())) {
+            DataExportRunParameters runParameters = task.getRunParameters(occurrence.getRetryTime().get()).get();
+            Range<Instant> instantRange = Range.openClosed(runParameters.getExportPeriodStart(), runParameters.getExportPeriodEnd());
+            exportedDataInterval = Interval.of(instantRange);
+            exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
+        } else {
+            Optional<DataSelectorConfig> standardDataSelector = occurrence.getRetryTime().isPresent() ? task.getStandardDataSelectorConfig(at) : task.getStandardDataSelectorConfig();
+            standardDataSelector.map(selector -> selector.getExportPeriod().getOpenClosedInterval(at.atZone(ZoneId.systemDefault())))
+                    .ifPresent(instantRange -> {
+                        exportedDataInterval = Interval.of(instantRange);
+                        exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
+                    });
+        }
         return this;
     }
 
@@ -160,6 +176,16 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     }
 
     @Override
+    public Optional<Instant> getRetryTime() {
+        return taskOccurrence.get().getRetryTime();
+    }
+
+    @Override
+    public Optional<Instant> getAdhocTime() {
+        return taskOccurrence.get().getAdhocTime();
+    }
+
+    @Override
     public List<? extends LogEntry> getLogs() {
         return taskOccurrence.get().getLogs();
     }
@@ -209,5 +235,10 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     @Override
     public int hashCode() {
         return Objects.hash(taskOccurrence);
+    }
+
+    @Override
+    public RecurrentTask getRecurrentTask() {
+        return this.getTaskOccurrence().getRecurrentTask();
     }
 }

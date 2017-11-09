@@ -10,6 +10,7 @@ import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.DataExportRunParameters;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelectorConfig;
@@ -82,6 +83,9 @@ final class ExportTaskImpl implements IExportTask {
     private Reference<DataSelectorConfig> dataSelectorConfig = Reference.empty();
     @Valid
     private List<IDataExportDestination> destinations = new ArrayList<>();
+    @Valid
+    private List<DataExportRunParameters> runParameters = new ArrayList<>();
+
     @SuppressWarnings("unused") // Managed by ORM
     private String userName;
     private transient int logLevel;
@@ -115,6 +119,15 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public List<DataExportProperty> getDataExportProperties() {
         return Collections.unmodifiableList(properties);
+    }
+
+    @Override
+    public List<DataExportProperty> getDataExportProperties(Instant at) {
+        List<JournalEntry<DataExportProperty>> props = dataModel.mapper(DataExportProperty.class).at(at).find(ImmutableMap.of("task", this));
+        List<DataExportProperty> dataExportProperty = props.stream()
+                .map(JournalEntry::get)
+                .collect(Collectors.toList());
+        return Collections.unmodifiableList(dataExportProperty);
     }
 
     @Override
@@ -174,6 +187,7 @@ final class ExportTaskImpl implements IExportTask {
                 .ifPresent(dataProcessorFactory -> dataProcessorFactory.validateProperties(processorProperties));
         dataExportService.getDataSelectorFactory(dataSelector)
                 .ifPresent(dataSelectorFactory -> dataSelectorFactory.validateProperties(selectorProperties));
+
         if (id == 0) {
             persist();
         } else {
@@ -340,6 +354,16 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public void triggerNow() {
         recurrentTask.get().triggerNow();
+    }
+
+    @Override
+    public void triggerAt(Instant at, Instant trigger) {
+        recurrentTask.get().triggerAt(at, trigger);
+    }
+
+    @Override
+    public void retryNow(DataExportOccurrence dataExportOccurrence) {
+        recurrentTask.get().triggerNow(((DataExportOccurrenceImpl) dataExportOccurrence).getTaskOccurrence());
     }
 
     @Override
@@ -520,6 +544,15 @@ final class ExportTaskImpl implements IExportTask {
         return new CompositeDataExportDestination(destinations);
     }
 
+    @Override
+    public Destination getCompositeDestination(Instant at) {
+        List<JournalEntry<IDataExportDestination>> props = dataModel.mapper(IDataExportDestination.class).at(at).find(ImmutableMap.of("task", this));
+        List<IDataExportDestination> historyDestination = props.stream()
+                .map(JournalEntry::get)
+                .collect(Collectors.toList());
+        return new CompositeDataExportDestination(historyDestination);
+    }
+
     private class CannotDeleteWhileBusy extends CannotDeleteWhileBusyException {
         CannotDeleteWhileBusy() {
             super(ExportTaskImpl.this.thesaurus, MessageSeeds.CANNOT_DELETE_WHILE_RUNNING, ExportTaskImpl.this);
@@ -563,5 +596,19 @@ final class ExportTaskImpl implements IExportTask {
         if (recurrentTask.isPresent()) {
             recurrentTaskDirty = true;
         }
+    }
+
+    @Override
+    public void addExportRunParameters(Instant createDateTime, Instant exportPeriodStart, Instant exportPeriodEnd, Instant updatePeriodStart, Instant updatePeriodEnd) {
+        DataExportRunParametersImpl runParams = dataModel.getInstance(DataExportRunParametersImpl.class)
+                .init(this, createDateTime, exportPeriodStart, exportPeriodEnd, updatePeriodStart, updatePeriodEnd);
+        Save.CREATE.validate(dataModel, runParams);
+        runParameters.add(runParams);
+        doSave();
+    }
+
+    @Override
+    public Optional<DataExportRunParameters> getRunParameters(Instant at) {
+        return runParameters.stream().filter(rp -> rp.getCreateDateTime().compareTo(at) == 0).findFirst();
     }
 }

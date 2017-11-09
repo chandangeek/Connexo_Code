@@ -65,6 +65,10 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     void triggerNow();
 
+    void triggerAt(Instant at, Instant trigger);
+
+    void retryNow(DataExportOccurrence dataExportOccurrence);
+
     void updateLastRun(Instant triggerTime);
 
     void setDataFormatterFactoryName(String formatter);
@@ -103,4 +107,9 @@ public interface ExportTask extends HasName, HasAuditInfo {
     int getLogLevel();
 
     void setLogLevel(int newLevel);
+
+    void addExportRunParameters(Instant creationDate, Instant exportPeriodStart, Instant exportPeriodEnd, Instant updatePeriodStart, Instant updatePeriodEnd);
+
+    Optional<DataExportRunParameters> getRunParameters(Instant at);
+
 }

@@ -142,6 +142,7 @@ public class DataExportServiceImplTest {
         when(dataFormatterFactory.getName()).thenReturn(DATA_FORMATTER);
         when(iExportTask.getReadingDataSelectorConfig()).thenReturn(Optional.of(meterReadingSelectorConfig));
         when(iExportTask.getStandardDataSelectorConfig()).thenReturn(Optional.of(meterReadingSelectorConfig));
+        when(iExportTask.getStandardDataSelectorConfig(any())).thenReturn(Optional.of(meterReadingSelectorConfig));
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.<ExportTask>mapper(any())).thenReturn(readingTypeDataExportTaskFactory);
@@ -202,6 +203,8 @@ public class DataExportServiceImplTest {
         when(taskOccurrence.getTriggerTime()).thenReturn(NOW);
         when(meterReadingSelectorConfig.getExportPeriod()).thenReturn(relativePeriod);
         when(relativePeriod.getOpenClosedInterval(any())).thenReturn(Range.openClosed(NOW, NOW));
+        when(taskOccurrence.getRetryTime()).thenReturn(Optional.empty());
+        when(taskOccurrence.getAdhocTime()).thenReturn(Optional.empty());
 
         assertThat(dataExportService.createExportOccurrence(taskOccurrence)).isEqualTo(dataExportOccurrence1);
         assertThat(dataExportOccurrence1.getTask()).isEqualTo(iExportTask);
