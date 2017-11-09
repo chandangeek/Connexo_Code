@@ -41,6 +41,13 @@ Ext.define('Tme.controller.history.Time', {
                                 return this;
                             },
                             items: {
+                                usage: {
+                                    privileges: Tme.privileges.Period.admin,
+                                    route: 'usage',
+                                    title: Uni.I18n.translate('general.usage', 'TME', 'Usage'),
+                                    controller: 'Tme.controller.RelativePeriods',
+                                    action: 'showRelativePeriodUsage'
+                                },
                                 edit: {
                                     title: Uni.I18n.translate('relativeperiod.edit', 'TME', 'Edit relative period'),
                                     route: 'edit',

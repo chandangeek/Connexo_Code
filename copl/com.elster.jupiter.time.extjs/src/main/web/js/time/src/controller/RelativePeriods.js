@@ -10,12 +10,15 @@ Ext.define('Tme.controller.RelativePeriods', {
     views: [
         'Tme.view.relativeperiod.Setup',
         'Tme.view.relativeperiod.Edit',
-        'Tme.view.relativeperiod.Details'
+        'Tme.view.relativeperiod.Details',
+        'Tme.view.relativeperiod.UsagePage'
     ],
 
     stores: [
         'Tme.store.RelativePeriods',
         'Tme.store.RelativePeriodCategories',
+        'Tme.store.RelativePeriodUsageCategories',
+        'Tme.store.RelativePeriodUsage',
         'Uni.store.Periods',
         'Uni.store.DaysOfWeek'
     ],
@@ -23,7 +26,8 @@ Ext.define('Tme.controller.RelativePeriods', {
     models: [
         'Tme.model.RelativePeriod',
         'Tme.model.Categories',
-        'Tme.model.RelativeDate'
+        'Tme.model.RelativeDate',
+        'Tme.model.RelativePeriodUsage'
     ],
 
     refs: [
@@ -290,5 +294,30 @@ Ext.define('Tme.controller.RelativePeriods', {
                 relativePeriodPreview.updatePreview();
             }
         });
+    },
+
+    showRelativePeriodUsage: function (periodId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            view,
+            usageStore = me.getStore('Tme.store.RelativePeriodUsage'),
+            taskModel = me.getModel('Tme.model.RelativePeriod');
+
+        usageStore.getProxy().setUrl(periodId);
+
+        taskModel.load(periodId, {
+            success: function (record) {
+                view = Ext.widget('relative-period-usage', {
+                    router: router,
+                    record: record
+                });
+
+                view.down('relative-periods-menu').setHeader(record.get('name'));
+                me.getApplication().fireEvent('changecontentevent', view);
+            }
+        });
+
+
+
     }
 });

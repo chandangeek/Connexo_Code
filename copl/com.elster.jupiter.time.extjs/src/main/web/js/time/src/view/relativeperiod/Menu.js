@@ -19,6 +19,11 @@ Ext.define('Tme.view.relativeperiod.Menu', {
                 text: Uni.I18n.translate('general.details', 'TME', 'Details'),
                 itemId: 'relative-period-overview-link',
                 href: me.router.getRoute('administration/relativeperiods/relativeperiod').buildUrl()
+            },
+            {
+                text: Uni.I18n.translate('general.usage', 'TME', 'Usage'),
+                itemId: 'relative-period-usage-link',
+                href: me.router.getRoute('administration/relativeperiods/relativeperiod/usage').buildUrl()
             }
         ];
 

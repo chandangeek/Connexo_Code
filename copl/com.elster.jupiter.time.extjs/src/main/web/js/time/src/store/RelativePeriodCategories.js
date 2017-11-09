@@ -17,5 +17,6 @@ Ext.define('Tme.store.RelativePeriodCategories', {
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined
+
     }
 });
