@@ -8,5 +8,5 @@
 Ext.define('Uni.model.search.Result', {
     extend: 'Ext.data.Model',
 
-    fields: []
+    fields: [{name: 'name', sortType: Ext.data.SortTypes.asUCString}]
 });
