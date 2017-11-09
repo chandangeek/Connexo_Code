@@ -20,6 +20,7 @@ import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
+import com.elster.jupiter.time.RelativePeriodUsageProvider;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
@@ -45,12 +46,14 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,6 +74,8 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
     private volatile UserService userService;
     private volatile EventService eventService;
     private volatile UpgradeService upgradeService;
+
+    private List<RelativePeriodUsageProvider> taskProviders = new CopyOnWriteArrayList<>();
 
     public TimeServiceImpl() {
     }
@@ -258,6 +263,13 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
         return AllRelativePeriod.INSTANCE;
     }
 
+    @Override
+    public String findRelativePeriodCategoryDisplayName(String categoryName){
+        return findRelativePeriodCategoryByName(categoryName)
+                .map(RelativePeriodCategory::getDisplayName)
+                .orElse(null);
+    }
+
     @Reference
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
@@ -309,6 +321,22 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
     @SuppressWarnings("unused") // Called by OSGi framework when RelativePeriodCategoryTranslationProvider component deactivates
     public void removeIssueGroupTranslationProvider(RelativePeriodCategoryTranslationProvider obsolete) {
         // Don't bother unjoining the provider's thesaurus
+    }
+
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addTaskProvider(RelativePeriodUsageProvider usage) {
+        taskProviders.add(usage);
+    }
+
+    @SuppressWarnings("unused")
+    public void removeTaskProvider(RelativePeriodUsageProvider provider) {
+        taskProviders.remove(provider);
+    }
+
+
+    public List<RelativePeriodUsageProvider> getTaskProviders() {
+        return Collections.unmodifiableList(taskProviders);
     }
 
     DataModel getDataModel() {

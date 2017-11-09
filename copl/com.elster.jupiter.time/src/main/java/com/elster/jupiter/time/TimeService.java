@@ -36,4 +36,7 @@ public interface TimeService {
     String toLocalizedString(TemporalExpression expression);
 
     RelativePeriod getAllRelativePeriod();
+
+    List<RelativePeriodUsageProvider> getTaskProviders();
+    String findRelativePeriodCategoryDisplayName(String categoryName);
 }
