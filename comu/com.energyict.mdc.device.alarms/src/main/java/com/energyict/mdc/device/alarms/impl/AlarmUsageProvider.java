@@ -31,8 +31,11 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Component(service = RelativePeriodUsageProvider.class)
 public class AlarmUsageProvider implements RelativePeriodUsageProvider {
 
+    private static final String APPLICATION_NAME="MultiSense";
+
     private volatile IssueService issueService;
     private volatile TimeService timeService;
+
 
     @Reference
     public void setIssueService(IssueService issueService) {
@@ -57,6 +60,7 @@ public class AlarmUsageProvider implements RelativePeriodUsageProvider {
         return TranslationKeys.ALARM_RELATIVE_PERIOD_CATEGORY.getKey();
     }
 
+
     private boolean matchesRelativePeriod(CreationRule rule, long relativePeriodId) {
         return rule.getCreationRuleProperties()
                 .stream()
@@ -70,7 +74,7 @@ public class AlarmUsageProvider implements RelativePeriodUsageProvider {
         return new RelativePeriodUsageInfo(
                 rule.getName(),
                 timeService.findRelativePeriodCategoryDisplayName(this.getType()),
-                "MultiSense",
+                APPLICATION_NAME,
                 null);
     }
 
