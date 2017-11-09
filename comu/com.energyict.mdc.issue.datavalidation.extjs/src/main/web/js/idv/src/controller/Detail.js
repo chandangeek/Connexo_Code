@@ -100,7 +100,7 @@ Ext.define('Idv.controller.Detail', {
                             channelId: record.get('registerId')
                         });
                     } else if(record.get('channelId')) {
-                        this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channelvalidationblocks').forward(
+                        this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channeldata').forward(
                             {
                                 deviceId: me.getDetailForm().getRecord().get('device').name,
                                 channelId: record.get('channelId'),
