@@ -687,7 +687,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         }
     }
 
-    static class RelativePeriodWithCountInfo extends HasIdAndName {
+    public static class RelativePeriodWithCountInfo extends HasIdAndName {
 
         private RelativePeriod relativePeriod;
         private int occurrenceCount;
@@ -715,7 +715,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             return "";
         }
 
-        long getRelativePeriodId() {
+        public long getRelativePeriodId() {
             return relativePeriod.getId();
         }
 
