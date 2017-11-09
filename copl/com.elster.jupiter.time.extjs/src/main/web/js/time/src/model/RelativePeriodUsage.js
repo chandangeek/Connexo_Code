@@ -7,8 +7,8 @@ Ext.define('Tme.model.RelativePeriodUsage', {
     fields: [
         {name: 'task', type: 'string'},
         {name: 'type', type: 'string'},
-        {name: 'application', default: 'null'},
-        {name: 'nextRun', default: 'null'}
+        {name: 'application', defaultValue: 'null'},
+        {name: 'nextRun', defaultValue: 'null'}
     ],
 
 
