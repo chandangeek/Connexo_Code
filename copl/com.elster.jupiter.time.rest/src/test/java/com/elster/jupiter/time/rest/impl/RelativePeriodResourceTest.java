@@ -4,21 +4,33 @@
 
 package com.elster.jupiter.time.rest.impl;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.RelativePeriodCategory;
+import com.elster.jupiter.time.RelativePeriodUsageInfo;
+import com.elster.jupiter.time.RelativePeriodUsageProvider;
 import com.elster.jupiter.time.rest.RelativeDateInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.util.conditions.Order;
 import com.jayway.jsonpath.JsonModel;
+
 import org.junit.Test;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -137,4 +149,54 @@ public class RelativePeriodResourceTest extends TimeApplicationJerseyTest {
         Response response = target("/relativeperiods/1").request().build(HttpMethod.DELETE, json).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
+
+    @Test
+    public void tesGetUsage() throws UnsupportedEncodingException {
+
+        RelativePeriodCategory category = mock(RelativePeriodCategory.class);
+        when(category.getDisplayName()).thenReturn("Estimation");
+        when(category.getName()).thenReturn("relativeperiod.category.estimation");
+
+        RelativePeriodUsageInfo taskEstimation1 = mock(RelativePeriodUsageInfo.class);
+        when(taskEstimation1.getTask()).thenReturn("Some estimation done in the North");
+        when(taskEstimation1.getApplication()).thenReturn("MultiSense");
+        when(taskEstimation1.getNextRun()).thenReturn(Instant.now());
+        when(taskEstimation1.getType()).thenReturn("relativeperiod.category.estimation");
+
+        RelativePeriodUsageInfo taskEstimation2 = mock(RelativePeriodUsageInfo.class);
+        when(taskEstimation2.getTask()).thenReturn("Some estimation done in the South");
+        when(taskEstimation2.getApplication()).thenReturn("MultiSense");
+        when(taskEstimation2.getNextRun()).thenReturn(Instant.now());
+        when(taskEstimation2.getType()).thenReturn("relativeperiod.category.estimation");
+
+        RelativePeriodUsageInfo taskAlarms = mock(RelativePeriodUsageInfo.class);
+        when(taskAlarms.getTask()).thenReturn("Some alarm");
+        when(taskAlarms.getApplication()).thenReturn("MultiSense");
+        when(taskAlarms.getNextRun()).thenReturn(Instant.now());
+        when(taskAlarms.getType()).thenReturn("relativeperiod.category.devicealarm");
+
+        RelativePeriodUsageProvider providerEstimation = mock(RelativePeriodUsageProvider.class);
+        when(providerEstimation.getType()).thenReturn("relativeperiod.category.estimation");
+        when(providerEstimation.getUsageReferences(10)).thenReturn(Arrays.asList(taskEstimation1, taskEstimation2));
+
+        RelativePeriodUsageProvider providerAlarm = mock(RelativePeriodUsageProvider.class);
+        when(providerAlarm.getType()).thenReturn("relativeperiod.category.devicealarm");
+        when(providerAlarm.getUsageReferences(10)).thenReturn(Arrays.asList(taskEstimation1, taskEstimation2));
+
+        // Select category 1 from the filter
+        when(timeService.findRelativePeriodCategory(1L)).thenReturn(Optional.of(category));
+        when(timeService.findRelativePeriodCategory(2L)).thenReturn(Optional.empty());
+        when(timeService.findRelativePeriodCategory(3L)).thenReturn(Optional.empty());
+        when(timeService.findRelativePeriodCategoryByName("relativeperiod.category.estimation")).thenReturn(Optional.of(category));
+        when(timeService.findRelativePeriodCategoryByName("relativeperiod.category.devicealarm")).thenReturn(Optional.empty());
+        when(timeService.getTaskProviders()).thenReturn(Arrays.asList(providerEstimation, providerAlarm));
+
+        String response = target("/relativeperiods/10/usage").queryParam("filter", ExtjsFilter.filter("category", Arrays.asList(1,2,3))).request().get(String.class);
+
+        // Alarm should not be here
+        JsonModel model = JsonModel.model(response);
+        assertThat(model.<Number>get("$.total")).isEqualTo(2);
+        assertThat(model.<List>get("$.usage")).isNotEmpty();
+    }
+
 }
