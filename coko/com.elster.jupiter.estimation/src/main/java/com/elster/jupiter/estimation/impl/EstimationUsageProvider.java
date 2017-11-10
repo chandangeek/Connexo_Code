@@ -3,8 +3,6 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
-import com.elster.jupiter.estimation.impl.IEstimationTask;
-import com.elster.jupiter.estimation.impl.TranslationKeys;
 
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodUsageInfo;
