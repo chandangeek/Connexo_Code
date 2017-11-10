@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
 public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBuilder> {
 
@@ -164,10 +163,7 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
     }
 
     private static String defaultTimeZoneNotation() {
-        int rawOffset = TimeZone.getDefault().getRawOffset();
-        long hours = TimeUnit.MILLISECONDS.toHours(rawOffset);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(rawOffset) - TimeUnit.HOURS.toMinutes(hours);
-        return String.format("GMT%s%02d:%02d", rawOffset >= 0 ? "+" : "-", hours, minutes);
+        return TimeZone.getDefault().getID(); //CXO-7969
     }
 
     private static HasIdAndName defaultNumberFormat() {
