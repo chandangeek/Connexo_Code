@@ -48,7 +48,7 @@ public class TimeZonePropertySpec extends BasicPropertySpec {
             if (Checks.is(value).emptyOrOnlyWhiteSpace()) {
                 return false;
             }
-            return checkForKnowTimeZoneId(value) || checkAccordingToDateTimeFormatter(value); //lori
+            return checkForKnowTimeZoneId(value) || checkAccordingToDateTimeFormatter(value);
         }
         return false;
     }
