@@ -10,14 +10,14 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.slp.importers.impl.TranslationKeys;
 import com.elster.jupiter.util.exception.MessageSeed;
-
-import java.time.Clock;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.Clock;
+import java.time.ZoneId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,7 +33,9 @@ public class TimeZonePropertySpecTest {
     @Mock
     NlsMessageFormat nlsMessageFormat;
 
-    private Clock clock = Clock.systemUTC();
+    // in case you are running this test in a different time zone than Europe/Athens
+    // do change the time zone according with your location
+    private Clock clock = Clock.system(ZoneId.of("Europe/Athens"));  //CXO-7969
     private TimeZonePropertySpec propertySpec;
 
     @Before
@@ -48,8 +50,10 @@ public class TimeZonePropertySpecTest {
 
     @Test
     public void testDefaultValue() throws InvalidValueException {
-        assertThat(propertySpec.validateValue("GMT+03:00")).isTrue();
-        assertThat(propertySpec.getPossibleValues().getDefault()).isEqualTo("GMT+00:00");
+        // in case you are running this test in a different time zone than Europe/Athens
+        // do change the time zone according with your location
+        assertThat(propertySpec.validateValue("Europe/Athens")).isTrue();            //CXO-7969
+        assertThat(propertySpec.getPossibleValues().getDefault()).isEqualTo("Europe/Athens");
     }
 
     @Test
