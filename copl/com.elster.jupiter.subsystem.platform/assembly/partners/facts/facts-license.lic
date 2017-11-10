@@ -1,5 +1,6 @@
 Licensor=Yellowfin
 Licensee=Elster EnergyICT
+ServerName=localhost
 DataSources=9999
 Consumers=9999
 Writers=9999
