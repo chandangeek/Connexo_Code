@@ -47,10 +47,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -101,7 +98,7 @@ public class DeviceReadingsImporterFactoryTest {
         context.setPropertySpecService(new PropertySpecServiceImpl());
         context.setThreadPrincipalService(threadPrincipalService);
         context.setUserService(userService);
-        context.setClock(Clock.system(ZoneOffset.UTC));
+        context.setClock(Clock.system(ZoneId.of("Europe/Athens"))); //CXO-7969
         when(context.getThesaurus()).thenReturn(thesaurus);
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
         when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
@@ -148,7 +145,7 @@ public class DeviceReadingsImporterFactoryTest {
         //time zone
         Optional<PropertySpec> timeZone = propertySpecs.stream().filter(propertySpec -> propertySpec.getName().equals(TIME_ZONE.getPropertyKey())).findFirst();
         assertThat(timeZone).isPresent();
-        assertThat(timeZone.get().getPossibleValues().getDefault()).isEqualTo("GMT+00:00");
+        assertThat(timeZone.get().getPossibleValues().getDefault()).isEqualTo("Europe/Athens"); //CXO-7969
 
         //number format
         Optional<PropertySpec> numberFormat = propertySpecs.stream().filter(propertySpec -> propertySpec.getName().equals(NUMBER_FORMAT.getPropertyKey())).findFirst();
