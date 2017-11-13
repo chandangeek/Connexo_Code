@@ -47,7 +47,7 @@ Ext.define('Mtr.readingtypes.view.GroupsGrid', {
                         xtype:'button',
                         itemId:'mtr-add-readingTypeGroup-button',
                         privileges : Mtr.privileges.ReadingTypes.admin,
-                        text:Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.addButton', 'MTR', 'Add group')
+                        text:Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.addButton', 'MTR', 'Add reading type group')
                     }
                 ]
             },
