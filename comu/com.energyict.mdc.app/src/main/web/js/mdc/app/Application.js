@@ -32,7 +32,8 @@ Ext.define('MdcApp.Application', {
         'Mdc.privileges.MetrologyConfiguration',
         'Mdc.privileges.CommandLimitationRules',
         'Dal.privileges.Alarm',
-        'Mdc.privileges.RegisteredDevicesKpi'
+        'Mdc.privileges.RegisteredDevicesKpi',
+        'Mdc.privileges.TaskManagement'
     ],
     controllers: [
         'MdcApp.controller.Main'
