@@ -36,7 +36,7 @@ Ext.define('Apr.view.taskmanagement.Add', {
                     },
                     {
                         xtype: 'combobox',
-                        fieldLabel: Uni.I18n.translate('general.logLevel', 'APR', 'Type'),
+                        fieldLabel: Uni.I18n.translate('general.type', 'APR', 'Type'),
                         required: true,
                         name: 'taskType',
                         width: 565,
