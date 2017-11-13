@@ -348,30 +348,31 @@ Ext.define('Uni.form.field.DateTime', {
 
         if (value != null && Ext.isDate(new Date(value))) {
             minutesField = me.down('#date-time-field-minutes');
-        var isLessThanADay = false;
-        if (dateField.lastValue != null) {
-            isLessThanADay = value.getDay() === dateField.lastValue.getDay() && value.getMonth() === dateField.lastValue.getMonth() && value.getYear() === dateField.lastValue.getYear();
-        }
-        //if the date range is less than a day, don't let the user use the whole hours/minutes interval
-        if (value !== null && Ext.isDate(new Date(value)) && isLessThanADay) {
-            dateField[action](moment(value).startOf('day').toDate());
-            hoursField[action](moment(value).hours());
-            minutesField[action](moment(value).minutes());
-            secondsField[action](moment(value).seconds());
-            if (hoursField.lastValue === moment(value).hours()) {
-                minutesField[action](moment(value).minutes());
-            } else {
-                minutesField[action](action === "setMaxValue" ? 59 : 0);
+            var isLessThanADay = false;
+            if (dateField.lastValue != null) {
+                isLessThanADay = value.getDay() === dateField.lastValue.getDay() && value.getMonth() === dateField.lastValue.getMonth() && value.getYear() === dateField.lastValue.getYear();
             }
-        } else if (value !== null && Ext.isDate(new Date(value))) {
-            dateField[action](moment(value).startOf('day').toDate());
-            hoursField[action](action === "setMaxValue" ? 23 : 0);
-            minutesField[action](action === "setMaxValue" ? 59 : 0);
-        } else {
-            dateField[action](null);
-            hoursField[action](null);
-            minutesField[action](null);
-            secondsField[action](null);
+            //if the date range is less than a day, don't let the user use the whole hours/minutes interval
+            if (value !== null && Ext.isDate(new Date(value)) && isLessThanADay) {
+                dateField[action](moment(value).startOf('day').toDate());
+                hoursField[action](moment(value).hours());
+                minutesField[action](moment(value).minutes());
+                secondsField[action](moment(value).seconds());
+                if (hoursField.lastValue === moment(value).hours()) {
+                    minutesField[action](moment(value).minutes());
+                } else {
+                    minutesField[action](action === "setMaxValue" ? 59 : 0);
+                }
+            } else if (value !== null && Ext.isDate(new Date(value))) {
+                dateField[action](moment(value).startOf('day').toDate());
+                hoursField[action](action === "setMaxValue" ? 23 : 0);
+                minutesField[action](action === "setMaxValue" ? 59 : 0);
+            } else {
+                dateField[action](null);
+                hoursField[action](null);
+                minutesField[action](null);
+                secondsField[action](null);
+            }
         }
     },
 
