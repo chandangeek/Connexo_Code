@@ -113,9 +113,13 @@ public class TaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public List<QueueInfo> getQueues(@Context UriInfo uriInfo) {
         List<RecurrentTask> tasks = taskService.getRecurrentTasks();
+        List<String> applicationNames = uriInfo.getQueryParameters().get("application");
         List<String> queueNames = new ArrayList<String>();
         for (RecurrentTask task : tasks)  {
-            queueNames.add(task.getDestination().getName());
+            if (((applicationNames == null) || (applicationNames.size() == 0)) ||
+                    applicationNames.contains(task.getApplication())) {
+                queueNames.add(task.getDestination().getName());
+            }
         }
         Set<String> set = new HashSet<>();
         set.addAll(queueNames);
