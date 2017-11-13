@@ -7,21 +7,15 @@ package com.elster.jupiter.tasks.impl;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskFilterSpecification;
 import com.elster.jupiter.tasks.TaskFinder;
-import com.elster.jupiter.tasks.TaskLogEntry;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +45,11 @@ public class RecurrentTaskFinder implements TaskFinder {
 
     private List<RecurrentTask> findTasks(Connection connection) throws SQLException {
         DataMapper<RecurrentTaskImpl> mapper = dataModel.mapper(RecurrentTaskImpl.class);
-        SqlBuilder builder = mapper.builder("RT");
+        //SqlBuilder builder = mapper.builder("RT");
+        SqlBuilder builder = new SqlBuilder();
+        builder.append("select * from (");
+        builder.append("select RT.ID, RT.APPLICATION, RT.NAME, RT.CRONSTRING, RT.NEXTEXECUTION, RT.PAYLOAD, RT.DESTINATION, RT.LASTRUN, RT.VERSIONCOUNT, RT.CREATETIME, RT.MODTIME, RT.USERNAME, RT.LOGLEVEL, ROWNUM as rnum ");
+        builder.append(" from TSK_RECURRENT_TASK RT ");
         builder.append(" inner join ");
         builder.append("(select * from ");
         builder.append("(select x.*, ROWNUM rnum from ");
@@ -71,11 +69,13 @@ public class RecurrentTaskFinder implements TaskFinder {
         builder.append(") where ((OCC.STATUS is null) or (OCC.STATUS > 0))) ");
         builder.append("select * from (select * from busy ORDER BY STARTDATE ASC) ");
         builder.append("union all ");
-        builder.append("select * from (select * from planned ORDER BY NEXTEXECUTION ASC)) x where ROWNUM <=  ");
-        builder.addInt(start+limit+1);
+        //builder.append("select * from (select * from planned ORDER BY NEXTEXECUTION ASC)) x where ROWNUM <=  ");
+        //builder.addInt(start+limit+1);
+        builder.append("select * from (select * from planned ORDER BY NEXTEXECUTION ASC)) x ");
+
         builder.append(" ) ");
-        builder.append("where rnum >= ");
-        builder.addInt(start+1);
+        //builder.append("where rnum >= ");
+        //builder.addInt(start+1);
         builder.append(") ");
         builder.append("on RT.ID=TSKID ");
 
@@ -135,7 +135,13 @@ public class RecurrentTaskFinder implements TaskFinder {
         }
 
         builder.append("order by TSKSTATUS, STARTDATE ");
+        builder.append(") ");
 
+        // add pagging
+        builder.append(" where rnum <=  ");
+        builder.addInt(start + limit + 1);
+        builder.append(" and rnum >= ");
+        builder.addInt(start + 1);
 
         try(Fetcher<RecurrentTaskImpl> fetcher = mapper.fetcher(builder)) {
             return getRecurrentTasks(fetcher);
