@@ -33,6 +33,8 @@ public enum TranslationKeys implements TranslationKey {
     IMPORT_MISSING_MANDATORY_PROCESSOR_ERROR_TEMPLATE("ImportMissingMandatoryProcessorErrorPrefix", "Can''t process line {0}: The device can''t be processed: property ''{1}'': {2}"),
     IMPORT_MISSING_MANDATORY_PROCESSOR_ERROR_PROPERTY_TEMPLATE("ImportMissingMandatoryProcessorErrorPrefixProperty", "Can''t process line {0}: The device can''t be processed: property ''{1}'': ''{2}'': {3}"),
 
+    IMPORT_ZIP_PROCESSOR_ERROR_TEMPLATE("ImportZipProcessorErrorPrefix", "Can''t process file {0}: The entry {1} can''t be processed: {2}"),
+
     READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED("ReadingsImportResultNoReadingsWereProcessed", "Failed to complete, no readings have been processed."),
     READINGS_IMPORT_RESULT_FAIL("ReadingsImportResultFail", "Failed to complete. {0} readings of {1} devices processed successfully."),
     READINGS_IMPORT_RESULT_FAIL_WITH_ERRORS("ReadingsImportResultFailWithErrors", "Failed to complete. {0} readings of {1} devices processed successfully, {2} readings of {3} devices skipped due to errors."),
@@ -43,9 +45,16 @@ public enum TranslationKeys implements TranslationKey {
     READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS("ReadingsImportResultSuccessWithWarnAndErrors", "Finished successfully with (some) failures and notes. {0} readings of {1} devices processed successfully of which {2} readings contain a note, {3} readings of {4} devices skipped due to errors."),
     READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN("ReadingsImportResultSuccessWithWarn", "Finished successfully with (some) notes. {0} readings of {1} devices processed successfully of which {2} readings contain a note."),
 
+    CERTIFICATES_IMPORT_RESULT_NO_CERTIFICATES_WERE_PROCESSED("CertificatesImportImportResultNoCertificatesWereProcessed", "Failed to complete, no certificates have been processed."),
+    CERTIFICATES_IMPORT_RESULT_FAIL("CertificatesImportResultFail", "Failed to complete. {0} certificates of {1} devices processed successfully."),
+    CERTIFICATES_IMPORT_RESULT_FAIL_WITH_ERRORS("CertificatesImportResultFailWithErrors", "Failed to complete. {0} certificicates of {1} devices processed successfully, {2} certificicates of {3} devices skipped due to errors."),
+    CERTIFICATES_IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS("CertificatesImportResultFailWithWarnAndErrors", "Failed to complete. {0} certificates of {1} devices processed successfully of which {2} certificates contain a note, {3} certificates of {4} devices skipped due to errors."),
+    CERTIFICATES_IMPORT_RESULT_FAIL_WITH_WARN("CertificatesImportResultFailWithWarn", "Failed to complete. {0} certificates of {1} devices processed successfully of which {2} certificates contain a note."),
     CERTIFICATES_IMPORT_RESULT_SUCCESS("CertificatesImportResultSuccess", "Finished successfully. {0} certificates of {1} device(s) processed successfully."),
-    CERTIFICATES_IMPORT_RESULT_SUCCESS_WITH_WARN("ReadingsImportResultSuccessWithWarn", "Finished successfully with (some) notes. {0} readings of {1} devices processed successfully of which {2} readings contain a note."),
-    CERTIFICATES_IMPORT_RESULT_FAIL("ReadingsImportResultFail", "Failed to complete. {0} readings of {1} devices processed successfully."),
+    CERTIFICATES_IMPORT_RESULT_SUCCESS_WITH_ERRORS("CertificatesImportResultSuccessWithErrors", "Finished successfully with (some) failures. {0} certificates of {1} devices processed successfully, {2} certificates of {3} devices skipped due to errors."),
+    CERTIFICATES_IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS("CertificatesImportResultSuccessWithWarnAndErrors", "Finished successfully with (some) failures and notes. {0} certificates of {1} devices processed successfully of which {2} certificates contain a note, {3} certificates of {4} devices skipped due to errors."),
+    CERTIFICATES_IMPORT_RESULT_SUCCESS_WITH_WARN("CertificatesImportResultSuccessWithWarn", "Finished successfully with (some) notes. {0} certificates of {1} devices processed successfully of which {2} certificates contain a note."),
+    CERTIFICATE_NO_SUCH_KEY_ACCESSOR_TYPE( "CertificateNoSuchKeyAccessorType", "Can''t process certificate {0}. The security key that starts with X is not available."),
 
 
     // Properties translations
@@ -71,15 +80,14 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_REMOVE_IMPORTER(DeviceRemoveImportFactory.NAME, "Devices remove importer [STD]"),
     DEVICE_CONNECTION_ATTRIBUTES_IMPORTER(ConnectionAttributesImportFactory.NAME, "Device connection attributes importer [STD]"),
     DEVICE_SECURITY_ATTRIBUTES_IMPORTER(SecurityAttributesImportFactory.NAME, "Device security attributes importer [STD]"),
-    DEVICE_CERTIFICATES_IMPORTER(DeviceCertificatesImporterFactory.NAME,"Certifcate importer [STD]"),
+    DEVICE_CERTIFICATES_IMPORTER(DeviceCertificatesImporterFactory.NAME, "Certifcate importer [STD]"),
 
     STRING_FORMAT("StringFormat", "string"),
     NUMBER_FORMAT("NumberFormat", "number"),
     HEX_STRING_FORMAT("HexStringFormat", "hex string"),
     BOOLEAN_FORMAT("BooleanFormat", "boolean: 0 or 1"),
     INTEGER_FORMAT("IntegerFormat", "integer"),
-    OBIS_CODE_FORMAT("ObisCodeFormat", "obis code")
-    ;
+    OBIS_CODE_FORMAT("ObisCodeFormat", "obis code");
 
     private final String key;
     private final String defaultFormat;

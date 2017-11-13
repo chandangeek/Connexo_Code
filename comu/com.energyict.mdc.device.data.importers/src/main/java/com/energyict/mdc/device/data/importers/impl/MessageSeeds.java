@@ -74,7 +74,13 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_KEY_ACCESSOR_TYPE(505, "NoSuchKeyAccessorType", "Can''t process line {0}.  The device type does not have a security accessor with name {1}", Level.SEVERE),
     UNKNOWN_KEY_WRAPPER(506, "UnknownKeyWrapperType", "Can''t process line {0}.  The importer doesn't know how to handle values of this type, only plaintext keys are supported", Level.SEVERE),
     NO_VALUE_FOR_SECURITY_PROPERTY(507, "NoValueForSecurityProperty", "Can''t process line {0}.  No value was defined for property {1} so the importer doesn''t know where to store the value", Level.SEVERE),
-    CAN_NOT_BE_SPACE_OR_EMPTY(508,"cannnotBeSpaceOrEmpty","The delimiter cannot be empty or 'space'",Level.SEVERE);
+    CAN_NOT_BE_SPACE_OR_EMPTY(508, "cannnotBeSpaceOrEmpty", "The delimiter cannot be empty or 'space'", Level.SEVERE),
+
+    COULD_NOT_EXTRACT_SECURITY_ACCESSOR_TYPE(509, "CouldNotExtractSecurityAccessorType", "The security accessor type could not be extracted from the certificate {0}", Level.SEVERE),
+    COULD_NOT_EXTRACT_SERIAL_NUMBER(510, "CouldNotExtractSerialNumber", "The device serial number  could not be extracted from the filename {0}", Level.SEVERE),
+    COULD_NOT_EXTRACT_CERTIFICATE_NAME(511, "CouldNotExtractCertificateName", "The certificate name could not be extracted from the filename {0}", Level.SEVERE),
+    CERTIFICATE_NO_SUCH_KEY_ACCESSOR_TYPE(512, "CertificateNoSuchKeyAccessorType", "Can''t process certificate {0}. The security key that starts with X is not available", Level.WARNING),
+    NO_DEVICES(513, "ImportProcessorNoDevices", "Cannot process file {0}: No devices found", Level.WARNING);
 
     private final int number;
     private final String key;

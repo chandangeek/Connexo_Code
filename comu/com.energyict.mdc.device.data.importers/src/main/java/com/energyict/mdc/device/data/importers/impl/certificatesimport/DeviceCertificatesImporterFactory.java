@@ -5,6 +5,7 @@ import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataZipImporter;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -34,9 +35,10 @@ public class DeviceCertificatesImporterFactory extends AbstractDeviceDataFileImp
 
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
-        return new DeviceCertificatesImporter(getContext().getThesaurus(),
-                getContext().getDeviceService(),
-                getContext().getSecurityManagementService());
+        DeviceCertificatesParser parser = new DeviceCertificatesParser(getContext());
+        DeviceCertificatesImportProcessor processor = new DeviceCertificatesImportProcessor(getContext());
+        DeviceCertificatesImportLogger logger = new DeviceCertificatesImportLogger(getContext());
+        return DeviceDataZipImporter.withParser(parser).withProcessor(processor).withLogger(logger).build();
     }
 
     @Override
