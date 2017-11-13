@@ -82,6 +82,10 @@ Ext.onReady(function () {
         {
             name: 'Scs',
             path: '../../apps/scs/src'
+        },
+        {
+            name: 'Apr',
+            path: '../../apps/apr/src'
         }
 //        {
 //            name: 'PlaygroundApp',

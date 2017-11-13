@@ -241,6 +241,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>dataquality</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>appserver.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>tasks</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
