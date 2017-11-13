@@ -23,7 +23,8 @@ Ext.define('Est.main.controller.Main', {
         'Est.estimationtasks.controller.EstimationTasksHistory',
         'Est.estimationtasks.controller.EstimationTasksActionMenu',
         'Est.estimationtasks.controller.EstimationTasksAddEdit',
-        'Est.estimationtasks.controller.EstimationTasksLog'
+        'Est.estimationtasks.controller.EstimationTasksLog',
+        'Est.tasksmanagement.controller.TaskManagementAddEdit'
     ],
 
     init: function () {
@@ -58,6 +59,8 @@ Ext.define('Est.main.controller.Main', {
 
             Uni.store.PortalItems.add(portalItem);
         }
+
+        this.getController('Est.tasksmanagement.controller.TaskManagementAddEdit');
     },
 
     onRuleSetMenuBeforeRender: function (menu) {
