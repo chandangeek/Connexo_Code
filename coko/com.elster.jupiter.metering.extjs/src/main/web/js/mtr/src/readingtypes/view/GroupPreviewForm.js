@@ -57,7 +57,7 @@ Ext.define('Mtr.readingtypes.view.GroupPreviewForm', {
                                     {
                                         name: 'timePeriod',
                                         itemId: 'mtr-readingTypesGroupPreview-timePeriod',
-                                        fieldLabel: Uni.I18n.translate('readingtypesmanagment.timeperiod', 'MTR', 'Time period')
+                                        fieldLabel: Uni.I18n.translate('readingtypesmanagment.timeperiod', 'MTR', 'Time-period of interest')
                                     },
                                     {
                                         name: 'aggregate',
