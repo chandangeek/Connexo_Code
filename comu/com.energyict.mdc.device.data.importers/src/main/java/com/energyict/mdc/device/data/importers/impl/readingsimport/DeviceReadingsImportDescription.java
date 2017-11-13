@@ -44,7 +44,7 @@ public class DeviceReadingsImportDescription implements FileImportDescription<De
                 .withSetter(record::setReadingDateTime)
                 .markMandatory()
                 .build());
-        // Reading type mRID
+        // Reading type mRID or OBIS code or Channel/register name
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::addReadingType)
                 .markMandatory()
