@@ -14,5 +14,17 @@ Ext.define('Apr.store.Tasks', {
             type: 'json',
             root: 'tasks'
         }
-    }
+    },
+    listeners: {
+        'beforeLoad': function () {
+            var extraParams = this.proxy.extraParams;
+            // replace filter extra params with new ones
+            //      if (this.proxyFilter) {
+            //          extraParams = _.omit(extraParams, this.proxyFilter.getFields());
+            //          Ext.merge(extraParams, this.getFilterParams());
+            //      }
+
+            //     this.proxy.extraParams = extraParams;
+        }
+    },
 });

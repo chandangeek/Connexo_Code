@@ -14,7 +14,8 @@ Ext.define('Apr.controller.Main', {
         'Apr.controller.history.AppServer',
         'Apr.controller.AppServers',
         'Apr.controller.TaskOverview',
-        'Apr.controller.MessageQueues'
+        'Apr.controller.MessageQueues',
+        'Apr.controller.TaskManagement'
     ],
 
     stores: [
