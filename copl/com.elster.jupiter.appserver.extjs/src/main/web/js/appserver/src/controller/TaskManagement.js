@@ -79,7 +79,7 @@ Ext.define('Apr.controller.TaskManagement', {
             appName = Uni.util.Application.getAppName(),
             view = Ext.create('Apr.view.taskmanagement.Add', {
                 edit: false,
-                addReturnLink: me.rootRoute,
+                addReturnLink: me.getController('Uni.controller.history.Router').getRoute(me.rootRoute).buildUrl(me.rootRouteArguments),
                 storeTypes: me.getTypesStore()
             });
 
