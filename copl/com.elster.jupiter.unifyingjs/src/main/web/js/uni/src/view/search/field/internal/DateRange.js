@@ -39,7 +39,11 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
     },
 
     createCriteriaLine: function () {
-        var me = this;
+        var me = this,
+            toValue,
+            fromValue,
+            fromDate,
+            toDate;
 
         return [
             {
@@ -47,7 +51,23 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
                 itemId: 'from',
                 listeners: {
                     change: function (field, newValue) {
-                        me.down('#to').setMinValue(!Ext.isEmpty(newValue) ? new Date(newValue) : null);
+                        fromValue = newValue;
+                        fromDate = new Date(fromValue);
+                        if((!Ext.isEmpty(toValue))) {
+                            toDate = new Date(toValue);
+                            if (fromDate.getDay() == toDate.getDay() &&
+                                fromDate.getMonth() == toDate.getMonth() &&
+                                fromDate.getYear() == toDate.getYear()) {
+                                me.down('#to').setMinValue(fromDate);
+                            }
+                        }else{
+                            if(fromDate != null){
+                                me.down('#to').setMinValue(fromDate.setHours(0,0,0,0));
+                            }
+                            if(toDate != null){
+                                me.down('#from').setMaxValue(toDate.setHours(23,59,59,59));
+                            }
+                        }
                         me.fireEvent('change', me, me.getValue());
                     }
                 }
@@ -57,7 +77,25 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
                 itemId: 'to',
                 listeners: {
                     change: function (field, newValue) {
-                        me.down('#from').setMaxValue(!Ext.isEmpty(newValue) ? new Date(newValue) : null);
+                        toValue = newValue;
+                        toDate = new Date(toValue);
+                        if(!Ext.isEmpty(fromValue)) {
+                            fromDate = new Date(fromValue);
+                            if (fromDate.getDay() == toDate.getDay() &&
+                                fromDate.getMonth() == toDate.getMonth() &&
+                                fromDate.getYear() == toDate.getYear()) {
+                                me.down('#from').setMaxValue(toDate);
+
+                            }else{
+                                if(fromDate != null){
+                                    me.down('#to').setMinValue(fromDate.setHours(0,0,0,0));
+                                }
+                                if(toDate != null){
+                                    me.down('#from').setMaxValue(toDate.setHours(23,59,59,59));
+                                }
+
+                            }
+                        }
                         me.fireEvent('change', me, me.getValue());
                     }
                 }

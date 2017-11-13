@@ -42,18 +42,17 @@ Ext.define('Uni.view.form.ComboBoxWithEmptyComponent', {
 
     initComponent: function () {
         var me = this,
-            storeObject,
             combo;
         me.initConfig(me.config);
-        storeObject = Ext.data.StoreManager.lookup(me.getStore());
-        storeObject.load({
+        me.store = Ext.data.StoreManager.lookup(me.getStore());
+        me.store.load({
             callback: function (record, operation, success) {
                 me.removeAll();
-                if (success && storeObject.count() > 0) {
+                if (success && me.store.count() > 0) {
                     combo = Ext.create('Ext.form.ComboBox', {
                         queryMode: 'local',
                         name: me.config.name,
-                        store: storeObject,
+                        store: me.store,
                         allowBlank: me.config.allowBlank,
                         width: me.config.width - me.getLabelWidth(),
                         displayField: me.config.displayField,
