@@ -1287,7 +1287,32 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showBulkAction'
                 }
             }
+        },
+        administration: {
+            title: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
+            route: 'administration',
+            disabled: true,
+            items: {
+                taskmanagement: {
+                    title: Uni.I18n.translate('tsk.task.title', 'MDC', 'Tasks'),
+                    route: 'taskmanagement',
+                    controller: 'Mdc.controller.setup.TaskManagement',
+                    action: 'showTaskManagement',
+                    //privileges: Bpm.privileges.BpmManagement.view,
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('tsk.general.addTask', 'MDC', 'Add task'),
+                            route: 'add',
+                            controller: 'Mdc.controller.setup.TaskManagement',
+                            //privileges: Cfg.privileges.Validation.admin,
+                            action: 'showAddTask'
+                        }
+                    }
+                }
+            }
+
         }
+
     },
 
     init: function () {

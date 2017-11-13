@@ -13,7 +13,8 @@ Ext.define('Mdc.controller.Main', {
         'Uni.property.controller.Registry',
         'Mdc.property.UsagePoint',
         'Mdc.dynamicprivileges.DeviceTypeCapability',
-        'Mdc.privileges.RegisteredDevicesKpi'
+        'Mdc.privileges.RegisteredDevicesKpi',
+        'Apr.controller.TaskManagement'
     ],
 
     controllers: [
@@ -129,7 +130,10 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.commands.controller.Commands',
         'Mdc.controller.setup.IssueAlarmDetail',
         'Mdc.networkvisualiser.controller.NetworkVisualiser',
-        'Mdc.registereddevices.controller.RegisteredDevices'
+        'Mdc.registereddevices.controller.RegisteredDevices',
+        'Mdc.controller.setup.TaskManagementDataCollectionKpi',
+        'Mdc.controller.setup.TaskManagementRegisteredDevices',
+        'Mdc.controller.setup.TaskManagement'
     ],
 
     stores: [
@@ -152,6 +156,8 @@ Ext.define('Mdc.controller.Main', {
         var me = this;
             //historian = me.getController('Mdc.controller.history.Setup'); // Forces route registration.
 
+        me.getController('Mdc.controller.setup.TaskManagementDataCollectionKpi');
+        me.getController('Mdc.controller.setup.TaskManagementRegisteredDevices');
         Uni.property.controller.Registry.addProperty('USAGEPOINT', 'Mdc.property.UsagePoint');
         if (Mdc.privileges.Device.canViewDevices()) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
@@ -443,5 +449,38 @@ Ext.define('Mdc.controller.Main', {
                 })
             );
         }
+
+        me.addTaskManagement();
+    },
+
+    addTaskManagement: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            taskManagement = null;
+
+        if (Mdc.privileges.TaskManagement.canView()) {
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
+                portal: 'administration',
+                glyph: 'settings',
+                index: 10
+            }));
+
+            taskManagement = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.taskManagement', 'MDC', 'Task management'),
+                portal: 'administration',
+                route: 'taskmanagement',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.taskmanagement.tasks', 'MDC', 'Tasks'),
+                        href: router.getRoute('administration/taskmanagement').buildUrl({}, {application: Uni.util.Application.getAppName()}),
+                        route: 'taskmanagement',
+                        itemId: 'taskmanagement'
+                    }
+                ]
+            });
+            Uni.store.PortalItems.add(taskManagement);
+        }
     }
+
 });
