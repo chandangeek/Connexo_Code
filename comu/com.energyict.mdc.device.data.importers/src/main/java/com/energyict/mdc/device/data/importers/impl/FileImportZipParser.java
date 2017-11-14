@@ -8,6 +8,4 @@ public interface FileImportZipParser {
     void init(ZipFile zipFile);
 
     Stream<FileImportZipEntry> getZipEntries();
-
-//    FileImportZipEntry parse(ZipEntry zipEntry);
 }

@@ -5,13 +5,13 @@ import java.util.zip.ZipEntry;
 public class FileImportZipEntry {
     private String directory;
     private String fileName;
-        private ZipEntry zipEntry;
+    private ZipEntry zipEntry;
     private String securityAccessorTypeName;
 
     public FileImportZipEntry() {
     }
 
-    public FileImportZipEntry(String directory, String fileName, ZipEntry zipEntry,String securityAccessorTypeName) {
+    public FileImportZipEntry(String directory, String fileName, ZipEntry zipEntry, String securityAccessorTypeName) {
         this.directory = directory;
         this.fileName = fileName;
         this.zipEntry = zipEntry;
@@ -30,5 +30,7 @@ public class FileImportZipEntry {
         return zipEntry;
     }
 
-    public String getSecurityAccessorTypeName() {return  securityAccessorTypeName;}
+    public String getSecurityAccessorTypeName() {
+        return securityAccessorTypeName;
+    }
 }

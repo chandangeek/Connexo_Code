@@ -30,15 +30,9 @@ public class DeviceCertificatesParser implements FileImportZipParser {
         return sortZipEntriesBySubDirectoryAndCertificateName();
     }
 
-//    @Override
-//    public FileImportZipEntry parse(ZipEntry zipEntry) throws FileImportParserException {
-//        DeviceCertificateInfo info = new DeviceCertificateInfo(zipEntry);
-//        return new FileImportZipEntry(info.getSerialNumber(), info.getCertificateName(), info.getCertificate());
-//    }
-
     private Stream<FileImportZipEntry> sortZipEntriesBySubDirectoryAndCertificateName() {
         Predicate<ZipEntry> isFile = ze -> !ze.isDirectory();
-        Comparator<DeviceCertificateInfo> bySerialNumber = Comparator.comparing(e -> e.getSerialNumber());
+        Comparator<DeviceCertificateInfo> bySerialNumber = Comparator.comparing(DeviceCertificateInfo::getSerialNumber);
         Comparator<DeviceCertificateInfo> byCertificateName = Comparator.comparingInt(e -> e.getSecurityAccessorType().length());
 
         return zipFile.stream()

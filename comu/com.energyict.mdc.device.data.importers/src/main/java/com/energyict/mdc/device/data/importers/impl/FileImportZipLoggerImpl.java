@@ -71,7 +71,6 @@ public abstract class FileImportZipLoggerImpl implements FileImportZipLogger {
     protected abstract void summarizeSuccessImport();
 
     private String format(String message, Object... args) {
-        String xxx = new MessageFormat(message).format(args);
         return new MessageFormat(message).format(args);
     }
 }

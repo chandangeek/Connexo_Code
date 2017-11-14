@@ -57,8 +57,8 @@ public class DeviceDataZipImporter extends FileImportZipEntry implements FileImp
         try {
             zipFile = new ZipFile(fileImportOccurrence.getPath());
             parser.init(zipFile);
-            parser.getZipEntries().forEach((Object importZipEntry) -> processZipEntry(zipFile, (FileImportZipEntry) importZipEntry));
-            closeZip(zipFile,logger);
+            parser.getZipEntries().forEach((FileImportZipEntry importZipEntry) -> processZipEntry(zipFile, importZipEntry));
+            closeZip(zipFile, logger);
             logger.importFinished();
         } catch (Exception e) {
             logger.importFailed(e);
@@ -76,7 +76,9 @@ public class DeviceDataZipImporter extends FileImportZipEntry implements FileImp
 
     private void closeZip(ZipFile zipFile, FileImportZipLogger logger) {
         try {
-            zipFile.close();
+            if (zipFile != null) {
+                zipFile.close();
+            }
         } catch (IOException e) {
             logger.info(String.format("file %s could not be closed ", zipFile.getName()));
         }

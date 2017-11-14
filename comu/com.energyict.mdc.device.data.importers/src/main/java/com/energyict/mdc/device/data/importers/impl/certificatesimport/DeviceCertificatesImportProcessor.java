@@ -21,14 +21,10 @@ public class DeviceCertificatesImportProcessor implements FileImportZipProcessor
 
     private volatile SecurityManagementService securityManagementService;
     private volatile DeviceService deviceService;
-//    private volatile Thesaurus thesaurus;
-
-//    private final Pattern securityAccessorTypeNameExtractor = Pattern.compile(".*/(.+)-.+?");
 
     public DeviceCertificatesImportProcessor(DeviceDataImporterContext deviceDataImporterContext) {
         securityManagementService = deviceDataImporterContext.getSecurityManagementService();
         deviceService = deviceDataImporterContext.getDeviceService();
-//        thesaurus = deviceDataImporterContext.getThesaurus();
     }
 
     @Override
