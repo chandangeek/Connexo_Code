@@ -56,6 +56,16 @@ public class DeviceKpiResource {
     }
 
     @GET
+    @Path("/recurrenttask/{recurrenttaskId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION, Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION})
+    public DeviceDataQualityKpiInfo getDataQualityKpiByRecurrentTaskId(@PathParam("recurrenttaskId") long id) {
+        DeviceDataQualityKpi dataQualityKpi = dataQualityKpiService.findDeviceDataQualityKpiByRecurrentTaskId(id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return dataQualityKpiInfoFactory.from(dataQualityKpi);
+    }
+
+    @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION, Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION})
