@@ -25,7 +25,7 @@ Ext.define('Est.tasksmanagement.view.AddEdit', {
                 xtype: 'textfield',
                 name: 'name',
                 itemId: 'task-name',
-                width: 500,
+                width: 600,
                 required: true,
                 fieldLabel: Uni.I18n.translate('general.name', 'EST', 'Name'),
                 allowBlank: false,
@@ -42,7 +42,7 @@ Ext.define('Est.tasksmanagement.view.AddEdit', {
                 fieldLabel: Uni.I18n.translate('general.logLevel', 'EST', 'Log level'),
                 required: true,
                 name: 'logLevel',
-                width: 500,
+                width: 600,
                 itemId: 'est-tasks-add-loglevel',
                 allowBlank: false,
                 store: 'LogLevelsStore',
@@ -62,7 +62,8 @@ Ext.define('Est.tasksmanagement.view.AddEdit', {
             },
             {
                 xtype: 'est-data-sources-container',
-                appName: me.appName
+                appName: me.appName,
+                comboWidth: 335
             },
             {
                 title: Uni.I18n.translate('estimationtasks.general.schedule', 'EST', 'Schedule'),

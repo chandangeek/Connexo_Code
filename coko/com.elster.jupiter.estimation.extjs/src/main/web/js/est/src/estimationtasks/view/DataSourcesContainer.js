@@ -13,6 +13,7 @@ Ext.define('Est.estimationtasks.view.DataSourcesContainer', {
     defaults: {
         labelWidth: 250
     },
+    comboWidth: 235,
     initComponent: function () {
         var me = this;
         switch (me.appName) {
@@ -30,7 +31,7 @@ Ext.define('Est.estimationtasks.view.DataSourcesContainer', {
                                 xtype: 'combobox',
                                 itemId: 'device-group-combo',
                                 name: 'deviceGroupId',
-                                width: 235,
+                                width: me.comboWidth,
                                 store: 'Est.estimationtasks.store.DeviceGroups',
                                 editable: false,
                                 disabled: false,
