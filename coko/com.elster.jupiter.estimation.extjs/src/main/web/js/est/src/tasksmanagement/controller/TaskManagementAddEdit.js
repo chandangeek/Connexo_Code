@@ -34,7 +34,7 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
                 click: this.resetPurpose
             }
         });
-        Apr.TaskManagementApp.addTaskManagementApp('Estimation', {
+        Apr.TaskManagementApp.addTaskManagementApp('EstimationTask', {
             name: Uni.I18n.translate('general.dataEstimation', 'EST', 'Data estimation'),
             controller: this
         });
@@ -252,6 +252,85 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
             formErrorsPanel.show();
         }
     },
+
+    canAdministrate: function () {
+        return true;
+    },
+
+    canRun: function () {
+        return true;
+    },
+
+    canEdit: function () {
+        return true;
+    },
+
+    canHistory: function () {
+        return true;
+    },
+
+    canRemove: function () {
+        return true;
+    },
+
+    runTaskManagement: function (taskManagement) {
+
+    },
+
+    editTaskManagement: function (taskManagement) {
+
+    },
+
+    historyTaskManagement: function (taskManagement) {
+
+    },
+
+    removeTaskManagement: function (taskManagement, startRemovingFunc, removeCompleted, controller) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation');
+
+        confirmationWindow.show({
+            msg: Uni.I18n.translate('estimationtasks.general.remove.msg', 'EST', 'This estimation task will no longer be available.'),
+            title: Uni.I18n.translate('general.removex', 'EST', "Remove '{0}'?", [taskManagement.get('name')]),
+            config: {},
+            fn: function (state) {
+                if (state === 'confirm') {
+                    me.removeOperation(taskManagement, startRemovingFunc, removeCompleted, controller);
+                } else if (state === 'cancel') {
+                    this.close();
+                }
+            }
+        });
+    },
+
+    removeOperation: function (taskManagement, startRemovingFunc, removeCompleted, controller) {
+        var me = this;
+
+        startRemovingFunc.call(controller);
+        Ext.Ajax.request({
+            url: '/api/est/estimation/recurrenttask/' + taskManagement.get('id'),
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Est.estimationtasks.store.EstimationTasks');
+                store.loadRawData([response]);
+                store.each(function (rec) {
+                    rec.destroy({
+                        success: function () {
+                            removeCompleted.call(controller, true);
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationtasks.general.remove.confirm.msg', 'EST', 'Estimation task removed'));
+                        },
+                        failure: function (record, operation) {
+                            removeCompleted.call(controller, false);
+                            if (operation.response.status === 409) {
+                                return;
+                            }
+                        }
+                    });
+                });
+            }
+        })
+    }
     /*
      showEditEstimationTasksView: function (currentTaskId) {
      var me = this,
@@ -338,4 +417,5 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
      btn.disable();
      }
      */
+
 });
