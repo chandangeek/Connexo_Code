@@ -27,6 +27,7 @@ import java.util.Optional;
  */
 public class TaskInfo {
 
+    public Long id;
     public String name;
     public IdWithNameInfo application;
     public String queue;
@@ -43,6 +44,7 @@ public class TaskInfo {
     private static final String BUSY = "Busy";
 
     TaskInfo(RecurrentTask recurrentTask, Thesaurus thesaurus, TimeService timeService, Locale locale, Clock clock) {
+        id = recurrentTask.getId();
         name = recurrentTask.getName();
         application = new IdWithNameInfo(recurrentTask.getApplication(), thesaurus.getString(recurrentTask.getApplication(), recurrentTask.getApplication()));
         queue = recurrentTask.getDestination().getName();
