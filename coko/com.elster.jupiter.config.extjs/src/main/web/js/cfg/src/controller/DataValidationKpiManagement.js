@@ -94,5 +94,82 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
                 editForm.setLoading(false);
             }
         });
+    },
+
+    canAdministrate: function () {
+        return true;
+    },
+
+    canRun: function () {
+        return false;
+    },
+
+    canEdit: function () {
+        return true;
+    },
+
+    canHistory: function () {
+        return false;
+    },
+
+    canRemove: function () {
+        return true;
+    },
+
+    runTaskManagement: function (taskManagement) {
+
+    },
+
+    editTaskManagement: function (taskManagement) {
+
+    },
+
+    historyTaskManagement: function (taskManagement) {
+        return false;
+    },
+
+    removeTaskManagement: function (taskManagement, startRemovingFunc, removeCompleted, controller) {
+        var me = this;
+
+        startRemovingFunc.call(controller);
+        Ext.Ajax.request({
+            url: '/api/dqk/deviceKpis/recurrenttask/' + taskManagement.get('id'),
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Cfg.store.DataValidationKpis');
+                store.loadRawData([response]);
+                store.each(function (record) {
+                    Ext.create('Uni.view.window.Confirmation').show({
+                        title: Uni.I18n.translate('general.removex.kpi', 'CFG', "Remove '{0}'?", [record.get('deviceGroup').name]),
+                        msg: Uni.I18n.translate('dataqualitykpis.deleteConfirmation.msg', 'CFG', 'This data quality KPI will no longer be available in the system. Already calculated data will not be removed.'),
+                        fn: function (state) {
+                            switch (state) {
+                                case 'confirm':
+                                    me.removeOperation(record, startRemovingFunc, removeCompleted, controller);
+                                    break;
+                            }
+                        }
+                    });
+                });
+            }
+        })
+    },
+
+    removeOperation: function (record, startRemovingFunc, removeCompleted, controller) {
+        var me = this;
+
+        record.destroy({
+            success: function () {
+                removeCompleted.call(controller, true);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataqualitykpis.removed', 'CFG', 'Data quality KPI removed'));
+            },
+            failure: function (record, operation) {
+                removeCompleted.call(controller, false);
+                if (operation.response.status === 409) {
+                    return;
+                }
+            }
+        });
     }
 });

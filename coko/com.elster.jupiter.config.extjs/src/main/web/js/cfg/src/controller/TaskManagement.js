@@ -22,7 +22,7 @@ Ext.define('Cfg.controller.TaskManagement', {
                 change: this.onRecurrenceTriggerChange
             }
         });
-        Apr.TaskManagementApp.addTaskManagementApp('Validation', {
+        Apr.TaskManagementApp.addTaskManagementApp('DataValidation', {
             name: Uni.I18n.translate('general.dataValidation', 'CFG', 'Data validation'),
             controller: this
         });
@@ -200,6 +200,85 @@ Ext.define('Cfg.controller.TaskManagement', {
             },
             callback: function () {
                 page.setLoading(false);
+            }
+        })
+    },
+
+    canAdministrate: function () {
+        return true;
+    },
+
+    canRun: function () {
+        return true;
+    },
+
+    canEdit: function () {
+        return true;
+    },
+
+    canHistory: function () {
+        return true;
+    },
+
+    canRemove: function () {
+        return true;
+    },
+
+    runTaskManagement: function (taskManagement) {
+
+    },
+
+    editTaskManagement: function (taskManagement) {
+
+    },
+
+    historyTaskManagement: function (taskManagement) {
+
+    },
+
+    removeTaskManagement: function (taskManagement, startRemovingFunc, removeCompleted, controller) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation');
+
+        confirmationWindow.show({
+            msg: Uni.I18n.translate('validationTasks.general.remove.msg', 'CFG', 'This validation task will no longer be available.'),
+            title: Uni.I18n.translate('general.removex', 'CFG', "Remove '{0}'?", [taskManagement.get('name')]),
+            config: {},
+            fn: function (state) {
+                if (state === 'confirm') {
+                    me.removeOperation(taskManagement, startRemovingFunc, removeCompleted, controller);
+                } else if (state === 'cancel') {
+                    this.close();
+                }
+            }
+        });
+    },
+
+    removeOperation: function (taskManagement, startRemovingFunc, removeCompleted, controller) {
+        var me = this;
+
+        startRemovingFunc.call(controller);
+        Ext.Ajax.request({
+            url: '/api/val/validationtasks/recurrenttask/' + taskManagement.get('id'),
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Cfg.store.ValidationTasks');
+                store.loadRawData([response]);
+                store.each(function (rec) {
+                    rec.destroy({
+                        success: function () {
+                            removeCompleted.call(controller, true);
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.general.remove.confirm.msg', 'CFG', 'Validation task removed'));
+                        },
+                        failure: function (record, operation) {
+                            removeCompleted.call(controller, false);
+                            if (operation.response.status === 409) {
+                                return;
+                            }
+                        }
+                    });
+                });
             }
         })
     }
