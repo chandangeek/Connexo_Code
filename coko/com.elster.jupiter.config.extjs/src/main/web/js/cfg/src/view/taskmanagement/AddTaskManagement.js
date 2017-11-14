@@ -20,7 +20,7 @@ Ext.define('Cfg.view.taskmanagement.AddTaskManagement', {
                 xtype: 'textfield',
                 name: 'name',
                 itemId: 'txt-task-name',
-                width: 565,
+                width: 600,
                 required: true,
                 fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                 enforceMaxLength: true,
@@ -36,7 +36,7 @@ Ext.define('Cfg.view.taskmanagement.AddTaskManagement', {
                 fieldLabel: Uni.I18n.translate('general.logLevel', 'CFG', 'Log level'),
                 required: true,
                 name: 'logLevel',
-                width: 565,
+                width: 600,
                 itemId: 'cfg-validation-task-add-loglevel',
                 allowBlank: false,
                 store: 'LogLevelsStore',
@@ -54,6 +54,7 @@ Ext.define('Cfg.view.taskmanagement.AddTaskManagement', {
                 defaults: {
                     labelWidth: 250
                 },
+                comboWidth: 335,
                 appName: me.appName,
                 edit: me.edit
             },
@@ -172,7 +173,6 @@ Ext.define('Cfg.view.taskmanagement.AddTaskManagement', {
                     }
                 ]
             }
-
         ];
         me.callParent(arguments);
     },

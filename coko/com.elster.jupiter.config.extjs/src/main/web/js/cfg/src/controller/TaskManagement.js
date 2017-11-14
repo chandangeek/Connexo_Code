@@ -28,6 +28,26 @@ Ext.define('Cfg.controller.TaskManagement', {
         });
     },
 
+    canAdministrate: function () {
+        return Cfg.privileges.Validation.canAdministrate();
+    },
+
+    canRun: function () {
+        return Cfg.privileges.Validation.canRun();
+    },
+
+    canEdit: function () {
+        return Cfg.privileges.Validation.canAdministrate();
+    },
+
+    canHistory: function () {
+        return Cfg.privileges.Validation.canViewOrAdministrate();
+    },
+
+    canRemove: function () {
+        return Cfg.privileges.Validation.canAdministrate();
+    },
+
     getTaskForm: function () {
         var me = this,
             appName = Uni.util.Application.getAppName(),
@@ -204,28 +224,69 @@ Ext.define('Cfg.controller.TaskManagement', {
         })
     },
 
-    canAdministrate: function () {
-        return true;
+    runTaskManagement: function (taskManagement, operationStartFunc, operationCompletedFunc, controller) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('validationTasks.general.run', 'CFG', 'Run'),
+                confirmation: function () {
+                    me.submitRunTask(taskManagement, operationStartFunc, operationCompletedFunc, controller, this);
+                }
+            });
+
+        confirmationWindow.insert(1,
+            {
+                xtype: 'panel',
+                itemId: 'date-errors',
+                hidden: true,
+                cls: 'confirmation-window',
+                html: 'sssss'
+            }
+        );
+
+        confirmationWindow.show({
+            msg: Uni.I18n.translate('validationTasks.runMsg', 'CFG', 'This validation task will be queued to run at the earliest possible time.'),
+            title: Uni.I18n.translate('validationTasks.runTask', 'CFG', "Run validation task '{0}'?", [taskManagement.get('name')])
+        });
     },
 
-    canRun: function () {
-        return true;
-    },
+    submitRunTask: function (taskManagement, operationStartFunc, operationCompletedFunc, controller, confWindow) {
+        var me = this;
 
-    canEdit: function () {
-        return true;
-    },
+        operationStartFunc.call(controller);
+        Ext.Ajax.request({
+            url: '/api/val/validationtasks/recurrenttask/' + taskManagement.get('id'),
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Cfg.store.ValidationTasks');
 
-    canHistory: function () {
-        return true;
-    },
-
-    canRemove: function () {
-        return true;
-    },
-
-    runTaskManagement: function (taskManagement) {
-
+                store.loadRawData([response]);
+                store.each(function (rec) {
+                    Ext.Ajax.request({
+                        url: '/api/val/validationtasks/' + rec.get('id') + '/trigger',
+                        method: 'PUT',
+                        jsonData: record.getProxy().getWriter().getRecordData(record),
+                        isNotEdit: true,
+                        success: function () {
+                            confWindow.destroy();
+                            operationCompletedFunc.call(controller, true);
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.run', 'CFG', 'Data validation task run queued'));
+                        },
+                        failure: function (response) {
+                            operationCompletedFunc.call(controller, false);
+                            if (response.status === 400) {
+                                var res = Ext.JSON.decode(response.responseText);
+                                confWindow.update(res.errors[0].msg);
+                                confWindow.setVisible(true);
+                            }
+                            else {
+                                confWindow.destroy();
+                            }
+                        }
+                    });
+                });
+            }
+        })
     },
 
     editTaskManagement: function (taskManagement) {
