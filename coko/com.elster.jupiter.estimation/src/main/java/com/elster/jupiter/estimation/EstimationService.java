@@ -73,6 +73,8 @@ public interface EstimationService {
 
     Optional<? extends EstimationTask> findEstimationTask(long id);
 
+    Optional<? extends EstimationTask> findEstimationTaskByRecurrentTask(long id);
+
     Optional<? extends EstimationTask> findAndLockEstimationTask(long id, long version);
 
     Query<EstimationRuleSet> getEstimationRuleSetQuery();

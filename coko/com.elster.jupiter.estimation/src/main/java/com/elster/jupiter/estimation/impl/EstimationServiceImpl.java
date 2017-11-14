@@ -538,6 +538,12 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Override
+    public Optional<? extends EstimationTask> findEstimationTaskByRecurrentTask(long id) {
+        Condition condition = where("recurrentTask.id").isEqualTo(id);
+        return dataModel.query(IEstimationTask.class, RecurrentTask.class).select(condition).stream().findFirst();
+    }
+
+    @Override
     public Optional<? extends EstimationTask> findAndLockEstimationTask(long id, long version) {
         return dataModel.mapper(IEstimationTask.class).lockObjectIfVersion(version, id);
     }
