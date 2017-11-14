@@ -322,7 +322,7 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
                         success: function () {
                             confWindow.destroy();
                             operationCompletedFunc.call(controller, true);
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.run', 'CFG', 'Data validation task run queued'));
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.run', 'EST', 'Data validation task run queued'));
                         },
                         failure: function (response) {
                             operationCompletedFunc.call(controller, false);
