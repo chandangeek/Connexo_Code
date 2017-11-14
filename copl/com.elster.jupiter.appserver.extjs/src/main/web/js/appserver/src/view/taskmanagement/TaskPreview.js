@@ -8,9 +8,17 @@ Ext.define('Apr.view.taskmanagement.TaskPreview', {
     alias: 'widget.task-management-preview',
 
     requires: [
-        'Uni.form.field.Duration'
+        'Uni.form.field.Duration',
+        'Apr.view.taskmanagement.ActionMenu'
     ],
-
+    tools: [
+        {
+            xtype: 'uni-button-action',
+            menu: {
+                xtype: 'task-management-action-menu'
+            }
+        }
+    ],
     items: [
         {
             xtype: 'form',

@@ -10,7 +10,8 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Apr.store.Tasks'
+        'Apr.store.Tasks',
+        'Apr.view.taskmanagement.ActionMenu'
     ],
     initComponent: function () {
         var me = this;
@@ -29,6 +30,21 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                 header: Uni.I18n.translate('general.nextRun', 'APR', 'Next run'),
                 dataIndex: 'queueStatusString',
                 flex: 1
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                width: 120,
+                //privileges: ,
+                isDisabled: function (view, rowIndex, colIndex, item, record) {
+                    var taskType = record.get('queue'),
+                        taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+
+                    return taskManagement == undefined || !taskManagement.controller.canAdministrate();
+                },
+                menu: {
+                    xtype: 'task-management-action-menu',
+                    itemId: 'task-management-action-menu'
+                }
             }
 
         ];

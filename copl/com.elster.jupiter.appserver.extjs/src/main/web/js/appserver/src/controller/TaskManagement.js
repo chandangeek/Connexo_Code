@@ -22,6 +22,10 @@ Ext.define('Apr.controller.TaskManagement', {
     ],
     refs: [
         {
+            ref: 'page',
+            selector: 'task-management-setup',
+        },
+        {
             ref: 'taskPreview',
             selector: 'task-management-preview'
         },
@@ -32,6 +36,10 @@ Ext.define('Apr.controller.TaskManagement', {
         {
             ref: 'addPage',
             selector: 'task-management-add'
+        },
+        {
+            ref: 'taskManagementGrid',
+            selector: 'task-management-grid'
         }
     ],
 
@@ -46,6 +54,10 @@ Ext.define('Apr.controller.TaskManagement', {
             },
             'task-management-add #add-button': {
                 click: this.addTask
+            },
+            'task-management-action-menu': {
+                click: this.chooseMenuAction,
+                show: this.onMenuShow
             },
         });
     },
@@ -65,6 +77,7 @@ Ext.define('Apr.controller.TaskManagement', {
             taskPreview = me.getTaskPreview();
         taskPreview.setTitle(Ext.String.htmlEncode(record.get('name')));
         taskPreview.down('form').loadRecord(record);
+        taskPreview.down('task-management-action-menu').record = record;
         if (record.get('queueStatus') == 'Busy') {
             taskPreview.down('#durationField').show();
             taskPreview.down('#currentRunField').show();
@@ -125,5 +138,59 @@ Ext.define('Apr.controller.TaskManagement', {
             me.getAddPage().down('#form-errors'));
 
 
+    },
+
+    chooseMenuAction: function (menu, item) {
+        var me = this,
+            record = menu.record || me.getTaskManagementGrid().getSelectionModel().getLastSelected(),
+            taskType = record.get('queue'),
+            taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+
+        switch (item.action) {
+            case 'runTask':
+                taskManagement && taskManagement.controller && taskManagement.controller.runTaskManagement(record);
+                break;
+            case 'editTask':
+                taskManagement && taskManagement.controller && taskManagement.controller.editTaskManagement(record);
+                break;
+            case 'historyTask':
+                taskManagement && taskManagement.controller && taskManagement.controller.historyTaskManagement(record);
+                break;
+            case 'removeTask':
+                taskManagement && taskManagement.controller && taskManagement.controller.removeTaskManagement(record, me.startRemoving, me.removeCompleted, this);
+                break;
+        }
+    },
+
+    onMenuShow: function (menu) {
+        var taskType = menu.record.get('queue'),
+            taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+
+        menu.down('#run-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRun());
+        menu.down('#edit-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canEdit());
+        menu.down('#history-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canHistory());
+        menu.down('#remove-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRemove());
+        menu.reorderItems();
+    },
+
+    startRemoving: function () {
+        var me = this;
+
+        me.getPage().setLoading(true);
+    },
+
+    removeCompleted: function (status) {
+        var me = this;
+
+        me.getPage().setLoading(false);
+        if (status && me.getPage()) {
+            var grid = me.getTaskManagementGrid();
+            grid.down('pagingtoolbartop').totalCount = 0;
+            grid.down('pagingtoolbarbottom').resetPaging();
+            grid.getStore().load();
+        } //else {
+        //  me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').forward();
+        //  }
+        // me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.general.remove.confirm.msg', 'CFG', 'Validation task removed'));
     }
 });
