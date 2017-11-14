@@ -54,6 +54,15 @@ public interface DataCollectionKpiService {
      */
     public Optional<DataCollectionKpi> findDataCollectionKpi(long id);
 
+    /**
+     * Finds the {@link DataCollectionKpi} with the specified id.
+     *
+     * @param id The unique recurrent task identifier
+     * @return The DataCollectionKpi
+     */
+    public Optional<DataCollectionKpi> findDataCollectionKpiByRecurrentTask(long id);
+
+
     Optional<DataCollectionKpi> findAndLockDataCollectionKpiByIdAndVersion(long id, long version);
 
     /**
