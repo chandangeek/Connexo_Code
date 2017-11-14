@@ -204,6 +204,8 @@ public interface ValidationService {
 
     Optional<DataValidationTask> findValidationTaskByName(String name);
 
+    Optional<DataValidationTask> findValidationTaskByRecurrentTaskId(long id);
+
     DataValidationOccurrence createValidationOccurrence(TaskOccurrence taskOccurrence);
 
     Optional<DataValidationOccurrence> findDataValidationOccurrence(TaskOccurrence occurrence);

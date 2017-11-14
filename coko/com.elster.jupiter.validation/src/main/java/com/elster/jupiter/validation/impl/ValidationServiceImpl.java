@@ -857,6 +857,14 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     @Override
+    public Optional<DataValidationTask> findValidationTaskByRecurrentTaskId(long id) {
+        Query<DataValidationTask> query =
+                queryService.wrap(dataModel.query(DataValidationTask.class, RecurrentTask.class));
+        Condition condition = where("recurrentTask.id").isEqualTo(id);
+        return query.select(condition).stream().findFirst();
+    }
+
+    @Override
     public Thesaurus getThesaurus() {
         return thesaurus;
     }
