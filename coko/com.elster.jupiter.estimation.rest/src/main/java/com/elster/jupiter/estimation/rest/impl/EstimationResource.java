@@ -362,6 +362,17 @@ public class EstimationResource {
         return new EstimationTaskInfo(fetchEstimationTask(id, qualityCodeSystem), thesaurus, timeService);
     }
 
+    @GET
+    @Path("/recurrenttask/{recurrentTaskId}/")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK, Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK})
+    public EstimationTaskInfo getEstimationTaskByRecurrenttask(@PathParam("recurrentTaskId") long id,
+                                                               @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
+                                                               @Context SecurityContext securityContext) {
+        QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
+        return new EstimationTaskInfo(fetchEstimationTaskByRecurrentTask(id, qualityCodeSystem), thesaurus, timeService);
+    }
+
     @PUT
     @Path("/tasks/{id}/trigger")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -569,12 +580,21 @@ public class EstimationResource {
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
+    private EstimationTask fetchEstimationTaskByRecurrentTask(long id, QualityCodeSystem qualityCodeSystem) {
+        return findEstimationTaskByRecurrentTaskInApplication(id, qualityCodeSystem)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
     private TaskOccurrence fetchTaskOccurrence(long occurrenceId, EstimationTask task) {
         return task.getOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private Optional<? extends EstimationTask> findEstimationTaskInApplication(long id, QualityCodeSystem qualityCodeSystem) {
         return estimationService.findEstimationTask(id).filter(task -> task.getQualityCodeSystem().equals(qualityCodeSystem));
+    }
+
+    private Optional<? extends EstimationTask> findEstimationTaskByRecurrentTaskInApplication(long id, QualityCodeSystem qualityCodeSystem) {
+        return estimationService.findEstimationTaskByRecurrentTask(id).filter(task -> task.getQualityCodeSystem().equals(qualityCodeSystem));
     }
 
     private Optional<? extends EstimationTask> findAndLockEstimationTaskByIdAndVersionInApplication(long id, long version, QualityCodeSystem qualityCodeSystem) {
