@@ -6,7 +6,6 @@ package com.energyict.mdc.device.topology.kpi;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-
 import com.energyict.mdc.device.data.Device;
 
 import aQute.bnd.annotation.ProviderType;
@@ -44,6 +43,15 @@ public interface RegisteredDevicesKpiService {
      * @return an Optional RegisteredDevicesKpi
      */
     Optional<RegisteredDevicesKpi> findRegisteredDevicesKpi(long id);
+
+    /**
+     * Finds the {@link RegisteredDevicesKpi} with the specified id.
+     *
+     * @param id The unique recurrent task identifier
+     * @return an Optional RegisteredDevicesKpi
+     */
+    Optional<RegisteredDevicesKpi> findRegisteredDevicesKpiByRecurrentTask(long id);
+
 
     /**
      * Finds the {@link RegisteredDevicesKpi} with the specified id and version.

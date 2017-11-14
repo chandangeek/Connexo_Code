@@ -7,26 +7,19 @@ package com.energyict.mdc.device.topology.impl.kpi;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Effectivity;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.PhysicalGatewayReference;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.device.topology.TopologyTimeline;
-import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.device.topology.impl.ServerTopologyService;
-import com.energyict.mdc.device.topology.kpi.Privileges;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiFrequency;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiScore;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
-
 
 import com.google.common.collect.Range;
 
@@ -38,16 +31,13 @@ import java.time.Instant;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiService {
 
@@ -80,6 +70,12 @@ public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiServ
     @Override
     public Optional<RegisteredDevicesKpi> findRegisteredDevicesKpi(long id) {
         return this.dataModel.mapper(RegisteredDevicesKpi.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<RegisteredDevicesKpi> findRegisteredDevicesKpiByRecurrentTask(long id) {
+        Condition condition = where("kpiTask.id").isEqualTo(id);
+        return this.dataModel.query(RegisteredDevicesKpi.class, RecurrentTask.class).select(condition).stream().findFirst();
 
     }
 
