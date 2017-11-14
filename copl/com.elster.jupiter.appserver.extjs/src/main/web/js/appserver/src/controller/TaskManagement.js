@@ -191,6 +191,5 @@ Ext.define('Apr.controller.TaskManagement', {
         } //else {
         //  me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').forward();
         //  }
-        // me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.general.remove.confirm.msg', 'CFG', 'Validation task removed'));
     }
 });
