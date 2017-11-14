@@ -137,6 +137,17 @@ public class RegisteredDevicesKpiResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/recurrenttask/{id}")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE, Privileges.Constants.VIEW})
+    public RegisteredDevicesKpiInfo getKpiByRecurrentTaskId(@PathParam("id") long id) {
+        RegisteredDevicesKpi registeredDevicesKpi = resourceHelper.findRegisteredDevicesKpiByRecurrentTaskIdOrThrowException(id);
+        return registeredDevicesKpiInfoFactory.from(registeredDevicesKpi);
+    }
+
+    @GET
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/kpidata")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION,
             com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION,

@@ -112,6 +112,19 @@ public class KpiResource {
         return dataCollectionKpiInfoFactory.from(dataCollectionKpi);
     }
 
+    @GET
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/recurrenttask/{id}")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_COLLECTION_KPI, Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
+    public DataCollectionKpiInfo getKpiByRecurrentTaskId(@PathParam("id") long id) {
+        DataCollectionKpi dataCollectionKpi = resourceHelper.findDataCollectionKpiByRecurrentTaskIdOrThrowException(id);
+        return dataCollectionKpiInfoFactory.from(dataCollectionKpi);
+    }
+
+
+
     @DELETE
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
