@@ -162,6 +162,18 @@ public class DataValidationTaskResource {
         return dataValidationTaskInfoFactory.asInfo(task);
     }
 
+    @GET
+    @Path("/recurrenttask/{recurrentTaskId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
+    public DataValidationTaskInfo getDataValidationTaskByRecurrentTask(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                                                       @PathParam("recurrentTaskId") long recurrentTaskId,
+                                                                       @Context SecurityContext securityContext) {
+        DataValidationTask task = findValidationTaskByRecurrentTaskId(recurrentTaskId)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return dataValidationTaskInfoFactory.asInfo(task);
+    }
+
     @PUT
     @Transactional
     @Path("/{dataValidationTaskId}")
@@ -318,5 +330,9 @@ public class DataValidationTaskResource {
 
     private Optional<DataValidationTask> findAndLockValidationTaskByIdAndVersionForQualitySystem(long id, long version, QualityCodeSystem qualityCodeSystem) {
         return validationService.findAndLockValidationTaskByIdAndVersion(id, version).filter(task -> task.getQualityCodeSystem().equals(qualityCodeSystem));
+    }
+
+    private Optional<DataValidationTask> findValidationTaskByRecurrentTaskId(long id) {
+        return validationService.findValidationTaskByRecurrentTaskId(id);
     }
 }
