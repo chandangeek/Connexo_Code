@@ -14,7 +14,7 @@ Ext.define('Apr.controller.TaskManagement', {
     ],
     stores: [
         'Apr.store.Tasks',
-        'Apr.store.Queues'
+        'Apr.store.QueuesByApplication'
     ],
     models: [
         'Apr.model.Task',
@@ -63,13 +63,14 @@ Ext.define('Apr.controller.TaskManagement', {
     },
 
     showTaskManagement: function () {
-        var me = this;
+        var me = this,
+            widget = Ext.widget('task-management-setup', {
+                applicationKey: me.applicationKey,
+                addTaskRoute: me.addTaskRoute
+            });
 
-        me.getStore('Apr.store.Queues').getProxy().extraParams = {application: this.applicationKey};
-        me.getApplication().fireEvent('changecontentevent', Ext.widget('task-management-setup', {
-            applicationKey: me.applicationKey,
-            addTaskRoute: me.addTaskRoute
-        }));
+        //me.getStore('Apr.store.Queues').getProxy().extraParams = {application: this.applicationKey};
+        me.getApplication().fireEvent('changecontentevent', widget);
     },
 
     showPreview: function (records, record) {
@@ -148,7 +149,7 @@ Ext.define('Apr.controller.TaskManagement', {
 
         switch (item.action) {
             case 'runTask':
-                taskManagement && taskManagement.controller && taskManagement.controller.runTaskManagement(record);
+                taskManagement && taskManagement.controller && taskManagement.controller.runTaskManagement(record, me.operationStart, me.operationCompleted, this);
                 break;
             case 'editTask':
                 taskManagement && taskManagement.controller && taskManagement.controller.editTaskManagement(record);
@@ -157,7 +158,7 @@ Ext.define('Apr.controller.TaskManagement', {
                 taskManagement && taskManagement.controller && taskManagement.controller.historyTaskManagement(record);
                 break;
             case 'removeTask':
-                taskManagement && taskManagement.controller && taskManagement.controller.removeTaskManagement(record, me.startRemoving, me.removeCompleted, this);
+                taskManagement && taskManagement.controller && taskManagement.controller.removeTaskManagement(record, me.operationStart, me.operationCompleted, this);
                 break;
         }
     },
@@ -173,13 +174,13 @@ Ext.define('Apr.controller.TaskManagement', {
         menu.reorderItems();
     },
 
-    startRemoving: function () {
+    operationStart: function () {
         var me = this;
 
         me.getPage().setLoading(true);
     },
 
-    removeCompleted: function (status) {
+    operationCompleted: function (status) {
         var me = this;
 
         me.getPage().setLoading(false);

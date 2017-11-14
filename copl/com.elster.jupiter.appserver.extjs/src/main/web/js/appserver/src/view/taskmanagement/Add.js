@@ -39,7 +39,7 @@ Ext.define('Apr.view.taskmanagement.Add', {
                         fieldLabel: Uni.I18n.translate('general.type', 'APR', 'Type'),
                         required: true,
                         name: 'taskType',
-                        width: 565,
+                        width: 600,
                         itemId: 'task-management-task-type',
                         allowBlank: false,
                         store: me.storeTypes,

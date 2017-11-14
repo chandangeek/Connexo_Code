@@ -8,7 +8,7 @@ Ext.define('Apr.view.taskmanagement.TaskFilter', {
     alias: 'widget.task-management-filter',
 
     requires: [
-        'Apr.store.Queues'
+        'Apr.store.QueuesByApplication'
     ],
 
     initComponent: function () {
@@ -28,7 +28,7 @@ Ext.define('Apr.view.taskmanagement.TaskFilter', {
                 multiSelect: true,
                 displayField: 'queue',
                 valueField: 'queue',
-                store: 'Apr.store.Queues'
+                store: 'Apr.store.QueuesByApplication'
             },
             {
                 type: 'interval',
