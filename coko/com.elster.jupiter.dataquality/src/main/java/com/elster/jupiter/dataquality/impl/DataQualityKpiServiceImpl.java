@@ -25,10 +25,12 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -49,6 +51,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.dataquality.kpi",
@@ -247,6 +250,12 @@ public class DataQualityKpiServiceImpl implements ServerDataQualityKpiService, M
     @Override
     public Optional<DeviceDataQualityKpi> findDeviceDataQualityKpi(long id) {
         return dataModel.mapper(DeviceDataQualityKpi.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<DeviceDataQualityKpi> findDeviceDataQualityKpiByRecurrentTaskId(long id) {
+        Condition condition = where("dataQualityKpiTask.id").isEqualTo(id);
+        return dataModel.query(DeviceDataQualityKpi.class, RecurrentTask.class).select(condition).stream().findFirst();
     }
 
     @Override

@@ -31,6 +31,8 @@ public interface DataQualityKpiService {
 
     Optional<DeviceDataQualityKpi> findDeviceDataQualityKpi(long id);
 
+    Optional<DeviceDataQualityKpi> findDeviceDataQualityKpiByRecurrentTaskId(long id);
+
     Optional<UsagePointDataQualityKpi> findUsagePointDataQualityKpi(long id);
 
     Optional<? extends DataQualityKpi> findAndLockDataQualityKpiByIdAndVersion(long id, long version);
