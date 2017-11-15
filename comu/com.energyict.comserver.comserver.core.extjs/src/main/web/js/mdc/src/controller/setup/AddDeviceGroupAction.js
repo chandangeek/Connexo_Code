@@ -391,6 +391,21 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 staticGrid.setLoading(true);
             });
 
+            staticGrid.down('pagingtoolbartop').insert(1, {
+                xtype: 'uni-form-info-message',
+                itemId: 'information-message-search-overview',
+                text: Uni.I18n.translate('devicegroup.wizard.dynamic.overview.informationMessage', 'MDC', "Attention: the search result only allows to sort the columns on the active page. All subsequent pages will not be sorted."),
+                margin: '0 10 5 0',
+                iconCmp: {
+                    xtype: 'component',
+                    style: 'font-size: 22px; color: #71adc7; margin: 0px -22px 0px -22px;',
+                    cls: 'icon-info'
+                },
+                width: 750,
+                height: 30,
+                style: 'border: 1px solid #71adc7; border-radius: 10px; padding: 3px 0px 5px 32px;',
+            });
+
             staticGrid.down('pagingtoolbartop').resetPaging();
             staticGrid.down('pagingtoolbarbottom').resetPaging();
         }
