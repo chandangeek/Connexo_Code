@@ -8,6 +8,7 @@ Ext.define('Mdc.controller.setup.TaskManagement', {
     applicationKey: Uni.util.Application.getAppName(),
 
     //main root
+    rootRouteWithArguments: '#/administration/taskmanagement?application=MultiSense',
     rootRoute: 'administration/taskmanagement',
     rootRouteArguments: {application: Uni.util.Application.getAppName()},
 

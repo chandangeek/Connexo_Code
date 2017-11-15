@@ -88,7 +88,7 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
         return form;
     },
 
-    saveTaskForm: function (panel, formErrorsPanel) {
+    saveTaskForm: function (panel, formErrorsPanel, saveOperationComplete, controller) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             editForm = panel.down('registered-devices-kpi-addedit-tgm'),
@@ -126,7 +126,8 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
                         successMessage = Uni.I18n.translate('registeredDevicesKPIs.added', 'MDC', 'Registered devices KPI added');
                         break;
                 }
-                me.getController('Uni.controller.history.Router').getRoute(me.getController('Uni.controller.history.Router').currentRoute.replace('/add', '')).forward();
+                //me.getController('Uni.controller.history.Router').getRoute(me.getController('Uni.controller.history.Router').currentRoute.replace('/add', '')).forward();
+                saveOperationComplete.call(controller);
                 me.getApplication().fireEvent('acknowledge', successMessage);
             },
             failure: function (record, operation) {

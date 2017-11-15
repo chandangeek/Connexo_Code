@@ -8,13 +8,13 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         'Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis'
     ],
     refs: [
-        {ref: 'dataCollectionKpiEditForm', selector: '#dataCollectionKpiEditForm'}
+        {ref: 'dataCollectionKpiEditForm', selector: 'data-collection-kpi-addedit-tgm'}
     ],
 
 
     init: function () {
         this.control({
-            '#dataCollectionKpiEditForm #cmb-frequency': {
+            'data-collection-kpi-addedit-tgm #cmb-frequency': {
                 change: this.onFrequencyChange
             }
         });
@@ -73,7 +73,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         return form;
     },
 
-    saveTaskForm: function (panel, formErrorsPanel) {
+    saveTaskForm: function (panel, formErrorsPanel, saveOperationComplete, controller) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             editForm = panel.down('data-collection-kpi-addedit-tgm'),
@@ -122,7 +122,8 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
                         break;
                 }
 
-                me.getController('Uni.controller.history.Router').getRoute(me.getController('Uni.controller.history.Router').currentRoute.replace('/add', '')).forward();
+                //me.getController('Uni.controller.history.Router').getRoute(me.getController('Uni.controller.history.Router').currentRoute.replace('/add', '')).forward();
+                saveOperationComplete.call(controller);
                 me.getApplication().fireEvent('acknowledge', successMessage);
             },
             failure: function (record, operation) {
