@@ -56,6 +56,9 @@ Ext.define('Cfg.privileges.Validation', {
     canViewOrAdministerDataQuality: function () {
         return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.viewOrAdministerDataQuality);
     },
+    canAdministerDataQuality: function () {
+        return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.administerDataQuality);
+    },
     canViewResultsOrAdministerDataQuality: function () {
         return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.viewResultsOrAdministerDataQuality);
     }

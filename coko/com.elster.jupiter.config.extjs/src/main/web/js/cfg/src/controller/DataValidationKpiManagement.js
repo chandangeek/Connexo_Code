@@ -19,6 +19,26 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
         });
     },
 
+    canAdministrate: function () {
+        return Cfg.privileges.Validation.canAdministerDataQuality();
+    },
+
+    canRun: function () {
+        return false;
+    },
+
+    canEdit: function () {
+        return false;
+    },
+
+    canHistory: function () {
+        return false;
+    },
+
+    canRemove: function () {
+        return Cfg.privileges.Validation.canAdministerDataQuality();
+    },
+
     getTaskForm: function () {
         var me = this,
             form = Ext.create('Cfg.view.taskmanagement.AddDataValidationKpiManagement'),
@@ -35,7 +55,6 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
         });
         return form;
     },
-
 
     saveTaskForm: function (panel, formErrorsPanel, saveOperationComplete, controller) {
         var me = this,
@@ -97,32 +116,10 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
         });
     },
 
-    canAdministrate: function () {
-        return true;
-    },
-
-    canRun: function () {
-        return false;
-    },
-
-    canEdit: function () {
-        return true;
-    },
-
-    canHistory: function () {
-        return false;
-    },
-
-    canRemove: function () {
-        return true;
-    },
-
     runTaskManagement: function (taskManagement) {
-
     },
 
     editTaskManagement: function (taskManagement) {
-
     },
 
     historyTaskManagement: function (taskManagement) {

@@ -68,8 +68,6 @@ Ext.define('Cfg.controller.TaskManagement', {
         var me = this,
             form = panel.down('cfg-validation-tasks-add-task-mgm'),
             page = me.getAddPage(),
-        //form = page.down('#frm-add-validation-task'),
-        //formErrorsPanel = form.down('#form-errors'),
             lastDayOfMonth = false,
             dataSourcesContainer = me.getAddPage().down('#field-validation-task-group'),
             startOnDate,
@@ -79,7 +77,7 @@ Ext.define('Cfg.controller.TaskManagement', {
             minutes;
 
         // var record = me.taskModel || Ext.create('Cfg.model.ValidationTask');
-        var record = Ext.create('Cfg.model.ValidationTask');
+        var record = page.getRecord();
 
         form.getForm().clearInvalid();
         record.beginEdit();
@@ -196,7 +194,6 @@ Ext.define('Cfg.controller.TaskManagement', {
             //     ? me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').buildUrl({taskId: record.getId()})
             //     : me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').buildUrl(),
             success: function () {
-                //me.getController('Uni.controller.history.Router').getRoute(me.getController('Uni.controller.history.Router').currentRoute.replace('/add', '')).forward();
                 saveOperationComplete.call(controller);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.addValidationTask.successMsg', 'CFG', 'Validation task added'));
                 //    if (button.action === 'editTask' && me.fromDetails) {
@@ -262,9 +259,9 @@ Ext.define('Cfg.controller.TaskManagement', {
                     store = Ext.create('Cfg.store.ValidationTasks');
 
                 store.loadRawData([response]);
-                store.each(function (rec) {
+                store.each(function (record) {
                     Ext.Ajax.request({
-                        url: '/api/val/validationtasks/' + rec.get('id') + '/trigger',
+                        url: '/api/val/validationtasks/' + record.get('id') + '/trigger',
                         method: 'PUT',
                         jsonData: record.getProxy().getWriter().getRecordData(record),
                         isNotEdit: true,
@@ -290,8 +287,63 @@ Ext.define('Cfg.controller.TaskManagement', {
         })
     },
 
-    editTaskManagement: function (taskManagement) {
+    editTaskManagement: function (taskManagementId, formErrorsPanel,
+                                  operationStartFunc, editOperationCompleteLoading,
+                                  operationCompletedFunc, setTitleFunc, controller) {
+        var me = this,
+            appName = Uni.util.Application.getAppName(),
+            taskForm = me.getAddPage();
 
+        operationStartFunc.call(controller);
+        Ext.Ajax.request({
+            url: '/api/val/validationtasks/recurrenttask/' + taskManagementId,
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Cfg.store.ValidationTasks');
+
+                store.loadRawData([response]);
+                store.each(function (record) {
+                        setTitleFunc.call(controller, record.get('name'));
+
+                        var schedule = record.get('schedule'),
+                            recurrenceTypeCombo,
+                            callback = function () {
+                                recurrenceTypeCombo = taskForm.down('#cbo-recurrence-type');
+
+                                Ext.suspendLayouts();
+                                taskForm.loadRecord(record);
+
+                                if (record.data.nextRun && (record.data.nextRun !== 0)) {
+                                    taskForm.down('#rgr-validation-tasks-recurrence-trigger').setValue({recurrence: true});
+                                    taskForm.down('#num-recurrence-number').setValue(schedule.count);
+                                    recurrenceTypeCombo.setValue(schedule.timeUnit);
+                                    taskForm.down('#start-on').setValue(record.data.nextRun);
+                                } else {
+                                    recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
+                                }
+
+                                Ext.resumeLayouts(true);
+                            };
+                        if (taskForm.rendered) {
+                            switch (appName) {
+                                case me.MULTISENSE_KEY:
+                                {
+                                    callback();
+                                }
+                                    break;
+                                case me.INSIGHT_KEY:
+                                {
+                                    callback();
+                                }
+                                    break;
+                            }
+                        }
+                        editOperationCompleteLoading.call(controller)
+                    }
+                );
+            }
+        })
     },
 
     historyTaskManagement: function (taskManagement) {
@@ -327,8 +379,8 @@ Ext.define('Cfg.controller.TaskManagement', {
                 var response = Ext.JSON.decode(operation.responseText),
                     store = Ext.create('Cfg.store.ValidationTasks');
                 store.loadRawData([response]);
-                store.each(function (rec) {
-                    rec.destroy({
+                store.each(function (record) {
+                    record.destroy({
                         success: function () {
                             removeCompleted.call(controller, true);
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.general.remove.confirm.msg', 'CFG', 'Validation task removed'));
