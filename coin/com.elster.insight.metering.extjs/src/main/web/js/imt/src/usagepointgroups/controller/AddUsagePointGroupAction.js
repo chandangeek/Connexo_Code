@@ -394,6 +394,20 @@ Ext.define('Imt.usagepointgroups.controller.AddUsagePointGroupAction', {
         } else {
             searchBtn.setText(Uni.I18n.translate('general.preview', 'IMT', 'Preview'));
             staticGrid = step2.down('dynamic-group-usagepoints-grid');
+            staticGrid.down('pagingtoolbartop').insert(1, {
+                xtype: 'uni-form-info-message',
+                itemId: 'information-message-search-overview',
+                text: Uni.I18n.translate('devicegroup.dynamic.informationMessage', 'IMT', "Attention: the search result only allows to sort the columns on the active page. All subsequent pages will not be sorted."),
+                margin: '0 10 5 0',
+                iconCmp: {
+                    xtype: 'component',
+                    style: 'font-size: 22px; color: #71adc7; margin: 0px -22px 0px -22px;',
+                    cls: 'icon-info'
+                },
+                width: 750,
+                height: 30,
+                style: 'border: 1px solid #71adc7; border-radius: 10px; padding: 3px 0px 5px 32px;',
+            });
             staticGrid.down('pagingtoolbartop').resetPaging();
             staticGrid.down('pagingtoolbarbottom').resetPaging();
         }
