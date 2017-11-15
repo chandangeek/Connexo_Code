@@ -8,7 +8,6 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
@@ -58,8 +57,8 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
 
     @Override
     public Optional<DataCollectionKpi> findDataCollectionKpiByRecurrentTask(long id) {
-        Condition condition = where("connectionKpiTask.id").isEqualTo(id);
-        return this.deviceDataModelService.dataModel().query(DataCollectionKpi.class, RecurrentTask.class).select(condition).stream().findFirst();
+        Condition condition = where("COMMUNICATIONKPI_TASK").isEqualTo(id);
+        return this.deviceDataModelService.dataModel().query(DataCollectionKpi.class).select(condition).stream().findFirst();
     }
 
     @Override
