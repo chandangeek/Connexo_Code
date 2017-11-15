@@ -86,7 +86,7 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
         return widget;
     },
 
-    saveTaskForm: function (panel, formErrorsPanel) {
+    saveTaskForm: function (panel, formErrorsPanel, saveOperationComplete, controller) {
         var me = this,
             appName = Uni.util.Application.getAppName(),
             newEstimationTaskDto = me.getAddEditEstimationtaskForm().getValues(),
@@ -242,7 +242,8 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
                 //    ? '#' + previousPath
                 //    : me.getController('Uni.controller.history.Router').getRoute('administration/estimationtasks/estimationtask').buildUrl({taskId: newEstimationTask.getId() ? newEstimationTask.getId() : 0}),
                 success: function () {
-                    me.getController('Uni.controller.history.Router').getRoute(me.getController('Uni.controller.history.Router').currentRoute.replace('/add', '')).forward();
+                    //me.getController('Uni.controller.history.Router').getRoute(me.getController('Uni.controller.history.Router').currentRoute.replace('/add', '')).forward();
+                    saveOperationComplete.call(controller);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationtasks.addTask.successMsg', 'EST', 'Estimation task added'));
                     //if (button.action === 'editTask' && me.fromDetails) {
                     //    me.getController('Uni.controller.history.Router').getRoute('administration/estimationtasks/estimationtask').forward({taskId: newEstimationTask.getId() ? newEstimationTask.getId() : 0});
