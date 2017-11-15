@@ -14,6 +14,7 @@ Ext.define('Apr.view.taskmanagement.TaskPreview', {
     tools: [
         {
             xtype: 'uni-button-action',
+            itemId: 'btn-task-management-preview-action-menu',
             menu: {
                 xtype: 'task-management-action-menu'
             }
@@ -22,6 +23,7 @@ Ext.define('Apr.view.taskmanagement.TaskPreview', {
     items: [
         {
             xtype: 'form',
+            itemId: 'task-management-preview-form',
             items: [
                 {
                     xtype: 'panel',

@@ -43,7 +43,6 @@ Ext.define('Apr.controller.TaskManagement', {
         }
     ],
 
-
     init: function () {
         this.control({
             'task-management-grid': {
@@ -77,9 +76,13 @@ Ext.define('Apr.controller.TaskManagement', {
 
     showPreview: function (records, record) {
         var me = this,
-            taskPreview = me.getTaskPreview();
+            taskPreview = me.getTaskPreview(),
+            taskType = record.get('queue'),
+            taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+
         taskPreview.setTitle(Ext.String.htmlEncode(record.get('name')));
-        taskPreview.down('form').loadRecord(record);
+        taskPreview.down('#task-management-preview-form').loadRecord(record);
+        taskPreview.down('#btn-task-management-preview-action-menu').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canAdministrate());
         taskPreview.down('task-management-action-menu').record = record;
         if (record.get('queueStatus') == 'Busy') {
             taskPreview.down('#durationField').show();
@@ -90,12 +93,46 @@ Ext.define('Apr.controller.TaskManagement', {
         }
     },
 
+    chooseMenuAction: function (menu, item) {
+        var me = this,
+            record = menu.record || me.getTaskManagementGrid().getSelectionModel().getLastSelected(),
+            taskType = record.get('queue'),
+            taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+
+        switch (item.action) {
+            case 'runTask':
+                taskManagement && taskManagement.controller && taskManagement.controller.runTaskManagement(record, me.operationStart, me.operationCompleted, this);
+                break;
+            case 'editTask':
+                route = me.getController('Uni.controller.history.Router').getRoute('administration/taskmanagement/edit');
+                taskManagement && taskManagement.controller && route.forward({type: taskType, id: record.get('id')});
+                break;
+            case 'historyTask':
+                taskManagement && taskManagement.controller && taskManagement.controller.historyTaskManagement(record);
+                break;
+            case 'removeTask':
+                taskManagement && taskManagement.controller && taskManagement.controller.removeTaskManagement(record, me.operationStart, me.operationCompleted, this);
+                break;
+        }
+    },
+
+    onMenuShow: function (menu) {
+        var taskType = menu.record.get('queue'),
+            taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+
+        menu.down('#run-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRun());
+        menu.down('#edit-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canEdit());
+        menu.down('#history-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canHistory());
+        menu.down('#remove-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRemove());
+        menu.reorderItems();
+    },
+
+    /* add task section */
     showAddTask: function () {
         var me = this,
             appName = Uni.util.Application.getAppName(),
             view = Ext.create('Apr.view.taskmanagement.Add', {
                 edit: false,
-                //addReturnLink: me.getController('Uni.controller.history.Router').getRoute(me.rootRoute).buildUrl(me.rootRouteArguments),
                 addReturnLink: me.rootRouteWithArguments,
                 storeTypes: me.getTypesStore()
             });
@@ -126,6 +163,10 @@ Ext.define('Apr.controller.TaskManagement', {
     taskTypeChanged: function (field, newValue) {
         var me = this;
 
+        if (field.suspendComboChange) {
+            return;
+        }
+
         Ext.suspendLayouts();
         me.getAddPage().down('#add-button').setDisabled(false);
         me.getAddPage().down('#task-management-attributes').removeAll();
@@ -143,52 +184,60 @@ Ext.define('Apr.controller.TaskManagement', {
             me.saveOperationComplete,
             this
         );
-
-
     },
 
-    chooseMenuAction: function (menu, item) {
+    /* edit task section */
+    editTask: function (taskType, taskId) {
         var me = this,
-            record = menu.record || me.getTaskManagementGrid().getSelectionModel().getLastSelected(),
-            taskType = record.get('queue'),
-            taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+            taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType),
+            appName = Uni.util.Application.getAppName(),
+            view = Ext.create('Apr.view.taskmanagement.Add', {
+                edit: true,
+                addReturnLink: me.rootRouteWithArguments,
+                storeTypes: me.getTypesStore()
+            });
 
-        switch (item.action) {
-            case 'runTask':
-                taskManagement && taskManagement.controller && taskManagement.controller.runTaskManagement(record, me.operationStart, me.operationCompleted, this);
-                break;
-            case 'editTask':
-                taskManagement && taskManagement.controller && taskManagement.controller.editTaskManagement(record);
-                break;
-            case 'historyTask':
-                taskManagement && taskManagement.controller && taskManagement.controller.historyTaskManagement(record);
-                break;
-            case 'removeTask':
-                taskManagement && taskManagement.controller && taskManagement.controller.removeTaskManagement(record, me.operationStart, me.operationCompleted, this);
-                break;
-        }
+        view.down('#task-management-task-type').setDisabled(true);
+        view.down('#add-button').setDisabled(false);
+        view.down('#task-management-task-type').suspendComboChange = true;
+        view.down('#task-management-task-type').setValue(taskType);
+        view.down('#task-management-task-type').suspendComboChange = false;
+        view.down('#task-management-attributes').removeAll();
+        view.down('#task-management-attributes').add(Apr.TaskManagementApp.getTaskManagementApps().get(taskType).controller.getTaskForm());
+
+        me.getApplication().fireEvent('changecontentevent', view);
+        taskManagement.controller.editTaskManagement(taskId, view.down('#form-errors'),
+            me.editOperationStart, me.editOperationCompleteLoading, me.editOperationCompleted, me.editSetTitle, this);
     },
 
-    onMenuShow: function (menu) {
-        var taskType = menu.record.get('queue'),
-            taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
-
-        menu.down('#run-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRun());
-        menu.down('#edit-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canEdit());
-        menu.down('#history-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canHistory());
-        menu.down('#remove-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRemove());
-        menu.reorderItems();
-    },
-
-    saveOperationComplete: function () {
+    editSetTitle: function (taskName) {
         var me = this;
 
+        me.getAddPage().down('#frm-add-task').setTitle(Uni.I18n.translate('general.editx', 'APR', "Edit '{0}'", taskName, false));
+        me.getApplication().fireEvent('loadTask', taskName);
+    },
+
+    editOperationStart: function () {
+        this.getAddPage().setLoading(true);
+    },
+
+    editOperationCompleteLoading: function () {
+        this.getAddPage().setLoading(false);
+    },
+
+    editOperationCompleted: function (status) {
+        var me = this;
+        me.getController('Uni.controller.history.Router').getRoute(me.rootRoute).forward(null, me.rootRouteArguments);
+    },
+
+    /* common section */
+    saveOperationComplete: function () {
+        var me = this;
         me.getController('Uni.controller.history.Router').getRoute(me.rootRoute).forward(null, me.rootRouteArguments);
     },
 
     operationStart: function () {
         var me = this;
-
         me.getPage().setLoading(true);
     },
 
