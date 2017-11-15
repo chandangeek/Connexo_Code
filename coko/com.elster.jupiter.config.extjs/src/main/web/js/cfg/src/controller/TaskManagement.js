@@ -64,7 +64,7 @@ Ext.define('Cfg.controller.TaskManagement', {
         return view;
     },
 
-    saveTaskForm: function (panel, formErrorsPanel) {
+    saveTaskForm: function (panel, formErrorsPanel, saveOperationComplete, controller) {
         var me = this,
             form = panel.down('cfg-validation-tasks-add-task-mgm'),
             page = me.getAddPage(),
@@ -196,7 +196,8 @@ Ext.define('Cfg.controller.TaskManagement', {
             //     ? me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').buildUrl({taskId: record.getId()})
             //     : me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').buildUrl(),
             success: function () {
-                me.getController('Uni.controller.history.Router').getRoute(me.getController('Uni.controller.history.Router').currentRoute.replace('/add', '')).forward();
+                //me.getController('Uni.controller.history.Router').getRoute(me.getController('Uni.controller.history.Router').currentRoute.replace('/add', '')).forward();
+                saveOperationComplete.call(controller);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.addValidationTask.successMsg', 'CFG', 'Validation task added'));
                 //    if (button.action === 'editTask' && me.fromDetails) {
                 //        me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').forward({taskId: record.getId()});

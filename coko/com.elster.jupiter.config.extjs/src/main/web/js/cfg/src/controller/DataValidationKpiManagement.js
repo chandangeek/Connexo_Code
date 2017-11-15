@@ -37,7 +37,7 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
     },
 
 
-    saveTaskForm: function (panel, formErrorsPanel) {
+    saveTaskForm: function (panel, formErrorsPanel, saveOperationComplete, controller) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             editForm = me.getDataValidationKpiEditForm(),
@@ -70,7 +70,8 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
         record.save({
             backUrl: backUrl,
             success: function (record, operation) {
-                me.getController('Uni.controller.history.Router').getRoute(me.getController('Uni.controller.history.Router').currentRoute.replace('/add', '')).forward();
+                //me.getController('Uni.controller.history.Router').getRoute(me.getController('Uni.controller.history.Router').currentRoute.replace('/add', '')).forward();
+                saveOperationComplete.call(controller);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataqualitykpis.added', 'CFG', 'Data quality KPI added'));
             },
             failure: function (record, operation) {
