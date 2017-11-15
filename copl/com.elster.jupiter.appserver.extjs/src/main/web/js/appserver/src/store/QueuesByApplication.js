@@ -9,7 +9,7 @@ Ext.define('Apr.store.QueuesByApplication', {
 
     proxy: {
         type: 'rest',
-        url: '/api/tsk/task/queues?application=' + Uni.util.Application.getAppName(),
+        url: '/api/tsk/task/queues',
         reader: {
             type: 'json',
             root: 'queues'

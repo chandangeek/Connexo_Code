@@ -28,7 +28,7 @@ Ext.define('Apr.view.taskmanagement.TaskFilter', {
                 multiSelect: true,
                 displayField: 'queue',
                 valueField: 'queue',
-                store: 'Apr.store.QueuesByApplication'
+                store: me.queuesStore
             },
             {
                 type: 'interval',

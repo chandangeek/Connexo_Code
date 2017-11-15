@@ -64,12 +64,14 @@ Ext.define('Apr.controller.TaskManagement', {
 
     showTaskManagement: function () {
         var me = this,
+            queuesStore = me.getStore('Apr.store.QueuesByApplication');
+
+        queuesStore.getProxy().extraParams = {application: this.applicationKey};
             widget = Ext.widget('task-management-setup', {
                 applicationKey: me.applicationKey,
-                addTaskRoute: me.addTaskRoute
+                addTaskRoute: me.addTaskRoute,
+                queuesStore: queuesStore
             });
-
-        //me.getStore('Apr.store.Queues').getProxy().extraParams = {application: this.applicationKey};
         me.getApplication().fireEvent('changecontentevent', widget);
     },
 
@@ -93,7 +95,8 @@ Ext.define('Apr.controller.TaskManagement', {
             appName = Uni.util.Application.getAppName(),
             view = Ext.create('Apr.view.taskmanagement.Add', {
                 edit: false,
-                addReturnLink: me.getController('Uni.controller.history.Router').getRoute(me.rootRoute).buildUrl(me.rootRouteArguments),
+                //addReturnLink: me.getController('Uni.controller.history.Router').getRoute(me.rootRoute).buildUrl(me.rootRouteArguments),
+                addReturnLink: me.rootRouteWithArguments,
                 storeTypes: me.getTypesStore()
             });
 
@@ -136,7 +139,10 @@ Ext.define('Apr.controller.TaskManagement', {
 
         var saveStatus = Apr.TaskManagementApp.getTaskManagementApps().get(taskType).controller.saveTaskForm(
             me.getAddPage().down('#task-management-attributes'),
-            me.getAddPage().down('#form-errors'));
+            me.getAddPage().down('#form-errors'),
+            me.saveOperationComplete,
+            this
+        );
 
 
     },
@@ -172,6 +178,12 @@ Ext.define('Apr.controller.TaskManagement', {
         menu.down('#history-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canHistory());
         menu.down('#remove-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRemove());
         menu.reorderItems();
+    },
+
+    saveOperationComplete: function () {
+        var me = this;
+
+        me.getController('Uni.controller.history.Router').getRoute(me.rootRoute).forward(null, me.rootRouteArguments);
     },
 
     operationStart: function () {
