@@ -245,7 +245,12 @@ public class RelativePeriodResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD, Privileges.Constants.VIEW_RELATIVE_PERIOD})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public RelativePeriodCategoryInfos getCategories(@Context UriInfo uriInfo) {
-        return new RelativePeriodCategoryInfos(timeService.getRelativePeriodCategories(), thesaurus);
+        return new RelativePeriodCategoryInfos(
+                timeService.getRelativePeriodCategories()
+                        .stream()
+                        .sorted(Comparator.comparing(RelativePeriodCategory::getDisplayName, String.CASE_INSENSITIVE_ORDER))
+                        .collect(Collectors.toList())
+                ,thesaurus);
     }
 
     @Path("/weekstarts")
