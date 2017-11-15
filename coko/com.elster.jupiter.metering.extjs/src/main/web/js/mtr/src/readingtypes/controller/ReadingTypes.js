@@ -91,7 +91,10 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
             },
             'reading-type-groups-grid': {
                 select: this.showGroupPreview
-            }
+            },
+            '#mtr-add-readingTypeGroup-button': {  //lori
+                click: this.browseGroupAdd
+            },
         });
     },
 
@@ -266,7 +269,13 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
         }
         me.getGroupPreview().setTitle(Ext.String.htmlEncode(record.get('name')));
         me.getGroupPreviewForm().loadRecord(record);
-    }
+    },
 
+    browseGroupAdd: function () {  //lori
+        var router = this.getController('Uni.controller.history.Router'),
+            addController = this.getController('Mtr.readingtypes.controller.AddReadingTypesGroup');
+        addController.qString = router.getQueryStringValues();
+        router.getRoute('administration/readingtypegroups/add').forward();  //lori
+    },
 });
 

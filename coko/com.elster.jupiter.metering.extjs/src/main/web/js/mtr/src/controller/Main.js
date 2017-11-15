@@ -15,7 +15,8 @@ Ext.define('Mtr.controller.Main', {
         'Mtr.readingtypes.controller.ReadingTypes',
         'Mtr.readingtypes.controller.OverviewSorting',
         'Mtr.readingtypes.controller.AddReadingTypes',
-        'Mtr.readingtypes.controller.BulkAction'
+        'Mtr.readingtypes.controller.BulkAction',
+        'Mtr.readingtypes.controller.AddReadingTypesGroup',
     ],
 
     stores: [
