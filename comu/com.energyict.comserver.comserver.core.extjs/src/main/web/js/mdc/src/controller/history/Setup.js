@@ -1298,14 +1298,29 @@ Ext.define('Mdc.controller.history.Setup', {
                     route: 'taskmanagement',
                     controller: 'Mdc.controller.setup.TaskManagement',
                     action: 'showTaskManagement',
-                    //privileges: Bpm.privileges.BpmManagement.view,
+                    privileges: Mdc.privileges.TaskManagement.view,
                     items: {
                         add: {
                             title: Uni.I18n.translate('tsk.general.addTask', 'MDC', 'Add task'),
                             route: 'add',
                             controller: 'Mdc.controller.setup.TaskManagement',
-                            //privileges: Cfg.privileges.Validation.admin,
+                            //privileges: Mdc.privileges.TaskManagement.edit,
                             action: 'showAddTask'
+                        },
+                        edit: {
+                            title: '',
+                            route: '{type}/{id}/edit',
+                            //privileges: Mdc.privileges.TaskManagement.edit,
+                            controller: 'Mdc.controller.setup.TaskManagement',
+                            action: 'editTask',
+                            callback: function (route) {
+                                this.getApplication().on('loadTask', function (name) {
+                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", name, false));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         }
                     }
                 }

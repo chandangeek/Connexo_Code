@@ -14,5 +14,8 @@ Ext.define('Mdc.privileges.DataCollectionKpi', {
     },
     canView: function () {
         return Uni.Auth.checkPrivileges(Mdc.privileges.DataCollectionKpi.view);
+    },
+    canEdit: function () {
+        return Uni.Auth.checkPrivileges(Mdc.privileges.DataCollectionKpi.admin);
     }
 });

@@ -10,18 +10,7 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
     ],
 
     refs: [
-        {ref: 'kpiEditForm', selector: '#mdc-registered-devices-kpi-addedit-form'},
-        {ref: 'kpiPreviewForm', selector: '#mdc-registered-devices-kpi-details-form'},
-        {ref: 'kpiPreviewContainer', selector: '#mdc-registered-devices-kpi-preview'},
-        {ref: 'kpisGrid', selector: 'registered-devices-kpis-grid'},
-        {ref: 'kpisOverview', selector: 'registered-devices-kpis-view'},
-        {ref: 'registeredDevicesView', selector: 'registered-devices-view'},
-        {ref: 'registeredDevicesOnGatewayView', selector: 'registered-devices-on-gateway-view'},
-        {ref: 'periodFilter', selector: 'registered-devices-view #mdc-registered-devices-filters #mdc-registered-devices-period-filter'},
-        {ref: 'applyButtonOfPeriodFilter', selector: 'registered-devices-view #mdc-registered-devices-filters #mdc-registered-devices-period-filter button[action=apply]'},
-        {ref: 'clearButtonOfPeriodFilter', selector: 'registered-devices-view #mdc-registered-devices-filters #mdc-registered-devices-period-filter button[action=clear]'},
-        {ref: 'registeredDevicesOnGatewayView', selector: 'registered-devices-on-gateway-view'},
-        {ref: 'gatewayPeriodFilter', selector: 'registered-devices-on-gateway-view #mdc-registered-devices-on-gateway-filters #mdc-registered-devices-on-gateway-period-filter'}
+        {ref: 'kpiEditForm', selector: 'registered-devices-kpi-addedit-tgm'}
     ],
 
     init: function () {
@@ -36,7 +25,27 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
         });
     },
 
-    getTaskForm: function (id) {
+    canAdministrate: function () {
+        return Mdc.privileges.RegisteredDevicesKpi.canAdmin();
+    },
+
+    canRun: function () {
+        return false;
+    },
+
+    canEdit: function () {
+        return Mdc.privileges.RegisteredDevicesKpi.canAdmin();
+    },
+
+    canHistory: function () {
+        return false;
+    },
+
+    canRemove: function () {
+        return Mdc.privileges.RegisteredDevicesKpi.canAdmin();
+    },
+
+    getTaskForm: function () {
         var me = this,
             form = Ext.create('Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKPI'),
             deviceGroupStore = form.down('combobox[name=deviceGroup]').getStore(),
@@ -45,46 +54,23 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
             deviceGroupDisplayField = form.down('#mdc-registered-devices-kpi-add-device-group-displayField'),
             createBtn = form.down('#mdc-registered-devices-kpi-add-addEditButton');
 
-        //me.getApplication().fireEvent('changecontentevent', widget);
-        //widget.setLoading(true);
         deviceGroupStore.load({
             callback: function () {
-                if (!Ext.isEmpty(id)) {
-                    // form.setTitle(Uni.I18n.translate('registeredDevicesKPIs.edit', 'MDC', 'Edit registered devices KPI'));
-                    kpiModel.load(id, {
-                        success: function (kpiRecord) {
-                            Ext.suspendLayouts();
-                            form.loadRecord(kpiRecord);
-                            form.down('[name=deviceGroup]').disable();
-                            form.down('[name=frequency]').disable();
-                            form.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", kpiRecord.get('deviceGroup').name));
-                            me.getApplication().fireEvent('loadRegisteredDevicesKpi', kpiRecord.get('deviceGroup').name);
-                            createBtn.setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
-                            createBtn.action = 'save';
-                            Ext.resumeLayouts(true);
-                            //  widget.setLoading(false);
-                        }
-                    });
-                } else {
-                    if (deviceGroupStore.getCount() > 0) {
-                        form.loadRecord(Ext.create(kpiModel));
-                        if (deviceGroupStore.getCount() === 1) {
-                            deviceGroupCombo.setValue(deviceGroupStore.getAt(0).get('id'));
-                        }
-                    } else {
-                        Ext.suspendLayouts();
-                        deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('general.noDeviceGroups', 'MDC', 'No device groups available') + '</span>');
-                        deviceGroupDisplayField.show();
-                        deviceGroupCombo.hide();
-                        createBtn.disable();
-                        Ext.resumeLayouts(true);
+                if (deviceGroupStore.getCount() > 0) {
+                    form.loadRecord(Ext.create(kpiModel));
+                    if (deviceGroupStore.getCount() === 1) {
+                        deviceGroupCombo.setValue(deviceGroupStore.getAt(0).get('id'));
                     }
-                    //  form.setTitle(Uni.I18n.translate('registeredDevicesKPIs.add', 'MDC', 'Add registered devices KPI'));
-                    //    widget.setLoading(false);
+                } else {
+                    Ext.suspendLayouts();
+                    deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('general.noDeviceGroups', 'MDC', 'No device groups available') + '</span>');
+                    deviceGroupDisplayField.show();
+                    deviceGroupCombo.hide();
+                    createBtn.disable();
+                    Ext.resumeLayouts(true);
                 }
             }
         });
-
         return form;
     },
 
@@ -147,32 +133,34 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
         });
     },
 
-    canAdministrate: function () {
-        return true;
-    },
-
-    canRun: function () {
-        return false;
-    },
-
-    canEdit: function () {
-        return true;
-    },
-
-    canHistory: function () {
-        return false;
-    },
-
-    canRemove: function () {
-        return true;
-    },
-
     runTaskManagement: function (taskManagement) {
-
     },
 
-    editTaskManagement: function (taskManagement) {
+    editTaskManagement: function (taskManagementId, formErrorsPanel,
+                                  operationStartFunc, editOperationCompleteLoading,
+                                  operationCompletedFunc, setTitleFunc, controller) {
+        var me = this,
+            form = me.getKpiEditForm();
 
+        operationStartFunc.call(controller);
+        Ext.Ajax.request({
+            url: '/api/ddr/registereddevkpis/recurrenttask/' + taskManagementId,
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Mdc.registereddevices.store.RegisteredDevicesKPIs');
+                store.loadRawData([response]);
+                store.each(function (record) {
+                    setTitleFunc.call(controller, record.get('deviceGroup').name);
+                    Ext.suspendLayouts();
+                    form.loadRecord(record);
+                    form.down('[name=deviceGroup]').disable();
+                    form.down('[name=frequency]').disable();
+                    Ext.resumeLayouts(true);
+                    editOperationCompleteLoading.call(controller)
+                });
+            }
+        })
     },
 
     historyTaskManagement: function (taskManagement) {

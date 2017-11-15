@@ -13,5 +13,8 @@ Ext.define('Mdc.privileges.RegisteredDevicesKpi', {
     },
     canView: function () {
         return Uni.Auth.checkPrivileges(Mdc.privileges.RegisteredDevicesKpi.view);
+    },
+    canAdmin: function () {
+        return Uni.Auth.checkPrivileges(Mdc.privileges.RegisteredDevicesKpi.admin);
     }
 });

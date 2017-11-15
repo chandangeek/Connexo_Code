@@ -11,7 +11,6 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         {ref: 'dataCollectionKpiEditForm', selector: 'data-collection-kpi-addedit-tgm'}
     ],
 
-
     init: function () {
         this.control({
             'data-collection-kpi-addedit-tgm #cmb-frequency': {
@@ -24,7 +23,27 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         });
     },
 
-    getTaskForm: function (id) {
+    canAdministrate: function () {
+        return true;
+    },
+
+    canRun: function () {
+        return false;
+    },
+
+    canEdit: function () {
+        return Mdc.privileges.DataCollectionKpi.canEdit();
+    },
+
+    canHistory: function () {
+        return false;
+    },
+
+    canRemove: function () {
+        return Mdc.privileges.DataCollectionKpi.canEdit();
+    },
+
+    getTaskForm: function () {
         var me = this,
             form = Ext.create('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis'),
             deviceGroupStore = form.down('combobox[name=deviceGroup]').getStore(),
@@ -33,41 +52,19 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
             deviceGroupDisplayField = form.down('#devicegroupDisplayField'),
             createBtn = form.down('#createEditButton');
 
-        //me.getApplication().fireEvent('changecontentevent', widget);
-        //widget.setLoading(true);
         deviceGroupStore.load({
             callback: function () {
-                if (!Ext.isEmpty(id)) {
-                    //widget.down('#dataCollectionKpiEditForm').setTitle(Uni.I18n.translate('datacollectionkpis.editDataCollectionKpi', 'MDC', 'Edit data collection KPI'));
-                    kpiModel.load(id, {
-                        success: function (kpiRecord) {
-                            Ext.suspendLayouts();
-                            form.loadRecord(kpiRecord);
-                            form.down('[name=deviceGroup]').disable();
-                            form.down('[name=frequency]').disable();
-                            //widget.down('#dataCollectionKpiEditForm').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", kpiRecord.get('deviceGroup').name));
-                            me.getApplication().fireEvent('loadDataCollectionKpi', kpiRecord.get('deviceGroup').name);
-                            createBtn.setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
-                            createBtn.action = 'save';
-                            Ext.resumeLayouts(true);
-
-                            //widget.setLoading(false);
-                        }
-                    });
+                if (deviceGroupStore.getCount() > 0) {
+                    form.loadRecord(Ext.create(kpiModel));
                 } else {
-                    if (deviceGroupStore.getCount() > 0) {
-                        form.loadRecord(Ext.create(kpiModel));
-                    } else {
-                        Ext.suspendLayouts();
-                        deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('datacollectionkpis.noDeviceGroup', 'MDC', 'No device group defined yet.') + '</span>');
-                        deviceGroupDisplayField.show();
-                        deviceGroupCombo.hide();
-                        createBtn.disable();
-                        Ext.resumeLayouts(true);
-                    }
-                    //widget.down('#dataCollectionKpiEditForm').setTitle(Uni.I18n.translate('datacollectionkpis.add', 'MDC', 'Add data collection KPI'));
-                    //  widget.setLoading(false);
+                    Ext.suspendLayouts();
+                    deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('datacollectionkpis.noDeviceGroup', 'MDC', 'No device group defined yet.') + '</span>');
+                    deviceGroupDisplayField.show();
+                    deviceGroupCombo.hide();
+                    createBtn.disable();
+                    Ext.resumeLayouts(true);
                 }
+                //  widget.setLoading(false);
             }
         });
         return form;
@@ -152,35 +149,37 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         });
     },
 
-    canAdministrate: function () {
-        return true;
-    },
-
-    canRun: function () {
-        return false;
-    },
-
-    canEdit: function () {
-        return true;
-    },
-
-    canHistory: function () {
-        return false;
-    },
-
-    canRemove: function () {
-        return true;
-    },
-
     runTaskManagement: function (taskManagement) {
-
     },
 
-    editTaskManagement: function (taskManagement) {
+    editTaskManagement: function (taskManagementId, formErrorsPanel,
+                                  operationStartFunc, editOperationCompleteLoading,
+                                  operationCompletedFunc, setTitleFunc, controller) {
+        var me = this,
+            form = me.getDataCollectionKpiEditForm();
 
+        operationStartFunc.call(controller);
+        Ext.Ajax.request({
+            url: '/api/ddr/kpis/recurrenttask/' + taskManagementId,
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Mdc.store.DataCollectionKpis');
+                store.loadRawData([response]);
+                store.each(function (record) {
+                    setTitleFunc.call(controller, record.get('deviceGroup').name);
+                    Ext.suspendLayouts();
+                    form.loadRecord(record);
+                    form.down('[name=deviceGroup]').disable();
+                    form.down('[name=frequency]').disable();
+                    Ext.resumeLayouts(true);
+                    editOperationCompleteLoading.call(controller)
+                });
+            }
+        })
     },
 
-    historyTaskManagement: function (taskManagement) {
+    historyTaskManagement: function () {
         return false;
     },
 
