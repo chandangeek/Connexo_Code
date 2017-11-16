@@ -95,7 +95,7 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
         formErrorsPanel.hide();
 
         if (me.getAddEditEstimationtaskForm().isValid()) {
-            var newEstimationTask = me.getAddEditEstimationtaskForm().getRecord();
+            var newEstimationTask = me.getAddEditEstimationtaskForm().getRecord() || Ext.create('Est.estimationtasks.model.EstimationTask');
             newEstimationTask.beginEdit();
 
             newEstimationTask.set('name', newEstimationTaskDto.name);
