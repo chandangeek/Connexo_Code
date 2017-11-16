@@ -64,7 +64,7 @@ public class DeviceDataZipImporterTest {
 
     @Test
     public void testMarkSuccessWhenInputIsZipFile() throws Exception {
-        setFileName("certificates_valid.zip");
+        setFileName("certificatesMultiDevices.zip");
         FileImportOccurrence importOccurrence = mockFileImportOccurrence();
 
         // execute parser logic
@@ -83,15 +83,19 @@ public class DeviceDataZipImporterTest {
 
     @Test
     public void testExceptionIsThrownWhenInputIsNotZipFle() {
-        setFileName("certificates_txt.zip");
+        setFileName("certificatesWithInvalidTextFormat.zip");
         FileImportOccurrence importOccurrence = mockFileImportOccurrence();
-        DeviceDataZipImporter importer = mockImporter(parser, processor);
+
+        parser = new DeviceCertificatesParser(context);
+        DeviceCertificatesParser spyParser = spy(parser);
+
+        DeviceDataZipImporter importer = mockImporter(spyParser, processor);
 
         importer.process(importOccurrence);
 
         verify(importOccurrence).getPath();
         verify(importOccurrence).markFailure(anyString());
-        verify(parser, never()).init(Matchers.any(ZipFile.class));
+        verify(spyParser, never()).init(Matchers.any(ZipFile.class));
         verify(logger).severe("error in opening zip file");
     }
 
