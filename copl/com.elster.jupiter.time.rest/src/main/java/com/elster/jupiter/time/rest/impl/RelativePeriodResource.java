@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
@@ -131,7 +132,7 @@ public class RelativePeriodResource {
                 .sorted(Comparator.comparing(RelativePeriodUsageInfo::getTask, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
 
-        return PagedInfoList.fromCompleteList("usage", usageInfos, queryParameters);
+        return PagedInfoList.fromPagedList("usage", ListPager.of(usageInfos).from(queryParameters).find(), queryParameters);
     }
 
     private String getCategoryName(long categoryId){
