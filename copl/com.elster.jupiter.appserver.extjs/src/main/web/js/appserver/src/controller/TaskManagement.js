@@ -27,7 +27,7 @@ Ext.define('Apr.controller.TaskManagement', {
         },
         {
             ref: 'taskPreview',
-            selector: 'task-management-preview'
+            selector: 'task-management-setup #task-management-preview'
         },
         {
             ref: 'filter',
@@ -80,6 +80,7 @@ Ext.define('Apr.controller.TaskManagement', {
             taskType = record.get('queue'),
             taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
 
+        Ext.suspendLayouts();
         taskPreview.setTitle(Ext.String.htmlEncode(record.get('name')));
         taskPreview.down('#task-management-preview-form').loadRecord(record);
         taskPreview.down('#btn-task-management-preview-action-menu').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canAdministrate());
@@ -91,6 +92,7 @@ Ext.define('Apr.controller.TaskManagement', {
             taskPreview.down('#durationField').hide();
             taskPreview.down('#currentRunField').hide();
         }
+        Ext.resumeLayouts(true);
     },
 
     chooseMenuAction: function (menu, item) {
@@ -120,11 +122,13 @@ Ext.define('Apr.controller.TaskManagement', {
         var taskType = menu.record.get('queue'),
             taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
 
+        Ext.suspendLayouts();
         menu.down('#run-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRun());
         menu.down('#edit-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canEdit());
         menu.down('#history-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canHistory());
         menu.down('#remove-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRemove());
         menu.reorderItems();
+        Ext.resumeLayouts(true);
     },
 
     /* add task section */
