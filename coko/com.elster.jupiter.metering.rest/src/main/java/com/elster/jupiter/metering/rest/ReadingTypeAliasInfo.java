@@ -10,7 +10,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class ReadingTypeAliasInfo {
 
     public String name;
-    public int numberOfReadingTypes;
+
+    public long numberOfReadingTypes;
 
     public String commodity;
     public String measurementKind;
@@ -27,4 +28,13 @@ public class ReadingTypeAliasInfo {
     public int cpp;
     public int consumptionTier;
 
+    public String getName() {
+
+        return name;
+    }
+
+    public void setNumberOfReadingTypes(long numberOfReadingTypes) {
+
+        this.numberOfReadingTypes = numberOfReadingTypes;
+    }
 }
