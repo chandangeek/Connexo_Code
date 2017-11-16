@@ -30,6 +30,14 @@ public class DeviceCertificatesImportProcessor implements FileImportZipProcessor
     @Override
     public void process(ZipFile zipFile, FileImportZipEntry importZipEntry, FileImportZipLogger logger) {
         List<Device> devices = deviceService.findDevicesBySerialNumber(importZipEntry.getDirectory());
+        if (!devices.isEmpty()) {
+            importCertificate(zipFile, importZipEntry, logger, devices);
+        } else {
+            logger.warning(MessageSeeds.NO_SERIAL_NUMBER, importZipEntry.getDirectory());
+        }
+    }
+
+    private void importCertificate(ZipFile zipFile, FileImportZipEntry importZipEntry, FileImportZipLogger logger, List<Device> devices) {
         try {
             for (Device device : devices) {
                 for (SecurityAccessorType accessorType : findMatchingKeyAccessorTypes(importZipEntry, device, logger)) {
@@ -84,7 +92,6 @@ public class DeviceCertificatesImportProcessor implements FileImportZipProcessor
 
     private ClientCertificateWrapper getWrapper(FileImportZipEntry importZipEntry, SecurityAccessorType securityAccessorType, X509Certificate certificate) {
         String certificateAlias = getAlias(importZipEntry.getFileName());
-        System.out.println("ca: " + certificateAlias);
 
         ClientCertificateWrapper wrapper = securityManagementService
                 .findClientCertificateWrapper(getAlias(importZipEntry.getFileName()))
