@@ -76,8 +76,7 @@ Ext.define('Cfg.controller.TaskManagement', {
             hours,
             minutes;
 
-        // var record = me.taskModel || Ext.create('Cfg.model.ValidationTask');
-        var record = page.getRecord();
+        var record = page.getRecord() || Ext.create('Cfg.model.ValidationTask');
 
         form.getForm().clearInvalid();
         record.beginEdit();
