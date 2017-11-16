@@ -81,12 +81,10 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
             frequency = editForm.down('[name=frequency]').getValue(),
             displayRange = editForm.down('[name=displayRange]').getValue(),
             connectionTarget = editForm.down('#connectionKpiField').getValue(),
-            kpiMessageContainer = editForm.down('#kpiErrorContainer'),
             communicationTarget = editForm.down('#communicationKpiField').getValue();
 
-        kpiMessageContainer.hide();
         formErrorsPanel.hide();
-
+        editForm.getForm().clearInvalid();
         editForm.setLoading();
         record.beginEdit();
         if (!record.getId()) {
@@ -131,8 +129,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
                         if (json && json.errors) {
                             Ext.each(json.errors, function (error) {
                                 if (error.id === 'communicationKpi') {
-                                    kpiMessageContainer.update(error.msg);
-                                    formErrorsPanel.show();
+                                    editForm.down('#communicationKpiField #noTarget').markInvalid(error.msg);
                                 }
                                 if (error.id === 'endDeviceGroup') {
                                     deviceGroupCombo.markInvalid(error.msg);

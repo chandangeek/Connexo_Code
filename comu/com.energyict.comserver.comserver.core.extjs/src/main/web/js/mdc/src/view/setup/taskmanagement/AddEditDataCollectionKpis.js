@@ -89,13 +89,6 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis', {
                 groupName: 'communicationKpiContainer',
                 itemId: 'communicationKpiField',
                 fieldLabel: Uni.I18n.translate('datacollectionkpis.communicationKpi', 'MDC', 'Communication KPI')
-            },
-            {
-                xtype: 'component',
-                itemId: 'kpiErrorContainer',
-                cls: 'x-form-invalid-under',
-                hidden: true,
-                margin: '-10 0 -20 270'
             }
         ];
         me.callParent(arguments);
