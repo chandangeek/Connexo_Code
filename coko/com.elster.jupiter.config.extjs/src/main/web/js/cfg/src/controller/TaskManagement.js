@@ -91,8 +91,8 @@ Ext.define('Cfg.controller.TaskManagement', {
             dataSourcesContainer.setDataSourcesToRecord(record);
         }
 
+        startOnDate = moment(form.down('#start-on').getValue()).valueOf();
         if (form.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
-            startOnDate = moment(form.down('#start-on').getValue()).valueOf();
             timeUnitValue = form.down('#cbo-recurrence-type').getValue();
             dayOfMonth = moment(startOnDate).date();
             if (dayOfMonth >= 29) {
@@ -180,11 +180,10 @@ Ext.define('Cfg.controller.TaskManagement', {
                     });
                     break;
             }
-            record.set('nextRun', startOnDate);
         } else {
-            record.set('nextRun', null);
             record.set('schedule', null);
         }
+        record.set('nextRun', startOnDate);
 
         page.setLoading(true);
         record.endEdit();
@@ -314,10 +313,13 @@ Ext.define('Cfg.controller.TaskManagement', {
                                 taskForm.loadRecord(record);
 
                                 if (record.data.nextRun && (record.data.nextRun !== 0)) {
+                                    taskForm.down('#start-on').setValue(record.data.nextRun);
+                                }
+
+                                if (schedule) {
                                     taskForm.down('#rgr-validation-tasks-recurrence-trigger').setValue({recurrence: true});
                                     taskForm.down('#num-recurrence-number').setValue(schedule.count);
                                     recurrenceTypeCombo.setValue(schedule.timeUnit);
-                                    taskForm.down('#start-on').setValue(record.data.nextRun);
                                 } else {
                                     recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
                                 }
