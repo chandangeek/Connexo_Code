@@ -57,7 +57,7 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
 
     @Override
     public Optional<DataCollectionKpi> findDataCollectionKpiByRecurrentTask(long id) {
-        Condition condition = where("COMMUNICATIONKPI_TASK").isEqualTo(id);
+        Condition condition = where("COMMUNICATIONKPI_TASK").isEqualTo(id).or(where("CONNECTIONKPI_TASK").isEqualTo(id));
         return this.deviceDataModelService.dataModel().query(DataCollectionKpi.class).select(condition).stream().findFirst();
     }
 
