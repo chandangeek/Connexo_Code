@@ -64,7 +64,7 @@ public class DeviceDataZipImporterTest {
 
     @Test
     public void testMarkSuccessWhenInputIsZipFile() throws Exception {
-        setFileName("certificatesMultiDevices.zip");
+        setFileName("certificates.zip");
         FileImportOccurrence importOccurrence = mockFileImportOccurrence();
 
         // execute parser logic
