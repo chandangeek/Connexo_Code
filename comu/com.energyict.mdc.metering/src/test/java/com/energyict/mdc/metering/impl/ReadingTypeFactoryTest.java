@@ -15,14 +15,19 @@ public class ReadingTypeFactoryTest {
 
     private  static final TimeDuration days = TimeDuration.days(1);
 
-
     @Test
     public void obisCodeToReadingType() {
+
         ObisCode code = ObisCode.fromString("1.0.1.8.0.255");
         String regex = ObisCodeToReadingTypeFilterFactory.createMRIDFilterFrom(code);
         assertThat("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").matches(regex);
         assertThat("0.0.0.6.0.1.4.0.0.0.0.0.0.0.128.0.5.0").doesNotMatch(regex);
         assertThat("0.2.0.4.1.1.8.0.0.0.0.2.0.0.0.3.38.0").doesNotMatch(regex);
+
+        code = ObisCode.fromString("1.0.1.8.100.255");
+        regex = ObisCodeToReadingTypeFilterFactory.createMRIDFilterFrom(code);
+        assertThat("0.0.0.0.1.1.12.0.0.0.0.0.0.0.0.3.72.0").matches(regex);
+        assertThat("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").doesNotMatch(regex);
 
         code = ObisCode.fromString("1.0.3.8.0.255");
         regex = ObisCodeToReadingTypeFilterFactory.createMRIDFilterFrom(code);
