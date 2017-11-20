@@ -7,6 +7,9 @@ package com.energyict.mdc.metering.impl;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.obis.ObisCode;
+
+import java.util.List;
+
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -15,11 +18,19 @@ public class AccumulationMappingTest {
 
     private final TimeDuration timeDuration = TimeDuration.hours(1);
 
+
     @Test
     public void nullSafeObisCodeTest() {
         ObisCode nullSafe = null;
         Accumulation measurementKind = AccumulationMapping.getAccumulationFor(nullSafe, timeDuration);
         assertThat(measurementKind).isEqualTo(Accumulation.NOTAPPLICABLE);
+    }
+
+    @Test
+    public void nullSafeObisCodeListTest() {
+        ObisCode nullSafe = null;
+        List<Accumulation> accumulationList = AccumulationMapping.getAccumulationListFor(nullSafe);
+        assertThat(accumulationList.get(0)).isEqualTo(Accumulation.NOTAPPLICABLE);
     }
 
     @Test
@@ -33,6 +44,14 @@ public class AccumulationMappingTest {
         ObisCode obisCode5 = ObisCode.fromString("1.0.7.8.0.255");
         Accumulation measurementKind5 = AccumulationMapping.getAccumulationFor(obisCode5, timeDuration);
         assertThat(measurementKind5).isEqualTo(Accumulation.BULKQUANTITY);
+    }
+
+    @Test
+    public void bulkQuantityListTest(){
+        ObisCode obisCode = ObisCode.fromString("1.0.1.8.0.255");
+        List<Accumulation> accumulationList = AccumulationMapping.getAccumulationListFor(obisCode);
+        assertThat(accumulationList.size()).isEqualTo(1);
+        assertThat(accumulationList.get(0)).isEqualTo(Accumulation.BULKQUANTITY);
     }
 
     @Test
@@ -55,6 +74,14 @@ public class AccumulationMappingTest {
         ObisCode obisCode6 = ObisCode.fromString("7.0.32.23.1.255");
         Accumulation measurementKind6 = AccumulationMapping.getAccumulationFor(obisCode6, timeDuration);
         assertThat(measurementKind6).isNotEqualTo(Accumulation.BULKQUANTITY);
+    }
+
+    @Test
+    public void certainlyNotBulkQuantityListTest() {
+        ObisCode obisCode = ObisCode.fromString("1.0.1.8.100.255");
+        List<Accumulation> accumulationList = AccumulationMapping.getAccumulationListFor(obisCode);
+        assertThat(accumulationList.size()).isEqualTo(1);
+        assertThat(accumulationList.get(0)).isNotEqualTo(Accumulation.BULKQUANTITY);
     }
 
     @Test
@@ -101,6 +128,14 @@ public class AccumulationMappingTest {
     }
 
     @Test
+    public void indicatingListTest() {
+        ObisCode obisCode = ObisCode.fromString("1.0.1.7.0.255");
+        List<Accumulation> accumulationList = AccumulationMapping.getAccumulationListFor(obisCode);
+        assertThat(accumulationList.size()).isEqualTo(1);
+        assertThat(accumulationList.get(0)).isEqualTo(Accumulation.INDICATING);
+    }
+
+    @Test
     public void certainlyNotIndicatingTest() {
         ObisCode obisCode1 = ObisCode.fromString("1.0.1.8.0.255");
         Accumulation measurementKind1 = AccumulationMapping.getAccumulationFor(obisCode1, timeDuration);
@@ -117,6 +152,14 @@ public class AccumulationMappingTest {
         ObisCode obisCode5 = ObisCode.fromString("1.0.1.8.8.255");
         Accumulation measurementKind5 = AccumulationMapping.getAccumulationFor(obisCode5, timeDuration);
         assertThat(measurementKind5).isNotEqualTo(Accumulation.INDICATING);
+    }
+
+    @Test
+    public void certainlyNotIndicatingListTest() {
+        ObisCode obisCode = ObisCode.fromString("1.0.94.7.1.255");
+        List<Accumulation> accumulationList = AccumulationMapping.getAccumulationListFor(obisCode);
+        assertThat(accumulationList.size()).isEqualTo(1);
+        assertThat(accumulationList.get(0)).isNotEqualTo(Accumulation.INDICATING);
     }
 
     @Test
@@ -178,6 +221,14 @@ public class AccumulationMappingTest {
     }
 
     @Test
+    public void cumulativeListTest() {
+        ObisCode obisCode = ObisCode.fromString("1.0.1.1.0.255");
+        List<Accumulation> accumulationList = AccumulationMapping.getAccumulationListFor(obisCode);
+        assertThat(accumulationList.size()).isEqualTo(1);
+        assertThat(accumulationList.get(0)).isEqualTo(Accumulation.CUMULATIVE);
+    }
+
+    @Test
     public void certainlyNotCumulativeTest() {
         ObisCode obisCode1 = ObisCode.fromString("1.0.1.8.0.255");
         Accumulation measurementKind1 = AccumulationMapping.getAccumulationFor(obisCode1, timeDuration);
@@ -197,6 +248,14 @@ public class AccumulationMappingTest {
     }
 
     @Test
+    public void certainlyNotCumulativeListTest() {
+        ObisCode obisCode = ObisCode.fromString("1.0.20.13.2.255");
+        List<Accumulation> accumulationList = AccumulationMapping.getAccumulationListFor(obisCode);
+        assertThat(accumulationList.size()).isEqualTo(1);
+        assertThat(accumulationList.get(0)).isNotEqualTo(Accumulation.CUMULATIVE);
+    }
+
+    @Test
     public void deltaDataTest() {
         ObisCode obisCode1 = ObisCode.fromString("1.0.1.5.1.255");
         Accumulation measurementKind1 = AccumulationMapping.getAccumulationFor(obisCode1, timeDuration);
@@ -213,6 +272,14 @@ public class AccumulationMappingTest {
     }
 
     @Test
+    public void deltaDataListTest() {
+        ObisCode obisCode = ObisCode.fromString("1.0.1.5.1.255");
+        List<Accumulation> accumulationList = AccumulationMapping.getAccumulationListFor(obisCode);
+        assertThat(accumulationList.size()).isEqualTo(1);
+        assertThat(accumulationList.get(0)).isEqualTo(Accumulation.DELTADELTA);
+    }
+
+    @Test
     public void notDeltaDataTest() {
         ObisCode obisCode1 = ObisCode.fromString("1.0.1.8.0.255");
         Accumulation measurementKind1 = AccumulationMapping.getAccumulationFor(obisCode1, timeDuration);
@@ -226,5 +293,22 @@ public class AccumulationMappingTest {
         ObisCode obisCode4 = ObisCode.fromString("1.0.1.12.0.255");
         Accumulation measurementKind4 = AccumulationMapping.getAccumulationFor(obisCode4, timeDuration);
         assertThat(measurementKind4).isNotEqualTo(Accumulation.DELTADELTA);
+    }
+
+    @Test
+    public void notDeltaDataListTest() {
+        ObisCode obisCode = ObisCode.fromString("1.0.20.2.2.255");
+        List<Accumulation> accumulationList = AccumulationMapping.getAccumulationListFor(obisCode);
+        assertThat(accumulationList.size()).isEqualTo(1);
+        assertThat(accumulationList.get(0)).isNotEqualTo(Accumulation.DELTADELTA);
+    }
+
+    @Test
+    public void multipleAccumulationTest() {
+        ObisCode obisCode = ObisCode.fromString("1.0.1.8.1.255");
+        List<Accumulation> accumulationList = AccumulationMapping.getAccumulationListFor(obisCode);
+        assertThat(accumulationList.size()).isEqualTo(2);
+        assertThat(accumulationList).contains(Accumulation.BULKQUANTITY);
+        assertThat(accumulationList).contains(Accumulation.SUMMATION);
     }
 }

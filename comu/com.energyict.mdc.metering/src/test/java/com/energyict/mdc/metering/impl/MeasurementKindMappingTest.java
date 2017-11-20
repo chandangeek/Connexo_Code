@@ -8,6 +8,9 @@ import com.elster.jupiter.cbo.MeasurementKind;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.obis.ObisCode;
 import com.energyict.cbo.Unit;
+
+import java.util.List;
+
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -32,6 +35,20 @@ public class MeasurementKindMappingTest {
         MeasurementKind measurementKind = MeasurementKindMapping.getMeasurementKindFor(safeObisCode, nulLSafeUnit);
 
         assertThat(measurementKind).isEqualTo(MeasurementKind.NOTAPPLICABLE);
+    }
+
+    @Test
+    public void multipleMeasurementKindTest() {
+        ObisCode obisCode = ObisCode.fromString("1.0.1.8.0.255");
+        List<MeasurementKind> measurementKindList = MeasurementKindMapping.getMeasurementKindListFor(obisCode);
+        assertThat(measurementKindList.size()).isGreaterThan(1);
+        assertThat(measurementKindList.contains(MeasurementKind.POWER));
+        assertThat(measurementKindList.contains(MeasurementKind.ENERGY));
+
+        obisCode = ObisCode.fromString("7.0.1.8.0.255");
+        measurementKindList = MeasurementKindMapping.getMeasurementKindListFor(obisCode);
+        assertThat(measurementKindList).hasSize(1);
+        assertThat(measurementKindList.contains(MeasurementKind.VOLUME));
     }
 
     @Test

@@ -123,9 +123,8 @@ class ObisCodeToReadingTypeFilterFactory {
         PHASE {
             @Override
             String getFilter(ObisCode obisCode) {
-                List<Phase> phaseList = PhaseMapping.getPhaseListFor(obisCode);
-                int[] phaseArray = phaseList.stream().mapToInt(Phase::getId).toArray();
-                return this.createRegexFrom(phaseArray) + REGEX_DOT;
+                Phase phase = PhaseMapping.getPhaseFor(obisCode);
+                return String.valueOf(phase.getId()) + REGEX_DOT;
             }
         },
         MULTIPLIER {

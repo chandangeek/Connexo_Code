@@ -12,9 +12,6 @@ import com.energyict.mdc.metering.impl.matchers.Matcher;
 import com.energyict.mdc.metering.impl.matchers.Range;
 import com.energyict.mdc.metering.impl.matchers.RangeMatcher;
 
-import java.util.ArrayList;
-import java.util.List;
-
 enum PhaseMapping {
 
     VOLTAGE_ALL_PHASES(Phase.PHASEABCN, ItemMatcher.itemMatcherFor(12, 89), Matcher.DONT_CARE, Matcher.DONT_CARE),
@@ -58,27 +55,6 @@ enum PhaseMapping {
         return Phase.NOTAPPLICABLE;
     }
 
-    /**
-     * Without additional information ( like timeDuration ), we won't always be able to
-     * map the obis code to one macro period value, so we return all possible mappings.
-     * @param obisCode
-     * @return Non-empty list of Phase objects
-     */
-    static List<Phase> getPhaseListFor(ObisCode obisCode) {
-        List<Phase> phaseList = new ArrayList<>();
-        if(ObisCodeUtil.isElectricity(obisCode)){
-            for (PhaseMapping phaseMapping : values()) {
-                if(phaseMapping.cField.match(obisCode.getC())
-                        && phaseMapping.dField.match(obisCode.getD())
-                        && phaseMapping.eField.match(obisCode.getE())){
-                    phaseList.add(phaseMapping.cimPhase);
-                }
-            }
-        }
-        if (phaseList.isEmpty())
-            phaseList.add(Phase.NOTAPPLICABLE);
-        return phaseList;
-    }
 
     Phase getCimPhase() {
         return cimPhase;
