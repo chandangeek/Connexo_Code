@@ -14,6 +14,9 @@ import com.energyict.mdc.metering.impl.matchers.Range;
 import com.energyict.mdc.metering.impl.matchers.RangeMatcher;
 import com.energyict.mdc.metering.impl.matchers.UnitMatcher;
 
+import java.util.ArrayList;
+import java.util.List;
+
 enum MeasurementKindMapping {
 
     CURRENT(MeasurementKind.CURRENT,
@@ -237,6 +240,33 @@ enum MeasurementKindMapping {
         }
         return MeasurementKind.NOTAPPLICABLE;
     }
+
+    /**
+     * Without additional information ( like unit ), we won't always be able to
+     * map the obis code to one macro period value, so we return all possible mappings.
+     * @param obisCode
+     * @return Non-empty list of MeasurementKind objects
+     */
+    static List<MeasurementKind> getMeasurementKindListFor(ObisCode obisCode) {
+        List<MeasurementKind> measurementKindList = new ArrayList<>();
+        if (obisCode != null) {
+            for (MeasurementKindMapping mkm : values()) {
+                if (mkm.aField.match(obisCode.getA()) &&
+                        mkm.cField.match(obisCode.getC()) &&
+                        mkm.dField.match(obisCode.getD()) &&
+                        mkm.eField.match(obisCode.getE())) {
+                    measurementKindList.add(mkm.kind);
+                }
+            }
+        }
+        if (measurementKindList.isEmpty())
+            measurementKindList.add(MeasurementKind.NOTAPPLICABLE);
+
+        return measurementKindList;
+    }
+
+
+
 
     MeasurementKind getKind() {
         return kind;

@@ -179,4 +179,9 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     public Optional<TimeDuration> getReadingTypeInterval(String readingType) {
         return ReadingTypeToObisCodeFactory.getIntervalFrom(readingType);
     }
+
+    @Override
+    public String getReadingTypeFilterFrom(ObisCode obisCode){
+        return ObisCodeToReadingTypeFilterFactory.createMRIDFilterFrom(obisCode);
+    }
 }

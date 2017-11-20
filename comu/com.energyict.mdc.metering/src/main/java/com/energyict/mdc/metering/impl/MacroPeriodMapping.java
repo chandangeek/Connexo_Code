@@ -12,6 +12,9 @@ import com.energyict.mdc.metering.impl.matchers.Range;
 import com.energyict.mdc.metering.impl.matchers.RangeMatcher;
 import com.energyict.obis.ObisCode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 enum MacroPeriodMapping {
 
     BILLINGPERIOD(MacroPeriod.BILLINGPERIOD, Matcher.DONT_CARE, ItemMatcher.itemsDontMatchFor(255), ItemMatcher.itemsDontMatchFor(
@@ -53,6 +56,31 @@ enum MacroPeriodMapping {
         }
         return MacroPeriod.NOTAPPLICABLE;
     }
+
+    /**
+     * Without additional information ( like timeDuration ), we won't always be able to
+     * map the obis code to one macro period value, so we return all possible mappings.
+     * @param obisCode
+     * @return Non-empty list of macro period values
+     */
+    static List<MacroPeriod> getMacroPeriodListFor(ObisCode obisCode) {
+
+        List<MacroPeriod> macroPeriodList = new ArrayList<>();
+        if (obisCode != null) {
+            for (MacroPeriodMapping macroPeriodMapping : values()) {
+                if (macroPeriodMapping.eFieldMatcher.match(obisCode.getE())
+                        && macroPeriodMapping.fFieldMatcher.match(obisCode.getF())) {
+                    macroPeriodList.add(macroPeriodMapping.macroPeriod);
+                }
+            }
+        }
+        if (macroPeriodList.isEmpty()) {
+            macroPeriodList.add(MacroPeriod.NOTAPPLICABLE);
+        }
+
+        return macroPeriodList;
+    }
+
 
     Matcher<Integer> getTimeDurationMatcher() {
         return timeDurationMatcher;

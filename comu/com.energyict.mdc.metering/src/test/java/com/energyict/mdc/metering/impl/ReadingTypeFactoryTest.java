@@ -15,6 +15,41 @@ public class ReadingTypeFactoryTest {
 
     private  static final TimeDuration days = TimeDuration.days(1);
 
+
+    @Test
+    public void obisCodeToReadingType() {
+        ObisCode code = ObisCode.fromString("1.0.1.8.0.255");
+        String regex = ObisCodeToReadingTypeFilterFactory.createMRIDFilterFrom(code);
+        assertThat("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").matches(regex);
+        assertThat("0.0.0.6.0.1.4.0.0.0.0.0.0.0.128.0.5.0").doesNotMatch(regex);
+        assertThat("0.2.0.4.1.1.8.0.0.0.0.2.0.0.0.3.38.0").doesNotMatch(regex);
+
+        code = ObisCode.fromString("1.0.3.8.0.255");
+        regex = ObisCodeToReadingTypeFilterFactory.createMRIDFilterFrom(code);
+        assertThat("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.73.0").matches(regex);
+
+        code = ObisCode.fromString("1.0.31.7.0.255");
+        regex = ObisCodeToReadingTypeFilterFactory.createMRIDFilterFrom(code);
+        assertThat("0.0.0.6.0.1.4.0.0.0.0.0.0.0.128.0.5.0").matches(regex);
+
+        code = ObisCode.fromString("1.0.32.7.0.255");
+        regex = ObisCodeToReadingTypeFilterFactory.createMRIDFilterFrom(code);
+        assertThat("0.0.0.6.0.1.158.0.0.0.0.0.0.0.129.0.29.0").matches(regex);
+
+        code = ObisCode.fromString("1.0.32.7.0.255");
+        regex = ObisCodeToReadingTypeFilterFactory.createMRIDFilterFrom(code);
+        assertThat("0.0.0.6.0.1.158.0.0.0.0.0.0.0.129.0.29.0").matches(regex);
+
+        code = ObisCode.fromString("1.0.4.4.0.255");
+        regex = ObisCodeToReadingTypeFilterFactory.createMRIDFilterFrom(code);
+        assertThat("0.2.0.6.19.1.8.0.0.0.0.0.0.0.0.3.63.0").matches(regex);
+
+        code = ObisCode.fromString("1.0.1.5.2.255");
+        regex = ObisCodeToReadingTypeFilterFactory.createMRIDFilterFrom(code);
+        assertThat("0.2.0.4.1.1.8.0.0.0.0.2.0.0.0.3.38.0").matches(regex);
+
+    }
+
     @Test
     public void activeEnergyImportObisCodeTester(){
         ObisCode activeEnergyImportTotal = ObisCode.fromString("1.0.1.8.0.255");

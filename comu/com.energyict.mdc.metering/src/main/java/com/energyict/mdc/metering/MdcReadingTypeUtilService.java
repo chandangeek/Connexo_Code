@@ -120,4 +120,11 @@ public interface MdcReadingTypeUtilService {
      */
     Optional<TimeDuration> getReadingTypeInterval(String readingType);
 
-    }
+
+    /**
+     * Creates a ReadingType regex based on the obis code
+     * @param obisCode
+     * @return
+     */
+    String getReadingTypeFilterFrom(ObisCode obisCode);
+}

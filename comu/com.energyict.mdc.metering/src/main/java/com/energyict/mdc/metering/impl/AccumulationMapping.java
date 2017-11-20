@@ -12,6 +12,9 @@ import com.energyict.mdc.metering.impl.matchers.Range;
 import com.energyict.mdc.metering.impl.matchers.RangeMatcher;
 import com.energyict.obis.ObisCode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 enum AccumulationMapping {
 
     SUMMATION(Accumulation.SUMMATION,
@@ -70,6 +73,34 @@ enum AccumulationMapping {
         }
         return Accumulation.NOTAPPLICABLE;
     }
+
+
+    /**
+     * Without additional information ( like timeDuration ), we won't always be able to
+     * map the obis code to one macro period value, so we return all possible mappings.
+     * @param obisCode
+     * @return Non-empty list of accumulation objects
+     */
+     static List<Accumulation> getAccumulationListFor(ObisCode obisCode) {
+        List<Accumulation> accumulationList = new ArrayList<>();
+
+        if (obisCode != null && ObisCodeUtil.isElectricity(obisCode)) {
+            for (AccumulationMapping accumulationMapping : values()) {
+                if (accumulationMapping.cFieldMatcher.match(obisCode.getC()) &&
+                        accumulationMapping.dFieldMatcher.match(obisCode.getD()) &&
+                        accumulationMapping.eFieldMatcher.match(obisCode.getE())) {
+                    accumulationList.add(accumulationMapping.accumulation);
+                }
+            }
+        }
+        if (accumulationList.isEmpty())
+            accumulationList.add(Accumulation.NOTAPPLICABLE);
+
+        return accumulationList;
+    }
+
+
+
 
     Accumulation getAccumulation() {
         return accumulation;
