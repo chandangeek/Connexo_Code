@@ -22,9 +22,12 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.security.Principal;
@@ -61,7 +64,7 @@ public class TaskResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
-    public TaskInfos getDataExportTasks(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
+    public TaskInfos getTasks(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
 
         RecurrentTaskFilterSpecification filterSpec = new RecurrentTaskFilterSpecification();
@@ -87,6 +90,26 @@ public class TaskResource {
         infos.total = params.determineTotal(list.size());
         return infos;
     }
+
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    public TaskInfo getTask(@PathParam("id") long id, @Context UriInfo uriInfo, @Context SecurityContext securityContext) {
+        Principal principal = (Principal) securityContext.getUserPrincipal();
+        Locale locale = Locale.getDefault();
+        if (principal instanceof User) {
+            User user = (User) principal;
+            if (user.getLocale().isPresent()) {
+                locale = user.getLocale().get();
+            }
+        }
+        RecurrentTask recurrentTask = taskService.getRecurrentTask(id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+
+        return new TaskInfo(recurrentTask, thesaurus, timeService, locale, clock);
+    }
+
 
     @GET
     @Path("/applications")
