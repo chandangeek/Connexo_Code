@@ -15,6 +15,7 @@ Ext.define('Est.privileges.EstimationConfiguration', {
     view: ['privilege.view.EstimationConfiguration'],
     viewfineTuneEstimationConfiguration : ['privilege.view.fineTuneEstimationConfiguration.onDeviceConfiguration'],
     administrate: ['privilege.administrate.EstimationConfiguration'],
+    viewOrAdministrate: ['privilege.administrate.EstimationConfiguration'],
     runTask:'privilege.run.ScheduleEstimationTask',
     updateTask:['privilege.update.ScheduleEstimationTask'],
     viewTask: ['privilege.view.ScheduleEstimationTask'],
@@ -37,6 +38,10 @@ Ext.define('Est.privileges.EstimationConfiguration', {
     },
     canAdministrate: function () {
         return Uni.Auth.checkPrivileges(Est.privileges.EstimationConfiguration.administrate);
+    },
+
+    canViewOrAdministrate: function () {
+        return Uni.Auth.checkPrivileges(Est.privileges.EstimationConfiguration.viewOrAdministrate);
     },
     canRun:function(){
         return Uni.Auth.checkPrivileges(Est.privileges.EstimationConfiguration.runTask);

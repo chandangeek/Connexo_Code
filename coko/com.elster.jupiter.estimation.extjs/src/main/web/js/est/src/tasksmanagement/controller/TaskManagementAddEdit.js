@@ -44,6 +44,10 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
         return Est.privileges.EstimationConfiguration.canAdministrate();
     },
 
+    canView: function () {
+        return Est.privileges.EstimationConfiguration.canViewOrAdministrate();
+    },
+
     canRun: function () {
         return Est.privileges.EstimationConfiguration.canRun();
     },
@@ -379,11 +383,11 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
                         });
                     });
 
-                    if (record.get('nextRun') && (record.get('nextRun') !== 0)) {
-                        taskForm.down('#recurrence-trigger').setValue({recurrence: true});
-                        schedule && taskForm.down('#recurrence-number').setValue(schedule.count);
-                        schedule && recurrenceTypeCombo.setValue(schedule.timeUnit);
-                        taskForm.down('#start-on').setValue(record.get('nextRun'));
+                    if (schedule) {
+                        widget.down('#recurrence-trigger').setValue({recurrence: true});
+                        widget.down('#recurrence-number').setValue(schedule.count);
+                        recurrenceTypeCombo.setValue(schedule.timeUnit);
+                        widget.down('#start-on').setValue(record.get('nextRun'));
                     } else {
                         recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
                     }

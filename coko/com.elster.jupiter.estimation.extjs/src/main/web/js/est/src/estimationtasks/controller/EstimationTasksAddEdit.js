@@ -294,7 +294,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
                     });
                 });
 
-                if (record.get('nextRun') && (record.get('nextRun') !== 0)) {
+                if (schedule) {
                     widget.down('#recurrence-trigger').setValue({recurrence: true});
                     widget.down('#recurrence-number').setValue(schedule.count);
                     recurrenceTypeCombo.setValue(schedule.timeUnit);
