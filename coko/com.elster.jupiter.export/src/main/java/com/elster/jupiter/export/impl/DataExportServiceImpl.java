@@ -191,6 +191,14 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     @Override
+    public Optional<? extends ExportTask> findExportTaskByRecurrentTask(long id) {
+        Query<IExportTask> query =
+                queryService.wrap(dataModel.query(IExportTask.class, RecurrentTask.class));
+        Condition condition = where("recurrentTask.id").isEqualTo(id);
+        return query.select(condition).stream().findFirst();
+    }
+
+    @Override
     public Optional<? extends ExportTask> findAndLockExportTask(long id, long version) {
         return dataModel.mapper(IExportTask.class).lockObjectIfVersion(version, id);
     }

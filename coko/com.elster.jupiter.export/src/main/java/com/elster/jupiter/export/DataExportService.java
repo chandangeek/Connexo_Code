@@ -36,6 +36,8 @@ public interface DataExportService {
 
     Optional<? extends ExportTask> findExportTask(long id);
 
+    Optional<? extends ExportTask> findExportTaskByRecurrentTask(long id);
+
     Optional<? extends ExportTask> findAndLockExportTask(long id, long version);
 
     Optional<? extends ExportTask> getReadingTypeDataExportTaskByName(String name);
