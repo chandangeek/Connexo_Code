@@ -24,6 +24,10 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
         return Cfg.privileges.Validation.canAdministerDataQuality();
     },
 
+    canView: function () {
+        return Cfg.privileges.Validation.canViewResultsOrAdministerDataQuality();
+    },
+
     canRun: function () {
         return false;
     },
@@ -197,7 +201,8 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
         var me = this,
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             widget = Ext.widget('data-quality-kpi-details', {
-                actionMenu: actionMenu
+                actionMenu: actionMenu,
+                canAdministrate: me.canAdministrate()
             });
 
         pageMainContent.setLoading(true);
@@ -211,11 +216,14 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
                 store.loadRawData([response]);
                 store.each(function (record) {
                     me.getApplication().fireEvent('changecontentevent', widget);
-                    var frequency = record.get('frequency')
+                    widget.down('#data-collection-kpi-details-side-menu').setHeader(record.get('deviceGroup').name);
+                    me.getApplication().fireEvent('loadTask', record.get('deviceGroup').name);
+
+                    var frequency = record.get('frequency');
 
                     widget.down('#data-quality-kpi-device-group').setValue(record.get('deviceGroup').name);
                     widget.down('#data-quality-kpi-frequency').setValue(frequency ? Uni.util.ScheduleToStringConverter.convert(frequency) : '');
-                    widget.down('#' + actionMenu.itemId).record = taskManagementRecord;
+                    widget.down('#' + actionMenu.itemId) && (widget.down('#' + actionMenu.itemId).record = taskManagementRecord);
                 });
             },
             callback: function () {

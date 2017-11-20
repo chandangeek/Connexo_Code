@@ -43,6 +43,9 @@ Ext.define('Cfg.view.taskmanagement.DetailsDataQualityKpi', {
                 },
                 {
                     xtype: 'uni-button-action',
+                    privileges: function () {
+                        return me.canAdministrate;
+                    },
                     margin: '20 0 0 0',
                     menu: me.actionMenu
                 }

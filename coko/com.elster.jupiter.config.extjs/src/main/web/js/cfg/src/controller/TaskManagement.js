@@ -61,6 +61,10 @@ Ext.define('Cfg.controller.TaskManagement', {
         return Cfg.privileges.Validation.canAdministrate();
     },
 
+    canView: function () {
+        return Cfg.privileges.Validation.canViewOrAdministrate();
+    },
+
     canRun: function () {
         return Cfg.privileges.Validation.canRun();
     },
