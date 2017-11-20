@@ -4,23 +4,23 @@
 
 Ext.define('Mtr.readingtypes.view.AddReadingTypesGroup', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.add-reading-types',
-    itemId: 'add-reading-types',
+    alias: 'widget.add-reading-types-group',
+    itemId: 'add-reading-types-group',
 
     requires: [
-        'Mtr.readingtypes.view.AddReadingTypesForm'
+        'Mtr.readingtypes.view.AddReadingTypesGroupForm'
     ],
 
     addCount: 0,
 
     loadRecord: function (record) {
-        var me = this;
-        me.down('add-reading-types-form').loadRecord(record)
+        var me = this;   //lori
+        me.down('add-reading-types-group-form').loadRecord(record);
     },
 
     setAddCount: function (count) {
         this.addCount = count;
-        this.down('#add-reading-types-count').setValue(Uni.I18n.translatePlural('readingtypesmanagment.addreadingtypes.countMsg',
+        this.down('#add-reading-types-count').setValue(Uni.I18n.translatePlural('readingtypesmanagment.addreadingtypesgroup.countMsg',
             count, 'MTR', 'No reading types will be added',
             'You are going to add {0} reading type. 1000 is the limit', 'You are going to add {0} reading types. 1000 is the limit')
         );
@@ -53,10 +53,10 @@ Ext.define('Mtr.readingtypes.view.AddReadingTypesGroup', {
         me.content = {
             xtype: 'form',
             ui: 'large',
-            title: Uni.I18n.translate('readingtypesmanagment.addreadingtypes.title', 'MTR', 'Add reading types'),
+            title: Uni.I18n.translate('readingtypesmanagment.addreadingtypesgroup.title', 'MTR', 'Add reading types group'),
             items: [
                 {
-                    xtype: 'add-reading-types-form',
+                    xtype: 'add-reading-types-group-form',
                     listeners: {
                         change: function (form) {
                             me.updateAddCount(me.getFormData(form))

@@ -38,15 +38,15 @@ Ext.define('Mtr.readingtypes.controller.AddReadingTypesGroup', {
     refs: [
         {
             ref: 'addReadingTypes',
-            selector: '#add-reading-types'
+            selector: '#add-reading-types-group'
         },
         {
             ref: 'addReadingTypeForm',
-            selector: '#add-reading-types add-reading-types-form'
+            selector: '#add-reading-types-group add-reading-types-group-form'
         },
         {
             ref: 'addReadingTypeFormErrorMessage',
-            selector: '#add-reading-types add-reading-types-form #form-errors'
+            selector: '#add-reading-types-group add-reading-types-group-form #form-errors'
         }
     ],
 
@@ -54,10 +54,10 @@ Ext.define('Mtr.readingtypes.controller.AddReadingTypesGroup', {
 
     init: function () {
         this.control({
-            '#add-reading-types #add-reading-types-add-button': {
+            '#add-reading-types #add-reading-types-group-add-button': {
                 click: this.addButtonClick
             },
-            '#add-reading-types #add-reading-type-cancel-button': {
+            '#add-reading-types #add-reading-type-group-cancel-button': {
                 click: this.goBack
             }
         });
@@ -66,8 +66,9 @@ Ext.define('Mtr.readingtypes.controller.AddReadingTypesGroup', {
     showOverview: function () {
         var me = this,
             widget,
-            record = Ext.create('Mtr.readingtypes.model.AddReadingType');
-        widget = Ext.widget('add-reading-types');
+            record = Ext.create('Mtr.readingtypes.model.AddReadingType'); //lori
+        //deocamdata il folosesc pe cel de la reading types
+        widget = Ext.widget('add-reading-types-group'); // lori
         widget.loadRecord(record);
         me.getApplication().fireEvent('changecontentevent', widget);
     },
