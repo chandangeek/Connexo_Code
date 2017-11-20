@@ -11,18 +11,24 @@ Ext.define('Cfg.view.validationtask.HistoryPreview', {
         'Cfg.view.validationtask.HistoryPreviewForm',
         'Cfg.view.validationtask.HistoryActionMenu'
     ],
+    historyActionItemId: 'cfg-tasks-history-action-menu',
 
-    tools: [
-        {
-            xtype: 'uni-button-action',
-            menu: {
-                xtype: 'cfg-tasks-history-action-menu'
+    initComponent: function () {
+        var me = this;
+        me.tools = [
+            {
+                xtype: 'uni-button-action',
+                menu: {
+                    xtype: 'cfg-tasks-history-action-menu',
+                    itemId: me.historyActionItemId
+                }
             }
-        }
-    ],
+        ];
 
-    items: {
-        xtype: 'cfg-tasks-history-preview-form'
+        me.items = {
+            xtype: 'cfg-tasks-history-preview-form'
+        }
+        me.callParent(arguments);
     }
 });
 

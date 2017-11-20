@@ -22,7 +22,7 @@ Ext.define('Cfg.view.log.Preview', {
                     fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                     name: 'name',
                     renderer: function (value) {
-                        var url = me.router.getRoute('administration/validationtasks/validationtask').buildUrl();
+                        var url = me.router.getRoute(me.detailLogRoute).buildUrl({taskId: me.taskId});
                         return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                     }
                 },

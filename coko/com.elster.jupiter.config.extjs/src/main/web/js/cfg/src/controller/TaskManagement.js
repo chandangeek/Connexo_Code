@@ -11,23 +11,52 @@ Ext.define('Cfg.controller.TaskManagement', {
     ],
     refs: [
         {
+            ref: 'page',
+            selector: 'validation-tasks-setup'
+        },
+        {
             ref: 'addPage',
             selector: 'cfg-validation-tasks-add-task-mgm'
+        },
+        {
+            ref: 'detailsPage',
+            selector: 'cfg-validation-tasks-details'
+        },
+        {
+            ref: 'actionMenu',
+            selector: 'cfg-validation-tasks-action-menu'
+        },
+        {
+            ref: 'history',
+            selector: 'cfg-validation-tasks-history'
+        },
+        {
+            ref: 'filterTopPanel',
+            selector: '#tasks-history-filter-top-panel'
+        },
+        {
+            ref: 'sideFilterForm',
+            selector: '#side-filter #filter-form'
         }
+
     ],
 
     init: function () {
         this.control({
             'cfg-validation-tasks-add-task-mgm #rgr-validation-tasks-recurrence-trigger': {
                 change: this.onRecurrenceTriggerChange
+            },
+            '#cfg-tasks-history-action-menu-tsk': {
+                click: this.chooseAction
             }
         });
-        Apr.TaskManagementApp.addTaskManagementApp('DataValidation', {
+        Apr.TaskManagementApp.addTaskManagementApp(this.getType(), {
             name: Uni.I18n.translate('general.dataValidation', 'CFG', 'Data validation'),
             controller: this
         });
     },
 
+    historyActionItemId: 'cfg-tasks-history-action-menu-tsk',
     canAdministrate: function () {
         return Cfg.privileges.Validation.canAdministrate();
     },
@@ -46,6 +75,10 @@ Ext.define('Cfg.controller.TaskManagement', {
 
     canRemove: function () {
         return Cfg.privileges.Validation.canAdministrate();
+    },
+
+    getType: function () {
+        return 'DataValidation';
     },
 
     getTaskForm: function () {
@@ -347,8 +380,39 @@ Ext.define('Cfg.controller.TaskManagement', {
         })
     },
 
-    historyTaskManagement: function (taskManagement) {
+    historyTaskManagement: function (taskId) {
+        var me = this,
+            controller = me.getController('Cfg.controller.Log');
 
+        controller.detailLogRoute = me.detailLogRoute;
+        this.showValidationTaskHistory(taskId);
+    },
+
+    historyLogTaskManagement: function (taskId, occurrenceId) {
+        var me = this,
+            controller = me.getController('Cfg.controller.Log');
+
+        controller.viewLogRoute = me.viewLogRoute;
+        controller.detailLogRoute = me.detailLogRoute;
+        controller.logRoute = me.logRoute;
+        controller.showLog(taskId, occurrenceId);
+    },
+
+    getTask: function (controller, taskManagementId, operationCompleted) {
+        var me = this;
+
+        Ext.Ajax.request({
+            url: '/api/val/validationtasks/recurrenttask/' + taskManagementId,
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Cfg.store.ValidationTasks');
+                store.loadRawData([response]);
+                store.each(function (record) {
+                    operationCompleted.call(controller, me, taskManagementId, record);
+                });
+            }
+        })
     },
 
     removeTaskManagement: function (taskManagement, startRemovingFunc, removeCompleted, controller) {
@@ -396,5 +460,15 @@ Ext.define('Cfg.controller.TaskManagement', {
                 });
             }
         })
+    },
+
+    viewTaskManagement: function (taskId, actionMenu, taskManagementRecord) {
+        var me = this;
+
+        me.detailRoute = me.detailRoute;
+        me.historyRoute = me.historyRoute;
+        me.actionMenu = actionMenu;
+        me.showValidationTaskDetailsView(taskId);
+        me.getDetailsPage().down('#' + actionMenu.itemId).record = taskManagementRecord;
     }
 });

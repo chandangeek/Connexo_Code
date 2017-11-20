@@ -6,14 +6,15 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
     extend: 'Cfg.controller.DataValidationKpi',
 
     views: [
-        'Cfg.view.datavalidationkpis.Add'
+        'Cfg.view.datavalidationkpis.Add',
+        'Cfg.view.taskmanagement.DetailsDataQualityKpi'
     ],
     refs: [
         {ref: 'dataValidationKpiEditForm', selector: 'cfg-data-validation-kpi-add-mgm'}
     ],
 
     init: function () {
-        Apr.TaskManagementApp.addTaskManagementApp('DataQualityKpiCalcTopic', {
+        Apr.TaskManagementApp.addTaskManagementApp(this.getType(), {
             name: Uni.I18n.translate('general.dataqualitykpi.', 'CFG', 'Data quality KPI'),
             controller: this
         });
@@ -37,6 +38,10 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
 
     canRemove: function () {
         return Cfg.privileges.Validation.canAdministerDataQuality();
+    },
+
+    getType: function () {
+        return 'DataQualityKpiCalcTopic';
     },
 
     getTaskForm: function () {
@@ -126,6 +131,23 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
         return false;
     },
 
+    getTask: function (controller, taskManagementId, operationCompleted) {
+        var me = this;
+
+        Ext.Ajax.request({
+            url: '/api/dqk/deviceKpis/recurrenttask/' + taskManagementId,
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Cfg.store.DataValidationKpis');
+                store.loadRawData([response]);
+                store.each(function (record) {
+                    operationCompleted.call(controller, me, taskManagementId, record);
+                });
+            }
+        })
+    },
+
     removeTaskManagement: function (taskManagement, startRemovingFunc, removeCompleted, controller) {
         var me = this;
 
@@ -169,5 +191,37 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
                 }
             }
         });
+    },
+
+    viewTaskManagement: function (taskId, actionMenu, taskManagementRecord) {
+        var me = this,
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            widget = Ext.widget('data-quality-kpi-details', {
+                actionMenu: actionMenu
+            });
+
+        pageMainContent.setLoading(true);
+
+        Ext.Ajax.request({
+            url: '/api/dqk/deviceKpis/recurrenttask/' + taskManagementRecord.get('id'),
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Cfg.store.DataValidationKpis');
+                store.loadRawData([response]);
+                store.each(function (record) {
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    var frequency = record.get('frequency')
+
+                    widget.down('#data-quality-kpi-device-group').setValue(record.get('deviceGroup').name);
+                    widget.down('#data-quality-kpi-frequency').setValue(frequency ? Uni.util.ScheduleToStringConverter.convert(frequency) : '');
+                    widget.down('#' + actionMenu.itemId).record = taskManagementRecord;
+                });
+            },
+            callback: function () {
+                pageMainContent.setLoading(false);
+            }
+        })
+
     }
 });

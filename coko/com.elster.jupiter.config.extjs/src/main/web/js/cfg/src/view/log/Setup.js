@@ -26,7 +26,10 @@ Ext.define('Cfg.view.log.Setup', {
                     {
                         xtype: 'log-menu',
                         router: me.router,
-                        itemId: 'log-view-menu'
+                        itemId: 'log-view-menu',
+                        detailLogRoute: me.detailLogRoute,
+                        logRoute: me.logRoute,
+                        taskId: me.task.get('id')
                     }
                 ]
             }
@@ -39,7 +42,8 @@ Ext.define('Cfg.view.log.Setup', {
                 {
                     xtype: 'cfg-log-preview',
                     router: me.router,
-                    margin: '10 0 20 0'
+                    margin: '10 0 20 0',
+                    detailLogRoute: me.detailLogRoute
                 },
                 {
                     xtype: 'preview-container',

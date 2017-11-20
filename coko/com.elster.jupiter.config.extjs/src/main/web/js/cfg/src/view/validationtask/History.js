@@ -30,7 +30,9 @@ Ext.define('Cfg.view.validationtask.History', {
                         xtype: 'cfg-tasks-menu',
                         itemId: 'tasks-view-menu',
                         taskId: me.taskId,
-                        router: me.router
+                        router: me.router,
+                        detailRoute: me.detailRoute,
+                        historyRoute: me.historyRoute
                     }
                 ]
             }
@@ -45,7 +47,9 @@ Ext.define('Cfg.view.validationtask.History', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'cfg-tasks-history-grid',
-                        router: me.router
+                        historyActionItemId: me.historyActionItemId,
+                        router: me.router,
+                        viewLogRoute: me.viewLogRoute
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
@@ -57,7 +61,8 @@ Ext.define('Cfg.view.validationtask.History', {
                         margin: '16 0 0 0'
                     },
                     previewComponent: {
-                        xtype: 'cfg-tasks-history-preview'
+                        xtype: 'cfg-tasks-history-preview',
+                        historyActionItemId: me.historyActionItemId
                     }
                 }
             ],
