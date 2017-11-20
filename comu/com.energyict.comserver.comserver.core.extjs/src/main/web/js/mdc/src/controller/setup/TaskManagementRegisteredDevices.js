@@ -6,7 +6,8 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
     extend: 'Mdc.registereddevices.controller.RegisteredDevices',
 
     views: [
-        'Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKPI'
+        'Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKPI',
+        'Mdc.view.setup.taskmanagement.DetailsRegisteredDevicesKpi'
     ],
 
     refs: [
@@ -19,7 +20,7 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
                 select: this.onSelectFrequency
             }
         });
-        Apr.TaskManagementApp.addTaskManagementApp('MDCKpiRegisteredDevTopic', {
+        Apr.TaskManagementApp.addTaskManagementApp(this.getType(), {
             name: Uni.I18n.translate('general.registeredDevicesKPI', 'MDC', 'Registered devices KPI'),
             controller: this
         });
@@ -43,6 +44,10 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
 
     canRemove: function () {
         return Mdc.privileges.RegisteredDevicesKpi.canAdmin();
+    },
+
+    getType: function () {
+        return 'MDCKpiRegisteredDevTopic';
     },
 
     getTaskForm: function () {
@@ -167,6 +172,23 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
         return false;
     },
 
+    getTask: function (controller, taskManagementId, operationCompleted) {
+        var me = this;
+
+        Ext.Ajax.request({
+            url: '/api/ddr/registereddevkpis/recurrenttask/' + taskManagementId,
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Mdc.registereddevices.store.RegisteredDevicesKPIs');
+                store.loadRawData([response]);
+                store.each(function (record) {
+                    operationCompleted.call(controller, me, taskManagementId, record);
+                });
+            }
+        })
+    },
+
     removeTaskManagement: function (taskManagement, startRemovingFunc, removeCompleted, controller) {
         var me = this;
 
@@ -210,6 +232,37 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
                 }
             }
         });
+    },
+
+    viewTaskManagement: function (taskId, actionMenu, taskManagementRecord) {
+        var me = this,
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            widget = Ext.widget('registered-devices-kpi-details', {
+                actionMenu: actionMenu
+            });
+
+        pageMainContent.setLoading(true);
+
+        Ext.Ajax.request({
+            url: '/api/ddr/registereddevkpis/recurrenttask/' + taskManagementRecord.get('id'),
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Mdc.registereddevices.store.RegisteredDevicesKPIs');
+                store.loadRawData([response]);
+                store.each(function (record) {
+                    me.getApplication().fireEvent('changecontentevent', widget);
+
+                    widget.down('#registered-devices-kpi-device-group').setValue(record.get('deviceGroup').name);
+                    widget.down('#registered-devices-kpi-frequency').setValue(Mdc.util.ScheduleToStringConverter.convert(record.get('frequency')));
+                    widget.down('#registered-devices-kpi-target').setValue(record.get('target'));
+                    widget.down('#' + actionMenu.itemId).record = taskManagementRecord;
+                });
+            },
+            callback: function () {
+                pageMainContent.setLoading(false);
+            }
+        })
     }
 });
 

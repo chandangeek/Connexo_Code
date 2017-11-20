@@ -1307,19 +1307,58 @@ Ext.define('Mdc.controller.history.Setup', {
                             //privileges: Mdc.privileges.TaskManagement.edit,
                             action: 'showAddTask'
                         },
-                        edit: {
+                        view: {
                             title: '',
-                            route: '{type}/{id}/edit',
-                            //privileges: Mdc.privileges.TaskManagement.edit,
+                            route: '{type}/{taskManagementId}/{taskId}',
+                            privileges: Mdc.privileges.TaskManagement.view,
                             controller: 'Mdc.controller.setup.TaskManagement',
-                            action: 'editTask',
+                            action: 'viewTask',
                             callback: function (route) {
-                                this.getApplication().on('loadTask', function (name) {
-                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", name, false));
+                                this.getApplication().on('loadTask', function (record) {
+                                    route.setTitle(record.get ? record.get('name') : record);
                                     return true;
                                 }, {single: true});
-
                                 return this;
+                            },
+                            items: {
+                                edit: {
+                                    title: '',
+                                    route: 'edit',
+                                    //privileges: Mdc.privileges.TaskManagement.edit,
+                                    controller: 'Mdc.controller.setup.TaskManagement',
+                                    action: 'editTask',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadTask', function (name) {
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", name, false));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
+                                },
+                                history: {
+                                    title: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                                    route: 'history',
+                                    privileges: Mdc.privileges.TaskManagement.view,
+                                    controller: 'Mdc.controller.setup.TaskManagement',
+                                    action: 'viewHistoryTask',
+                                    items: {
+                                        occurrence: {
+                                            title: '',
+                                            route: '{occurrenceId}',
+                                            controller: 'Mdc.controller.setup.TaskManagement',
+                                            action: 'viewHistoryTaskLog',
+                                            callback: function (route) {
+                                                this.getApplication().on('viewHistoryTaskLog', function (name) {
+                                                    route.setTitle(name);
+                                                    return true;
+                                                }, {single: true});
+
+                                                return this;
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

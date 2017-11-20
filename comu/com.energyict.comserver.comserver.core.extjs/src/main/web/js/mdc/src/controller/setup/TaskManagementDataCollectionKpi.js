@@ -5,7 +5,8 @@
 Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
     extend: 'Mdc.controller.setup.DataCollectionKpi',
     views: [
-        'Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis'
+        'Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis',
+        'Mdc.view.setup.taskmanagement.DetailsDataCollectionKpi'
     ],
     refs: [
         {ref: 'dataCollectionKpiEditForm', selector: 'data-collection-kpi-addedit-tgm'}
@@ -17,7 +18,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
                 change: this.onFrequencyChange
             }
         });
-        Apr.TaskManagementApp.addTaskManagementApp('MDCKpiCalculatorTopic', {
+        Apr.TaskManagementApp.addTaskManagementApp(this.getType(), {
             name: Uni.I18n.translate('general.datadataCollectionKPI', 'MDC', 'Data collection KPI'),
             controller: this
         });
@@ -37,6 +38,10 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
 
     canHistory: function () {
         return false;
+    },
+
+    getType: function () {
+        return 'MDCKpiCalculatorTopic';
     },
 
     canRemove: function () {
@@ -180,6 +185,23 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         return false;
     },
 
+    getTask: function (controller, taskManagementId, operationCompleted) {
+        var me = this;
+
+        Ext.Ajax.request({
+            url: '/api/ddr/kpis/recurrenttask/' + taskManagementId,
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Mdc.store.DataCollectionKpis');
+                store.loadRawData([response]);
+                store.each(function (record) {
+                    operationCompleted.call(controller, me, taskManagementId, record);
+                });
+            }
+        })
+    },
+
     removeTaskManagement: function (taskManagement, startRemovingFunc, removeCompleted, controller) {
         var me = this;
 
@@ -223,5 +245,43 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
                 }
             }
         });
+    },
+
+    viewTaskManagement: function (taskId, actionMenu, taskManagementRecord) {
+        var me = this,
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            widget = Ext.widget('data-collection-kpi-details', {
+                actionMenu: actionMenu
+            });
+
+        pageMainContent.setLoading(true);
+
+        Ext.Ajax.request({
+            url: '/api/ddr/kpis/recurrenttask/' + taskManagementRecord.get('id'),
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Mdc.store.DataCollectionKpis');
+                store.loadRawData([response]);
+                store.each(function (record) {
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    var connectionTarget = record.get('connectionTarget'),
+                        communicationTarget = record.get('communicationTarget'),
+                        displayRange = record.get('displayRange');
+
+                    connectionTarget = connectionTarget != null ? connectionTarget + ' %' : Uni.I18n.translate('datacollectionkpis.noKpi', 'MDC', 'No KPI');
+                    communicationTarget = communicationTarget != null ? communicationTarget + ' %' : Uni.I18n.translate('datacollectionkpis.noKpi', 'MDC', 'No KPI');
+                    widget.down('#data-collection-kpi-device-group').setValue(record.get('deviceGroup').name);
+                    widget.down('#data-collection-kpi-frequency').setValue(displayRange ? Ext.getStore('Mdc.store.DataCollectionKpiRange').getById(displayRange.count + displayRange.timeUnit).get('name') : '');
+                    widget.down('#data-collection-kpi-connection').setValue(connectionTarget);
+                    widget.down('#data-collection-kpi-communication').setValue(communicationTarget);
+                    widget.down('#' + actionMenu.itemId).record = taskManagementRecord;
+                });
+            },
+            callback: function () {
+                pageMainContent.setLoading(false);
+            }
+        })
+
     }
 });
