@@ -243,6 +243,14 @@ public class DataExportTaskResource {
         return dataExportTaskInfoFactory.asInfo(findTaskOrThrowException(id, appCode));
     }
 
+    @GET
+    @Path("/recurrenttask/{recurrenttaskId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
+    public DataExportTaskInfo getDataExportTaskByRecurrentTaskId(@PathParam("recurrenttaskId") long id, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
+        return dataExportTaskInfoFactory.asInfo(findTaskByRecurrentTaskIdOrThrowException(id, appCode));
+    }
+
     @PUT
     @Path("/{id}/trigger")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -707,6 +715,13 @@ public class DataExportTaskResource {
     private ExportTask findTaskOrThrowException(long id, String appCode) {
         String application = getApplicationNameFromCode(appCode);
         return dataExportService.findExportTask(id)
+                .filter(exportTask -> application.equals(exportTask.getApplication()))
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private ExportTask findTaskByRecurrentTaskIdOrThrowException(long id, String appCode) {
+        String application = getApplicationNameFromCode(appCode);
+        return dataExportService.findExportTaskByRecurrentTask(id)
                 .filter(exportTask -> application.equals(exportTask.getApplication()))
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
