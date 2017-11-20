@@ -46,8 +46,7 @@ Ext.define('Apr.controller.TaskManagement', {
     init: function () {
         this.control({
             'task-management-grid': {
-                select: this.showPreview,
-                cellclick: this.cellclick
+                select: this.showPreview
             },
             'task-management-add combobox[itemId=task-management-task-type]': {
                 change: this.taskTypeChanged
@@ -58,7 +57,7 @@ Ext.define('Apr.controller.TaskManagement', {
             'task-management-action-menu': {
                 click: this.chooseMenuAction,
                 show: this.onMenuShow
-            },
+            }
         });
     },
 
@@ -74,6 +73,27 @@ Ext.define('Apr.controller.TaskManagement', {
                 router: me.getController('Uni.controller.history.Router')
             });
         me.getApplication().fireEvent('changecontentevent', widget);
+    },
+
+    viewTaskManagement: function (taskType, taskManagementId) {
+        var me = this,
+            taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+
+        if ((taskManagement && taskManagement.controller && taskManagement.controller.canView()) ||
+            (taskManagement && taskManagement.controller && taskManagement.controller.getTaskRoute)) {
+
+            taskManagement.controller.getTask(this, taskManagementId, function (taskController, taskManagementId, task) {
+                var route = '';
+                if (taskManagement.controller.getTaskRoute) {
+                    route = me.getController('Uni.controller.history.Router').getRoute(taskManagement.controller.getTaskRoute());
+                    route.forward({taskId: task.get('id')});
+                }
+                else {
+                    route = me.getController('Uni.controller.history.Router').getRoute('administration/taskmanagement/view');
+                    route.forward({type: taskType, taskManagementId: taskManagementId, taskId: task.get('id')});
+                }
+            })
+        }
     },
 
     showPreview: function (records, record) {
@@ -95,19 +115,6 @@ Ext.define('Apr.controller.TaskManagement', {
             taskPreview.down('#currentRunField').hide();
         }
         Ext.resumeLayouts(true);
-    },
-
-    cellclick: function (table, td, cellIndex, record) {
-        if (cellIndex == 0) {
-            var me = this,
-                taskType = record.get('queue'),
-                taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
-            taskManagement && taskManagement.controller &&
-            taskManagement.controller.getTask(this, record.get('id'), function (taskController, taskManagementId, task) {
-                var route = me.getController('Uni.controller.history.Router').getRoute('administration/taskmanagement/view');
-                route.forward({type: taskType, taskManagementId: taskManagementId, taskId: task.get('id')});
-            })
-        }
     },
 
     chooseMenuAction: function (menu, item) {

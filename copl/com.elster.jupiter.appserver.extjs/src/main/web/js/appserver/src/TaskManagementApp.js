@@ -16,5 +16,16 @@ Ext.define('Apr.TaskManagementApp', {
 
     getTaskManagementApps: function () {
         return this.applications;
+    },
+
+    canAdministrate: function () {
+        var me = this,
+            canAdmin = false;
+
+        me.getTaskManagementApps().each(function (key, value, length) {
+            canAdmin |= value.controller && value.controller.canAdministrate();
+        });
+        return canAdmin;
     }
+
 });

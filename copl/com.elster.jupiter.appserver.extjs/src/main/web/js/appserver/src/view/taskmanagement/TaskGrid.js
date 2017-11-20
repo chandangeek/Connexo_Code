@@ -21,16 +21,11 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                 dataIndex: 'name',
                 flex: 1,
                 renderer: function (value, metaData, record) {
-                    var taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(record.get('queue'));
-
-                    if (taskManagement && taskManagement.controller && taskManagement.controller.canAdministrate()) {
-                        // stay in the same page and catch the cellclick event in controller
-                        var url = me.router.getRoute('administration/taskmanagement').buildUrl(null, me.router.queryParams);
-                        return '<a href="' + url + '">' + value + '</a>';
-                    }
-                    else {
-                        return value;
-                    }
+                    var url = me.router.getRoute('administration/taskmanagement/viewTaskManagement').buildUrl({
+                        type: record.get('queue'),
+                        taskManagementId: record.get('id')
+                    });
+                    return '<a href="' + url + '">' + value + '</a>';
                 }
             },
             {
@@ -74,7 +69,9 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                         xtype: 'button',
                         itemId: 'btnAddTask',
                         text: Uni.I18n.translate('taskManagement.general.addTask', 'APR', 'Add task'),
-                        //privileges: Cfg.privileges.Validation.admin,
+                        privileges: function () {
+                            return Apr.TaskManagementApp.canAdministrate();
+                        },
                         href: me.addTaskRoute
                     }
                 ]
