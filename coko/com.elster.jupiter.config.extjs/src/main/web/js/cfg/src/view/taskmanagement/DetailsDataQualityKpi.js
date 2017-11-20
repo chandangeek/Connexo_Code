@@ -16,7 +16,7 @@ Ext.define('Cfg.view.taskmanagement.DetailsDataQualityKpi', {
                 {
                     ui: 'large',
                     itemId: 'data-quality-kpi-details-panel',
-                    title: Uni.I18n.translate('general.details', 'MDC', 'Details'),
+                    title: Uni.I18n.translate('general.details', 'CFG', 'Details'),
                     flex: 1,
                     items: {
                         xtype: 'form',
