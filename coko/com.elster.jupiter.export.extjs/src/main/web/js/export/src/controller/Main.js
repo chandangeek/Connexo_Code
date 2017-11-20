@@ -14,7 +14,8 @@ Ext.define('Dxp.controller.Main', {
     controllers: [
         'Dxp.controller.history.Export',
         'Dxp.controller.Tasks',
-        'Dxp.controller.Log'
+        'Dxp.controller.Log',
+        'Dxp.controller.TaskManagement'
     ],
 
     stores: [
