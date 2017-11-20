@@ -21,6 +21,8 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksLog', {
             selector: 'estimationtasks-log-setup'
         }
     ],
+    detailLogRoute: 'administration/estimationtasks/estimationtask',
+    logRoute: 'administration/estimationtasks/estimationtask/history',
 
     showLog: function (taskId, occurrenceId) {
         var me = this,
@@ -48,10 +50,13 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksLog', {
                         task: record,
                         runStartedOn: runStartedOnFormatted,
                         taskId: taskId,
-                        occurenceId: occurrenceId
+                        occurenceId: occurrenceId,
+                        detailLogRoute: me.detailLogRoute,
+                        logRoute: me.logRoute
                     });
                     sideMenu = widget.down('#estimationtasks-log-menu');
                     me.getApplication().fireEvent('estimationTaskLoaded', record);
+                    me.getApplication().fireEvent('viewHistoryTaskLog', Uni.I18n.translate('estimationtasks.general.estimationtaskLog', 'EST', 'Estimation task log'));
                     widget.down('#estimationtasks-log-menu').setHeader(record.get('name'));
                     widget.down('#estimationtasks-log-preview-form').loadRecord(occurrenceTask);
                     widget.down('#run-started-on').setValue(runStartedOnFormatted);

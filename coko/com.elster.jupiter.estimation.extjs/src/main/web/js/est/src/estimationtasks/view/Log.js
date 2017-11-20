@@ -27,7 +27,9 @@ Ext.define('Est.estimationtasks.view.Log', {
                         itemId: 'estimationtasks-log-menu',
                         taskId: me.taskId,
                         router: me.router,
-                        occurence: me.occurenceId
+                        occurence: me.occurenceId,
+                        detailLogRoute: me.detailLogRoute,
+                        logRoute: me.logRoute
                     }
                 ]
             }

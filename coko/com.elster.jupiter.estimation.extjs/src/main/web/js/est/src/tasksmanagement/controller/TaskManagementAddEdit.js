@@ -34,7 +34,7 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
                 click: this.resetPurpose
             }
         });
-        Apr.TaskManagementApp.addTaskManagementApp('EstimationTask', {
+        Apr.TaskManagementApp.addTaskManagementApp(this.getType(), {
             name: Uni.I18n.translate('general.dataEstimation', 'EST', 'Data estimation'),
             controller: this
         });
@@ -58,6 +58,10 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
 
     canRemove: function () {
         return Est.privileges.EstimationConfiguration.canAdministrate();
+    },
+
+    getType: function () {
+        return 'EstimationTask';
     },
 
     getTaskForm: function () {
@@ -390,8 +394,25 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
         })
     },
 
-    historyTaskManagement: function (taskManagement) {
+    historyTaskManagement: function (taskId) {
+        var me = this,
+            controllerActionMenu = me.getController('Est.estimationtasks.controller.EstimationTasksActionMenu'),
+            controller = me.getController('Est.estimationtasks.controller.EstimationTasksHistory');
 
+
+        controllerActionMenu.viewLogRoute = me.viewLogRoute;
+        controller.detailRoute = me.detailRoute;
+        controller.historyRoute = me.historyRoute;
+        controller.showEstimationTaskHistory(taskId);
+    },
+
+    historyLogTaskManagement: function (taskId, occurrenceId, viewLogRoute) {
+        var me = this,
+            controller = me.getController('Est.estimationtasks.controller.EstimationTasksLog');
+
+        controller.detailLogRoute = me.detailLogRoute;
+        controller.logRoute = me.logRoute;
+        controller.showLog(taskId, occurrenceId);
     },
 
     removeTaskManagement: function (taskManagement, startRemovingFunc, removeCompleted, controller) {
@@ -439,5 +460,33 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
                 });
             }
         })
+    },
+
+    getTask: function (controller, taskManagementId, operationCompleted) {
+        var me = this;
+
+        Ext.Ajax.request({
+            url: '/api/est/estimation/recurrenttask/' + taskManagementId,
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Est.estimationtasks.store.EstimationTasks');
+                store.loadRawData([response]);
+                store.each(function (record) {
+                    operationCompleted.call(controller, me, taskManagementId, record);
+                });
+            }
+        })
+    },
+
+    viewTaskManagement: function (taskId, actionMenu, taskManagementRecord) {
+        var me = this,
+            controller = me.getController('Est.estimationtasks.controller.EstimationTasksDetails');
+
+        controller.detailRoute = me.detailRoute;
+        controller.historyRoute = me.historyRoute;
+        controller.actionMenu = actionMenu;
+        controller.showEstimationTaskDetails(taskId);
+        controller.getDetailsView().down('#' + actionMenu.itemId).record = taskManagementRecord;
     }
 });

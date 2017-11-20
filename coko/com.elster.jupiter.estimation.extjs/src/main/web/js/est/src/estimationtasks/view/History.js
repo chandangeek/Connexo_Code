@@ -28,7 +28,9 @@ Ext.define('Est.estimationtasks.view.History', {
                         xtype: 'estimationtasks-side-menu',
                         itemId: 'estimationtasks-side-menu',
                         taskId: me.taskId,
-                        router: me.router
+                        router: me.router,
+                        detailRoute: me.detailRoute,
+                        historyRoute: me.historyRoute
                     }
                 ]
             }

@@ -34,6 +34,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
         });
     },
 
+    viewLogRoute: 'administration/estimationtasks/estimationtask/history/occurrence',
     chooseAction: function (menu, item) {
         var me = this, router = me.getController('Uni.controller.history.Router'), route;
 
@@ -54,7 +55,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
                 route = 'administration/estimationtasks/estimationtask/history';
                 break;
             case 'viewLog':
-                route = 'administration/estimationtasks/estimationtask/history/occurrence';
+                route = me.viewLogRoute;
                 break;
             case 'editEstimationTask':
                 route = 'administration/estimationtasks/estimationtask/edit';
