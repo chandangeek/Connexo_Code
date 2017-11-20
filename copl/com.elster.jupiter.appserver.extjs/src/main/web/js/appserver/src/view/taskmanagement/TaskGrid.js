@@ -19,7 +19,19 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
             {
                 header: Uni.I18n.translate('general.task', 'APR', 'Task'),
                 dataIndex: 'name',
-                flex: 1
+                flex: 1,
+                renderer: function (value, metaData, record) {
+                    var taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(record.get('queue'));
+
+                    if (taskManagement && taskManagement.controller && taskManagement.controller.canAdministrate()) {
+                        // stay in the same page and catch the cellclick event in controller
+                        var url = me.router.getRoute('administration/taskmanagement').buildUrl(null, me.router.queryParams);
+                        return '<a href="' + url + '">' + value + '</a>';
+                    }
+                    else {
+                        return value;
+                    }
+                }
             },
             {
                 header: Uni.I18n.translate('general.queue', 'APR', 'Queue'),

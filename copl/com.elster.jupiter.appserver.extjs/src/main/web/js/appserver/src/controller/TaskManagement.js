@@ -46,7 +46,8 @@ Ext.define('Apr.controller.TaskManagement', {
     init: function () {
         this.control({
             'task-management-grid': {
-                select: this.showPreview
+                select: this.showPreview,
+                cellclick: this.cellclick
             },
             'task-management-add combobox[itemId=task-management-task-type]': {
                 change: this.taskTypeChanged
@@ -69,7 +70,8 @@ Ext.define('Apr.controller.TaskManagement', {
             widget = Ext.widget('task-management-setup', {
                 applicationKey: me.applicationKey,
                 addTaskRoute: me.addTaskRoute,
-                queuesStore: queuesStore
+                queuesStore: queuesStore,
+                router: me.getController('Uni.controller.history.Router')
             });
         me.getApplication().fireEvent('changecontentevent', widget);
     },
@@ -95,22 +97,39 @@ Ext.define('Apr.controller.TaskManagement', {
         Ext.resumeLayouts(true);
     },
 
+    cellclick: function (table, td, cellIndex, record) {
+        if (cellIndex == 0) {
+            var me = this,
+                taskType = record.get('queue'),
+                taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+            taskManagement && taskManagement.controller &&
+            taskManagement.controller.getTask(this, record.get('id'), function (taskController, taskManagementId, task) {
+                var route = me.getController('Uni.controller.history.Router').getRoute('administration/taskmanagement/view');
+                route.forward({type: taskType, taskManagementId: taskManagementId, taskId: task.get('id')});
+            })
+        }
+    },
+
     chooseMenuAction: function (menu, item) {
         var me = this,
             record = menu.record || me.getTaskManagementGrid().getSelectionModel().getLastSelected(),
             taskType = record.get('queue'),
-            taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+            taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType),
+            route;
 
         switch (item.action) {
             case 'runTask':
                 taskManagement && taskManagement.controller && taskManagement.controller.runTaskManagement(record, me.operationStart, me.operationCompleted, this);
                 break;
             case 'editTask':
-                route = me.getController('Uni.controller.history.Router').getRoute('administration/taskmanagement/edit');
-                taskManagement && taskManagement.controller && route.forward({type: taskType, id: record.get('id')});
+                taskManagement && taskManagement.controller && taskManagement.controller.getTask(this, record.get('id'), me.viewDetailsTaskLoaded)
+                //route = me.getController('Uni.controller.history.Router').getRoute('administration/taskmanagement/view/edit');
+                //taskManagement && taskManagement.controller && route.forward({type: taskType, taskManagementId: record.get('id')});
                 break;
             case 'historyTask':
-                taskManagement && taskManagement.controller && taskManagement.controller.historyTaskManagement(record);
+                //route = me.getController('Uni.controller.history.Router').getRoute('administration/taskmanagement/history');
+                taskManagement && taskManagement.controller && taskManagement.controller.getTask(this, record.get('id'), me.viewHistoryTaskLoaded)
+                //taskManagement && taskManagement.controller && route.forward({type: taskType, taskId: record.get('id')});
                 break;
             case 'removeTask':
                 taskManagement && taskManagement.controller && taskManagement.controller.removeTaskManagement(record, me.operationStart, me.operationCompleted, this);
@@ -149,7 +168,7 @@ Ext.define('Apr.controller.TaskManagement', {
             data = [];
 
         apps.each(function (key, value, length) {
-            data.push([key, value.name]);
+            value.controller && value.controller.canAdministrate() && data.push([key, value.name]);
         });
 
         return new Ext.data.ArrayStore({
@@ -242,13 +261,13 @@ Ext.define('Apr.controller.TaskManagement', {
 
     operationStart: function () {
         var me = this;
-        me.getPage().setLoading(true);
+        me.getPage() && me.getPage().setLoading(true);
     },
 
     operationCompleted: function (status) {
         var me = this;
 
-        me.getPage().setLoading(false);
+        me.getPage() && me.getPage().setLoading(false);
         if (status && me.getPage()) {
             var grid = me.getTaskManagementGrid();
             grid.down('pagingtoolbartop').totalCount = 0;
@@ -257,5 +276,60 @@ Ext.define('Apr.controller.TaskManagement', {
         } //else {
         //  me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').forward();
         //  }
+    },
+
+    /* view history task section */
+    viewHistoryTaskLoaded: function (taskController, taskManagementId, task) {
+        var me = this,
+            route = me.getController('Uni.controller.history.Router').getRoute('administration/taskmanagement/view/history');
+
+        route.forward({type: taskController.getType(), taskManagementId: taskManagementId, taskId: task.get('id')});
+    },
+
+    viewHistoryTask: function (taskType, taskManagementId, taskId) {
+        var me = this,
+            taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+
+        taskManagement.controller.detailRoute = 'administration/taskmanagement/view';
+        taskManagement.controller.historyRoute = 'administration/taskmanagement/view/history';
+        taskManagement.controller.viewLogRoute = 'administration/taskmanagement/view/history/occurrence';
+        taskManagement.controller.historyTaskManagement(taskId);
+    },
+
+    /* view history task section */
+    viewHistoryTaskLog: function (taskType, taskManagementId, taskId, occurrenceId) {
+        var me = this,
+            taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+
+        taskManagement.controller.detailLogRoute = 'administration/taskmanagement/view';
+        taskManagement.controller.logRoute = 'administration/taskmanagement/view/history/occurrence';
+        taskManagement.controller.historyLogTaskManagement(taskId, occurrenceId);
+    },
+
+
+    /* view task section*/
+    viewDetailsTaskLoaded: function (taskController, taskManagementId, task) {
+        var me = this,
+            route = me.getController('Uni.controller.history.Router').getRoute('administration/taskmanagement/view/edit');
+
+        route.forward({type: taskController.getType(), taskManagementId: taskManagementId, taskId: task.get('id')});
+    },
+
+    viewTask: function (taskType, taskManagementId, taskId) {
+        var me = this,
+            taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+
+        me.getModel('Apr.model.Task').load(taskManagementId, {
+            success: function (record) {
+                taskManagement.controller.detailRoute = 'administration/taskmanagement/view';
+                taskManagement.controller.historyRoute = 'administration/taskmanagement/view/history';
+                taskManagement.controller.viewTaskManagement(taskId, {
+                    xtype: 'task-management-action-menu',
+                    itemId: 'task-management-action-menu'
+                }, record);
+            }
+        });
+
     }
+
 });

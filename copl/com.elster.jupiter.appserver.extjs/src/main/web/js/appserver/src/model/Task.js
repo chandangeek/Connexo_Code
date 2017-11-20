@@ -59,5 +59,12 @@ Ext.define('Apr.model.Task', {
             }
         }
 
-    ]
+    ],
+    proxy: {
+        type: 'rest',
+        url: '/api/tsk/task',
+        reader: {
+            type: 'json'
+        }
+    }
 });

@@ -23,7 +23,7 @@ Ext.define('Apr.view.taskmanagement.ActionMenu', {
             },
             {
                 itemId: 'history-task',
-                text: Uni.I18n.translate('general.history', 'APR', 'History'),
+                text: Uni.I18n.translate('general.history', 'APR', 'View history'),
                 //privileges: Usr.privileges.Users.admin,
                 action: 'historyTask',
                 section: this.SECTION_VIEW

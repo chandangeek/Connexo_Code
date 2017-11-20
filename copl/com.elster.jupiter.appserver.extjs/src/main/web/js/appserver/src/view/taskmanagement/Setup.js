@@ -33,7 +33,8 @@ Ext.define('Apr.view.taskmanagement.Setup', {
                         grid: {
                             xtype: 'task-management-grid',
                             itemId: 'task-management-grid',
-                            addTaskRoute: me.addTaskRoute
+                            addTaskRoute: me.addTaskRoute,
+                            router: me.router
                         },
                         emptyComponent: {
                             xtype: 'uni-form-empty-message',
