@@ -30,6 +30,10 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
         return Mdc.privileges.RegisteredDevicesKpi.canAdmin();
     },
 
+    canView: function () {
+        return Mdc.privileges.RegisteredDevicesKpi.canView();
+    },
+
     canRun: function () {
         return false;
     },
@@ -238,7 +242,8 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
         var me = this,
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             widget = Ext.widget('registered-devices-kpi-details', {
-                actionMenu: actionMenu
+                actionMenu: actionMenu,
+                canAdministrate: me.canAdministrate()
             });
 
         pageMainContent.setLoading(true);
@@ -252,11 +257,12 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
                 store.loadRawData([response]);
                 store.each(function (record) {
                     me.getApplication().fireEvent('changecontentevent', widget);
-
+                    me.getApplication().fireEvent('loadTask', record.get('deviceGroup').name);
+                    widget.down('#registered-devices-kpi-details-side-menu').setHeader(record.get('deviceGroup').name);
                     widget.down('#registered-devices-kpi-device-group').setValue(record.get('deviceGroup').name);
                     widget.down('#registered-devices-kpi-frequency').setValue(Mdc.util.ScheduleToStringConverter.convert(record.get('frequency')));
                     widget.down('#registered-devices-kpi-target').setValue(record.get('target'));
-                    widget.down('#' + actionMenu.itemId).record = taskManagementRecord;
+                    widget.down('#' + actionMenu.itemId) && (widget.down('#' + actionMenu.itemId).record = taskManagementRecord);
                 });
             },
             callback: function () {

@@ -57,6 +57,9 @@ Ext.define('Mdc.view.setup.taskmanagement.DetailsDataCollectionKpi', {
                 {
                     xtype: 'uni-button-action',
                     margin: '20 0 0 0',
+                    privileges: function () {
+                        return me.canAdministrate;
+                    },
                     menu: me.actionMenu
                 }
             ]

@@ -25,7 +25,11 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
     },
 
     canAdministrate: function () {
-        return true;
+        return Mdc.privileges.DataCollectionKpi.canEdit();
+    },
+
+    canView: function () {
+        return Mdc.privileges.DataCollectionKpi.canView();
     },
 
     canRun: function () {
@@ -251,7 +255,8 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         var me = this,
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             widget = Ext.widget('data-collection-kpi-details', {
-                actionMenu: actionMenu
+                actionMenu: actionMenu,
+                canAdministrate: me.canAdministrate()
             });
 
         pageMainContent.setLoading(true);
@@ -265,6 +270,8 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
                 store.loadRawData([response]);
                 store.each(function (record) {
                     me.getApplication().fireEvent('changecontentevent', widget);
+                    me.getApplication().fireEvent('loadTask', record.get('deviceGroup').name);
+                    widget.down('#data-collection-kpi-details-side-menu').setHeader(record.get('deviceGroup').name);
                     var connectionTarget = record.get('connectionTarget'),
                         communicationTarget = record.get('communicationTarget'),
                         displayRange = record.get('displayRange');
@@ -275,7 +282,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
                     widget.down('#data-collection-kpi-frequency').setValue(displayRange ? Ext.getStore('Mdc.store.DataCollectionKpiRange').getById(displayRange.count + displayRange.timeUnit).get('name') : '');
                     widget.down('#data-collection-kpi-connection').setValue(connectionTarget);
                     widget.down('#data-collection-kpi-communication').setValue(communicationTarget);
-                    widget.down('#' + actionMenu.itemId).record = taskManagementRecord;
+                    widget.down('#' + actionMenu.itemId) && (widget.down('#' + actionMenu.itemId).record = taskManagementRecord);
                 });
             },
             callback: function () {

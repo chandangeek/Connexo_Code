@@ -1303,14 +1303,30 @@ Ext.define('Mdc.controller.history.Setup', {
                         add: {
                             title: Uni.I18n.translate('tsk.general.addTask', 'MDC', 'Add task'),
                             route: 'add',
+                            privileges: function () {
+                                return Apr.TaskManagementApp.canAdministrate();
+                            },
                             controller: 'Mdc.controller.setup.TaskManagement',
-                            //privileges: Mdc.privileges.TaskManagement.edit,
                             action: 'showAddTask'
+                        },
+                        viewTaskManagement: {
+                            title: '',
+                            route: '{type}/{taskManagementId}',
+                            controller: 'Mdc.controller.setup.TaskManagement',
+                            action: 'viewTaskManagement'
                         },
                         view: {
                             title: '',
                             route: '{type}/{taskManagementId}/{taskId}',
-                            privileges: Mdc.privileges.TaskManagement.view,
+                            privileges: function () {
+                                var taskType = this.MdcApp.getApplication().controllers.map['Uni.controller.history.Router'].arguments.type,
+                                    taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+
+                                if (taskManagement && taskManagement.controller && taskManagement.controller) {
+                                    return taskManagement.controller.canView();
+                                }
+                                return false;
+                            },
                             controller: 'Mdc.controller.setup.TaskManagement',
                             action: 'viewTask',
                             callback: function (route) {
@@ -1324,7 +1340,15 @@ Ext.define('Mdc.controller.history.Setup', {
                                 edit: {
                                     title: '',
                                     route: 'edit',
-                                    //privileges: Mdc.privileges.TaskManagement.edit,
+                                    privileges: function () {
+                                        var taskType = this.MdcApp.getApplication().controllers.map['Uni.controller.history.Router'].arguments.type,
+                                            taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
+
+                                        if (taskManagement && taskManagement.controller && taskManagement.controller) {
+                                            return taskManagement.controller.canEdit();
+                                        }
+                                        return false;
+                                    },
                                     controller: 'Mdc.controller.setup.TaskManagement',
                                     action: 'editTask',
                                     callback: function (route) {
