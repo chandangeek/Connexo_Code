@@ -5,7 +5,6 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.Thesaurus;
@@ -15,6 +14,9 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+
+import com.energyict.obis.ObisCode;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -31,12 +33,14 @@ public class ReadingTypeResource {
 
     private final MeteringService meteringService;
     private final MasterDataService masterDataService;
+    private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public ReadingTypeResource(MeteringService meteringService, MasterDataService masterDataService, Thesaurus thesaurus) {
+    public ReadingTypeResource(MeteringService meteringService, MasterDataService masterDataService, Thesaurus thesaurus, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         this.meteringService = meteringService;
         this.masterDataService = masterDataService;
+        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
         this.thesaurus = thesaurus;
     }
 
@@ -55,7 +59,28 @@ public class ReadingTypeResource {
             return new ReadingTypeInfos(meteringService.findReadingTypes(filter).stream()
                     .filter(rt -> !readingTypesInUseIds.contains(rt.getMRID()))
                     .limit(50)
-                    .collect(Collectors.<ReadingType>toList()));
+                    .collect(Collectors.toList()));
+        }
+        return new ReadingTypeInfos();
+    }
+
+    @GET
+    @Transactional
+    @Path("/readingtypesbyobiscode")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    public ReadingTypeInfos getReadingTypesByObisCode(@BeanParam JsonQueryParameters queryParameters) {
+        String searchText = queryParameters.getLike();
+        String mrId = mdcReadingTypeUtilService.getReadingTypeFilterFrom(ObisCode.fromString(searchText));
+        if (searchText != null && !searchText.isEmpty()) {
+            ReadingTypeFilter filter = new ReadingTypeFilter();
+            filter.addCondition(mrIdMatchOfRegisters(mrId));
+            List<String> readingTypesInUseIds = masterDataService.findAllRegisterTypes().stream()
+                    .map(rT -> rT.getReadingType().getMRID()).collect(Collectors.toList());
+            return new ReadingTypeInfos(meteringService.findReadingTypes(filter).stream()
+                    .filter(rt -> !readingTypesInUseIds.contains(mrId))
+                    .limit(50)
+                    .collect(Collectors.toList()));
         }
         return new ReadingTypeInfos();
     }
@@ -72,7 +97,7 @@ public class ReadingTypeResource {
             filter.addCondition(getReadingTypeFilterCondition(searchText));
             return new ReadingTypeInfos(meteringService.findReadingTypes(filter).stream()
                     .limit(50)
-                    .collect(Collectors.<ReadingType>toList()));
+                    .collect(Collectors.toList()));
         }
         return new ReadingTypeInfos();
     }
@@ -95,5 +120,9 @@ public class ReadingTypeResource {
 
     private Condition mrIdMatchOfNormalRegisters() {
         return Where.where("mRID").matches("^0\\.\\d+\\.0", "");
+    }
+
+    private Condition mrIdMatchOfRegisters(String mrId) {
+        return Where.where("mRID").matches(mrId, "");
     }
 }
