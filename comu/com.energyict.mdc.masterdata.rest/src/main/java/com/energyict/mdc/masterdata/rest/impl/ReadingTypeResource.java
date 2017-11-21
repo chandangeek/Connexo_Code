@@ -14,6 +14,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.rest.ObisCodeInfo;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import com.energyict.obis.ObisCode;
@@ -24,6 +25,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -83,6 +85,23 @@ public class ReadingTypeResource {
                     .collect(Collectors.toList()));
         }
         return new ReadingTypeInfos();
+    }
+
+
+    @GET
+    @Transactional
+    @Path("/obiscodebyreadingtype")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    public ObisCodeInfo getObisCodeByReadingType(@QueryParam("MRID") String mrid) {
+        ObisCode obisCode;
+        try {
+            obisCode = mdcReadingTypeUtilService.getReadingTypeInformationFor(mrid).getObisCode();
+        } catch (Exception e){
+            // WHAT DO WE DO HERE?????
+            return new ObisCodeInfo();
+        }
+        return new ObisCodeInfo(obisCode);
     }
 
     @GET
