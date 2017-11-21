@@ -384,10 +384,10 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
                     });
 
                     if (schedule) {
-                        widget.down('#recurrence-trigger').setValue({recurrence: true});
-                        widget.down('#recurrence-number').setValue(schedule.count);
+                        taskForm.down('#recurrence-trigger').setValue({recurrence: true});
+                        taskForm.down('#recurrence-number').setValue(schedule.count);
                         recurrenceTypeCombo.setValue(schedule.timeUnit);
-                        widget.down('#start-on').setValue(record.get('nextRun'));
+                        taskForm.down('#start-on').setValue(record.get('nextRun'));
                     } else {
                         recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
                     }
