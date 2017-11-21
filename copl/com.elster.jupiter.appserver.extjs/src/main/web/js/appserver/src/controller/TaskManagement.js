@@ -86,11 +86,11 @@ Ext.define('Apr.controller.TaskManagement', {
                 var route = '';
                 if (taskManagement.controller.getTaskRoute) {
                     route = me.getController('Uni.controller.history.Router').getRoute(taskManagement.controller.getTaskRoute());
-                    route.forward({taskId: task.get('id')});
+                    window.location.replace(route.buildUrl({taskId: task.get('id')}));
                 }
                 else {
                     route = me.getController('Uni.controller.history.Router').getRoute('administration/taskmanagement/view');
-                    route.forward({type: taskType, taskManagementId: taskManagementId, taskId: task.get('id')});
+                    window.location.replace(route.buildUrl({type: taskType, taskManagementId: taskManagementId, taskId: task.get('id')}));
                 }
             })
         }
