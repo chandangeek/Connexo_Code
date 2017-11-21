@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.logging.Logger;
@@ -35,7 +34,9 @@ public class DeviceDataZipImporterTest {
     @Before
     public void beforeTest() {
         reset(processor, logger);
-        Thesaurus thesaurus = mock(Thesaurus.class, Mockito.RETURNS_DEEP_STUBS);
+        Thesaurus thesaurus = mock(Thesaurus.class,RETURNS_MOCKS);
+        when(thesaurus.getSimpleFormat(MessageSeeds.COULD_NOT_EXTRACT_SERIAL_NUMBER))
+                .thenReturn(new SimpleNlsMessageFormat(MessageSeeds.COULD_NOT_EXTRACT_SERIAL_NUMBER));
         when(context.getThesaurus()).thenReturn(thesaurus);
     }
 
@@ -82,7 +83,25 @@ public class DeviceDataZipImporterTest {
     }
 
     @Test
-    public void testExceptionIsThrownWhenInputIsNotZipFle() {
+    public void testExceptionIsThrownWhenInputIsZipFileWithMultiLevelDirectories() {
+        setFileName("certificatesWithMultiLevelDirs.zip");
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence();
+
+        parser = new DeviceCertificatesParser(context);
+        DeviceCertificatesParser spyParser = spy(parser);
+
+        DeviceDataZipImporter importer = mockImporter(spyParser, processor);
+
+        importer.process(importOccurrence);
+
+        verify(importOccurrence).getPath();
+        verify(importOccurrence).markFailure(anyString());
+        verify(spyParser).init(Matchers.any(ZipFile.class));
+        verify(logger).severe(Matchers.startsWith("The device serial number could not be extracted"));
+    }
+
+    @Test
+    public void testExceptionIsThrownWhenInputIsNotZipFile() {
         setFileName("certificatesWithInvalidTextFormat.zip");
         FileImportOccurrence importOccurrence = mockFileImportOccurrence();
 

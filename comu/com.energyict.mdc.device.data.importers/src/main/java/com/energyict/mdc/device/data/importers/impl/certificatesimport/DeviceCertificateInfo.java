@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.importers.impl.certificatesimport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.certificatesimport.exceptions.ZipFieldParserException;
+import com.google.common.base.CharMatcher;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,7 +45,7 @@ public class DeviceCertificateInfo {
     }
 
     private String extractSerialNumber(ZipEntry entry) {
-        if (entry.getName().contains("/")) {
+        if (CharMatcher.is('/').countIn(entry.getName()) == 1) {
             return entry.getName().split("/")[0];
         } else {
             throw new ZipFieldParserException(thesaurus, MessageSeeds.COULD_NOT_EXTRACT_SERIAL_NUMBER, entry.getName());
