@@ -94,13 +94,16 @@ public class ReadingTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public ObisCodeInfo getObisCodeByReadingType(@QueryParam("MRID") String mrid) {
-        ObisCode obisCode;
+        ObisCode obisCode = null;
         try {
             obisCode = mdcReadingTypeUtilService.getReadingTypeInformationFor(mrid).getObisCode();
         } catch (Exception e){
             // WHAT DO WE DO HERE?????
-            return new ObisCodeInfo();
         }
+
+        if (obisCode == null)
+            return new ObisCodeInfo();
+
         return new ObisCodeInfo(obisCode);
     }
 
