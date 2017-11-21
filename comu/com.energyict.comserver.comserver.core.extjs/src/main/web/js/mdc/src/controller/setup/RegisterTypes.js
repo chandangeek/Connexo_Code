@@ -21,7 +21,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     stores: [
         'RegisterTypes',
         'ReadingTypes',
-        'AvailableReadingTypesForRegisterType'
+        'AvailableReadingTypesForRegisterType',
+        'ObisCodeFromReadingType'
     ],
 
     refs: [
@@ -65,8 +66,32 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             },
             '#registerTypeDetail menuitem[action=editRegisterType]': {
                 click: this.editRegisterTypeFromDetails
+            },
+            '#registerTypeEdit #readingTypeCombo': {
+                select: this.showObisCode
             }
         });
+    },
+
+
+   showObisCode: function (selectionModel, record) {
+       var me = this,
+           store = me.getStore('Mdc.store.ObisCodeFromReadingType')
+
+       store.getProxy().extraParams = ({MRID: record[0].get('mRID')});
+       store.load({
+           callback: function(records) {
+               if (records) {
+                   var obisCode = '';
+                   Ext.Array.forEach(records, function (record) {
+                       obisCode += record.raw;
+                   });
+                   Ext.getCmp('editObisCodeField').setValue(obisCode);
+               }
+           },
+           scope: this
+       });
+
     },
 
     onRegisterTypesStoreLoad: function () {
