@@ -68,13 +68,15 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             '#registerTypeDetail menuitem[action=editRegisterType]': {
                 click: this.editRegisterTypeFromDetails
             },
-            '#registerTypeEdit #readingTypeCombo': {
+         /*   '#registerTypeEdit #readingTypeCombo': {
                 select: this.showObisCode
-            },
-            '#registerTypeEdit #editObisCodeField': {
+            },*/
+         /*   '#registerTypeEdit #editObisCodeField': {
                 blur: this.addObisCodeToReadingTypeQuery
+            }*/
+            '#registerTypeEdit #readingTypeCombo': {
+                collapse: this.addObisCodeToReadingTypeQuery
             }
-
         });
     },
 
@@ -82,12 +84,12 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var me = this,
             store = me.getReadingTypeCombo().getStore();
 
-        store.getProxy().extraParams = ({obis: me.getEditObisCodeField().getValue()});
+        store.getProxy().extraParams = ({obisCode: me.getEditObisCodeField().getValue()});
     },
 
    showObisCode: function(selectionModel, record) {
        var me = this,
-           store = this.getStore('Mdc.store.ObisCodeFromReadingType');
+           store = me.getStore('Mdc.store.ObisCodeFromReadingType');
 
        store.getProxy().extraParams = ({mRID: record[0].get('mRID')});
 
@@ -103,9 +105,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
            },
            scope: this
        });
-
-
-
     },
 
     onRegisterTypesStoreLoad: function () {
