@@ -57,20 +57,15 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
         HttpSession httpSession = request.getSession();
         boolean newSession = false;
 
-        String userName = (String) httpSession.getAttribute(USER_NAME);
+        String userName = null;
         String password = null;
-
-        if (userName != null) {
-            password = (String) httpSession.getAttribute(PASSWORD);
+        AuthorizationPolicy policy = message.get(AuthorizationPolicy.class);
+        if (policy != null) {
+            userName = policy.getUserName();
+            password = policy.getPassword();
+            newSession = true;
         } else {
-            AuthorizationPolicy policy = message.get(AuthorizationPolicy.class);
-            if (policy != null) {
-                userName = policy.getUserName();
-                password = policy.getPassword();
-                newSession = true;
-            } else {
-                fail("Authentication required", HttpURLConnection.HTTP_UNAUTHORIZED);
-            }
+            fail("Authentication required", HttpURLConnection.HTTP_UNAUTHORIZED);
         }
         try {
             this.userService.findUser(userName).ifPresent(threadPrincipalService::set);
@@ -93,12 +88,19 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
                     httpSession.setAttribute(PASSWORD, password);
                 }
             }
-        } catch (Fault e) {
+        } catch (
+                Fault e)
+
+        {
             throw e;
-        } catch (Exception e) {
+        } catch (
+                Exception e)
+
+        {
             logInTransaction("Exception while logging in " + userName + ":", e);
             fail("Not authorized", HttpURLConnection.HTTP_FORBIDDEN);
         }
+
     }
 
     private void fail(String message, int statusCode) {
