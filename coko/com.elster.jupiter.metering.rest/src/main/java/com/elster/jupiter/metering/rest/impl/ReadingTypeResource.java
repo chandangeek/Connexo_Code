@@ -4,33 +4,17 @@
 
 package com.elster.jupiter.metering.rest.impl;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.Phase;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.metering.rest.ReadingTypeAliasInfo;
-import com.elster.jupiter.metering.rest.ReadingTypeAliasInfos;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.RestValidationBuilder;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -41,21 +25,10 @@ import com.elster.jupiter.util.conditions.Where;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -197,6 +170,22 @@ public class ReadingTypeResource {
                 .flatMap(Function.identity()).collect(Collectors.toList());
         return PagedInfoList.fromCompleteList(field + "Codes", infoList, queryParameters);
     }
+
+    @GET
+    @Path("/basiccodes/{field}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getGroupCodes(@PathParam("field") String field, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
+        Integer commodity = queryFilter.hasProperty("commodity") ? queryFilter.getInteger("commodity") : null;
+
+        List<ReadingTypeCodeInfo> infoList = Arrays.stream(ReadingTypeFields.values())
+                .filter(candidate -> candidate.getFieldName().equalsIgnoreCase(field))
+                .map(c -> meteringService.getReadingTypeGroupFieldCodesFactory(commodity)
+                        .getCodeFields(c.getFieldName()).entrySet()
+                        .stream().map(e -> new ReadingTypeCodeInfo(e.getKey(), e.getValue())))
+                .flatMap(Function.identity()).collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList(field + "Codes", infoList, queryParameters);
+    }
+
 
     @POST
     @Path("/count")
