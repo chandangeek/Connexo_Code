@@ -49,9 +49,8 @@ public class DeviceDataZipImporterTest {
         FileImportOccurrence importOccurrence = mock(FileImportOccurrence.class);
         when(importOccurrence.getLogger()).thenReturn(logger);
 
-        doReturn(Thread.currentThread()
-                .getContextClassLoader()
-                .getResource("com/energyict/mdc/device/data/importers/impl/" + fileName)
+        doReturn(getClass()
+                .getResource("/com/energyict/mdc/device/data/importers/impl/" + fileName)
                 .getPath())
                 .when(importOccurrence).getPath();
 
