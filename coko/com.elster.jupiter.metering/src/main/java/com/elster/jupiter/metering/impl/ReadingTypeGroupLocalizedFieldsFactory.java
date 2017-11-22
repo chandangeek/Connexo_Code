@@ -22,7 +22,6 @@ public class ReadingTypeGroupLocalizedFieldsFactory implements ReadingTypeFields
 
     Map<Commodity, EnumSet<MeasurementKind>> mapCommodity2MeasurementKind = new LinkedHashMap<>();
 
-
     public ReadingTypeGroupLocalizedFieldsFactory(Thesaurus thesaurus, Integer commodity) {
         this.thesaurus = thesaurus;
         this.commodity = commodity != null ? Commodity.get(commodity) : null;
