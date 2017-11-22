@@ -12,11 +12,7 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 
-import java.time.format.DateTimeParseException;
-import java.util.TimeZone;
-import java.util.stream.Stream;
-
-import static com.energyict.mdc.device.data.importers.impl.properties.TimeZonePropertySpec.format;
+import java.time.format.DateTimeFormatter;
 
 public class DateFormatPropertySpec extends BasicPropertySpec {
 
@@ -43,23 +39,15 @@ public class DateFormatPropertySpec extends BasicPropertySpec {
             if (Checks.is(value).emptyOrOnlyWhiteSpace()) {
                 return false;
             }
-            return checkForKnowTimeZoneId(value) || checkAccordingToDateTimeFormatter(value);
+            try {
+                DateTimeFormatter.ofPattern(value);
+            } catch (IllegalArgumentException e) {
+                throw new InvalidValueException(thesaurus.getFormat(MessageSeeds.DATE_FORMAT_IS_NOT_VALID).format(),
+                        MessageSeeds.DATE_FORMAT_IS_NOT_VALID.getDefaultFormat(),
+                        getName());
+            }
+            return true;
         }
         return false;
-    }
-
-    private boolean checkAccordingToDateTimeFormatter(String value) throws InvalidValueException {
-        try {
-            format.parse(value);
-        } catch (DateTimeParseException e) {
-            throw new InvalidValueException(thesaurus.getFormat(MessageSeeds.TIME_ZONE_IS_NOT_VALID).format(),
-                    MessageSeeds.TIME_ZONE_IS_NOT_VALID.getDefaultFormat(),
-                    getName());
-        }
-        return true;
-    }
-
-    private boolean checkForKnowTimeZoneId(String value) {
-        return Stream.of(TimeZone.getAvailableIDs()).filter(s -> s.equals(value)).findFirst().isPresent();
     }
 }
