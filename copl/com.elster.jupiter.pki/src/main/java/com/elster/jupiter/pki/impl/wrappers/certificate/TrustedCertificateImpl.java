@@ -15,19 +15,13 @@ import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.rest.util.ExceptionFactory;
 
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchProviderException;
-import java.security.cert.CRL;
-import java.security.cert.CRLException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509CRL;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -42,8 +36,8 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
     private Reference<TrustStore> trustStoreReference = Reference.empty();
 
     @Inject
-    public TrustedCertificateImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService, ExceptionFactory exceptionFactory) {
-        super(dataModel, thesaurus, propertySpecService, eventService, exceptionFactory);
+    public TrustedCertificateImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService) {
+        super(dataModel, thesaurus, propertySpecService, eventService);
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
     }

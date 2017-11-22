@@ -20,27 +20,16 @@ import com.elster.jupiter.pki.impl.UniqueAlias;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-
-import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 
 import javax.naming.InvalidNameException;
-import javax.naming.ldap.LdapName;
-import javax.naming.ldap.Rdn;
-import javax.security.auth.x500.X500Principal;
 import javax.validation.constraints.Size;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchProviderException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.CertificateNotYetValidException;
-import java.security.cert.CertificateParsingException;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.time.Instant;
 import java.util.*;
 
@@ -92,7 +81,6 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     }
 
     private final Map<String, Integer> rdsOrder = new HashMap<>();
-    private final ExceptionFactory exceptionFactory;
 
     private long id;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -115,12 +103,11 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    public AbstractCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService, ExceptionFactory exceptionFactory) {
+    public AbstractCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.eventService = eventService;
-        this.exceptionFactory = exceptionFactory;
     }
 
     @Override
@@ -172,7 +159,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         } catch (CertificateEncodingException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_ENCODING_EXCEPTION, e);
         } catch (InvalidNameException e) {
-            throw exceptionFactory.newException(MessageSeeds.INVALID_DN);
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_DN, e);
         }
     }
 
