@@ -20,15 +20,10 @@ import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
-
 import com.energyict.protocol.ChannelInfo;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Optional;
+import java.util.*;
 
 public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandImpl {
 
@@ -63,7 +58,7 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
                     OfflineLoadProfile offlineLoadProfile = optionalOfflineLoadProfile.get();
                     int configuredNumberOfChannels = offlineLoadProfile.getAllOfflineChannels().size();
                     int receivedNumberOfChannels = collectedLoadProfile.getChannelInfo().size();
-                    if (configuredNumberOfChannels != receivedNumberOfChannels && !offlineLoadProfile.isDataLoggerSlaveLoadProfile()) {
+                    if (configuredNumberOfChannels != receivedNumberOfChannels) {
                         //We received a wrong number of channels
                         addIssue(
                                 getIssueService().newProblem(
