@@ -8,7 +8,7 @@ Ext.define('Mdc.store.ObisCodeFromReadingType', {
     storeId: 'ObisCodeFromReadingType',
     proxy: {
         type: 'rest',
-        url: '/api/mds/obiscodebyreadingtype',
+        url: '/api/mds/obiscode',
         reader: {
             type: 'json',
             root: 'obisValue'

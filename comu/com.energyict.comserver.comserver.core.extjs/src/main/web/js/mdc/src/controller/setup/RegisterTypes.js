@@ -68,43 +68,41 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             '#registerTypeDetail menuitem[action=editRegisterType]': {
                 click: this.editRegisterTypeFromDetails
             },
-         /*   '#registerTypeEdit #readingTypeCombo': {
-                select: this.showObisCode
-            },*/
-         /*   '#registerTypeEdit #editObisCodeField': {
-                blur: this.addObisCodeToReadingTypeQuery
-            }*/
             '#registerTypeEdit #readingTypeCombo': {
-                collapse: this.addObisCodeToReadingTypeQuery
+                select: this.showObisCode,
+                expand: this.addObisCodeToReadingTypeQuery
             }
         });
     },
 
-    addObisCodeToReadingTypeQuery: function (selectionModel, record) {
+    addObisCodeToReadingTypeQuery: function (combo) {
         var me = this,
-            store = me.getReadingTypeCombo().getStore();
+            store = combo.getStore();
 
         store.getProxy().extraParams = ({obisCode: me.getEditObisCodeField().getValue()});
     },
 
-   showObisCode: function(selectionModel, record) {
-       var me = this,
-           store = me.getStore('Mdc.store.ObisCodeFromReadingType');
+   showObisCode: function(combo) {
+       var me = this;
 
-       store.getProxy().extraParams = ({mRID: record[0].get('mRID')});
-
-       store.load({
-           callback: function (records, operation, success) {
-               if (success) {
-                   var obisCode = '';
-                   Ext.Array.forEach(records, function (record) {
-                       obisCode += record.raw;
-                   });
-                   me.getEditObisCodeField().setValue(obisCode);
-               }
-           },
-           scope: this
-       });
+       if (me.getEditObisCodeField().getValue() === "") {
+           if (combo.valueModels && combo.valueModels[0]) {
+               var store = me.getStore('Mdc.store.ObisCodeFromReadingType');
+               store.getProxy().extraParams = ({mRID: combo.valueModels[0].get('mRID')});
+               store.load({
+                   callback: function (records, operation, success) {
+                       if (success) {
+                           var obisCode = '';
+                           Ext.Array.forEach(records, function (record) {
+                               obisCode += record.raw;
+                           });
+                           me.getEditObisCodeField().setValue(obisCode);
+                       }
+                   },
+                   scope: this
+               });
+           }
+       }
     },
 
     onRegisterTypesStoreLoad: function () {
