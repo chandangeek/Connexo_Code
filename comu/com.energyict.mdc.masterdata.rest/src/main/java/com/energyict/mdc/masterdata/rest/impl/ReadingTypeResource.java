@@ -66,8 +66,9 @@ public class ReadingTypeResource {
 
         String searchText = queryParameters.getLike();
         if (searchText != null && !searchText.isEmpty()) {
-            if (filter == null)
+            if (filter == null) {
                 filter = new ReadingTypeFilter();
+            }
             filter.addCondition(getReadingTypeFilterCondition(searchText));
         }
 
@@ -79,15 +80,13 @@ public class ReadingTypeResource {
                     .limit(50)
                     .collect(Collectors.toList()));
         }
-
-
         return new ReadingTypeInfos();
     }
 
 
     @GET
     @Transactional
-    @Path("/obiscodebyreadingtype")
+    @Path("/obiscode")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public ObisCodeInfo getObisCodeByReadingType(@QueryParam("mRID") String mRID) {
@@ -99,7 +98,6 @@ public class ReadingTypeResource {
         } catch (Exception e){
             // WHAT DO WE DO HERE?????
         }
-
         return new ObisCodeInfo();
     }
 
