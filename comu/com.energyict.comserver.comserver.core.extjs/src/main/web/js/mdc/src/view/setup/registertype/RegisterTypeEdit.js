@@ -65,6 +65,11 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                         hidden: true
                     },
                     {
+                        xtype: 'obis-field',
+                        itemId: 'editObisCodeField',
+                        name: 'obisCode'
+                    },
+                    {
                         itemId: 'readingTypeCombo',
                         xtype: 'reading-type-combo',
                         name: 'readingType',
@@ -98,11 +103,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                         typeAhead: true,
                         emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
                     },
-                    {
-                        xtype: 'obis-field',
-                        id: 'editObisCodeField',
-                        name: 'obisCode'
-                    },
+
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: '&nbsp;',

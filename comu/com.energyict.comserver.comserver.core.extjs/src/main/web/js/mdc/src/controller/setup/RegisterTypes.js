@@ -35,7 +35,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         {ref: 'registerTypeEditForm', selector: '#registerTypeEditForm'},
         {ref: 'registerTypeDetailForm', selector: '#registerTypeDetailForm'},
         {ref: 'registerTypeEditForm', selector: '#registerTypeEditForm'},
-        {ref: 'readingTypeCombo', selector: '#registerTypeEditForm #readingTypeCombo'}
+        {ref: 'readingTypeCombo', selector: '#registerTypeEditForm #readingTypeCombo'},
+        {ref: 'editObisCodeField', selector: '#registerTypeEditForm #editObisCodeField'}
     ],
 
     init: function () {
@@ -69,28 +70,41 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             },
             '#registerTypeEdit #readingTypeCombo': {
                 select: this.showObisCode
+            },
+            '#registerTypeEdit #editObisCodeField': {
+                blur: this.addObisCodeToReadingTypeQuery
             }
+
         });
     },
 
+    addObisCodeToReadingTypeQuery: function (selectionModel, record) {
+        var me = this,
+            store = me.getReadingTypeCombo().getStore();
 
-   showObisCode: function (selectionModel, record) {
+        store.getProxy().extraParams = ({obis: me.getEditObisCodeField().getValue()});
+    },
+
+   showObisCode: function(selectionModel, record) {
        var me = this,
-           store = me.getStore('Mdc.store.ObisCodeFromReadingType')
+           store = this.getStore('Mdc.store.ObisCodeFromReadingType');
 
-       store.getProxy().extraParams = ({MRID: record[0].get('mRID')});
+       store.getProxy().extraParams = ({mRID: record[0].get('mRID')});
+
        store.load({
-           callback: function(records) {
-               if (records) {
+           callback: function (records, operation, success) {
+               if (success) {
                    var obisCode = '';
                    Ext.Array.forEach(records, function (record) {
                        obisCode += record.raw;
                    });
-                   Ext.getCmp('editObisCodeField').setValue(obisCode);
+                   me.getEditObisCodeField().setValue(obisCode);
                }
            },
            scope: this
        });
+
+
 
     },
 
