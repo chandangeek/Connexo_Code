@@ -63,9 +63,13 @@ Ext.define('Uni.view.search.Results', {
                 itemsPerPageMsg: Uni.I18n.translate('search.overview.paging.itemsPerPageMsg', 'UNI', 'Search results per page'),
                 dock: 'bottom',
                 deferLoading: true,
+                defaultPageSize: 100,
                 pageSizeStore: Ext.create('Ext.data.Store', {
                     fields: ['value'],
                     data: [
+                        {value: '10'},
+                        {value: '20'},
+                        {value: '50'},
                         {value: '100'},
                         {value: '1000'}
                     ]
