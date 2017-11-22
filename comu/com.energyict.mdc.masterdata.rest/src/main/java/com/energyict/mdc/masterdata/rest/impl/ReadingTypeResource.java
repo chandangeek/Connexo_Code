@@ -51,11 +51,27 @@ public class ReadingTypeResource {
     @Path("/unusedreadingtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
-    public ReadingTypeInfos getUnusedReadingTypes(@BeanParam JsonQueryParameters queryParameters) {
+    public ReadingTypeInfos getUnusedReadingTypes(@BeanParam JsonQueryParameters queryParameters, @QueryParam("obisCode") String obisCodeString) {
+
+        ReadingTypeFilter filter = null;
+
+        if (obisCodeString != null && !obisCodeString.isEmpty()) {
+            ObisCode obisCode = ObisCode.fromString(obisCodeString);
+            if (!obisCode.isInvalid()) {
+                String mrId = mdcReadingTypeUtilService.getReadingTypeFilterFrom(obisCode);
+                filter = new ReadingTypeFilter();
+                filter.addCondition(mrIdMatchOfRegisters(mrId));
+            }
+        }
+
         String searchText = queryParameters.getLike();
         if (searchText != null && !searchText.isEmpty()) {
-            ReadingTypeFilter filter = new ReadingTypeFilter();
+            if (filter == null)
+                filter = new ReadingTypeFilter();
             filter.addCondition(getReadingTypeFilterCondition(searchText));
+        }
+
+        if (filter != null){
             List<String> readingTypesInUseIds = masterDataService.findAllRegisterTypes().stream()
                     .map(rT -> rT.getReadingType().getMRID()).collect(Collectors.toList());
             return new ReadingTypeInfos(meteringService.findReadingTypes(filter).stream()
@@ -63,27 +79,8 @@ public class ReadingTypeResource {
                     .limit(50)
                     .collect(Collectors.toList()));
         }
-        return new ReadingTypeInfos();
-    }
 
-    @GET
-    @Transactional
-    @Path("/readingtypesbyobiscode")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
-    public ReadingTypeInfos getReadingTypesByObisCode(@BeanParam JsonQueryParameters queryParameters) {
-        String searchText = queryParameters.getLike();
-        String mrId = mdcReadingTypeUtilService.getReadingTypeFilterFrom(ObisCode.fromString(searchText));
-        if (searchText != null && !searchText.isEmpty()) {
-            ReadingTypeFilter filter = new ReadingTypeFilter();
-            filter.addCondition(mrIdMatchOfRegisters(mrId));
-            List<String> readingTypesInUseIds = masterDataService.findAllRegisterTypes().stream()
-                    .map(rT -> rT.getReadingType().getMRID()).collect(Collectors.toList());
-            return new ReadingTypeInfos(meteringService.findReadingTypes(filter).stream()
-                    .filter(rt -> !readingTypesInUseIds.contains(mrId))
-                    .limit(50)
-                    .collect(Collectors.toList()));
-        }
+
         return new ReadingTypeInfos();
     }
 
