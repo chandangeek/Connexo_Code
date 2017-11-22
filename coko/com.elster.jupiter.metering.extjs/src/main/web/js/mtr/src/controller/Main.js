@@ -12,11 +12,12 @@ Ext.define('Mtr.controller.Main', {
 
     controllers: [
         'Mtr.controller.history.Setup',
-        'Mtr.readingtypes.controller.ReadingTypes',
-        'Mtr.readingtypes.controller.OverviewSorting',
-        'Mtr.readingtypes.controller.AddReadingTypes',
-        'Mtr.readingtypes.controller.BulkAction',
-        'Mtr.readingtypes.controller.AddReadingTypesGroup',
+        'Mtr.controller.readingtypes.ReadingTypes',
+        'Mtr.controller.readingtypes.OverviewSorting',
+        'Mtr.controller.readingtypes.AddReadingTypes',
+        'Mtr.controller.readingtypes.BulkAction',
+        'Mtr.controller.readingtypesgroup.AddReadingTypesGroup',
+        'Mtr.controller.readingtypesgroup.ReadingTypesGroup'
     ],
 
     stores: [

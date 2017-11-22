@@ -17,44 +17,44 @@ Ext.define('Mtr.controller.history.Setup', {
                 readingtypegroups: {   //lori
                     title: Uni.I18n.translate('readingtypes.readingTypeGroups', 'MTR', 'Reading type groups'),
                     route: 'readingtypegroups',
-                    controller: 'Mtr.readingtypes.controller.ReadingTypes',
+                    controller: 'Mtr.controller.readingtypesgroup.ReadingTypesGroup',
                     privileges : Mtr.privileges.ReadingTypes.view,
-                    action: 'showGroupsOverview',
+                    action: 'showOverview',
                     items: {
                         add: {
                             title: Uni.I18n.translate('readingtypegroups.add', 'MTR', 'Add reading types'),
                             route: 'add',
-                            controller: 'Mtr.readingtypes.controller.AddReadingTypesGroup',
+                            controller: 'Mtr.controller.readingtypesgroup.AddReadingTypesGroup',
                             privileges: Mtr.privileges.ReadingTypes.admin,
                             action: 'showOverview'
                         },
                         bulk: {
                             title: Uni.I18n.translate('general.bulk', 'MTR', 'Bulk action'),
                             route: 'bulk',
-                            controller: 'Mtr.readingtypes.controller.GroupBulkAction',
+                            controller: 'Mtr.controller.readingtypesgroup.GroupBulkAction',
                             privileges: Mtr.privileges.ReadingTypes.admin,
-                            action: 'showGroupsOverview'
+                            action: 'showOverview'
                         }
                     }
                 },
                 readingtypes: {
                     title: Uni.I18n.translate('readingtypes.title', 'MTR', 'Reading types'),
                     route: 'readingtypes',
-                    controller: 'Mtr.readingtypes.controller.ReadingTypes',
+                    controller: 'Mtr.controller.readingtypes.ReadingTypes',
                     privileges : Mtr.privileges.ReadingTypes.view,
                     action: 'showOverview',
                     items: {
                         add: {
                             title: Uni.I18n.translate('readingtypes.add', 'MTR', 'Add reading types'),
                             route: 'add',
-                            controller: 'Mtr.readingtypes.controller.AddReadingTypes',
+                            controller: 'Mtr.controller.readingtypes.AddReadingTypes',
                             privileges : Mtr.privileges.ReadingTypes.admin,
                             action: 'showOverview'
                         },
                         bulk: {
                             title: Uni.I18n.translate('general.bulk', 'MTR', 'Bulk action'),
                             route: 'bulk',
-                            controller: 'Mtr.readingtypes.controller.BulkAction',
+                            controller: 'Mtr.controller.readingtypes.BulkAction',
                             privileges : Mtr.privileges.ReadingTypes.admin,
                             action: 'showOverview'
                         }
