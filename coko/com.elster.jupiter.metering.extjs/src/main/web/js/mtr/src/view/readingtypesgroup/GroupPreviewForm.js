@@ -53,17 +53,17 @@ Ext.define('Mtr.view.readingtypesgroup.GroupPreviewForm', {
                                     {
                                         name: 'macroPeriod',
                                         itemId: 'mtr-readingTypesGroupPreview-macroPeriod',
-                                        fieldLabel: Uni.I18n.translate('readingtypesmanagment.period', 'MTR', 'Period')
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.period', 'MTR', 'Period')
                                     },
                                     {
                                         name: 'timePeriod',
                                         itemId: 'mtr-readingTypesGroupPreview-timePeriod',
-                                        fieldLabel: Uni.I18n.translate('readingtypesmanagment.timeperiod', 'MTR', 'Time-period of interest')
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.timeperiod', 'MTR', 'Time-period of interest')
                                     },
                                     {
                                         name: 'aggregate',
                                         itemId: 'mtr-readingTypesGroupPreview-aggregate',
-                                        fieldLabel: Uni.I18n.translate('readingtypesmanagment.aggregate', 'MTR', 'Aggregate')
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.aggregate', 'MTR', 'Aggregate')
                                     }
                                 ]
                             }
@@ -73,7 +73,7 @@ Ext.define('Mtr.view.readingtypesgroup.GroupPreviewForm', {
                         items: [
                             {
                                 xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('readingtypesmanagment.additionalParameters', 'MTR', 'Additional parameters'),
+                                fieldLabel: Uni.I18n.translate('readingTypesManagement.additionalParameters', 'MTR', 'Additional parameters'),
                                 labelAlign: 'top',
                                 layout: 'vbox',
                                 defaults: {
@@ -84,27 +84,27 @@ Ext.define('Mtr.view.readingtypesgroup.GroupPreviewForm', {
                                     {
                                         name: 'multiplier',
                                         itemId: 'mtr-readingTypesGroupPreview-multiplier',
-                                        fieldLabel: Uni.I18n.translate('readingtypesmanagment.multiplier', 'MTR', 'Multiplier')
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.multiplier', 'MTR', 'Multiplier')
                                     },
                                     {
                                         name: 'phases',
                                         itemId: 'mtr-readingTypesGroupPreview-phase',
-                                        fieldLabel: Uni.I18n.translate('readingtypesmanagment.phase', 'MTR', 'Phase')
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.phase', 'MTR', 'Phase')
                                     },
                                     {
                                         name: 'tou',
                                         itemId: 'mtr-readingTypesGroupPreview-tou',
-                                        fieldLabel: Uni.I18n.translate('readingtypesmanagment.timeOfUse', 'MTR', 'Time of use')
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.timeOfUse', 'MTR', 'Time of use')
                                     },
                                     {
                                         name: 'cpp',
                                         itemId: 'mtr-readingTypesGroupPreview-criticalPeakPeriod',
-                                        fieldLabel: Uni.I18n.translate('readingtypesmanagment.criticalPeakPeriod', 'MTR', 'Critical peak period')
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.criticalPeakPeriod', 'MTR', 'Critical peak period')
                                     },
                                     {
                                         name: 'consumptionTier',
                                         itemId: 'mtr-readingTypesGroupPreview-consumptionTier',
-                                        fieldLabel: Uni.I18n.translate('readingtypesmanagment.consumptionTier', 'MTR', 'Consumption tier')
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.consumptionTier', 'MTR', 'Consumption tier')
                                     }
                                 ]
                             }

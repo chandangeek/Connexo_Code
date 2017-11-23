@@ -21,7 +21,7 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsGrid', {
                 flex: 3
             },
             {
-                header: Uni.I18n.translate('readingtypesmanagement.numberOfReadingTypes', 'MTR', '# Reading types'),
+                header: Uni.I18n.translate('readingTypesManagement.numberOfReadingTypes', 'MTR', '# Reading types'),
                 dataIndex: 'numberOfReadingTypes',
                 flex: 1
             },

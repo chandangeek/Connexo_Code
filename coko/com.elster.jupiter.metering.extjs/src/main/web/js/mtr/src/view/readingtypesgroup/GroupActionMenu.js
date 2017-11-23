@@ -9,13 +9,13 @@ Ext.define('Mtr.view.readingtypesgroup.GroupActionMenu', {
         this.items = [
             {
                 itemId: 'mtr-readingTypesGroup-edit-action',
-                text: Uni.I18n.translate('readingtypesmanagement.edit', 'MTR', 'Edit group'),
+                text: Uni.I18n.translate('readingTypesManagement.edit', 'MTR', 'Edit group'),
                 action: 'edit',
                 section: this.SECTION_EDIT
             },
             {
                 itemId: 'mtr-readingTypesGroup-remove-action',
-                text: Uni.I18n.translate('readingtypesmanagement.remove', 'MTR', 'Remove'),
+                text: Uni.I18n.translate('readingTypesManagement.remove', 'MTR', 'Remove'),
                 action: 'remove',
                 section: this.SECTION_REMOVE
             }

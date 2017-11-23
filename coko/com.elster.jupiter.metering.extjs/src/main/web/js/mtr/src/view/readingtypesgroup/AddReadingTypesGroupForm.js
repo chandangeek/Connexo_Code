@@ -33,15 +33,64 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                 width: 685
             },
             {
-                xtype: 'textfield',
-                fieldLabel: Uni.I18n.translate('readingTypesManagement.addReadingTypes.cimCode', 'MTR', 'CIM code'),
-                itemId: 'cim-code-field',
-                emptyText: 'x.x.x.x.X.X.x.x.x.x.x.x.x.x.x.x.x',
-                allowBlank: false,
-                name: 'mRID',
-                width: 685,
-                afterSubTpl: '<div class="x-form-display-field"><i>' + Uni.I18n.translate('readingTypesManagement.addReadingTypes.cimCodeValuesInstruction', 'MTR', "Provide the values for the 18 attributes of the CIM code, separated by a ' . '") + '</i></div>'
+                xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('readingTypesManagement.addReadingTypes.specifyBy', 'MTR', 'Specify by'),
+                layout: 'hbox',
+                vertical: true,
+                items: [
+                    {
+                        xtype: 'radiogroup',
+                        boxLabel: Uni.I18n.translate('readingTypesManagement.addReadingTypes.cimCode', 'MTR', 'CIM code'),
+                        layout: 'vbox',
+                        itemId: 'specify-by-radiogroup',
+                        items: [
+                            {
+                                boxLabel: Uni.I18n.translate('readingTypesManagement.addReadingTypes.cimCode', 'MTR', 'CIM code'),
+                                name: 'specifyBy',
+                                inputValue: 'cim',
+                                checked: true
+                            },
+                            {
+                                boxLabel: Uni.I18n.translate('readingTypesManagement.addReadingTypes.form', 'MTR', 'Form'),
+                                name: 'specifyBy',
+                                inputValue: 'form'
+                            }
+                        ],
+                        listeners: {
+                            change: function (group, newValue) {
+                                var cimField = me.down('textfield[name=mRID]'),
+                                    activeTab = me.activeTab(),
+                                    activeTabIndex = tabPanel.items.findIndex('id', activeTab.id);
+                                // form = me.activeTab().down();
+                                // var activeTab = tabPanel.getActiveTab();
+                                // var activeTabIndex = tabPanel.items.findIndex('id', activeTab.id)
 
+                                //    form = me.down('#reading-type-add-fields-container');
+                                me.fireEvent('switchmode', newValue.specifyBy, me);
+                                switch (newValue.specifyBy) {
+                                    case 'cim':
+                                        form.disable();
+                                        cimField.enable();
+                                        break;
+                                    case 'form':
+                                        form.enable();
+                                        cimField.disable();
+                                        break;
+                                }
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'textfield',
+                        margin: '0 0 0 128',
+                        emptyText: 'x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x',
+                        itemId: 'cim-code-field',
+                        required: true,
+                        allowBlank: false,
+                        name: 'mRID',
+                        width: 420,
+                        afterSubTpl: '<div class="x-form-display-field"><i>' + Uni.I18n.translate('readingTypesManagement.addReadingTypes.cimCodeValuesInstruction', 'MTR', "Provide the values for the 18 attributes of the CIM code, separated by a ' . '") + '</i></div>'
+                    }]
             },
             {
                 xtype: 'tabpanel',
