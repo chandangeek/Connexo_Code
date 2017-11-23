@@ -21,6 +21,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
+import com.energyict.mdc.device.data.rest.impl.DeviceFirmwareHistoryInfoFactory;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -109,6 +110,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
             bind(clock).to(Clock.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
+            bind(DeviceFirmwareHistoryInfosFactory.class).to(DeviceFirmwareHistoryInfosFactory.class);
         }
     }
 
