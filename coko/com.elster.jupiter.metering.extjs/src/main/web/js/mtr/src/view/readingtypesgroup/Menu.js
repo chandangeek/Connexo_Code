@@ -8,8 +8,8 @@ Ext.define('Mtr.view.Menu' , {
 
     router: null,
 
-    title: Uni.I18n.translate('readingtypes.readingTypeGroup', 'MTR', 'Reading type group'),
-    objectType: Uni.I18n.translate('readingtypes.readingTypeGroup', 'MTR', 'Reading type group'),
+    title: Uni.I18n.translate('readingtypes.readingTypeGroup', 'MTR', 'Details'),
+    objectType: Uni.I18n.translate('readingtypes.readingTypeGroup', 'MTR', 'Details'),
 
     initComponent: function () {
 
