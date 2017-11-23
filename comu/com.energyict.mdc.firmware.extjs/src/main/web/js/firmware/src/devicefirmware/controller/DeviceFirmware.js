@@ -9,7 +9,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         'Fwc.devicefirmware.view.Setup',
         'Fwc.devicefirmware.view.Upload',
         'Fwc.devicefirmware.view.FirmwareForm',
-        'Fwc.devicefirmware.view.ConfirmActivateVersionWindow'
+        'Fwc.devicefirmware.view.ConfirmActivateVersionWindow',
     ],
 
     requires: [
@@ -20,12 +20,14 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
     models: [
         'Mdc.model.Device',
         'Fwc.devicefirmware.model.FirmwareMessage',
-        'Fwc.devicefirmware.model.FirmwareMessageSpec'
+        'Fwc.devicefirmware.model.FirmwareMessageSpec',
+        'Fwc.devicefirmware.model.DeviceFirmwareHistoryModel'
     ],
 
     stores: [
         'Fwc.devicefirmware.store.Firmwares',
-        'Fwc.devicefirmware.store.FirmwareActions'
+        'Fwc.devicefirmware.store.FirmwareActions',
+        'Fwc.devicefirmware.store.DeviceFirmwareHistoryStore'
     ],
 
     refs: [
@@ -257,10 +259,12 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
     showDeviceFirmware: function (deviceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            storeDevHistory = me.getStore('Fwc.devicefirmware.store.DeviceFirmwareHistoryStore'),
             store = me.getStore('Fwc.devicefirmware.store.Firmwares'),
             actionsStore = me.getStore('Fwc.devicefirmware.store.FirmwareActions'),
             widget;
 
+        storeDevHistory.getProxy().setUrl(deviceId);
         me.loadDevice(deviceId, function (device) {
             me.getApplication().fireEvent('loadDevice', device);
             me.getApplication().fireEvent('changecontentevent', 'device-firmware-setup', {
@@ -368,5 +372,22 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             });
 
         confirmationMessage.show();
+    },
+    showDeviceFirmwareHistory: function (deviceId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            store = me.getStore('Fwc.devicefirmware.store.DeviceFirmwareHistoryStore'),
+            model = me.getModel('Fwc.devicefirmware.model.DeviceFirmwareHistoryModel'),
+            widget;
+        store.getProxy().setUrl(deviceId);
+        model.load(deviceId, {
+            success: function (record) {
+                view = Ext.widget('device-firmware-setup', {
+                    router: router,
+                    record: record
+                });
+                me.getApplication().fireEvent('changecontentevent', view);
+            }
+        });
     }
 });

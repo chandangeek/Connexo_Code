@@ -8,7 +8,8 @@ Ext.define('Fwc.devicefirmware.view.Setup', {
 
     requires: [
         'Fwc.devicefirmware.view.ActionMenu',
-        'Mdc.view.setup.device.DeviceMenu'
+        'Mdc.view.setup.device.DeviceMenu',
+        'Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid'
     ],
 
     router: null,
@@ -34,18 +35,34 @@ Ext.define('Fwc.devicefirmware.view.Setup', {
         ];
 
         me.content = {
+            xtype: 'tabpanel',
             ui: 'large',
-            itemId: 'device-firmwares',
-            title: Uni.I18n.translate('general.firmware', 'FWC', 'Firmware'),
-            defaults: {
-                margin: '0 0 20 0'
-            },
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            }
-        };
+            title: me.title,
+            itemId: 'hTabPanel',
+            activeTab: me.activeTab,
+            items: [
+                {
+                    title: Uni.I18n.translate('general.firmware', 'FWC', 'Firmware'),
+                    itemId: 'device-firmwares',
+                    items: {}
+                },
+                {
+                    title: Uni.I18n.translate('general.history', 'FWC', 'History'),
+                    xtype: 'preview-container',
+                    grid: {
+                        xtype: 'device-history-grid',
+                        itemId: 'device-history-grid',
+                        router: me.router
+                    },
+                    emptyComponent: {
+                        xtype: 'uni-form-empty-message',
+                        itemId: 'no-usage-found',
+                        text: Uni.I18n.translate('relativeperiod.usage.empty', 'FWC', 'No device firmware history')
+                    }
+                }
+            ]
 
+        };
         me.callParent(arguments);
     }
 });
