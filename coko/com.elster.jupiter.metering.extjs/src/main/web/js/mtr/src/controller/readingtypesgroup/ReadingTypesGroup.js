@@ -254,10 +254,9 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
     },
 
     showReadingTypesGroupDetails: function (aliasName) {
-        // modified
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            taskModel = me.getModel('Mtr.model.readingtypesgroup.ReadingTypeGroup'),
+            groupModel = me.getModel('Mtr.model.readingtypesgroup.ReadingTypeGroup'),
             view = Ext.widget('reading-type-groups-details', {
                 router: router
             }),
@@ -266,13 +265,13 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
 
         me.fromDetail = true;
         me.getApplication().fireEvent('changecontentevent', view);
-        taskModel.load(aliasName, {
+        groupModel.load(aliasName, {
             success: function (record) {
                 var detailsForm = readingTypesGroupPreview.down('reading-types-preview-form');
                 actionsMenu.record = record;
                 me.getApplication().fireEvent('readingtypesgroupload', record);
                 detailsForm.loadRecord(record);
-                readingTypesGroupPreview.down('reading-types-group-menu').setHeader(record.get('name'));
+                readingTypesGroupPreview.down('reading-types-menu').setHeader(record.get('name'));
             }
         });
     }

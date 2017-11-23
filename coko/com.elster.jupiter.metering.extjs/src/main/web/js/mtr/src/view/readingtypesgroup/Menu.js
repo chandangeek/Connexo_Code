@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mtr.view.Menu' , {
+Ext.define('Mtr.view.readingtypesgroup.Menu' , {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.reading-types-group-menu',
 
