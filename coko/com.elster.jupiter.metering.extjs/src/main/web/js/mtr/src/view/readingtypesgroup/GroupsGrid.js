@@ -18,10 +18,14 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsGrid', {
             {
                 header: Uni.I18n.translate('general.name', 'MTR', 'Name'),
                 dataIndex: 'name',
+                renderer: function (value, metaData, record) {
+                    var url = me.router.getRoute('administration/readingtypegroups/view').buildUrl({aliasName: value});
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                },
                 flex: 3
             },
             {
-                header: Uni.I18n.translate('readingtypesmanagement.numberOfReadingTypes', 'MTR', '# Reading types'),
+                header: Uni.I18n.translate('readingtypesmanagement.numberOfReadingTypes', 'MTR', 'Active reading types'),
                 dataIndex: 'numberOfReadingTypes',
                 flex: 1
             },

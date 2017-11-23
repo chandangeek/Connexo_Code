@@ -14,6 +14,8 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsOverview', {
         // 'Mtr.util.FilterTopPanel'
     ],
 
+    router : null,
+
     initComponent: function () {
         var me = this;
 

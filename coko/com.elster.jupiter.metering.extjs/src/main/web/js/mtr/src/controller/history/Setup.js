@@ -34,6 +34,20 @@ Ext.define('Mtr.controller.history.Setup', {
                             controller: 'Mtr.controller.readingtypesgroup.GroupBulkAction',
                             privileges: Mtr.privileges.ReadingTypes.admin,
                             action: 'showOverview'
+                        },
+                        view: {
+                            title: Uni.I18n.translate('readingtypegroups.readingtypegroup', 'TME', 'Reading type group'),
+                            route: '{aliasName}/view',
+                            controller: 'Mtr.controller.readingtypesgroup.ReadingTypesGroup',
+                            privileges: Mtr.privileges.ReadingTypes.admin,
+                            action: 'showReadingTypesGroupDetails',
+                            callback: function (route) {
+                                this.getApplication().on('readingtypesgroupload', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
                         }
                     }
                 },
