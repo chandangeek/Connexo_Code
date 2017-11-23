@@ -68,11 +68,14 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
         {
             ref: 'readingTypesGroupDetails',
             selector: 'reading-type-groups-details'
+        },
+        {
+            ref: 'readingTypesGroupMenu',
+            selector: '#mnu-reading-types-group'
         }
     ],
 
     init: function () {
-        debugger;
         this.control({
             'reading-types-action-menu': {
                 click: this.chooseAction
@@ -97,7 +100,7 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             },
             '#mtr-add-readingTypeGroup-button': {  //lori
                 click: this.browseGroupAdd
-            },
+            }
         });
     },
 
@@ -261,7 +264,7 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
                 router: router
             }),
             readingTypesGroupPreview = view.down('reading-type-groups-details'),
-            actionsMenu = view.down('reading-types-group-menu');
+            actionsMenu = view.down('mnu-reading-types-group');
 
         me.fromDetail = true;
         me.getApplication().fireEvent('changecontentevent', view);

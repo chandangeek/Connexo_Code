@@ -12,7 +12,7 @@ Ext.define('Mtr.view.readingtypesgroup.Details', {
 
     router: null,
 
-    content: {
+    /*content: {
         xtype: 'container',
         layout: 'hbox',
         items: [
@@ -35,7 +35,7 @@ Ext.define('Mtr.view.readingtypesgroup.Details', {
                 }
             }
         ]
-    },
+    },*/
 
     initComponent: function () {
         var me = this;
@@ -47,12 +47,21 @@ Ext.define('Mtr.view.readingtypesgroup.Details', {
                 items: [
                     {
                         xtype: 'reading-types-group-menu',
+                        itemId: 'mnu-reading-types-group',
                         router: me.router,
                         toggle: 0
                     }
                 ]
             }
         ];
+
+        me.content = {
+            xtype: 'panel',
+            ui: 'large',
+            itemId: 'main-panel',
+            title: Uni.I18n.translate('readingtypesmanagement.testing', 'MTR', 'Testing')
+
+        };
 
         me.callParent(arguments);
     }

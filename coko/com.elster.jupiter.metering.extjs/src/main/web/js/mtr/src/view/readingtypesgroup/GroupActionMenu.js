@@ -21,7 +21,7 @@ Ext.define('Mtr.view.readingtypesgroup.GroupActionMenu', {
             }
         ];
         this.callParent(arguments);
-    },
+    }
 
     // listeners: {
     //     beforeshow: function(menu) {

@@ -18,7 +18,7 @@ Ext.define('Mtr.view.readingtypesgroup.ReadingTypesGroupBasicContainer', {
         multiSelect: false,
         disabled: true,
         emptyText: Uni.I18n.translate('general.notApplicable', 'MTR', 'Not applicable'),
-        cimField: 'code',
+        cimField: 'code'
         // listeners: {
         //     change: function () {
         //         me.fireEvent('change', me)
