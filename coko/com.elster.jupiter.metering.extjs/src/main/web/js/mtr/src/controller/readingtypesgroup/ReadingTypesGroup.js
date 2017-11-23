@@ -8,8 +8,8 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
     views: [
         'Mtr.view.readingtypesgroup.GroupsOverview',
         'Mtr.view.readingtypesgroup.GroupsGrid',
-        'Mtr.view.readingtypesgroup.GroupPreview'
-        //'Mtr.view.readingtypesgroup.Details'
+        'Mtr.view.readingtypesgroup.GroupPreview',
+        'Mtr.view.readingtypesgroup.Details'
     ],
 
     requires: [],
@@ -64,10 +64,15 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
         {
             ref: 'readingTypesGroupPreviewMenu',
             selector: 'readingTypesGroup-preview readingTypesGroup-action-menu'
+        },
+        {
+            ref: 'readingTypesGroupDetails',
+            selector: 'reading-type-groups-details'
         }
     ],
 
     init: function () {
+        debugger;
         this.control({
             'reading-types-action-menu': {
                 click: this.chooseAction
