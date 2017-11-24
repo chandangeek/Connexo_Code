@@ -5,17 +5,19 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationService;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder {
 
@@ -31,6 +33,7 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     private ValidationService dataValidationService;
     private QualityCodeSystem qualityCodeSystem;
     private int logLevel;
+    private List<RecurrentTask> nextRecurrentTasks = new ArrayList<>();
 
     public DataValidationTaskBuilderImpl(DataModel dataModel, ValidationService dataValidationService) {
         this.dataModel = dataModel;
@@ -94,6 +97,12 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     }
 
     @Override
+    public DataValidationTaskBuilder setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+        this.nextRecurrentTasks = nextRecurrentTasks;
+        return this;
+    }
+
+    @Override
     public DataValidationTask create() {
         DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution, qualityCodeSystem, logLevel);
         task.setScheduleImmediately(scheduleImmediately);
@@ -101,6 +110,7 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
         task.setEndDeviceGroup(endDeviceGroup);
         task.setUsagePointGroup(usagePointGroup);
         task.setMetrologyPurpose(metrologyPurpose);
+        task.setNextRecurrentTasks(nextRecurrentTasks);
         task.doSave();
         return task;
     }

@@ -8,7 +8,6 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -33,9 +32,9 @@ import com.elster.jupiter.validation.DataValidationTaskStatus;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -67,7 +66,7 @@ final class DataValidationTaskImpl implements DataValidationTask {
     private final Thesaurus thesaurus;
     private transient Instant nextExecution;
     private transient int logLevel;
-
+    private transient List<RecurrentTask> nextRecurrentTasks;
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
 
     private Reference<UsagePointGroup> usagePointGroup = ValueReference.absent();
@@ -315,6 +314,8 @@ final class DataValidationTaskImpl implements DataValidationTask {
                     recurrentTask.get().setName(name);
                 }
                 recurrentTask.get().setLogLevel(this.logLevel);
+                recurrentTask.get().setNextRecurrentTasks(this.nextRecurrentTasks);
+
                 recurrentTask.get().save();
             } else {
                 persistRecurrentTask();
@@ -347,7 +348,9 @@ final class DataValidationTaskImpl implements DataValidationTask {
                 .scheduleImmediately(scheduleImmediately)
                 .setFirstExecution(nextExecution)
                 .setLogLevel(logLevel)
+                .setNextRecurrentTasks(nextRecurrentTasks)
                 .build();
+
         recurrentTask.set(task);
     }
 
@@ -413,5 +416,24 @@ final class DataValidationTaskImpl implements DataValidationTask {
         if (recurrentTask.isPresent()) {
             recurrentTaskDirty = true;
         }
+    }
+
+    @Override
+    public List<RecurrentTask> getNextRecurrentTasks() {
+        return recurrentTask.getOptional()
+                .map(recurrentTask -> recurrentTask.getNextRecurrentTasks())
+                .orElse(Collections.emptyList());
+    }
+
+    @Override
+    public List<RecurrentTask> getPrevRecurrentTasks() {
+        return recurrentTask.getOptional()
+                .map(recurrentTask -> recurrentTask.getPrevRecurrentTasks())
+                .orElse(Collections.emptyList());
+    }
+
+    @Override
+    public void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+        this.nextRecurrentTasks = nextRecurrentTasks;
     }
 }

@@ -5,15 +5,16 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.util.List;
 
 @ProviderType
 public interface DataValidationTaskBuilder {
@@ -35,6 +36,8 @@ public interface DataValidationTaskBuilder {
     DataValidationTaskBuilder setNextExecution(Instant nextExecution);
 
     DataValidationTaskBuilder setLogLevel(int logLevel);
+
+    DataValidationTaskBuilder setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
 
     DataValidationTask create();
 

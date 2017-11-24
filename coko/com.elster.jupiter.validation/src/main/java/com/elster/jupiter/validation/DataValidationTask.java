@@ -5,12 +5,12 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import aQute.bnd.annotation.ProviderType;
@@ -85,5 +85,11 @@ public interface DataValidationTask extends HasAuditInfo {
     int getLogLevel();
 
     void setLogLevel(int newLevel);
+
+    List<RecurrentTask> getNextRecurrentTasks();
+
+    List<RecurrentTask> getPrevRecurrentTasks();
+
+    void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
 }
 
