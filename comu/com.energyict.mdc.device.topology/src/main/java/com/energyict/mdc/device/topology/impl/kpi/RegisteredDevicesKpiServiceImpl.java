@@ -155,6 +155,12 @@ public class RegisteredDevicesKpiServiceImpl implements RegisteredDevicesKpiServ
         }
 
         @Override
+        public RegisteredDevicesKpiBuilder setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+            underConstruction.setNextRecurrentTasks(nextRecurrentTasks);
+            return this;
+        }
+
+        @Override
         public RegisteredDevicesKpi save() {
             underConstruction.save();
             return underConstruction;

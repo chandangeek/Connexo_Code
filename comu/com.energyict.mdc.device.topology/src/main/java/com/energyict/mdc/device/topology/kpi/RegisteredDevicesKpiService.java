@@ -6,6 +6,7 @@ package com.energyict.mdc.device.topology.kpi;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.energyict.mdc.device.data.Device;
 
 import aQute.bnd.annotation.ProviderType;
@@ -98,6 +99,14 @@ public interface RegisteredDevicesKpiService {
          * @return The RegisteredDevicesKpiBuilder
          */
         RegisteredDevicesKpiBuilder target(long target);
+
+        /**
+         * Specifies that the RegisteredDevicesKpiBuilder that is under construction
+         * will trigger the given recurrent tasks
+         *
+         * @return The RegisteredDevicesKpiBuilder
+         */
+        RegisteredDevicesKpiBuilder setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
 
         /**
          * Completes the builder and returns the newly
