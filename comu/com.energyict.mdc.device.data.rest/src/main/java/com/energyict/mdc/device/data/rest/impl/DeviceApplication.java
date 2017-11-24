@@ -176,6 +176,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile IssueAssignmentService issueAssignmentService;
     private volatile IssueInfoFactoryService issueInfoFactoryService;
     private volatile OrmService ormService;
+    private volatile com.elster.jupiter.tasks.TaskService tskService;
+
 
     private volatile RegisteredDevicesKpiService registeredDevicesKpiService;
 
@@ -298,6 +300,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
     }
 
     @Reference
@@ -508,8 +515,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
-    public void setTaskService(TaskService taskService) {
-        this.taskService = taskService;
+    public void setTskService(com.elster.jupiter.tasks.TaskService tskService) {
+        this.tskService = tskService;
     }
 
     @Reference
@@ -620,6 +627,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(DeviceMessageCategoryInfoFactory.class).to(DeviceMessageCategoryInfoFactory.class);
             bind(DeviceMessageSpecInfoFactory.class).to(DeviceMessageSpecInfoFactory.class);
             bind(taskService).to(TaskService.class);
+            bind(tskService).to(com.elster.jupiter.tasks.TaskService.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);
             bind(favoritesService).to(FavoritesService.class);
             bind(topologyService).to(TopologyService.class);
