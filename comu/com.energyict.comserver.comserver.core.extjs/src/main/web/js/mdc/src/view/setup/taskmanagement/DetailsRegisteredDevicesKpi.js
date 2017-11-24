@@ -27,14 +27,14 @@ Ext.define('Mdc.view.setup.taskmanagement.DetailsRegisteredDevicesKpi', {
                         },
                         items: [
                             {
-                                fieldLabel: Uni.I18n.translate('general.followedBy', 'EST', 'Followed by'),
+                                fieldLabel: Uni.I18n.translate('general.followedBy', 'MDC', 'Followed by'),
                                 xtype: 'displayfield',
                                 htmlEncode: false,
                                 itemId: 'followedBy-field-container',
                                 labelWidth: 250
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('general.procededBy', 'EST', 'Proceded by'),
+                                fieldLabel: Uni.I18n.translate('general.procededBy', 'MDC', 'Proceded by'),
                                 xtype: 'displayfield',
                                 htmlEncode: false,
                                 itemId: 'procededBy-field-container',
