@@ -7,6 +7,7 @@ package com.elster.jupiter.estimation.rest.impl;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeService;
@@ -16,8 +17,10 @@ import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class EstimationTaskInfo {
 
@@ -37,6 +40,8 @@ public class EstimationTaskInfo {
     public String application;
     public String recurrence;
     public int logLevel = Level.WARNING.intValue();
+    public List<TaskInfo> nextRecurrentTasks;
+    public List<TaskInfo> previousRecurrentTasks;
 
     public EstimationTaskInfo() {
     }
@@ -88,6 +93,11 @@ public class EstimationTaskInfo {
             lastRun = lastRunOptional.get().toEpochMilli();
         }
         version = estimationTask.getVersion();
+        nextRecurrentTasks = constructTaskInfo(estimationTask.getNextRecurrentTasks());
+        previousRecurrentTasks = constructTaskInfo(estimationTask.getPrevRecurrentTasks());
     }
 
+    private List<TaskInfo> constructTaskInfo(List<RecurrentTask> recurrentTasks) {
+        return recurrentTasks.stream().map(recurrentTask -> TaskInfo.from(recurrentTask)).collect(Collectors.toList());
+    }
 }

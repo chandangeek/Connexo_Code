@@ -20,6 +20,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -54,6 +55,7 @@ public class EstimationApplication extends Application implements MessageSeedPro
     private volatile TimeService timeService;
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile MeteringService meteringService;
+    private volatile TaskService taskService;
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -112,6 +114,11 @@ public class EstimationApplication extends Application implements MessageSeedPro
     }
 
     @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
     public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
         this.propertyValueInfoService = propertyValueInfoService;
     }
@@ -160,6 +167,7 @@ public class EstimationApplication extends Application implements MessageSeedPro
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(timeService).to(TimeService.class);
+            bind(taskService).to(TaskService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(EstimationRuleSetInfoFactory.class).to(EstimationRuleSetInfoFactory.class);

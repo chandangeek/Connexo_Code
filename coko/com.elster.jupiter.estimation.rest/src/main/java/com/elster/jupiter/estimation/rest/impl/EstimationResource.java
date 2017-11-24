@@ -34,7 +34,9 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
@@ -67,6 +69,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +88,7 @@ public class EstimationResource {
     private final EstimationService estimationService;
     private final Thesaurus thesaurus;
     private final TimeService timeService;
+    private final TaskService taskService;
     private final MeteringGroupsService meteringGroupsService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
@@ -100,11 +104,12 @@ public class EstimationResource {
                               MeteringGroupsService meteringGroupsService, MetrologyConfigurationService metrologyConfigurationService,
                               ConcurrentModificationExceptionFactory conflictFactory, PropertyValueInfoService propertyValueInfoService,
                               MeteringService meteringService, EstimationRuleSetInfoFactory estimationRuleSetInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory,
-                              EstimatorInfoFactory estimatorInfoFactory, ResourceHelper resourceHelper) {
+                              TaskService taskService, EstimatorInfoFactory estimatorInfoFactory, ResourceHelper resourceHelper) {
         this.queryService = queryService;
         this.estimationService = estimationService;
         this.thesaurus = thesaurus;
         this.timeService = timeService;
+        this.taskService = taskService;
         this.meteringGroupsService = meteringGroupsService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.conflictFactory = conflictFactory;
@@ -410,6 +415,7 @@ public class EstimationResource {
                 .setEndDeviceGroup(info.deviceGroup != null ? endDeviceGroup(info.deviceGroup.id) : null)
                 .setUsagePointGroup(info.usagePointGroup != null ? usagePointGroup(info.usagePointGroup.id) : null)
                 .setMetrologyPurpose(info.metrologyPurpose != null ? metrologyPurpose(info.metrologyPurpose.id) : null)
+                .setNextRecurrentTasks(this.findRecurrentTaskOrThrowException(info.nextRecurrentTasks))
                 .create();
 
         return Response.status(Response.Status.CREATED)
@@ -453,7 +459,7 @@ public class EstimationResource {
         task.setRevalidate(info.revalidate);
         task.setScheduleExpression(getScheduleExpression(info));
         task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
-
+        task.setNextRecurrentTasks(this.findRecurrentTaskOrThrowException(info.nextRecurrentTasks));
         task.setPeriod(getRelativePeriod(info.period));
 
         if (info.deviceGroup != null) {
@@ -599,5 +605,17 @@ public class EstimationResource {
 
     private Optional<? extends EstimationTask> findAndLockEstimationTaskByIdAndVersionInApplication(long id, long version, QualityCodeSystem qualityCodeSystem) {
         return estimationService.findAndLockEstimationTask(id, version).filter(task -> task.getQualityCodeSystem().equals(qualityCodeSystem));
+    }
+
+    private List<RecurrentTask> findRecurrentTaskOrThrowException(List<TaskInfo> nextRecurrentTasks) {
+        List<RecurrentTask> recurrentTasks = new ArrayList<>();
+        if (nextRecurrentTasks != null) {
+            nextRecurrentTasks.forEach(taskInfo -> {
+                recurrentTasks.add(taskService.getRecurrentTask(taskInfo.id)
+                        .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)));
+
+            });
+        }
+        return recurrentTasks;
     }
 }
