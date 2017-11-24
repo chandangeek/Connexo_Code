@@ -26,7 +26,7 @@ Ext.define('Cfg.controller.Main', {
         'Cfg.insight.dataqualitykpi.controller.DataQualityKpiOverview',
         'Cfg.insight.dataqualitykpi.controller.DataQualityKpiAdd',
         'Cfg.controller.TaskManagement',
-        'Cfg.controller.DataValidationKpiManagement'
+        'Cfg.controller.DataQualityKpiManagement'
     ],
 
     refs: [
@@ -46,7 +46,7 @@ Ext.define('Cfg.controller.Main', {
             }
         });
         this.getController('Cfg.controller.TaskManagement');
-        this.getController('Cfg.controller.DataValidationKpiManagement');
+        this.getController('Cfg.controller.DataQualityKpiManagement');
         this.callParent();
     },
 

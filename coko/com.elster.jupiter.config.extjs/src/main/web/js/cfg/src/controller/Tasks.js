@@ -156,6 +156,8 @@ Ext.define('Cfg.controller.Tasks', {
                 me.getApplication().fireEvent('changecontentevent', view);
                 me.getApplication().fireEvent('validationtaskload', record);
                 detailsForm.loadRecord(record);
+                detailsForm.setRecurrentTasks('#followedBy-field-container', record.get('nextRecurrentTasks'));
+                detailsForm.setRecurrentTasks('#procededBy-field-container', record.get('previousRecurrentTasks'));
                 if (record.get('status') !== 'Busy') {
                     if (record.get('status') === 'Failed') {
                         view.down('#lbl-reason-field').show();

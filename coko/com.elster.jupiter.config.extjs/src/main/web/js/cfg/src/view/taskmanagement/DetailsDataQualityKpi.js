@@ -27,6 +27,20 @@ Ext.define('Cfg.view.taskmanagement.DetailsDataQualityKpi', {
                         },
                         items: [
                             {
+                                fieldLabel: Uni.I18n.translate('general.followedBy', 'CFG', 'Followed by'),
+                                xtype: 'displayfield',
+                                htmlEncode: false,
+                                itemId: 'followedBy-field-container',
+                                width: 600
+                            },
+                            {
+                                fieldLabel: Uni.I18n.translate('general.procededBy', 'CFG', 'Proceded by'),
+                                xtype: 'displayfield',
+                                htmlEncode: false,
+                                itemId: 'procededBy-field-container',
+                                width: 600
+                            },
+                            {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('general.deviceGroup', 'CFG', 'Device group'),
                                 itemId: 'data-quality-kpi-device-group',
@@ -73,5 +87,15 @@ Ext.define('Cfg.view.taskmanagement.DetailsDataQualityKpi', {
         ];
 
         this.callParent(arguments);
+    },
+
+    setRecurrentTasks: function (itemId, recurrentTasks) {
+        var me = this,
+            recurrentTaskList = [];
+        Ext.isArray(recurrentTasks) && Ext.Array.each(recurrentTasks, function (recurrentTask) {
+            recurrentTaskList.push('- ' + Ext.htmlEncode(recurrentTask.name));
+        });
+        me.down(itemId).setValue((recurrentTaskList.length == 0) ? recurrentTaskList = '-' : recurrentTaskList.join('<br/>'));
+        return;
     }
 });

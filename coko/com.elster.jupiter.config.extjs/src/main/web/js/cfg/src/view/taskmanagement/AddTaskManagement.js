@@ -8,7 +8,8 @@ Ext.define('Cfg.view.taskmanagement.AddTaskManagement', {
     requires: [
         'Uni.form.field.DateTime',
         'Cfg.view.validationtask.DataSourcesContainer',
-        'Ldr.store.LogLevels'
+        'Ldr.store.LogLevels',
+        'Cfg.store.AllTasks'
     ],
     defaults: {
         labelWidth: 250
@@ -16,6 +17,20 @@ Ext.define('Cfg.view.taskmanagement.AddTaskManagement', {
     initComponent: function () {
         var me = this;
         me.items = [
+            {
+                xtype: 'combobox',
+                itemId: 'followedBy-combo',
+                fieldLabel: Uni.I18n.translate('general.followedBy', 'CFG', 'Followed by'),
+                name: 'nextRecurrentTasks',
+                width: 600,
+                multiSelect: true,
+                queryMode: 'local',
+                store: 'Cfg.store.AllTasks',
+                editable: false,
+                emptyText: Uni.I18n.translate('validationTasks.taskSelectorPrompt', 'CFG', 'Select a task ...'),
+                displayField: 'name',
+                valueField: 'id'
+            },
             {
                 xtype: 'textfield',
                 name: 'name',

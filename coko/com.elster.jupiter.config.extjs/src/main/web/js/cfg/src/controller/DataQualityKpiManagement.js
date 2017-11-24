@@ -2,13 +2,19 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Cfg.controller.DataValidationKpiManagement', {
+Ext.define('Cfg.controller.DataQualityKpiManagement', {
     extend: 'Cfg.controller.DataValidationKpi',
 
     views: [
         'Cfg.view.datavalidationkpis.Add',
-        'Cfg.view.taskmanagement.DetailsDataQualityKpi'
+        'Cfg.view.taskmanagement.DetailsDataQualityKpi',
+        'Cfg.view.taskmanagement.AddDataQualityKpiManagement'
     ],
+
+    stores: [
+        'Cfg.store.AllTasks'
+    ],
+
     refs: [
         {ref: 'dataValidationKpiEditForm', selector: 'cfg-data-validation-kpi-add-mgm'}
     ],
@@ -36,6 +42,10 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
         return false;
     },
 
+    canSetTriggers: function () {
+        return Cfg.privileges.Validation.canAdministerDataQuality();
+    },
+
     canHistory: function () {
         return false;
     },
@@ -48,18 +58,24 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
         return 'DataQualityKpiCalcTopic';
     },
 
-    getTaskForm: function () {
+    getTaskForm: function (caller, completedFunc) {
         var me = this,
-            form = Ext.create('Cfg.view.taskmanagement.AddDataValidationKpiManagement'),
+            form = Ext.create('Cfg.view.taskmanagement.AddDataQualityKpiManagement'),
             deviceGroupStore = form.down('comboboxwithemptycomponent[name=deviceGroup]').getStore(),
+            followByStore = form.down('#followedBy-combo').getStore(),
             kpiModel = Ext.ModelManager.getModel('Cfg.model.DataValidationKpi'),
             deviceGroupCombo = form.down('#cmb-device-group');
 
-        deviceGroupStore.load({
+        followByStore.load({
             callback: function () {
-                if (deviceGroupStore.getCount() > 0) {
-                    form.loadRecord(Ext.create(kpiModel));
-                }
+                deviceGroupStore.load({
+                    callback: function () {
+                        if (deviceGroupStore.getCount() > 0) {
+                            completedFunc.call(caller, form);
+                            //form.loadRecord(Ext.create(kpiModel));
+                        }
+                    }
+                });
             }
         });
         return form;
@@ -69,7 +85,7 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             editForm = me.getDataValidationKpiEditForm(),
-            record = editForm.getRecord(),
+            record = editForm.getRecord() || Ext.create('Cfg.model.DataValidationKpi'),
             frequency = editForm.down('[name=frequency]').getValue(),
             backUrl = router.getRoute('administration/dataqualitykpis').buildUrl(),
             deviceGroup = {
@@ -94,6 +110,17 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
         if (frequency) {
             record.set('frequency', me.getStore('Cfg.store.DataValidationKpiFrequency').getById(frequency).get('value'));
         }
+
+        // set selected tasks
+        var selectedTask = [];
+        Ext.Array.each(editForm.down('#followedBy-combo').getValue(), function (value) {
+            selectedTask.push({id: value});
+        })
+        record.nextRecurrentTasksStore = Ext.create('Ext.data.Store', {
+            fields: ['id'],
+            data: selectedTask
+        });
+
         record.endEdit();
         record.save({
             backUrl: backUrl,
@@ -220,6 +247,8 @@ Ext.define('Cfg.controller.DataValidationKpiManagement', {
                     me.getApplication().fireEvent('loadTask', record.get('deviceGroup').name);
 
                     var frequency = record.get('frequency');
+                    widget.setRecurrentTasks('#followedBy-field-container', record.get('nextRecurrentTasks'));
+                    widget.setRecurrentTasks('#procededBy-field-container', record.get('previousRecurrentTasks'));
 
                     widget.down('#data-quality-kpi-device-group').setValue(record.get('deviceGroup').name);
                     widget.down('#data-quality-kpi-frequency').setValue(frequency ? Uni.util.ScheduleToStringConverter.convert(frequency) : '');

@@ -9,6 +9,9 @@ Ext.define('Cfg.controller.TaskManagement', {
         'Cfg.view.taskmanagement.AddTaskManagement',
         'Uni.form.field.DateTime'
     ],
+    stores: [
+        'Cfg.store.AllTasks'
+    ],
     refs: [
         {
             ref: 'page',
@@ -73,6 +76,10 @@ Ext.define('Cfg.controller.TaskManagement', {
         return Cfg.privileges.Validation.canAdministrate();
     },
 
+    canSetTriggers: function () {
+        return Cfg.privileges.Validation.canAdministrate();
+    },
+
     canHistory: function () {
         return Cfg.privileges.Validation.canViewOrAdministrate();
     },
@@ -85,7 +92,7 @@ Ext.define('Cfg.controller.TaskManagement', {
         return 'DataValidation';
     },
 
-    getTaskForm: function () {
+    getTaskForm: function (caller, completedFunc) {
         var me = this,
             appName = Uni.util.Application.getAppName(),
             view = Ext.create('Cfg.view.taskmanagement.AddTaskManagement',
@@ -93,11 +100,18 @@ Ext.define('Cfg.controller.TaskManagement', {
                     edit: false,
                     appName: appName
                 }),
+            followByStore = view.down('#followedBy-combo').getStore(),
             recurrenceTypeCombo = view.down('#cbo-recurrence-type');
 
-        view.down('#cfg-validation-task-add-loglevel').setValue(900);
-        me.loadGroup(appName, view);
-        me.recurrenceEnableDisable(view);
+        followByStore.load({
+            callback: function () {
+                view.down('#cfg-validation-task-add-loglevel').setValue(900);
+                me.loadGroup(appName, view);
+                me.recurrenceEnableDisable(view);
+                completedFunc.call(caller, view);
+            }
+        });
+
         return view;
     },
 
@@ -221,6 +235,16 @@ Ext.define('Cfg.controller.TaskManagement', {
             record.set('schedule', null);
         }
         record.set('nextRun', startOnDate);
+
+        // set selected tasks
+        var selectedTask = [];
+        Ext.Array.each(form.down('#followedBy-combo').getValue(), function (value) {
+            selectedTask.push({id: value});
+        })
+        record.nextRecurrentTasksStore = Ext.create('Ext.data.Store', {
+            fields: ['id'],
+            data: selectedTask
+        });
 
         page.setLoading(true);
         record.endEdit();
@@ -348,6 +372,15 @@ Ext.define('Cfg.controller.TaskManagement', {
 
                                 Ext.suspendLayouts();
                                 taskForm.loadRecord(record);
+
+                                var nextRecurrentTasks = record.get('nextRecurrentTasks');
+                                if (nextRecurrentTasks) {
+                                    var selectedTasks = [];
+                                    Ext.Array.each(nextRecurrentTasks, function (nextRecurrentTask) {
+                                        selectedTasks.push(nextRecurrentTask.id);
+                                    });
+                                    taskForm.down('[name=nextRecurrentTasks]').setValue(selectedTasks);
+                                }
 
                                 if (record.data.nextRun && (record.data.nextRun !== 0)) {
                                     taskForm.down('#start-on').setValue(record.data.nextRun);

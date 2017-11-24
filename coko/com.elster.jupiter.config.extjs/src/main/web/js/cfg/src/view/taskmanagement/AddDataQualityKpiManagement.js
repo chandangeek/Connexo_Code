@@ -2,16 +2,31 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Cfg.view.taskmanagement.AddDataValidationKpiManagement', {
+Ext.define('Cfg.view.taskmanagement.AddDataQualityKpiManagement', {
     extend: 'Ext.form.Panel',
     alias: 'widget.cfg-data-validation-kpi-add-mgm',
     requires: [
-        'Uni.view.form.ComboBoxWithEmptyComponent'
+        'Uni.view.form.ComboBoxWithEmptyComponent',
+        'Cfg.store.AllTasks'
     ],
     defaults: {
         labelWidth: 250
     },
     items: [
+        {
+            xtype: 'combobox',
+            itemId: 'followedBy-combo',
+            fieldLabel: Uni.I18n.translate('general.followedBy', 'CFG', 'Followed by'),
+            name: 'nextRecurrentTasks',
+            width: 600,
+            multiSelect: true,
+            queryMode: 'local',
+            store: 'Cfg.store.AllTasks',
+            editable: false,
+            emptyText: Uni.I18n.translate('addDataExportTask.taskSelectorPrompt', 'CFG', 'Select a task ...'),
+            displayField: 'name',
+            valueField: 'id'
+        },
         {
             xtype: 'comboboxwithemptycomponent',
             fieldLabel: Uni.I18n.translate('general.deviceGroup', 'CFG', 'Device group'),
