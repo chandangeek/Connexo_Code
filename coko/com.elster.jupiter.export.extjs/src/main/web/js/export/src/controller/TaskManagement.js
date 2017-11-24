@@ -31,6 +31,10 @@ Ext.define('Dxp.controller.TaskManagement', {
         return false;
     },
 
+    canSetTriggers: function () {
+        return Dxp.privileges.DataExport.canUpdateFull();
+    },
+
     canHistory: function () {
         return false;
     },
