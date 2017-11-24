@@ -7,10 +7,12 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -38,10 +40,10 @@ public class DeviceFirmwareHistoryInfosFactory {
         if (!deviceMessageList.isEmpty()) {
             firmwareVersionList = getDeviceFirmwareHistoryInfos(deviceMessageList);
         }
-        List<DeviceFirmwareHistoryInfos> deviceFirmwareHistoryInfosListSorted = firmwareVersionList.stream()
+        List<DeviceFirmwareHistoryInfos> deviceFirmwareHistoryInfosListSortedReversed = firmwareVersionList.stream()
                 .sorted(Comparator.comparing(DeviceFirmwareHistoryInfos::getUploadedOn).reversed())
                 .collect(Collectors.toList());
-        return deviceFirmwareHistoryInfosListSorted;
+        return deviceFirmwareHistoryInfosListSortedReversed;
     }
 
     private List<DeviceFirmwareHistoryInfos> getDeviceFirmwareHistoryInfos(List<DeviceMessage> deviceMessageList) {
@@ -55,6 +57,7 @@ public class DeviceFirmwareHistoryInfosFactory {
             deviceFirmwareHistoryInfos.setVersion(firmwareVersionFromMessage.isPresent() ? firmwareVersionFromMessage.get().getFirmwareVersion() : NO_VALUE);
             Optional<Instant> activationDateFromMessage = versionUtils.getActivationDateFromMessage(deviceMessage);
             deviceFirmwareHistoryInfos.setActivationDate(activationDateFromMessage.isPresent() ? activationDateFromMessage.get() : null);
+            deviceFirmwareHistoryInfos.setFirmwareTaskId(versionUtils.getFirmwareTask().get().getId());
             firmwareVersionList.add(deviceFirmwareHistoryInfos);
         }
         return firmwareVersionList;

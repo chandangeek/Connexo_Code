@@ -18,6 +18,16 @@ public class DeviceFirmwareHistoryInfos {
     private Instant activationDate;
     private DeviceMessageStatus result;
 
+    public Long getFirmwareTaskId() {
+        return firmwareTaskId;
+    }
+
+    public void setFirmwareTaskId(Long firmwareTaskId) {
+        this.firmwareTaskId = firmwareTaskId;
+    }
+
+    private Long firmwareTaskId;
+
     public String getVersion() {
         return version;
     }
