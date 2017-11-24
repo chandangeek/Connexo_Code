@@ -8,7 +8,8 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
     views: [
         'Mtr.view.readingtypesgroup.GroupsOverview',
         'Mtr.view.readingtypesgroup.GroupsGrid',
-        'Mtr.view.readingtypesgroup.GroupPreview'
+        'Mtr.view.readingtypesgroup.GroupPreview',
+        'Mtr.view.readingtypesgroup.Details'
     ],
 
     requires: [],
@@ -20,6 +21,10 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
 
 
     refs: [
+        {
+            ref: 'page',
+            selector: '#reading-types-setup'
+        },
         {
             ref: 'page',
             selector: '#reading-types-setup'
@@ -59,6 +64,14 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
         {
             ref: 'readingTypesGroupPreviewMenu',
             selector: 'readingTypesGroup-preview readingTypesGroup-action-menu'
+        },
+        {
+            ref: 'readingTypesGroupDetails',
+            selector: 'reading-type-groups-details'
+        },
+        {
+            ref: 'readingTypesGroupMenu',
+            selector: '#mnu-reading-types-group'
         }
     ],
 
@@ -87,7 +100,7 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             },
             '#mtr-add-readingTypeGroup-button': {  //lori
                 click: this.browseGroupAdd
-            },
+            }
         });
     },
 
@@ -184,7 +197,7 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
 
     browseAdd: function () {
         var router = this.getController('Uni.controller.history.Router'),
-            addController = this.getController('Mtr.controller.readingtypesgroups.AddReadingTypesGroup');
+            addController = this.getController('Mtr.controller.readingtypesgroup.AddReadingTypesGroup');
         addController.qString = router.getQueryStringValues();
         router.getRoute('administration/readingtypes/add').forward();
     },
@@ -220,7 +233,7 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             store = me.getStore('Mtr.store.readingtypesgroup.ReadingTypeGroups'),
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
-        widget = Ext.widget('reading-type-groups-overview');
+        widget = Ext.widget('reading-type-groups-overview', {router: me.getController('Uni.controller.history.Router')});
         me.getApplication().fireEvent('changecontentevent', widget);
         store.load();
     },
@@ -241,6 +254,29 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             addController = this.getController('Mtr.controller.readingtypesgroup.AddReadingTypesGroup');
         addController.qString = router.getQueryStringValues();
         router.getRoute('administration/readingtypegroups/add').forward();  //lori
+    },
+
+    showReadingTypesGroupDetails: function (aliasName) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            groupModel = me.getModel('Mtr.model.readingtypesgroup.ReadingTypeGroup'),
+            view = Ext.widget('reading-type-groups-details', {
+                router: router
+            }),
+            readingTypesGroupPreview = view.down('reading-type-groups-details'),
+            actionsMenu = view.down('mnu-reading-types-group');
+
+        me.fromDetail = true;
+        me.getApplication().fireEvent('changecontentevent', view);
+        groupModel.load(aliasName, {
+            success: function (record) {
+                var detailsForm = readingTypesGroupPreview.down('reading-types-preview-form');
+                actionsMenu.record = record;
+                me.getApplication().fireEvent('readingtypesgroupload', record);
+                detailsForm.loadRecord(record);
+                readingTypesGroupPreview.down('reading-types-menu').setHeader(record.get('name'));
+            }
+        });
     }
 });
 
