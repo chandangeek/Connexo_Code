@@ -6,60 +6,50 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import javax.inject.Inject;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DeviceFirmwareHistoryInfosFactory {
 
-    private static final String NO_VALUE = "-";
     private final FirmwareService firmwareService;
-    private FirmwareManagementDeviceUtils versionUtils;
+    private Thesaurus thesaurus;
 
     @Inject
-    public DeviceFirmwareHistoryInfosFactory(FirmwareService firmwareService) {
+    public DeviceFirmwareHistoryInfosFactory(FirmwareService firmwareService, Thesaurus thesaurus) {
         this.firmwareService = firmwareService;
+        this.thesaurus = thesaurus;
     }
 
     public List<DeviceFirmwareHistoryInfos> from(Device device) {
-        versionUtils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
+        FirmwareManagementDeviceUtils versionUtils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
         List<DeviceMessage> deviceMessageList = device.getMessages();
         List<DeviceFirmwareHistoryInfos> firmwareVersionList = new ArrayList<>();
         if (!deviceMessageList.isEmpty()) {
-            firmwareVersionList = getDeviceFirmwareHistoryInfos(deviceMessageList);
+            firmwareVersionList = getDeviceFirmwareHistoryInfos(deviceMessageList, versionUtils);
         }
-        List<DeviceFirmwareHistoryInfos> deviceFirmwareHistoryInfosListSortedReversed = firmwareVersionList.stream()
-                .sorted(Comparator.comparing(DeviceFirmwareHistoryInfos::getUploadedOn).reversed())
-                .collect(Collectors.toList());
-        return deviceFirmwareHistoryInfosListSortedReversed;
+        return sortDescendingByUploadedOnTimestampDeviceFirmwareHistoryInfos(firmwareVersionList);
     }
 
-    private List<DeviceFirmwareHistoryInfos> getDeviceFirmwareHistoryInfos(List<DeviceMessage> deviceMessageList) {
+    private List<DeviceFirmwareHistoryInfos> getDeviceFirmwareHistoryInfos(List<DeviceMessage> deviceMessageList, FirmwareManagementDeviceUtils versionUtils) {
         List<DeviceFirmwareHistoryInfos> firmwareVersionList = new ArrayList<>();
         for (DeviceMessage deviceMessage : deviceMessageList) {
-            DeviceFirmwareHistoryInfos deviceFirmwareHistoryInfos = new DeviceFirmwareHistoryInfos();
-            deviceFirmwareHistoryInfos.setUploadedOn(deviceMessage.getCreationDate());
-            deviceFirmwareHistoryInfos.setResult(deviceMessage.getStatus());
-            deviceFirmwareHistoryInfos.setTriggerdBy(deviceMessage.getUser());
-            Optional<FirmwareVersion> firmwareVersionFromMessage = versionUtils.getFirmwareVersionFromMessage(deviceMessage);
-            deviceFirmwareHistoryInfos.setVersion(firmwareVersionFromMessage.isPresent() ? firmwareVersionFromMessage.get().getFirmwareVersion() : NO_VALUE);
-            Optional<Instant> activationDateFromMessage = versionUtils.getActivationDateFromMessage(deviceMessage);
-            deviceFirmwareHistoryInfos.setActivationDate(activationDateFromMessage.isPresent() ? activationDateFromMessage.get() : null);
-            deviceFirmwareHistoryInfos.setFirmwareTaskId(versionUtils.getFirmwareTask().get().getId());
-            firmwareVersionList.add(deviceFirmwareHistoryInfos);
+            firmwareVersionList.add(new DeviceFirmwareHistoryInfos(deviceMessage, versionUtils, thesaurus));
         }
         return firmwareVersionList;
+    }
+
+    private List<DeviceFirmwareHistoryInfos> sortDescendingByUploadedOnTimestampDeviceFirmwareHistoryInfos(List<DeviceFirmwareHistoryInfos> firmwareVersionList) {
+        return firmwareVersionList.stream()
+                .sorted(Comparator.comparing(DeviceFirmwareHistoryInfos::getUploadedOn).reversed())
+                .collect(Collectors.toList());
     }
 }

@@ -6,7 +6,11 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
+import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
 import java.time.Instant;
 
@@ -16,17 +20,13 @@ public class DeviceFirmwareHistoryInfos {
     private String triggerdBy;
     private Instant uploadedOn;
     private Instant activationDate;
-    private DeviceMessageStatus result;
-
-    public Long getFirmwareTaskId() {
-        return firmwareTaskId;
-    }
-
-    public void setFirmwareTaskId(Long firmwareTaskId) {
-        this.firmwareTaskId = firmwareTaskId;
-    }
-
+    private String result;
     private Long firmwareTaskId;
+
+    public DeviceFirmwareHistoryInfos(DeviceMessage deviceMessage, FirmwareManagementDeviceUtils versionUtils, Thesaurus thesaurus) {
+        buildFrom(deviceMessage, versionUtils, thesaurus);
+    }
+
 
     public String getVersion() {
         return version;
@@ -60,11 +60,28 @@ public class DeviceFirmwareHistoryInfos {
         this.activationDate = activationDate;
     }
 
-    public DeviceMessageStatus getResult() {
+    public String getResult() {
         return result;
     }
 
-    public void setResult(DeviceMessageStatus result) {
+    public void setResult(String result) {
         this.result = result;
+    }
+
+    public Long getFirmwareTaskId() {
+        return firmwareTaskId;
+    }
+
+    public void setFirmwareTaskId(Long firmwareTaskId) {
+        this.firmwareTaskId = firmwareTaskId;
+    }
+
+    private void buildFrom(DeviceMessage deviceMessage, FirmwareManagementDeviceUtils versionUtils, Thesaurus thesaurus) {
+        this.setUploadedOn(deviceMessage.getCreationDate());
+        this.setResult(DeviceMessageStatusTranslationKeys.translationFor(deviceMessage.getStatus(), thesaurus));
+        this.setTriggerdBy(deviceMessage.getUser());
+        this.setVersion(versionUtils.getFirmwareVersionFromMessage(deviceMessage).map(FirmwareVersion::getFirmwareVersion).orElse(null));
+        this.setActivationDate(versionUtils.getActivationDateFromMessage(deviceMessage).orElse(null));
+        this.setFirmwareTaskId(versionUtils.getFirmwareTask().get().getId());
     }
 }

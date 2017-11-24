@@ -5,6 +5,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
@@ -53,7 +54,7 @@ public class DeviceFirmwareVersionResource {
     public Response getDeviceFirmwareHistory(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<DeviceFirmwareHistoryInfos> deviceFirmwareHistoryInfosList = deviceFirmwareHistoryInfosFactory.from(device);
-        PagedInfoList pagedInfoList = PagedInfoList.fromCompleteList("firmwareHistory", deviceFirmwareHistoryInfosList, queryParameters);
+        PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("firmwareHistory", ListPager.of(deviceFirmwareHistoryInfosList).from(queryParameters).find(), queryParameters);
         return Response.ok(pagedInfoList).build();
     }
 
