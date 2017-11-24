@@ -9,7 +9,9 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
         'Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKPI',
         'Mdc.view.setup.taskmanagement.DetailsRegisteredDevicesKpi'
     ],
-
+    stores: [
+        'Mdc.registereddevices.store.AllTasks'
+    ],
     refs: [
         {ref: 'kpiEditForm', selector: 'registered-devices-kpi-addedit-tgm'}
     ],
@@ -42,6 +44,10 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
         return Mdc.privileges.RegisteredDevicesKpi.canAdmin();
     },
 
+    canSetTriggers: function () {
+        return Mdc.privileges.RegisteredDevicesKpi.canAdmin();
+    },
+
     canHistory: function () {
         return false;
     },
@@ -54,30 +60,36 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
         return 'MDCKpiRegisteredDevTopic';
     },
 
-    getTaskForm: function () {
+    getTaskForm: function (caller, completedFunc) {
         var me = this,
             form = Ext.create('Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKPI'),
             deviceGroupStore = form.down('combobox[name=deviceGroup]').getStore(),
+            followByStore = form.down('#followedBy-combo').getStore(),
             kpiModel = Ext.ModelManager.getModel('Mdc.registereddevices.model.RegisteredDevicesKPI'),
             deviceGroupCombo = form.down('#mdc-registered-devices-kpi-add-device-group-combo'),
             deviceGroupDisplayField = form.down('#mdc-registered-devices-kpi-add-device-group-displayField'),
             createBtn = form.down('#mdc-registered-devices-kpi-add-addEditButton');
 
-        deviceGroupStore.load({
+        followByStore.load({
             callback: function () {
-                if (deviceGroupStore.getCount() > 0) {
-                    form.loadRecord(Ext.create(kpiModel));
-                    if (deviceGroupStore.getCount() === 1) {
-                        deviceGroupCombo.setValue(deviceGroupStore.getAt(0).get('id'));
+                deviceGroupStore.load({
+                    callback: function () {
+                        if (deviceGroupStore.getCount() > 0) {
+                            //form.loadRecord(Ext.create(kpiModel));
+                            if (deviceGroupStore.getCount() === 1) {
+                                deviceGroupCombo.setValue(deviceGroupStore.getAt(0).get('id'));
+                            }
+                        } else {
+                            Ext.suspendLayouts();
+                            deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('general.noDeviceGroups', 'MDC', 'No device groups available') + '</span>');
+                            deviceGroupDisplayField.show();
+                            deviceGroupCombo.hide();
+                            createBtn.disable();
+                            Ext.resumeLayouts(true);
+                        }
+                        completedFunc.call(caller, form);
                     }
-                } else {
-                    Ext.suspendLayouts();
-                    deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('general.noDeviceGroups', 'MDC', 'No device groups available') + '</span>');
-                    deviceGroupDisplayField.show();
-                    deviceGroupCombo.hide();
-                    createBtn.disable();
-                    Ext.resumeLayouts(true);
-                }
+                });
             }
         });
         return form;
@@ -87,7 +99,7 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             editForm = panel.down('registered-devices-kpi-addedit-tgm'),
-            record = editForm.getRecord(),
+            record = editForm.getRecord() || Ext.create('Mdc.registereddevices.model.RegisteredDevicesKPI'),
             deviceGroup = {
                 id: editForm.down('[name=deviceGroup]').getValue()
             },
@@ -109,6 +121,16 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
             record.set('frequency', me.getStore('Mdc.registereddevices.store.RegisteredDevicesKPIFrequencies').getById(frequency).get('value'));
         }
         record.set('target', target);
+
+        // set selected tasks
+        var selectedTask = [];
+        Ext.Array.each(editForm.down('#followedBy-combo').getValue(), function (value) {
+            selectedTask.push({id: value});
+        })
+        record.nextRecurrentTasksStore = Ext.create('Ext.data.Store', {
+            fields: ['id'],
+            data: selectedTask
+        });
         record.endEdit();
         record.save({
             success: function (record, operation) {
@@ -262,6 +284,9 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
                     widget.down('#registered-devices-kpi-device-group').setValue(record.get('deviceGroup').name);
                     widget.down('#registered-devices-kpi-frequency').setValue(Mdc.util.ScheduleToStringConverter.convert(record.get('frequency')));
                     widget.down('#registered-devices-kpi-target').setValue(record.get('target'));
+                    widget.setRecurrentTasks('#followedBy-field-container', record.get('nextRecurrentTasks'));
+                    widget.setRecurrentTasks('#procededBy-field-container', record.get('previousRecurrentTasks'));
+
                     widget.down('#' + actionMenu.itemId) && (widget.down('#' + actionMenu.itemId).record = taskManagementRecord);
                 });
             },

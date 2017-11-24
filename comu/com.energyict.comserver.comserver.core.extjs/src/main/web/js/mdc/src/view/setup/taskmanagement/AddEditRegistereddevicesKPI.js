@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKPI', {
     alias: 'widget.registered-devices-kpi-addedit-tgm',
     requires: [
         'Mdc.registereddevices.store.RegisteredDevicesKPIFrequencies',
-        'Mdc.registereddevices.store.AvailableDeviceGroups'
+        'Mdc.registereddevices.store.AvailableDeviceGroups',
+        'Mdc.registereddevices.store.AllTasks'
     ],
     defaults: {
         labelWidth: 250,
@@ -18,6 +19,20 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKPI', {
     initComponent: function () {
         var me = this;
         me.items = [
+            {
+                xtype: 'combobox',
+                itemId: 'followedBy-combo',
+                fieldLabel: Uni.I18n.translate('general.followedBy', 'MDC', 'Followed by'),
+                name: 'nextRecurrentTasks',
+                width: 600,
+                multiSelect: true,
+                queryMode: 'local',
+                store: 'Mdc.registereddevices.store.AllTasks',
+                editable: false,
+                emptyText: Uni.I18n.translate('datacollectionkpis.taskSelectorPrompt', 'MDC', 'Select a task ...'),
+                displayField: 'name',
+                valueField: 'id'
+            },
             {
                 xtype: 'combobox',
                 name: 'deviceGroup',
@@ -92,7 +107,8 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKPI', {
             deviceGroup = record.get('deviceGroup'),
             frequency = record.get('frequency'),
             target = record.get('target'),
-            deviceGroupCombo = me.down('[name=deviceGroup]');
+            deviceGroupCombo = me.down('[name=deviceGroup]'),
+            nextRecurrentTasks = record.get('nextRecurrentTasks');
 
         me.getForm().loadRecord(record);
         if (deviceGroup) {
@@ -100,6 +116,14 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKPI', {
         }
         if (frequency) {
             me.down('[name=frequency]').setValue(frequency.every.count + frequency.every.timeUnit);
+        }
+
+        if (nextRecurrentTasks) {
+            var selectedTasks = [];
+            Ext.Array.each(nextRecurrentTasks, function (nextRecurrentTask) {
+                selectedTasks.push(nextRecurrentTask.id);
+            });
+            me.down('[name=nextRecurrentTasks]').setValue(selectedTasks);
         }
     }
 

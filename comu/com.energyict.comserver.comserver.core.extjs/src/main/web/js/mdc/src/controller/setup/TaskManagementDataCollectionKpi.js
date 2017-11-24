@@ -40,6 +40,10 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         return Mdc.privileges.DataCollectionKpi.canEdit();
     },
 
+    canSetTriggers: function () {
+        return Mdc.privileges.DataCollectionKpi.canEdit();
+    },
+
     canHistory: function () {
         return false;
     },
@@ -52,7 +56,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         return Mdc.privileges.DataCollectionKpi.canEdit();
     },
 
-    getTaskForm: function () {
+    getTaskForm: function (caller, completedFunc) {
         var me = this,
             form = Ext.create('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis'),
             deviceGroupStore = form.down('combobox[name=deviceGroup]').getStore(),

@@ -27,6 +27,20 @@ Ext.define('Mdc.view.setup.taskmanagement.DetailsRegisteredDevicesKpi', {
                         },
                         items: [
                             {
+                                fieldLabel: Uni.I18n.translate('general.followedBy', 'EST', 'Followed by'),
+                                xtype: 'displayfield',
+                                htmlEncode: false,
+                                itemId: 'followedBy-field-container',
+                                labelWidth: 250
+                            },
+                            {
+                                fieldLabel: Uni.I18n.translate('general.procededBy', 'EST', 'Proceded by'),
+                                xtype: 'displayfield',
+                                htmlEncode: false,
+                                itemId: 'procededBy-field-container',
+                                labelWidth: 250
+                            },
+                            {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group'),
                                 itemId: 'registered-devices-kpi-device-group',
@@ -79,5 +93,15 @@ Ext.define('Mdc.view.setup.taskmanagement.DetailsRegisteredDevicesKpi', {
         ];
 
         this.callParent(arguments);
+    },
+
+    setRecurrentTasks: function (itemId, recurrentTasks) {
+        var me = this,
+            recurrentTaskList = [];
+        Ext.isArray(recurrentTasks) && Ext.Array.each(recurrentTasks, function (recurrentTask) {
+            recurrentTaskList.push('- ' + Ext.htmlEncode(recurrentTask.name));
+        });
+        me.down(itemId).setValue((recurrentTaskList.length == 0) ? recurrentTaskList = '-' : recurrentTaskList.join('<br/>'));
+        return;
     }
 });
