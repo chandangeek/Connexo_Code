@@ -22,7 +22,10 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
                 header: Uni.I18n.translate('device.firmware.history.Version', 'FWC', 'Version'),
                 itemId: 'deviceFirmwareHistory',
                 fixed: true,
-                flex: 3
+                flex: 3,
+                renderer: function (value) {
+                    return value ? value : '-'
+                }
             },
             {
                 header: Uni.I18n.translate('device.firmware.history.UploadedOn', 'FWC', 'Uploaded on'),
