@@ -58,6 +58,7 @@ public class ChannelResourceHelper {
             addValidationInfo(channel, channelInfo);
             channelInfos.add(channelInfo);
         }
+        channelInfos.stream().sorted((dt1, dt2) -> dt1.name.compareToIgnoreCase(dt2.name));
         return Response.ok(PagedInfoList.fromPagedList("channels", channelInfos, queryParameters)).build();
     }
 
