@@ -7,6 +7,7 @@ package com.elster.jupiter.validation.rest;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeService;
@@ -20,7 +21,9 @@ import com.elster.jupiter.validation.rest.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class DataValidationTaskInfoFactory {
 
@@ -63,6 +66,12 @@ public class DataValidationTaskInfoFactory {
                 info.schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
         }
+        info.nextRecurrentTasks = constructTaskInfo(dataValidationTask.getNextRecurrentTasks());
+        info.previousRecurrentTasks = constructTaskInfo(dataValidationTask.getPrevRecurrentTasks());
+    }
+
+    private List<TaskInfo> constructTaskInfo(List<RecurrentTask> recurrentTasks) {
+        return recurrentTasks.stream().map(recurrentTask -> TaskInfo.from(recurrentTask)).collect(Collectors.toList());
     }
 
     private DataValidationTaskInfo asInfoWithoutLastOccurrence(DataValidationTask dataValidationTask) {

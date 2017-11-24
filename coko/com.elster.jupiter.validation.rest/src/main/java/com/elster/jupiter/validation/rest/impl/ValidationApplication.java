@@ -18,6 +18,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
@@ -56,6 +57,7 @@ public class ValidationApplication extends Application implements TranslationKey
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile TimeService timeService;
+    private volatile TaskService taskService;
     private volatile PropertyValueInfoService propertyValueInfoService;
 
     public Set<Class<?>> getClasses() {
@@ -99,6 +101,11 @@ public class ValidationApplication extends Application implements TranslationKey
     }
 
     @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.REST)
@@ -125,6 +132,7 @@ public class ValidationApplication extends Application implements TranslationKey
             bind(thesaurus).to(Thesaurus.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(timeService).to(TimeService.class);
+            bind(taskService).to(TaskService.class);
             bind(DataValidationTaskInfoFactory.class).to(DataValidationTaskInfoFactory.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(ValidationRuleSetInfoFactory.class).to(ValidationRuleSetInfoFactory.class);

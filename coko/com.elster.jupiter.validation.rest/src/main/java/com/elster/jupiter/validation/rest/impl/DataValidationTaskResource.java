@@ -19,6 +19,8 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.logging.LogEntry;
@@ -34,6 +36,7 @@ import com.elster.jupiter.validation.rest.DataValidationOccurrenceLogInfos;
 import com.elster.jupiter.validation.rest.DataValidationTaskHistoryInfo;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
+import com.elster.jupiter.validation.rest.TaskInfo;
 import com.elster.jupiter.validation.security.Privileges;
 
 import com.google.common.collect.Range;
@@ -57,6 +60,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -68,6 +72,7 @@ public class DataValidationTaskResource {
     private final MeteringGroupsService meteringGroupsService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final TransactionService transactionService;
+    private final TaskService taskService;
     private final Thesaurus thesaurus;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
@@ -77,6 +82,7 @@ public class DataValidationTaskResource {
                                       TransactionService transactionService,
                                       MeteringGroupsService meteringGroupsService,
                                       MetrologyConfigurationService metrologyConfigurationService,
+                                      TaskService taskService,
                                       Thesaurus thesaurus,
                                       ConcurrentModificationExceptionFactory conflictFactory,
                                       DataValidationTaskInfoFactory dataValidationTaskInfoFactory) {
@@ -87,6 +93,7 @@ public class DataValidationTaskResource {
         this.thesaurus = thesaurus;
         this.conflictFactory = conflictFactory;
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
+        this.taskService = taskService;
     }
 
     private QualityCodeSystem getQualityCodeSystemForApplication(String applicationName) {
@@ -106,7 +113,8 @@ public class DataValidationTaskResource {
                 .setLogLevel(info.logLevel)
                 .setQualityCodeSystem(getQualityCodeSystemForApplication(applicationName))
                 .setScheduleExpression(getScheduleExpression(info))
-                .setNextExecution(info.nextRun);
+                .setNextExecution(info.nextRun)
+                .setNextRecurrentTasks(this.findRecurrentTaskOrThrowException(info.nextRecurrentTasks));
         if (info.deviceGroup != null) {
             builder = builder.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
         }
@@ -201,6 +209,7 @@ public class DataValidationTaskResource {
             task.setEndDeviceGroup(null);
         }
         task.setNextExecution(info.nextRun);
+        task.setNextRecurrentTasks(this.findRecurrentTaskOrThrowException(info.nextRecurrentTasks));
         task.update();
         return Response.ok(dataValidationTaskInfoFactory.asInfo(task)).build();
     }
@@ -334,5 +343,17 @@ public class DataValidationTaskResource {
 
     private Optional<DataValidationTask> findValidationTaskByRecurrentTaskId(long id) {
         return validationService.findValidationTaskByRecurrentTaskId(id);
+    }
+
+    private List<RecurrentTask> findRecurrentTaskOrThrowException(List<TaskInfo> nextRecurrentTasks) {
+        List<RecurrentTask> recurrentTasks = new ArrayList<>();
+        if (nextRecurrentTasks != null) {
+            nextRecurrentTasks.forEach(taskInfo -> {
+                recurrentTasks.add(taskService.getRecurrentTask(taskInfo.id)
+                        .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)));
+
+            });
+        }
+        return recurrentTasks;
     }
 }

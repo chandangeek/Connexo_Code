@@ -7,6 +7,7 @@ package com.elster.jupiter.validation.rest;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.logging.Level;
 
 public class DataValidationTaskMinimalInfo {
@@ -16,4 +17,6 @@ public class DataValidationTaskMinimalInfo {
     public int logLevel = Level.WARNING.intValue();
     public PeriodicalExpressionInfo schedule;
     public Instant nextRun;
+    public List<TaskInfo> nextRecurrentTasks;
+    public List<TaskInfo> previousRecurrentTasks;
 }
