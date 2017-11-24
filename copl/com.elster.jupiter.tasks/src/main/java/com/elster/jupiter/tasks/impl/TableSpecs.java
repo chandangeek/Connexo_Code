@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.tasks.NextRecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskAdHocExecution;
 import com.elster.jupiter.tasks.TaskLogEntry;
@@ -43,6 +44,29 @@ enum TableSpecs {
             table.unique("TSK_UK_RECURRENTTASK").on(applicationColumn, nameColumn).upTo(Version.version(10,2)).add();
             table.unique("TSK_UK_RECURRENTTASK").on(applicationColumn, nameColumn, destination).since(Version.version(10,2)).add();
             table.column("LOGLEVEL").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("logLevel").since(Version.version(10,3)).installValue("900").add();
+        }
+    },
+    TSK_NEXT_RECURRENT_TASK {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<NextRecurrentTask> table = dataModel.addTable(name(), NextRecurrentTask.class);
+            table.map(NextRecurrentTaskImpl.class);
+            table.setJournalTableName("TSK_NEXT_RECURRENT_TASKJRNL");
+            table.since(Version.version(10, 4));
+            Column idColumn = table.addAutoIdColumn();
+            Column recurrentIdColumn = table.column("RECURRENTTASKID").number().notNull().conversion(NUMBER2LONG).map("recurrentTaskId").add();
+            Column nextRecurrentIdColumn = table.column("NEXTRECURRENTTASKID").number().notNull().conversion(NUMBER2LONG).map("nextRecurrentTaskId").add();
+            table.addAuditColumns();
+            table.primaryKey("TSK_PKNEXT_RECURRENT_TASK").on(idColumn).add();
+            table.unique("TSK_UKNEXT_RECURRENT_TASK").on(recurrentIdColumn, nextRecurrentIdColumn).add();
+            table.foreignKey("TSK_FKNEXT_RECURRENT_TASK").references(TSK_RECURRENT_TASK.name()).map("recurrentTask")
+                    .reverseMap("nextRecurrentTasks")
+                    .composition()
+                    .on(recurrentIdColumn).add();
+            table.foreignKey("TSK_FKPREV_RECURRENT_TASK").references(TSK_RECURRENT_TASK.name()).map("nextRecurrentTask")
+                    .reverseMap("prevRecurrentTasks")
+                    .composition()
+                    .on(nextRecurrentIdColumn).add();
         }
     },
     TSK_ADHOC_EXECUTION {

@@ -17,6 +17,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -37,6 +38,7 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder, RecurrentTask
     private Instant firstExecution;
     private final DataModel dataModel;
     private int logLevel = Level.WARNING.intValue();
+    private List<RecurrentTask> nextRecurrentTasks;
 
     @Override
     public RecurrentTaskBuilderNameSetter setApplication(String application) {
@@ -100,6 +102,12 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder, RecurrentTask
     }
 
     @Override
+    public RecurrentTaskBuilderFinisher setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+        this.nextRecurrentTasks = nextRecurrentTasks;
+        return this;
+    }
+
+    @Override
     public RecurrentTask build() {
         RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, application, name, scheduleExpression, destination, payload, logLevel);
         if (firstExecution != null) {
@@ -107,7 +115,18 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder, RecurrentTask
         } else if (scheduleImmediately) {
             recurrentTask.updateNextExecution();
         }
+        recurrentTask.setNextRecurrentTasks(nextRecurrentTasks);
         recurrentTask.save();
+
+        // save next recurrent task
+       /* recurrentTask.getNextRecurrentTasks().clear();
+        nextRecurrentTasks.forEach(nextRecurrentTask -> {
+            recurrentTask.saveNextRecurrentTask(nextRecurrentTask);
+           // NextRecurrentTaskImpl nrt = dataModel.getInstance(NextRecurrentTaskImpl.class).init(recurrentTask, nextRecurrentTask);
+          //  nrt.save();
+          //  recurrentTask.getNextRecurrentTasks().add(nextRecurrentTask);
+        });
+        //recurrentTask.save();*/
         return recurrentTask;
     }
 }

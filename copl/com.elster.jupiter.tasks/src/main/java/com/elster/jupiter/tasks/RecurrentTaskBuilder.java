@@ -10,6 +10,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.util.List;
 
 @ProviderType
 public interface RecurrentTaskBuilder {
@@ -51,6 +52,8 @@ public interface RecurrentTaskBuilder {
         RecurrentTaskBuilderFinisher setFirstExecution(Instant instant);
 
         RecurrentTaskBuilderFinisher setLogLevel(int level);
+
+        RecurrentTaskBuilderFinisher setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
 
         RecurrentTask build();
 

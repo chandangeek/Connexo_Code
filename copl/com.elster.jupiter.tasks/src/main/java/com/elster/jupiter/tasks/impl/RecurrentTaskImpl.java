@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.elster.jupiter.tasks.NextRecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskAdHocExecution;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -68,6 +69,9 @@ class RecurrentTaskImpl implements RecurrentTask {
     private final JsonService jsonService;
     @Valid
     private List<TaskAdHocExecution> adhocExecutions = new ArrayList<>();
+    private List<NextRecurrentTask> nextRecurrentTasks = new ArrayList<>();
+    private List<NextRecurrentTask> prevRecurrentTasks = new ArrayList<>();
+    private List<RecurrentTask> newNextRecurrentTasks = new ArrayList<>();
 
     @SuppressWarnings("unused") // Managed by ORM
     private long version;
@@ -180,9 +184,20 @@ class RecurrentTaskImpl implements RecurrentTask {
     public void save() {
         if (id == 0) {
             Save.CREATE.save(dataModel, this);
+            postSave();
         } else {
             Save.UPDATE.save(dataModel, this);
+            postSave();
         }
+    }
+
+    private void postSave() {
+        nextRecurrentTasks.clear();
+        newNextRecurrentTasks.forEach(newNextRecurrentTask -> {
+            NextRecurrentTaskImpl nextRecurrentTask = dataModel.getInstance(NextRecurrentTaskImpl.class).init(this, newNextRecurrentTask);
+            Save.CREATE.validate(dataModel, newNextRecurrentTask);
+            nextRecurrentTasks.add(nextRecurrentTask);
+        });
     }
 
     @Override
@@ -404,5 +419,31 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     public List<TaskAdHocExecution> getAdhocExecutions() {
         return adhocExecutions;
+    }
+
+    @Override
+    public List<RecurrentTask> getNextRecurrentTasks() {
+        return nextRecurrentTasks.stream()
+                .map(nextRecurrentTask -> nextRecurrentTask.getNextRecurrentTask())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RecurrentTask> getPrevRecurrentTasks() {
+        return prevRecurrentTasks.stream()
+                .map(nextRecurrentTask -> nextRecurrentTask.getRecurrentTask())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public RecurrentTask setNextRecurrentTasks(List<RecurrentTask> recurrentTasks) {
+        newNextRecurrentTasks = recurrentTasks;
+        return this;
+    }
+
+    public void saveNextRecurrentTask(RecurrentTask nextRecurrentTask) {
+        NextRecurrentTaskImpl nrt = dataModel.getInstance(NextRecurrentTaskImpl.class).init(this, nextRecurrentTask);
+        Save.CREATE.validate(dataModel, nrt);
+        nextRecurrentTasks.add(nrt);
     }
 }
