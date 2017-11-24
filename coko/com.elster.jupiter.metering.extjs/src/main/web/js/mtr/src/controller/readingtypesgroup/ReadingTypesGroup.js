@@ -100,7 +100,10 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             },
             '#mtr-add-readingTypeGroup-button': {  //lori
                 click: this.browseGroupAdd
-            }
+            }/*,
+            'reading-types-group-details': {
+                displayinfo: this.displayInfo
+            }*/
         });
     },
 

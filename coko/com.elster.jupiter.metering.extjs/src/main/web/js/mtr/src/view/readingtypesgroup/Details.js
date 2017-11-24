@@ -12,33 +12,37 @@ Ext.define('Mtr.view.readingtypesgroup.Details', {
 
     router: null,
 
-    /*content: {
-        xtype: 'container',
-        layout: 'hbox',
-        items: [
-            {
-                ui: 'large',
-                title: Uni.I18n.translate('readingtypes.readingTypeGroup', 'MTR', 'Details'),
-                flex: 1,
-                items: [
-                    {
-                        xtype: 'reading-type-groups-preview-form'
-                    }
-                ]
-            },
-            {
-                xtype: 'uni-button-action',
-                privileges : Tme.privileges.Period.admin,
-                margin: '20 0 0 0',
-                menu: {
-                    xtype: 'reading-type-groups-action-menu'
-                }
-            }
-        ]
-    },*/
-
     initComponent: function () {
         var me = this;
+
+        me.content = {
+            xtype: 'container',
+            layout: 'hbox',
+            items: [
+                {
+                    ui: 'large',
+                    itemId: 'reding-type-groups-details-panel',
+                    title: Uni.I18n.translate('readingtypesmanagement.overview', 'MTR', 'Overview'),
+                    flex: 1,
+                    items: {
+                        xtype: 'reading-types-group-preview-form',
+                        itemId: 'reading-types-group-details',
+                        margin: '0 0 0 100',
+                        router: me.router
+                    }
+                },
+                // The action menu
+                /*{
+                    xtype: 'uni-button-action',
+                    itemId: 'btn-action',
+                    margin: '20 0 0 0',
+                    hidden: typeof(SystemApp) == 'undefined',
+                    menu: {
+                        xtype: 'fim-import-service-action-menu'
+                    }
+                }*/
+            ]
+        };
 
         me.side = [
             {
@@ -54,14 +58,6 @@ Ext.define('Mtr.view.readingtypesgroup.Details', {
                 ]
             }
         ];
-
-        me.content = {
-            xtype: 'panel',
-            ui: 'large',
-            itemId: 'main-panel',
-            title: Uni.I18n.translate('readingtypesmanagement.testing', 'MTR', 'Testing')
-
-        };
 
         me.callParent(arguments);
     }
