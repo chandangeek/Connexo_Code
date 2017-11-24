@@ -27,6 +27,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
@@ -37,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by igh on 27/10/2015.
@@ -118,7 +120,7 @@ public class TaskResource {
     public List<IdWithNameInfo> getApplications(@Context UriInfo uriInfo) {
         List<RecurrentTask> tasks = taskService.getRecurrentTasks();
         List<String> applicationNames = new ArrayList<String>();
-        for (RecurrentTask task : tasks)  {
+        for (RecurrentTask task : tasks) {
             applicationNames.add(task.getApplication());
         }
         Set<String> set = new HashSet<>();
@@ -138,7 +140,7 @@ public class TaskResource {
         List<RecurrentTask> tasks = taskService.getRecurrentTasks();
         List<String> applicationNames = uriInfo.getQueryParameters().get("application");
         List<String> queueNames = new ArrayList<String>();
-        for (RecurrentTask task : tasks)  {
+        for (RecurrentTask task : tasks) {
             if (((applicationNames == null) || (applicationNames.size() == 0)) ||
                     applicationNames.contains(task.getApplication())) {
                 queueNames.add(task.getDestination().getName());
@@ -151,5 +153,31 @@ public class TaskResource {
             queues.add(new QueueInfo(queueName));
         }
         return queues;
+    }
+
+    @GET
+    @Path("/byapplication")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    public List<TaskMinInfo> getTasksByApplication(@Context UriInfo uriInfo) {
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        String applicationName = queryParameters.containsKey("application") ? queryParameters.getFirst("application") : "";
+        List<TaskMinInfo> tasks = taskService.getRecurrentTasks()
+                .stream()
+                .filter(recurrentTask -> recurrentTask.getApplication().compareToIgnoreCase(applicationName) == 0)
+                .map(rt -> TaskMinInfo.from(rt))
+                .collect(Collectors.toList());
+        return tasks;
+    }
+
+    @GET
+    @Path("/triggers/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    public TaskTrigger getTriggers(@PathParam("id") long id) {
+        RecurrentTask recurrentTask = taskService.getRecurrentTask(id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+
+        return TaskTrigger.from(recurrentTask);
     }
 }
