@@ -96,6 +96,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>dataquality</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>tasks</artifactId>
+        </dependency>
 
         <!-- TEST -->
         <dependency>
@@ -128,10 +136,6 @@
             <artifactId>search</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>orm</artifactId>
-            <scope>test</scope>
-        </dependency>
+
     </dependencies>
 </project>

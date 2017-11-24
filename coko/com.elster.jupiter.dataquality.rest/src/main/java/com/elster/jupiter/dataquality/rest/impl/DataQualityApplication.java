@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableSet;
@@ -41,6 +42,7 @@ public class DataQualityApplication extends Application implements MessageSeedPr
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile DataQualityKpiService dataQualityKpiService;
+    private volatile TaskService taskService;
     private volatile Thesaurus thesaurus;
 
     public Set<Class<?>> getClasses() {
@@ -71,6 +73,11 @@ public class DataQualityApplication extends Application implements MessageSeedPr
     }
 
     @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
@@ -87,6 +94,7 @@ public class DataQualityApplication extends Application implements MessageSeedPr
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(dataQualityKpiService).to(DataQualityKpiService.class);
+            bind(taskService).to(TaskService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);

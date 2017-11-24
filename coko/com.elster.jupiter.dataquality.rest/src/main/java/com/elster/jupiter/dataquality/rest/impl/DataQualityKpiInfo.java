@@ -7,12 +7,15 @@ package com.elster.jupiter.dataquality.rest.impl;
 import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 
 import java.time.Instant;
+import java.util.List;
 
 public abstract class DataQualityKpiInfo {
 
     public Long id;
     public TemporalExpressionInfo frequency;
     public Instant latestCalculationDate;
+    public List<TaskInfo> nextRecurrentTasks;
+    public List<TaskInfo> previousRecurrentTasks;
     public long version;
 
     public static class DeviceDataQualityKpiInfo extends DataQualityKpiInfo {
