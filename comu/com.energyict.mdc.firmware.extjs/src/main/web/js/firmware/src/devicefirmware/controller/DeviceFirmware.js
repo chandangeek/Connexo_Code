@@ -83,6 +83,9 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             },
             'device-firmware-setup button[action=activateVersion]': {
                 click: this.doActivateVersion
+            },
+            '#history-grid-action-menu': {
+                click: this.chooseAction
             }
         });
     },
@@ -389,5 +392,18 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                 me.getApplication().fireEvent('changecontentevent', view);
             }
         });
+    },
+    chooseAction: function (menu, item) {
+        var me = this,
+            record = menu.record;
+
+        switch (item.action) {
+            case 'viewLog':
+                me.getController('Uni.controller.history.Router')
+                    .getRoute('devices/device/communicationtasks/history')
+                    .forward({deviceId: record.get('id'), comTaskId: record.get('firmwareTaskId')});
+                break;
+
+        }
     }
 });

@@ -30,7 +30,7 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
                 fixed: true,
                 flex: 3,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)): ''
+                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)): ''
                 }
 
             },
@@ -40,7 +40,7 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
                 fixed: true,
                 flex: 3,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)): ''
+                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)): '-'
                 }
 
             },
@@ -66,29 +66,38 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
 
                 },
                 menu: {
-                    xtype: 'issues-alarms-action-menu',
-                    itemId: 'issues-overview-action-menu',
-                    router: me.router
+                    xtype: 'uni-actions-menu',
+                    itemId: 'history-grid-action-menu',
+                    router: me.router,
+                    items: [
+                        {
+                            itemId: 'view-log',
+                            text: Uni.I18n.translate('general.viewLog', 'FWC', 'View log'),
+                            //privileges: Usr.privileges.Users.admin,
+                            action: 'viewLog',
+                            section: this.SECTION_VIEW
+                        },
+                    ]
                 }
             }
         ];
-            me.dockedItems = [
-                {
-                    itemId: 'pagingtoolbartop',
-                    xtype: 'pagingtoolbartop',
-                    store: me.store,
-                    dock: 'top',
-                    displayMsg: Uni.I18n.translate('device.firmware.history.pagingtoolbartop.displayMsg', 'FWC', '{0} - {1} of {2} firmware upgrade attempts'),
-                    displayMoreMsg: Uni.I18n.translate('device.firmware.history.pagingtoolbartop.displayMoreMsg', 'FWC', '{0} - {1} of more than {2} firmware attempts')
-                },
-                {
-                    itemId: 'pagingtoolbarbottom',
-                    xtype: 'pagingtoolbarbottom',
-                    store: me.store,
-                    dock: 'bottom',
-                    itemsPerPageMsg: Uni.I18n.translate('device.firmware.history.pagingtoolbarbottom.usagesPerPage', 'FWC', 'Firmware upgrade attempts')
-                }
-            ];
+        me.dockedItems = [
+            {
+                itemId: 'pagingtoolbartop',
+                xtype: 'pagingtoolbartop',
+                store: me.store,
+                dock: 'top',
+                displayMsg: Uni.I18n.translate('device.firmware.history.pagingtoolbartop.displayMsg', 'FWC', '{0} - {1} of {2} firmware upgrade attempts'),
+                displayMoreMsg: Uni.I18n.translate('device.firmware.history.pagingtoolbartop.displayMoreMsg', 'FWC', '{0} - {1} of more than {2} firmware attempts')
+            },
+            {
+                itemId: 'pagingtoolbarbottom',
+                xtype: 'pagingtoolbarbottom',
+                store: me.store,
+                dock: 'bottom',
+                itemsPerPageMsg: Uni.I18n.translate('device.firmware.history.pagingtoolbarbottom.usagesPerPage', 'FWC', 'Firmware upgrade attempts')
+            }
+        ];
         me.callParent(arguments);
     }
 });
