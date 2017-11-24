@@ -29,6 +29,8 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -60,6 +62,7 @@ final class EstimationTaskImpl implements IEstimationTask {
     private transient boolean recurrentTaskDirty;
     private transient Instant nextExecution;
     private transient int logLevel;
+    private transient List<RecurrentTask> nextRecurrentTasks = new ArrayList<>();
 
     private long version;
     private Instant createTime;
@@ -159,6 +162,7 @@ final class EstimationTaskImpl implements IEstimationTask {
                 .scheduleImmediately(scheduleImmediately)
                 .setFirstExecution(nextExecution)
                 .setLogLevel(logLevel)
+                .setNextRecurrentTasks(nextRecurrentTasks)
                 .build();
         recurrentTask.set(task);
         Save.CREATE.save(dataModel, this);
@@ -170,6 +174,7 @@ final class EstimationTaskImpl implements IEstimationTask {
                 recurrentTask.get().setName(name);
             }
             recurrentTask.get().setLogLevel(this.logLevel);
+            recurrentTask.get().setNextRecurrentTasks(this.nextRecurrentTasks);
             recurrentTask.get().save();
         }
         Save.UPDATE.save(dataModel, this);
@@ -389,5 +394,24 @@ final class EstimationTaskImpl implements IEstimationTask {
         if (recurrentTask.isPresent()) {
             recurrentTaskDirty = true;
         }
+    }
+
+    @Override
+    public void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+        this.nextRecurrentTasks = nextRecurrentTasks;
+    }
+
+    @Override
+    public List<RecurrentTask> getNextRecurrentTasks() {
+        return recurrentTask.getOptional()
+                .map(recurrentTask -> recurrentTask.getNextRecurrentTasks())
+                .orElse(Collections.emptyList());
+    }
+
+    @Override
+    public List<RecurrentTask> getPrevRecurrentTasks() {
+        return recurrentTask.getOptional()
+                .map(recurrentTask -> recurrentTask.getPrevRecurrentTasks())
+                .orElse(Collections.emptyList());
     }
 }

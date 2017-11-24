@@ -11,10 +11,13 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
 
@@ -31,6 +34,7 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     private MetrologyPurpose metrologyPurpose;
     private QualityCodeSystem qualityCodeSystem;
     private int logLevel;
+    private List<RecurrentTask> nextRecurrentTasks = new ArrayList<>();
 
     public EstimationTaskBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
@@ -76,6 +80,7 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
         if (metrologyPurpose != null) {
             task.setMetrologyPurpose(metrologyPurpose);
         }
+        task.setNextRecurrentTasks(nextRecurrentTasks);
         task.doSave();
         return task;
     }
@@ -113,6 +118,12 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     @Override
     public EstimationTaskBuilder setPeriod(RelativePeriod relativePeriod) {
         this.period = relativePeriod;
+        return this;
+    }
+
+    @Override
+    public EstimationTaskBuilder setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+        this.nextRecurrentTasks = nextRecurrentTasks;
         return this;
     }
 }

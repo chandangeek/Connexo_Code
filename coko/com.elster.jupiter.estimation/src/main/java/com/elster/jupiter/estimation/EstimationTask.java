@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.HasName;
@@ -18,6 +19,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @ProviderType
@@ -84,4 +86,10 @@ public interface EstimationTask extends HasName, HasAuditInfo {
     int getLogLevel();
 
     void setLogLevel(int newLevel);
+
+    List<RecurrentTask> getNextRecurrentTasks();
+
+    List<RecurrentTask> getPrevRecurrentTasks();
+
+    void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
 }
