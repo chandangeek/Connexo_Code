@@ -8,7 +8,9 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
     requires: [
         'Uni.util.Application'
     ],
-
+    stores: [
+        'Est.tasksmanagement.store.AllTasks'
+    ],
     views: [
         'Est.tasksmanagement.view.AddEdit'
     ],
@@ -56,6 +58,10 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
         return Est.privileges.EstimationConfiguration.canUpdate();
     },
 
+    canSetTriggers: function () {
+        return Est.privileges.EstimationConfiguration.canUpdate();
+    },
+
     canHistory: function () {
         return Est.privileges.EstimationConfiguration.canView();
     },
@@ -68,22 +74,28 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
         return 'EstimationTask';
     },
 
-    getTaskForm: function () {
+    getTaskForm: function (caller, completedFunc) {
         var me = this,
             appName = Uni.util.Application.getAppName(),
             widget = Ext.create('Est.tasksmanagement.view.AddEdit',
                 {
                     appName: appName
                 }),
+            followByStore = widget.down('#followedBy-combo').getStore(),
             dataSourcesContainer = widget.down('est-data-sources-container');
 
         Ext.suspendLayouts();
-        me.getEstimationPeriodCombo().store.load({
-            params: {
-                category: 'relativeperiod.category.estimation'
-            },
+        followByStore.load({
             callback: function () {
-                dataSourcesContainer.loadGroupStore();
+                me.getEstimationPeriodCombo().store.load({
+                    params: {
+                        category: 'relativeperiod.category.estimation'
+                    },
+                    callback: function () {
+                        dataSourcesContainer.loadGroupStore();
+                        completedFunc.call(caller, widget);
+                    }
+                });
             }
         });
 
@@ -239,7 +251,15 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
             } else {
                 newEstimationTask.set('period', null);
             }
-
+            // set selected tasks
+            var selectedTask = [];
+            Ext.Array.each(me.getAddEditEstimationtaskForm().down('#followedBy-combo').getValue(), function (value) {
+                selectedTask.push({id: value});
+            })
+            newEstimationTask.nextRecurrentTasksStore = Ext.create('Ext.data.Store', {
+                fields: ['id'],
+                data: selectedTask
+            });
             newEstimationTask.endEdit();
 
             me.getAddEditEstimationtaskPage().setLoading(true);
@@ -373,6 +393,16 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
                         period = record.get('period');
 
                     taskForm.loadRecord(record);
+
+                    var nextRecurrentTasks = record.get('nextRecurrentTasks');
+                    if (nextRecurrentTasks) {
+                        var selectedTasks = [];
+                        Ext.Array.each(nextRecurrentTasks, function (nextRecurrentTask) {
+                            selectedTasks.push(nextRecurrentTask.id);
+                        });
+                        taskForm.down('[name=nextRecurrentTasks]').setValue(selectedTasks);
+                    }
+
                     dataSourcesContainer.loadGroupStore(function () {
                         dataSourcesContainer.setComboValue(record);
                         me.getEstimationPeriodCombo().store.load(function () {

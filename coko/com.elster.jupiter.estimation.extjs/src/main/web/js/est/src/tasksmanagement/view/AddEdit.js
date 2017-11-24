@@ -7,7 +7,8 @@ Ext.define('Est.tasksmanagement.view.AddEdit', {
     requires: [
         'Uni.form.field.DateTime',
         'Est.estimationtasks.view.DataSourcesContainer',
-        'Ldr.store.LogLevels'
+        'Ldr.store.LogLevels',
+        'Est.tasksmanagement.store.AllTasks'
     ],
     alias: 'widget.taskmanagement-addedit',
 
@@ -21,6 +22,20 @@ Ext.define('Est.tasksmanagement.view.AddEdit', {
     initComponent: function () {
         var me = this;
         me.items = [
+            {
+                xtype: 'combobox',
+                itemId: 'followedBy-combo',
+                fieldLabel: Uni.I18n.translate('general.followedBy', 'EST', 'Followed by'),
+                name: 'nextRecurrentTasks',
+                width: 600,
+                multiSelect: true,
+                queryMode: 'local',
+                store: 'Est.tasksmanagement.store.AllTasks',
+                editable: false,
+                emptyText: Uni.I18n.translate('estimationtasks.taskSelectorPrompt', 'EST', 'Select a task ...'),
+                displayField: 'name',
+                valueField: 'id'
+            },
             {
                 xtype: 'textfield',
                 name: 'name',

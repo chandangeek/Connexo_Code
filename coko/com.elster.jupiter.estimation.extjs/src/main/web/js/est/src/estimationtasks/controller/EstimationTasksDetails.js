@@ -53,6 +53,8 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksDetails', {
                 me.getApplication().fireEvent('loadTask', record);
                 widget.down('#estimationtasks-side-menu').setHeader(record.get('name'));
                 me.getDetailForm().getForm().loadRecord(record);
+                me.getDetailForm().setRecurrentTasks('#followedBy-field-container', record.get('nextRecurrentTasks'));
+                me.getDetailForm().setRecurrentTasks('#procededBy-field-container', record.get('previousRecurrentTasks'));
                 me.getActionMenu() && (me.getActionMenu().record = record);
                 if (widget.down('#run-estimation-task') && record.get('status') !== 'Busy') {
                     if (Est.privileges.EstimationConfiguration.canRun()) {
