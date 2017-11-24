@@ -8,10 +8,12 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.tasks.RecurrentTask;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.temporal.TemporalAmount;
+import java.util.List;
 import java.util.Optional;
 
 @ProviderType
@@ -52,4 +54,6 @@ public interface DataQualityKpiService {
         UsagePointDataQualityKpiFinder forPurpose(MetrologyPurpose metrologyPurpose);
 
     }
+
+    DeviceDataQualityKpi newDataQualityKpi(EndDeviceGroup endDeviceGroup, TemporalAmount calculationFrequency, List<RecurrentTask> nextRecurrentTasks);
 }

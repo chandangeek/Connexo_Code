@@ -231,6 +231,13 @@ public class DataQualityKpiServiceImpl implements ServerDataQualityKpiService, M
     }
 
     @Override
+    public DeviceDataQualityKpi newDataQualityKpi(EndDeviceGroup endDeviceGroup, TemporalAmount calculationFrequency, List<RecurrentTask> nextRecurrentTasks) {
+        DeviceDataQualityKpiImpl kpi = dataModel.getInstance(DeviceDataQualityKpiImpl.class).init(endDeviceGroup, calculationFrequency, nextRecurrentTasks);
+        kpi.save();
+        return kpi;
+    }
+
+    @Override
     public UsagePointDataQualityKpi newDataQualityKpi(UsagePointGroup usagePointGroup, MetrologyPurpose metrologyPurpose, TemporalAmount calculationFrequency) {
         UsagePointDataQualityKpiImpl kpi = dataModel.getInstance(UsagePointDataQualityKpiImpl.class).init(usagePointGroup, metrologyPurpose, calculationFrequency);
         kpi.save();

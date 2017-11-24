@@ -4,10 +4,13 @@
 
 package com.elster.jupiter.dataquality;
 
+import com.elster.jupiter.tasks.RecurrentTask;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
+import java.util.List;
 import java.util.Optional;
 
 @ProviderType
@@ -26,5 +29,9 @@ public interface DataQualityKpi {
     void makeObsolete();
 
     Optional<Instant> getObsoleteTime();
+
+    List<RecurrentTask> getNextRecurrentTasks();
+
+    List<RecurrentTask> getPrevRecurrentTasks();
 
 }

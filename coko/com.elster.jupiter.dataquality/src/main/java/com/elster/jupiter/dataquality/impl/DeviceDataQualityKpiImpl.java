@@ -24,6 +24,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -74,6 +75,13 @@ public final class DeviceDataQualityKpiImpl extends DataQualityKpiImpl implement
     DeviceDataQualityKpiImpl init(EndDeviceGroup deviceGroup, TemporalAmount calculationFrequency) {
         this.deviceGroup.set(deviceGroup);
         super.setFrequency(calculationFrequency);
+        return this;
+    }
+
+    DeviceDataQualityKpiImpl init(EndDeviceGroup deviceGroup, TemporalAmount calculationFrequency, List<RecurrentTask> nextRecurrentTasks) {
+        this.deviceGroup.set(deviceGroup);
+        super.setFrequency(calculationFrequency);
+        super.setNextRecurrentTasks(nextRecurrentTasks);
         return this;
     }
 

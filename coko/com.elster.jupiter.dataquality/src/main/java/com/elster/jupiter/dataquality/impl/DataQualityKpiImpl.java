@@ -38,6 +38,7 @@ import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -84,6 +85,7 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CAN_NOT_BE_EMPTY + "}")
     private transient TemporalAmount frequency;
+    private transient List<RecurrentTask> nextRecurrentTasks = new ArrayList<>();
 
     private final DataModel dataModel;
     private final MeteringService meteringService;
@@ -141,6 +143,10 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
 
     void setFrequency(TemporalAmount frequency) {
         this.frequency = frequency;
+    }
+
+    void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+        this.nextRecurrentTasks = nextRecurrentTasks;
     }
 
     @Override
@@ -222,6 +228,24 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
         return Optional.ofNullable(this.obsoleteTime);
     }
 
+    @Override
+    public List<RecurrentTask> getNextRecurrentTasks() {
+        return dataQualityKpiTask.getOptional()
+                .map(RecurrentTask::getId)
+                .flatMap(taskService::getRecurrentTask)
+                .map(recurrentTask -> recurrentTask.getNextRecurrentTasks())
+                .orElse(Collections.emptyList());
+    }
+
+    @Override
+    public List<RecurrentTask> getPrevRecurrentTasks() {
+        return dataQualityKpiTask.getOptional()
+                .map(RecurrentTask::getId)
+                .flatMap(taskService::getRecurrentTask)
+                .map(recurrentTask -> recurrentTask.getPrevRecurrentTasks())
+                .orElse(Collections.emptyList());
+    }
+
     DataModel getDataModel() {
         return dataModel;
     }
@@ -255,6 +279,7 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
                 .setDestination(destination)
                 .setPayLoad(scheduledExecutionPayload())
                 .scheduleImmediately(true)
+                .setNextRecurrentTasks(nextRecurrentTasks)
                 .build();
     }
 
