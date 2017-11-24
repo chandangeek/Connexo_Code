@@ -94,7 +94,6 @@ Ext.define('Apr.view.taskmanagement.TaskPreview', {
                                 }
                             ]
                         },
-
                         {
                             xtype: 'container',
                             columnWidth: 0.49,
@@ -130,13 +129,50 @@ Ext.define('Apr.view.taskmanagement.TaskPreview', {
                                             name: 'lastRunDuration'
                                         }
                                     ]
+                                },
+                                {
+                                    xtype: 'fieldcontainer',
+                                    fieldLabel: Uni.I18n.translate('general.triggers', 'APR', 'Triggers'),
+                                    labelAlign: 'top',
+                                    layout: 'vbox',
+                                    itemId: 'triggers-field',
+                                    defaults: {
+                                        xtype: 'displayfield',
+                                        labelWidth: 250
+                                    },
+                                    items: [
+                                        {
+                                            fieldLabel: Uni.I18n.translate('general.followedBy', 'APR', 'Followed by'),
+                                            htmlEncode: false,
+                                            itemId: 'followedBy-field-container'
+                                        },
+                                        {
+                                            fieldLabel: Uni.I18n.translate('general.procededBy', 'APR', 'Proceded by'),
+                                            htmlEncode: false,
+                                            itemId: 'procededBy-field-container'
+                                        },
+                                    ]
                                 }
+
+
                             ]
                         }
+
+
                     ]
                 }
             ]
 
         }
-    ]
+    ],
+
+    setRecurrentTasks: function (itemId, recurrentTasks) {
+        var me = this,
+            recurrentTaskList = [];
+        Ext.isArray(recurrentTasks) && Ext.Array.each(recurrentTasks, function (recurrentTask) {
+            recurrentTaskList.push('- ' + Ext.htmlEncode(recurrentTask.name));
+        });
+        me.down(itemId).setValue((recurrentTaskList.length == 0) ? recurrentTaskList = '-' : recurrentTaskList.join('<br/>'));
+        return;
+    }
 });

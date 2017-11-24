@@ -18,12 +18,14 @@ Ext.define('Apr.controller.TaskManagement', {
     ],
     models: [
         'Apr.model.Task',
-        'Apr.model.Queue'
+        'Apr.model.Queue',
+        'Apr.model.TaskInfo',
+        'Apr.model.Triggers'
     ],
     refs: [
         {
             ref: 'page',
-            selector: 'task-management-setup',
+            selector: 'task-management-setup'
         },
         {
             ref: 'taskPreview',
@@ -115,6 +117,15 @@ Ext.define('Apr.controller.TaskManagement', {
             taskPreview.down('#currentRunField').hide();
         }
         Ext.resumeLayouts(true);
+
+        taskPreview.setLoading();
+        me.getModel('Apr.model.Triggers').load(record.get('id'), {
+            success: function (triggers) {
+                taskPreview.setRecurrentTasks('#followedBy-field-container', triggers.get('nextRecurrentTasks'));
+                taskPreview.setRecurrentTasks('#procededBy-field-container', triggers.get('previousRecurrentTasks'));
+                taskPreview.setLoading(false);
+            }
+        });
     },
 
     chooseMenuAction: function (menu, item) {
@@ -129,17 +140,16 @@ Ext.define('Apr.controller.TaskManagement', {
                 taskManagement && taskManagement.controller && taskManagement.controller.runTaskManagement(record, me.operationStart, me.operationCompleted, this);
                 break;
             case 'editTask':
-                taskManagement && taskManagement.controller && taskManagement.controller.getTask(this, record.get('id'), me.viewDetailsTaskLoaded)
-                //route = me.getController('Uni.controller.history.Router').getRoute('administration/taskmanagement/view/edit');
-                //taskManagement && taskManagement.controller && route.forward({type: taskType, taskManagementId: record.get('id')});
+                taskManagement && taskManagement.controller && taskManagement.controller.getTask(this, record.get('id'), me.viewDetailsTaskLoaded);
                 break;
             case 'historyTask':
-                //route = me.getController('Uni.controller.history.Router').getRoute('administration/taskmanagement/history');
                 taskManagement && taskManagement.controller && taskManagement.controller.getTask(this, record.get('id'), me.viewHistoryTaskLoaded)
-                //taskManagement && taskManagement.controller && route.forward({type: taskType, taskId: record.get('id')});
                 break;
             case 'removeTask':
                 taskManagement && taskManagement.controller && taskManagement.controller.removeTaskManagement(record, me.operationStart, me.operationCompleted, this);
+                break;
+            case 'setTriggers':
+                me.showSetTriggers(record);
                 break;
         }
     },
@@ -200,8 +210,12 @@ Ext.define('Apr.controller.TaskManagement', {
         Ext.suspendLayouts();
         me.getAddPage().down('#add-button').setDisabled(false);
         me.getAddPage().down('#task-management-attributes').removeAll();
-        me.getAddPage().down('#task-management-attributes').add(Apr.TaskManagementApp.getTaskManagementApps().get(newValue).controller.getTaskForm());
-        Ext.resumeLayouts(true);
+        Apr.TaskManagementApp.getTaskManagementApps().get(newValue).controller.getTaskForm(this, function (form) {
+            me.getAddPage().down('#task-management-attributes').add(form);
+            Ext.resumeLayouts(true);
+        });
+        //me.getAddPage().down('#task-management-attributes').add(Apr.TaskManagementApp.getTaskManagementApps().get(newValue).controller.getTaskForm());
+        //Ext.resumeLayouts(true);
     },
 
     addTask: function (button) {
@@ -233,11 +247,18 @@ Ext.define('Apr.controller.TaskManagement', {
         view.down('#task-management-task-type').setValue(taskType);
         view.down('#task-management-task-type').suspendComboChange = false;
         view.down('#task-management-attributes').removeAll();
-        view.down('#task-management-attributes').add(Apr.TaskManagementApp.getTaskManagementApps().get(taskType).controller.getTaskForm());
-
-        me.getApplication().fireEvent('changecontentevent', view);
-        taskManagement.controller.editTaskManagement(taskId, view.down('#form-errors'),
+        Apr.TaskManagementApp.getTaskManagementApps().get(taskType).controller.getTaskForm(this, function (form) {
+            view.down('#task-management-attributes').add(form);
+            me.getApplication().fireEvent('changecontentevent', view);
+            taskManagement.controller.editTaskManagement(taskId, view.down('#form-errors'),
             me.editOperationStart, me.editOperationCompleteLoading, me.editOperationCompleted, me.editSetTitle, this);
+        });
+
+        //view.down('#task-management-attributes').add(Apr.TaskManagementApp.getTaskManagementApps().get(taskType).controller.getTaskForm());
+
+        //me.getApplication().fireEvent('changecontentevent', view);
+        //taskManagement.controller.editTaskManagement(taskId, view.down('#form-errors'),
+        //    me.editOperationStart, me.editOperationCompleteLoading, me.editOperationCompleted, me.editSetTitle, this);
     },
 
     editSetTitle: function (taskName) {
@@ -336,7 +357,5 @@ Ext.define('Apr.controller.TaskManagement', {
                 }, record);
             }
         });
-
     }
-
 });
