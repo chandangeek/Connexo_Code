@@ -252,9 +252,16 @@ Ext.define('Cfg.controller.TaskManagement', {
             // backUrl: button.action === 'editTask' && me.fromDetails
             //     ? me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').buildUrl({taskId: record.getId()})
             //     : me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').buildUrl(),
-            success: function () {
+            success: function (record, operation) {
                 saveOperationComplete.call(controller);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.addValidationTask.successMsg', 'CFG', 'Validation task added'));
+                switch (operation.action) {
+                    case 'update':
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.editValidationTask.successMsg.saved', 'CFG', 'Validation task saved'));
+                        break;
+                    case 'create':
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.addValidationTask.successMsg', 'CFG', 'Validation task added'));
+                        break;
+                }
                 //    if (button.action === 'editTask' && me.fromDetails) {
                 //        me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').forward({taskId: record.getId()});
                 //     } else {

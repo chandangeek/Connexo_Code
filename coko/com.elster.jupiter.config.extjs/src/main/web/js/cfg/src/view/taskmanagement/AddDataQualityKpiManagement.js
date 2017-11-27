@@ -28,25 +28,22 @@ Ext.define('Cfg.view.taskmanagement.AddDataQualityKpiManagement', {
             valueField: 'id'
         },
         {
-            xtype: 'comboboxwithemptycomponent',
-            fieldLabel: Uni.I18n.translate('general.deviceGroup', 'CFG', 'Device group'),
+            xtype: 'combobox',
+            name: 'deviceGroup',
+            emptyText: Uni.I18n.translate('datavalidationkpis.selectDeviceGroup', 'CFG', 'Select a device group...'),
             itemId: 'cmb-device-group',
-            config: {
-                name: 'deviceGroup',
-                emptyText: Uni.I18n.translate('datavalidationkpis.selectDeviceGroup', 'CFG', 'Select a device group...'),
-                store: 'Cfg.store.DataValidationGroups',
-                queryMode: 'local',
-                displayField: 'name',
-                noObjectsText: Uni.I18n.translate('general.noDeviceGroup', 'CFG', 'No device group defined yet'),
-                valueField: 'id',
-                required: true,
-                allowBlank: false,
-                editable: false,
-                width: 600,
-                listeners: {
-                    afterrender: function (field) {
-                        field.focus(false, 200);
-                    }
+            fieldLabel: Uni.I18n.translate('general.deviceGroup', 'CFG', 'Device group'),
+            store: 'Cfg.store.DataValidationGroups',
+            queryMode: 'local',
+            editable: false,
+            displayField: 'name',
+            valueField: 'id',
+            allowBlank: false,
+            required: true,
+            width: 600,
+            listeners: {
+                afterrender: function (field) {
+                    field.focus(false, 200);
                 }
             }
         },
@@ -73,5 +70,29 @@ Ext.define('Cfg.view.taskmanagement.AddDataQualityKpiManagement', {
             required: true,
             width: 600
         }
-    ]
+    ],
+
+    loadRecord: function (record) {
+        var me = this,
+            deviceGroup = record.get('deviceGroup'),
+            frequency = record.get('frequency'),
+            deviceGroupCombo = me.down('[name=deviceGroup]'),
+            nextRecurrentTasks = record.get('nextRecurrentTasks');
+
+        me.getForm().loadRecord(record);
+        if (deviceGroup) {
+            deviceGroupCombo.setRawValue(deviceGroup.name);
+        }
+        if (frequency) {
+            me.down('[name=frequency]').setValue(frequency.every.count + frequency.every.timeUnit);
+        }
+
+        if (nextRecurrentTasks) {
+            var selectedTasks = [];
+            Ext.Array.each(nextRecurrentTasks, function (nextRecurrentTask) {
+                selectedTasks.push(nextRecurrentTask.id);
+            });
+            me.down('[name=nextRecurrentTasks]').setValue(selectedTasks);
+        }
+    }
 });

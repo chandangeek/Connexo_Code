@@ -9,6 +9,7 @@ Ext.define('Cfg.model.DataValidationKpi', {
         {name: 'id', type: 'integer', useNull: true},
         {name: 'deviceGroup', type: 'auto', defaultValue: null},
         {name: 'frequency', type: 'auto', defaultValue: null},
+        {name: 'version', type: 'auto', defaultValue: null},
         {name: 'latestCalculationDate', dateFormat: 'time', type: 'date', persist: false}
     ],
     associations: [

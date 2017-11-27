@@ -39,7 +39,7 @@ Ext.define('Cfg.controller.DataQualityKpiManagement', {
     },
 
     canEdit: function () {
-        return false;
+        return Cfg.privileges.Validation.canAdministerDataQuality();
     },
 
     canSetTriggers: function () {
@@ -61,7 +61,7 @@ Ext.define('Cfg.controller.DataQualityKpiManagement', {
     getTaskForm: function (caller, completedFunc) {
         var me = this,
             form = Ext.create('Cfg.view.taskmanagement.AddDataQualityKpiManagement'),
-            deviceGroupStore = form.down('comboboxwithemptycomponent[name=deviceGroup]').getStore(),
+            deviceGroupStore = form.down('combobox[name=deviceGroup]').getStore(),
             followByStore = form.down('#followedBy-combo').getStore(),
             kpiModel = Ext.ModelManager.getModel('Cfg.model.DataValidationKpi'),
             deviceGroupCombo = form.down('#cmb-device-group');
@@ -123,11 +123,17 @@ Ext.define('Cfg.controller.DataQualityKpiManagement', {
 
         record.endEdit();
         record.save({
-            backUrl: backUrl,
             success: function (record, operation) {
                 //me.getController('Uni.controller.history.Router').getRoute(me.getController('Uni.controller.history.Router').currentRoute.replace('/add', '')).forward();
                 saveOperationComplete.call(controller);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataqualitykpis.added', 'CFG', 'Data quality KPI added'));
+                switch (operation.action) {
+                    case 'update':
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataqualitykpis.saved', 'CFG', 'Data quality KPI saved'));
+                        break;
+                    case 'create':
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataqualitykpis.eddited', 'CFG', 'Data quality KPI added'));
+                        break;
+                }
             },
             failure: function (record, operation) {
                 if (operation.response.status == 400) {
@@ -155,7 +161,31 @@ Ext.define('Cfg.controller.DataQualityKpiManagement', {
     runTaskManagement: function (taskManagement) {
     },
 
-    editTaskManagement: function (taskManagement) {
+    editTaskManagement: function (taskManagementId, formErrorsPanel,
+                                  operationStartFunc, editOperationCompleteLoading,
+                                  operationCompletedFunc, setTitleFunc, controller) {
+        var me = this,
+            form = me.getDataValidationKpiEditForm();
+
+        operationStartFunc.call(controller);
+        Ext.Ajax.request({
+            url: '/api/dqk/deviceKpis/recurrenttask/' + taskManagementId,
+            method: 'GET',
+            success: function (operation) {
+                var response = Ext.JSON.decode(operation.responseText),
+                    store = Ext.create('Cfg.store.DataValidationKpis');
+                store.loadRawData([response]);
+                store.each(function (record) {
+                    setTitleFunc.call(controller, record.get('deviceGroup').name);
+                    Ext.suspendLayouts();
+                    form.loadRecord(record);
+                    form.down('[name=deviceGroup]').disable();
+                    form.down('[name=frequency]').disable();
+                    Ext.resumeLayouts(true);
+                    editOperationCompleteLoading.call(controller)
+                });
+            }
+        })
     },
 
     historyTaskManagement: function (taskManagement) {
