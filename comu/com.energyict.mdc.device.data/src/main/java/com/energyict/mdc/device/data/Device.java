@@ -17,7 +17,7 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
@@ -223,7 +223,7 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
     void removeProtocolProperty(String name);
 
     /**
-     * Resolve the key accessors and their types to their actual values (if present) and return them as TypedProperties.
+     * Resolve the security accessors and their types to their actual values (if present) and return them as TypedProperties.
      */
     TypedProperties getSecurityProperties(SecurityPropertySet securityPropertySet);
 
@@ -496,24 +496,24 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      * Returns all KeyAccessors defined for this device. The returned list will contain accessors of all kinds: certfificates, keys and passphrases
      * @return all KeyAccessors defined for this device.
      */
-    public List<KeyAccessor> getKeyAccessors();
+    public List<SecurityAccessor> getSecurityAccessors();
 
     /**
      * Get the KeyAccessor (aka 'value') for a KeyAccessorType, if any
-     * @param keyAccessorType The KAt whose value will be retrieved.
+     * @param securityAccessorType The KAt whose value will be retrieved.
      * @return The actual value (KeyAccessor), or Optional.empty() if no value could be found
      */
-    public Optional<KeyAccessor> getKeyAccessor(KeyAccessorType keyAccessorType);
+    public Optional<SecurityAccessor> getKeyAccessor(SecurityAccessorType securityAccessorType);
 
     /**
      * Creates a new KeyAccessor for a certain KeyAccessorType. The KeyAccessor is merely an empty placeholder at this point.
      * Users can set the value by calling the setter.
-     * @param keyAccessorType The type of key accessor to be created
-     * @return An empty key accessor.
+     * @param securityAccessorType The type of security accessor to be created
+     * @return An empty security accessor.
      */
-    public KeyAccessor newKeyAccessor(KeyAccessorType keyAccessorType);
+    public SecurityAccessor newKeyAccessor(SecurityAccessorType securityAccessorType);
 
-    public void removeKeyAccessor(KeyAccessor keyAccessor);
+    public void removeKeyAccessor(SecurityAccessor securityAccessor);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.

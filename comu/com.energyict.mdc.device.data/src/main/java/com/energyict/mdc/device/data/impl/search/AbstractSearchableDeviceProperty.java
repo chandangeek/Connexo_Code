@@ -46,7 +46,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     private SqlBuilder underConstruction = new SqlBuilder();
     private String columnName;
-    private Instant now;
+    protected Instant now;
     private final Thesaurus thesaurus;
 
     private final TimeDuration YEAR = new TimeDuration(1, TimeDuration.TimeUnit.YEARS);
@@ -325,11 +325,11 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         }
     }
 
-    private static class ComparisonFragment extends ProxyAwareSqlFragment implements SqlFragment {
+    protected static class ComparisonFragment extends ProxyAwareSqlFragment implements SqlFragment {
         private final String columnName;
         private final Comparison comparison;
 
-        private ComparisonFragment(ValueBinder valueBinder, String columnName, Comparison comparison) {
+        protected ComparisonFragment(ValueBinder valueBinder, String columnName, Comparison comparison) {
             super(valueBinder);
             this.columnName = columnName;
             this.comparison = comparison;

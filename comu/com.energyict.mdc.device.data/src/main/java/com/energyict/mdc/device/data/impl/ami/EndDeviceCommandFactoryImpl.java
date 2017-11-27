@@ -12,7 +12,7 @@ import com.elster.jupiter.metering.ami.UnsupportedCommandException;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.units.Quantity;
 import com.energyict.mdc.device.data.Device;
@@ -190,9 +190,9 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     }
 
     @Override
-    public EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, KeyAccessorType keyAccessorType) {
+    public EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, SecurityAccessorType securityAccessorType) {
         EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.KEY_RENEWAL));
-        command.setPropertyValue(getKeyAccessorTypePropertySpec(command), keyAccessorType);
+        command.setPropertyValue(getKeyAccessorTypePropertySpec(command), securityAccessorType);
         return command;
     }
 

@@ -24,6 +24,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DEVICE_STATUS("device.status.name", "State"),
     DEVICE_GROUP("device.group", "Device group"),
     DEVICE_CERT_YEAR("device.cert.year", "Year of certification"),
+    DEVICE_EXPIRATION("device.security.expiration", "Keys and certificates validity"),
     BATCH("device.batch", "Batch"),
     CONNECTION_METHOD("device.connection.method", "Connection method"),
     SHARED_SCHEDULE("device.shared.schedule", "Shared schedule"),

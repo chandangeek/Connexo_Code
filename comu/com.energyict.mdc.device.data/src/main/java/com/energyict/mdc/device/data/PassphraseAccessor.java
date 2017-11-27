@@ -6,5 +6,5 @@ package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.pki.PassphraseWrapper;
 
-public interface PassphraseAccessor extends KeyAccessor<PassphraseWrapper>{
+public interface PassphraseAccessor extends SecurityAccessor<PassphraseWrapper> {
 }

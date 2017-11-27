@@ -6,5 +6,5 @@ package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 
-public interface SymmetricKeyAccessor extends KeyAccessor<SymmetricKeyWrapper>{
+public interface SymmetricKeyAccessor extends SecurityAccessor<SymmetricKeyWrapper> {
 }

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
@@ -35,19 +35,19 @@ public class TypedPropertiesValueAdapterTest {
 
     @Test
     public void testAdaptToUPLValuesUsingDevice() throws Exception {
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getId()).thenReturn(1L);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getId()).thenReturn(1L);
         Device device = mock(Device.class);
-        KeyAccessor keyAccessor = mock(KeyAccessor.class);
+        SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
         PlaintextPassphrase plaintextPassphrase = mock(PlaintextPassphrase.class);
         when(plaintextPassphrase.getPassphrase()).thenReturn(Optional.of("My key"));
-        when(keyAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
-        when(keyAccessor.getKeyAccessorType()).thenReturn(keyAccessorType);
-        when(device.getKeyAccessors()).thenReturn(Collections.singletonList(keyAccessor));
+        when(securityAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
+        when(securityAccessor.getKeyAccessorType()).thenReturn(securityAccessorType);
+        when(device.getSecurityAccessors()).thenReturn(Collections.singletonList(securityAccessor));
 
         TypedProperties properties = TypedProperties.empty();
         properties.setProperty(REGULAR, "Do not alter");
-        properties.setProperty(KEY_ACCESSOR, keyAccessorType);
+        properties.setProperty(KEY_ACCESSOR, securityAccessorType);
 
         com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(device, properties);
 
@@ -58,36 +58,36 @@ public class TypedPropertiesValueAdapterTest {
 
     @Test
     public void testAdaptToUPLValueUsingDevice() throws Exception {
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getId()).thenReturn(1L);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getId()).thenReturn(1L);
         Device device = mock(Device.class);
-        KeyAccessor keyAccessor = mock(KeyAccessor.class);
+        SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
         PlaintextPassphrase plaintextPassphrase = mock(PlaintextPassphrase.class);
         when(plaintextPassphrase.getPassphrase()).thenReturn(Optional.of("My key"));
-        when(keyAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
-        when(keyAccessor.getKeyAccessorType()).thenReturn(keyAccessorType);
-        when(device.getKeyAccessors()).thenReturn(Collections.singletonList(keyAccessor));
+        when(securityAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
+        when(securityAccessor.getKeyAccessorType()).thenReturn(securityAccessorType);
+        when(device.getSecurityAccessors()).thenReturn(Collections.singletonList(securityAccessor));
 
-        Object adaptedValue = TypedPropertiesValueAdapter.adaptToUPLValue(device, keyAccessorType);
+        Object adaptedValue = TypedPropertiesValueAdapter.adaptToUPLValue(device, securityAccessorType);
 
         assertThat(adaptedValue).isEqualTo("My key");
     }
 
     @Test
     public void testAdaptToUPLValuesUsingOfflineDevice() throws Exception {
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getId()).thenReturn(1L);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getId()).thenReturn(1L);
         OfflineDevice device = mock(OfflineDevice.class);
         OfflineKeyAccessor keyAccessor = mock(OfflineKeyAccessor.class);
         PlaintextPassphrase plaintextPassphrase = mock(PlaintextPassphrase.class);
         when(plaintextPassphrase.getPassphrase()).thenReturn(Optional.of("My key"));
         when(keyAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
-        when(keyAccessor.getKeyAccessorType()).thenReturn(keyAccessorType);
+        when(keyAccessor.getSecurityAccessorType()).thenReturn(securityAccessorType);
         when(device.getAllOfflineKeyAccessors()).thenReturn(Collections.singletonList(keyAccessor));
 
         TypedProperties properties = TypedProperties.empty();
         properties.setProperty(REGULAR, "Do not alter");
-        properties.setProperty(KEY_ACCESSOR, keyAccessorType);
+        properties.setProperty(KEY_ACCESSOR, securityAccessorType);
 
         com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(device, properties);
 
@@ -99,17 +99,17 @@ public class TypedPropertiesValueAdapterTest {
 
     @Test
     public void testAdaptToUPLValueUsingOfflineDevice() throws Exception {
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getId()).thenReturn(1L);
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.getId()).thenReturn(1L);
         OfflineDevice device = mock(OfflineDevice.class);
         OfflineKeyAccessor keyAccessor = mock(OfflineKeyAccessor.class);
         PlaintextPassphrase plaintextPassphrase = mock(PlaintextPassphrase.class);
         when(plaintextPassphrase.getPassphrase()).thenReturn(Optional.of("My key"));
         when(keyAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
-        when(keyAccessor.getKeyAccessorType()).thenReturn(keyAccessorType);
+        when(keyAccessor.getSecurityAccessorType()).thenReturn(securityAccessorType);
         when(device.getAllOfflineKeyAccessors()).thenReturn(Collections.singletonList(keyAccessor));
 
-        Object adaptedValue = TypedPropertiesValueAdapter.adaptToUPLValue(device, keyAccessorType);
+        Object adaptedValue = TypedPropertiesValueAdapter.adaptToUPLValue(device, securityAccessorType);
 
         assertThat(adaptedValue).isEqualTo("My key");
     }

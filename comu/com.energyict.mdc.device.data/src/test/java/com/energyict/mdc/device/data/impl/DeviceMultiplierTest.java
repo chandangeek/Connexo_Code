@@ -24,7 +24,7 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -55,9 +55,7 @@ import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
@@ -69,7 +67,6 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.internal.matchers.Any;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -167,7 +164,7 @@ public class DeviceMultiplierTest {
     @Mock
     private LockService lockService;
     @Mock
-    private PkiService pkiService;
+    private SecurityManagementService securityManagementService;
 
     private Instant now = Instant.ofEpochSecond(1448460000L); //25-11-2015
     private Instant startOfMeterActivation = Instant.ofEpochSecond(1447977600L); // 20-11-2015
@@ -244,7 +241,7 @@ public class DeviceMultiplierTest {
     private Device createMockedDevice(Instant startOfMeterActivation) {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider,
-                meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService, pkiService);
+                meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService, securityManagementService);
 //        setId(device, ID);
         device.initialize(deviceConfiguration, "Name", startOfMeterActivation);
         device.save();
