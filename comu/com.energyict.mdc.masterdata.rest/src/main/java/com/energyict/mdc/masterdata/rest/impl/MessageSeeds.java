@@ -11,6 +11,8 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
     NO_LOAD_PROFILE_TYPE_FOUND(1, "NoLoadProfileTypeFound", "No LoadProfile type with id {0}",Level.SEVERE),
+    INVALID_CIM_OBIS_MAPPING(2, "InvalidCimObisMapping", "Cannot map the selected reading type to an obis code", Level.WARNING ),
+    INVALID_OBIS_CIM_MAPPING(3, "InvalidObisCimMapping", "Cannot map the selected obis code to a reading type", Level.WARNING )
     ;
     private final int number;
     private final String key;
