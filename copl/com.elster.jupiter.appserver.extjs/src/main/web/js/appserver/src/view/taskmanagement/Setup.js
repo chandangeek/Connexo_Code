@@ -20,6 +20,7 @@ Ext.define('Apr.view.taskmanagement.Setup', {
 
         me.content = [
             {
+                xtype: 'panel',
                 ui: 'large',
                 title: Uni.I18n.translate('general.taskManagement.title', 'APR', 'Tasks'),
                 items: [
@@ -37,9 +38,22 @@ Ext.define('Apr.view.taskmanagement.Setup', {
                             router: me.router
                         },
                         emptyComponent: {
-                            xtype: 'uni-form-empty-message',
+                            xtype: 'no-items-found-panel',
                             itemId: 'no-tasks-found',
-                            text: Uni.I18n.translate('taskManagement.empty', 'APR', 'There are no tasks in the system')
+                            title: Uni.I18n.translate('taskManagement.empty.title', 'APR', 'No tasks found'),
+                            reasons: [
+                                Uni.I18n.translate('taskManagement.list.item1', 'APR', 'There are no tasks in the system.'),
+                                Uni.I18n.translate('taskManagement.list.item2', 'APR', 'No tasks comply with the filter.')
+                            ],
+                            stepItems: [
+                                {
+                                    text: Uni.I18n.translate('taskManagement.general.addTask', 'APR', 'Add task'),
+                                    privileges: function () {
+                                        return Apr.TaskManagementApp.canAdministrate();
+                                    },
+                                    href: me.addTaskRoute
+                                }
+                            ]
                         },
                         previewComponent: {
                             xtype: 'task-management-preview',

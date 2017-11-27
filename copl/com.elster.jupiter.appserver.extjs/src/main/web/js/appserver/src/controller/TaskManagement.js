@@ -301,9 +301,9 @@ Ext.define('Apr.controller.TaskManagement', {
             grid.down('pagingtoolbartop').totalCount = 0;
             grid.down('pagingtoolbarbottom').resetPaging();
             grid.getStore().load();
-        } //else {
-        //  me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').forward();
-        //  }
+        } else {
+            me.getController('Uni.controller.history.Router').getRoute('administration/taskmanagement').forward();
+        }
     },
 
     /* view history task section */
