@@ -14,26 +14,26 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
 import java.time.Instant;
 
-public class DeviceFirmwareHistoryInfos {
+public class DeviceFirmwareLifecycleHistoryInfo {
 
-    private String version;
+    private String firmwareVersion;
     private String triggerdBy;
     private Instant uploadedOn;
     private Instant activationDate;
     private String result;
     private Long firmwareTaskId;
 
-    public DeviceFirmwareHistoryInfos(DeviceMessage deviceMessage, FirmwareManagementDeviceUtils versionUtils, Thesaurus thesaurus) {
-        buildFrom(deviceMessage, versionUtils, thesaurus);
+    public DeviceFirmwareLifecycleHistoryInfo(DeviceMessage deviceMessage, FirmwareManagementDeviceUtils versionUtils, Thesaurus thesaurus) {
+        buildDeviceFirmwareHistoryInfosFrom(deviceMessage, versionUtils, thesaurus);
     }
 
 
-    public String getVersion() {
-        return version;
+    public String getFirmwareVersion() {
+        return firmwareVersion;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setFirmwareVersion(String firmwareVersion) {
+        this.firmwareVersion = firmwareVersion;
     }
 
     public String getTriggerdBy() {
@@ -76,11 +76,11 @@ public class DeviceFirmwareHistoryInfos {
         this.firmwareTaskId = firmwareTaskId;
     }
 
-    private void buildFrom(DeviceMessage deviceMessage, FirmwareManagementDeviceUtils versionUtils, Thesaurus thesaurus) {
+    private void buildDeviceFirmwareHistoryInfosFrom(DeviceMessage deviceMessage, FirmwareManagementDeviceUtils versionUtils, Thesaurus thesaurus) {
         this.setUploadedOn(deviceMessage.getCreationDate());
         this.setResult(DeviceMessageStatusTranslationKeys.translationFor(deviceMessage.getStatus(), thesaurus));
         this.setTriggerdBy(deviceMessage.getUser());
-        this.setVersion(versionUtils.getFirmwareVersionFromMessage(deviceMessage).map(FirmwareVersion::getFirmwareVersion).orElse(null));
+        this.setFirmwareVersion(versionUtils.getFirmwareVersionFromMessage(deviceMessage).map(FirmwareVersion::getFirmwareVersion).orElse(null));
         this.setActivationDate(versionUtils.getActivationDateFromMessage(deviceMessage).orElse(null));
         this.setFirmwareTaskId(versionUtils.getFirmwareTask().get().getId());
     }

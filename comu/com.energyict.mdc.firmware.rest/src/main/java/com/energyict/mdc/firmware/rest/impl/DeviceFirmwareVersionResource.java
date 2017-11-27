@@ -29,13 +29,13 @@ import java.util.Optional;
 public class DeviceFirmwareVersionResource {
     private final DeviceFirmwareVersionInfoFactory versionInfoFactory;
     private final ResourceHelper resourceHelper;
-    private final DeviceFirmwareHistoryInfosFactory deviceFirmwareHistoryInfosFactory;
+    private final DeviceFirmwareLifecycleHistoryInfoFactory deviceFirmwareLifecycleHistoryInfoFactory;
 
     @Inject
-    public DeviceFirmwareVersionResource(DeviceFirmwareVersionInfoFactory versionInfoFactory, ResourceHelper resourceHelper, DeviceFirmwareHistoryInfosFactory deviceFirmwareHistoryInfosFactory) {
+    public DeviceFirmwareVersionResource(DeviceFirmwareVersionInfoFactory versionInfoFactory, ResourceHelper resourceHelper, DeviceFirmwareLifecycleHistoryInfoFactory deviceFirmwareLifecycleHistoryInfoFactory) {
         this.versionInfoFactory = versionInfoFactory;
         this.resourceHelper = resourceHelper;
-        this.deviceFirmwareHistoryInfosFactory = deviceFirmwareHistoryInfosFactory;
+        this.deviceFirmwareLifecycleHistoryInfoFactory = deviceFirmwareLifecycleHistoryInfoFactory;
     }
 
     @GET @Transactional
@@ -53,8 +53,8 @@ public class DeviceFirmwareVersionResource {
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE, com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getDeviceFirmwareHistory(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        List<DeviceFirmwareHistoryInfos> deviceFirmwareHistoryInfosList = deviceFirmwareHistoryInfosFactory.from(device);
-        PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("firmwareHistory", ListPager.of(deviceFirmwareHistoryInfosList).from(queryParameters).find(), queryParameters);
+        List<DeviceFirmwareLifecycleHistoryInfo> deviceFirmwareLifecycleHistoryInfoList = deviceFirmwareLifecycleHistoryInfoFactory.getDeviceFirmwareHistoryInfosListFromDevice(device);
+        PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("firmwareHistory", ListPager.of(deviceFirmwareLifecycleHistoryInfoList).from(queryParameters).find(), queryParameters);
         return Response.ok(pagedInfoList).build();
     }
 

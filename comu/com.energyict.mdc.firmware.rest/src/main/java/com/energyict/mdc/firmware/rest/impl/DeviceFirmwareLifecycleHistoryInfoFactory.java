@@ -18,38 +18,38 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DeviceFirmwareHistoryInfosFactory {
+public class DeviceFirmwareLifecycleHistoryInfoFactory {
 
     private final FirmwareService firmwareService;
-    private Thesaurus thesaurus;
+    private volatile Thesaurus thesaurus;
 
     @Inject
-    public DeviceFirmwareHistoryInfosFactory(FirmwareService firmwareService, Thesaurus thesaurus) {
+    public DeviceFirmwareLifecycleHistoryInfoFactory(FirmwareService firmwareService, Thesaurus thesaurus) {
         this.firmwareService = firmwareService;
         this.thesaurus = thesaurus;
     }
 
-    public List<DeviceFirmwareHistoryInfos> from(Device device) {
+    public List<DeviceFirmwareLifecycleHistoryInfo> getDeviceFirmwareHistoryInfosListFromDevice(Device device) {
         FirmwareManagementDeviceUtils versionUtils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
         List<DeviceMessage> deviceMessageList = device.getMessages();
-        List<DeviceFirmwareHistoryInfos> firmwareVersionList = new ArrayList<>();
+        List<DeviceFirmwareLifecycleHistoryInfo> firmwareVersionList = new ArrayList<>();
         if (!deviceMessageList.isEmpty()) {
             firmwareVersionList = getDeviceFirmwareHistoryInfos(deviceMessageList, versionUtils);
         }
         return sortDescendingByUploadedOnTimestampDeviceFirmwareHistoryInfos(firmwareVersionList);
     }
 
-    private List<DeviceFirmwareHistoryInfos> getDeviceFirmwareHistoryInfos(List<DeviceMessage> deviceMessageList, FirmwareManagementDeviceUtils versionUtils) {
-        List<DeviceFirmwareHistoryInfos> firmwareVersionList = new ArrayList<>();
+    private List<DeviceFirmwareLifecycleHistoryInfo> getDeviceFirmwareHistoryInfos(List<DeviceMessage> deviceMessageList, FirmwareManagementDeviceUtils versionUtils) {
+        List<DeviceFirmwareLifecycleHistoryInfo> firmwareVersionList = new ArrayList<>();
         for (DeviceMessage deviceMessage : deviceMessageList) {
-            firmwareVersionList.add(new DeviceFirmwareHistoryInfos(deviceMessage, versionUtils, thesaurus));
+            firmwareVersionList.add(new DeviceFirmwareLifecycleHistoryInfo(deviceMessage, versionUtils, thesaurus));
         }
         return firmwareVersionList;
     }
 
-    private List<DeviceFirmwareHistoryInfos> sortDescendingByUploadedOnTimestampDeviceFirmwareHistoryInfos(List<DeviceFirmwareHistoryInfos> firmwareVersionList) {
+    private List<DeviceFirmwareLifecycleHistoryInfo> sortDescendingByUploadedOnTimestampDeviceFirmwareHistoryInfos(List<DeviceFirmwareLifecycleHistoryInfo> firmwareVersionList) {
         return firmwareVersionList.stream()
-                .sorted(Comparator.comparing(DeviceFirmwareHistoryInfos::getUploadedOn).reversed())
+                .sorted(Comparator.comparing(DeviceFirmwareLifecycleHistoryInfo::getUploadedOn).reversed())
                 .collect(Collectors.toList());
     }
 }
