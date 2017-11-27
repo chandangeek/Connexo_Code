@@ -98,9 +98,9 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             'reading-type-groups-grid': {
                 select: this.showPreview
             },
-            '#mtr-add-readingTypeGroup-button': {  //lori
+            '#mtr-add-readingTypeGroup-button': {
                 click: this.browseGroupAdd
-            }
+            } //lori
         });
     },
 

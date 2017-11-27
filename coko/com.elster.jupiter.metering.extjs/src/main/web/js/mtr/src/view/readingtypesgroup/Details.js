@@ -37,7 +37,7 @@ Ext.define('Mtr.view.readingtypesgroup.Details', {
         ]
     },*/
 
-    initComponent: function () {
+    initComponent: function () {    // CXO-7385
         var me = this;
 
         me.side = [

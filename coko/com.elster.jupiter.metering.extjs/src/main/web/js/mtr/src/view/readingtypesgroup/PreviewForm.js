@@ -10,7 +10,7 @@ Ext.define('Mtr.view.readingtypesgroup.PreviewForm', {
         labelWidth: 250
     },
     initComponent: function () {
-        var me = this;
+        var me = this;  // CXO-7385
         me.items = [
             {
                 fieldLabel: Uni.I18n.translate('readingtypes.name', 'MTR', 'Commodity'),

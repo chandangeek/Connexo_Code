@@ -15,7 +15,7 @@ Ext.define('Mtr.view.readingtypesgroup.Menu' , {
 
         var me = this;
 
-        me.menuItems = [
+        /*    me.menuItems = [   // laurentia a comentat asta  - begin
             {
                 text: Uni.I18n.translate('readingtypes.readingTypeGroupOverview', 'MTR', 'Overview'),
                 itemId: 'reading-type-group-overview-link',
@@ -26,7 +26,7 @@ Ext.define('Mtr.view.readingtypesgroup.Menu' , {
                 itemId: 'reading-type-group-reading-types-link',
                 href: me.router.getRoute('administration/relativeperiods/relativeperiod/usage').buildUrl()
             }
-        ]
+         ] */   // laurentia a comentat asta  - end
 
         me.callParent(arguments);
     }
