@@ -268,10 +268,17 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
                 // backUrl: previousPath
                 //    ? '#' + previousPath
                 //    : me.getController('Uni.controller.history.Router').getRoute('administration/estimationtasks/estimationtask').buildUrl({taskId: newEstimationTask.getId() ? newEstimationTask.getId() : 0}),
-                success: function () {
+                success: function (record, operation) {
                     //me.getController('Uni.controller.history.Router').getRoute(me.getController('Uni.controller.history.Router').currentRoute.replace('/add', '')).forward();
                     saveOperationComplete.call(controller);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationtasks.addTask.successMsg', 'EST', 'Estimation task added'));
+                    switch (operation.action) {
+                        case 'update':
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationtasks.saveTask.successMsg', 'EST', 'Estimation task saved'));
+                            break;
+                        case 'create':
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationtasks.addTask.successMsg', 'EST', 'Estimation task added'));
+                            break;
+                    }
                     //if (button.action === 'editTask' && me.fromDetails) {
                     //    me.getController('Uni.controller.history.Router').getRoute('administration/estimationtasks/estimationtask').forward({taskId: newEstimationTask.getId() ? newEstimationTask.getId() : 0});
                     //} else {
