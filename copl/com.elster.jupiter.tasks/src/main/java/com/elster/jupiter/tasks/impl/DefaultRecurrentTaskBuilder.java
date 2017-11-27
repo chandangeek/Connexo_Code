@@ -17,6 +17,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -38,7 +39,7 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder, RecurrentTask
     private Instant firstExecution;
     private final DataModel dataModel;
     private int logLevel = Level.WARNING.intValue();
-    private List<RecurrentTask> nextRecurrentTasks;
+    private List<RecurrentTask> nextRecurrentTasks = new ArrayList<>();
 
     @Override
     public RecurrentTaskBuilderNameSetter setApplication(String application) {

@@ -272,6 +272,12 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     }
 
+    public void triggetNewRecuurentTasks() {
+        this.getNextRecurrentTasks().stream().forEach(
+                nextRecurrentTask -> nextRecurrentTask.triggerNow()
+        );
+    }
+
     private void enqueue(TaskOccurrenceImpl taskOccurrence) {
         String json = toJson(taskOccurrence);
         getDestination().message(json).send();

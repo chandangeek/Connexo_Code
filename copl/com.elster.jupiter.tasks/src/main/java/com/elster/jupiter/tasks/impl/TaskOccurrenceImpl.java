@@ -218,6 +218,10 @@ class TaskOccurrenceImpl implements TaskOccurrence {
             this.recurrentTask = recurrentTask;
             this.status = successful ? this.status.success() : this.status.fail();
             save();
+
+            if (successful && (this.getRetryTime().isPresent() == false)) {
+                recurrentTask.triggetNewRecuurentTasks();
+            }
         }
     }
 
