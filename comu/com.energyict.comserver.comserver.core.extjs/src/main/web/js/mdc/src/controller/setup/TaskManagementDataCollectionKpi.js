@@ -68,7 +68,8 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         deviceGroupStore.load({
             callback: function () {
                 if (deviceGroupStore.getCount() > 0) {
-                    form.loadRecord(Ext.create(kpiModel));
+                    completedFunc.call(caller, form);
+                    //form.loadRecord(Ext.create(kpiModel));
                 } else {
                     Ext.suspendLayouts();
                     deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('datacollectionkpis.noDeviceGroup', 'MDC', 'No device group defined yet.') + '</span>');
@@ -87,7 +88,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             editForm = panel.down('data-collection-kpi-addedit-tgm'),
-            record = editForm.getRecord(),
+            record = editForm.getRecord() || Ext.create('Mdc.model.DataCollectionKpi'),
             deviceGroup = {
                 id: editForm.down('[name=deviceGroup]').getValue()
             },
