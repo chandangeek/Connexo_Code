@@ -82,7 +82,7 @@ public class SecurityPropertySetInfoFactory {
     private TypedProperties toTypedProperties(List<ConfigurationSecurityProperty> securityProperties) {
         TypedProperties typedProperties = TypedProperties.empty();
         for (ConfigurationSecurityProperty securityProperty : securityProperties) {
-            typedProperties.setProperty(securityProperty.getName(), securityProperty.getKeyAccessorType());
+            typedProperties.setProperty(securityProperty.getName(), securityProperty.getSecurityAccessorType());
         }
         return typedProperties;
     }

@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
@@ -89,9 +89,9 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         RequestSecurityLevel requestSecurityLevel = mockRequestSecurityLevel(4, "RequestSec1");
         ResponseSecurityLevel responseSecurityLevel = mockResponseSecurityLevel(5, "ResponseSec1");
         SecurityPropertySet sps1 = mockSecurityPropertySet(1001L, "Set 1", "Client 1", authenticationDeviceAccessLevel, encryptionDeviceAccessLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.toString()).thenReturn("KeyAccessorType for password");
-        ConfigurationSecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", keyAccessorType, new StringFactory());
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.toString()).thenReturn("KeyAccessorType for password");
+        ConfigurationSecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", securityAccessorType, new StringFactory());
         when(sps1.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(securityProperty1));
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(sps1));
         String response = target("/devices/AX1/securityproperties").request().get(String.class);
@@ -136,9 +136,9 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         ResponseSecurityLevel responseSecurityLevel = mockResponseSecurityLevel(5, "ResponseSec1");
         SecurityPropertySet sps1 = mockSecurityPropertySet(sps1Id, "Set 1", "Client 1", authenticationDeviceAccessLevel, encryptionDeviceAccessLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
         when(deviceConfigurationService.findSecurityPropertySet(sps1Id)).thenReturn(Optional.of(sps1));
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.toString()).thenReturn("KeyAccessorType for password");
-        ConfigurationSecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", keyAccessorType, new StringFactory());
+        SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
+        when(securityAccessorType.toString()).thenReturn("KeyAccessorType for password");
+        ConfigurationSecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", securityAccessorType, new StringFactory());
         when(sps1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(sps1.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(securityProperty1));
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(sps1));
@@ -184,7 +184,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         ResponseSecurityLevel responseSecurityLevel = mockResponseSecurityLevel(5, "ResponseSec1");
         SecurityPropertySet sps1 = mockSecurityPropertySet(sps1Id, "Set 1", "Client 1", authenticationDeviceAccessLevel, encryptionDeviceAccessLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
         when(deviceConfigurationService.findSecurityPropertySet(sps1Id)).thenReturn(Optional.of(sps1));
-        ConfigurationSecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", mock(KeyAccessorType.class), new StringFactory());
+        ConfigurationSecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", mock(SecurityAccessorType.class), new StringFactory());
         DeviceConfiguration otherDeviceConfiguration = mock(DeviceConfiguration.class);
         when(otherDeviceConfiguration.getId()).thenReturn(deviceConfigId + 1);
         when(sps1.getDeviceConfiguration()).thenReturn(otherDeviceConfiguration);
@@ -207,10 +207,10 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
-    private <T> ConfigurationSecurityProperty mockSecurityPropertyWithSpec(SecurityPropertySet securityPropertySet, String name, KeyAccessorType keyAccessorType, ValueFactory<T> valueFactory) {
+    private <T> ConfigurationSecurityProperty mockSecurityPropertyWithSpec(SecurityPropertySet securityPropertySet, String name, SecurityAccessorType securityAccessorType, ValueFactory<T> valueFactory) {
         ConfigurationSecurityProperty securityProperty = mock(ConfigurationSecurityProperty.class);
         when(securityProperty.getName()).thenReturn(name);
-        when(securityProperty.getKeyAccessorType()).thenReturn(keyAccessorType);
+        when(securityProperty.getSecurityAccessorType()).thenReturn(securityAccessorType);
         PropertySpec propertySpec1 = mock(PropertySpec.class);
         when(propertySpec1.getName()).thenReturn(name);
         when(propertySpec1.isRequired()).thenReturn(true);

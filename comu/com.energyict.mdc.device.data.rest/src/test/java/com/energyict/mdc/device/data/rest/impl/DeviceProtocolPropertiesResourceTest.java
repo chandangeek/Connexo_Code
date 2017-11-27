@@ -96,7 +96,7 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
         PropertyInfo propertyInfo = new PropertyInfo(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, new PropertyValueInfo<>("0x7", null), new PropertyTypeInfo(), false);
         when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         when(propertyValueInfoService.getConverter(any(PropertySpec.class))).thenReturn(new IdWithNamePropertyValueConverter());
-        when(deviceType.getKeyAccessorTypes()).thenReturn(Collections.emptyList());
+        when(deviceType.getSecurityAccessorTypes()).thenReturn(Collections.emptyList());
         String response = target("/devices/ZABF010000080004/protocols/1").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(17);
