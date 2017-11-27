@@ -34,4 +34,8 @@ public interface DataQualityKpi {
 
     List<RecurrentTask> getPrevRecurrentTasks();
 
+    void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
+
+    void save();
+
 }

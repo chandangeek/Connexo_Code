@@ -145,7 +145,8 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
         this.frequency = frequency;
     }
 
-    void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+    @Override
+    public void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
         this.nextRecurrentTasks = nextRecurrentTasks;
     }
 
@@ -159,13 +160,20 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
                 .orElse(null);
     }
 
+    @Override
     public void save() {
         if (this.getId() != 0) {
-            throw new IllegalStateException("Update is not supported");
+            saveTask();
+        } else {
+            Save.CREATE.save(this.dataModel, this);
+            this.dataQualityKpiTask.set(createNewRecurrentTask());
+            this.dataModel.update(this, Fields.DATA_QUALITY_KPI_TASK.fieldName());
         }
-        Save.CREATE.save(this.dataModel, this);
-        this.dataQualityKpiTask.set(createNewRecurrentTask());
-        this.dataModel.update(this, Fields.DATA_QUALITY_KPI_TASK.fieldName());
+    }
+
+    private void saveTask() {
+        this.dataQualityKpiTask.get().setNextRecurrentTasks(nextRecurrentTasks);
+        this.dataQualityKpiTask.get().save();
     }
 
     @Override
