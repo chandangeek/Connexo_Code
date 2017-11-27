@@ -20,7 +20,7 @@ public interface MdcReadingTypeUtilService {
 
     /**
      * Creates a {@link ReadingTypeInformation} based on the given readingType
-     *
+     * @deprecated Replaced by {@link #getReadingTypeInformationFrom(String readingType)}
      * @param readingType the readingType string
      * @return the ReadingTypeInformation modeled by the given readingType string
      */
@@ -29,14 +29,25 @@ public interface MdcReadingTypeUtilService {
 
     /**
      * Creates a {@link ReadingTypeInformation} based on the given readingType
-     *
+     * @deprecated Replaced by {@link #getReadingTypeInformationFrom(ReadingType)}
      * @param readingType the ReadingType
      * @return the ReadingTypeInformation modeled by the given ReadingType
      */
     @Deprecated
     ReadingTypeInformation getReadingTypeInformationFor(ReadingType readingType);
 
+    /**
+     * Creates an Optional {@link ReadingTypeInformation} based on the given readingType
+     * @param readingType the readingType string
+     * @return Optional ReadingTypeInformation modeled by the given readingType string
+     */
     Optional<ReadingTypeInformation> getReadingTypeInformationFrom(String readingType);
+
+    /**
+     * Creates an Optional {@link ReadingTypeInformation} based on the given readingType
+     * @param readingType the ReadingType
+     * @return Optional ReadingTypeInformation modeled by the given ReadingType
+     */
     Optional<ReadingTypeInformation> getReadingTypeInformationFrom(ReadingType readingType);
 
     /**
@@ -129,8 +140,8 @@ public interface MdcReadingTypeUtilService {
 
     /**
      * Creates a ReadingType regex based on the obis code
-     * @param obisCode
-     * @return
+     * @param obisCode the ObisCode that will be mapped to multiple reading types
+     * @return Reading Type regular expression
      */
     String getReadingTypeFilterFrom(ObisCode obisCode);
 }
