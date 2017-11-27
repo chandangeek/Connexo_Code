@@ -18,7 +18,7 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
         var me = this;
         me.columns = [
             {
-                dataIndex: 'version',
+                dataIndex: 'firmwareVersion',
                 header: Uni.I18n.translate('device.firmware.history.Version', 'FWC', 'Version'),
                 itemId: 'deviceFirmwareHistory',
                 fixed: true,
