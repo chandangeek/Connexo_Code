@@ -17,7 +17,7 @@ import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -56,7 +56,7 @@ public class CreateDataLoggerCommand {
 
     private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final ConnectionTaskService connectionTaskService;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
@@ -71,14 +71,14 @@ public class CreateDataLoggerCommand {
     public CreateDataLoggerCommand(DeviceService deviceService,
                                    ProtocolPluggableService protocolPluggableService,
                                    ConnectionTaskService connectionTaskService,
-                                   PkiService pkiService,
+                                   SecurityManagementService securityManagementService,
                                    Provider<DeviceBuilder> deviceBuilderProvider,
                                    Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
                                    Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
         this.connectionTaskService = connectionTaskService;
-        this.pkiService = pkiService;
+        this.securityManagementService = securityManagementService;
         this.deviceBuilderProvider = deviceBuilderProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
         this.lifecyclePostBuilder = lifecyclePostBuilder;
@@ -221,7 +221,7 @@ public class CreateDataLoggerCommand {
 
     private KeyAccessorValuePersister getKeyAccessorValuePersister() {
         if (keyAccessorValuePersister == null) {
-            keyAccessorValuePersister = new KeyAccessorValuePersister(pkiService);
+            keyAccessorValuePersister = new KeyAccessorValuePersister(securityManagementService);
         }
         return keyAccessorValuePersister;
     }

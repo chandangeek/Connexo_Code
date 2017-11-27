@@ -11,7 +11,7 @@ import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -67,7 +67,7 @@ public class CreateG3SlaveCommand {
 
     }
 
-    private final PkiService pkiService;
+    private final SecurityManagementService securityManagementService;
     private final Provider<ActivateDevicesCommand> lifecyclePostBuilder;
 
     private String name;
@@ -76,8 +76,8 @@ public class CreateG3SlaveCommand {
 
 
     @Inject
-    public CreateG3SlaveCommand(PkiService pkiService, Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
-        this.pkiService = pkiService;
+    public CreateG3SlaveCommand(SecurityManagementService securityManagementService, Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
+        this.securityManagementService = securityManagementService;
         this.lifecyclePostBuilder = lifecyclePostBuilder;
     }
 
@@ -94,7 +94,7 @@ public class CreateG3SlaveCommand {
 
     public void run() {
         DeviceConfiguration deviceConfiguration = getConfiguration();
-        meterConfig.setPkiService(pkiService);
+        meterConfig.setSecurityManagementService(securityManagementService);
         meterConfig.setDeviceConfiguration(deviceConfiguration);
         meterConfig.setSecurityPropertySet(deviceConfiguration.getSecurityPropertySets().stream().filter(s -> SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5.getName().equals(s.getName())).findFirst().get());
 
@@ -134,7 +134,7 @@ public class CreateG3SlaveCommand {
         private TypedProperties props = TypedProperties.empty();
         private DeviceConfiguration deviceConfiguration;
         private SecurityPropertySet securityPropertySet;
-        private PkiService pkiService;
+        private SecurityManagementService securityManagementService;
 
         MeterConfig() {
         }
@@ -160,12 +160,12 @@ public class CreateG3SlaveCommand {
             return securityPropertySet;
         }
 
-        public PkiService getPkiService() {
-            return pkiService;
+        public SecurityManagementService getSecurityManagementService() {
+            return securityManagementService;
         }
 
-        public void setPkiService(PkiService pkiService) {
-            this.pkiService = pkiService;
+        public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+            this.securityManagementService = securityManagementService;
         }
 
         Device getDevice() {
@@ -173,7 +173,7 @@ public class CreateG3SlaveCommand {
                     .withName((String) props.getProperty("name"))
                     .withDeviceConfiguration(deviceConfiguration)
                     .withSerialNumber((String) props.getProperty("serialNumber"))
-                    .withPostBuilder(new SecurityPropertyPostBuilder(this, getPkiService()))
+                    .withPostBuilder(new SecurityPropertyPostBuilder(this, getSecurityManagementService()))
                     .withPostBuilder(new ProtocolPropertyPostBuilder(this))
                     .get();
         }
@@ -181,11 +181,11 @@ public class CreateG3SlaveCommand {
 
     private static class SecurityPropertyPostBuilder implements Consumer<Device>{
         MeterConfig meterConfig;
-        PkiService pkiService;
+        SecurityManagementService securityManagementService;
 
-        SecurityPropertyPostBuilder(MeterConfig meterConfig, PkiService pkiService){
+        SecurityPropertyPostBuilder(MeterConfig meterConfig, SecurityManagementService securityManagementService){
             this.meterConfig = meterConfig;
-            this.pkiService = pkiService;
+            this.securityManagementService = securityManagementService;
         }
 
         @Override
@@ -200,7 +200,7 @@ public class CreateG3SlaveCommand {
         }
 
         private KeyAccessorValuePersister getKeyAccessorValuePersister() {
-               return new KeyAccessorValuePersister(pkiService);
+               return new KeyAccessorValuePersister(securityManagementService);
         }
     }
 

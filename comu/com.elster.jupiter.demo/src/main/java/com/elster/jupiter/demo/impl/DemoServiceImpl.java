@@ -59,11 +59,10 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.PassphraseFactory;
-import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeService;
@@ -198,7 +197,7 @@ public class DemoServiceImpl {
     private volatile CommandRuleService commandRuleService;
     private volatile UsagePointLifeCycleService usagePointLifeCycleService;
     private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
-    private volatile PkiService pkiService;
+    private volatile SecurityManagementService securityManagementService;
     private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile PassphraseFactory passphraseFactory;
     private volatile NlsService nlsService;
@@ -259,7 +258,7 @@ public class DemoServiceImpl {
             DataQualityKpiService dataQualityKpiService,
             UsagePointLifeCycleService usagePointLifeCycleService,
             UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
-            PkiService pkiService,
+            SecurityManagementService securityManagementService,
             PassphraseFactory passphraseFactory,
             TopologyService topologyService,
             NlsService nlsService,
@@ -314,7 +313,7 @@ public class DemoServiceImpl {
         setDataQualityKpiService(dataQualityKpiService);
         setUsagePointLifeCycleService(usagePointLifeCycleService);
         setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
-        setPkiService(pkiService);
+        setSecurityManagementService(securityManagementService);
         setPassphraseFactory(passphraseFactory);
         setTopologyService(topologyService);
         setNlsService(nlsService);
@@ -380,7 +379,7 @@ public class DemoServiceImpl {
                 bind(DataQualityKpiService.class).toInstance(dataQualityKpiService);
                 bind(UsagePointLifeCycleService.class).toInstance(usagePointLifeCycleService);
                 bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
-                bind(PkiService.class).toInstance(pkiService);
+                bind(SecurityManagementService.class).toInstance(securityManagementService);
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(NlsService.class).toInstance(nlsService);
                 bind(DeviceAlarmService.class).toInstance(deviceAlarmService);
@@ -667,8 +666,8 @@ public class DemoServiceImpl {
 
     @Reference
     @SuppressWarnings("unused")
-    public void setPkiService(PkiService pkiService) {
-        this.pkiService = pkiService;
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
     }
 
     @Reference
