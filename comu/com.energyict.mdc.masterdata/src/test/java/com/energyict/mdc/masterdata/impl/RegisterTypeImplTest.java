@@ -251,7 +251,7 @@ public class RegisterTypeImplTest {
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
         this.readingType1 = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        this.obisCode1 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(readingType1).getObisCode();
+        this.obisCode1 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFrom(readingType1).get().getObisCode();
         String code2 = ReadingTypeCodeBuilder
                 .of(Commodity.ELECTRICITY_SECONDARY_METERED)
                 .accumulate(Accumulation.BULKQUANTITY)
@@ -259,7 +259,7 @@ public class RegisterTypeImplTest {
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
         this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
-        this.obisCode2 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(readingType2).getObisCode();
+        this.obisCode2 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFrom(readingType2).get().getObisCode();
     }
 
     private void setupLoadProfileTypesInExistingTransaction(RegisterType registerType) {
