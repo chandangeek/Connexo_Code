@@ -59,21 +59,18 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                         listeners: {
                             change: function (group, newValue) {
                                 var cimField = me.down('textfield[name=mRID]'),
-                                    activeTab = me.activeTab(),
-                                    activeTabIndex = tabPanel.items.findIndex('id', activeTab.id);
-                                // form = me.activeTab().down();
-                                // var activeTab = tabPanel.getActiveTab();
-                                // var activeTabIndex = tabPanel.items.findIndex('id', activeTab.id)
-
-                                //    form = me.down('#reading-type-add-fields-container');
+                                    formExtended = me.down('#reading-type-add-fields-container'),
+                                    formBasic = me.down('#reading-types-group-basic-container');
                                 me.fireEvent('switchmode', newValue.specifyBy, me);
                                 switch (newValue.specifyBy) {
                                     case 'cim':
-                                        form.disable();
+                                        formExtended.disable();
+                                        formBasic.disable();
                                         cimField.enable();
                                         break;
                                     case 'form':
-                                        form.enable();
+                                        formExtended.enable();
+                                        formBasic.enable();
                                         cimField.disable();
                                         break;
                                 }
