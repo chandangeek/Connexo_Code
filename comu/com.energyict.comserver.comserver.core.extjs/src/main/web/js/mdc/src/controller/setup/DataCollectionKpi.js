@@ -190,7 +190,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
     showDataCollectionKpiEditView: function (id) {
         var me = this,
             widget = Ext.widget('dataCollectionKpiEdit'),
-            deviceGroupStore = widget.down('combobox[name=deviceGroup]').getStore(),
+            deviceGroupStore = widget.down('comboboxwithemptycomponent[name=deviceGroup]').getStore(),
             kpiModel = Ext.ModelManager.getModel('Mdc.model.DataCollectionKpi'),
             form = widget.down('#dataCollectionKpiEditForm'),
             deviceGroupCombo = widget.down('#cmb-device-group'),
