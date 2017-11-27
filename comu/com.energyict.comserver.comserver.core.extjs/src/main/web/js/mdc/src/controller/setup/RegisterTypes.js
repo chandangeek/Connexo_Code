@@ -75,7 +75,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         });
     },
 
-    addObisCodeToReadingTypeQuery: function (combo) {
+    addObisCodeToReadingTypeQuery: function (combo, operation) {
         var me = this,
             store = combo.getStore();
 
@@ -85,6 +85,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
    showObisCode: function(combo) {
        var me = this;
 
+       me.getRegisterTypeEditForm().getForm().clearInvalid();
+
+       // This check will prevent an additional REST call, when we already mapped
+       // to an obis code, but we select again a value from the combobox. Combobox
+       // is filtered using the obis code value.
        if (me.getEditObisCodeField().getValue() === "") {
            if (combo.valueModels && combo.valueModels[0]) {
                var store = me.getStore('Mdc.store.ObisCodeFromReadingType');
@@ -97,6 +102,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                                obisCode += record.raw;
                            });
                            me.getEditObisCodeField().setValue(obisCode);
+                       } else {
+                           var json = Ext.decode(operation.response.responseText);
+                           if (json && json.errors) {
+                               me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
+                           }
                        }
                    },
                    scope: this
