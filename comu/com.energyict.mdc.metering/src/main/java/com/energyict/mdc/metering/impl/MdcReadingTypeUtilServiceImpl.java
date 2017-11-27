@@ -51,11 +51,12 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     }
 
     @SuppressWarnings("unused")
-    public void getReadingTypeInformation(String readingType){
-        ReadingTypeInformation readingTypeInformation = getReadingTypeInformationFor(readingType);
-        logger.info("ObisCode : " + readingTypeInformation.getObisCode());
-        logger.info("Unit : " + readingTypeInformation.getUnit());
-        logger.info("Interval : " + readingTypeInformation.getTimeDuration());
+    public void getReadingTypeInformation(String readingType) {
+        getReadingTypeInformationFrom(readingType).ifPresent(rT -> {
+            logger.info("ObisCode : " + rT.getObisCode());
+            logger.info("Unit : " + rT.getUnit());
+            logger.info("Interval : " + rT.getTimeDuration());
+        });
     }
 
     public void getReadingTypeFrom(String... arguments){
@@ -73,12 +74,25 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     }
 
     @Override
+    @Deprecated
     public ReadingTypeInformation getReadingTypeInformationFor(String readingType){
+        return getReadingTypeInformationFrom(readingType).orElse(null);
+    }
+
+    @Override
+    @Deprecated
+    public ReadingTypeInformation getReadingTypeInformationFor(ReadingType readingType){
+        return getReadingTypeInformationFrom(readingType.getMRID()).orElse(null);
+    }
+
+
+    @Override
+    public Optional<ReadingTypeInformation> getReadingTypeInformationFrom(String readingType){
         return ReadingTypeToObisCodeFactory.from(readingType);
     }
 
     @Override
-    public ReadingTypeInformation getReadingTypeInformationFor(ReadingType readingType){
+    public Optional<ReadingTypeInformation> getReadingTypeInformationFrom(ReadingType readingType){
         return ReadingTypeToObisCodeFactory.from(readingType.getMRID());
     }
 

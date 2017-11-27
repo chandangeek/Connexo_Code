@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.metering.impl;
 
+
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.metering.ReadingTypeInformation;
 import com.energyict.mdc.metering.impl.matchers.ItemMatcher;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public final class ReadingTypeToObisCodeFactory {
+final class ReadingTypeToObisCodeFactory {
 
     private static final int NUMBER_OF_READING_TYPE_ARGUMENTS = 18;
     private static final int SECONDS_IN_MINUTE = 60;
@@ -59,16 +60,12 @@ public final class ReadingTypeToObisCodeFactory {
         return Candidates.initWith(candidates.getAllMatches().toArray(new Integer[candidates.getAllMatches().size()]));
     }
 
-    public static ReadingTypeInformation from(String readingTypeMrdi) {
+    static Optional<ReadingTypeInformation> from(String readingTypeMrdi) {
         String[] arguments = readingTypeMrdi.split("\\.");
         if (arguments.length != NUMBER_OF_READING_TYPE_ARGUMENTS) {
             throw new IllegalArgumentException("The provided ReadingType code should contain " + NUMBER_OF_READING_TYPE_ARGUMENTS + " fields.");
         }
 
-        int scaler;
-        ObisCode obisCode = null;
-        Unit unit = null;
-        TimeDuration timeDuration = null;
         OptionalCollector optionals = new OptionalCollector();
 
         applyMacroPeriodMapping(arguments[MACRO_PERIOD_INDEX], optionals);
@@ -81,41 +78,40 @@ public final class ReadingTypeToObisCodeFactory {
         applyHarmonics(arguments, optionals);
         applyTimeOfUse(arguments[TOU_INDEX], optionals);
         applyPhase(arguments[PHASE_INDEX], optionals);
-        scaler = Integer.parseInt(arguments[SCALER_INDEX]);
+        int scaler = Integer.parseInt(arguments[SCALER_INDEX]);
         applyReadingTypeUnit(arguments[READING_TYPE_UNIT_INDEX], optionals);
         applyCurrency(arguments[CURRENCY_INDEX], optionals);
 
-        if (optionals.getaFieldCandidates() != null
-                && optionals.getcFieldCandidates() != null
-                && optionals.getdFieldCandidates() != null
-                && optionals.geteFieldCandidates() != null
-                && optionals.getfFieldCandidates() != null) {
-            if (optionals.getaFieldCandidates().singleMatch()
-                    && optionals.getcFieldCandidates().singleMatch()
-                    && optionals.getdFieldCandidates().singleMatch()
-                    && optionals.geteFieldCandidates().singleMatch()
-                    && optionals.getfFieldCandidates().singleMatch()) {
-                obisCode = new ObisCode(
+
+        if (optionals.hasAllFieldCandidates()) {
+            if (optionals.isSingleFieldMatch()) {
+                ObisCode obisCode = new ObisCode(
                         optionals.getaFieldCandidates().getTheCandidate(),
                         0, // B-field should be zero
                         optionals.getcFieldCandidates().getTheCandidate(),
                         optionals.getdFieldCandidates().getTheCandidate(),
                         optionals.geteFieldCandidates().getTheCandidate(),
                         optionals.getfFieldCandidates().getTheCandidate());
-            } else {
-                throw new UnableToExtractUniqueObisCodeFromReadingTypeException(readingTypeMrdi, optionals);
+
+
+                Unit unit = null;
+                if (optionals.getBaseUnitCandidates() != null && optionals.getBaseUnitCandidates().singleMatch()) {
+                    unit = Unit.get(optionals.getBaseUnitCandidates().getTheCandidate(), scaler);
+                }
+
+                TimeDuration timeDuration = null;
+                if (optionals.getIntervalSeconds() != null && optionals.getIntervalSeconds().singleMatch()) {
+                    timeDuration = new TimeDuration(optionals.getIntervalSeconds().getTheCandidate());
+                }
+
+                return Optional.of(new ReadingTypeInformation(obisCode, unit, timeDuration));
             }
         }
 
-        if (optionals.getBaseUnitCandidates() != null && optionals.getBaseUnitCandidates().singleMatch()) {
-            unit = Unit.get(optionals.getBaseUnitCandidates().getTheCandidate(), scaler);
-        }
-
-        if (optionals.getIntervalSeconds() != null && optionals.getIntervalSeconds().singleMatch()) {
-            timeDuration = new TimeDuration(optionals.getIntervalSeconds().getTheCandidate());
-        }
-        return new ReadingTypeInformation(obisCode, unit, timeDuration);
+        return Optional.empty();
     }
+
+
 
     public static Optional<TimeDuration> getIntervalFrom(String readingType) {
         String[] arguments = readingType.split("\\.");
@@ -311,7 +307,7 @@ public final class ReadingTypeToObisCodeFactory {
         }
     }
 
-    private static class UnableToExtractUniqueObisCodeFromReadingTypeException extends RuntimeException {
+    private static class UnableToExtractUniqueObisCodeFromReadingTypeException extends RuntimeException{
 
         private final String readingTypeMrdi;
         private final OptionalCollector optionals;
@@ -364,31 +360,31 @@ public final class ReadingTypeToObisCodeFactory {
         private Candidates<Integer> fFieldCandidates;
         private Candidates<Integer> baseUnitCandidates;
 
-        public Candidates<Integer> getIntervalSeconds() {
+        Candidates<Integer> getIntervalSeconds() {
             return intervalSeconds;
         }
 
-        public Candidates<Integer> getaFieldCandidates() {
+        Candidates<Integer> getaFieldCandidates() {
             return aFieldCandidates;
         }
 
-        public Candidates<Integer> getcFieldCandidates() {
+        Candidates<Integer> getcFieldCandidates() {
             return cFieldCandidates;
         }
 
-        public Candidates<Integer> getdFieldCandidates() {
+        Candidates<Integer> getdFieldCandidates() {
             return dFieldCandidates;
         }
 
-        public Candidates<Integer> geteFieldCandidates() {
+        Candidates<Integer> geteFieldCandidates() {
             return eFieldCandidates;
         }
 
-        public Candidates<Integer> getfFieldCandidates() {
+        Candidates<Integer> getfFieldCandidates() {
             return fFieldCandidates;
         }
 
-        public Candidates<Integer> getBaseUnitCandidates() {
+        Candidates<Integer> getBaseUnitCandidates() {
             return baseUnitCandidates;
         }
 
@@ -418,6 +414,22 @@ public final class ReadingTypeToObisCodeFactory {
 
         private void setBaseUnitCandidates(Candidates<Integer> baseUnitCandidates) {
             this.baseUnitCandidates = baseUnitCandidates;
+        }
+
+        private boolean hasAllFieldCandidates() {
+            return (aFieldCandidates != null &&
+                    cFieldCandidates != null &&
+                    dFieldCandidates != null &&
+                    eFieldCandidates != null &&
+                    fFieldCandidates != null);
+        }
+
+        private boolean isSingleFieldMatch() {
+            return (aFieldCandidates.singleMatch() &&
+                    cFieldCandidates.singleMatch() &&
+                    dFieldCandidates.singleMatch() &&
+                    eFieldCandidates.singleMatch() &&
+                    fFieldCandidates.singleMatch());
         }
     }
 }

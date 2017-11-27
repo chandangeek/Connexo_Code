@@ -18,6 +18,9 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.metering.ReadingTypeInformation;
 
+import java.awt.*;
+import java.util.Optional;
+
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -139,135 +142,152 @@ public class ReadingTypeToObisCodeFactoryTest {
     private ObisCode totalVoltageObisCode = ObisCode.fromString("1.0.12.7.0.255");
     private ObisCode phase2VoltageObisCode = ObisCode.fromString("1.0.52.7.0.255");
 
+
     @Test
     public void forwardActiveEnergyRegisterTest() {
-        ReadingTypeInformation readingTypeInformation = ReadingTypeToObisCodeFactory.from(forwardActiveEnergyReadingType);
+        Optional<ReadingTypeInformation> readingTypeInformation = ReadingTypeToObisCodeFactory.from(forwardActiveEnergyReadingType);
 
-        assertThat(readingTypeInformation.getObisCode()).isEqualTo(forwardActiveEnergyObisCode);
-        assertThat(readingTypeInformation.getUnit()).isEqualTo(Unit.get("kWh"));
-        assertThat(readingTypeInformation.getTimeDuration()).isNull();
+        assertThat(readingTypeInformation.isPresent()).isTrue();
+        assertThat(readingTypeInformation.get().getObisCode()).isEqualTo(forwardActiveEnergyObisCode);
+        assertThat(readingTypeInformation.get().getUnit()).isEqualTo(Unit.get("kWh"));
+        assertThat(readingTypeInformation.get().getTimeDuration()).isNull();
     }
 
     @Test
     public void forwardActiveEnergyTou1RegisterTest() {
-        ReadingTypeInformation readingTypeInformation = ReadingTypeToObisCodeFactory.from(forwardActiveEnergyTou1ReadingType);
+        Optional<ReadingTypeInformation> readingTypeInformation = ReadingTypeToObisCodeFactory.from(forwardActiveEnergyTou1ReadingType);
 
-        assertThat(readingTypeInformation.getObisCode()).isEqualTo(forwardActiveEnergyTou1ObisCode);
-        assertThat(readingTypeInformation.getUnit()).isEqualTo(Unit.get("kWh"));
-        assertThat(readingTypeInformation.getTimeDuration()).isNull();
+        assertThat(readingTypeInformation.isPresent()).isTrue();
+        assertThat(readingTypeInformation.get().getObisCode()).isEqualTo(forwardActiveEnergyTou1ObisCode);
+        assertThat(readingTypeInformation.get().getUnit()).isEqualTo(Unit.get("kWh"));
+        assertThat(readingTypeInformation.get().getTimeDuration()).isNull();
     }
 
     @Test
     public void reverseActiveEnergyRegisterTest() {
-        ReadingTypeInformation readingTypeInformation = ReadingTypeToObisCodeFactory.from(reverseActiveEnergyReadingType);
+        Optional<ReadingTypeInformation> readingTypeInformation = ReadingTypeToObisCodeFactory.from(reverseActiveEnergyReadingType);
 
-        assertThat(readingTypeInformation.getObisCode()).isEqualTo(reverseActiveEnergyObisCode);
-        assertThat(readingTypeInformation.getUnit()).isEqualTo(Unit.get("kWh"));
-        assertThat(readingTypeInformation.getTimeDuration()).isNull();
+        assertThat(readingTypeInformation.isPresent()).isTrue();
+        assertThat(readingTypeInformation.get().getObisCode()).isEqualTo(reverseActiveEnergyObisCode);
+        assertThat(readingTypeInformation.get().getUnit()).isEqualTo(Unit.get("kWh"));
+        assertThat(readingTypeInformation.get().getTimeDuration()).isNull();
     }
 
     @Test
     public void reverseActiveEnergyTou2RegisterTest() {
-        ReadingTypeInformation readingTypeInformation = ReadingTypeToObisCodeFactory.from(reverseActiveEnergyTou2ReadingType);
+        Optional<ReadingTypeInformation> readingTypeInformation = ReadingTypeToObisCodeFactory.from(reverseActiveEnergyTou2ReadingType);
 
-        assertThat(readingTypeInformation.getObisCode()).isEqualTo(reverseActiveEnergyTou2ObisCode);
-        assertThat(readingTypeInformation.getUnit()).isEqualTo(Unit.get("kWh"));
-        assertThat(readingTypeInformation.getTimeDuration()).isNull();
+        assertThat(readingTypeInformation.isPresent()).isTrue();
+        assertThat(readingTypeInformation.get().getObisCode()).isEqualTo(reverseActiveEnergyTou2ObisCode);
+        assertThat(readingTypeInformation.get().getUnit()).isEqualTo(Unit.get("kWh"));
+        assertThat(readingTypeInformation.get().getTimeDuration()).isNull();
     }
 
     @Test
     public void forwardActiveEnergy15MinDeltaTest() {
-        ReadingTypeInformation readingTypeInformation = ReadingTypeToObisCodeFactory.from(forwardActiveEnergyReadingType15MinDelta);
+        Optional<ReadingTypeInformation> readingTypeInformation = ReadingTypeToObisCodeFactory.from(forwardActiveEnergyReadingType15MinDelta);
 
-        assertThat(readingTypeInformation.getObisCode()).isEqualTo(forwardActiveEnergyDeltaObisCode);
-        assertThat(readingTypeInformation.getUnit()).isEqualTo(Unit.get("kWh"));
-        assertThat(readingTypeInformation.getTimeDuration()).isEqualTo(TimeDuration.minutes(15));
+        assertThat(readingTypeInformation.isPresent()).isTrue();
+        assertThat(readingTypeInformation.get().getObisCode()).isEqualTo(forwardActiveEnergyDeltaObisCode);
+        assertThat(readingTypeInformation.get().getUnit()).isEqualTo(Unit.get("kWh"));
+        assertThat(readingTypeInformation.get().getTimeDuration()).isEqualTo(TimeDuration.minutes(15));
     }
 
     @Test
     public void forwardActiveEnergyTou115MinDeltaTest() {
-        ReadingTypeInformation readingTypeInformation = ReadingTypeToObisCodeFactory.from(forwardActiveEnergyTOU1ReadingType15MinDelta);
+        Optional<ReadingTypeInformation> readingTypeInformation = ReadingTypeToObisCodeFactory.from(forwardActiveEnergyTOU1ReadingType15MinDelta);
 
-        assertThat(readingTypeInformation.getObisCode()).isEqualTo(forwardActiveEnergyTou1DeltaObisCode);
-        assertThat(readingTypeInformation.getUnit()).isEqualTo(Unit.get("kWh"));
-        assertThat(readingTypeInformation.getTimeDuration()).isEqualTo(TimeDuration.minutes(15));
+        assertThat(readingTypeInformation.isPresent()).isTrue();
+        assertThat(readingTypeInformation.get().getObisCode()).isEqualTo(forwardActiveEnergyTou1DeltaObisCode);
+        assertThat(readingTypeInformation.get().getUnit()).isEqualTo(Unit.get("kWh"));
+        assertThat(readingTypeInformation.get().getTimeDuration()).isEqualTo(TimeDuration.minutes(15));
     }
 
     @Test
     public void forwardActiveEnergyTou1DailyDeltaTest() {
-        ReadingTypeInformation readingTypeInformation = ReadingTypeToObisCodeFactory.from(forwardActiveEnergyTOU1ReadingTypeDailyDelta);
+        Optional<ReadingTypeInformation> readingTypeInformation = ReadingTypeToObisCodeFactory.from(forwardActiveEnergyTOU1ReadingTypeDailyDelta);
 
-        assertThat(readingTypeInformation.getObisCode()).isEqualTo(forwardActiveEnergyTou1DeltaObisCode);
-        assertThat(readingTypeInformation.getUnit()).isEqualTo(Unit.get("kWh"));
-        assertThat(readingTypeInformation.getTimeDuration()).isEqualTo(TimeDuration.days(1));
+        assertThat(readingTypeInformation.isPresent()).isTrue();
+        assertThat(readingTypeInformation.get().getObisCode()).isEqualTo(forwardActiveEnergyTou1DeltaObisCode);
+        assertThat(readingTypeInformation.get().getUnit()).isEqualTo(Unit.get("kWh"));
+        assertThat(readingTypeInformation.get().getTimeDuration()).isEqualTo(TimeDuration.days(1));
     }
 
     @Test
     public void reverseActiveEnergy15minDeltaTest() {
-        ReadingTypeInformation readingTypeInformation = ReadingTypeToObisCodeFactory.from(reverseActiveEnergyReadingType15MinDelta);
+        Optional<ReadingTypeInformation> readingTypeInformation = ReadingTypeToObisCodeFactory.from(reverseActiveEnergyReadingType15MinDelta);
 
-        assertThat(readingTypeInformation.getObisCode()).isEqualTo(reverseActiveEnergyDeltaObisCode);
-        assertThat(readingTypeInformation.getUnit()).isEqualTo(Unit.get("kWh"));
-        assertThat(readingTypeInformation.getTimeDuration()).isEqualTo(TimeDuration.minutes(15));
+        assertThat(readingTypeInformation.isPresent()).isTrue();
+        assertThat(readingTypeInformation.get().getObisCode()).isEqualTo(reverseActiveEnergyDeltaObisCode);
+        assertThat(readingTypeInformation.get().getUnit()).isEqualTo(Unit.get("kWh"));
+        assertThat(readingTypeInformation.get().getTimeDuration()).isEqualTo(TimeDuration.minutes(15));
     }
 
     @Test
     public void reverseActiveEnergyTou215minDeltaTest() {
-        ReadingTypeInformation readingTypeInformation = ReadingTypeToObisCodeFactory.from(reverseActiveEnergyTOU2ReadingType15MinDelta);
+        Optional<ReadingTypeInformation> readingTypeInformation = ReadingTypeToObisCodeFactory.from(reverseActiveEnergyTOU2ReadingType15MinDelta);
 
-        assertThat(readingTypeInformation.getObisCode()).isEqualTo(reverseActiveEnergyTou2DeltaObisCode);
-        assertThat(readingTypeInformation.getUnit()).isEqualTo(Unit.get("kWh"));
-        assertThat(readingTypeInformation.getTimeDuration()).isEqualTo(TimeDuration.minutes(15));
+        assertThat(readingTypeInformation.isPresent()).isTrue();
+        assertThat(readingTypeInformation.get().getObisCode()).isEqualTo(reverseActiveEnergyTou2DeltaObisCode);
+        assertThat(readingTypeInformation.get().getUnit()).isEqualTo(Unit.get("kWh"));
+        assertThat(readingTypeInformation.get().getTimeDuration()).isEqualTo(TimeDuration.minutes(15));
     }
 
     @Test
     public void forwardActiveEnergyDailyDeltaTest() {
-        ReadingTypeInformation readingTypeInformation = ReadingTypeToObisCodeFactory.from(forwardActiveEnergyReadingTypeDailyDelta);
+        Optional<ReadingTypeInformation> readingTypeInformation = ReadingTypeToObisCodeFactory.from(forwardActiveEnergyReadingTypeDailyDelta);
 
-        assertThat(readingTypeInformation.getObisCode()).isEqualTo(forwardActiveEnergyDeltaObisCode);
-        assertThat(readingTypeInformation.getUnit()).isEqualTo(Unit.get("kWh"));
-        assertThat(readingTypeInformation.getTimeDuration()).isEqualTo(TimeDuration.days(1));
+        assertThat(readingTypeInformation.isPresent()).isTrue();
+        assertThat(readingTypeInformation.get().getObisCode()).isEqualTo(forwardActiveEnergyDeltaObisCode);
+        assertThat(readingTypeInformation.get().getUnit()).isEqualTo(Unit.get("kWh"));
+        assertThat(readingTypeInformation.get().getTimeDuration()).isEqualTo(TimeDuration.days(1));
     }
 
     @Test
     public void currentTotalAmpereAnyPhaseTest() {
-        ReadingTypeInformation readingTypeInformation = ReadingTypeToObisCodeFactory.from(currentTotalAmpere);
+        Optional<ReadingTypeInformation> readingTypeInformation = ReadingTypeToObisCodeFactory.from(currentTotalAmpere);
 
-        assertThat(readingTypeInformation.getObisCode()).isEqualTo(totalCurrentObisCode);
-        assertThat(readingTypeInformation.getUnit()).isEqualTo(Unit.get("A"));
-        assertThat(readingTypeInformation.getTimeDuration()).isNull();
+        assertThat(readingTypeInformation.isPresent()).isTrue();
+        assertThat(readingTypeInformation.get().getObisCode()).isEqualTo(totalCurrentObisCode);
+        assertThat(readingTypeInformation.get().getUnit()).isEqualTo(Unit.get("A"));
+        assertThat(readingTypeInformation.get().getTimeDuration()).isNull();
     }
 
     @Test
     public void currentPhase1AmpereTest() {
-        ReadingTypeInformation readingTypeInformation = ReadingTypeToObisCodeFactory.from(currentPhase1Ampere);
+        Optional<ReadingTypeInformation> readingTypeInformation = ReadingTypeToObisCodeFactory.from(currentPhase1Ampere);
 
-        assertThat(readingTypeInformation.getObisCode()).isEqualTo(phase1CurrentObisCode);
-        assertThat(readingTypeInformation.getUnit()).isEqualTo(Unit.get("A"));
-        assertThat(readingTypeInformation.getTimeDuration()).isNull();
+        assertThat(readingTypeInformation.isPresent()).isTrue();
+        assertThat(readingTypeInformation.get().getObisCode()).isEqualTo(phase1CurrentObisCode);
+        assertThat(readingTypeInformation.get().getUnit()).isEqualTo(Unit.get("A"));
+        assertThat(readingTypeInformation.get().getTimeDuration()).isNull();
     }
 
     @Test
     public void currentTotalVoltageAnyPhaseTest() {
-        ReadingTypeInformation readingTypeInformation = ReadingTypeToObisCodeFactory.from(currentTotalVoltage);
+        Optional<ReadingTypeInformation> readingTypeInformation = ReadingTypeToObisCodeFactory.from(currentTotalVoltage);
 
-        assertThat(readingTypeInformation.getObisCode()).isEqualTo(totalVoltageObisCode);
-        assertThat(readingTypeInformation.getUnit()).isEqualTo(Unit.get("V"));
-        assertThat(readingTypeInformation.getTimeDuration()).isNull();
+        assertThat(readingTypeInformation.isPresent()).isTrue();
+        assertThat(readingTypeInformation.get().getObisCode()).isEqualTo(totalVoltageObisCode);
+        assertThat(readingTypeInformation.get().getUnit()).isEqualTo(Unit.get("V"));
+        assertThat(readingTypeInformation.get().getTimeDuration()).isNull();
     }
 
     @Test
     public void currentVoltagePhase2Test() {
-        ReadingTypeInformation readingTypeInformation = ReadingTypeToObisCodeFactory.from(currentPhase2Voltage);
+        Optional<ReadingTypeInformation> readingTypeInformation = ReadingTypeToObisCodeFactory.from(currentPhase2Voltage);
 
-        assertThat(readingTypeInformation.getObisCode()).isEqualTo(phase2VoltageObisCode);
-        assertThat(readingTypeInformation.getUnit()).isEqualTo(Unit.get("V"));
-        assertThat(readingTypeInformation.getTimeDuration()).isNull();
+        assertThat(readingTypeInformation.isPresent()).isTrue();
+        assertThat(readingTypeInformation.get().getObisCode()).isEqualTo(phase2VoltageObisCode);
+        assertThat(readingTypeInformation.get().getUnit()).isEqualTo(Unit.get("V"));
+        assertThat(readingTypeInformation.get().getTimeDuration()).isNull();
     }
 
-    @Ignore
     @Test
-    public void exceptionTest() {
-        //TODO complete test where the UnableToExtractUniqueObisCodeFromReadingTypeException is tested
+    public void invalidMRIDTest(){
+        Optional<ReadingTypeInformation> readingTypeInformation = ReadingTypeToObisCodeFactory.from("8.0.0.1.1.9.58.0.0.0.0.0.0.0.0.3.134.0");
+        assertThat(readingTypeInformation.isPresent()).isFalse();
     }
+
+
 }

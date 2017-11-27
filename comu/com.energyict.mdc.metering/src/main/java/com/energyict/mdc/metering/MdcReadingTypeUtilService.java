@@ -6,6 +6,7 @@ package com.energyict.mdc.metering;
 
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.time.TimeDuration;
 
 import aQute.bnd.annotation.ProviderType;
@@ -23,6 +24,7 @@ public interface MdcReadingTypeUtilService {
      * @param readingType the readingType string
      * @return the ReadingTypeInformation modeled by the given readingType string
      */
+    @Deprecated
     ReadingTypeInformation getReadingTypeInformationFor(String readingType);
 
     /**
@@ -31,7 +33,11 @@ public interface MdcReadingTypeUtilService {
      * @param readingType the ReadingType
      * @return the ReadingTypeInformation modeled by the given ReadingType
      */
+    @Deprecated
     ReadingTypeInformation getReadingTypeInformationFor(ReadingType readingType);
+
+    Optional<ReadingTypeInformation> getReadingTypeInformationFrom(String readingType);
+    Optional<ReadingTypeInformation> getReadingTypeInformationFrom(ReadingType readingType);
 
     /**
      * Creates a ReadingType string based on the given arguments
