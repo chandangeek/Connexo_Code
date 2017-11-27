@@ -8,8 +8,8 @@ Ext.define('Mtr.view.readingtypesgroup.Menu' , {
 
     router: null,
 
-    title: Uni.I18n.translate('readingtypes.readingTypeGroup', 'MTR', 'Details'),
-    objectType: Uni.I18n.translate('readingtypes.readingTypeGroup', 'MTR', 'Details'),
+    title: Uni.I18n.translate('readingtypes.readingTypeGroupName', 'MTR', 'Group Name'),
+    objectType: Uni.I18n.translate('readingtypes.readingTypeGroup', 'MTR', 'Reading type group'),
 
     initComponent: function () {
 
@@ -19,12 +19,12 @@ Ext.define('Mtr.view.readingtypesgroup.Menu' , {
             {
                 text: Uni.I18n.translate('readingtypes.readingTypeGroupOverview', 'MTR', 'Overview'),
                 itemId: 'reading-type-group-overview-link',
-                href: me.router.getRoute('administration/relativeperiods/relativeperiod').buildUrl()
+                href: me.router.getRoute('administration/readingtypegroups/view').buildUrl()
             },
             {
                 text: Uni.I18n.translate('readingtypes.readingTypeGroupReadingTypes', 'MTR', 'Reading Types'),
                 itemId: 'reading-type-group-reading-types-link',
-                href: me.router.getRoute('administration/relativeperiods/relativeperiod/usage').buildUrl()
+                href: me.router.getRoute('administration/readingtypegroups/view').buildUrl()
             }
          ] */   // laurentia a comentat asta  - end
 
