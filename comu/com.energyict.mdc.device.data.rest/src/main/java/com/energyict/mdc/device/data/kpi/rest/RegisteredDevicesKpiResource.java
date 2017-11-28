@@ -142,14 +142,15 @@ public class RegisteredDevicesKpiResource {
             com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION,
             com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,})
     public Response getKpiData(@BeanParam JsonQueryFilter filter) {
-        RegisteredDevicesKpi registeredDevicesKpi = resourceHelper.findRegisteredDevicesKpiByIdOrThrowException(
-                filter.hasProperty("kpiId") ? filter.getLong("kpiId") : 0);
-        Optional<Range<Instant>> range;
+        RegisteredDevicesKpi registeredDevicesKpi = filter.hasProperty("kpiId")
+            ? resourceHelper.findRegisteredDevicesKpiByIdOrThrowException(filter.getLong("kpiId"))
+            : null;
+        Optional<Range<Instant>> range = Optional.empty();
         if (filter.hasProperty("start") && filter.hasProperty("end")) {
             Instant start = filter.getInstant("start");
             Instant end = filter.getInstant("end");
             range = Optional.of(Range.closed(start, end));
-        } else {
+        } else if (registeredDevicesKpi!=null) {
             range = calculateRange(registeredDevicesKpi.getLatestCalculation(), registeredDevicesKpi.getFrequency());
         }
         List<RegisteredDevicesKpiScore> scores = new ArrayList<>();
