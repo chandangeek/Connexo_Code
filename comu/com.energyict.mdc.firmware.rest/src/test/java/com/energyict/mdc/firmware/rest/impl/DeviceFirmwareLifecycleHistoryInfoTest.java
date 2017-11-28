@@ -57,7 +57,7 @@ public class DeviceFirmwareLifecycleHistoryInfoTest extends BaseFirmwareTest {
         when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.CANCELED);
         when(firmwareComTask.getId()).thenReturn(firmwareComTaskId);
         when(firmwareVersionFromDevmessage.getFirmwareVersion()).thenReturn(firmwareVersion);
-        when(deviceMessage.getCreationDate()).thenReturn(currentTimestamp);
+        when(deviceMessage.getReleaseDate()).thenReturn(currentTimestamp);
         when(deviceMessage.getUser()).thenReturn(userName);
         when(firmwareManagementDeviceUtils.getFirmwareVersionFromMessage(deviceMessage)).thenReturn(Optional.of(firmwareVersionFromDevmessage));
         when(firmwareManagementDeviceUtils.getActivationDateFromMessage(deviceMessage)).thenReturn(Optional.of(currentTimestamp));

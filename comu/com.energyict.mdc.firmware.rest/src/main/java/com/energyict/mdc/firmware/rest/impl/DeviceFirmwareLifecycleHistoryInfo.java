@@ -7,6 +7,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -77,7 +78,7 @@ public class DeviceFirmwareLifecycleHistoryInfo {
     }
 
     private void buildDeviceFirmwareHistoryInfosFrom(DeviceMessage deviceMessage, FirmwareManagementDeviceUtils versionUtils, Thesaurus thesaurus) {
-        this.setUploadedOn(deviceMessage.getCreationDate());
+        this.setUploadedOn(deviceMessage.getReleaseDate());
         this.setResult(DeviceMessageStatusTranslationKeys.translationFor(deviceMessage.getStatus(), thesaurus));
         this.setTriggerdBy(deviceMessage.getUser());
         this.setFirmwareVersion(versionUtils.getFirmwareVersionFromMessage(deviceMessage).map(FirmwareVersion::getFirmwareVersion).orElse(null));
