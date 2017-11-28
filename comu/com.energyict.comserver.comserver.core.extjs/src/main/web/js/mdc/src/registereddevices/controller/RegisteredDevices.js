@@ -126,10 +126,10 @@ Ext.define('Mdc.registereddevices.controller.RegisteredDevices', {
                 noDataMsgPnl.hide();
                 filtersContainer.show();
                 graphContainer.show();
+                graphContainer.showLoading();
+                kpiDataStore.on('load', me.onLoadKPIDataStore, me);
             }
             me.getApplication().fireEvent('changecontentevent', widget);
-            graphContainer.showLoading();
-            kpiDataStore.on('load', me.onLoadKPIDataStore, me);
         });
     },
 
