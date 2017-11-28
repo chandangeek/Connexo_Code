@@ -85,14 +85,11 @@ public class DeviceCertificatesImportProcessor implements FileImportZipProcessor
 
     private PublicKey getPublic(String publicKey, String keyAlgorithm) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
         Security.addProvider(new BouncyCastleProvider());
-
         String fullPath = fileImportService.getBasePath() + File.separator + publicKey;
-
-        System.out.println("getting public - keyAlgorithm: " + keyAlgorithm);
 
         byte[] keyBytes = Files.readAllBytes(new File(fullPath).toPath());
         X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory kf = KeyFactory.getInstance((keyAlgorithm == null ? "RSA" : keyAlgorithm),"BC");
+        KeyFactory kf = KeyFactory.getInstance((keyAlgorithm == null ? "RSA" : keyAlgorithm), "BC");
         return kf.generatePublic(spec);
     }
 
