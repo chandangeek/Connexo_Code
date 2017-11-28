@@ -13,11 +13,11 @@ public class DeviceCertificateInfo {
     private final Pattern securityAccessorTypeExtractor = Pattern.compile(".*/(.+)-.+?");
     private final Pattern certificateNameExtractor = Pattern.compile(".*/(.+\\.[^.]+)$");
 
-    private String serialNumber;
-    private String securityAccessorType;
-    private String certificateName;
-    private ZipEntry certificate;
-    private Thesaurus thesaurus;
+    private final String serialNumber;
+    private final String securityAccessorType;
+    private final String certificateName;
+    private final ZipEntry certificate;
+    private final Thesaurus thesaurus;
 
 
     public DeviceCertificateInfo(Thesaurus thesaurus, ZipEntry zipEntry) {

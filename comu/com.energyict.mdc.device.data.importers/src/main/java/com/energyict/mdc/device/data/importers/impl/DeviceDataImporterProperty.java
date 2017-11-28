@@ -11,7 +11,6 @@ import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
-
 import com.energyict.mdc.device.data.importers.impl.properties.DateFormatPropertySpec;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.device.data.importers.impl.properties.TimeZonePropertySpec;
@@ -106,6 +105,18 @@ public enum DeviceDataImporterProperty {
                     throw new LocalizedFieldValidationException(MessageSeeds.NUMBER_FORMAT_IS_INCOMPATIBLE_WITH_DELIMITER, "properties." + this.getPropertyKey());
                 }
             }
+        }
+    },
+    AUTHORIZATION(TranslationKeys.DEVICE_CERTIFICATES_IMPORTER_PUBLIC_KEY, TranslationKeys.DEVICE_CERTIFICATES_IMPORTER_PUBLIC_KEY_DESCRIPTION) {
+        @Override
+        public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
+            return context.getPropertySpecService()
+                    .stringSpec()
+                    .named(this.getPropertyKey(), this.getNameTranslationKey())
+                    .describedAs(this.getDescriptionTranslationKey())
+                    .fromThesaurus(context.getThesaurus())
+                    .markRequired()
+                    .finish();
         }
     };
 

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.importers.impl;
 
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -44,6 +45,7 @@ public class DeviceDataImporterContext {
     private volatile UserService userService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile SecurityManagementService securityManagementService;
+    private volatile FileImportService fileImportService;
     private volatile Clock clock;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile DataModel dataModel;
@@ -64,6 +66,7 @@ public class DeviceDataImporterContext {
                                      UserService userService,
                                      ThreadPrincipalService threadPrincipalService,
                                      SecurityManagementService securityManagementService,
+                                     FileImportService fileImportService,
                                      Clock clock,
                                      MetrologyConfigurationService metrologyConfigurationService, OrmService ormService) {
         setPropertySpecService(propertySpecService);
@@ -78,6 +81,7 @@ public class DeviceDataImporterContext {
         setUserService(userService);
         setThreadPrincipalService(threadPrincipalService);
         setSecurityManagementService(securityManagementService);
+        setFileImportService(fileImportService);
         setClock(clock);
         setMetrologyConfigurationService(metrologyConfigurationService);
         setOrmService(ormService);
@@ -217,4 +221,9 @@ public class DeviceDataImporterContext {
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
+
+    public FileImportService getFileImportService(){return fileImportService;}
+
+    @Reference
+    public void setFileImportService(FileImportService fileImportService) { this.fileImportService =fileImportService;}
 }

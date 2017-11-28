@@ -10,10 +10,11 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.AUTHORIZATION;
 import static com.energyict.mdc.device.data.importers.impl.TranslationKeys.DEVICE_CERTIFICATES_IMPORTER;
 
 
@@ -35,8 +36,9 @@ public class DeviceCertificatesImporterFactory extends AbstractDeviceDataFileImp
 
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
+        String publicKey = (String) properties.get(AUTHORIZATION.getPropertyKey());
         DeviceCertificatesParser parser = new DeviceCertificatesParser(getContext());
-        DeviceCertificatesImportProcessor processor = new DeviceCertificatesImportProcessor(getContext());
+        DeviceCertificatesImportProcessor processor = new DeviceCertificatesImportProcessor(getContext(),publicKey);
         DeviceCertificatesImportLogger logger = new DeviceCertificatesImportLogger(getContext());
         return DeviceDataZipImporter.withParser(parser).withProcessor(processor).withLogger(logger).build();
     }
@@ -53,7 +55,7 @@ public class DeviceCertificatesImporterFactory extends AbstractDeviceDataFileImp
 
     @Override
     protected Set<DeviceDataImporterProperty> getProperties() {
-        return Collections.emptySet();
+        return EnumSet.of(AUTHORIZATION);
     }
 
     @Override

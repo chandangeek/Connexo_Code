@@ -1,14 +1,14 @@
 package com.energyict.mdc.device.data.importers.impl.certificatesimport;
 
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.*;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.SecurityAccessor;
-import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
-import com.energyict.mdc.device.data.importers.impl.FileImportZipEntry;
-import com.energyict.mdc.device.data.importers.impl.FileImportZipLogger;
-import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
+import com.energyict.mdc.device.data.importers.impl.*;
+import com.energyict.mdc.device.data.importers.impl.certificatesimport.exceptions.InvalidPublicKeyException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,10 +16,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +44,9 @@ public class DeviceCertificatesImportProcessorTest {
     SecurityManagementService securityManagementService;
 
     @Mock
+    FileImportService fileImportService;
+
+    @Mock
     FileImportZipLogger logger;
 
     @InjectMocks
@@ -51,11 +54,20 @@ public class DeviceCertificatesImportProcessorTest {
 
     @Before
     public void beforeTest() {
-        reset(deviceService, securityManagementService, logger);
+        reset(deviceService, securityManagementService, fileImportService, logger);
+
+        Thesaurus thesaurus = mock(Thesaurus.class,RETURNS_MOCKS);
+        when(thesaurus.getSimpleFormat(MessageSeeds.INVALID_PUBLIC_KEY))
+                .thenReturn(new SimpleNlsMessageFormat(MessageSeeds.INVALID_PUBLIC_KEY));
+        when(context.getThesaurus()).thenReturn(thesaurus);
         when(context.getDeviceService()).thenReturn(deviceService);
         when(context.getSecurityManagementService()).thenReturn(securityManagementService);
+        when(context.getFileImportService()).thenReturn(fileImportService);
 
-        processor = new DeviceCertificatesImportProcessor(context);
+        Path path = mock(Path.class);
+        when(fileImportService.getBasePath()).thenReturn(path);
+
+        processor = new DeviceCertificatesImportProcessor(context, "publicKey_RSA");
     }
 
     @Test
@@ -88,7 +100,7 @@ public class DeviceCertificatesImportProcessorTest {
 
     @Test
     public void testUpdateSecurityAccessorSkipWhenActualAndTempValueArePresent() throws Exception {
-        DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build();
+        DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build("RSA");
 
         FileImportZipEntry importZipEntry = builder.getImportZipEntry();
         when(builder.getSecurityAccessor().getActualValue()).thenReturn(Optional.of(builder.getCertificateWrapper()));
@@ -101,7 +113,7 @@ public class DeviceCertificatesImportProcessorTest {
 
     @Test
     public void testUpdateSecurityAccessorSetTempValueWhenActualValueIsPresentAndTempValueIsNotPresent() throws Exception {
-        DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build();
+        DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build("RSA");
 
         FileImportZipEntry importZipEntry = builder.getImportZipEntry();
         when(builder.getSecurityAccessor().getActualValue()).thenReturn(Optional.of(builder.getCertificateWrapper()));
@@ -115,7 +127,7 @@ public class DeviceCertificatesImportProcessorTest {
 
     @Test
     public void testUpdateSecurityAccessorSetActualValueWhenActualValueIsNotPresentAndTempValueIsPresent() throws Exception {
-        DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build();
+        DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build("RSA");
 
         FileImportZipEntry importZipEntry = builder.getImportZipEntry();
         when(builder.getSecurityAccessor().getActualValue()).thenReturn(Optional.empty());
@@ -129,7 +141,7 @@ public class DeviceCertificatesImportProcessorTest {
 
     @Test
     public void testUpdateSecurityAccessorSetActualValueWhenNoValuesArePresent() throws Exception {
-        DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build();
+        DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build("RSA");
 
         FileImportZipEntry importZipEntry = builder.getImportZipEntry();
         when(builder.getSecurityAccessor().getActualValue()).thenReturn(Optional.empty());
@@ -141,11 +153,18 @@ public class DeviceCertificatesImportProcessorTest {
         verify(builder.getSecurityAccessor()).save();
     }
 
+    @Test(expected = InvalidPublicKeyException.class)
+    public void testInvalidPublicKey() throws Exception {
+        DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build("ECDSA");
+        FileImportZipEntry importZipEntry = builder.getImportZipEntry();
+
+        processor.process(builder.getZipFile(), importZipEntry, logger);
+    }
+
     private ZipFile getZipFile(String fileName) {
         try {
-            return new ZipFile(Thread.currentThread()
-                    .getContextClassLoader()
-                    .getResource("com/energyict/mdc/device/data/importers/impl/" + fileName)
+            return new ZipFile(getClass()
+                    .getResource("/com/energyict/mdc/device/data/importers/impl/" + fileName)
                     .getFile());
         } catch (Exception e) {
             return null;
@@ -165,6 +184,14 @@ public class DeviceCertificatesImportProcessorTest {
                         .getFile());
     }
 
+    private Path getBasePath() throws FileNotFoundException {
+        return new File(
+                Thread.currentThread()
+                        .getContextClassLoader()
+                        .getResource("com/energyict/mdc/device/data/importers/impl/")
+                        .getFile()).toPath();
+    }
+
     private class MockBuilder {
         private FileImportZipEntry importZipEntry;
         private ZipFile zipFile;
@@ -172,6 +199,7 @@ public class DeviceCertificatesImportProcessorTest {
         private ClientCertificateWrapper clientCertificateWrapper;
         private CertificateWrapper certificateWrapper;
         private SecurityManagementService.ClientCertificateWrapperBuilder certificateWrapperBuilder;
+        private X509Certificate certificate;
         private Device device;
 
         public FileImportZipEntry getImportZipEntry() {
@@ -194,7 +222,7 @@ public class DeviceCertificatesImportProcessorTest {
             return device;
         }
 
-        public DeviceCertificatesImportProcessorTest.MockBuilder build() throws IOException {
+        public DeviceCertificatesImportProcessorTest.MockBuilder build(String keyAlgorithm) throws IOException, URISyntaxException {
             String certificateFileName = "tls-cert-454C536301A0B8C0.pem";
             String securityAccessorTypeName = certificateFileName.split("\\.")[0];
             importZipEntry = getValidZipEntry();
@@ -204,10 +232,13 @@ public class DeviceCertificatesImportProcessorTest {
             DeviceType deviceType = mock(DeviceType.class);
             securityAccessor = mock(SecurityAccessor.class);
             clientCertificateWrapper = mock(ClientCertificateWrapper.class);
+            certificate = mock(X509Certificate.class);
             certificateWrapper = mock(CertificateWrapper.class);
             certificateWrapperBuilder = mock(SecurityManagementService.ClientCertificateWrapperBuilder.class);
+
             KeyType keyType = mock(KeyType.class);
 
+            when(keyType.getKeyAlgorithm()).thenReturn(keyAlgorithm);
             device = mock(Device.class, RETURNS_MOCKS);
 
             List<SecurityAccessorType> securityAccessorTypes = Collections.singletonList(securityAccessorType);
@@ -218,11 +249,15 @@ public class DeviceCertificatesImportProcessorTest {
             when(device.getKeyAccessor(any(SecurityAccessorType.class))).thenReturn(Optional.of(securityAccessor));
             when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
             when(securityAccessorType.getKeyType()).thenReturn(keyType);
+            when(clientCertificateWrapper.getCertificate()).thenReturn(Optional.of(certificate));
+            when(clientCertificateWrapper.getKeyType()).thenReturn(keyType);
             when(certificateWrapperBuilder.alias(anyString())).thenReturn(certificateWrapperBuilder);
             when(certificateWrapperBuilder.add()).thenReturn(clientCertificateWrapper);
             when(securityManagementService.findClientCertificateWrapper(any())).thenReturn(Optional.ofNullable(clientCertificateWrapper));
             when(securityManagementService.newClientCertificateWrapper(any(KeyType.class), anyString())).thenReturn(certificateWrapperBuilder);
             when(deviceService.findDevicesBySerialNumber(anyString())).thenReturn(Collections.singletonList(device));
+            when(fileImportService.getBasePath()).thenReturn(getBasePath());
+
             return this;
         }
     }
