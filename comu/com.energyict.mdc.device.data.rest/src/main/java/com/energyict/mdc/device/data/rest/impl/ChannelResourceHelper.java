@@ -58,7 +58,13 @@ public class ChannelResourceHelper {
             addValidationInfo(channel, channelInfo);
             channelInfos.add(channelInfo);
         }
+
+        Collections.sort(channelInfos, this::compareChannelInfo);
         return Response.ok(PagedInfoList.fromPagedList("channels", channelInfos, queryParameters)).build();
+    }
+
+    private int compareChannelInfo(ChannelInfo ci1, ChannelInfo ci2) {
+        return ci1.readingType.fullAliasName.compareTo(ci2.readingType.fullAliasName);
     }
 
     public Response getChannel(Supplier<Channel> channelSupplier) {
