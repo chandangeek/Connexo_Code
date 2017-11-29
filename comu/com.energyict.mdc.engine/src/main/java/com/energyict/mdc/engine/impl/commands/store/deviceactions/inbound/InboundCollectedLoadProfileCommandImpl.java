@@ -20,6 +20,7 @@ import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
+
 import com.energyict.protocol.ChannelInfo;
 
 import java.text.MessageFormat;
@@ -31,6 +32,7 @@ import java.util.Optional;
 
 public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandImpl {
 
+    private static final String FIRST_LOAD_PROFILE_ON_DEVICE_TYPE_NAME = "FirstLoadProfileOnDevice";
     private final List<ServerCollectedData> collectedData;
 
     public InboundCollectedLoadProfileCommandImpl(GroupedDeviceCommand groupedDeviceCommand, LoadProfilesTask loadProfilesTask, ComTaskExecution comTaskExecution, List<ServerCollectedData> collectedData) {
@@ -53,10 +55,15 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
                 CollectedLoadProfile collectedLoadProfile = (CollectedLoadProfile) dataItem;
 
                 List<OfflineLoadProfile> allOfflineLoadProfiles = getGroupedDeviceCommand().getOfflineDevice().getAllOfflineLoadProfiles();
-                Optional<OfflineLoadProfile> optionalOfflineLoadProfile = allOfflineLoadProfiles
-                        .stream()
-                        .filter(lp -> lp.getObisCode().equals(collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode()))
-                        .findAny();
+                Optional<OfflineLoadProfile> optionalOfflineLoadProfile;
+                if (((CollectedLoadProfile) dataItem).getLoadProfileIdentifier().forIntrospection().getTypeName().equals(FIRST_LOAD_PROFILE_ON_DEVICE_TYPE_NAME)) {
+                    optionalOfflineLoadProfile = allOfflineLoadProfiles.stream().findFirst();
+                } else {
+                    optionalOfflineLoadProfile = allOfflineLoadProfiles
+                            .stream()
+                            .filter(lp -> lp.getObisCode().equals(collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode()))
+                            .findAny();
+                }
 
                 if (optionalOfflineLoadProfile.isPresent()) {
                     OfflineLoadProfile offlineLoadProfile = optionalOfflineLoadProfile.get();
