@@ -61,20 +61,15 @@ public class ReadingTypeResource {
 
         ReadingTypeFilter filter = null;
 
-        if (!Checks.is(obisCodeString).empty()) {
-            ObisCode obisCode = ObisCode.fromString(obisCodeString);
-            if (!obisCode.isInvalid()) {
-                String mRID = mdcReadingTypeUtilService.getReadingTypeFilterFrom(obisCode);
-                filter = new ReadingTypeFilter();
-                filter.addCondition(mrIdMatchOfRegisters(mRID));
-            }
+        if (obisCodeString != null && !obisCodeString.isEmpty()) {
+            filter = new ReadingTypeFilter();
+            filter.addCondition(this.getObisCodeCondition(obisCodeString));
         }
 
         String searchText = queryParameters.getLike();
-        if (!Checks.is(searchText).empty()) {
-            if (filter == null) {
+        if (searchText != null && !searchText.isEmpty()) {
+            if (filter == null)
                 filter = new ReadingTypeFilter();
-            }
             filter.addCondition(getReadingTypeFilterCondition(searchText));
         }
 
@@ -89,12 +84,10 @@ public class ReadingTypeResource {
                     .filter(rt -> !readingTypesInUseIds.contains(rt.getMRID()))
                     .limit(50)
                     .collect(Collectors.toList());
-/*
+
 
             if (readingTypeList.isEmpty())
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_OBIS_CIM_MAPPING, "obisCode");
-*/
-
 
             return new ReadingTypeInfos(readingTypeList);
         }
@@ -152,7 +145,17 @@ public class ReadingTypeResource {
         return Where.where("mRID").matches("^0\\.\\d+\\.0", "");
     }
 
-    private Condition mrIdMatchOfRegisters(String mrId) {
-        return Where.where("mRID").matches(mrId, "");
+
+    private Condition getObisCodeCondition(String obisCodeString) {
+        ObisCode obisCode = ObisCode.fromString(obisCodeString);
+        if (obisCode.isInvalid()) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_OBIS_CODE, "obisCode");
+        }
+
+        String mRID = mdcReadingTypeUtilService.getReadingTypeFilterFrom(obisCode);
+        return Where.where("mRID").matches(mRID, "");
     }
+
+
+
 }
