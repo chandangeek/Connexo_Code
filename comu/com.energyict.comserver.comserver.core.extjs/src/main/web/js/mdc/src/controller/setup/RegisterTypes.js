@@ -69,16 +69,19 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 click: this.editRegisterTypeFromDetails
             },
             '#registerTypeEdit #readingTypeCombo': {
-                select: this.showObisCode,
-                expand: this.addObisCodeToReadingTypeQuery
-            }
-        });
-    },
+            select: this.showObisCode,
+            expand: this.expandRegisterTypeCombo
 
-    addObisCodeToReadingTypeQuery: function (combo, operation) {
-        var me = this,
-            store = combo.getStore();
 
+    }
+});
+},
+
+    expandRegisterTypeCombo: function (combo) {
+    var me = this,
+        store = combo.getStore();
+
+        me.getRegisterTypeEditForm().getForm().clearInvalid();
         store.getProxy().extraParams = ({obisCode: me.getEditObisCodeField().getValue()});
     },
 
@@ -112,6 +115,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                    scope: this
                });
            }
+
        }
     },
 
@@ -223,15 +227,27 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     showRegisterTypeCreateView: function () {
-        var availableReadingTypesStore = Ext.create('Mdc.store.AvailableReadingTypesForRegisterType');
-        var widget = Ext.widget('registerTypeEdit', {
+        var me = this,
+            availableReadingTypesStore = Ext.create('Mdc.store.AvailableReadingTypesForRegisterType'),
+            widget = Ext.widget('registerTypeEdit', {
             edit: false,
             returnLink: '#/administration/registertypes/',
             availableReadingTypes: availableReadingTypesStore
         });
-        var me = this;
+
+        availableReadingTypesStore.getProxy().on('exception', me.handleExceptionStore, me);
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.down('#registerTypeEditForm').setTitle(Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Add register type'));
+    },
+
+    handleExceptionStore: function (abc, response, operation) {
+        var me = this;
+        me.getRegisterTypeEditForm().getForm().clearInvalid();
+        var json = Ext.decode(operation.response.responseText);
+        if (json && json.errors) {
+            me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
+        }
+
     },
 
     createEditRegisterType: function (btn) {

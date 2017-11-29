@@ -83,6 +83,10 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                         },
 
                         listeners: {
+                            beforequery: function (qe) {
+                                delete qe.combo.lastQuery;
+                                qe.combo.getStore().removeAll();
+                            },
                             blur: function (combo) {
                                 if (combo.store.loading) {
                                     Ext.Ajax.suspendEvent('requestexception');
@@ -92,7 +96,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                 }
                             }
                         },
-
+                        lastQuery: '',
                         queryMode: 'remote',
                         queryParam: 'like',
                         queryDelay: 500,
