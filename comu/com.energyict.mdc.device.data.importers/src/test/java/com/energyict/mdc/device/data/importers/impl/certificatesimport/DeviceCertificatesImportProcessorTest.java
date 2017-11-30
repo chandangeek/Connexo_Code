@@ -27,6 +27,8 @@ import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
@@ -153,12 +155,17 @@ public class DeviceCertificatesImportProcessorTest {
         verify(builder.getSecurityAccessor()).save();
     }
 
-    @Test(expected = InvalidPublicKeyException.class)
+    @Test
     public void testInvalidPublicKey() throws Exception {
         DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build("ECDSA");
         FileImportZipEntry importZipEntry = builder.getImportZipEntry();
 
-        processor.process(builder.getZipFile(), importZipEntry, logger);
+        try {
+            processor.process(builder.getZipFile(), importZipEntry, logger);
+            fail();
+        } catch (InvalidPublicKeyException expected) {
+            assertEquals("Public key publicKey_RSA match doesn't certificate key", expected.getMessage());
+        }
     }
 
     private ZipFile getZipFile(String fileName) {
