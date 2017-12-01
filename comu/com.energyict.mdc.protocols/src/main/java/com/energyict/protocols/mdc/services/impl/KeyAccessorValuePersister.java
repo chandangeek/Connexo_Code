@@ -4,10 +4,10 @@
 
 package com.energyict.protocols.mdc.services.impl;
 
-import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -44,7 +44,7 @@ public class KeyAccessorValuePersister {    //TODO: copy from demo - can we make
      * @param newContent the new plaintext symmetric key/passphrase
      */
     public void persistKeyAccessorValue(Device device, String keyAccessorTypeName, String newContent) {
-        SecurityAccessorType securityAccessorType = findCorrespondingKeyAccessorType(device, keyAccessorTypeName);
+        SecurityAccessorType securityAccessorType = findCorrespondingKeyAccessorType(device.getDeviceConfiguration().getDeviceType(), keyAccessorTypeName);
         SecurityAccessor<SecurityValueWrapper> securityAccessor = findCorrespondingKeyAccessor(device, securityAccessorType);
         if (!securityAccessor.getActualValue().isPresent()) {
             createNewActualValue(securityAccessor);
@@ -52,8 +52,7 @@ public class KeyAccessorValuePersister {    //TODO: copy from demo - can we make
         setPropertyOnSecurityAccessor(securityAccessor.getActualValue().get(), newContent);
     }
 
-    private SecurityAccessorType findCorrespondingKeyAccessorType(Device device, String keyAccessorTypeName) {
-        DeviceType deviceType = device.getDeviceConfiguration().getDeviceType();
+    private SecurityAccessorType findCorrespondingKeyAccessorType(DeviceType deviceType, String keyAccessorTypeName) {
         return deviceType.getSecurityAccessorTypes()
                 .stream()
                 .filter(keyAccessorType -> keyAccessorType.getName().equals(keyAccessorTypeName))

@@ -8,8 +8,8 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
-import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -212,28 +212,30 @@ public class InstallerImpl implements FullInstaller {
 
     private void updateSecuritySuiteIfNeeded(SecurityPropertySet securityPropertySet, Device device) {
         if (device.getDeviceProtocolPluggableClass().isPresent() && device.getDeviceProtocolPluggableClass().get().getJavaClassName().equals(Beacon3100.class.getName())) {
-        	securityPropertySet.setSecuritySuiteId(0);  // Which corresponds to DlmsSecuritySuite1And2Support.SecuritySuite0
+            securityPropertySet.setSecuritySuiteId(0);  // Which corresponds to DlmsSecuritySuite1And2Support.SecuritySuite0
                                                         // In 10.2 you could not configure the security suite, but were implicit using suite 0
         }
     }
 
     private SecurityAccessorType createNewKeyAccessorType(DeviceType deviceType, SecurityPropertySet securityPropertySet, PropertySpec propertySpec) {
-        String keyAccessorTypeName = securityPropertySet.getName().concat(" - ").concat(propertySpec.getName());
-        return deviceType.getSecurityAccessorTypes()
-                .stream()
-                .filter(keyAccessorType -> keyAccessorType.getName().equals(keyAccessorTypeName))
-                .findFirst()
-                .orElseGet(() -> deviceType.addSecurityAccessorType(keyAccessorTypeName, createOrGetKeyType(propertySpec))
+        String propertySpecName = propertySpec.getName();
+        String keyAccessorTypeName = securityPropertySet.getName() + " - " + propertySpecName;
+        SecurityAccessorType securityAccessorType = securityManagementService.findSecurityAccessorTypeByName(keyAccessorTypeName)
+                .orElseGet(() -> securityManagementService.addSecurityAccessorType(keyAccessorTypeName, createOrGetKeyType(propertySpecName))
                         .keyEncryptionMethod(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD)
                         .duration(TimeDuration.years(1))
                         .add());
+        deviceType.addSecurityAccessorTypes(securityAccessorType);
+        return securityAccessorType;
     }
 
-    private KeyType createOrGetKeyType(PropertySpec propertySpec) {
-        if (propertySpec.getName().equals("Password")) {
-            return securityManagementService.getKeyType("Password").orElseGet(() -> securityManagementService.newPassphraseType("Password").withSpecialCharacters().length(30).add());
+    private KeyType createOrGetKeyType(String propertySpecName) {
+        if (propertySpecName.equals("Password")) {
+            return securityManagementService.getKeyType("Password")
+                    .orElseGet(() -> securityManagementService.newPassphraseType("Password").withSpecialCharacters().length(30).add());
         } else {
-            return securityManagementService.getKeyType("AES 128").orElseGet(() -> securityManagementService.newSymmetricKeyType("AES 128", "AES", 128).add());
+            return securityManagementService.getKeyType("AES 128")
+                    .orElseGet(() -> securityManagementService.newSymmetricKeyType("AES 128", "AES", 128).add());
         }
     }
 
