@@ -2382,6 +2382,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(reloadedDevice.getComTaskExecutions()).isEmpty(); // I don't expect any ComTaskExecution was created
     }
 
+    @Test
     @Transactional
     public void successfulCreateWithAdditionalComTaskExecutionsCreatedTest() {
         DeviceConfiguration deviceConfiguration = super.deviceConfiguration;
@@ -2409,8 +2410,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         assertThat(reloadedDevice.getComTaskExecutions()).isNotEmpty(); // I expect a ComTaskExecution was created for comTask_2 (which was marked as ignoreNextExecutionSpecsForInbound)
         assertThat(reloadedDevice.getComTaskExecutions()).hasSize(1);
-        //TODO: check this test
-        assertThat(reloadedDevice.getComTaskExecutions().get(0).getComTask().equals(comTask_2.getId()));
+        assertThat(reloadedDevice.getComTaskExecutions().get(0).getComTask().getId()).isEqualTo(comTask_2.getId());
     }
 
     @Test
