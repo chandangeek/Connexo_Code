@@ -5,13 +5,12 @@
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.UnableToCreate;
-import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 
 import javax.inject.Inject;
@@ -83,15 +82,13 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
     }
 
     private SecurityAccessorType createOrGetKeyAccessorType(String keyAccessorTypeName) {
-        DeviceType deviceType = this.deviceConfiguration.getDeviceType();
-        return deviceType.getSecurityAccessorTypes()
-                .stream()
-                .filter(keyAccessorType -> keyAccessorType.getName().equals(keyAccessorTypeName))
-                .findFirst()
-                .orElseGet(() -> deviceType.addSecurityAccessorType(keyAccessorTypeName, createOrGetKeyType(keyAccessorTypeName))
+        SecurityAccessorType securityAccessorType = securityManagementService.findSecurityAccessorTypeByName(keyAccessorTypeName)
+                .orElseGet(() -> securityManagementService.addSecurityAccessorType(keyAccessorTypeName, createOrGetKeyType(keyAccessorTypeName))
                         .keyEncryptionMethod(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD)
                         .duration(TimeDuration.years(1))
                         .add());
+        deviceConfiguration.getDeviceType().addSecurityAccessorTypes(securityAccessorType);
+        return securityAccessorType;
     }
 
     private KeyType createOrGetKeyType(String keyAccessorTypeName) {
