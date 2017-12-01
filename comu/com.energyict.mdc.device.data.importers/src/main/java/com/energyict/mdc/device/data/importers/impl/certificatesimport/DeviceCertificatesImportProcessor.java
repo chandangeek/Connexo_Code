@@ -78,7 +78,6 @@ public class DeviceCertificatesImportProcessor implements FileImportZipProcessor
         try {
             wrapper.getCertificate().get().verify(getPublic(publicKey, wrapper.getKeyType().getKeyAlgorithm()));
         } catch (Exception e) {
-            e.printStackTrace();
             throw new InvalidPublicKeyException(thesaurus, MessageSeeds.INVALID_PUBLIC_KEY, publicKey);
         }
     }

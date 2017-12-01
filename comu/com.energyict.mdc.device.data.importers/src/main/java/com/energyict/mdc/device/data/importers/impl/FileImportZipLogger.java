@@ -14,8 +14,6 @@ public interface FileImportZipLogger {
 
     void warning(MessageSeed message, Object... arguments);
 
-//    void warning(TranslationKey message, Object... arguments);
-
     void warning(Warning warning);
 
     void importZipEntryFailed(ZipFile zipFile, FileImportZipEntry data, Exception exception);

@@ -6,10 +6,9 @@ import com.elster.jupiter.fileimport.FileImporter;
 import java.io.IOException;
 import java.util.zip.ZipFile;
 
-public class DeviceDataZipImporter extends FileImportZipEntry implements FileImporter {
+public class DeviceDataZipImporter implements FileImporter {
 
-
-    public static class Builder extends FileImportZipEntry {
+    public static class Builder  {
 
         private final DeviceDataZipImporter importer;
 
@@ -36,7 +35,7 @@ public class DeviceDataZipImporter extends FileImportZipEntry implements FileImp
     private FileImportZipProcessor processor;
     private FileImportZipLogger logger;
 
-    public static <T extends FileImportZipEntry> Builder withParser(FileImportZipParser parser) {
+    public static Builder withParser(FileImportZipParser parser) {
         Builder builder = new Builder();
         builder.importer.parser = parser;
         return builder;
