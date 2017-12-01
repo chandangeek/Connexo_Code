@@ -25,6 +25,8 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.ShouldHaveUniqueName;
+import com.elster.jupiter.util.UniqueName;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -37,7 +39,7 @@ import java.util.stream.Collectors;
 
 @ValidDeliverable(groups = { Save.Create.class, Save.Update.class })
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
-public class ReadingTypeDeliverableImpl implements ServerReadingTypeDeliverable, HasUniqueName {
+public class ReadingTypeDeliverableImpl implements ServerReadingTypeDeliverable, ShouldHaveUniqueName {
 
     public enum Fields {
         ID("id"),
@@ -232,7 +234,7 @@ public class ReadingTypeDeliverableImpl implements ServerReadingTypeDeliverable,
     }
 
     @Override
-    public boolean validateName() {
+    public boolean hasUniqueName() {
         ReadingTypeDeliverableFilter filter = new ReadingTypeDeliverableFilter().withMetrologyContracts(getMetrologyContract());
         return !this.metrologyConfigurationService.findReadingTypeDeliverable(filter)
                 .stream()

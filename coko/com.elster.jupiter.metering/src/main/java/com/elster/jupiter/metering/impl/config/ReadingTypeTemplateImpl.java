@@ -16,6 +16,8 @@ import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.ShouldHaveUniqueName;
+import com.elster.jupiter.util.UniqueName;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -35,7 +37,7 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueName(groups = {Save.Create.class}, message = "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
-public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, PersistenceAware, HasUniqueName {
+public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, PersistenceAware, ShouldHaveUniqueName {
     public enum Fields {
         ID("id"),
         NAME("name"),
@@ -167,7 +169,7 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     }
 
     @Override
-    public boolean validateName() {
+    public boolean hasUniqueName() {
         return this.dataModel.query(ReadingTypeTemplate.class)
                 .select(where(Fields.NAME.fieldName()).isEqualTo(getName())
                         .and(where(Fields.DEFAULT_TEMPLATE.fieldName()).isNull())).isEmpty();

@@ -31,7 +31,8 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.pubsub.Publisher;
-import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.ShouldHaveUniqueName;
+import com.elster.jupiter.util.UniqueName;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -58,7 +59,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
 @DeliverableTimeOfUseBucketsBackedByEventSet(groups = MetrologyConfigurationImpl.Activation.class)
-public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration, HasUniqueName {
+public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration, ShouldHaveUniqueName {
     public static final String TYPE_IDENTIFIER = "B";
 
     public static final Map<String, Class<? extends MetrologyConfiguration>> IMPLEMENTERS = ImmutableMap.of(
@@ -419,7 +420,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     @Override
-    public boolean validateName() {
+    public boolean hasUniqueName() {
         Optional<MetrologyConfiguration> other = metrologyConfigurationService.findMetrologyConfiguration(getName());
         return !other.isPresent() || other.get().getId() == getId();
     }
