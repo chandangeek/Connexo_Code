@@ -6,7 +6,7 @@ package com.energyict.mdc.device.configuration.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
+import com.elster.jupiter.pki.SecurityAccessorUserAction;
 
 import java.util.stream.Stream;
 
@@ -18,19 +18,19 @@ import java.util.stream.Stream;
  */
 public enum KeyFunctionTypePrivilegeTranslationKeys implements TranslationKey {
     // Remark: the translations SHOULD contain the "Edit" or "View" part. If not you can't distinguish them in Connexo Admin > Edit role page
-    EDIT_1(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, "Edit level 1"),
-    EDIT_2(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2, "Edit level 2"),
-    EDIT_3(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3, "Edit level 3"),
-    EDIT_4(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4, "Edit level 4"),
-    VIEW_1(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, "View level 1"),
-    VIEW_2(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2, "View level 2"),
-    VIEW_3(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3, "View level 3"),
-    VIEW_4(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4, "View level 4");
+    EDIT_1(SecurityAccessorUserAction.EDIT_SECURITY_PROPERTIES_1, "Edit level 1"),
+    EDIT_2(SecurityAccessorUserAction.EDIT_SECURITY_PROPERTIES_2, "Edit level 2"),
+    EDIT_3(SecurityAccessorUserAction.EDIT_SECURITY_PROPERTIES_3, "Edit level 3"),
+    EDIT_4(SecurityAccessorUserAction.EDIT_SECURITY_PROPERTIES_4, "Edit level 4"),
+    VIEW_1(SecurityAccessorUserAction.VIEW_SECURITY_PROPERTIES_1, "View level 1"),
+    VIEW_2(SecurityAccessorUserAction.VIEW_SECURITY_PROPERTIES_2, "View level 2"),
+    VIEW_3(SecurityAccessorUserAction.VIEW_SECURITY_PROPERTIES_3, "View level 3"),
+    VIEW_4(SecurityAccessorUserAction.VIEW_SECURITY_PROPERTIES_4, "View level 4");
 
-    private final DeviceSecurityUserAction action;
+    private final SecurityAccessorUserAction action;
     private final String defaultFormat;
 
-    KeyFunctionTypePrivilegeTranslationKeys(DeviceSecurityUserAction action, String defaultFormat) {
+    KeyFunctionTypePrivilegeTranslationKeys(SecurityAccessorUserAction action, String defaultFormat) {
         this.action = action;
         this.defaultFormat = defaultFormat;
     }

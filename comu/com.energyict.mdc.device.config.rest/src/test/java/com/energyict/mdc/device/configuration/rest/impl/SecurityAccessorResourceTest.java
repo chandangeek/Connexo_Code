@@ -5,14 +5,13 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorTypeUpdater;
+import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.SecurityAccessorTypeUpdater;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfo;
 
 import com.jayway.jsonpath.JsonModel;
@@ -34,9 +33,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicationJerseyTest {
-
-
+// TODO: update test, at least commented parent
+public class SecurityAccessorResourceTest extends DeviceConfigurationApplicationJerseyTest {
     private static final String DESCRIPTION = "NEW DESCRIPTION";
     private static final String NAME = "NEW NAME";
 
@@ -92,7 +90,7 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
         info.description = DESCRIPTION;
         info.name = NAME;
         info.duration = new TimeDurationInfo(new TimeDuration(1, TimeDuration.TimeUnit.YEARS));
-        info.parent = new VersionInfo<>("device type 1", 1L);
+//        info.parent = new VersionInfo<>("device type 1", 1L);
 
         KeyType keyType = mock(KeyType.class);
         when(keyType.getId()).thenReturn(1L);
@@ -102,7 +100,7 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
         when(securityManagementService.getKeyType("AES 128")).thenReturn(Optional.of(keyType));
 
         SecurityAccessorType.Builder builder = mock(SecurityAccessorType.Builder.class);
-        when(deviceType.addSecurityAccessorType(NAME, keyType)).thenReturn(builder);
+        when(securityManagementService.addSecurityAccessorType(NAME, keyType)).thenReturn(builder);
         when(builder.keyEncryptionMethod(anyString())).thenReturn(builder);
         when(builder.description(anyString())).thenReturn(builder);
         SecurityAccessorType addedKeyFunctionTypeDoesntMatter = mockKeyFunctionType(1, NAME, DESCRIPTION);
@@ -114,7 +112,7 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
         info.keyType.requiresDuration = true;
 
         target("/devicetypes/66/securityaccessors").request().post(Entity.json(info));
-        verify(deviceType).addSecurityAccessorType(NAME, keyType);
+        verify(securityManagementService).addSecurityAccessorType(NAME, keyType);
         verify(builder).description(DESCRIPTION);
         verify(builder).duration(info.duration.asTimeDuration());
         verify(builder).add();
@@ -131,20 +129,20 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
         info.description = "New Description";
         info.name = "New name";
         info.duration = new TimeDurationInfo(new TimeDuration(1, TimeDuration.TimeUnit.YEARS));
-        info.parent = new VersionInfo<>("device type 1", 1L);
+//        info.parent = new VersionInfo<>("device type 1", 1L);
         ExecutionLevelInfo executionLevelInfo = new ExecutionLevelInfo();
         executionLevelInfo.id = "edit.device.security.properties.level1";
         info.editLevels = Collections.singletonList(executionLevelInfo);
         SecurityAccessorTypeUpdater updater = mock(SecurityAccessorTypeUpdater.class);
-        when(deviceType.getSecurityAccessorTypeUpdater(keyFunctionType)).thenReturn(Optional.of(updater));
+        when(keyFunctionType.startUpdate()).thenReturn(updater);
         when(updater.complete()).thenReturn(keyFunctionType);
 
         target("/devicetypes/66/securityaccessors/1").request().put(Entity.json(info));
-        verify(deviceType).getSecurityAccessorTypeUpdater(keyFunctionType);
+        verify(keyFunctionType).startUpdate();
         verify(updater).description(info.description);
         verify(updater).name(info.name);
         verify(updater).duration(info.duration.asTimeDuration());
-        verify(updater).addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
+        verify(updater).addUserAction(SecurityAccessorUserAction.EDIT_SECURITY_PROPERTIES_1);
     }
 
     @Test
@@ -154,7 +152,7 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Collections.singletonList(keyFunctionType));
         when(deviceConfigurationService.findAndLockDeviceType(66, 1)).thenReturn(Optional.of(deviceType));
         SecurityAccessorInfo info = new SecurityAccessorInfo();
-        info.parent = new VersionInfo<>("device type 1", 1L);
+//        info.parent = new VersionInfo<>("device type 1", 1L);
 
         target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
         verify(deviceType).removeSecurityAccessorType(keyFunctionType);

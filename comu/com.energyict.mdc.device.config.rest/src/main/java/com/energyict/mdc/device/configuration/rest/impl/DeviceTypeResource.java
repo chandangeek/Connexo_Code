@@ -108,7 +108,7 @@ public class DeviceTypeResource {
     private final Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider;
     private final Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider;
     private final Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider;
-    private final Provider<SecurityAccessorResource> keyFunctionTypeResourceProvider;
+    private final Provider<SecurityAccessorTypeOnDeviceTypeResource> keyFunctionTypeResourceProvider;
     private final ProtocolPluggableService protocolPluggableService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final CalendarInfoFactory calendarInfoFactory;
@@ -123,7 +123,8 @@ public class DeviceTypeResource {
             ResourceHelper resourceHelper,
             MasterDataService masterDataService,
             DeviceConfigurationService deviceConfigurationService,
-            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider,
+            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+            Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider,
             ProtocolPluggableService protocolPluggableService,
             Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider,
             Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider,
@@ -131,7 +132,9 @@ public class DeviceTypeResource {
             CalendarService calendarService,
             ExceptionFactory exceptionFactory,
             Thesaurus thesaurus,
-            RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory, RegisterTypeInfoFactory registerTypeInfoFactory, Provider<SecurityAccessorResource> keyFunctionTypeResourceProvider) {
+            RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory,
+            RegisterTypeInfoFactory registerTypeInfoFactory,
+            Provider<SecurityAccessorTypeOnDeviceTypeResource> keyFunctionTypeResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -480,7 +483,7 @@ public class DeviceTypeResource {
     }
 
     @Path("/{deviceTypeId}/securityaccessors")
-    public SecurityAccessorResource getKeyFunctionTypeResource() {
+    public SecurityAccessorTypeOnDeviceTypeResource getKeyFunctionTypeResource() {
         return keyFunctionTypeResourceProvider.get();
     }
 

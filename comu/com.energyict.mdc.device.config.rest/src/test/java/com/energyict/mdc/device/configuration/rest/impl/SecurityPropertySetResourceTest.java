@@ -6,6 +6,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
@@ -17,7 +18,6 @@ import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTranslationKeys;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -136,10 +136,10 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         DeviceType deviceType = mock(DeviceType.class);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(456L);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
-        Group group1 = mockUserGroup(66L, "Z - user group 1", Arrays.asList(Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1));
-        Group group2 = mockUserGroup(67L, "A - user group 2", Arrays.asList(Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4));
+        Group group1 = mockUserGroup(66L, "Z - user group 1", Collections.singletonList(Privileges.Constants.EDIT_SECURITY_PROPERTIES_1));
+        Group group2 = mockUserGroup(67L, "A - user group 2", Collections.singletonList(Privileges.Constants.VIEW_SECURITY_PROPERTIES_4));
         Group group3 = mockUserGroup(68L, "O - user group 3", Collections.emptyList());
         when(userService.getGroups()).thenReturn(Arrays.asList(group2, group1, group3));
         SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", "Primary client", 1001, "Auth1", 2001, "Encrypt1", 3001, "Suite1", 4001, "RequestSec1", 5001, "ResponseSec1"

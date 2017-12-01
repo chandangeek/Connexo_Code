@@ -5,11 +5,9 @@
 package com.energyict.mdc.device.configuration.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.users.Group;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -30,43 +28,23 @@ public class ExecutionLevelInfoFactory {
         this.thesaurus = thesaurus;
     }
 
-    public List<ExecutionLevelInfo> from(Collection<DeviceSecurityUserAction> userActions, List<Group> allGroups, SecurityPropertySet securityPropertySet) {
+    public List<ExecutionLevelInfo> getEditPrivileges(Collection<SecurityAccessorUserAction> userActions, List<Group> allGroups) {
         return userActions.stream()
-                .map(userAction -> from(userAction, allGroups, securityPropertySet))
-                .sorted((l1, l2) -> l1.name.compareToIgnoreCase(l2.name))
-                .collect(toList());
-    }
-
-    public ExecutionLevelInfo from(DeviceSecurityUserAction userAction, List<Group> allGroups, SecurityPropertySet securityPropertySet) {
-        ExecutionLevelInfo info = new ExecutionLevelInfo();
-        info.id = userAction.getPrivilege();
-        info.name = KeyFunctionTypePrivilegeTranslationKeys.translationFor(userAction.getPrivilege(), thesaurus);
-        info.userRoles = allGroups.stream()
-                .filter(group -> group.hasPrivilege("MDC", userAction.getPrivilege()))
-                .sorted(Comparator.comparing(Group::getName, String.CASE_INSENSITIVE_ORDER))
-                .map(group -> new IdWithNameInfo(group.getId(), group.getName()))
-                .collect(toList());
-        info.parent = new VersionInfo<>(securityPropertySet.getId(), securityPropertySet.getVersion());
-        return info;
-    }
-
-    public List<ExecutionLevelInfo> getEditPrivileges(Collection<DeviceSecurityUserAction> userActions, List<Group> allGroups) {
-        return userActions.stream()
-                .filter(DeviceSecurityUserAction::isEditing)
+                .filter(SecurityAccessorUserAction::isEditing)
                 .map(userAction -> from(userAction, allGroups))
                 .sorted((l1, l2) -> l1.name.compareToIgnoreCase(l2.name))
                 .collect(toList());
     }
 
-    public List<ExecutionLevelInfo> getViewPrivileges(Collection<DeviceSecurityUserAction> userActions, List<Group> allGroups) {
+    public List<ExecutionLevelInfo> getViewPrivileges(Collection<SecurityAccessorUserAction> userActions, List<Group> allGroups) {
         return userActions.stream()
-                .filter(DeviceSecurityUserAction::isViewing)
+                .filter(SecurityAccessorUserAction::isViewing)
                 .map(userAction -> from(userAction, allGroups))
                 .sorted((l1, l2) -> l1.name.compareToIgnoreCase(l2.name))
                 .collect(toList());
     }
 
-    public ExecutionLevelInfo from(DeviceSecurityUserAction userAction, List<Group> allGroups) {
+    public ExecutionLevelInfo from(SecurityAccessorUserAction userAction, List<Group> allGroups) {
         ExecutionLevelInfo info = new ExecutionLevelInfo();
         info.id = userAction.getPrivilege();
         info.name = KeyFunctionTypePrivilegeTranslationKeys.translationFor(userAction.getPrivilege(), thesaurus);

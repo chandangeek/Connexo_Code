@@ -10,6 +10,8 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -61,6 +63,7 @@ public class ResourceHelper {
     private final EstimationService estimationService;
     private final MeteringService meteringService;
     private final FirmwareService firmwareService;
+    private final SecurityManagementService securityManagementService;
 
     @Inject
     public ResourceHelper(ExceptionFactory exceptionFactory,
@@ -72,7 +75,8 @@ public class ResourceHelper {
                           ValidationService validationService,
                           EstimationService estimationService,
                           MeteringService meteringService,
-                          FirmwareService firmwareService) {
+                          FirmwareService firmwareService,
+                          SecurityManagementService securityManagementService) {
         super();
         this.exceptionFactory = exceptionFactory;
         this.masterDataService = masterDataService;
@@ -84,6 +88,7 @@ public class ResourceHelper {
         this.estimationService = estimationService;
         this.meteringService = meteringService;
         this.firmwareService = firmwareService;
+        this.securityManagementService = securityManagementService;
     }
 
     public ChannelType findChannelTypeByIdOrThrowException(long id) {
@@ -107,11 +112,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No device type with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public boolean imageIdentifierExpectedAtFirmwareUpload(DeviceType deviceType){
+    public boolean imageIdentifierExpectedAtFirmwareUpload(DeviceType deviceType) {
         return this.firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType);
     }
 
-    public boolean isResumeFirmwareUploadEnabled(DeviceType deviceType){
+    public boolean isResumeFirmwareUploadEnabled(DeviceType deviceType) {
         return this.firmwareService.isResumeFirmwareUploadEnabled(deviceType);
     }
 
@@ -137,11 +142,11 @@ public class ResourceHelper {
                 .collect(Collectors.toList());
     }
 
-    public Long getCurrentDeviceTypeVersion(long id){
+    public Long getCurrentDeviceTypeVersion(long id) {
         return deviceConfigurationService.findDeviceType(id).map(DeviceType::getVersion).orElse(null);
     }
 
-    public Optional<DeviceType> getLockedDeviceType(long id, long version){
+    public Optional<DeviceType> getLockedDeviceType(long id, long version) {
         return deviceConfigurationService.findAndLockDeviceType(id, version);
     }
 
@@ -149,11 +154,24 @@ public class ResourceHelper {
         return lockDeviceTypeOrThrowException(info.id, info.version, info.name);
     }
 
-    public DeviceType lockDeviceTypeOrThrowException(long id, long version, String name){
+    public DeviceType lockDeviceTypeOrThrowException(long id, long version, String name) {
         return getLockedDeviceType(id, version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(name)
                         .withActualVersion(() -> getCurrentDeviceTypeVersion(id))
                         .supplier());
+    }
+
+    public SecurityAccessorType lockSecurityAccessorTypeOrThrowException(long id, long version, String name) {
+        return securityManagementService.findAndLockSecurityAccessorType(id, version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(name)
+                        .withActualVersion(() -> getCurrentSecurityAccessorTypeVersion(id))
+                        .supplier());
+    }
+
+    public Long getCurrentSecurityAccessorTypeVersion(long id) {
+        return securityManagementService.findSecurityAccessorTypeById(id)
+                .map(SecurityAccessorType::getVersion)
+                .orElse(null);
     }
 
     public DeviceConfiguration findDeviceConfigurationByIdOrThrowException(long id) {
@@ -161,11 +179,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No DeviceConfiguration with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public Long getCurrentDeviceConfigurationVersion(long id){
+    public Long getCurrentDeviceConfigurationVersion(long id) {
         return deviceConfigurationService.findDeviceConfiguration(id).map(DeviceConfiguration::getVersion).orElse(null);
     }
 
-    public Optional<DeviceConfiguration> getLockedDeviceConfiguration(long id, long version){
+    public Optional<DeviceConfiguration> getLockedDeviceConfiguration(long id, long version) {
         return deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(id, version);
     }
 
@@ -177,11 +195,15 @@ public class ResourceHelper {
         Optional<DeviceType> deviceType = getLockedDeviceType(info.parent.id, info.parent.version);
         if (deviceType.isPresent()) {
             // if the deviceType lock succeeds, then we are 'sure' that the config is the same as well
-            return deviceType.get().getConfigurations().stream()
-                    .filter(deviceConfiguration -> (deviceConfiguration.getId() == info.id) && (deviceConfiguration.getVersion() == info.version)).findAny().orElseThrow(customMessageProvider.apply(conflictFactory.contextDependentConflictOn(info.name))
-                    .withActualParent(() -> getCurrentDeviceTypeVersion(info.parent.id), info.parent.id)
-                    .withActualVersion(() -> getCurrentDeviceConfigurationVersion(info.id))
-                    .supplier());
+            return deviceType.get()
+                    .getConfigurations()
+                    .stream()
+                    .filter(deviceConfiguration -> (deviceConfiguration.getId() == info.id) && (deviceConfiguration.getVersion() == info.version))
+                    .findAny()
+                    .orElseThrow(customMessageProvider.apply(conflictFactory.contextDependentConflictOn(info.name))
+                            .withActualParent(() -> getCurrentDeviceTypeVersion(info.parent.id), info.parent.id)
+                            .withActualVersion(() -> getCurrentDeviceConfigurationVersion(info.id))
+                            .supplier());
         }
         throw customMessageProvider.apply(conflictFactory.contextDependentConflictOn(info.name))
                 .withActualParent(() -> getCurrentDeviceTypeVersion(info.parent.id), info.parent.id)
@@ -194,11 +216,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No LogBookSpec with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public Long getCurrentLogBookSpecVersion(long id){
+    public Long getCurrentLogBookSpecVersion(long id) {
         return deviceConfigurationService.findLogBookSpec(id).map(LogBookSpec::getVersion).orElse(null);
     }
 
-    public Optional<LogBookSpec> getLockedLogBookSpec(long id, long version){
+    public Optional<LogBookSpec> getLockedLogBookSpec(long id, long version) {
         return deviceConfigurationService.findAndLockLogBookSpecByIdAndVersion(id, version);
     }
 
@@ -217,7 +239,7 @@ public class ResourceHelper {
                 .build();
     }
 
-    public LogBookType lockDeviceTypeLogBookOrThrowException(LogBookTypeInfo info){
+    public LogBookType lockDeviceTypeLogBookOrThrowException(LogBookTypeInfo info) {
         Optional<DeviceType> deviceType = getLockedDeviceType(info.parent.id, info.parent.version);
         if (deviceType.isPresent()) {
             return masterDataService.findLogBookType(info.id)
@@ -237,11 +259,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No device configuration conflict with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public Long getCurrentDeviceConfigConflictMappingVersion(long id){
+    public Long getCurrentDeviceConfigConflictMappingVersion(long id) {
         return deviceConfigurationService.findDeviceConfigConflictMapping(id).map(DeviceConfigConflictMapping::getVersion).orElse(null);
     }
 
-    public Optional<DeviceConfigConflictMapping> getLockedDeviceConfigConflictMapping(long id, long version){
+    public Optional<DeviceConfigConflictMapping> getLockedDeviceConfigConflictMapping(long id, long version) {
         return deviceConfigurationService.findAndLockDeviceConfigConflictMappingByIdAndVersion(id, version);
     }
 
@@ -265,11 +287,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No RegisterSpec with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public Long getCurrentRegisterSpecVersion(long id){
+    public Long getCurrentRegisterSpecVersion(long id) {
         return deviceConfigurationService.findRegisterSpec(id).map(RegisterSpec::getVersion).orElse(null);
     }
 
-    public Optional<RegisterSpec> getLockedRegisterSpec(long id, long version){
+    public Optional<RegisterSpec> getLockedRegisterSpec(long id, long version) {
         return deviceConfigurationService.findAndLockRegisterSpecByIdAndVersion(id, version);
     }
 
@@ -288,7 +310,7 @@ public class ResourceHelper {
                 .build();
     }
 
-    public RegisterType lockDeviceTypeRegisterTypeOrThrowException(RegisterTypeInfo info){
+    public RegisterType lockDeviceTypeRegisterTypeOrThrowException(RegisterTypeInfo info) {
         Optional<DeviceType> deviceType = getLockedDeviceType(info.parent.id, info.parent.version);
         if (deviceType.isPresent()) {
             return masterDataService.findRegisterType(info.id)
@@ -308,11 +330,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No ProtocolDialectConfigurationProperties with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public Long getCurrentProtocolDialectConfigurationPropertiesVersion(long id){
+    public Long getCurrentProtocolDialectConfigurationPropertiesVersion(long id) {
         return deviceConfigurationService.getProtocolDialectConfigurationProperties(id).map(ProtocolDialectConfigurationProperties::getVersion).orElse(null);
     }
 
-    public Optional<ProtocolDialectConfigurationProperties> getLockedProtocolDialectConfigurationProperties(long id, long version){
+    public Optional<ProtocolDialectConfigurationProperties> getLockedProtocolDialectConfigurationProperties(long id, long version) {
         return deviceConfigurationService.findAndLockProtocolDialectConfigurationPropertiesByIdAndVersion(id, version);
     }
 
@@ -336,11 +358,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No PartialConnectionTask with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public Long getCurrentPartialConnectionTaskVersion(long id){
+    public Long getCurrentPartialConnectionTaskVersion(long id) {
         return deviceConfigurationService.findPartialConnectionTask(id).map(PartialConnectionTask::getVersion).orElse(null);
     }
 
-    public Optional<PartialConnectionTask> getLockedPartialConnectionTask(long id, long version){
+    public Optional<PartialConnectionTask> getLockedPartialConnectionTask(long id, long version) {
         return deviceConfigurationService.findAndLockPartialConnectionTaskByIdAndVersion(id, version);
     }
 
@@ -365,11 +387,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No register group with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public Long getCurrentRegisterGroupVersion(long id){
+    public Long getCurrentRegisterGroupVersion(long id) {
         return masterDataService.findRegisterGroup(id).map(RegisterGroup::getVersion).orElse(null);
     }
 
-    public Optional<RegisterGroup> getLockedRegisterGroup(long id, long version){
+    public Optional<RegisterGroup> getLockedRegisterGroup(long id, long version) {
         return masterDataService.findAndLockRegisterGroupByIdAndVersion(id, version);
     }
 
@@ -385,11 +407,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("Required security set is missing", Response.Status.NOT_FOUND));
     }
 
-    public Long getCurrentSecurityPropertySetVersion(long id){
+    public Long getCurrentSecurityPropertySetVersion(long id) {
         return deviceConfigurationService.findSecurityPropertySet(id).map(SecurityPropertySet::getVersion).orElse(null);
     }
 
-    public Optional<SecurityPropertySet> getLockedSecurityPropertySet(long id, long version){
+    public Optional<SecurityPropertySet> getLockedSecurityPropertySet(long id, long version) {
         return deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(id, version);
     }
 
@@ -413,11 +435,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("Required ComTaskEnablement is missing", Response.Status.NOT_FOUND));
     }
 
-    public Long getCurrentComTaskEnablementVersion(long id){
+    public Long getCurrentComTaskEnablementVersion(long id) {
         return deviceConfigurationService.findComTaskEnablement(id).map(ComTaskEnablement::getVersion).orElse(null);
     }
 
-    public Optional<ComTaskEnablement> getLockedComTaskEnablement(long id, long version){
+    public Optional<ComTaskEnablement> getLockedComTaskEnablement(long id, long version) {
         return deviceConfigurationService.findAndLockComTaskEnablementByIdAndVersion(id, version);
     }
 
@@ -441,7 +463,7 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No load profile type with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public LoadProfileType lockDeviceTypeLoadProfileTypeOrThrowException(LoadProfileTypeOnDeviceTypeInfo info){
+    public LoadProfileType lockDeviceTypeLoadProfileTypeOrThrowException(LoadProfileTypeOnDeviceTypeInfo info) {
         Optional<DeviceType> deviceType = getLockedDeviceType(info.parent.id, info.parent.version);
         if (deviceType.isPresent()) {
             return masterDataService.findLoadProfileType(info.id)
@@ -461,11 +483,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No load profile spec with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public Long getCurrentLoadProfileSpecVersion(long id){
+    public Long getCurrentLoadProfileSpecVersion(long id) {
         return deviceConfigurationService.findLoadProfileSpec(id).map(LoadProfileSpec::getVersion).orElse(null);
     }
 
-    public Optional<LoadProfileSpec> getLockedLoadProfileSpec(long id, long version){
+    public Optional<LoadProfileSpec> getLockedLoadProfileSpec(long id, long version) {
         return deviceConfigurationService.findAndLockLoadProfileSpecByIdAndVersion(id, version);
     }
 
@@ -489,11 +511,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No channel spec with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public Long getCurrentChannelSpecVersion(long id){
+    public Long getCurrentChannelSpecVersion(long id) {
         return deviceConfigurationService.findChannelSpec(id).map(ChannelSpec::getVersion).orElse(null);
     }
 
-    public Optional<ChannelSpec> getLockedChannelSpec(long id, long version){
+    public Optional<ChannelSpec> getLockedChannelSpec(long id, long version) {
         return deviceConfigurationService.findAndLockChannelSpecByIdAndVersion(id, version);
     }
 
@@ -518,14 +540,14 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No ValidationRuleSet with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public Long getCurrentValidationRuleSetVersion(long id){
-        return  validationService.getValidationRuleSet(id)
+    public Long getCurrentValidationRuleSetVersion(long id) {
+        return validationService.getValidationRuleSet(id)
                 .filter(candidate -> candidate.getObsoleteDate() == null)
                 .map(ValidationRuleSet::getVersion)
                 .orElse(null);
     }
 
-    public Optional<? extends ValidationRuleSet> getLockedValidationRuleSet(long id, long version){
+    public Optional<? extends ValidationRuleSet> getLockedValidationRuleSet(long id, long version) {
         return validationService.findAndLockValidationRuleSetByIdAndVersion(id, version);
     }
 
@@ -550,14 +572,14 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No EstimationRuleSet with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public Long getCurrentEstimationRuleSetVersion(long id){
+    public Long getCurrentEstimationRuleSetVersion(long id) {
         return estimationService.getEstimationRuleSet(id)
                 .filter(candidate -> candidate.getObsoleteDate() == null)
                 .map(EstimationRuleSet::getVersion)
                 .orElse(null);
     }
 
-    public Optional<? extends EstimationRuleSet> getLockedEstimationRuleSet(long id, long version){
+    public Optional<? extends EstimationRuleSet> getLockedEstimationRuleSet(long id, long version) {
         return estimationService.findAndLockEstimationRuleSet(id, version);
     }
 
