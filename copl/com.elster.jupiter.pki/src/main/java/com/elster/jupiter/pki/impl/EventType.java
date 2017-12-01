@@ -18,7 +18,9 @@ public enum EventType {
     TRUSTSTORE_DELETED("truststore/DELETED"),
     TRUSTSTORE_VALIDATE_DELETE("truststore/VALIDATE_DELETE"),
     CERTIFICATE_DELETED("certificate/DELETED"),
-    CERTIFICATE_VALIDATE_DELETE("certificate/VALIDATE_DELETE");
+    CERTIFICATE_VALIDATE_DELETE("certificate/VALIDATE_DELETE"),
+    SECURITY_ACCESSOR_TYPE_VALIDATE_DELETE("securityAccessorType/VALIDATE_DELETE"),
+    SECURITY_ACCESSOR_TYPE_DELETED("securityAccessorType/DELETED");
 
     private static final String NAMESPACE = "com/elster/jupiter/pki/";
     private final String topic;

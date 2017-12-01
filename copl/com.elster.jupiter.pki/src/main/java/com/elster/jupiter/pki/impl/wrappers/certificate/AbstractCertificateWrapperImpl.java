@@ -20,15 +20,12 @@ import com.elster.jupiter.pki.impl.UniqueAlias;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-
 import com.elster.jupiter.rest.util.ExceptionFactory;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 
 import javax.naming.InvalidNameException;
-import javax.naming.ldap.LdapName;
-import javax.naming.ldap.Rdn;
-import javax.security.auth.x500.X500Principal;
 import javax.validation.constraints.Size;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -42,7 +39,12 @@ import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -92,6 +94,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     }
 
     private final Map<String, Integer> rdsOrder = new HashMap<>();
+    // TODO: why is it here? it is REST util
     private final ExceptionFactory exceptionFactory;
 
     private long id;

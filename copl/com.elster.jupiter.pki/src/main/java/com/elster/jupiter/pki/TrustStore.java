@@ -4,9 +4,10 @@
 
 package com.elster.jupiter.pki;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;

@@ -10,10 +10,37 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.pki.*;
+import com.elster.jupiter.pki.AliasParameterFilter;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.ExpirationSupport;
+import com.elster.jupiter.pki.ExtendedKeyUsage;
+import com.elster.jupiter.pki.IssuerParameterFilter;
+import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.KeyUsage;
+import com.elster.jupiter.pki.KeyUsagesParameterFilter;
+import com.elster.jupiter.pki.PassphraseFactory;
+import com.elster.jupiter.pki.PassphraseWrapper;
+import com.elster.jupiter.pki.PrivateKeyFactory;
+import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.pki.SubjectParameterFilter;
+import com.elster.jupiter.pki.SymmetricKeyFactory;
+import com.elster.jupiter.pki.SymmetricKeyWrapper;
+import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeBuilder;
+import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapperImpl;
@@ -31,16 +58,27 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Security;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -188,9 +226,9 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     @Activate
     public void activate() {
         Security.addProvider(new BouncyCastleProvider());
-        this.dataModel = ormService.newDataModel(COMPONENTNAME, "Private Key Infrastructure");
+        dataModel = ormService.newDataModel(COMPONENTNAME, "Private Key Infrastructure");
         Stream.of(TableSpecs.values()).forEach(tableSpecs -> tableSpecs.addTo(dataModel, dataVaultService));
-        this.dataModel.register(this.getModule());
+        dataModel.register(this.getModule());
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", SecurityManagementService.COMPONENTNAME),
                 dataModel,
@@ -343,7 +381,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     public List<SecurityValueWrapper> getExpired(Expiration expiration, Instant when) {
         List<SecurityValueWrapper> all = new ArrayList<>();
         allFactoriesSupportingExpiration().forEach(es -> all.addAll(es.findExpired(expiration, when)));
-        this.findExpiredCertificates(expiration, when).stream().forEach(all::add);
+        all.addAll(this.findExpiredCertificates(expiration, when));
         return all;
     }
 
@@ -597,7 +635,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         Query<CertificateWrapper> query = getCertificateWrapperQuery();
         List<CertificateWrapper> pagedList = query.select(getSearchCondition(dataSearchFilter));
 
-        pagedList.forEach((CertificateWrapper certificateWrapper) -> trustedCertificates.add(certificateWrapper));
+        trustedCertificates.addAll(pagedList);
         return trustedCertificates;
     }
 
@@ -661,6 +699,30 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return getQueryService().wrap(dataModel.query(CertificateWrapper.class));
     }
 
+    @Override
+    public SecurityAccessorType.Builder addSecurityAccessorType(String name, KeyType keyType) {
+        return new SecurityAccessorTypeBuilder(dataModel, name, keyType);
+    }
+
+    @Override
+    public List<SecurityAccessorType> getSecurityAccessorTypes() {
+        return dataModel.mapper(SecurityAccessorType.class).find();
+    }
+
+    @Override
+    public Optional<SecurityAccessorType> findSecurityAccessorTypeById(long id) {
+        return dataModel.mapper(SecurityAccessorType.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<SecurityAccessorType> findSecurityAccessorTypeByName(String name) {
+        return dataModel.mapper(SecurityAccessorType.class).getUnique(SecurityAccessorTypeImpl.Fields.NAME.fieldName(), name);
+    }
+
+    @Override
+    public Optional<SecurityAccessorType> findAndLockSecurityAccessorType(long id, long version) {
+        return dataModel.mapper(SecurityAccessorType.class).lockObjectIfVersion(version, id);
+    }
 
     private class ClientCertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {
         private final KeyTypeImpl underConstruction;

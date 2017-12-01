@@ -45,9 +45,9 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_KEY_SIZE(1029, Keys.INVALID_KEY_SIZE, "Invalid key size"),
     INVALID_HEX_VALUE(1030,Keys.INVALID_HEX_VALUE, "Not a properly hex encoded key"),
     NO_SUCH_TRUSTSTORE(1031, "noSuchTrustStore", "The trust store could not be found"),
-    INVALID_DN(1032, "InvalidDN", "Invalid distinguished name encountered");
-
-
+    INVALID_DN(1032, "InvalidDN", "Invalid distinguished name encountered"),
+    EXCESSIVE_TIME_DURATION(1033, Keys.EXCESSIVE_TIME_DURATION, "Validity period must be shorter than or equal to 30 years."),
+    VETO_TRUSTSTORE_DELETION(1034, "trustStoreXstillInUse", "Trust store {0} is still in use");
 
     private final int number;
     private final String key;
@@ -104,6 +104,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NOVALIDCHARACTERS = "NoValidCharacters";
         public static final String INVALIDPASSPHRASELENGTH = "InvalidPassphraseLength";
         public static final String INVALID_KEY_SIZE = "InvalidKeySize";
+        public static final String EXCESSIVE_TIME_DURATION = "excessiveTimeDuration";
     }
 
 }
