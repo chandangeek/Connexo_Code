@@ -111,12 +111,12 @@ public class SecurityAccessorResource {
     @Path("/keys")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
+            com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
+            com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public PagedInfoList getKeys(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<SecurityAccessorInfo> collect = getSecurityAccessorInfos(device, kat -> KEYS.contains(kat.getKeyType().getCryptographicType()),
-                (keyAccessor) -> securityAccessorInfoFactory.asKeyWithLevels(keyAccessor, device.getDeviceType()));
+                securityAccessorInfoFactory::asKeyWithLevels);
         return PagedInfoList.fromCompleteList("keys", collect, queryParameters);
     }
 
@@ -125,8 +125,8 @@ public class SecurityAccessorResource {
     @Path("/keys/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
+            com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
+            com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public Response getKey(@PathParam("name") String name, @PathParam("id") long keyAccessorTypeId) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
@@ -140,8 +140,8 @@ public class SecurityAccessorResource {
     @Path("/certificates/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
+            com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
+            com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public Response getCertificate(@PathParam("name") String name, @PathParam("id") long keyAccessorTypeId, @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
@@ -156,8 +156,8 @@ public class SecurityAccessorResource {
     @Path("/certificates")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
+            com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
+            com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public PagedInfoList getCertificates(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<SecurityAccessorInfo> collect = getSecurityAccessorInfos(device, kat -> CERTIFICATES.contains(kat.getKeyType().getCryptographicType()), (keyAccessor) -> securityAccessorInfoFactory
@@ -170,8 +170,8 @@ public class SecurityAccessorResource {
     @Path("/keys/{id}/temp")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
+            com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
+            com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public Response generateTempValue(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
         SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
@@ -186,8 +186,8 @@ public class SecurityAccessorResource {
     @Path("/keys/{id}/temp")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
+            com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
+            com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public Response clearTempValue(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
         SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
@@ -202,8 +202,8 @@ public class SecurityAccessorResource {
     @Path("/keys/{id}/swap")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
+            com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
+            com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public Response swapKeyValues(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
         SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
@@ -218,8 +218,8 @@ public class SecurityAccessorResource {
     @Path("/certificates/{id}/swap")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
+            com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
+            com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public Response swapCertificateValues(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId,
                                           @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider, SecurityAccessorInfo securityAccessorInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
@@ -235,8 +235,8 @@ public class SecurityAccessorResource {
     @Path("/keys/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
+            com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
+            com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public Response updateOrCreateKeyAccessor(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId, SecurityAccessorInfo securityAccessorInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
         SecurityAccessorType securityAccessorType = findKeyAccessorTypeOrThrowException(keyAccessorTypeId, device);
@@ -279,8 +279,8 @@ public class SecurityAccessorResource {
     @Path("/certificates/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
+            com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
+            com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public Response updateOrCreateCertificateAccessor(@PathParam("name") String deviceName, @PathParam("id") long keyAccessorTypeId,
                                                       @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider,
                                                       SecurityAccessorInfo securityAccessorInfo) {
@@ -331,8 +331,8 @@ public class SecurityAccessorResource {
     @Path("/certificates/aliases")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
+            com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3, com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
+            com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1, com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3,com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,})
     public PagedInfoList aliasSource(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
         SecurityManagementService.AliasSearchFilter aliasSearchFilter = getAliasSearchFilter(params, uriInfo.getQueryParameters());
         List<AliasInfo> collect = securityManagementService.getAliasesByFilter(aliasSearchFilter)

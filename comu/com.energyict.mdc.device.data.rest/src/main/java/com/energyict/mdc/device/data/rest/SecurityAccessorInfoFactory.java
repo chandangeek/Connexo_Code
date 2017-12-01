@@ -5,25 +5,22 @@
 package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.device.config.DeviceSecurityAccessorType;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
 import com.energyict.mdc.device.data.CertificateAccessor;
-import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.rest.impl.SecurityAccessorInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyDefaultValuesProvider;
 import com.energyict.mdc.pluggable.rest.PropertyValuesResourceProvider;
+import com.energyict.mdc.upl.TypedProperties;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -69,8 +66,8 @@ public class SecurityAccessorInfoFactory {
         List<PropertySpec> propertySpecs = securityAccessor.getPropertySpecs();
 
         TypedProperties actualTypedProperties = getPropertiesActualValue(securityAccessor);
-        boolean userHasViewPrivilege = ((DeviceSecurityAccessorType) securityAccessor.getKeyAccessorType()).currentUserIsAllowedToViewDeviceProperties();
-        boolean userHasEditPrivilege = ((DeviceSecurityAccessorType) securityAccessor.getKeyAccessorType()).currentUserIsAllowedToEditDeviceProperties();
+        boolean userHasViewPrivilege = securityAccessor.getKeyAccessorType().isCurrentUserAllowedToViewProperties("MDC");
+        boolean userHasEditPrivilege = securityAccessor.getKeyAccessorType().isCurrentUserAllowedToEditProperties("MDC");
 
         MdcPropertyUtils.ValueVisibility valueVisibility = userHasViewPrivilege && userHasEditPrivilege? SHOW_VALUES: HIDE_VALUES;
         MdcPropertyUtils.PrivilegePresence withoutPrivileges = userHasViewPrivilege ? WITH_PRIVILEGES : WITHOUT_PRIVILEGES;
@@ -81,11 +78,11 @@ public class SecurityAccessorInfoFactory {
         return info;
     }
 
-    public SecurityAccessorInfo asKeyWithLevels(SecurityAccessor<?> securityAccessor, DeviceType deviceType) {
+    public SecurityAccessorInfo asKeyWithLevels(SecurityAccessor<?> securityAccessor) {
         SecurityAccessorInfo info = asKey(securityAccessor);
 
         List<Group> groups = userService.getGroups();
-        Set<DeviceSecurityUserAction> userActions = deviceType.getSecurityAccessorTypeUserActions(securityAccessor.getKeyAccessorType());
+        Set<SecurityAccessorUserAction> userActions = securityAccessor.getKeyAccessorType().getUserActions();
         info.editLevels = executionLevelInfoFactory.getEditPrivileges(userActions, groups);
         info.viewLevels = executionLevelInfoFactory.getViewPrivileges(userActions, groups);
 
@@ -98,14 +95,15 @@ public class SecurityAccessorInfoFactory {
         TypedProperties actualTypedProperties = getPropertiesActualValue(securityAccessor);
 
         info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
-        Collections.sort(info.currentProperties, (PropertyInfo info1, PropertyInfo info2) -> info1.key.equals("trustStore") ? -1 : 0);
+        info.currentProperties.sort((PropertyInfo info1, PropertyInfo info2) -> info1.key.equals("trustStore") ? -1 : 0);
 
         TypedProperties tempTypedProperties = getPropertiesTempValue(securityAccessor);
         info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
-        Collections.sort(info.tempProperties, (PropertyInfo info1, PropertyInfo info2) -> info1.key.equals("trustStore") ? -1 : 0);
+        info.tempProperties.sort((PropertyInfo info1, PropertyInfo info2) -> info1.key.equals("trustStore") ? -1 : 0);
 
         if (securityAccessor instanceof CertificateAccessor) {
-            ((CertificateAccessor) securityAccessor).getActualValue().ifPresent(cw->cw.getLastReadDate().ifPresent(date -> info.lastReadDate = date));
+            ((CertificateAccessor) securityAccessor).getActualValue()
+                    .ifPresent(cw -> cw.getLastReadDate().ifPresent(date -> info.lastReadDate = date));
         }
 
         return info;
@@ -113,13 +111,13 @@ public class SecurityAccessorInfoFactory {
 
     private TypedProperties getPropertiesTempValue(SecurityAccessor<?> securityAccessor) {
         TypedProperties tempTypedProperties = TypedProperties.empty();
-        securityAccessor.getTempValue().ifPresent(ka->ka.getProperties().entrySet().forEach(e->tempTypedProperties.setProperty(e.getKey(),e.getValue())));
+        securityAccessor.getTempValue().ifPresent(ka -> ka.getProperties().forEach(tempTypedProperties::setProperty));
         return tempTypedProperties;
     }
 
     private TypedProperties getPropertiesActualValue(SecurityAccessor<?> securityAccessor) {
         TypedProperties actualTypedProperties = TypedProperties.empty();
-        securityAccessor.getActualValue().ifPresent(ka->ka.getProperties().entrySet().forEach(e1 -> actualTypedProperties.setProperty(e1.getKey(), e1.getValue())));
+        securityAccessor.getActualValue().ifPresent(ka -> ka.getProperties().forEach(actualTypedProperties::setProperty));
         return actualTypedProperties;
     }
 

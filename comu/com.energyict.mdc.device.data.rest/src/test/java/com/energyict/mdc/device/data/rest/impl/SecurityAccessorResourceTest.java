@@ -8,8 +8,8 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
-import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
@@ -21,7 +21,6 @@ import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.properties.rest.impl.PropertyValueInfoServiceImpl;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.DeviceSecurityAccessorType;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.SecurityAccessor;
@@ -29,10 +28,6 @@ import com.energyict.mdc.pluggable.rest.impl.MdcPropertyUtilsImpl;
 
 import com.jayway.jsonpath.JsonModel;
 import net.minidev.json.JSONObject;
-import org.assertj.core.data.MapEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -46,6 +41,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.assertj.core.data.MapEntry;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -70,10 +70,10 @@ import static org.mockito.Mockito.when;
  */
 public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerseyTest {
 
-    private DeviceSecurityAccessorType symmetricKeyAccessorType;
+    private SecurityAccessorType symmetricKeyAccessorType;
     private List<PropertySpec> symmetricKeyPropertySpecs;
     private List<PropertySpec> certificatePropertySpecs;
-    private DeviceSecurityAccessorType certificateKeyAccessorType;
+    private SecurityAccessorType certificateKeyAccessorType;
     private DeviceType deviceType;
     private SecurityAccessor clientCertificateAccessor;
     private SecurityAccessor symmetrickeyAccessor;
@@ -264,8 +264,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
     @Test
     public void testGetKeysWithoutTempValueWithViewPermissions() throws Exception {
-        when(symmetricKeyAccessorType.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
-        when(symmetricKeyAccessorType.currentUserIsAllowedToEditDeviceProperties()).thenReturn(false);
+        when(symmetricKeyAccessorType.isCurrentUserAllowedToViewProperties("MDC")).thenReturn(true);
+        when(symmetricKeyAccessorType.isCurrentUserAllowedToEditProperties("MDC")).thenReturn(false);
 
         Response response = target("/devices/BVN001/securityaccessors/keys").request().get();
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
@@ -281,8 +281,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
     @Test
     public void testGetKeysWithoutTempValueWithoutPermissions() throws Exception {
-        when(symmetricKeyAccessorType.currentUserIsAllowedToEditDeviceProperties()).thenReturn(false);
-        when(symmetricKeyAccessorType.currentUserIsAllowedToViewDeviceProperties()).thenReturn(false);
+        when(symmetricKeyAccessorType.isCurrentUserAllowedToViewProperties("MDC")).thenReturn(false);
+        when(symmetricKeyAccessorType.isCurrentUserAllowedToEditProperties("MDC")).thenReturn(false);
 
         Response response = target("/devices/BVN001/securityaccessors/keys").request().get();
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
@@ -698,14 +698,14 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         return propertySpec;
     }
 
-    private DeviceSecurityAccessorType mockCertificateKeyAccessorType(long id, String name) {
-        DeviceSecurityAccessorType keyAccessorType = mock(DeviceSecurityAccessorType.class);
+    private SecurityAccessorType mockCertificateKeyAccessorType(long id, String name) {
+        SecurityAccessorType keyAccessorType = mock(SecurityAccessorType.class);
         when(keyAccessorType.getId()).thenReturn(id);
         when(keyAccessorType.getName()).thenReturn(name);
         when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
         when(keyAccessorType.getDescription()).thenReturn("description");
-        when(keyAccessorType.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
-        when(keyAccessorType.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
+        when(keyAccessorType.isCurrentUserAllowedToViewProperties("MDC")).thenReturn(true);
+        when(keyAccessorType.isCurrentUserAllowedToEditProperties("MDC")).thenReturn(true);
         KeyType keyType = mock(KeyType.class);
         when(keyType.getCryptographicType()).thenReturn(CryptographicType.ClientCertificate);
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
@@ -735,14 +735,14 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         return symmetricKeyWrapper;
     }
 
-    private DeviceSecurityAccessorType mockSymmetricKeyAccessorType(long id, String name) {
-        DeviceSecurityAccessorType keyAccessorType = mock(DeviceSecurityAccessorType.class);
+    private SecurityAccessorType mockSymmetricKeyAccessorType(long id, String name) {
+        SecurityAccessorType keyAccessorType = mock(SecurityAccessorType.class);
         when(keyAccessorType.getId()).thenReturn(id);
         when(keyAccessorType.getName()).thenReturn(name);
         when(keyAccessorType.getDuration()).thenReturn(Optional.of(TimeDuration.years(1)));
         when(keyAccessorType.getDescription()).thenReturn("description");
-        when(keyAccessorType.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
-        when(keyAccessorType.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
+        when(keyAccessorType.isCurrentUserAllowedToViewProperties("MDC")).thenReturn(true);
+        when(keyAccessorType.isCurrentUserAllowedToEditProperties("MDC")).thenReturn(true);
         KeyType keyType = mock(KeyType.class);
         when(keyType.getCryptographicType()).thenReturn(CryptographicType.SymmetricKey);
         when(keyAccessorType.getKeyType()).thenReturn(keyType);
