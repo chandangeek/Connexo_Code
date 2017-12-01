@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link DeviceMessageSpec} interface
- * that will replace all {@link PropertySpec}s of type {@link DeviceMessageFile} of type (@link {@link SecurityAccessorType}
+ * that will replace all {@link PropertySpec}s of types {@link DeviceMessageFile} and {@link SecurityAccessorType}
  * with a similar PropertySpec (in terms of name, display name,...)
  * but with {@link PropertySpecPossibleValues} that contain only
  * resp. the DeviceMessageFile or KeyAccessorTypes that have been added to the {@link DeviceType}.

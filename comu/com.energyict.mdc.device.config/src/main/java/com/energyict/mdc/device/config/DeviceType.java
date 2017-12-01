@@ -7,7 +7,6 @@ package com.energyict.mdc.device.config;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.device.config.exceptions.DuplicateDeviceMessageFileException;
@@ -16,8 +15,8 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -26,7 +25,6 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * DeviceType defines the basic common attributes of a
@@ -257,36 +255,20 @@ public interface DeviceType extends HasId, HasName {
     void update();
 
     /**
-     * Return a list of all known defined security accessor types on this device type
+     * Returns a list of all known security accessor types linked to this device type.
      * @return
      */
     List<SecurityAccessorType> getSecurityAccessorTypes();
 
     /**
-     * Creates a new SecurityAccessorType for the device type
-     * @param name The SecurityAccessorType name. This name identifies the function of the key/certificate (or whatever value) on the
-     * device. It will be the link between shipment import and the Security accessors
-     * @param keyType description of the Security (or whatever value) stored
-     * methods are registered on the SecurityService.
-     * @return The newly created SecurityAccessorType
+     * Adds given security accessor types to this device type if not linked already.
+     * @param securityAccessorTypes
+     * @return {@code true} if device type is updated with new links to security accessor types, {@code false} otherwise.
      */
-    SecurityAccessorType.Builder addSecurityAccessorType(String name, KeyType keyType);
-
+    boolean addSecurityAccessorTypes(SecurityAccessorType... securityAccessorTypes);
 
     /**
-     * Gets a specific updater for a security accessor type of a device type
-     * @return An updater for a security accessor type of a device type
-     */
-    Optional<SecurityAccessorTypeUpdater> getSecurityAccessorTypeUpdater(SecurityAccessorType securityAccessorType);
-
-    /**
-     * Gets the specific set of user actions of a security accessor type of a device type
-     * @return a set of DeviceSecurityUserAction
-     */
-    Set<DeviceSecurityUserAction> getSecurityAccessorTypeUserActions(SecurityAccessorType securityAccessorType);
-
-    /**
-     * removes the SecurityAccessorType from the DeviceType
+     * Removes the SecurityAccessorType from the DeviceType.
      * @param securityAccessorType
      */
     void removeSecurityAccessorType(SecurityAccessorType securityAccessorType);

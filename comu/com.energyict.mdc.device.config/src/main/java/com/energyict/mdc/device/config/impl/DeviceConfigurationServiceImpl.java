@@ -31,8 +31,8 @@ import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -61,7 +61,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
@@ -271,11 +270,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public Optional<SecurityAccessorType> findAndLockSecurityAccessorTypeByIdAndVersion(long id, long version) {
-        return this.getDataModel().mapper(SecurityAccessorType.class).lockObjectIfVersion(version, id);
-    }
-
-    @Override
     public Optional<DeviceType> findDeviceTypeByName(String name) {
         return this.getDataModel().mapper((DeviceType.class)).getUnique("name", name);
     }
@@ -438,9 +432,9 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLoadProfileType(LoadProfileType loadProfileType) {
-        return this.getDataModel().
-                query(DeviceConfiguration.class, LoadProfileSpec.class).
-                select(where("loadProfileSpecs.loadProfileType").isEqualTo(loadProfileType));
+        return this.getDataModel()
+                .query(DeviceConfiguration.class, LoadProfileSpec.class)
+                .select(where("loadProfileSpecs.loadProfileType").isEqualTo(loadProfileType));
     }
 
     @Override
@@ -450,62 +444,70 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public List<ChannelSpec> findChannelSpecsForChannelTypeInLoadProfileType(ChannelType channelType, LoadProfileType loadProfileType) {
-        return this.getDataModel().
-                query(ChannelSpec.class, LoadProfileSpec.class).
-                select(where("channelType").isEqualTo(channelType).
-                        and(where("loadProfileSpec.loadProfileType").isEqualTo(loadProfileType))
+        return this.getDataModel()
+                .query(ChannelSpec.class, LoadProfileSpec.class)
+                .select(where("channelType").isEqualTo(channelType)
+                        .and(where("loadProfileSpec.loadProfileType").isEqualTo(loadProfileType))
                 );
     }
 
     @Override
     public List<DeviceType> findDeviceTypesUsingLogBookType(LogBookType logBookType) {
-        return this.getDataModel().
-                query(DeviceType.class, DeviceTypeLogBookTypeUsage.class).
-                select(where("logBookTypeUsages.logBookType").isEqualTo(logBookType));
+        return this.getDataModel()
+                .query(DeviceType.class, DeviceTypeLogBookTypeUsage.class)
+                .select(where("logBookTypeUsages.logBookType").isEqualTo(logBookType));
     }
 
     @Override
     public List<DeviceType> findDeviceTypesUsingRegisterType(MeasurementType measurementType) {
-        return this.getDataModel().
-                query(DeviceType.class, DeviceTypeRegisterTypeUsage.class).
-                select(where("registerTypeUsages.registerType").isEqualTo(measurementType));
+        return this.getDataModel()
+                .query(DeviceType.class, DeviceTypeRegisterTypeUsage.class)
+                .select(where("registerTypeUsages.registerType").isEqualTo(measurementType));
     }
 
     @Override
     public List<DeviceType> findDeviceTypesUsingLoadProfileType(LoadProfileType loadProfileType) {
-        return this.getDataModel().
-                query(DeviceType.class, DeviceTypeLoadProfileTypeUsage.class).
-                select(where("loadProfileTypeUsages.loadProfileType").isEqualTo(loadProfileType));
+        return this.getDataModel()
+                .query(DeviceType.class, DeviceTypeLoadProfileTypeUsage.class)
+                .select(where("loadProfileTypeUsages.loadProfileType").isEqualTo(loadProfileType));
     }
 
     @Override
     public List<DeviceType> findDeviceTypesUsingDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle) {
-        return this.getDataModel().
-                query(DeviceType.class, DeviceLifeCycleInDeviceType.class, DeviceLifeCycle.class).
-                select(where("deviceLifeCycle.deviceLifeCycle").isEqualTo(deviceLifeCycle)
+        return this.getDataModel()
+                .query(DeviceType.class, DeviceLifeCycleInDeviceType.class, DeviceLifeCycle.class)
+                .select(where("deviceLifeCycle.deviceLifeCycle").isEqualTo(deviceLifeCycle)
                         .and(where("deviceLifeCycle.interval").isEffective()));
     }
 
     @Override
+    public List<DeviceType> findDeviceTypesUsingSecurityAccessorType(SecurityAccessorType securityAccessorType) {
+        String securityAccessorTypeTraceFromDeviceType = DeviceTypeImpl.Fields.SECURITY_ACCESSOR_TYPES.fieldName()
+                + '.' + SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.fieldName();
+        return getDataModel()
+                .query(DeviceType.class, SecurityAccessorTypeOnDeviceTypeImpl.class)
+                .select(where(securityAccessorTypeTraceFromDeviceType).isEqualTo(securityAccessorType));
+    }
+
+    @Override
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLogBookType(LogBookType logBookType) {
-        return this.getDataModel().
-                query(DeviceConfiguration.class, LogBookSpec.class).
-                select(where("logBookSpecs.logBookType").isEqualTo(logBookType));
+        return this.getDataModel()
+                .query(DeviceConfiguration.class, LogBookSpec.class)
+                .select(where("logBookSpecs.logBookType").isEqualTo(logBookType));
     }
 
     @Override
     public List<DeviceConfiguration> findDeviceConfigurationsUsingMeasurementType(MeasurementType measurementType) {
-        return this.getDataModel().
-                query(DeviceConfiguration.class, LoadProfileSpec.class, ChannelSpec.class, RegisterSpec.class).
-                select(where("loadProfileSpecs.channelSpecs.channelType").isEqualTo(measurementType).
-                        or(where("registerSpecs.registerType").isEqualTo(measurementType)));
+        return this.getDataModel()
+                .query(DeviceConfiguration.class, LoadProfileSpec.class, ChannelSpec.class, RegisterSpec.class)
+                .select(where("loadProfileSpecs.channelSpecs.channelType").isEqualTo(measurementType)
+                        .or(where("registerSpecs.registerType").isEqualTo(measurementType)));
     }
 
     @Override
     public boolean isRegisterTypeUsedByDeviceType(RegisterType registerType) {
         return !this.getDataModel()
-                .
-                        query(DeviceTypeRegisterTypeUsage.class)
+                .query(DeviceTypeRegisterTypeUsage.class)
                 .select(where("registerType").isEqualTo(registerType))
                 .isEmpty();
     }
@@ -679,12 +681,15 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Activate
     public void activate() {
-        this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceConfigurationService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
-                Version.version(10, 2), UpgraderV10_2.class,
-                Version.version(10, 3), UpgraderV10_3.class,
-                Version.version(10, 4), UpgraderV10_4.class
-        ));
+        dataModel.register(this.getModule());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceConfigurationService.COMPONENTNAME),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(
+                        Version.version(10, 2), UpgraderV10_2.class,
+                        Version.version(10, 3), UpgraderV10_3.class,
+                        Version.version(10, 4), UpgraderV10_4.class
+                ));
         initPrivileges();
     }
 
@@ -930,7 +935,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         List<Resource> resources = userService.getResources("MDC");
         for (Resource resource : resources) {
             for (Privilege privilege : resource.getPrivileges()) {
-                Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forPrivilege(privilege.getName());
+                Optional<SecurityAccessorUserAction> found = SecurityAccessorUserAction.forPrivilege(privilege.getName());
                 if (found.isPresent()) {
                     privileges.add(privilege);
                 }
@@ -961,14 +966,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return !this.dataModel
                 .mapper(ComTaskEnablement.class)
                 .find(ComTaskEnablementImpl.Fields.COM_TASK.fieldName(), comTask)
-                .isEmpty();
-    }
-
-    @Override
-    public boolean usedBySecurityAccessorType(TrustStore trustStore) {
-        return !this.dataModel
-                .mapper(SecurityAccessorTypeImpl.class)
-                .find(SecurityAccessorTypeImpl.Fields.TRUSTSTORE.fieldName(), trustStore)
                 .isEmpty();
     }
 

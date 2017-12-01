@@ -12,13 +12,11 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.obis.ObisCode;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceUsageType;
@@ -32,9 +30,11 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
@@ -984,6 +984,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(reloadedDeviceType.getDeviceIcon()).hasSize(0);
     }
 
+    // TODO: move tests
     @Test
     @Transactional
     public void addSecurityAccessorType() throws Exception {
@@ -991,7 +992,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         Optional<KeyType> aes128 = inMemoryPersistence.getSecurityManagementService().getKeyType("AES128");
         assertThat(deviceType.getSecurityAccessorTypes()).isEmpty();
-        this.deviceType.addSecurityAccessorType("GUAK", aes128.get()).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("GUAK", aes128.get()).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
                 .findDeviceType(this.deviceType.getId()).get();
         assertThat(deviceType.getSecurityAccessorTypes()).hasSize(1);
@@ -1008,7 +1009,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         Optional<KeyType> aes128 = inMemoryPersistence.getSecurityManagementService().getKeyType("AES256");
         assertThat(deviceType.getSecurityAccessorTypes()).isEmpty();
-        this.deviceType.addSecurityAccessorType("GUAK", aes128.get()).description("general use AK").duration(TimeDuration.days(365)).add();
+        inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("GUAK", aes128.get()).description("general use AK").duration(TimeDuration.days(365)).add();
     }
 
     @Test
@@ -1019,7 +1020,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         Optional<KeyType> aes128 = inMemoryPersistence.getSecurityManagementService().getKeyType("AES256");
         assertThat(deviceType.getSecurityAccessorTypes()).isEmpty();
-        this.deviceType.addSecurityAccessorType("GUAK", aes128.get()).description("general use AK").keyEncryptionMethod("DataVault").add();
+        inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("GUAK", aes128.get()).description("general use AK").keyEncryptionMethod("DataVault").add();
     }
 
     @Test
@@ -1030,7 +1031,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         Optional<KeyType> certs = inMemoryPersistence.getSecurityManagementService().getKeyType("Friends");
         assertThat(deviceType.getSecurityAccessorTypes()).isEmpty();
-        this.deviceType.addSecurityAccessorType("TLS", certs.get()).description("just certificates").add();
+        inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("TLS", certs.get()).description("just certificates").add();
     }
 
     @Test
@@ -1041,7 +1042,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         Optional<KeyType> certs = inMemoryPersistence.getSecurityManagementService().getKeyType("Friends");
         assertThat(deviceType.getSecurityAccessorTypes()).isEmpty();
-        this.deviceType.addSecurityAccessorType("TLS", certs.get())
+        inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("TLS", certs.get())
                 .description("just certificates")
                 .trustStore(main)
                 .add();
@@ -1061,7 +1062,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES256", "AES", 256).add();
 
         Optional<KeyType> aes128 = inMemoryPersistence.getSecurityManagementService().getKeyType("AES256");
-        SecurityAccessorType securityAccessorType = this.deviceType.addSecurityAccessorType("GUAK", aes128.get())
+        SecurityAccessorType securityAccessorType = inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("GUAK", aes128.get())
                 .description("general use AK")
                 .duration(TimeDuration.days(365))
                 .keyEncryptionMethod("DataVault")

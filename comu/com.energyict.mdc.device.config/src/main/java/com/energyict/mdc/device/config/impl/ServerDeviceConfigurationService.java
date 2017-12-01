@@ -7,7 +7,6 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.TrustStore;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
@@ -38,16 +37,9 @@ public interface ServerDeviceConfigurationService extends DeviceConfigurationSer
 
     List<DeviceConfiguration> findDeviceConfigurationsByDeviceType(DeviceType deviceType);
 
-    ChannelSpec findChannelSpecByDeviceConfigurationAndName(DeviceConfiguration deviceConfig, String name);
+    List<DeviceType> findDeviceTypesUsingSecurityAccessorType(SecurityAccessorType securityAccessorType);
 
-    /**
-     * Finds and locks a {@link SecurityAccessorType} which is uniquely identified by the given ID and with the given VERSION.
-     *
-     * @param id the id of the {@link SecurityAccessorType}
-     * @param version the version of the {@link SecurityAccessorType}
-     * @return the {@link SecurityAccessorType} or empty if the {@link SecurityAccessorType} does not exist or does not have the expected version
-     */
-    Optional<SecurityAccessorType> findAndLockSecurityAccessorTypeByIdAndVersion(long id, long version);
+    ChannelSpec findChannelSpecByDeviceConfigurationAndName(DeviceConfiguration deviceConfig, String name);
 
     /**
      * Finds a list of {@link RegisterSpec RegisterSpecs} which are linked to the given {@link ChannelSpec} and
@@ -74,13 +66,6 @@ public interface ServerDeviceConfigurationService extends DeviceConfigurationSer
      * @return A flag that indicates if the ComTask is used or not
      */
     boolean usedByDeviceConfigurations(ComTask comTask);
-
-    /**
-     * Tests is the mentioned trust store is still referenced from any SecurityAccessorType
-     * @param trustStore
-     * @return true is the TrustStore is still in use, false otherwise.
-     */
-    boolean usedBySecurityAccessorType(TrustStore trustStore);
 
     Optional<DeviceMessageFile> findDeviceMessageFile(long id);
 

@@ -148,7 +148,6 @@ public enum MessageSeeds implements MessageSeed {
     INCORRECT_GATEWAY_TYPE(14009, Keys.INCORRECT_GATEWAY_TYPE, "You must specify the gateway type if your configuration can act as gateway"),
     VETO_COMTASK_DELETION(14010, "comTaskXstillInUse", "ComTask {0} is still in use by at least one device configuration"),
     VETO_CALENDAR_DELETION(14011, "calendarXStillInUse", "Calendar {0} is still in use by at least one device type"),
-    VETO_TRUSTSTORE_DELETION(14012, "trustStoreXstillInUse", "Trust store {0} is still in use"),
     PARTIAL_CONNECTION_TASK_NAME_DOES_NOT_EXIST(15001, "partialConnectionTask.doesNotExistName", "There is no Partial Connection Task by name {0}"),
     PARTIAL_CONNECTION_TASK_ID_DOES_NOT_EXIST(15002, "partialConnectionTask.doesNotExistId", "There is no Partial Connection Task with id {0}"),
     PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC(15003, Keys.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC, "There is no spec for connection type property with name {0}"),
@@ -176,10 +175,10 @@ public enum MessageSeeds implements MessageSeed {
     SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC(15023, Keys.SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC, "The security setting does not contain a specification for this attribute", Level.SEVERE),
     SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING(15024, Keys.SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING, "This field is required", Level.SEVERE),
     KEY_ACCESSOR_CAN_NOT_BE_DELETED(15025, "CanNotDeleteKeyAccessor", "Security accessor could not be removed because the device type still has active device configurations"),
-    EXCESSIVE_TIME_DURATION(15026, Keys.EXCESSIVE_TIME_DURATION, "Validity period must be shorter than or equal to 30 years."),
     CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL(15027, Keys.CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL, "The connection function is not supported by the device protocol"),
     CONNECTION_FUNCTION_UNIQUE(15028, Keys.CONNECTION_FUNCTION_UNIQUE, "The provided connection function is already used on another connection method"),
     COM_TASK_ENABLEMENT_CANNOT_USE_CONNECTION_FUNCTION_AND_PARTIAL_CONNECTION_TASK(15029, Keys.COM_TASK_ENABLEMENT_CANNOT_USE_CONNECTION_FUNCTION_AND_PARTIAL_CONNECTION_TASK, "When a partial connection task is specified, you can''t use the connection function"),
+    VETO_SECURITY_ACCESSOR_TYPE_DELETION(15030, "securityAccessorTypeStillInUseByDeviceTypes", "Security accessor could not be removed because it is still in use by the following device type(s): {0}")
     ;
 
     private final int number;
@@ -309,9 +308,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_VALUE = "securityPropertySet.unsupportedClient";
         public static final String SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC = "securityPropertySet.property.not.in.spec";
         public static final String SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING = "securityPropertySet.required.property.missing";
-        public static final String EXCESSIVE_TIME_DURATION = "excessiveTimeDuration";
         public static final String CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL = "ConnectionFunction.not.supported.by.deviceProtocol";
         public static final String CONNECTION_FUNCTION_UNIQUE = "ConnectionFunction.unique";
     }
-
 }

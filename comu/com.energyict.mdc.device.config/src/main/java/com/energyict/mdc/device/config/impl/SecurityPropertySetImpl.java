@@ -14,13 +14,13 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -91,7 +91,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private RequestSecurityLevel requestSecurityLevel;
     private int responseSecurityLevelId = -1;
     private ResponseSecurityLevel responseSecurityLevel;
-    private Set<DeviceSecurityUserAction> userActions = EnumSet.noneOf(DeviceSecurityUserAction.class);
+    private Set<SecurityAccessorUserAction> userActions = EnumSet.noneOf(SecurityAccessorUserAction.class);
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
     @Valid
     private List<ConfigurationSecurityProperty> configurationSecurityProperties = new ArrayList<>();
@@ -181,7 +181,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     static class UserActionRecord {
-        private DeviceSecurityUserAction userAction;
+        private SecurityAccessorUserAction userAction;
         private Reference<SecurityPropertySet> set = ValueReference.absent();
         @SuppressWarnings("unused")
         private String userName;
@@ -195,7 +195,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         UserActionRecord() {
         }
 
-        UserActionRecord(SecurityPropertySet set, DeviceSecurityUserAction userAction) {
+        UserActionRecord(SecurityPropertySet set, SecurityAccessorUserAction userAction) {
             this();
             this.set.set(set);
             this.userAction = userAction;

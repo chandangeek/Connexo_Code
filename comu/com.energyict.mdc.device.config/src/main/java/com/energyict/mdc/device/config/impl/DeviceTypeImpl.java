@@ -18,11 +18,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
-import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -34,12 +30,10 @@ import com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceMessageFile;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.SecurityAccessorTypeUpdater;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -78,8 +72,8 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -89,9 +83,6 @@ import java.util.stream.Collectors;
 @ValidChangesWithExistingConfigurations(groups = {Save.Update.class})
 @DeviceProtocolPluggableClassValidation(groups = {Save.Create.class, Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements ServerDeviceType {
-
-    private static final EnumSet<CryptographicType> CERTIFICATES = EnumSet.of(CryptographicType.Certificate, CryptographicType.ClientCertificate, CryptographicType.TrustedCertificate);
-
     enum Fields {
         DEVICE_PROTOCOL_PLUGGABLE_CLASS("deviceProtocolPluggableClassId"),
         NAME("name"),
@@ -102,7 +93,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         DEVICE_LIFE_CYCLE("deviceLifeCycle"),
         FILE_MANAGEMENT_ENABLED("fileManagementEnabled"),
         DEVICE_MESSAGE_FILES("deviceMessageFiles"),
-        KEY_ACCESSOR_TYPE("keyAccessors");
+        SECURITY_ACCESSOR_TYPES("securityAccessorTypes");
 
         private final String javaFieldName;
 
@@ -140,7 +131,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private boolean deviceProtocolPluggableClassChanged = false;
     private boolean fileManagementEnabled = false;
     private List<ServerDeviceMessageFile> deviceMessageFiles = new ArrayList<>();
-    private List<SecurityAccessorType> keyAccessors = new ArrayList<>();
+    private List<SecurityAccessorTypeOnDeviceTypeImpl> securityAccessorTypes = new ArrayList<>();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -322,88 +313,40 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public List<SecurityAccessorType> getSecurityAccessorTypes() {
-        return Collections.unmodifiableList(this.keyAccessors);
+        return securityAccessorTypes.stream()
+                .map(SecurityAccessorTypeOnDeviceTypeImpl::getSecurityAccessorType)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public SecurityAccessorType.Builder addSecurityAccessorType(String name, KeyType keyType) {
-        return new SecurityAccessorTypeBuilder(name, keyType, this);
+    public boolean addSecurityAccessorTypes(SecurityAccessorType... securityAccessorTypesToAdd) {
+        Set<SecurityAccessorType> toAdd = Arrays.stream(securityAccessorTypesToAdd).collect(Collectors.toSet());
+        securityAccessorTypes.stream()
+                .map(SecurityAccessorTypeOnDeviceTypeImpl::getSecurityAccessorType)
+                .forEach(toAdd::remove);
+        if (toAdd.isEmpty()) {
+            return false;
+        }
+        Set<SecurityAccessorTypeOnDeviceTypeImpl> newLinks = toAdd.stream()
+                .map(securityAccessorType -> getDataModel()
+                        .getInstance(SecurityAccessorTypeOnDeviceTypeImpl.class)
+                        .init(this, securityAccessorType))
+                .peek(securityAccessorType -> Save.CREATE.validate(getDataModel(), securityAccessorType))
+                .collect(Collectors.toSet());
+        securityAccessorTypes.addAll(newLinks);
+        return true;
     }
 
     @Override
     public void removeSecurityAccessorType(SecurityAccessorType securityAccessorType) {
-        getSecurityAccessorTypes().stream()
-                .filter(kat -> kat.getId() == securityAccessorType.getId())
+        if (getConfigurations().stream().anyMatch(DeviceConfiguration::isActive)) { // TODO provide better check
+            throw new SecurityAccessorTypeCanNotBeDeletedException(getThesaurus());
+        }
+        securityAccessorTypes.stream()
+                .filter(securityAccessorTypeOnDeviceType ->
+                        securityAccessorTypeOnDeviceType.getSecurityAccessorType().equals(securityAccessorType))
                 .findAny()
-                .ifPresent(kat->{
-                    ((SecurityAccessorTypeImpl)kat).preDelete();
-                    this.keyAccessors.remove(kat);
-                });
-    }
-
-    @Override
-    public Optional<SecurityAccessorTypeUpdater> getSecurityAccessorTypeUpdater(SecurityAccessorType securityAccessorType) {
-        return getSecurityAccessorTypes().stream()
-                .filter(kat -> kat.getId() == securityAccessorType.getId())
-                .findAny()
-                .map(kat->((SecurityAccessorTypeImpl) securityAccessorType).startUpdate());
-    }
-
-    @Override
-    public Set<DeviceSecurityUserAction> getSecurityAccessorTypeUserActions(SecurityAccessorType securityAccessorType) {
-        return getSecurityAccessorTypes().stream()
-                .filter(kat -> kat.getId() == securityAccessorType.getId())
-                .findAny()
-                .map(kat->((SecurityAccessorTypeImpl) securityAccessorType).getUserActions())
-                .orElse(Collections.emptySet());
-    }
-
-    private class SecurityAccessorTypeBuilder implements SecurityAccessorType.Builder {
-        private final SecurityAccessorTypeImpl underConstruction;
-
-        private SecurityAccessorTypeBuilder(String name, KeyType keyType, DeviceTypeImpl deviceType) {
-            underConstruction = getDataModel().getInstance(SecurityAccessorTypeImpl.class);
-            underConstruction.setName(name);
-            underConstruction.setKeyType(keyType);
-            underConstruction.setDeviceType(deviceType);
-        }
-
-        @Override
-        public SecurityAccessorType.Builder keyEncryptionMethod(String keyEncryptionMethod) {
-            underConstruction.setKeyEncryptionMethod(keyEncryptionMethod);
-            return this;
-        }
-
-        @Override
-        public SecurityAccessorType.Builder description(String description) {
-            underConstruction.setDescription(description);
-            return this;
-        }
-
-        @Override
-        public SecurityAccessorType.Builder trustStore(TrustStore trustStore) {
-            underConstruction.setTrustStore(trustStore);
-            return this;
-        }
-
-        @Override
-        public SecurityAccessorType.Builder duration(TimeDuration duration) {
-            underConstruction.setDuration(duration);
-            return this;
-        }
-
-        @Override
-        public SecurityAccessorType add() {
-            if (!CERTIFICATES.contains(underConstruction.getKeyType().getCryptographicType())) {
-                underConstruction.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
-                underConstruction.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
-                underConstruction.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1);
-                underConstruction.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
-            }
-            Save.CREATE.validate(getDataModel(), underConstruction);
-            DeviceTypeImpl.this.keyAccessors.add(underConstruction);
-            return underConstruction;
-        }
+                .ifPresent(securityAccessorTypes::remove);
     }
 
     @Override

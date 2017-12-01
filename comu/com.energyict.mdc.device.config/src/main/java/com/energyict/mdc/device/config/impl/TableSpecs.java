@@ -14,8 +14,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -96,75 +94,6 @@ public enum TableSpecs {
         }
     },
 
-    DTC_KEYACCESSORTYPE {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<SecurityAccessorType> table = dataModel.addTable(name(), SecurityAccessorType.class);
-            table.map(SecurityAccessorTypeImpl.class);
-            Column id = table.addAutoIdColumn();
-            table.setJournalTableName("DTC_KEYACCESSORTYPEJRNL");
-            table.addAuditColumns();
-            table.column("NAME")
-                    .varChar()
-                    .notNull()
-                    .map(SecurityAccessorTypeImpl.Fields.NAME.fieldName())
-                    .since(Version.version(10, 3))
-                    .add();
-            Column deviceType = table.column("DEVICETYPEID")
-                    .number()
-                    .notNull()
-                    .since(Version.version(10, 3))
-                    .add();
-            table.column("DESCRIPTION")
-                    .varChar()
-                    .map(SecurityAccessorTypeImpl.Fields.DESCRIPTION.fieldName())
-                    .since(Version.version(10, 3))
-                    .add();
-            table.column("DURATION").number()
-                    .conversion(NUMBER2INT)
-                    .map(SecurityAccessorTypeImpl.Fields.DURATION.fieldName() + ".count")
-                    .since(Version.version(10, 3))
-                    .add();
-            table.column("DURATIONCODE").number()
-                    .conversion(NUMBER2INT)
-                    .map(SecurityAccessorTypeImpl.Fields.DURATION.fieldName() + ".timeUnitCode")
-                    .since(Version.version(10, 3))
-                    .add();
-            table.column("ENCRYPTION")
-                    .varChar()
-                    .map(SecurityAccessorTypeImpl.Fields.ENCRYPTIONMETHOD.fieldName())
-                    .since(Version.version(10, 3))
-                    .add();
-            Column keytypeid = table.column("KEYTYPEID")
-                    .number()
-                    .notNull()
-                    .since(Version.version(10, 3))
-                    .add();
-            Column trustStoreId = table.column("TRUSTSTOREID")
-                    .number()
-                    .since(Version.version(10, 3))
-                    .add();
-            table.foreignKey("FK_DTC_KEYACCESSOR_DEVTYPE")
-                    .on(deviceType)
-                    .references(DTC_DEVICETYPE.name())
-                    .map(SecurityAccessorTypeImpl.Fields.DEVICETYPE.fieldName())
-                    .reverseMap(DeviceTypeImpl.Fields.KEY_ACCESSOR_TYPE.fieldName())
-                    .composition()
-                    .add();
-            table.foreignKey("FK_DTC_KEYACCCESSOR_KEYTYPE")
-                    .on(keytypeid)
-                    .references(KeyType.class)
-                    .map(SecurityAccessorTypeImpl.Fields.KEYTYPE.fieldName())
-                    .add();
-            table.foreignKey("FK_DTC_KEYACCCESSOR_TRUSTSTORE")
-                    .on(trustStoreId)
-                    .references(TrustStore.class)
-                    .map(SecurityAccessorTypeImpl.Fields.TRUSTSTORE.fieldName())
-                    .add();
-            table.primaryKey("PK_DTC_KEYACCESSOR").on(id).add();
-        }
-    },
-
     DTC_DEVICE_ICON {
         @Override
         void addTo(DataModel dataModel) {
@@ -186,26 +115,6 @@ public enum TableSpecs {
                     .add();
             table.primaryKey("PK_DTC_DEVICEICON_DT").on(id).add();
             table.unique("UQ_DTC_DEVICEICON_DT").on(deviceType).add();
-        }
-    },
-
-    DTC_KEYACCTYPEUSRACTN {
-        @Override
-        public void addTo(DataModel dataModel) {
-            Table<UserActionRecord> table = dataModel.addTable(name(), UserActionRecord.class).since(version(10, 3));
-            table.map(UserActionRecord.class);
-            Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
-            Column keyAccessorType = table.column("KEYACCESSORTYPE").number().notNull().add();
-            table.setJournalTableName("DTC_KEYACCTYPE_USRACTNJRNL");
-            table.addAuditColumns();
-            table.foreignKey("FK_DTC_KEYACCTYPE_USRACTN")
-                    .on(keyAccessorType)
-                    .references(DTC_KEYACCESSORTYPE.name())
-                    .reverseMap("userActionRecords")
-                    .composition()
-                    .map("keyAccessorType")
-                    .add();
-            table.primaryKey("PK_DTC_KEYACCTYPEUSRACTN").on(useraction, keyAccessorType).add();
         }
     },
 
@@ -751,7 +660,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("FK_DTC_SECURITYPROPERTY_VALUE")
                     .on(keyAccessorType)
-                    .references(DTC_KEYACCESSORTYPE.name())
+                    .references(SecurityAccessorType.class)
                     .composition()
                     .map("keyAccessorType")
                     .add();
@@ -1087,7 +996,37 @@ public enum TableSpecs {
                     .map(TimeOfUseOptionsImpl.Fields.DEVICETYPE.fieldName())
                     .add();
         }
+    },
+
+    DTC_SECACCTYPES_ON_DEVICETYPE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<SecurityAccessorTypeOnDeviceTypeImpl> table = dataModel.addTable(name(), SecurityAccessorTypeOnDeviceTypeImpl.class)
+                    .since(version(10, 4))
+                    .map(SecurityAccessorTypeOnDeviceTypeImpl.class);
+            Column deviceTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEVICETYPE.name()).number().notNull().add();
+            Column secAccTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.name()).number().notNull().add();
+            table.setJournalTableName(Constants.DTC_SECACCTYPES_ON_DEVICETYPE_JOURNAL_TABLE).since(version(10, 4));
+            table.addAuditColumns();
+            table.primaryKey("DTC_PK_SECACTYPEONDEVTYPE").on(deviceTypeColumn, secAccTypeColumn).add();
+            table.foreignKey("DTC_FK_SECACTYPEONDEVTYPE2DT")
+                    .references(DTC_DEVICETYPE.name())
+                    .on(deviceTypeColumn)
+                    .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEVICETYPE.fieldName())
+                    .reverseMap(DeviceTypeImpl.Fields.SECURITY_ACCESSOR_TYPES.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("DTC_FK_SECACTYPEONDEVTYPE2SAT")
+                    .references(SecurityAccessorType.class)
+                    .on(secAccTypeColumn)
+                    .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.fieldName())
+                    .add();
+        }
     };
 
     abstract void addTo(DataModel component);
+
+    interface Constants {
+        String DTC_SECACCTYPES_ON_DEVICETYPE_JOURNAL_TABLE = "DTC_SECACCTYPESONDEVTYPE_JRNL";
+    }
 }

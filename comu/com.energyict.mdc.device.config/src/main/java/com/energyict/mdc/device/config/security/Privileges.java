@@ -15,8 +15,6 @@ public enum Privileges implements TranslationKey {
     RESOURCE_MASTER_DATA_DESCRIPTION("masterData.masterData.description", "Manage device master data"),
     RESOURCE_DEVICE_TYPES("deviceType.deviceTypes", "Device types"),
     RESOURCE_DEVICE_TYPES_DESCRIPTION("deviceType.deviceTypes.description", "Manage device types"),
-    RESOURCE_DEVICE_SECURITY("deviceSecurity.deviceSecurities", "Device security"),
-    RESOURCE_DEVICE_SECURITY_DESCRIPTION("deviceSecurity.deviceSecurities.description", "Manage device security"),
     RESOURCE_DEVICE_COMMANDS("deviceCommand.deviceCommands", "Device commands"),
     RESOURCE_DEVICE_COMMANDS_DESCRIPTION("deviceCommand.deviceCommands.description", "Manage device commands"),
 
@@ -25,14 +23,6 @@ public enum Privileges implements TranslationKey {
     VIEW_MASTER_DATA(Constants.VIEW_MASTER_DATA, "View"),
     ADMINISTRATE_DEVICE_TYPE(Constants.ADMINISTRATE_DEVICE_TYPE, "Administrate"),
     VIEW_DEVICE_TYPE(Constants.VIEW_DEVICE_TYPE, "View"),
-    VIEW_DEVICE_SECURITY_PROPERTIES_1(Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, "View level 1"),
-    VIEW_DEVICE_SECURITY_PROPERTIES_2(Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, "View level 2"),
-    VIEW_DEVICE_SECURITY_PROPERTIES_3(Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, "View level 3"),
-    VIEW_DEVICE_SECURITY_PROPERTIES_4(Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4, "View level 4"),
-    EDIT_DEVICE_SECURITY_PROPERTIES_1(Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, "Edit level 1"),
-    EDIT_DEVICE_SECURITY_PROPERTIES_2(Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2, "Edit level 2"),
-    EDIT_DEVICE_SECURITY_PROPERTIES_3(Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3, "Edit level 3"),
-    EDIT_DEVICE_SECURITY_PROPERTIES_4(Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4, "Edit level 4"),
     EXECUTE_COM_TASK_1(Constants.EXECUTE_COM_TASK_1, "Execute level 1"),
     EXECUTE_COM_TASK_2(Constants.EXECUTE_COM_TASK_2, "Execute level 2"),
     EXECUTE_COM_TASK_3(Constants.EXECUTE_COM_TASK_3, "Execute level 3"),
@@ -77,16 +67,6 @@ public enum Privileges implements TranslationKey {
 
         String ADMINISTRATE_DEVICE_TYPE = "privilege.administrate.deviceType";
         String VIEW_DEVICE_TYPE = "privilege.view.deviceType";
-
-        String VIEW_DEVICE_SECURITY_PROPERTIES_1 = "view.device.security.properties.level1";
-        String VIEW_DEVICE_SECURITY_PROPERTIES_2 = "view.device.security.properties.level2";
-        String VIEW_DEVICE_SECURITY_PROPERTIES_3 = "view.device.security.properties.level3";
-        String VIEW_DEVICE_SECURITY_PROPERTIES_4 = "view.device.security.properties.level4";
-
-        String EDIT_DEVICE_SECURITY_PROPERTIES_1 = "edit.device.security.properties.level1";
-        String EDIT_DEVICE_SECURITY_PROPERTIES_2 = "edit.device.security.properties.level2";
-        String EDIT_DEVICE_SECURITY_PROPERTIES_3 = "edit.device.security.properties.level3";
-        String EDIT_DEVICE_SECURITY_PROPERTIES_4 = "edit.device.security.properties.level4";
 
         String EXECUTE_COM_TASK_1 = "execute.com.task.level1";
         String EXECUTE_COM_TASK_2 = "execute.com.task.level2";
