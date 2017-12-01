@@ -65,7 +65,8 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>estimation</artifactId>
-        </dependency><dependency>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>estimation.extjs</artifactId>
         </dependency>
@@ -240,6 +241,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>dataquality</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pki</artifactId>
         </dependency>
     </dependencies>
 

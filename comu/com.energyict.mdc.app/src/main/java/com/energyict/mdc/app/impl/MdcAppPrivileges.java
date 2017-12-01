@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.app.impl;
 
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -102,16 +101,16 @@ class MdcAppPrivileges {
                 com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
                 com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4,
 
-                //mdc.device.config - Device security
-                com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1,
-                com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,
-                com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,
-                com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,
+                //pki - attributes of security accessors
+                com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1,
+                com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_2,
+                com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_3,
+                com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_4,
 
-                com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1,
-                com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2,
-                com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3,
-                com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
+                com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_1,
+                com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_2,
+                com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_3,
+                com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
 
                 //mdc.device.config - Device type
                 com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE,
@@ -213,7 +212,11 @@ class MdcAppPrivileges {
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION,
 
                 //calendars
-                com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS
+                com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS,
+
+                // security accessors management
+                com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_ACCESSORS,
+                com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_ACCESSORS
         );
     }
 }

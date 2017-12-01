@@ -22,14 +22,19 @@ public class UpgraderV10_4 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdcAppService.APPLICATION_KEY, getNewMeterExpertPrivileges());
         userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.APPLICATION_KEY, getNewMeterExpertPrivileges());
     }
 
     private String[] getNewMeterExpertPrivileges() {
         return new String[]{
-                //REGISTERED DEVICES KPI
+                // REGISTERED DEVICES KPI
                 com.energyict.mdc.device.topology.kpi.Privileges.Constants.ADMINISTRATE,
                 com.energyict.mdc.device.topology.kpi.Privileges.Constants.VIEW,
+
+                // Security accessors management
+                com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_ACCESSORS,
+                com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_ACCESSORS
         };
     }
 }
