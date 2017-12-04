@@ -8,14 +8,13 @@ Ext.define('Mtr.view.readingtypesgroup.Menu' , {
 
     router: null,
 
-    title: Uni.I18n.translate('readingtypes.readingTypeGroupName', 'MTR', 'Group Name'),
     objectType: Uni.I18n.translate('readingtypes.readingTypeGroup', 'MTR', 'Reading type group'),
 
     initComponent: function () {
-
         var me = this;
+        me.title = decodeURIComponent(me.router.arguments.aliasName) || Uni.I18n.translate('readingtypes.readingTypeGroupName', 'MTR', 'Group Name');
 
-        /*    me.menuItems = [   // laurentia a comentat asta  - begin
+        me.menuItems = [
             {
                 text: Uni.I18n.translate('readingtypes.readingTypeGroupOverview', 'MTR', 'Overview'),
                 itemId: 'reading-type-group-overview-link',
@@ -26,7 +25,7 @@ Ext.define('Mtr.view.readingtypesgroup.Menu' , {
                 itemId: 'reading-type-group-reading-types-link',
                 href: me.router.getRoute('administration/readingtypegroups/view').buildUrl()
             }
-         ] */   // laurentia a comentat asta  - end
+        ]
 
         me.callParent(arguments);
     }

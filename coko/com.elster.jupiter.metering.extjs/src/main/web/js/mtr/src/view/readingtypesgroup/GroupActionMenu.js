@@ -5,6 +5,7 @@
 Ext.define('Mtr.view.readingtypesgroup.GroupActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.readingTypesGroup-action-menu',
+
     initComponent: function() {
         this.items = [
             {

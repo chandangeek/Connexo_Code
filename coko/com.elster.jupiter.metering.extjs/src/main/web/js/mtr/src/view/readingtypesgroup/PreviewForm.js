@@ -9,8 +9,6 @@ Ext.define('Mtr.view.readingtypesgroup.PreviewForm', {
     initComponent: function () {
         var me = this;
 
-
-
         me.items = [
             {
                 layout: 'column',

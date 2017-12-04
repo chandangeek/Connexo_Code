@@ -19,13 +19,13 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsGrid', {
                 header: Uni.I18n.translate('general.name', 'MTR', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('administration/readingtypegroups/view').buildUrl({aliasName: value});
+                    var url = me.router.getRoute('administration/readingtypegroups/view').buildUrl({aliasName: encodeURIComponent(value)});
                     return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 flex: 3
             },
             {
-                header: Uni.I18n.translate('readingtypesmanagement.numberOfReadingTypes', 'MTR', '# Reading types'),
+                header: Uni.I18n.translate('readingtypesmanagement.numberOfReadingTypes', 'MTR', 'Active reading types'),
                 dataIndex: 'numberOfReadingTypes',
                 flex: 1
             },
@@ -39,10 +39,10 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsGrid', {
             }
         ];
 
-        me.dockedItems = [
+        this.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                store: me.store,
+                store: this.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.displayMsg', 'MTR', '{0} - {1} of {2} groups'),
                 displayMoreMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.displayMoreMsg', 'MTR', '{0} - {1} of more than {2} groups'),
@@ -58,13 +58,13 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsGrid', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                store: me.store,
+                store: this.store,
                 itemsPerPageMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbarbottom.itemsPerPage', 'MTR', 'Groups per page'),
                 dock: 'bottom',
                 deferLoading: true
             }
         ];
 
-        me.callParent(arguments);
+        this.callParent();
     }
 });
