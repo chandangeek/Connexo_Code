@@ -7,6 +7,10 @@ Ext.define('Tme.store.RelativePeriodCategories', {
     storeId: 'relativePeriodCategories',
     autoLoad: false,
     model: 'Tme.model.Categories',
+    sorters: [{
+        property: 'name',
+        direction: 'ASC'
+    }],
     proxy: {
         type: 'rest',
         url: '/api/tmr/relativeperiods/categories',
