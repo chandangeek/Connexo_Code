@@ -1,18 +1,11 @@
 package com.energyict.mdc.device.alarms.impl;
 
-
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 
-import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.time.RelativePeriodUsageInfo;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.RelativePeriodUsageProvider;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
@@ -20,13 +13,9 @@ import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTempla
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(service = RelativePeriodUsageProvider.class)
 public class AlarmUsageProvider implements RelativePeriodUsageProvider {
@@ -49,7 +38,8 @@ public class AlarmUsageProvider implements RelativePeriodUsageProvider {
 
     @Override
     public List<RelativePeriodUsageInfo> getUsageReferences(long relativePeriodId) {
-        return getAlarmCreationRules().stream()
+        return DeviceAlarmUtil.getAlarmCreationRules(issueService)
+                .stream()
                 .filter(rule -> this.matchesRelativePeriod(rule, relativePeriodId))
                 .map(this::createRelativePeriodUsageInfo)
                 .collect(Collectors.toList());
@@ -60,14 +50,10 @@ public class AlarmUsageProvider implements RelativePeriodUsageProvider {
         return TranslationKeys.ALARM_RELATIVE_PERIOD_CATEGORY.getKey();
     }
 
-
     private boolean matchesRelativePeriod(CreationRule rule, long relativePeriodId) {
-        return rule.getCreationRuleProperties()
-                .stream()
-                .filter(property -> BasicDeviceAlarmRuleTemplate.THRESHOLD.equals(property.getName()))
-                .map(CreationRuleProperty::getValue)
-                .map(BasicDeviceAlarmRuleTemplate.RelativePeriodWithCountInfo.class::cast)
-                .anyMatch(relativePeriod -> relativePeriod.getRelativePeriodId() == relativePeriodId);
+        BasicDeviceAlarmRuleTemplate.RelativePeriodWithCountInfo info = (BasicDeviceAlarmRuleTemplate.RelativePeriodWithCountInfo) rule.getProperties().get(BasicDeviceAlarmRuleTemplate.THRESHOLD);
+
+        return info != null && info.getRelativePeriodId() == relativePeriodId;
     }
 
     private RelativePeriodUsageInfo createRelativePeriodUsageInfo(CreationRule rule) {
@@ -79,14 +65,5 @@ public class AlarmUsageProvider implements RelativePeriodUsageProvider {
     }
 
 
-    private List<CreationRule> getAlarmCreationRules() {
-        IssueType alarmType = issueService.findIssueType("devicealarm").orElse(null);
-        List<IssueReason> alarmReasons = new ArrayList<>(issueService.query(IssueReason.class)
-                .select(where("issueType").isEqualTo(alarmType)));
-
-        Query<CreationRule> query = issueService.getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
-        Condition conditionIssue = where("reason").in(alarmReasons);
-        return query.select(conditionIssue, Order.ascending("name"));
-    }
 
 }
