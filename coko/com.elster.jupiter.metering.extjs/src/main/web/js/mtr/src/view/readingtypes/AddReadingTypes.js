@@ -75,7 +75,7 @@ Ext.define('Mtr.view.readingtypes.AddReadingTypes', {
                     labelWidth: 250,
                     fieldLabel: '&nbsp',
                     itemId: 'add-reading-types-description-of-attributes-info',
-                    value: Uni.I18n.translate('readingtypesmanagment.addreadingtypes.cimFormDescriptionOfAttributesInfo', 'MTR', 'Description of attributes can be found in CIM documentation'),
+                    value: Uni.I18n.translate('readingtypesmanagement.addreadingtypes.cimFormDescriptionOfAttributesInfo', 'MTR', 'Description of attributes can be found in CIM documentation'),
                     renderer: function(value){
                         return '<i>' + value + '</i>'
                     }
@@ -86,7 +86,7 @@ Ext.define('Mtr.view.readingtypes.AddReadingTypes', {
                     fieldLabel: '&nbsp',
                     fieldCls: 'x-panel-body-form-error',
                     itemId: 'add-reading-types-count',
-                    value: Uni.I18n.translate('readingtypesmanagment.addreadingtypes.defaultCountMsg', 'MTR', 'You are going to add 1 reading type. 1000 is the limit')
+                    value: Uni.I18n.translate('readingtypesmanagement.addreadingtypes.defaultCountMsg', 'MTR', 'You are going to add 1 reading type. 1000 is the limit')
                 },
                 {
                     xtype: 'fieldcontainer',

@@ -33,9 +33,21 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
         'Mtr.store.readingtypes.attributes.Currency',
         'Mtr.store.readingtypes.attributes.MeasuringPeriod',
 
+
         'Mtr.store.readingtypesgroup.attributes.Commodity',
         'Mtr.store.readingtypesgroup.attributes.Kind',
-        'Mtr.store.readingtypesgroup.attributes.MeasuringPeriod'
+        'Mtr.store.readingtypesgroup.attributes.DirectionOfFlow',
+        'Mtr.store.readingtypesgroup.attributes.UnitOfMeasures',
+        'Mtr.store.readingtypesgroup.attributes.MacroPeriod',
+        'Mtr.store.readingtypesgroup.attributes.Accumulation',
+        'Mtr.store.readingtypesgroup.attributes.MeasuringPeriod',
+        'Mtr.store.readingtypesgroup.attributes.Aggregate',
+
+        'Mtr.store.readingtypesgroup.attributes.Multiplier',
+        'Mtr.store.readingtypesgroup.attributes.Phase',
+        'Mtr.store.readingtypesgroup.attributes.TimeOfUse',
+        'Mtr.store.readingtypesgroup.attributes.CriticalPeakPeriod',
+        'Mtr.store.readingtypesgroup.attributes.ConsumptionTier'
     ],
 
 
@@ -60,30 +72,81 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
         {
             ref: 'basicMeasurementKind',
             selector: '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=measurementKind]'
+        },
+        {
+            ref: 'basicUnit',
+            selector: '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=unit]'
+        },
+        {
+            ref: 'basicFlowDirection',
+            selector: '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=flowDirection]'
+        },
+        {
+            ref: 'basicMacroPeriod',
+            selector: '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=macroPeriod]'
+        },
+        {
+            ref: 'basicAccumulation',
+            selector: '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=accumulation]'
+        },
+        {
+            ref: 'basicMeasuringPeriod',
+            selector: '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=measuringPeriod]'
+        },
+        {
+            ref: 'basicAggregate',
+            selector: '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=aggregate]'
+        },
+        {
+            ref: 'basicMetricMultiplier',
+            selector: '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=metricMultiplier]'
+        },
+        {
+            ref: 'basicPhases',
+            selector: '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=phases]'
+        },
+        {
+            ref: 'basicTimeOfUse',
+            selector: '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=tou]'
+        },
+        {
+            ref: 'basicCriticalPeakPeriod',
+            selector: '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=cpp]'
+        },
+        {
+            ref: 'basicConsumptionTier',
+            selector: '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=consumptionTier]'
         }
     ],
 
     qString: null,
 
     init: function () {
+        var me = this;
         this.control({
             '#add-reading-types-group #add-reading-types-group-add-button': {
                 click: this.addButtonClick
             },
             '#add-reading-types-group #add-reading-type-group-cancel-button': {
                 click: this.goBack
-            }
-            ,
-            '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox': {
-                change: this.cimComboChange
-            }
-
-            ,
+            },
+            // ,
+            // '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox': {
+            //     change: this.cimComboChange
+            // },
             '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=commodity]': {
                 change: this.basicCommodityChange
+            },
+            '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=measurementKind]': {
+                change: this.basicMeasurementKindChange
+            },
+            '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=macroPeriod]': {
+                change: this.basicMacroPeriodChange //,
+                //select:this.basicMacroPeriodSelect
             }
         });
     },
+
 
     showOverview: function () {
         var me = this,
@@ -97,22 +160,103 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
 
     basicCommodityChange: function (combo, newValue) {
         var me = this;
-        me.getBasicMeasurementKind().setDisabled(newValue == 0);
-        me.getBasicMeasurementKind().getStore().getProxy().setExtraParam('commodity', newValue);
-        me.getBasicMeasurementKind().getStore().reload();  // aici sus sa adaug un filter
-        // vezi Mdc.view.setup.securitysettings.SecuritySettingForm
-        //linia 209
-        //var requestSecurityLevelStore = this.down('#requestSecurityCombobox').getStore();
-        //proxy = requestSecurityLevelStore.getProxy();
-        //proxy.setExtraParam('deviceType', this.deviceTypeId);
-        //proxy.setExtraParam('deviceConfig', this.deviceConfigurationId);
+        var commodity = me.getBasicCommodity().getValue();
+        me.getBasicMeasurementKind().setDisabled(commodity == 0);
+        me.getBasicMeasurementKind().getStore().getProxy().setExtraParam('filter', newValue);
+        me.getBasicMeasurementKind().getStore().load();
+        me.getBasicMeasurementKind().select(0);
+
+        me.getBasicFlowDirection().setDisabled(commodity == 0);
+        me.getBasicFlowDirection().getStore().getProxy().setExtraParam('filter', newValue);
+        me.getBasicFlowDirection().getStore().load();
+        me.getBasicFlowDirection().select(0);
+
+        me.getBasicMacroPeriod().setDisabled(commodity == 0);
+        me.getBasicMacroPeriod().getStore().getProxy().setExtraParam('filter', newValue);
+        me.getBasicMacroPeriod().getStore().load();
+        me.getBasicMacroPeriod().select(0);
+        // me.getBasicMacroPeriod().getStore().load(function() {
+        //         if (commodity == 1 || commodity == 2) {
+        //             me.getBasicMacroPeriod().getStore().insert(1,
+        //                 {code: 0x00010000, displayName: "Interval < 1 day"});
+        //         }
+        //         me.getBasicMacroPeriod().select(0);
+        //     }
+        // );
+
+        this.prepareAccumulation();
+        this.prepareMeasuringPeriod();
+
+        me.getBasicPhases().setVisible(true);
+        me.getBasicAggregate().setDisabled(commodity == 0);
+
+        me.getBasicMetricMultiplier().setVisible(true);
+        me.getBasicMetricMultiplier().setDisabled(commodity == 0);
+
+        var showAdditionalParameters = (commodity == 1 || commodity == 2);
+
+        me.getBasicPhases().setVisible(showAdditionalParameters);
+        me.getBasicPhases().setDisabled(commodity == 0);
+
+        me.getBasicTimeOfUse().setVisible(showAdditionalParameters);
+        me.getBasicTimeOfUse().setDisabled(commodity == 0);
+
+        me.getBasicCriticalPeakPeriod().setVisible(showAdditionalParameters);
+        me.getBasicCriticalPeakPeriod().setDisabled(commodity == 0);
+
+        me.getBasicConsumptionTier().setVisible(showAdditionalParameters);
+        me.getBasicConsumptionTier().setDisabled(commodity == 0);
+
+        // me.getBasicAggregate().getStore().getProxy().setExtraParam('filter', newValue);
+        // me.getBasicAggregate().getStore().reload();
+        // me.getBasicAggregate().select(0);
+        // codul acesta se foloseste cand doresc valoarea campului, depoarece de aceasta
+        // valoare mai depinde si alte combo box-uri
+
+        //aici adaug si celelelate
     },
-    cimComboChange: function (combo) { //lori
-        console.log(combo.getName());//lori
 
-        //getMeasurementKind().
+    basicMeasurementKindChange: function (combo, newValue) {
+        var me = this;
+        me.getBasicUnit().setDisabled(newValue == 0);
+        me.getBasicUnit().select(0);
+        me.getBasicUnit().getStore().getProxy().setExtraParam('filter', newValue);
+        me.getBasicUnit().getStore().load();
+    },
 
+    basicMacroPeriodSelect: function (combo, records) {
+        if (records.length > 0) {
 
+        }
+    },
+    basicMacroPeriodChange: function (combo, newValue) {
+        this.prepareAccumulation();
+        this.prepareMeasuringPeriod();
+    },
+
+    prepareAccumulation: function () {
+        var me = this;
+        var commodity = me.getBasicCommodity().getValue();
+        var macroPeriodValue = me.getBasicMacroPeriod().getValue() || 0;
+        var show = (commodity == 1 || commodity == 2);
+        show = show && (macroPeriodValue == 0);
+        me.getBasicAccumulation().setVisible(show);
+        if (show) {
+            me.getBasicAccumulation().getStore().load();
+            ///me.getBasicAccumulation().select(0);  // 'Select an accumulation...' text is displayed
+        }
+    },
+
+    prepareMeasuringPeriod: function () {
+        var me = this;
+        var commodity = me.getBasicCommodity().getValue();
+        var macroPeriodValue = me.getBasicMacroPeriod().getValue() || 0;
+        var show = (commodity == 1 || commodity == 2);
+        show = show && (macroPeriodValue == 0x10000);
+
+        me.getBasicMeasuringPeriod().setVisible(show);
+        me.getBasicMeasuringPeriod().getStore().load();
+        // me.getBasicMeasuringPeriod().select(0);  // 'Select a time period...' text is displayed
     },
 
     addButtonClick: function () {

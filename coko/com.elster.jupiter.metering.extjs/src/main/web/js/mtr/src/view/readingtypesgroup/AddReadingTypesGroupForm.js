@@ -47,13 +47,13 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                             {
                                 boxLabel: Uni.I18n.translate('readingTypesManagement.addReadingTypes.cimCode', 'MTR', 'CIM code'),
                                 name: 'specifyBy',
-                                inputValue: 'cim',
-                                checked: true
+                                inputValue: 'cim'
                             },
                             {
                                 boxLabel: Uni.I18n.translate('readingTypesManagement.addReadingTypes.form', 'MTR', 'Form'),
                                 name: 'specifyBy',
-                                inputValue: 'form'
+                                inputValue: 'form',
+                                checked: true
                             }
                         ],
                         listeners: {
@@ -97,7 +97,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                 width: '100%',
                 items: [
                     {
-                        title: Uni.I18n.translate('general.Basic', 'MTR', 'Basic'),
+                        title: Uni.I18n.translate('general.basic', 'MTR', 'Basic'),
                         padding: '8 16 16 0',
                         itemId: 'reading-types-groups-add-basic-tab',
                         items: [
@@ -108,7 +108,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                         ]
                     },
                     {
-                        title: Uni.I18n.translate('general.Extended', 'MTR', 'Extended'),
+                        title: Uni.I18n.translate('general.extended', 'MTR', 'Extended'),
                         padding: '8 16 16 0',
                         itemId: 'reading-types-groups-add-extended-tab',
                         items: [

@@ -11,12 +11,12 @@ Ext.define('Mtr.view.readingtypes.SortingMenu', {
     items: [
         {
             itemId: 'reading-types-sorting-menu-item-by-name',
-            text: Uni.I18n.translate('readingtypesmanagment.name','MTR','Name'),
+            text: Uni.I18n.translate('readingtypesmanagement.name', 'MTR', 'Name'),
             name: 'fullAliasName'
         },
         {
             itemId: 'reading-types-sorting-menu-item-by-status',
-            text: Uni.I18n.translate('readingtypesmanagment.status','MTR','Status'),
+            text: Uni.I18n.translate('readingtypesmanagement.status', 'MTR', 'Status'),
             name: 'active'
         }
     ]

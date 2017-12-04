@@ -14,8 +14,13 @@ Ext.define('Mtr.util.CimCombobox', {
             itemTpl: Ext.create('Ext.XTemplate',
                 '{', me.displayField, '}',
                 '<div style="float: right">',
-                '{', me.cimField,'}',
-                '</div>'
+                '{[this.f1(values["', me.cimField, '"])]}',
+                '</div>',
+                {
+                    f1: function (code) {
+                        return code & 0x0000FFFF;
+                    }
+                }
             )
         });
         me.callParent(arguments)

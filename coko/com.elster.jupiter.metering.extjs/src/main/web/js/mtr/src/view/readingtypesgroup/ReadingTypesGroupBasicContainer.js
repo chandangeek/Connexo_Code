@@ -46,38 +46,48 @@ Ext.define('Mtr.view.readingtypesgroup.ReadingTypesGroupBasicContainer', {
             },
             {
                 fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.flowDirection', 'MTR', '#5 Flow direction'),
-                store: 'Mtr.store.readingtypes.attributes.DirectionOfFlow',
+                store: 'Mtr.store.readingtypesgroup.attributes.DirectionOfFlow',
                 cimIndex: 5,
+                disabled: true,
                 name: 'flowDirection'
             },
             {
                 fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.unit', 'MTR', '#17 Unit'),
-                store: 'Mtr.store.readingtypes.attributes.UnitOfMeasures',
+                store: 'Mtr.store.readingtypesgroup.attributes.UnitOfMeasures',
                 cimIndex: 17,
                 name: 'unit'
             },
             {
                 fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.macroPeriod', 'MTR', '#1 Macro period'),
-                store: 'Mtr.store.readingtypes.attributes.Interval',
+                store: 'Mtr.store.readingtypesgroup.attributes.MacroPeriod',
                 cimIndex: 1,
-                name: 'macroPeriod'
+                disabled: false,
+                name: 'macroPeriod',
+                cimField: 'code'
             },
             {
                 fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.accumulation', 'MTR', '#4 Accumulation'),
-                store: 'Mtr.store.readingtypes.attributes.Accumulation',
+                store: 'Mtr.store.readingtypesgroup.attributes.Accumulation',
+                emptyText: Uni.I18n.translate('readingTypesManagement.attribute.accumulation.emptyText', 'MTR', 'Select an accumulation...'),
                 cimIndex: 4,
+                hidden: true,
+                disabled: false,
                 name: 'accumulation'
             },
             {
                 fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measuringPeriod', 'MTR', '#3 Measuring period'),
                 store: 'Mtr.store.readingtypesgroup.attributes.MeasuringPeriod',
+                emptyText: Uni.I18n.translate('readingTypesManagement.attribute.Accumulation.emptyText', 'MTR', 'Select a time period...'),
                 cimIndex: 3,
+                hidden: true,
+                disabled: false,
                 name: 'measuringPeriod'
             },
             {
                 fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.aggregate', 'MTR', '#2 Aggregate'),
-                store: 'Mtr.store.readingtypes.attributes.DataQualifier',
+                store: 'Mtr.store.readingtypesgroup.attributes.Aggregate',
                 cimIndex: 2,
+                disabled: false,
                 name: 'aggregate'
             },
             {
@@ -115,41 +125,44 @@ Ext.define('Mtr.view.readingtypesgroup.ReadingTypesGroupBasicContainer', {
                 items: [
                     {
                         fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.multiplier', 'MTR', '#16 Multiplier'),
-                        store: 'Mtr.store.readingtypes.attributes.Multiplier',
+                        store: 'Mtr.store.readingtypesgroup.attributes.Multiplier',
                         cimIndex: 16,
+                        hidden: true,
                         name: 'metricMultiplier'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.phases', 'MTR', '#15 Phases'),
-                        store: 'Mtr.store.readingtypes.attributes.Phase',
+                        store: 'Mtr.store.readingtypesgroup.attributes.Phase',
                         cimIndex: 15,
+                        hidden: true,
                         name: 'phases'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.timeOfUse', 'MTR', '#12 Time of use'),
-                        store: 'Mtr.store.readingtypes.attributes.TimeOfUse',
+                        store: 'Mtr.store.readingtypesgroup.attributes.TimeOfUse',
                         showCimCodes: false,
                         cimIndex: 12,
+                        hidden: true,
                         name: 'tou'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.criticalPeakPeriod', 'MTR', '#13 Critical peak period'),
-                        store: 'Mtr.store.readingtypes.attributes.CriticalPeakPeriod',
+                        store: 'Mtr.store.readingtypesgroup.attributes.CriticalPeakPeriod',
                         showCimCodes: false,
                         cimIndex: 13,
+                        hidden: true,
                         name: 'cpp'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.consumptionTier', 'MTR', '#14 Consumption tier'),
-                        store: 'Mtr.store.readingtypes.attributes.ConsumptionTier',
+                        store: 'Mtr.store.readingtypesgroup.attributes.ConsumptionTier',
                         showCimCodes: false,
                         cimIndex: 14,
+                        hidden: true,
                         name: 'consumptionTier'
                     }
                 ]
             }
-
-
         ];
         me.callParent(arguments)
     }
