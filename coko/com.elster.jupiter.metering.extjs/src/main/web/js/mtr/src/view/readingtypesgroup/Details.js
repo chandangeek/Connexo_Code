@@ -7,43 +7,41 @@ Ext.define('Mtr.view.readingtypesgroup.Details', {
     alias: 'widget.reading-type-groups-details',
     requires: [
         'Mtr.view.readingtypesgroup.Menu',
-        'Mtr.view.readingtypesgroup.PreviewForm'
+        'Mtr.view.readingtypesgroup.PreviewForm',
+        'Mtr.view.readingtypesgroup.GroupActionMenu'
     ],
 
     router: null,
 
+    content: {
+        xtype: 'container',
+        layout: 'hbox',
+        items: [
+            {
+                ui: 'large',
+                itemId: 'reding-type-groups-details-panel',
+                title: Uni.I18n.translate('readingtypesmanagement.overview', 'MTR', 'Overview'),
+                flex: 1,
+                items: {
+                    xtype: 'reading-types-group-preview-form',
+                    itemId: 'reading-types-group-details',
+                    margin: '0 0 0 100',
+                }
+            },
+
+            {
+                xtype: 'uni-button-action',
+                itemId: 'btn-action',
+                margin: '20 0 0 0',
+                menu: {
+                    xtype: 'readingTypesGroup-action-menu'
+                }
+            }
+        ]
+    },
+
     initComponent: function () {
         var me = this;
-
-        me.content = {
-            xtype: 'container',
-            layout: 'hbox',
-            items: [
-                {
-                    ui: 'large',
-                    itemId: 'reding-type-groups-details-panel',
-                    title: Uni.I18n.translate('readingtypesmanagement.overview', 'MTR', 'Overview'),
-                    flex: 1,
-                    items: {
-                        xtype: 'reading-types-group-preview-form',
-                        itemId: 'reading-types-group-details',
-                        margin: '0 0 0 100',
-                        router: me.router
-                    }
-                },
-                // The action menu
-                /*{
-                    xtype: 'uni-button-action',
-                    itemId: 'btn-action',
-                    margin: '20 0 0 0',
-                    hidden: typeof(SystemApp) == 'undefined',
-                    menu: {
-                        xtype: 'fim-import-service-action-menu'
-                    }
-                }*/
-            ]
-        };
-
         me.side = [
             {
                 xtype: 'panel',
@@ -59,7 +57,7 @@ Ext.define('Mtr.view.readingtypesgroup.Details', {
             }
         ];
 
-        me.callParent(arguments);
+        this.callParent(arguments);
     }
 });
 
