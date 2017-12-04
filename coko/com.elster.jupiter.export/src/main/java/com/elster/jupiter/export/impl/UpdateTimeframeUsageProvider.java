@@ -31,6 +31,7 @@ public class UpdateTimeframeUsageProvider extends AbstractExportUsageProvider {
     @Override
     protected boolean matchesRelativePeriod(ExportTask task, long relativePeriodId) {
         return task.getStandardDataSelectorConfig()
+                .filter(ReadingDataSelectorConfig.class::isInstance)
                 .map(ReadingDataSelectorConfig.class::cast)
                 .flatMap(ReadingDataSelectorConfig::getUpdatePeriod)
                 .filter(period -> period.getId() == relativePeriodId)

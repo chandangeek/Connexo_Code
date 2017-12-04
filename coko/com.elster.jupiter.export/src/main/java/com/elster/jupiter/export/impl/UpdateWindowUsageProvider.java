@@ -30,11 +30,10 @@ public class UpdateWindowUsageProvider extends AbstractExportUsageProvider {
     @Override
     protected boolean matchesRelativePeriod(ExportTask task, long relativePeriodId) {
         return task.getStandardDataSelectorConfig()
+                .filter(ReadingDataSelectorConfig.class::isInstance)
                 .map(ReadingDataSelectorConfig.class::cast)
                 .flatMap(ReadingDataSelectorConfig::getUpdateWindow)
                 .filter(period -> period.getId() == relativePeriodId)
                 .isPresent();
     }
-
-
 }
