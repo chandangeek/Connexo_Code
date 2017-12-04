@@ -7,14 +7,18 @@ package com.elster.jupiter.metering.rest.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFilter;
-import com.elster.jupiter.metering.rest.ReadingTypeAliasInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -25,10 +29,21 @@ import com.elster.jupiter.util.conditions.Where;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -96,39 +111,14 @@ public class ReadingTypeResource {
                 .map(readingTypeInfoFactory::from)
                 .collect(Collectors.toList());
 
-        List<ReadingTypeAliasInfo> aliases = readingTypes
+        Map<String, List<ReadingTypeInfo>> readingTypesByAlias = readingTypes
                 .stream()
-                .map(obj -> {
-                    ReadingTypeAliasInfo result = new ReadingTypeAliasInfo();
-                    result.name = obj.aliasName;
+                .collect(Collectors.groupingBy(ReadingTypeInfo::getName));
 
-                    result.commodity = obj.commodity;  // Commodity.ELECTRICITY_SECONDARY_METERED.getDescription();
-                    // and
-                    // Commodity.ELECTRICITY_PRIMARY_METERED.getDescription();
-                    result.measurementKind = obj.measurementKind;
-                    result.flowDirection = obj.flowDirection;
-                    result.unit = obj.unit;
-                    result.macroPeriod = obj.macroPeriod;
-                    result.timePeriod = obj.measuringPeriod;
-                    result.accumulation = obj.accumulation;
-                    result.aggregate = obj.aggregate;
-                    result.multiplier = obj.metricMultiplier;
-                    result.phases = obj.phases;
-                    result.tou = obj.tou;
-                    result.cpp = obj.cpp;
-                    result.consumptionTier = obj.consumptionTier;
-
-                    return result; })
-                .collect(Collectors.toList());
-
-        Map<String, List<ReadingTypeAliasInfo>> readingTypesByAlias = aliases
-                .stream()
-                .collect(Collectors.groupingBy(ReadingTypeAliasInfo::getName));
-
-        List<ReadingTypeAliasInfo> infos = new ArrayList();
+        List<ReadingTypeInfo> infos = new ArrayList();
 
         readingTypesByAlias.forEach((k, v) -> {
-            List<ReadingTypeAliasInfo> l = v;
+            List<ReadingTypeInfo> l = v;
             long length = l.stream().count();
             l.get(0).setNumberOfReadingTypes(length);
             infos.add(l.get(0));
