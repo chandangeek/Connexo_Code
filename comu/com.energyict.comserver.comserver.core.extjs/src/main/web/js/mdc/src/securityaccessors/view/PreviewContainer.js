@@ -18,6 +18,9 @@ Ext.define('Mdc.securityaccessors.view.PreviewContainer', {
         me.grid = {
             xtype: 'security-accessors-grid',
             itemId: 'mdc-security-accessors-grid',
+            store: me.deviceTypeId
+                ? 'Mdc.securityaccessors.store.SecurityAccessorsOnDeviceType'
+                : 'Mdc.securityaccessors.store.SecurityAccessors',
             deviceTypeId: me.deviceTypeId
         };
 
@@ -39,7 +42,8 @@ Ext.define('Mdc.securityaccessors.view.PreviewContainer', {
 
         me.previewComponent = {
             xtype: 'security-accessors-preview',
-            itemId: 'mdc-security-accessors-preview'
+            itemId: 'mdc-security-accessors-preview',
+            deviceTypeId: me.deviceTypeId
         };
 
         me.callParent(arguments);

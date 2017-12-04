@@ -443,5 +443,20 @@ Ext.define('Mdc.controller.Main', {
                 })
             );
         }
+
+        // if (Mdc.privileges.MetrologyConfiguration.full()) { //SA privileges!!
+            Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.security', 'MDC', 'Security'),
+                portal: 'administration',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                        itemId: 'lnk-metrology-configurations',
+                        href: '#/administration/securityaccessors',
+                        route: 'securityaccessors'
+                    }
+                ]
+            }));
+        // }
     }
 });

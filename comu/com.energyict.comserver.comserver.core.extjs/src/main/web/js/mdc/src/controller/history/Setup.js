@@ -1952,21 +1952,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 route: 'add',
                                                 privileges: Mdc.privileges.DeviceType.admin,
                                                 controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
-                                                action: 'showAddSecurityAccessor'
-                                            },
-                                            edit: {
-                                                title: Uni.I18n.translate('securityaccessors.editSecurityAccessor', 'MDC', 'Edit security accessor'),
-                                                route: '{securityAccessorId}/edit',
-                                                privileges: Mdc.privileges.DeviceType.admin,
-                                                controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
-                                                action: 'showEditSecurityAccessor',
-                                                callback: function (route) {
-                                                    this.getApplication().on('securityaccessorload', function (name) {
-                                                        route.setTitle(Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", name, false));
-                                                    }, {single: true});
-                                                    return this;
-                                                }
+                                                action: 'showAddSecurityAccessorToDeviceType'
                                             }
+                                            // edit: {
+                                            //     title: Uni.I18n.translate('securityaccessors.editSecurityAccessor', 'MDC', 'Edit security accessor'),
+                                            //     route: '{securityAccessorId}/edit',
+                                            //     privileges: Mdc.privileges.DeviceType.admin,
+                                            //     controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                                            //     action: 'showEditSecurityAccessor',
+                                            //     callback: function (route) {
+                                            //         this.getApplication().on('securityaccessorload', function (name) {
+                                            //             route.setTitle(Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", name, false));
+                                            //         }, {single: true});
+                                            //         return this;
+                                            //     }
+                                            // }
                                         }
                                     }
                                 }
@@ -2539,6 +2539,32 @@ Ext.define('Mdc.controller.history.Setup', {
                                     this.getApplication().on('loadRegisteredDevicesKpi', function (deviceGroupName) {
                                         route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", deviceGroupName, false));
                                         return true;
+                                    }, {single: true});
+                                    return this;
+                                }
+                            }
+                        }
+                    },
+                    securityaccessors: {
+                        title: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                        route: 'securityaccessors',
+                        controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                        action: 'showSecurityAccessorsOverviewAdministration',
+                        items: {
+                            add: {
+                                title: Uni.I18n.translate('securityaccessors.addSecurityAccessor', 'MDC', 'Add security accessor'),
+                                route: 'add',
+                                controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                                action: 'showAddSecurityAccessor'
+                            },
+                            edit: {
+                                title: Uni.I18n.translate('securityaccessors.editSecurityAccessor', 'MDC', 'Edit security accessor'),
+                                route: '{securityAccessorId}/edit',
+                                controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                                action: 'showEditSecurityAccessor',
+                                callback: function (route) {
+                                    this.getApplication().on('securityaccessorload', function (name) {
+                                        route.setTitle(Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", name, false));
                                     }, {single: true});
                                     return this;
                                 }

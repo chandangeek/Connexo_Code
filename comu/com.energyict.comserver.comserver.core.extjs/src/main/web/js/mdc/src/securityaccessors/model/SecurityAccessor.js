@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
-    extend: 'Uni.model.ParentVersion',
+    extend: 'Uni.model.Version',
     requires: [
         'Mdc.securityaccessors.model.KeyType'
     ],
@@ -49,7 +49,7 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/securityaccessors',
+        url: '/api/dtc/securityaccessors',
         reader: {
             type: 'json'
         },

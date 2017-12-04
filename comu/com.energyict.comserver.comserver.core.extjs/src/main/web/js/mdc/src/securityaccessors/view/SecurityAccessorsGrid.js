@@ -4,7 +4,6 @@
 Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.security-accessors-grid',
-    store: 'Mdc.securityaccessors.store.SecurityAccessors',
     deviceTypeId: null,
     requires: [
         'Uni.grid.column.Action',
@@ -52,7 +51,8 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
                 width: 150,
                 menu: {
                     xtype: 'security-accessors-action-menu',
-                    itemId: 'mdc-security-accessors-action-menu'
+                    itemId: 'mdc-security-accessors-action-menu',
+                    deviceTypeId: me.deviceTypeId
                 }
             }
         ];
