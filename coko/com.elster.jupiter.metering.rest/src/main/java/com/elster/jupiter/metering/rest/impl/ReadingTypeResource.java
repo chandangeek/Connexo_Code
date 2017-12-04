@@ -174,12 +174,21 @@ public class ReadingTypeResource {
     @GET
     @Path("/basiccodes/{field}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getGroupCodes(@PathParam("field") String field, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
-        Integer commodity = queryFilter.hasProperty("commodity") ? queryFilter.getInteger("commodity") : null;
+    public PagedInfoList getGroupCodes(@PathParam("field") String field, @BeanParam JsonQueryParameters queryParameters) {
+        //Integer commodity = kind ? queryFilter.getInteger("commodity") : null;
+        //Integer filterBy=null;
+        return getGroupCodesWithFilter(field, null, queryParameters);
+    }
 
+    @GET
+    @Path("/basiccodes/{field}/{filter}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getGroupCodesWithFilter(@PathParam("field") String field, @PathParam("filter") Integer filter, @BeanParam JsonQueryParameters queryParameters) {
+        //Integer commodity = kind ? queryFilter.getInteger("commodity") : null;
+        //Integer filterBy=null;
         List<ReadingTypeCodeInfo> infoList = Arrays.stream(ReadingTypeFields.values())
                 .filter(candidate -> candidate.getFieldName().equalsIgnoreCase(field))
-                .map(c -> meteringService.getReadingTypeGroupFieldCodesFactory(commodity)
+                .map(c -> meteringService.getReadingTypeGroupFieldCodesFactory(filter)
                         .getCodeFields(c.getFieldName()).entrySet()
                         .stream().map(e -> new ReadingTypeCodeInfo(e.getKey(), e.getValue())))
                 .flatMap(Function.identity()).collect(Collectors.toList());
