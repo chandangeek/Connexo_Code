@@ -38,15 +38,16 @@ Ext.define('Fwc.devicefirmware.view.Setup', {
             xtype: 'tabpanel',
             ui: 'large',
             title: me.title,
-            itemId: 'hTabPanel',
+            itemId: 'firmware-TabPanel',
             activeTab: me.activeTab,
             items: [
                 {
-                    title: Uni.I18n.translate('general.firmware', 'FWC', 'Firmware'),
                     itemId: 'device-firmwares',
+                    title: Uni.I18n.translate('general.firmware', 'FWC', 'Firmware'),
                     items: {}
                 },
                 {
+                    itemId: 'device-firmware-history',
                     title: Uni.I18n.translate('general.history', 'FWC', 'History'),
                     xtype: 'preview-container',
                     grid: {
