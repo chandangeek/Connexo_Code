@@ -16,8 +16,6 @@ import org.osgi.service.component.annotations.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
 
 @Component(service = RelativePeriodUsageProvider.class)
 public class EstimationUsageProvider implements RelativePeriodUsageProvider {
@@ -40,16 +38,20 @@ public class EstimationUsageProvider implements RelativePeriodUsageProvider {
 
         List<RelativePeriodUsageInfo> infos = new ArrayList<>();
         for (QualityCodeSystem code : QualityCodeSystem.values()) {
-            infos.addAll(estimationService.findEstimationTasks(code)
+            estimationService.findEstimationTasks(code)
                     .stream()
-                    .filter(task -> task.getPeriod()
-                            .map(RelativePeriod::getId)
-                            .filter(id -> id == relativePeriodId)
-                            .isPresent())
+                    .filter(task -> this.matchesRelativePeriod(task, relativePeriodId))
                     .map(this::createRelativePeriodUsageInfo)
-                    .collect(Collectors.toList()));
+                    .forEach(infos::add);
         }
         return infos;
+    }
+
+    private boolean matchesRelativePeriod(EstimationTask task, long relativePeriodId) {
+        return task.getPeriod()
+                .map(RelativePeriod::getId)
+                .filter(id -> id == relativePeriodId)
+                .isPresent();
     }
 
     @Override
