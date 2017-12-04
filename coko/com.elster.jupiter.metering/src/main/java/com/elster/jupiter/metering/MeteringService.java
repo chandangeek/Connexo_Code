@@ -169,7 +169,7 @@ public interface MeteringService {
 
     ReadingTypeFieldsFactory getReadingTypeFieldCodesFactory();
 
-    ReadingTypeFieldsFactory getReadingTypeGroupFieldCodesFactory(Integer commodity);
+    ReadingTypeFieldsFactory getReadingTypeGroupFieldCodesFactory(Integer filterBy);
 
     Finder<ReadingType> getReadingTypesByMridFilter(@NotNull ReadingTypeMridFilter filter);
 

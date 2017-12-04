@@ -457,8 +457,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
-    public ReadingTypeFieldsFactory getReadingTypeGroupFieldCodesFactory(Integer commodity) {
-        return new ReadingTypeGroupLocalizedFieldsFactory(this.meteringDataModelService.getThesaurus(), commodity);
+    public ReadingTypeFieldsFactory getReadingTypeGroupFieldCodesFactory(Integer filterBy) {
+        return new ReadingTypeGroupLocalizedFieldsFactory(this.meteringDataModelService.getThesaurus(), filterBy);
     }
 
     @Override
