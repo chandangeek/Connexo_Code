@@ -44,6 +44,8 @@ public class ReadingTypeInfo {
     public String currency;
     public long version;
     public boolean isCumulative;
+    public long numberOfReadingTypes;
+
 
     /* Both the fullAliasName and the separate names are provided to the FrontEnd to do smart dynamic adjustments to the alias */
     public ReadingTypeNames names;
@@ -80,6 +82,17 @@ public class ReadingTypeInfo {
         this.version = readingType.getVersion();
         this.names = new ReadingTypeNames(readingType);
         this.fullAliasName = readingType.getFullAliasName();
+        this.numberOfReadingTypes = numberOfReadingTypes;
+    }
+
+    public String getName() {
+
+        return aliasName;
+    }
+
+    public void setNumberOfReadingTypes(long numberOfReadingTypes) {
+
+        this.numberOfReadingTypes = numberOfReadingTypes;
     }
 
     public static class ReadingTypeNames {
