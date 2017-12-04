@@ -103,7 +103,7 @@ public class ReadingTypeGroupLocalizedFieldsFactory implements ReadingTypeFields
                 break;
             }
 
-            case AGGREGATE: {
+            case AGGREAGTE: {
                 values = Arrays.stream(Aggregate.values())
                         .map(c -> new CodeField(c.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.Aggregate(c)).format())).sorted()
                         .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll);

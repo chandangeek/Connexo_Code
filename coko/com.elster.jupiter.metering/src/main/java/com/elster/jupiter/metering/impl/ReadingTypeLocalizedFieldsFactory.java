@@ -37,7 +37,7 @@ public class ReadingTypeLocalizedFieldsFactory implements ReadingTypeFieldsFacto
                         .map(c -> new CodeField(c.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.MacroPeriod(c)).format())).sorted()
                         .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll)),
 
-        AGGREGATE(ReadingTypeFilter.ReadingTypeFields.AGGREGATE.getName(),
+        AGGREGATE(ReadingTypeFilter.ReadingTypeFields.AGGREAGTE.getName(),
                 (thesaurus) -> Arrays.stream(Aggregate.values())
                         .map(c -> new CodeField(c.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.Aggregate(c)).format())).sorted()
                         .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll)),

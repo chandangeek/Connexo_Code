@@ -72,7 +72,7 @@ public class ReadingTypeFilter {
 
     public enum ReadingTypeFields {
         MACRO_PERIOD("macroPeriod", 0),
-        AGGREGATE("aggregate", 1),
+        AGGREAGTE("aggregate", 1),
         MEASUREMENT_PERIOD("measurementPeriod", 2),
         ACCUMULATION("accumulation", 3),
         FLOW_DIRECTION("flowDirection", 4),
