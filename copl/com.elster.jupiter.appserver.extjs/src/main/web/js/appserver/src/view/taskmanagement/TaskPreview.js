@@ -147,9 +147,9 @@ Ext.define('Apr.view.taskmanagement.TaskPreview', {
                                             itemId: 'followedBy-field-container'
                                         },
                                         {
-                                            fieldLabel: Uni.I18n.translate('general.procededBy', 'APR', 'Proceded by'),
+                                            fieldLabel: Uni.I18n.translate('general.precededBy', 'APR', 'Preceded by'),
                                             htmlEncode: false,
-                                            itemId: 'procededBy-field-container'
+                                            itemId: 'precededBy-field-container'
                                         },
                                     ]
                                 }

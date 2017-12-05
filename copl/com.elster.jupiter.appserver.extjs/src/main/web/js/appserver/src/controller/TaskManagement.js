@@ -122,7 +122,7 @@ Ext.define('Apr.controller.TaskManagement', {
         me.getModel('Apr.model.Triggers').load(record.get('id'), {
             success: function (triggers) {
                 taskPreview.setRecurrentTasks('#followedBy-field-container', triggers.get('nextRecurrentTasks'));
-                taskPreview.setRecurrentTasks('#procededBy-field-container', triggers.get('previousRecurrentTasks'));
+                taskPreview.setRecurrentTasks('#precededBy-field-container', triggers.get('previousRecurrentTasks'));
                 taskPreview.setLoading(false);
             }
         });
