@@ -79,7 +79,7 @@ public class ChannelSAPInfoCustomPropertySet implements CustomPropertySet<Channe
         @Override
         public void copyFrom(ChannelSpec domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
             this.channelSpec.set(domainInstance);
-            this.device = (Long) additionalPrimaryKeyValues[0];
+            this.device = additionalPrimaryKeyValues.length > 0 ? (Long) additionalPrimaryKeyValues[0] : null;
             this.logicalRegisterNumber = (BigDecimal) propertyValues.getProperty(Fields.LOGICAL_REGISTER_NUMBER.javaName());
             this.profileNumber = (BigDecimal) propertyValues.getProperty(Fields.PROFILE_NUMBER.javaName());
             this.inUse = (Boolean) propertyValues.getProperty(Fields.IN_USE.javaName());

@@ -96,7 +96,7 @@ public class RegisterTypeFiveDomainExtension extends AbstractPersistentDomainExt
     @Override
     public void copyFrom(RegisterSpec registerSpec, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.registerSpec.set(registerSpec);
-        this.setDevice(new BigDecimal(additionalPrimaryKeyValues[0].toString()));
+        this.setDevice(additionalPrimaryKeyValues.length > 0 ? new BigDecimal(additionalPrimaryKeyValues[0].toString()) : null);
         this.setTestNumber(new BigDecimal(propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_NUMBER.javaName()).toString()));
         this.setTestString((String) propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_STRING.javaName()));
         this.setTestBoolean((boolean) propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName()));
