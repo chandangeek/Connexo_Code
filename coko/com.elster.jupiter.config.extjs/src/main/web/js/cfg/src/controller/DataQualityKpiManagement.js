@@ -278,7 +278,7 @@ Ext.define('Cfg.controller.DataQualityKpiManagement', {
 
                     var frequency = record.get('frequency');
                     widget.setRecurrentTasks('#followedBy-field-container', record.get('nextRecurrentTasks'));
-                    widget.setRecurrentTasks('#procededBy-field-container', record.get('previousRecurrentTasks'));
+                    widget.setRecurrentTasks('#precededBy-field-container', record.get('previousRecurrentTasks'));
 
                     widget.down('#data-quality-kpi-device-group').setValue(record.get('deviceGroup').name);
                     widget.down('#data-quality-kpi-frequency').setValue(frequency ? Uni.util.ScheduleToStringConverter.convert(frequency) : '');

@@ -36,10 +36,10 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                 labelWidth: 250
             },
             {
-                fieldLabel: Uni.I18n.translate('general.procededBy', 'CFG', 'Proceded by'),
+                fieldLabel: Uni.I18n.translate('general.precededBy', 'CFG', 'Preceded by'),
                 xtype: 'displayfield',
                 htmlEncode: false,
-                itemId: 'procededBy-field-container',
+                itemId: 'precededBy-field-container',
                 labelWidth: 250
             },
             {

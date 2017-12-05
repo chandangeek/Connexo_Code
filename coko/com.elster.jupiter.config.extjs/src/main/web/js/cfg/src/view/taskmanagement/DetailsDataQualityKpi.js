@@ -34,10 +34,10 @@ Ext.define('Cfg.view.taskmanagement.DetailsDataQualityKpi', {
                                 width: 600
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('general.procededBy', 'CFG', 'Proceded by'),
+                                fieldLabel: Uni.I18n.translate('general.precededBy', 'CFG', 'Preceded by'),
                                 xtype: 'displayfield',
                                 htmlEncode: false,
-                                itemId: 'procededBy-field-container',
+                                itemId: 'precededBy-field-container',
                                 width: 600
                             },
                             {
