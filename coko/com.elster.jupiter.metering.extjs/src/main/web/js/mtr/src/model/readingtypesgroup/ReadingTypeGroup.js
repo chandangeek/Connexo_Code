@@ -27,13 +27,10 @@ Ext.define('Mtr.model.readingtypesgroup.ReadingTypeGroup', {
     ],
     proxy: {
         type: 'rest',
-        urlTpl: '../../api/mtr/readingtypes/{mRID}',
+        url: '../../api/mtr/readingtypes/groups',
         reader: {
             type: 'json',
-            root: 'readingTypes'
-        },
-        setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
+
         }
     }
 });

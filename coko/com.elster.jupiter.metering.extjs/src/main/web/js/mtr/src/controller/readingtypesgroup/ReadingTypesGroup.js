@@ -13,7 +13,9 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
         'Mtr.view.readingtypesgroup.ReadingTypesInGroup'
     ],
 
-    requires: [],
+    models: ['Mtr.model.readingtypesgroup.ReadingTypeGroup'],
+
+    requires: ['Mtr.view.readingtypesgroup.Details'],
 
     stores: [
         'Mtr.store.readingtypes.ReadingTypes',
@@ -77,6 +79,10 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
         {
             ref: 'readingTypesInGroup',
             selector: 'reading-types-in-group'
+        },
+        {
+            ref: 'readingTypeGroupOverview',
+            selector: '#reading-types-group-details'
         }
     ],
 
@@ -105,10 +111,7 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             },
             '#mtr-add-readingTypeGroup-button': {  //lori
                 click: this.browseGroupAdd
-            }/*,
-            'reading-types-group-details': {
-                displayinfo: this.displayInfo
-            }*/
+            }
         });
     },
 
@@ -240,7 +243,6 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             widget,
             store = me.getStore('Mtr.store.readingtypesgroup.ReadingTypeGroups'),
             viewport = Ext.ComponentQuery.query('viewport')[0];
-
         widget = Ext.widget('reading-type-groups-overview', {router: me.getController('Uni.controller.history.Router')});
         me.getApplication().fireEvent('changecontentevent', widget);
         store.load();
@@ -253,6 +255,7 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
         if (menu) {
             menu.record = record;
         }
+
         me.getGroupPreview().setTitle(Ext.String.htmlEncode(record.get('name')));
         me.getGroupPreviewForm().loadRecord(record);
     },
@@ -266,28 +269,25 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
 
     showReadingTypesGroupDetails: function (aliasName) {
         var me = this,
-            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             router = me.getController('Uni.controller.history.Router'),
             groupModel = me.getModel('Mtr.model.readingtypesgroup.ReadingTypeGroup'),
             view = Ext.widget('reading-type-groups-details', {
                 router: router
             }),
-            readingTypesGroupPreview = view.down('reading-type-groups-details'),
-            actionsMenu = view.down('mnu-reading-types-group');
+            actionsMenu = view.down('readingTypesGroup-action-menu');
 
         me.fromDetail = true;
         me.getApplication().fireEvent('changecontentevent', view);
+        view.setLoading();
         groupModel.load(aliasName, {
             success: function (record) {
-                var detailsForm = readingTypesGroupPreview.down('reading-types-group-preview-form');
+                var detailsForm = view.down('readingTypesGroup-preview-form');
                 actionsMenu.record = record;
-                Ext.suspendLayouts();
-                readingTypesGroupPreview.down('reading-types-menu').setHeader(record.get('name'));
                 me.getApplication().fireEvent('readingtypesgroupload', record);
                 detailsForm.loadRecord(record);
             },
             callback: function () {
-                mainView.setLoading(false);
+                view.setLoading(false);
             }
         });
     },

@@ -19,13 +19,12 @@ Ext.define('Mtr.view.readingtypesgroup.Details', {
         items: [
             {
                 ui: 'large',
-                itemId: 'reding-type-groups-details-panel',
                 title: Uni.I18n.translate('readingtypesmanagement.overview', 'MTR', 'Overview'),
                 flex: 1,
                 items: {
-                    xtype: 'reading-types-group-preview-form',
+                    xtype: 'readingTypesGroup-preview-form',
                     itemId: 'reading-types-group-details',
-                    margin: '0 0 0 100',
+
                 }
             },
 
@@ -57,7 +56,7 @@ Ext.define('Mtr.view.readingtypesgroup.Details', {
             }
         ];
 
-        this.callParent(arguments);
+        me.callParent(arguments);
     }
 });
 
