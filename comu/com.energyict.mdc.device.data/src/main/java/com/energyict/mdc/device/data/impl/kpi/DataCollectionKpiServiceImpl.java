@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
@@ -140,6 +141,18 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
         public DataCollectionKpi save() {
             this.state = this.state.save(this.underConstruction, this.connectionKpiBuilder, this.communicationKpiBuilder);
             return this.underConstruction;
+        }
+
+        @Override
+        public DataCollectionKpiBuilder connectionNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+            this.underConstruction.connectionNextRecurrentTasks(nextRecurrentTasks);
+            return this;
+        }
+
+        @Override
+        public DataCollectionKpiBuilder communicationNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+            this.underConstruction.communicationNextRecurrentTasks(nextRecurrentTasks);
+            return this;
         }
     }
 

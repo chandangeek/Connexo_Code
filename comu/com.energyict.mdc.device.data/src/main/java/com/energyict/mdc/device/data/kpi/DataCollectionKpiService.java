@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.kpi;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.TimeDuration;
 
 import aQute.bnd.annotation.ProviderType;
@@ -109,6 +110,22 @@ public interface DataCollectionKpiService {
          *
          */
         KpiTargetBuilder calculateComTaskExecutionKpi();
+
+        /**
+         * Specify the list of the recurrent tasks that will be triggered automatically after the connection task will be successfully completed
+         *
+         * @param nextRecurrentTasks list of the recurrent tasks that will be triggered automatically
+         * @return the current builder, augmented with displayPeriod.
+         */
+        DataCollectionKpiBuilder connectionNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
+
+        /**
+         * Specify the list of the recurrent tasks that will be triggered automatically after the communication task will be successfully completed
+         *
+         * @param nextRecurrentTasks list of the recurrent tasks that will be triggered automatically
+         * @return the current builder, augmented with displayPeriod.
+         */
+        DataCollectionKpiBuilder communicationNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
 
         /**
          * Completes the builder and returns the newly
