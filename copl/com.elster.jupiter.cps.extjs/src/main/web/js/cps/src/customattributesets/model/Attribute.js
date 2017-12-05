@@ -7,6 +7,7 @@ Ext.define('Cps.customattributesets.model.Attribute', {
 
     fields: [
         {name: 'name', type: 'string'},
+        {name: 'identifier', type: 'string'},
         {name: 'required', type: 'boolean'},
         {name: 'order', type: 'integer'},
         {name: 'customAttributeType', type: 'auto'},

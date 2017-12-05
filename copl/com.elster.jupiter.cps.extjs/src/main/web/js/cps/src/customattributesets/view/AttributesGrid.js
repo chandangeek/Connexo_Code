@@ -25,6 +25,11 @@ Ext.define('Cps.customattributesets.view.AttributesGrid', {
                 flex: 3
             },
             {
+                header: Uni.I18n.translate('customattributesets.identifier', 'CPS', 'Identifier'),
+                dataIndex: 'identifier',
+                flex: 3
+            },
+            {
                 header: Uni.I18n.translate('general.required', 'CPS', 'Required'),
                 dataIndex: 'required',
                 flex: 1,
@@ -48,6 +53,23 @@ Ext.define('Cps.customattributesets.view.AttributesGrid', {
                 header: Uni.I18n.translate('general.description', 'CPS', 'Description'),
                 dataIndex: 'description',
                 flex: 1
+            }
+        ];
+
+        me.dockedItems = [
+            {
+                xtype: 'toolbar',
+                dock: 'top',
+                items: [
+                    '->',
+                    {
+                        xtype: 'exporterbutton',
+                        ui: 'icon',
+                        iconCls: 'icon-file-download',
+                        text: '',
+                        component: me
+                    }
+                ]
             }
         ];
 

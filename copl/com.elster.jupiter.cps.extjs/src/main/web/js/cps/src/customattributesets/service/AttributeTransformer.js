@@ -33,6 +33,7 @@ Ext.define('Cps.customattributesets.service.AttributeTransformer', {
 
             transformedAttribute.name = attribute.name;
             transformedAttribute.required = attribute.required;
+            transformedAttribute.identifier = attribute.key;
             transformedAttribute.customAttributeType = {};
             transformedAttribute.customAttributeType.name = attribute.propertyTypeInfo.typeSimpleName;
             transformedAttribute.customAttributeType.possibleValues = attribute.allValues;
