@@ -9,6 +9,8 @@ Ext.define('Mtr.view.readingtypesgroup.Menu' , {
     router: null,
 
     objectType: Uni.I18n.translate('readingtypes.readingTypeGroup', 'MTR', 'Reading type group'),
+    title: Uni.I18n.translate('readingtypes.readingTypeGroupName', 'MTR', 'Group Name'),
+
 
     initComponent: function () {
         var me = this;
@@ -23,7 +25,7 @@ Ext.define('Mtr.view.readingtypesgroup.Menu' , {
             {
                 text: Uni.I18n.translate('readingtypes.readingTypeGroupReadingTypes', 'MTR', 'Reading Types'),
                 itemId: 'reading-type-group-reading-types-link',
-                href: me.router.getRoute('administration/readingtypegroups/view').buildUrl()
+                href: me.router.getRoute('administration/readingtypegroups/readingtypes').buildUrl({aliasName: me.router.arguments.aliasName})
             }
         ]
 

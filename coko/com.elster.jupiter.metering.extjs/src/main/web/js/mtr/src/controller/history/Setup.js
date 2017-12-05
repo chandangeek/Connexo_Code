@@ -48,6 +48,20 @@ Ext.define('Mtr.controller.history.Setup', {
                                 }, {single: true});
                                 return this;
                             }
+                        },
+                        readingtypes: {
+                            title: Uni.I18n.translate('readingtypegroups.readingtypegroup', 'MTR', 'Reading type group'),
+                            route: '{aliasName}/readingtypes',
+                            controller: 'Mtr.controller.readingtypesgroup.ReadingTypesGroup',
+                            privileges: Mtr.privileges.ReadingTypes.admin,
+                            action: 'showReadingTypesInGroup',
+                            callback: function (route) {
+                                this.getApplication().on('readingtypesload', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
                         }
                     }
                 },

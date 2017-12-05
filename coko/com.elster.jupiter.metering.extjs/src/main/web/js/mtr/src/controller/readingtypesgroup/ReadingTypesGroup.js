@@ -9,7 +9,8 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
         'Mtr.view.readingtypesgroup.GroupsOverview',
         'Mtr.view.readingtypesgroup.GroupsGrid',
         'Mtr.view.readingtypesgroup.GroupPreview',
-        'Mtr.view.readingtypesgroup.Details'
+        'Mtr.view.readingtypesgroup.Details',
+        'Mtr.view.readingtypesgroup.ReadingTypesInGroup'
     ],
 
     requires: [],
@@ -72,6 +73,10 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
         {
             ref: 'readingTypesGroupMenu',
             selector: '#mnu-reading-types-group'
+        },
+        {
+            ref: 'readingTypesInGroup',
+            selector: 'reading-types-in-group'
         }
     ],
 
@@ -280,6 +285,34 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
                 readingTypesGroupPreview.down('reading-types-menu').setHeader(record.get('name'));
                 me.getApplication().fireEvent('readingtypesgroupload', record);
                 detailsForm.loadRecord(record);
+            },
+            callback: function () {
+                mainView.setLoading(false);
+            }
+        });
+    },
+
+    showReadingTypesInGroup: function (aliasName) {
+        var me = this,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            router = me.getController('Uni.controller.history.Router'),
+            groupModel = me.getModel('Mtr.model.readingtypesgroup.ReadingTypeGroup'),
+            view = Ext.widget('reading-types-in-group', {
+                router: router
+            }),
+            readingTypesInGroup = view.down('reading-types-in-group'),
+            actionsMenu = view.down('mnu-reading-types-group');
+
+        me.fromDetail = true;
+        me.getApplication().fireEvent('changecontentevent', view);
+        groupModel.load(aliasName, {
+            success: function (record) {
+                /*var detailsForm = readingTypesInGroup.down('reading-types-group-preview-form');
+                actionsMenu.record = record;
+                Ext.suspendLayouts();
+                readingTypesInGroup.down('reading-types-menu').setHeader(record.get('name'));
+                me.getApplication().fireEvent('readingtypesload', record);
+                detailsForm.loadRecord(record);*/
             },
             callback: function () {
                 mainView.setLoading(false);
