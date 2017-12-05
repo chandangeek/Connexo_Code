@@ -4,6 +4,10 @@
 
 Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
     extend: 'Mdc.controller.setup.DataCollectionKpi',
+    stores: [
+        'Mdc.store.DataCollectionKpiType',
+        'Mdc.store.AllTasks'
+    ],
     views: [
         'Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis',
         'Mdc.view.setup.taskmanagement.DetailsDataCollectionKpi'
@@ -16,7 +20,13 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         this.control({
             'data-collection-kpi-addedit-tgm #cmb-frequency': {
                 change: this.onFrequencyChange
-            }
+            },
+            'data-collection-kpi-addedit-tgm #cmb-collectionType': {
+                change: this.onCollectionTypeChange
+            },
+            'data-collection-kpi-addedit-tgm #cmb-device-group': {
+                change: this.onGroupChange
+            },
         });
         Apr.TaskManagementApp.addTaskManagementApp(this.getType(), {
             name: Uni.I18n.translate('general.datadataCollectionKPI', 'MDC', 'Data collection KPI'),
@@ -62,15 +72,19 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
             deviceGroupStore = form.down('combobox[name=deviceGroup]').getStore(),
             kpiModel = Ext.ModelManager.getModel('Mdc.model.DataCollectionKpi'),
             deviceGroupCombo = form.down('#cmb-device-group'),
+            followByStore = form.down('#followedBy-combo').getStore(),
             deviceGroupDisplayField = form.down('#devicegroupDisplayField'),
             createBtn = form.down('#createEditButton');
 
-        deviceGroupStore.load({
+        followByStore.load({
             callback: function () {
-                if (deviceGroupStore.getCount() > 0) {
-                    completedFunc.call(caller, form);
-                    //form.loadRecord(Ext.create(kpiModel));
-                } else {
+                completedFunc.call(caller, form);
+            }
+        });
+
+        /*deviceGroupStore.load({
+         callback: function () {
+         if (deviceGroupStore.getCount() == 0) {
                     Ext.suspendLayouts();
                     deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('datacollectionkpis.noDeviceGroup', 'MDC', 'No device group defined yet.') + '</span>');
                     deviceGroupDisplayField.show();
@@ -78,9 +92,8 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
                     createBtn.disable();
                     Ext.resumeLayouts(true);
                 }
-                //  widget.setLoading(false);
             }
-        });
+         });*/
         return form;
     },
 
@@ -94,8 +107,8 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
             },
             frequency = editForm.down('[name=frequency]').getValue(),
             displayRange = editForm.down('[name=displayRange]').getValue(),
-            connectionTarget = editForm.down('#connectionKpiField').getValue(),
-            communicationTarget = editForm.down('#communicationKpiField').getValue();
+            target = editForm.down('#kpi-target'),
+            collectionTypeKpi = editForm.down('#cmb-collectionType');
 
         formErrorsPanel.hide();
         editForm.getForm().clearInvalid();
@@ -115,9 +128,30 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         if (displayRange) {
             record.set('displayRange', me.getStore('Mdc.store.DataCollectionKpiRange').getById(displayRange).get('value'));
         }
-        record.set('communicationTarget', communicationTarget);
-        record.set('connectionTarget', connectionTarget);
+
+
+        // set selected tasks
+        var selectedTask = [];
+        Ext.Array.each(editForm.down('#followedBy-combo').getValue(), function (value) {
+            selectedTask.push({id: value});
+        });
+
+        var nextRecurrentTasksStore = Ext.create('Ext.data.Store', {
+            fields: ['id'],
+            data: selectedTask
+        });
+        if (collectionTypeKpi.getValue() === 'connection') {
+            record.set('connectionTarget', target.getValue());
+            record.connectionNextRecurrentTasksStore = nextRecurrentTasksStore;
+        }
+        else {
+            record.set('communicationTarget', target.getValue());
+            record.communicationNextRecurrentTasksStore = nextRecurrentTasksStore;
+        }
+
+
         record.endEdit();
+        record.getProxy().url = '/api/ddr/kpis/' + collectionTypeKpi.getValue();
         record.save({
             success: function (record, operation) {
                 var successMessage = '';
@@ -181,6 +215,27 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
                     setTitleFunc.call(controller, record.get('deviceGroup').name);
                     Ext.suspendLayouts();
                     form.loadRecord(record);
+
+                    var nextRecurrentTasks = taskManagementId == record.get('communicationTaskId') ? record.get('communicationNextRecurrentTasks') : record.get('connectionNextRecurrentTasks');
+                    if (nextRecurrentTasks) {
+                        var selectedTasks = [];
+                        Ext.Array.each(nextRecurrentTasks, function (nextRecurrentTask) {
+                            selectedTasks.push(nextRecurrentTask.id);
+                        });
+
+                        form.down('[name=nextRecurrentTasks]').setValue(selectedTasks);
+                    }
+
+                    if (record.get('communicationTaskId') == taskManagementId) {
+                        form.down('[name=collectionType]').setValue('communication');
+                        form.down('[name=target]').setValue(record.get('communicationTarget'));
+                    }
+                    else if (record.get('connectionTaskId') == taskManagementId) {
+                        form.down('[name=collectionType]').setValue('connection');
+                        form.down('[name=target]').setValue(record.get('connectionTarget'));
+                    }
+
+                    form.down('[name=collectionType]').disable();
                     form.down('[name=deviceGroup]').disable();
                     form.down('[name=frequency]').disable();
                     Ext.resumeLayouts(true);
@@ -223,13 +278,14 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
                     store = Ext.create('Mdc.store.DataCollectionKpis');
                 store.loadRawData([response]);
                 store.each(function (record) {
+                    var type = record.get('communicationTaskId') == taskManagement.get('id') ? 'communication' : 'connection';
                     Ext.create('Uni.view.window.Confirmation').show({
                         title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", [record.get('deviceGroup').name]),
                         msg: Uni.I18n.translate('datacollectionkpis.deleteConfirmation.msg', 'MDC', 'This data collection KPI will no longer be available on connections and communications overview.'),
                         fn: function (state) {
                             switch (state) {
                                 case 'confirm':
-                                    me.removeOperation(record, startRemovingFunc, removeCompleted, controller);
+                                    me.removeOperation(record, type, startRemovingFunc, removeCompleted, controller);
                                     break;
                             }
                         }
@@ -239,9 +295,10 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         })
     },
 
-    removeOperation: function (record, startRemovingFunc, removeCompleted, controller) {
+    removeOperation: function (record, type, startRemovingFunc, removeCompleted, controller) {
         var me = this;
 
+        record.getProxy().url = '/api/ddr/kpis/' + type;
         record.destroy({
             success: function () {
                 removeCompleted.call(controller, true);
@@ -285,8 +342,18 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
                     communicationTarget = communicationTarget != null ? communicationTarget + ' %' : Uni.I18n.translate('datacollectionkpis.noKpi', 'MDC', 'No KPI');
                     widget.down('#data-collection-kpi-device-group').setValue(record.get('deviceGroup').name);
                     widget.down('#data-collection-kpi-frequency').setValue(displayRange ? Ext.getStore('Mdc.store.DataCollectionKpiRange').getById(displayRange.count + displayRange.timeUnit).get('name') : '');
-                    widget.down('#data-collection-kpi-connection').setValue(connectionTarget);
-                    widget.down('#data-collection-kpi-communication').setValue(communicationTarget);
+                    if (taskManagementRecord.get('id') == record.get('communicationTaskId')) {
+                        widget.down('#kpi-target').setValue(communicationTarget);
+                        widget.setRecurrentTasks('#followedBy-field-container', record.get('communicationNextRecurrentTasks'));
+                        widget.setRecurrentTasks('#precededBy-field-container', record.get('communicationPreviousRecurrentTasks'));
+                    }
+                    else {
+                        widget.down('#kpi-target').setValue(connectionTarget);
+                        widget.setRecurrentTasks('#followedBy-field-container', record.get('connectionNextRecurrentTasks'));
+                        widget.setRecurrentTasks('#precededBy-field-container', record.get('connectionPreviousRecurrentTasks'));
+                    }
+
+
                     widget.down('#' + actionMenu.itemId) && (widget.down('#' + actionMenu.itemId).record = taskManagementRecord);
                 });
             },
@@ -295,5 +362,57 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
             }
         })
 
+    },
+
+    onCollectionTypeChange: function (combo, newValue) {
+        var me = this,
+            form = me.getDataCollectionKpiEditForm(),
+            deviceGroupCombo = form.down('#cmb-device-group'),
+            deviceGroupStore = deviceGroupCombo.getStore(),
+            deviceGroupDisplayField = form.down('#devicegroupDisplayField');
+
+        new Ext.get('displayRangeSubTpl').setHTML('');
+        new Ext.get('frequencySubTpl').setHTML('');
+
+        deviceGroupCombo.clearValue();
+        deviceGroupCombo.setDisabled(false);
+        deviceGroupStore.getProxy().url = '/api/ddr/kpis/groups/' + newValue;
+        deviceGroupStore.load({
+            callback: function () {
+                if (deviceGroupStore.getCount() == 0) {
+                    Ext.suspendLayouts();
+                    deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('datacollectionkpis.noDeviceGroup', 'MDC', 'No device group defined yet.') + '</span>');
+                    deviceGroupDisplayField.show();
+                    deviceGroupCombo.hide();
+                    Ext.resumeLayouts(true);
+                }
+                else {
+                    Ext.suspendLayouts();
+                    deviceGroupDisplayField.hide();
+                    deviceGroupCombo.show();
+                    Ext.resumeLayouts(true);
+                }
+            }
+        });
+        form.doLayout();
+    },
+
+    onGroupChange: function (combo, newValue) {
+        var me = this,
+            form = me.getDataCollectionKpiEditForm(),
+            collectionTypeValue = form.down('#cmb-collectionType').getValue(),
+            frequency = form.down('#cmb-frequency'),
+            displayRange = form.down('#cmb-display-range'),
+            afterSubTpl = '';
+
+        if (newValue) {
+            afterSubTplTxt = '<div class="x-form-display-field"><i>' + Uni.I18n.translate('datacollectionkpis.templateTxt', 'MDC', "This change will be also applied for '{0}' {1} task", [combo.getRawValue(),
+                    collectionTypeValue == 'connection' ? Uni.I18n.translate('datacollectionkpis.communicationKPI', 'MDC', 'communication KPI') :
+                        Uni.I18n.translate('datacollectionkpis.connectionKPI', 'MDC', 'connection KPI')]) + '</i></div>';
+        }
+
+        new Ext.get('displayRangeSubTpl').setHTML(afterSubTplTxt);
+        new Ext.get('frequencySubTpl').setHTML(afterSubTplTxt);
+        form.doLayout();
     }
 });

@@ -27,6 +27,18 @@ Ext.define('Mdc.view.setup.taskmanagement.DetailsDataCollectionKpi', {
                         },
                         items: [
                             {
+                                fieldLabel: Uni.I18n.translate('general.followedBy', 'MDC', 'Followed by'),
+                                xtype: 'displayfield',
+                                htmlEncode: false,
+                                itemId: 'followedBy-field-container'
+                            },
+                            {
+                                fieldLabel: Uni.I18n.translate('general.precededBy', 'MDC', 'Preceded by'),
+                                xtype: 'displayfield',
+                                htmlEncode: false,
+                                itemId: 'precededBy-field-container'
+                            },
+                            {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group'),
                                 itemId: 'data-collection-kpi-device-group',
@@ -40,16 +52,9 @@ Ext.define('Mdc.view.setup.taskmanagement.DetailsDataCollectionKpi', {
                             },
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('datacollectionkpis.connectionKpi', 'MDC', 'Connection KPI'),
-                                itemId: 'data-collection-kpi-connection',
-                                name: 'connectionKpiContainer'
-                            },
-                            {
-                                xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('datacollectionkpis.communicationKpi', 'MDC', 'Communication KPI'),
-                                itemId: 'data-collection-kpi-communication',
-                                name: 'communicationKpiContainer'
-                            },
+                                fieldLabel: Uni.I18n.translate('datacollectionkpis.kpiTarget', 'MDC', 'KPI target'),
+                                itemId: 'kpi-target'
+                            }
 
                         ]
                     }
@@ -86,5 +91,16 @@ Ext.define('Mdc.view.setup.taskmanagement.DetailsDataCollectionKpi', {
         ];
 
         this.callParent(arguments);
+    },
+
+    setRecurrentTasks: function (itemId, recurrentTasks) {
+        var me = this,
+            recurrentTaskList = [];
+
+        Ext.isArray(recurrentTasks) && Ext.Array.each(recurrentTasks, function (recurrentTask) {
+            recurrentTaskList.push('- ' + Ext.htmlEncode(recurrentTask.name));
+        });
+        me.down(itemId).setValue((recurrentTaskList.length == 0) ? recurrentTaskList = '-' : recurrentTaskList.join('<br/>'));
+        return;
     }
 });

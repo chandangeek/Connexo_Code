@@ -34,10 +34,10 @@ Ext.define('Mdc.view.setup.taskmanagement.DetailsRegisteredDevicesKpi', {
                                 labelWidth: 250
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('general.procededBy', 'MDC', 'Proceded by'),
+                                fieldLabel: Uni.I18n.translate('general.precededBy', 'MDC', 'Preceded by'),
                                 xtype: 'displayfield',
                                 htmlEncode: false,
-                                itemId: 'procededBy-field-container',
+                                itemId: 'precededBy-field-container',
                                 labelWidth: 250
                             },
                             {

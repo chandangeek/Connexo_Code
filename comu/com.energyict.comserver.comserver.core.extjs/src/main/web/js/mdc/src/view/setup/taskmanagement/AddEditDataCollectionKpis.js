@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis', {
     alias: 'widget.data-collection-kpi-addedit-tgm',
 
     requires: [
-        'Mdc.view.setup.datacollectionkpis.KpiFieldContainer'
+        'Mdc.view.setup.datacollectionkpis.KpiFieldContainer',
+        'Mdc.store.AllTasks'
     ],
     defaults: {
         labelWidth: 250,
@@ -18,6 +19,35 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis', {
     initComponent: function () {
         var me = this;
         me.items = [
+            {
+                xtype: 'combobox',
+                name: 'collectionType',
+                emptyText: Uni.I18n.translate('datacollectionkpis.selectCollectionType', 'MDC', 'Select a collection type...'),
+                itemId: 'cmb-collectionType',
+                fieldLabel: Uni.I18n.translate('datacollectionkpis.collectionType', 'MDC', 'Collection type'),
+                store: 'Mdc.store.DataCollectionKpiType',
+                queryMode: 'local',
+                editable: false,
+                displayField: 'name',
+                valueField: 'id',
+                allowBlank: false,
+                required: true,
+                width: 600
+            },
+            {
+                xtype: 'combobox',
+                itemId: 'followedBy-combo',
+                fieldLabel: Uni.I18n.translate('general.followedBy', 'MDC', 'Followed by'),
+                name: 'nextRecurrentTasks',
+                width: 600,
+                multiSelect: true,
+                queryMode: 'local',
+                store: 'Mdc.store.AllTasks',
+                editable: false,
+                emptyText: Uni.I18n.translate('estimationtasks.taskSelectorPrompt', 'EST', 'Select a task ...'),
+                displayField: 'name',
+                valueField: 'id'
+            },
             {
                 xtype: 'combobox',
                 name: 'deviceGroup',
@@ -31,6 +61,7 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis', {
                 valueField: 'id',
                 allowBlank: false,
                 required: true,
+                disabled: true,
                 width: 600,
                 listeners: {
                     afterrender: function (field) {
@@ -59,7 +90,8 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis', {
                 valueField: 'id',
                 allowBlank: false,
                 required: true,
-                width: 600
+                width: 600,
+                afterSubTpl: '<div id="frequencySubTpl"/>'
             },
             {
                 xtype: 'combobox',
@@ -76,19 +108,24 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis', {
                 required: true,
                 disabled: true,
                 lastQuery: '',
-                width: 600
+                width: 600,
+                afterSubTpl: '<div id="displayRangeSubTpl"/>'
             },
             {
-                xtype: 'kpi-field-container',
-                groupName: 'connectionKpiContainer',
-                itemId: 'connectionKpiField',
-                fieldLabel: Uni.I18n.translate('datacollectionkpis.connectionKpi', 'MDC', 'Connection KPI')
-            },
-            {
-                xtype: 'kpi-field-container',
-                groupName: 'communicationKpiContainer',
-                itemId: 'communicationKpiField',
-                fieldLabel: Uni.I18n.translate('datacollectionkpis.communicationKpi', 'MDC', 'Communication KPI')
+                xtype: 'numberfield',
+                name: 'target',
+                fieldLabel: Uni.I18n.translate('datacollectionkpis.kpiTarget', 'MDC', 'KPI target'),
+                itemId: 'kpi-target',
+                value: 0,
+                minValue: 0,
+                maxValue: 100,
+                listeners: {
+                    blur: function (field) {
+                        if (field.getValue() < 0 || field.getValue() > 100) {
+                            field.setValue(0);
+                        }
+                    }
+                }
             }
         ];
         me.callParent(arguments);
@@ -99,8 +136,6 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis', {
             deviceGroup = record.get('deviceGroup'),
             frequency = record.get('frequency'),
             displayRange = record.get('displayRange'),
-            connectionTarget = record.get('connectionTarget'),
-            communicationTarget = record.get('communicationTarget'),
             deviceGroupCombo = me.down('[name=deviceGroup]');
 
         me.getForm().loadRecord(record);
@@ -113,7 +148,6 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis', {
         if (displayRange) {
             me.down('[name=displayRange]').setValue(displayRange.count + displayRange.timeUnit);
         }
-        me.down('[groupName=connectionKpiContainer]').setValue(connectionTarget);
-        me.down('[groupName=communicationKpiContainer]').setValue(communicationTarget);
+
     }
 });

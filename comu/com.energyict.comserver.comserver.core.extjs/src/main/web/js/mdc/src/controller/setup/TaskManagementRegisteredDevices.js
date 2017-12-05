@@ -285,7 +285,7 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
                     widget.down('#registered-devices-kpi-frequency').setValue(Mdc.util.ScheduleToStringConverter.convert(record.get('frequency')));
                     widget.down('#registered-devices-kpi-target').setValue(record.get('target'));
                     widget.setRecurrentTasks('#followedBy-field-container', record.get('nextRecurrentTasks'));
-                    widget.setRecurrentTasks('#procededBy-field-container', record.get('previousRecurrentTasks'));
+                    widget.setRecurrentTasks('#precededBy-field-container', record.get('previousRecurrentTasks'));
 
                     widget.down('#' + actionMenu.itemId) && (widget.down('#' + actionMenu.itemId).record = taskManagementRecord);
                 });
