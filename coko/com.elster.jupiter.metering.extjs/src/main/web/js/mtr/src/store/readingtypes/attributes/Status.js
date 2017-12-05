@@ -7,7 +7,7 @@ Ext.define('Mtr.store.readingtypes.attributes.Status', {
     autoLoad: false,
     fields: ['code', 'displayName'],
     data : [
-        {code: 'true', displayName: Uni.I18n.translate('readingtypesmanagment.active', 'MTR', 'Active')},
-        {code: 'false', displayName: Uni.I18n.translate('readingtypesmanagment.inactive', 'MTR', 'Inactive')}
+        {code: 'true', displayName: Uni.I18n.translate('readingtypesmanagement.active', 'MTR', 'Active')},
+        {code: 'false', displayName: Uni.I18n.translate('readingtypesmanagement.inactive', 'MTR', 'Inactive')}
     ]
 });

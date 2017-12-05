@@ -27,8 +27,8 @@ Ext.define('Mtr.view.readingtypes.Grid', {
                 dataIndex: 'active',
                 renderer: function(value){
                     return value
-                        ? Uni.I18n.translate('readingtypesmanagment.active', 'MTR', 'Active')
-                        : Uni.I18n.translate('readingtypesmanagment.inactive', 'MTR', 'Inactive');
+                        ? Uni.I18n.translate('readingtypesmanagement.active', 'MTR', 'Active')
+                        : Uni.I18n.translate('readingtypesmanagement.inactive', 'MTR', 'Inactive');
                 },
                 flex: 1
             },

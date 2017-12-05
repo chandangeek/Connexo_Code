@@ -8,11 +8,13 @@ Ext.define('Mtr.store.readingtypesgroup.attributes.Kind', {
     fields: ['code', 'displayName'],
     proxy: {
         type: 'rest',
-        url: '/api/mtr/readingtypes/basiccodes/measurementkind',
+        url: '/api/mtr/readingtypes/basiccodes/measurementkind/{filter}',
         reader: {
             type: 'json',
             root: 'measurementkindCodes'
         },
+        pageParam: false,
+        startParam: false,
         limitParam: false
     }
 });
