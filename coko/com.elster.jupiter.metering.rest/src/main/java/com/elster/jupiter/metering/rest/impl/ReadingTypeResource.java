@@ -128,6 +128,34 @@ public class ReadingTypeResource {
     }
 
     @GET
+    @Path("/groups/{aliasName}")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getReadingTypeAlias(@PathParam("aliasName") String aliasName, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+
+        List<ReadingTypeInfo> readingTypes = meteringService.getAvailableReadingTypes()
+                .stream()
+                .filter(readingType -> readingType.getAliasName().compareTo(aliasName) == 0)
+                .map(readingTypeInfoFactory::from)
+                .collect(Collectors.toList());
+
+        Map<String, List<ReadingTypeInfo>> readingTypesByAlias = readingTypes
+                .stream()
+                .collect(Collectors.groupingBy(ReadingTypeInfo::getName));
+
+        List<ReadingTypeInfo> infos = new ArrayList();
+
+        readingTypesByAlias.forEach((k, v) -> {
+            List<ReadingTypeInfo> l = v;
+            long length = l.stream().count();
+            l.get(0).setNumberOfReadingTypes(length);
+            infos.add(l.get(0));
+        });
+
+        return Response.ok().entity(infos.get(0)).build();
+    }
+
+    @GET
     @Path("/{mRID}/")
     @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
