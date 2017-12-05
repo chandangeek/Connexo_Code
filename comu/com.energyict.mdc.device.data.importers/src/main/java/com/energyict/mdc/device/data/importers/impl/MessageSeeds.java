@@ -74,7 +74,15 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_KEY_ACCESSOR_TYPE(505, "NoSuchKeyAccessorType", "Can''t process line {0}.  The device type does not have a security accessor with name {1}", Level.SEVERE),
     UNKNOWN_KEY_WRAPPER(506, "UnknownKeyWrapperType", "Can''t process line {0}.  The importer doesn't know how to handle values of this type, only plaintext keys are supported", Level.SEVERE),
     NO_VALUE_FOR_SECURITY_PROPERTY(507, "NoValueForSecurityProperty", "Can''t process line {0}.  No value was defined for property {1} so the importer doesn''t know where to store the value", Level.SEVERE),
-    CAN_NOT_BE_SPACE_OR_EMPTY(508,"cannnotBeSpaceOrEmpty","The delimiter cannot be empty or 'space'",Level.SEVERE);
+    CAN_NOT_BE_SPACE_OR_EMPTY(508,"cannnotBeSpaceOrEmpty","The delimiter cannot be empty or 'space'",Level.SEVERE),
+
+    NO_READINGTYPE_ON_DEVICE(509, "NoReadingtypeOnDeviceX", "Can''t process line {0}: reading type {1} is not found on device {2}", Level.WARNING),
+    NO_CUSTOMATTRIBUTE_ON_DEVICE(510, "NoCustomAttributeOnDeviceX", "Can''t process line {0}: can''t find custom attribute set {1} on device {2}", Level.WARNING),
+    NO_CUSTOMATTRIBUTE_ON_READINGTYPE_OF_DEVICE(511, "NoCustomAttributeOnReadingTypeOfDeviceX", "Can''t process line {0}: can''t find custom attribute set {1} on reading type {2} of device {3}", Level.WARNING),
+    NO_CUSTOMATTRIBUTE_VERSION_ON_DEVICE(512, "NoCustomAttributeVersionOnDeviceX", "Can''t process line {0}:  custom attribute set version with start date {1} is not found on device {2}", Level.WARNING),
+    UNRESOLVABLE_CUSTOMATTRIBUTE_CONFLICT(513, "UnresolvableCustomAttributesConflict", "Can''t process line {0}:  conflict of versions is found for custom attribute set {1} but conflicts resolution is switched off on device {2}", Level.WARNING),
+    MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE_ON_DEVICE(514, "MissingRequiredCustomAttributeValueOnDeviceX", "Can''t process line {0}: attribute {1} is required on custom attribute set {2} on device {3}", Level.WARNING),
+    INVALID_RANGE(515, "InvalidRange", "Can''t process line {0}: start time exceeds end time of custom attribute set {1} on device {2}", Level.WARNING);
 
     private final int number;
     private final String key;
