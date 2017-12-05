@@ -29,10 +29,10 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
                 labelWidth: 250
             },
             {
-                fieldLabel: Uni.I18n.translate('general.procededBy', 'EST', 'Proceded by'),
+                fieldLabel: Uni.I18n.translate('general.precededBy', 'EST', 'Preceded by'),
                 xtype: 'displayfield',
                 htmlEncode: false,
-                itemId: 'procededBy-field-container',
+                itemId: 'precededBy-field-container',
                 labelWidth: 250
             },
             {
