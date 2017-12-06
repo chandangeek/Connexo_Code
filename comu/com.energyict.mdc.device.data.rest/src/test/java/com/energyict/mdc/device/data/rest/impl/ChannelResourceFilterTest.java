@@ -18,7 +18,6 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationResult;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -28,6 +27,7 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.masterdata.LoadProfileType;
 
+import com.energyict.cbo.Unit;
 import com.jayway.jsonpath.JsonModel;
 
 import java.math.BigDecimal;
@@ -35,6 +35,7 @@ import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Currency;
+import java.util.List;
 import java.util.Optional;
 import java.util.PrimitiveIterator.OfInt;
 
@@ -139,8 +140,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
                 .request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
-        assertThat(jsonModel.<Number>get("$.channels[0].id")).isEqualTo(3);
-        assertThat(jsonModel.<Number>get("$.channels[1].id")).isEqualTo(4);
+        assertThat(jsonModel.<List<Number>>get("$.channels[*].id")).containsOnly(3, 4);
     }
 
     @Test
