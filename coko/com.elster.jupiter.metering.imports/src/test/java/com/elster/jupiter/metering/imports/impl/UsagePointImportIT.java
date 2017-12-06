@@ -5,7 +5,6 @@
 package com.elster.jupiter.metering.imports.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
@@ -84,7 +83,7 @@ public class UsagePointImportIT {
 
     private static void initializeMocks() {
         when(inMemoryPersistence.getClock().getZone()).thenReturn(utcTimeZone.toZoneId());
-        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
+        when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDate.of(2016, 8, 1).atStartOfDay().toInstant(ZoneOffset.UTC));
     }
 
     @Test
@@ -98,7 +97,6 @@ public class UsagePointImportIT {
         }
         String csv = "id;created;installationTime;serviceKind;countryCode;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;isSDP;isVirtual;phaseCode;countryName;administrativeArea;locality;metrologyConfiguration;metrologyConfigurationTime;meterRole1;meter1;activationdate1;transition;transitionDate;transitionConnectionState;allowUpdate\n" +
                 "UP_TEST;01/12/2015 00:00;01/12/2015 00:00;electricity;code;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;TRUE;FALSE;S1;US;California;Los Angeles;Residential net metering (consumption);01/12/2017 00:00;meter.role.default;DEVICE;01/12/2017 00:00;Install active;02/12/2017 00:00;Connected;FALSE\n";
-        when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDate.of(2016, 8, 1).atStartOfDay().toInstant(ZoneOffset.UTC));
         FileImportOccurrence occurrence = mockFileImportOccurrence(csv);
 
         importer.process(occurrence);
