@@ -8,9 +8,11 @@ import com.elster.jupiter.fileimport.csvimport.exceptions.ValueParserException;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.time.Instant;
+import java.time.chrono.ChronoZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class CustomAttributeParser implements FieldParser {
 
@@ -32,6 +34,7 @@ public class CustomAttributeParser implements FieldParser {
         parsers.put(dateParser.getValueType(), dateParser);
         parsers.put(quantityParser.getValueType(), quantityParser);
         parsers.put(bigDecimalParser.getValueType(), bigDecimalParser);
+        parsers.put(Boolean.class, new BooleanParser());
         customPropertySets = customPropertySetService.findActiveCustomPropertySets();
     }
 
@@ -52,7 +55,9 @@ public class CustomAttributeParser implements FieldParser {
                 if (header.equalsIgnoreCase(set.getId() + ".versionId")
                         || header.equalsIgnoreCase(set.getId() + ".startTime")
                         || header.equalsIgnoreCase(set.getId() + ".endTime")) {
-                    return value.equalsIgnoreCase("NaN") ? Instant.EPOCH : dateParser.parse(value).toInstant();
+                    return "NaN".equalsIgnoreCase(value)
+                            ? Instant.EPOCH
+                            : Optional.ofNullable(dateParser.parse(value)).map(ChronoZonedDateTime::toInstant).orElse(null);
                 }
 
                 for (Object spec : set.getPropertySpecs()) {

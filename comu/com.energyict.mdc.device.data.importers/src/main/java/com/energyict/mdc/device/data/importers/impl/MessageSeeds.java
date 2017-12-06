@@ -82,7 +82,10 @@ public enum MessageSeeds implements MessageSeed {
     NO_CUSTOMATTRIBUTE_VERSION_ON_DEVICE(512, "NoCustomAttributeVersionOnDeviceX", "Can''t process line {0}:  custom attribute set version with start date {1} is not found on device {2}", Level.WARNING),
     UNRESOLVABLE_CUSTOMATTRIBUTE_CONFLICT(513, "UnresolvableCustomAttributesConflict", "Can''t process line {0}:  conflict of versions is found for custom attribute set {1} but conflicts resolution is switched off on device {2}", Level.WARNING),
     MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE_ON_DEVICE(514, "MissingRequiredCustomAttributeValueOnDeviceX", "Can''t process line {0}: attribute {1} is required on custom attribute set {2} on device {3}", Level.WARNING),
-    INVALID_RANGE(515, "InvalidRange", "Can''t process line {0}: start time exceeds end time of custom attribute set {1} on device {2}", Level.WARNING);
+    INVALID_RANGE(515, "InvalidRange", "Can''t process line {0}: start time exceeds end time of custom attribute set {1} on device {2}", Level.WARNING),
+    WRONG_QUANTITY_FORMAT(515, "WrongQuantitiyFormat", "Can''t process line {0}: wrong unit format for column {1}. Supported multipliers: {2}, supported units: {3}", Level.WARNING),
+    WRONG_ENUM_FORMAT(515, "WrongEnumFormat", "Can''t process line {0}: wrong enumeration value for column {1}. Possible values: {2}", Level.WARNING);
+
 
     private final int number;
     private final String key;

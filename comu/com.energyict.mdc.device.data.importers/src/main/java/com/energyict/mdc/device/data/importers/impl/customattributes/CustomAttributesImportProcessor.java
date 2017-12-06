@@ -17,6 +17,7 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
+import com.elster.jupiter.util.units.Quantity;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
@@ -90,6 +91,27 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
         }
     }
 
+    private void validatePossibleValues(CustomPropertySet<?, ?> customPropertySet, CustomPropertySetValues values, CustomAttributesImportRecord data) {
+        List<PropertySpec> propertySpecs = customPropertySet.getPropertySpecs();
+        for (PropertySpec spec : propertySpecs) {
+            if (spec.getValueFactory().getValueType().equals(Quantity.class) && !isValidQuantityValues(spec, (Quantity) values.getProperty(spec.getName()))) {
+                throw new ProcessorException(MessageSeeds.WRONG_QUANTITY_FORMAT,
+                        data.getLineNumber(),
+                        spec.getName(),
+                        spec.getPossibleValues().getAllValues().stream().map(q -> String.valueOf(((Quantity) q).getMultiplier())).collect(Collectors.joining(",")),
+                        spec.getPossibleValues().getAllValues().stream().map(q -> String.valueOf(((Quantity) q).getUnit())).collect(Collectors.joining(",")));
+            } else if (spec.getValueFactory().getValueType().equals(String.class)
+                    && spec.getPossibleValues() != null
+                    && spec.getPossibleValues().isExhaustive()
+                    && !isValidEnumValues(spec, (String) values.getProperty(spec.getName()))) {
+                throw new ProcessorException(MessageSeeds.WRONG_ENUM_FORMAT,
+                        data.getLineNumber(),
+                        spec.getName(),
+                        spec.getPossibleValues().getAllValues().stream().collect(Collectors.joining(",")));
+            }
+        }
+    }
+
     private void validateCustomPropertySetValues(Device device, CustomAttributesImportRecord data) {
         List<CustomPropertySet> customPropertySets = device.getDeviceType().getCustomPropertySets().stream()
                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
@@ -108,22 +130,6 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
         }
     }
 
-    private void validateCreateOrUpdateVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributesImportRecord data) {
-        Optional versionId = data.getCustomAttributes()
-                .entrySet()
-                .stream()
-                .filter(e -> e.getKey().equalsIgnoreCase(customPropertySet.getId() + ".versionId"))
-                .map(Map.Entry::getValue)
-                .findFirst();
-        CustomPropertySetValues values = null;
-        if (versionId.isPresent()) {
-            values = getContext().getCustomPropertySetService().getUniqueValuesFor(customPropertySet, businessObject, (Instant) versionId.get());
-        }
-        if (values == null) {
-            values = CustomPropertySetValues.empty();
-        }
-        validateCreateOrUpdateCustomAttributeValues(customPropertySet, data, values);
-    }
 
     private void validateCreateOrUpdateVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributesImportRecord data, Object additionalObject) {
         Optional versionId = data.getCustomAttributes()
@@ -155,7 +161,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
 
     private void validateCreateOrUpdateNonVersionedSet(Object businessObject, CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributesImportRecord data, Object additionalObject) {
         CustomPropertySetValues values = getValues(businessObject, customPropertySet, data, additionalObject);
-        getContext().getCustomPropertySetService().validateCustomPropertySetValues(customPropertySet, values);
+        validateCreateOrUpdateCustomAttributeValues(customPropertySet, data, values);
     }
 
     private void validateCreateOrUpdateCustomAttributeValues(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributesImportRecord data, CustomPropertySetValues values) {
@@ -163,6 +169,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
             customPropertySet.getPropertySpecs().forEach(spec ->
                     findCustomAttributeValue(customPropertySet, data, spec).ifPresent(v -> values.setProperty(spec.getName(), v)));
             validateMandatoryCustomProperties(customPropertySet, values, data);
+            validatePossibleValues(customPropertySet, values, data);
             getContext().getCustomPropertySetService()
                     .validateCustomPropertySetValues(customPropertySet, values);
         }
@@ -244,7 +251,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
         checkInterval(startTime, endTime, customPropertySet, data);
         if (versionId.isPresent()) {
             CustomPropertySetValues values = getValuesVersion(businessObject, customPropertySet, data, versionId.get(), additionalPrimaryKeyObject);
-            if (values != null) {
+            if (!values.isEmpty()) {
                 values = updateValues(customPropertySet, data, values);
                 Range<Instant> range = data.isAutoResolution() ? getRangeToUpdate(startTime, endTime, values.getEffectiveRange()) : getRangeToCreate(startTime, endTime);
                 OverlapCalculatorBuilder overlapCalculatorBuilder;
@@ -367,7 +374,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
     }
 
     private void checkInterval(Optional<Instant> startTime, Optional<Instant> endTime, CustomPropertySet customPropertySet, CustomAttributesImportRecord data) {
-        if (startTime.isPresent() && endTime.isPresent() && endTime.get().isBefore(startTime.get())) {
+        if (startTime.isPresent() && endTime.isPresent() && !endTime.get().equals(Instant.EPOCH) && endTime.get().isBefore(startTime.get())) {
             throw new ProcessorException(MessageSeeds.NO_CUSTOMATTRIBUTE_VERSION_ON_DEVICE,
                     data.getLineNumber(),
                     customPropertySet.getId(),
@@ -375,4 +382,20 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
         }
     }
 
+    private boolean isValidQuantityValues(PropertySpec spec, Quantity value) {
+        if (spec.getPossibleValues().getAllValues().stream()
+                .noneMatch(pv -> ((Quantity) pv).getUnit().equals(value.getUnit()) && ((Quantity) pv).getMultiplier() == ((value.getMultiplier())))) {
+            return false;
+        }
+        return true;
+    }
+
+
+    private boolean isValidEnumValues(PropertySpec spec, String value) {
+        if (spec.getPossibleValues().getAllValues().stream()
+                .noneMatch(pv -> ((String) pv).equalsIgnoreCase(value))) {
+            return false;
+        }
+        return true;
+    }
 }
