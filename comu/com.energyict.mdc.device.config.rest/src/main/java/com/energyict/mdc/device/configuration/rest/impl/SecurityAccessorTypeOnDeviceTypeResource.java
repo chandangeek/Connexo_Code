@@ -65,7 +65,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     @Path("/unassigned")
-    public PagedInfoList getSecurityAccessorsAvailableForDeviceType(@PathParam("deviceTypeId") long id, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getSecurityAccessorsUnassignedToDeviceType(@PathParam("deviceTypeId") long id, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<SecurityAccessorInfo> infos = subtract(securityManagementService.getSecurityAccessorTypes(), deviceType.getSecurityAccessorTypes())
                 .map(keyFunctionTypeInfoFactory::from)
@@ -92,7 +92,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
                 .filter(kat -> kat.getId() == securityAccessorId)
                 .findAny()
                 .map(keyFunctionTypeInfoFactory::withSecurityLevels)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
     }
 
     @POST
@@ -105,8 +105,9 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
         SecurityAccessorType[] securityAccessorTypes = info.securityAccessors.stream()
                 .map(securityAccessorInfo -> resourceHelper.lockSecurityAccessorTypeOrThrowException(securityAccessorInfo.id, securityAccessorInfo.version, securityAccessorInfo.name))
                 .toArray(SecurityAccessorType[]::new);
-        deviceType.addSecurityAccessorTypes(securityAccessorTypes);
-        deviceType.update();
+        if (deviceType.addSecurityAccessorTypes(securityAccessorTypes)) {
+            deviceType.update();
+        }
         return Response.ok().build();
     }
 
@@ -122,8 +123,9 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
                 .filter(kFType -> kFType.getId() == securityAccessorId)
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
-        deviceType.removeSecurityAccessorType(keyFunctionType);
-        deviceType.update();
+        if (deviceType.removeSecurityAccessorType(keyFunctionType)) {
+            deviceType.update();
+        }
         return Response.noContent().build();
     }
 }
