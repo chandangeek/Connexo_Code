@@ -162,7 +162,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     public void delete() {
         eventService.postEvent(EventType.SECURITY_ACCESSOR_TYPE_VALIDATE_DELETE.topic(), this);
         userActionRecords.clear();
-        save();
+//        save();
         dataModel.remove(this);
         eventService.postEvent(EventType.SECURITY_ACCESSOR_TYPE_DELETED.topic(), this);
     }
@@ -262,6 +262,11 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     @Override
     public int hashCode() {
         return (int) (id ^ (id >>> 32));
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getName() + ": " + name;
     }
 
     @Override
