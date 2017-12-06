@@ -338,15 +338,16 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public void removeSecurityAccessorType(SecurityAccessorType securityAccessorType) {
+    public boolean removeSecurityAccessorType(SecurityAccessorType securityAccessorType) {
         if (getConfigurations().stream().anyMatch(DeviceConfiguration::isActive)) { // TODO provide better check
             throw new SecurityAccessorTypeCanNotBeDeletedException(getThesaurus());
         }
-        securityAccessorTypes.stream()
+        return securityAccessorTypes.stream()
                 .filter(securityAccessorTypeOnDeviceType ->
                         securityAccessorTypeOnDeviceType.getSecurityAccessorType().equals(securityAccessorType))
                 .findAny()
-                .ifPresent(securityAccessorTypes::remove);
+                .map(securityAccessorTypes::remove)
+                .orElse(false);
     }
 
     @Override

@@ -49,11 +49,11 @@ public class SecurityAccessorTypeOnDeviceTypeImpl {
     }
 
     public DeviceType getDeviceType() {
-        return deviceType.get();
+        return deviceType.orNull();
     }
 
     public SecurityAccessorType getSecurityAccessorType() {
-        return securityAccessorType.get();
+        return securityAccessorType.orNull();
     }
 
     @Override

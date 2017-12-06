@@ -8,12 +8,12 @@ import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -54,9 +54,7 @@ import java.util.Optional;
 
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -86,11 +84,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID_2 = 149;
     private final BigDecimal overflowValue = BigDecimal.valueOf(10000);
 
-    @Rule
-    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-
-    @Mock
-    private ServerDeviceConfiguration deviceConfig;
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
@@ -108,6 +101,8 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     private LoadProfileType loadProfileType2;
     private RegisterType registerType1;
     private RegisterType registerType2;
+    private SecurityAccessorType keyAccessorType;
+    private SecurityAccessorType certificateAccessorType;
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -984,94 +979,42 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(reloadedDeviceType.getDeviceIcon()).hasSize(0);
     }
 
-    // TODO: move tests
     @Test
     @Transactional
-    public void addSecurityAccessorType() throws Exception {
-        inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES128", "AES", 128).add();
+    public void addSecurityAccessorTypes() {
+        setupSecurityAccessorTypes();
 
-        Optional<KeyType> aes128 = inMemoryPersistence.getSecurityManagementService().getKeyType("AES128");
         assertThat(deviceType.getSecurityAccessorTypes()).isEmpty();
-        inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("GUAK", aes128.get()).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
-        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
-                .findDeviceType(this.deviceType.getId()).get();
-        assertThat(deviceType.getSecurityAccessorTypes()).hasSize(1);
-        assertThat(deviceType.getSecurityAccessorTypes().get(0).getName()).isEqualTo("GUAK");
-        assertThat(deviceType.getSecurityAccessorTypes().get(0).getKeyEncryptionMethod()).isEqualTo("SSM");
-        assertThat(deviceType.getSecurityAccessorTypes().get(0).getKeyType().getName()).isEqualTo("AES128");
+        assertThat(deviceType.addSecurityAccessorTypes(keyAccessorType)).isTrue();
+        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(keyAccessorType);
+        assertThat(deviceType.addSecurityAccessorTypes()).isFalse();
+        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(keyAccessorType);
+        assertThat(deviceType.addSecurityAccessorTypes(keyAccessorType, certificateAccessorType)).isTrue();
+        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(keyAccessorType, certificateAccessorType);
+        assertThat(deviceType.addSecurityAccessorTypes(keyAccessorType, certificateAccessorType)).isFalse();
+        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(keyAccessorType, certificateAccessorType);
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_IS_REQUIRED+"}", property = "keyEncryptionMethod")
-    public void addKeyAccessorTypeWithoutKeyEncryptionMethod() throws Exception {
-        inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES256", "AES", 256).add();
+    public void removeSecurityAccessorType() {
+        setupSecurityAccessorTypes();
+        deviceType.addSecurityAccessorTypes(keyAccessorType, certificateAccessorType);
 
-        Optional<KeyType> aes128 = inMemoryPersistence.getSecurityManagementService().getKeyType("AES256");
+        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(keyAccessorType, certificateAccessorType);
+        assertThat(deviceType.removeSecurityAccessorType(keyAccessorType)).isTrue();
+        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(certificateAccessorType);
+        assertThat(deviceType.removeSecurityAccessorType(keyAccessorType)).isFalse();
+        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(certificateAccessorType);
+        assertThat(deviceType.removeSecurityAccessorType(certificateAccessorType)).isTrue();
         assertThat(deviceType.getSecurityAccessorTypes()).isEmpty();
-        inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("GUAK", aes128.get()).description("general use AK").duration(TimeDuration.days(365)).add();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_IS_REQUIRED+"}", property = "duration")
-    public void addKeyAccessorTypeWithoutDuration() throws Exception {
-        inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES256", "AES", 256).add();
-
-        Optional<KeyType> aes128 = inMemoryPersistence.getSecurityManagementService().getKeyType("AES256");
-        assertThat(deviceType.getSecurityAccessorTypes()).isEmpty();
-        inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("GUAK", aes128.get()).description("general use AK").keyEncryptionMethod("DataVault").add();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_IS_REQUIRED+"}", property = "trustStore")
-    public void addCertificateAccessorTypeMissingTrustStore() throws Exception {
-        inMemoryPersistence.getSecurityManagementService().newCertificateType("Friends").add();
-
-        Optional<KeyType> certs = inMemoryPersistence.getSecurityManagementService().getKeyType("Friends");
-        assertThat(deviceType.getSecurityAccessorTypes()).isEmpty();
-        inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("TLS", certs.get()).description("just certificates").add();
-    }
-
-    @Test
-    @Transactional
-    public void addCertificateAccessorType() throws Exception {
-        inMemoryPersistence.getSecurityManagementService().newCertificateType("Friends").add();
-        TrustStore main = inMemoryPersistence.getSecurityManagementService().newTrustStore("MAIN").add();
-
-        Optional<KeyType> certs = inMemoryPersistence.getSecurityManagementService().getKeyType("Friends");
-        assertThat(deviceType.getSecurityAccessorTypes()).isEmpty();
-        inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("TLS", certs.get())
-                .description("just certificates")
-                .trustStore(main)
-                .add();
-        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
-                .findDeviceType(this.deviceType.getId()).get();
-        assertThat(deviceType.getSecurityAccessorTypes()).hasSize(1);
-        assertThat(deviceType.getSecurityAccessorTypes().get(0).getName()).isEqualTo("TLS");
-        assertThat(deviceType.getSecurityAccessorTypes().get(0).getKeyEncryptionMethod()).isNull();
-        assertThat(deviceType.getSecurityAccessorTypes().get(0).getKeyType().getName()).isEqualTo("Friends");
-        assertThat(deviceType.getSecurityAccessorTypes().get(0).getTrustStore()).isPresent();
-        assertThat(deviceType.getSecurityAccessorTypes().get(0).getTrustStore().get().getName()).isEqualTo("MAIN");
-    }
-
-    @Test
-    @Transactional
-    public void testRemoveKeyAccessorType() throws Exception {
-        inMemoryPersistence.getSecurityManagementService().newSymmetricKeyType("AES256", "AES", 256).add();
-
-        Optional<KeyType> aes128 = inMemoryPersistence.getSecurityManagementService().getKeyType("AES256");
-        SecurityAccessorType securityAccessorType = inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("GUAK", aes128.get())
-                .description("general use AK")
-                .duration(TimeDuration.days(365))
-                .keyEncryptionMethod("DataVault")
-                .add();
-
-        // Test method
-        this.deviceType.removeSecurityAccessorType(securityAccessorType);
-
-        assertThat(deviceType.getSecurityAccessorTypes()).isEmpty();
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "securityAccessorType")
+    public void addInvalidSecurityAccessorType() {
+        deviceType.addSecurityAccessorTypes((SecurityAccessorType) null);
     }
 
     private void setupLogBookTypesInExistingTransaction(String logBookTypeBaseName) {
@@ -1119,6 +1062,23 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
                 .accumulate(Accumulation.BULKQUANTITY)
                 .code();
         this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
+    }
+
+    private void setupSecurityAccessorTypes() {
+        SecurityManagementService securityManagementService = inMemoryPersistence.getSecurityManagementService();
+        KeyType certs = securityManagementService.newCertificateType("Friends").add();
+        KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
+        TrustStore main = securityManagementService.newTrustStore("MAIN").add();
+        certificateAccessorType = securityManagementService.addSecurityAccessorType("Certificate", certs)
+                .description("just certificates")
+                .trustStore(main)
+                .add();
+        keyAccessorType = securityManagementService.addSecurityAccessorType("Key", aes128)
+                .keyEncryptionMethod("SSM")
+                .description("general use AK")
+                .duration(TimeDuration.days(365))
+                .add();
+
     }
 
 }

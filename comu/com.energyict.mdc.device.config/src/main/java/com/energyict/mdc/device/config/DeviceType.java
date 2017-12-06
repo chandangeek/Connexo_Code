@@ -270,8 +270,9 @@ public interface DeviceType extends HasId, HasName {
     /**
      * Removes the SecurityAccessorType from the DeviceType.
      * @param securityAccessorType
+     * @return {@code true} if a link to security accessor type is removed from device type, {@code false} otherwise.
      */
-    void removeSecurityAccessorType(SecurityAccessorType securityAccessorType);
+    boolean removeSecurityAccessorType(SecurityAccessorType securityAccessorType);
 
     interface DeviceTypeBuilder {
         DeviceTypeBuilder withRegisterTypes(List<RegisterType> registerTypes);
