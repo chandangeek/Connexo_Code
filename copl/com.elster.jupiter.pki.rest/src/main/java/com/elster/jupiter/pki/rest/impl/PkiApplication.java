@@ -9,7 +9,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
-
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -53,6 +52,7 @@ public class PkiApplication extends Application {
                 bind(thesaurus).to(Thesaurus.class);
                 bind(TrustStoreInfoFactory.class).to(TrustStoreInfoFactory.class);
                 bind(CertificateInfoFactory.class).to(CertificateInfoFactory.class);
+                bind(DataSearchFilterFactory.class).to(DataSearchFilterFactory.class);
                 bind(ExceptionFactory.class).to(ExceptionFactory.class);
                 bind(KeypairInfoFactory.class).to(KeypairInfoFactory.class);
             }
