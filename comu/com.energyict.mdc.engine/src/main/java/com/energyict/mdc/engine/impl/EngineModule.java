@@ -27,6 +27,7 @@ import com.energyict.mdc.upl.io.SocketService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+import org.osgi.service.component.ComponentContext;
 
 import java.time.Clock;
 
@@ -50,7 +51,7 @@ public class EngineModule extends AbstractModule {
         requireBinding(ProtocolPluggableService.class);
         requireBinding(SocketService.class);
         requireBinding(SerialComponentService.class);
-
+        requireBinding(ComponentContext.class);
         bind(ManagementBeanFactory.class).to(ManagementBeanFactoryImpl.class).in(Scopes.SINGLETON);
         bind(StatusService.class).to(StatusServiceImpl.class).in(Scopes.SINGLETON);
         bind(EngineService.class).to(EngineServiceImpl.class).in(Scopes.SINGLETON);

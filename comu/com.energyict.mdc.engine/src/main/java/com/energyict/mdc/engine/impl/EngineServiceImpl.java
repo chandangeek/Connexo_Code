@@ -65,7 +65,9 @@ import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.ComponentException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -82,6 +84,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -135,13 +138,14 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
     private ComServerLauncher launcher;
     private ProtocolDeploymentListenerRegistration protocolDeploymentListenerRegistration;
+    private Properties engineProperties = new Properties();
 
     public EngineServiceImpl() {
     }
 
     @Inject
     public EngineServiceImpl(
-            BundleContext bundleContext,
+            ComponentContext componentContext,
             OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, ThreadPrincipalService threadPrincipalService,
             HexService hexService, EngineConfigurationService engineConfigurationService, IssueService issueService,
             MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
@@ -182,7 +186,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         addIdentificationService(identificationService);
         setFirmwareService(firmwareService);
         setUpgradeService(upgradeService);
-        activate(bundleContext);
+        activate(componentContext);
     }
 
     @Override
@@ -428,25 +432,47 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     }
 
     @Activate
-    public void activate(BundleContext bundleContext) {
-        this.dataModel.register(this.getModule());
-        this.setHostNameIfOverruled(bundleContext);
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
-        this.updatePortNumber(bundleContext);
+    public void activate(ComponentContext componentContext) {
+        try{
+            dataModel.register(this.getModule());
+            upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 
-        this.tryStartComServer();
+            setEngineProperty(SERVER_NAME_PROPERTY_NAME, componentContext.getBundleContext().getProperty(SERVER_NAME_PROPERTY_NAME));
+            setEngineProperty(PORT_PROPERTY_NUMBER, Optional.ofNullable(componentContext.getBundleContext().getProperty(PORT_PROPERTY_NUMBER)).orElse("80"));
+
+            this.tryStartComServer();
+
+        } catch(Exception e) {
+            // Not so a good idea to disable: can't be restarted by using the command lcs ...
+            // componentContext.disableComponent(componentContext.getBundleContext().getProperty(Constants.SERVICE_PID));
+            if (launcher != null){
+                if (launcher.isStarted()){
+                    launcher.stopComServer();
+                }
+                this.launcher = null;
+            }
+        }
     }
 
-    private void setHostNameIfOverruled(BundleContext context) {
-        Optional
-                .ofNullable(context.getProperty(SERVER_NAME_PROPERTY_NAME))
-                .ifPresent(HostName::setCurrent);
+    private void setEngineProperty(String key, String value){
+        if (value != null) {
+            this.engineProperties.setProperty(key, value);
+        }else{
+            this.engineProperties.remove(key);
+        }
     }
 
-    private void updatePortNumber(BundleContext context) {
-        String portNumber = Optional.ofNullable(context.getProperty(PORT_PROPERTY_NUMBER)).orElse("80");
+    private String getEngineProperty(String key){
+        return this.engineProperties.getProperty(key);
+    }
+
+    private void setHostNameIfOverruled() {
+        Optional.ofNullable(getEngineProperty(SERVER_NAME_PROPERTY_NAME)).ifPresent(HostName::setCurrent);
+    }
+
+    private void updatePortNumber() {
         transactionService.execute(() -> {
-            updatePortNumberForComServer(portNumber);
+            updatePortNumberForComServer(getEngineProperty(PORT_PROPERTY_NUMBER));
             return null;
         });
     }
@@ -465,6 +491,8 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
 
     private void tryStartComServer() {
         this.launcher = new ComServerLauncher(new RunningComServerServiceProvider());
+        this.setHostNameIfOverruled();
+        this.updatePortNumber();
         this.protocolDeploymentListenerRegistration = this.protocolPluggableService.register(this.launcher);
         this.launcher.startComServer();
         if (this.launcher.isStarted()) {

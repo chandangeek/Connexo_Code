@@ -29,6 +29,9 @@ public interface ComServerLauncherLogger {
     @Configuration(format = "ComServer for host {0} not found!", logLevel = LogLevel.INFO)
     void comServerNotFound(String hostName);
 
+    @Configuration(format = "Could not start ComServer {0}: user {1} is not active.", logLevel = LogLevel.ERROR)
+    void userComServerNotActive(String hostName, String userName);
+
     @Configuration(format = "ComServer {0} is not active.", logLevel = LogLevel.INFO)
     void comServerNotActive(String hostName);
 

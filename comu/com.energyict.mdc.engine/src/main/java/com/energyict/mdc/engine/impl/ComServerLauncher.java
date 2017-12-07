@@ -7,6 +7,7 @@ package com.energyict.mdc.engine.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Counter;
@@ -76,10 +77,12 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
     private Counter deviceProtocolServices = Counters.newLenientNonNegativeCounter();
     private Counter inboundDeviceProtocolServices = Counters.newLenientNonNegativeCounter();
     private Counter connectionTypeServices = Counters.newLenientNonNegativeCounter();
+    private User comserverUser;
 
     public ComServerLauncher(RunningComServerImpl.ServiceProvider serviceProvider) {
         this.serviceProvider = serviceProvider;
         initializeLogging();
+        initComserverUser();
     }
 
     @Override
@@ -117,6 +120,15 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
 
     private void initializeLogging() {
         this.logger = LoggerFactory.getLoggerFor(ComServerLauncherLogger.class);
+    }
+
+    private void initComserverUser(){
+        try {
+            comserverUser = serviceProvider.userService().findUser(EngineServiceImpl.COMSERVER_USER).get();
+        }catch(FoundUserIsNotActiveException e){
+            logger.userComServerNotActive(HostName.getCurrent(), EngineServiceImpl.COMSERVER_USER);
+            throw e;
+        }
     }
 
     public void startComServer() {
@@ -172,11 +184,10 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
     }
 
     private void startOnlineComServer() {
-        Optional<User> user = serviceProvider.userService().findUser(EngineServiceImpl.COMSERVER_USER);
-        Services.objectMapperService(new ObjectMapperServiceImpl(new OnlineJSONTypeMapper()));
-        ComServerDAO comServerDAO = new ComServerDAOImpl(new ComServerDaoServiceProvider(), user.get()); // we should always have the comserver user
-        this.comServer = comServerDAO.getThisComServer();
-        this.doStartOnlineComServer(comServerDAO);
+            Services.objectMapperService(new ObjectMapperServiceImpl(new OnlineJSONTypeMapper()));
+            ComServerDAO comServerDAO = new ComServerDAOImpl(new ComServerDaoServiceProvider(), comserverUser); // we should always have the comserver user
+            this.comServer = comServerDAO.getThisComServer();
+            this.doStartOnlineComServer(comServerDAO);
     }
 
     private void doStartOnlineComServer(ComServerDAO comServerDAO) {
