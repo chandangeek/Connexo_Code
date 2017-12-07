@@ -1,21 +1,31 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-Ext.define('Pkj.view.CertificateFilter', {
+Ext.define('Pkj.view.TrustedCertificateFilter', {
     extend: 'Uni.grid.FilterPanelTop',
-    store: 'Pkj.store.Certificates',
-    xtype: 'certificateFilter',
+    store: 'Pkj.store.TrustedCertificates',
+    xtype: 'trustedCertificateFilter',
 
     requires:[
-        'Pkj.store.CertificateIssuers',
-        'Pkj.store.CertificateAliases',
-        'Pkj.store.CertificateKeyUsages',
-        'Pkj.store.CertificateSubjects'
+        'Pkj.store.TrustedCertificateIssuers',
+        'Pkj.store.TrustedCertificateAliases',
+        'Pkj.store.TrustedCertificateKeyUsages',
+        'Pkj.store.TrustedCertificateSubjects'
     ],
 
-    initComponent: function () {
-        var me = this;
+    trustStoreId: undefined,
 
+    initComponent: function () {
+        var me = this,
+            aliasStore = Ext.getStore('Pkj.store.TrustedCertificateAliases') || Ext.create('Pkj.store.TrustedCertificateAliases'),
+            keyUsageStore = Ext.getStore('Pkj.store.TrustedCertificateKeyUsages') || Ext.create('Pkj.store.TrustedCertificateKeyUsages'),
+            issuersStore = Ext.getStore('Pkj.store.TrustedCertificateIssuers') || Ext.create('Pkj.store.TrustedCertificateIssuers'),
+            subjectsStore = Ext.getStore('Pkj.store.TrustedCertificateSubjects') || Ext.create('Pkj.store.TrustedCertificateSubjects');
+
+        aliasStore.getProxy().setUrl(me.trustStoreId);
+        keyUsageStore.getProxy().setUrl(me.trustStoreId);
+        issuersStore.getProxy().setUrl(me.trustStoreId);
+        subjectsStore.getProxy().setUrl(me.trustStoreId);
         me.filters = [
             {
                 type: 'combobox',
@@ -24,7 +34,7 @@ Ext.define('Pkj.view.CertificateFilter', {
                 multiSelect: true,
                 displayField: 'alias',
                 valueField: 'alias',
-                store: 'Pkj.store.CertificateAliases'
+                store: aliasStore
             },
             {
                 type: 'combobox',
@@ -33,7 +43,7 @@ Ext.define('Pkj.view.CertificateFilter', {
                 multiSelect: true,
                 displayField: 'keyUsage',
                 valueField: 'keyUsage',
-                store: 'Pkj.store.CertificateKeyUsages'
+                store: keyUsageStore
             },
             {
                 type: 'combobox',
@@ -42,7 +52,7 @@ Ext.define('Pkj.view.CertificateFilter', {
                 multiSelect: true,
                 displayField: 'issuer',
                 valueField: 'issuer',
-                store: 'Pkj.store.CertificateIssuers'
+                store: issuersStore
             },
             {
                 type: 'combobox',
@@ -51,7 +61,7 @@ Ext.define('Pkj.view.CertificateFilter', {
                 multiSelect: true,
                 displayField: 'subject',
                 valueField: 'subject',
-                store: 'Pkj.store.CertificateSubjects'
+                store: subjectsStore
             },
             {
                 type: 'interval',
