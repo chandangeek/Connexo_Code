@@ -53,14 +53,6 @@ public class TrustStoreResource {
         return x.getKeyUsages().stream().collect(toList());
     }
 
-    private static List<ExtendedKeyUsage> applyExtendedKeyUsages(TrustedCertificate x) {
-        try {
-            return x.getExtendedKeyUsages().stream().collect(toList());
-        } catch (CertificateParsingException e) {
-            throw new LocalizedFieldValidationException(MessageSeeds.CERTIFICATE_ENCODING_EXCEPTION, "file");
-        }
-    }
-
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})

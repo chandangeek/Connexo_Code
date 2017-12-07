@@ -18,7 +18,6 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_IMPORT_KEYSTORE(5, "KeystoreReadError", "The keystore could not be imported"),
     NO_SUCH_CERTIFICATE(6, "NoSuchCertificate", "No such certificate could be located"),
     NO_SUCH_KEY_TYPE(7, "NoSuchKeyType", "No such key type"),
-    CERTIFICATE_TOO_BIG(8, "fileTooBig", "File size should be less than 2 kB"),
     IMPORTFILE_TOO_BIG(8, "pkcsFileTooBig", "File size should be less than 2 kB"),
     FIELD_IS_REQUIRED(9, "FieldIsrequired", "This field is required"),
     NOT_POSSIBLE_TO_CREATE_CSR(10, "NotPossibleToCreateCSR" , "CSR can not be generated for this type of certificate"),
@@ -34,7 +33,6 @@ public enum MessageSeeds implements MessageSeed {
     NO_PUBLIC_KEY_PRESENT(20, "NoPublicKeyPresent", "No public key found"),
     INVALID_PUBLIC_KEY(21, "InvalidPublicKey", "File does not contain a valid public key"),
     INVALID_KEY(22,"InvalidKey","Invalid key");
-    CERTIFICATE_ENCODING_EXCEPTION(19, "CertificateEncodingException", "The certificate could not be properly encoded");
 
     private final int number;
     private final String key;
