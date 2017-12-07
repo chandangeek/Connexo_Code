@@ -60,7 +60,8 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
 
     listeners: {
         boxready: function (panel) {
-            this.initCanvas(panel);
+            // this.initCanvas(panel);
+            this.initShit();
         },
         resize: function(panel,w,h){
             KeyLines.setSize('graph-drawing-area', w-10, h-this.yOffset);
@@ -94,14 +95,27 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         this.callParent(arguments);
     },
 
+    initShit: function () {
+        var mapopts = {
+//      zoomSnap: 0.1
+        };
+        var map = L.map('graph-drawing-area', mapopts).setView([45.828315, 21.2800133], 15);
+
+        var roadMutant = L.gridLayer.googleMutant({
+            maxZoom: 24,
+            type: 'roadmap'
+        }).addTo(map);
+    },
+
+
     initCanvas: function (me) {
         var me = this;
-
         KeyLines.paths({assets: 'resources/js/keylines/assets/'});
         KeyLines.create(
             {
                 id: 'graph-drawing-area',
                 options: {
+
                     navigation: {
                         p: 'se'
                     },
@@ -123,9 +137,9 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 me.chart.load({
                     type: 'LinkChart'
                 });
+            });
+
                 me.loadData();
-            }
-        );
     },
 
     contextMenu: function(id, x, y) {
