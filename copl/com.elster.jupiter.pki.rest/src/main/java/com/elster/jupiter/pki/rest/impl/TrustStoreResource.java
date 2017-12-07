@@ -5,32 +5,15 @@
 package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.TrustedCertificate;
+import com.elster.jupiter.pki.*;
 import com.elster.jupiter.pki.security.Privileges;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.ListPager;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.Transactional;
-
+import com.elster.jupiter.rest.util.*;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -38,11 +21,12 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.NoSuchProviderException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Path("/truststores")
 public class TrustStoreResource {
@@ -51,16 +35,22 @@ public class TrustStoreResource {
     private final SecurityManagementService securityManagementService;
     private final TrustStoreInfoFactory trustStoreInfoFactory;
     private final CertificateInfoFactory certificateInfoFactory;
+    private final DataSearchFilterFactory dataSearchFilterFactory;
     private final ExceptionFactory exceptionFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public TrustStoreResource(SecurityManagementService securityManagementService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, CertificateInfoFactory certificateInfoFactory) {
+    public TrustStoreResource(SecurityManagementService securityManagementService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, CertificateInfoFactory certificateInfoFactory, DataSearchFilterFactory dataSearchFilterFactory) {
         this.securityManagementService = securityManagementService;
         this.exceptionFactory = exceptionFactory;
         this.conflictFactory = conflictFactory;
         this.trustStoreInfoFactory = trustStoreInfoFactory;
         this.certificateInfoFactory = certificateInfoFactory;
+        this.dataSearchFilterFactory = dataSearchFilterFactory;
+    }
+
+    private static List<KeyUsage> applyKeyUsages(TrustedCertificate x) {
+        return x.getKeyUsages().stream().collect(toList());
     }
 
     @GET
@@ -84,10 +74,82 @@ public class TrustStoreResource {
     @Path("/{id}/certificates")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
-    public PagedInfoList getCertificates(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getCertificates(@PathParam("id") long id, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
         TrustStore trustStore = findTrustStoreOrThrowException(id);
-        return asPagedInfoList(certificateInfoFactory.asInfo(trustStore.getCertificates()), "certificates", queryParameters);
+        List<? extends CertificateWrapper> certificates;
+        if (jsonQueryFilter.hasFilters()) {
+            SecurityManagementService.DataSearchFilter dataSearchFilter = getDataSearchFilter(jsonQueryFilter,id);
+            certificates = securityManagementService.findTrustedCertificatesByFilter(dataSearchFilter);
+        } else {
+            certificates = trustStore.getCertificates();
+        }
+        return asPagedInfoList(certificateInfoFactory.asInfo(certificates), "certificates", queryParameters);
     }
+
+    private SecurityManagementService.DataSearchFilter getDataSearchFilter(JsonQueryFilter jsonQueryFilter,long trustStoreId) {
+        return dataSearchFilterFactory.asFilter(jsonQueryFilter,securityManagementService.findTrustStore(trustStoreId));
+    }
+
+    @GET
+    @Path("/{id}/certificates/aliases")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
+    public PagedInfoList getCertificateAliases(@PathParam("id") long id, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        TrustStore trustStore = findTrustStoreOrThrowException(id);
+        List<AliasInfo> collect = trustStore.getCertificates().stream()
+                .map(cert -> cert.getAlias())
+                .map(AliasInfo::new)
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromPagedList("aliases", collect, queryParameters);
+    }
+
+    @GET
+    @Path("/{id}/certificates/subjects")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
+    public PagedInfoList getCertificateSubjects(@PathParam("id") long id, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        TrustStore trustStore = findTrustStoreOrThrowException(id);
+        List<SubjectInfo> collect = trustStore.getCertificates().stream()
+                .map(cert -> cert.getSubject())
+                .distinct()
+                .map(SubjectInfo::new)
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromPagedList("subjects", collect, queryParameters);
+    }
+
+    @GET
+    @Path("/{id}/certificates/issuers")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
+    public PagedInfoList getCertificateIssuers(@PathParam("id") long id, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        TrustStore trustStore = findTrustStoreOrThrowException(id);
+        List<IssuerInfo> collect = trustStore.getCertificates().stream()
+                .map(cert -> cert.getIssuer())
+                .distinct()
+                .map(IssuerInfo::new)
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromPagedList("issuers", collect, queryParameters);
+    }
+
+    @GET
+    @Path("/{id}/certificates/keyusages")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_TRUST_STORES})
+    public PagedInfoList getCertificateKeyUsages(@PathParam("id") long id, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        TrustStore trustStore = findTrustStoreOrThrowException(id);
+        List<KeyUsageInfo> collect = trustStore.getCertificates().stream()
+                .map(TrustStoreResource::applyKeyUsages)
+                .flatMap(Collection::stream)
+                .distinct()
+                .map((KeyUsage keyUsage) -> new KeyUsageInfo(keyUsage.name()))
+                .collect(toList());
+
+        return PagedInfoList.fromPagedList("keyUsages", collect, queryParameters);
+    }
+
 
     @GET
     @Path("{id}/certificates/{certificateId}/download/certificate")
@@ -255,6 +317,4 @@ public class TrustStoreResource {
         return this.securityManagementService.findTrustStore(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_TRUSTSTORE));
     }
-
-
 }

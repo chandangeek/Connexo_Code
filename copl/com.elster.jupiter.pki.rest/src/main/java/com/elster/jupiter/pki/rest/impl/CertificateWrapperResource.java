@@ -4,19 +4,12 @@
 
 package com.elster.jupiter.pki.rest.impl;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.pki.CertificateWrapper;
-import com.elster.jupiter.pki.ClientCertificateWrapper;
-import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.RequestableCertificateWrapper;
+import com.elster.jupiter.pki.*;
 import com.elster.jupiter.pki.security.Privileges;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.util.Checks;
-
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -27,14 +20,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -46,7 +32,12 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -57,25 +48,103 @@ public class CertificateWrapperResource {
     private final SecurityManagementService securityManagementService;
     private final CertificateInfoFactory certificateInfoFactory;
     private final ExceptionFactory exceptionFactory;
+    private final DataSearchFilterFactory dataSearchFilterFactory;
 
     @Inject
-    public CertificateWrapperResource(SecurityManagementService securityManagementService, CertificateInfoFactory certificateInfoFactory, ExceptionFactory exceptionFactory/*, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, TrustedCertificateInfoFactory trustedCertificateInfoFactory*/) {
+    public CertificateWrapperResource(SecurityManagementService securityManagementService, CertificateInfoFactory certificateInfoFactory, ExceptionFactory exceptionFactory,DataSearchFilterFactory dataSearchFilterFactory/*, ConcurrentModificationExceptionFactory conflictFactory, TrustStoreInfoFactory trustStoreInfoFactory, TrustedCertificateInfoFactory trustedCertificateInfoFactory*/) {
         this.securityManagementService = securityManagementService;
         this.certificateInfoFactory = certificateInfoFactory;
         this.exceptionFactory = exceptionFactory;
+        this.dataSearchFilterFactory = dataSearchFilterFactory;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public PagedInfoList getCertificates(@BeanParam JsonQueryParameters queryParameters) {
-        List<CertificateWrapperInfo> infoList = securityManagementService.findAllCertificates()
+    public PagedInfoList getCertificates(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        List<CertificateWrapperInfo> infoList = findCertficates(jsonQueryFilter)
                 .from(queryParameters)
                 .stream()
                 .map(certificateInfoFactory::asInfo)
                 .collect(toList());
 
         return PagedInfoList.fromPagedList("certificates", infoList, queryParameters);
+    }
+
+    private Finder<CertificateWrapper> findCertficates(JsonQueryFilter jsonQueryFilter) {
+        if (jsonQueryFilter.hasFilters()) {
+            SecurityManagementService.DataSearchFilter dataSearchFilter = getDataSearchFilter(jsonQueryFilter);
+            return securityManagementService.findCertificatesByFilter(dataSearchFilter);
+        } else {
+            return securityManagementService.findAllCertificates();
+        }
+    }
+
+    private SecurityManagementService.DataSearchFilter getDataSearchFilter(JsonQueryFilter jsonQueryFilter) {
+        return dataSearchFilterFactory.asFilter(jsonQueryFilter, Optional.empty());
+    }
+
+    @GET
+    @Path("/aliases")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList aliasSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        List<AliasInfo> collect = securityManagementService.getAliasesByFilter(new AliasParameterFilter(securityManagementService, jsonQueryFilter))
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getAlias)
+                .map(AliasInfo::new)
+                .collect(toList());
+        return PagedInfoList.fromPagedList("aliases", collect, queryParameters);
+    }
+
+    @GET
+    @Path("/subjects")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList subjectSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        List<SubjectInfo> collect = securityManagementService.getSubjectsByFilter(new SubjectParameterFilter(securityManagementService, jsonQueryFilter))
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getSubject)
+                .distinct()
+                .map(SubjectInfo::new)
+                .collect(toList());
+        return PagedInfoList.fromPagedList("subjects", collect, queryParameters);
+    }
+
+    @GET
+    @Path("/issuers")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList issuerSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        List<IssuerInfo> collect = securityManagementService.getIssuersByFilter(new IssuerParameterFilter(securityManagementService, jsonQueryFilter))
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getIssuer)
+                .distinct()
+                .map(IssuerInfo::new)
+                .collect(toList());
+        return PagedInfoList.fromPagedList("issuers", collect, queryParameters);
+    }
+
+    @GET
+    @Path("/keyusages")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_CERTIFICATES, Privileges.Constants.ADMINISTRATE_CERTIFICATES})
+    public PagedInfoList keyUsagesSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        KeyUsagesParameterFilter filter = new KeyUsagesParameterFilter(securityManagementService, jsonQueryFilter);
+        List<KeyUsageInfo> infos = securityManagementService.getKeyUsagesByFilter(filter)
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getStringifiedKeyUsages)
+                .map(x -> filterKeyUsagesbySearchParam().apply(x, filter.searchValue))
+                .flatMap(Collection::stream)
+                .distinct()
+                .map(KeyUsageInfo::new)
+                .collect(toList());
+
+        return PagedInfoList.fromPagedList("keyUsages", infos, queryParameters);
     }
 
     @POST
@@ -255,4 +324,18 @@ public class CertificateWrapperResource {
         }
     }
 
+    private BiFunction<Optional<String>, String, List<String>> filterKeyUsagesbySearchParam() {
+        return (Optional<String> usages, String searchParam) -> {
+            if (usages.isPresent()) {
+                return Stream.of(usages.get().split(","))
+                        .filter(x -> x.toLowerCase().trim().contains(searchParam.
+                                replace("*", "")
+                                .replace("?", "")))
+                        .collect(toList());
+
+            } else {
+                return Collections.emptyList();
+            }
+        };
+    }
 }
