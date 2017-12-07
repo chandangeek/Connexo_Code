@@ -53,6 +53,10 @@ public enum MessageSeeds implements MessageSeed {
     CAN_NOT_GENERATE_PUBLIC(1037, "CanNotGeneratePublic", "A public key can not be generated, only a public/private keypair"),
     NO_PUBLIC_KEY_TO_VERIFY(1038, "NoPublicKeyForVerification", "The public key can not be verified: no public key counterpart for verification"),
     PUBLIC_KEY_DOES_NOT_MATCH(1039, "PublicKeyDoesNotMatch", "Incorrect public key used to encrypt wrap key");
+    NO_SUCH_TRUSTSTORE(1031, "noSuchTrustStore", "The trust store could not be found"),
+    INVALID_DN(1032, "InvalidDN", "Invalid distinguished name encountered"),
+    PUBLIC_KEY_INVALID(1033, "CouldNotConstructKey", "The public key could not be created: {0}"),
+    CAN_NOT_GENERATE_PUBLIC(1034, "CanNotGeneratePublic", "A public key can not be generated, only a public/private keypair");
 
     private final int number;
     private final String key;
