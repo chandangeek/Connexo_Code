@@ -14,6 +14,7 @@ Ext.define('Cps.customattributesets.model.CustomAttributeSet', {
         {name: 'name', type: 'string'},
         {name: 'domainName', type: 'string'},
         {name: 'domainNameUntranslated', type: 'string'},
+        {name: 'customPropertySetId', type: 'string'},
         {name: 'isRequired', type: 'boolean'},
         {name: 'isVersioned', type: 'boolean'},
         {name: 'viewPrivileges', type: 'auto'},

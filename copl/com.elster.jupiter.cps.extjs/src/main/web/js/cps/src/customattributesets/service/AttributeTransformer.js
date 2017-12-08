@@ -5,8 +5,9 @@
 Ext.define('Cps.customattributesets.service.AttributeTransformer', {
     singleton: true,
 
-    transform: function (attributes) {
+    transform: function (attributes, set) {
         var transformedAttributes = [],
+            customPropertySetId = set.get('customPropertySetId'),
             attributeOrder = 1,
             getDefaultValue = function (attribute) {
                 switch (attribute.propertyTypeInfo.simplePropertyType) {
@@ -33,7 +34,7 @@ Ext.define('Cps.customattributesets.service.AttributeTransformer', {
 
             transformedAttribute.name = attribute.name;
             transformedAttribute.required = attribute.required;
-            transformedAttribute.identifier = attribute.key;
+            transformedAttribute.identifier = customPropertySetId + '.' +  attribute.key;
             transformedAttribute.customAttributeType = {};
             transformedAttribute.customAttributeType.name = attribute.propertyTypeInfo.typeSimpleName;
             transformedAttribute.customAttributeType.possibleValues = attribute.allValues;

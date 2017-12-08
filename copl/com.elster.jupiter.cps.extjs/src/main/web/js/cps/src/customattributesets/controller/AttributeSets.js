@@ -98,7 +98,7 @@ Ext.define('Cps.customattributesets.controller.AttributeSets', {
         me.setupMenuItems(record);
         attributesGridPanel.setTitle(Uni.I18n.translate('customattributesets.attributesof', 'CPS', 'Attributes of \'{0}\'', [Ext.String.htmlEncode(record.get('name'))]));
         attributesStore.removeAll();
-        attributesStore.add(Cps.customattributesets.service.AttributeTransformer.transform(record.get('properties')));
+        attributesStore.add(Cps.customattributesets.service.AttributeTransformer.transform(record.get('properties'), record));
         Ext.resumeLayouts();
     },
 
