@@ -42,6 +42,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -104,7 +105,7 @@ public class ReadingTypeResource {
     @Path("/groups/")
     @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getReadingTypeAliases(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getReadingTypesGroupedByAlias(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
 
         List<ReadingTypeInfo> readingTypes = meteringService.getAvailableReadingTypes()
                 .stream()
@@ -117,14 +118,48 @@ public class ReadingTypeResource {
 
         List<ReadingTypeInfo> infos = new ArrayList();
 
-        readingTypesByAlias.forEach((k, v) -> {
-            List<ReadingTypeInfo> l = v;
-            long length = l.stream().count();
-            l.get(0).setNumberOfReadingTypes(length);
-            infos.add(l.get(0));
+        readingTypesByAlias.forEach((alias, aliasesList) -> {
+            int activeAliases = 0;
+            for (int i=0; i<aliasesList.stream().count();i++)
+                if(aliasesList.get(i).active) activeAliases++;
+
+            aliasesList.get(0).setNumberOfReadingTypes(activeAliases);
+            infos.add(aliasesList.get(0));
         });
 
-        return PagedInfoList.fromCompleteList("groups", infos, queryParameters);
+        //(p1, p2) -> p1.aliasName.compareTo(p2.aliasName)
+        // Comparator.comparing(propertyInfo -> propertyInfo.name)
+        Collections.sort(infos, (p1, p2) -> p1.aliasName.compareTo(p2.aliasName));
+        //infos.stream().sorted(Comparator.comparing(ReadingTypeInfo::getName)).collect(Collectors.toList());
+
+        return PagedInfoList.fromPagedList("groups", infos, queryParameters);
+    }
+
+    @GET
+    @Path("/groups/{aliasName}/readingtypes")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getReadingTypesByAlias(@PathParam("aliasName") String aliasName, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+
+        String searchText = queryParameters.getLike();
+        if (searchText != null && !searchText.isEmpty()) {
+            ReadingTypeFilter filter = new ReadingTypeFilter();
+            filter.addCondition(getReadingTypeFilterCondition(searchText));
+            List<ReadingTypeInfo> infos = meteringService.findReadingTypesByAlias(filter, aliasName).stream()
+                    .filter(readingType -> readingType.getAliasName().compareTo(aliasName) == 0)
+                    .limit(50)
+                    .map(readingTypeInfoFactory::from)
+                    .collect(Collectors.toList());
+            return PagedInfoList.fromPagedList("readingTypes", infos, queryParameters);
+        }
+
+        List<ReadingTypeInfo> readingTypeInfos = meteringService.findReadingTypesByAlias(readingTypeFilterFactory.from(jsonQueryFilter),aliasName)
+                .from(queryParameters)
+                .stream()
+                .map(readingTypeInfoFactory::from)
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromPagedList("readingTypes", readingTypeInfos, queryParameters);
     }
 
     @GET
@@ -133,6 +168,7 @@ public class ReadingTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getReadingTypeAlias(@PathParam("aliasName") String aliasName, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
 
+        /*
         List<ReadingTypeInfo> readingTypes = meteringService.getAvailableReadingTypes()
                 .stream()
                 .filter(readingType -> readingType.getAliasName().compareTo(aliasName) == 0)
@@ -151,8 +187,15 @@ public class ReadingTypeResource {
             l.get(0).setNumberOfReadingTypes(length);
             infos.add(l.get(0));
         });
+        */
 
-        return Response.ok().entity(infos.get(0)).build();
+        List<ReadingTypeInfo> readingTypeInfos = meteringService.findReadingTypesByAlias(readingTypeFilterFactory.from(jsonQueryFilter),aliasName)
+                .from(queryParameters)
+                .stream()
+                .map(readingTypeInfoFactory::from)
+                .collect(Collectors.toList());
+
+        return Response.ok().entity(readingTypeInfos.get(0)).build();
     }
 
     @GET
