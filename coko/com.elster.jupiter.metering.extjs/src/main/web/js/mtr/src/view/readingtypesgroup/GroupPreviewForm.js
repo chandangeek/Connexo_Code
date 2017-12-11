@@ -70,6 +70,7 @@ Ext.define('Mtr.view.readingtypesgroup.GroupPreviewForm', {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('readingtypesmanagment.additionalParameters', 'MTR', 'Additional parameters'),
                         labelAlign: 'top',
+                        labelStyle: 'font-size: 18px; margin-bottom:25px',
                         layout: 'vbox',
                         defaults: {
                             xtype: 'displayfield',
