@@ -142,6 +142,11 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
+    public Finder<ReadingType> findReadingTypesByAlias(ReadingTypeFilter filter, String aliasName) {
+        return DefaultFinder.of(ReadingType.class, where("aliasName").like(aliasName).and(filter.getCondition()), dataModel).sorted("fullAliasName", true);
+    }
+
+    @Override
     public Optional<ReadingType> findAndLockReadingTypeByIdAndVersion(String mRID, long version) {
         return dataModel.mapper(ReadingType.class).lockObjectIfVersion(version, mRID);
     }
@@ -423,6 +428,12 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public List<ReadingType> getAvailableReadingTypes() {
         return dataModel.mapper(ReadingType.class).find();
+    }
+
+    @Override
+    public List<ReadingType> getReadingTypesByAlias(String aliasName) {
+        return dataModel.mapper(ReadingType.class).select(Where.where("aliasname").isEqualTo(aliasName));
+        //return DefaultFinder.of(ReadingType.class, where("aliasName").like(aliasName), dataModel).sorted("fullAliasName", true);
     }
 
     @Override

@@ -46,6 +46,8 @@ public interface MeteringService {
 
     Finder<ReadingType> findReadingTypes(ReadingTypeFilter filter);
 
+    Finder<ReadingType> findReadingTypesByAlias(ReadingTypeFilter filter, String aliasName);
+
     Optional<ReadingType> findAndLockReadingTypeByIdAndVersion(String mRID, long version);
 
     Optional<ServiceLocation> findServiceLocation(String mRid);
@@ -87,6 +89,8 @@ public interface MeteringService {
     Optional<AmrSystem> findAmrSystem(long id);
 
     List<ReadingType> getAvailableReadingTypes();
+
+    List<ReadingType> getReadingTypesByAlias(String aliasName);
 
     /**
      * Get a list of ReadingTypes which don't have an interval (eg. MacroPeriod and TimePeriod are NOT_APPLICABLE)
