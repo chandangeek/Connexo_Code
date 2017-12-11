@@ -292,56 +292,29 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
 
         me.fromDetail = true;
         me.getApplication().fireEvent('changecontentevent', view);
-        view.setLoading();
         groupModel.load(aliasName, {
             success: function (record) {
                 var detailsForm = view.down('readingTypesGroup-preview-form');
                 actionsMenu.record = record;
                 me.getApplication().fireEvent('readingtypesgroupload', record);
                 detailsForm.loadRecord(record);
-            },
-            callback: function () {
-                view.setLoading(false);
             }
         });
     },
 
     showReadingTypesInGroup: function (aliasName) {
         var me = this,
-            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             router = me.getController('Uni.controller.history.Router'),
-            model = me.getModel('Mtr.model.readingtypes.ReadingType'),
             view = Ext.widget('reading-types-in-group', {
                 router: router
-            }),
-            readingTypesInGroup = view.down('reading-types-in-group'),
-            actionsMenu = view.down('mnu-reading-types-group');
+            });
 
         me.fromDetail = true;
 
         me.getApplication().fireEvent('changecontentevent', view);
-        view.setLoading();
         var store = Ext.getStore('Mtr.store.readingtypes.ReadingTypesByAlias');
         store.getProxy().setUrl(aliasName);
-        store.load(function(records, operation, success) {
-            view.setLoading(false);
-        });
-
-       /* model.load(aliasName, {
-            success: function (record) {
-                var detailsForm = readingTypesInGroup.down('reading-types-in-group');
-                actionsMenu.record = record;
-                Ext.suspendLayouts();
-                readingTypesInGroup.down('reading-types-menu').setHeader(record.get('name'));
-                me.getApplication().fireEvent('readingtypesingroupload', record);
-                detailsForm.loadRecord(record);
-            },
-            callback: function () {
-                mainView.setLoading(false);
-            }
-        });
-        */
-
+        store.load();
     }
 });
 
