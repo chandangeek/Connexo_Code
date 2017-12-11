@@ -48,6 +48,8 @@ public interface MeteringService {
 
     Finder<ReadingType> findReadingTypesByAlias(ReadingTypeFilter filter, String aliasName);
 
+    Finder<ReadingType> findReadingTypeByAlias(String aliasName);
+
     Optional<ReadingType> findAndLockReadingTypeByIdAndVersion(String mRID, long version);
 
     Optional<ServiceLocation> findServiceLocation(String mRid);

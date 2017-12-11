@@ -147,6 +147,11 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
+    public Finder<ReadingType> findReadingTypeByAlias(String aliasName) {
+        return DefaultFinder.of(ReadingType.class, where("aliasName").like(aliasName), dataModel);
+    }
+
+    @Override
     public Optional<ReadingType> findAndLockReadingTypeByIdAndVersion(String mRID, long version) {
         return dataModel.mapper(ReadingType.class).lockObjectIfVersion(version, mRID);
     }
