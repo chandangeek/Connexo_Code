@@ -203,9 +203,12 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         Builders.from(ComTaskTpl.READ_LOAD_PROFILE_DATA).get();
         Builders.from(ComTaskTpl.READ_REGISTER_DATA).get();
         Builders.from(ComTaskTpl.READ_LOG_BOOK_DATA).get();
-        Builders.from(ComTaskTpl.TOPOLOGY).get();
+        Builders.from(ComTaskTpl.TOPOLOGY_VERIFY).get();
+        Builders.from(ComTaskTpl.TOPOLOGY_UPDATE).get();
         Builders.from(ComTaskTpl.COMMANDS).get();
         Builders.from(ComTaskTpl.BASIC_CHECK).get();
+        Builders.from(ComTaskTpl.BEACON_INBOUND).get();
+        Builders.from(ComTaskTpl.READ_ALL).get();
     }
 
     private void createComSchedules() {
