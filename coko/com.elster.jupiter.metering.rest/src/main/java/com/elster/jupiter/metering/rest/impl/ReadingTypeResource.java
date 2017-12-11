@@ -127,10 +127,9 @@ public class ReadingTypeResource {
             infos.add(aliasesList.get(0));
         });
 
-        //(p1, p2) -> p1.aliasName.compareTo(p2.aliasName)
-        // Comparator.comparing(propertyInfo -> propertyInfo.name)
-        Collections.sort(infos, (p1, p2) -> p1.aliasName.compareTo(p2.aliasName));
-        //infos.stream().sorted(Comparator.comparing(ReadingTypeInfo::getName)).collect(Collectors.toList());
+        //Collections.sort(infos, (p1, p2) -> p1.aliasName.compareTo(p2.aliasName));
+        infos.stream().sorted(Comparator.comparing(readingType -> readingType.aliasName.toUpperCase())).collect(Collectors.toList());
+        //infos.stream().sorted((p1, p2) -> p1.aliasName.compareTo(p2.aliasName)).collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("groups", infos, queryParameters);
     }
