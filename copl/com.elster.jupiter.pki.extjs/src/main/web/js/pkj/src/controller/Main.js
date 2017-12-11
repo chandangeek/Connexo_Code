@@ -14,7 +14,8 @@ Ext.define('Pkj.controller.Main', {
     controllers: [
         'Pkj.controller.history.Main',
         'Pkj.controller.TrustStores',
-        'Pkj.controller.Certificates'
+        'Pkj.controller.Certificates',
+        'Pkj.controller.KeyPairs'
     ],
 
     stores: [
