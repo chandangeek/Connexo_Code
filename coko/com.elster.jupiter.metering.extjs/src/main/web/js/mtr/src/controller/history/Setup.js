@@ -56,7 +56,7 @@ Ext.define('Mtr.controller.history.Setup', {
                             privileges: Mtr.privileges.ReadingTypes.admin,
                             action: 'showReadingTypesInGroup',
                             callback: function (route) {
-                                this.getApplication().on('readingtypesload', function (record) {
+                                this.getApplication().on('readingtypesingroupload', function (record) {
                                     route.setTitle(record.get('name'));
                                     return true;
                                 }, {single: true});

@@ -15,11 +15,14 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
 
     models: ['Mtr.model.readingtypesgroup.ReadingTypeGroup'],
 
-    requires: ['Mtr.view.readingtypesgroup.Details'],
+    requires: ['Mtr.view.readingtypesgroup.Details',
+        'Mtr.util.readingtypesgroup.FilterTopPanel'
+    ],
 
     stores: [
         'Mtr.store.readingtypes.ReadingTypes',
-        'Mtr.store.readingtypesgroup.ReadingTypeGroups'
+        'Mtr.store.readingtypesgroup.ReadingTypeGroups',
+        'Mtr.store.readingtypes.ReadingTypesByAlias'
     ],
 
 
@@ -29,8 +32,8 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             selector: '#reading-types-setup'
         },
         {
-            ref: 'page',
-            selector: '#reading-types-setup'
+            ref: 'pageReadingTypesInGroup',
+            selector: '#reading-types-in-group'
         },
         {
             ref: 'previewForm',
@@ -53,8 +56,8 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             selector: '#edit-alias-window'
         },
         {
-            ref: 'readingTypesFilterPanel',
-            selector: '#reading-types-filter-top-panel'
+            ref: 'readingTypesInGroupFilterPanel',
+            selector: '#reading-types-group-filter-top-panel'
         },
         {
             ref: 'groupPreviewForm',
@@ -111,8 +114,19 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             },
             '#mtr-add-readingTypeGroup-button': {  //lori
                 click: this.browseGroupAdd
+            },
+            'reading-types-in-group-grid': {
+                select: this.showReadingTypePreview
             }
         });
+    },
+
+    showReadingTypePreview: function(selectionModel, record) {
+        var me = this,
+            menu = me.getReadingTypesPreviewMenu();
+        if (menu) menu.record = record;
+        me.getPreview().setTitle(Ext.String.htmlEncode(record.get('fullAliasName')));
+        me.getPreviewForm().loadRecord(record);
     },
 
     showPreview: function (selectionModel, record) {
@@ -226,7 +240,7 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
     showBulkAction: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            filterPanel = me.getPage().down('reading-types-filter-top-panel'),
+            filterPanel = me.getPage().down('reading-types-group-filter-top-panel'),
             store = me.getStore('Mtr.store.readingtypes.ReadingTypes'),
             storeBulk = me.getStore('Mtr.store.readingtypes.ReadingTypesBulk');
         storeBulk.setProxy(store.getProxy());
@@ -296,7 +310,7 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
         var me = this,
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             router = me.getController('Uni.controller.history.Router'),
-            groupModel = me.getModel('Mtr.model.readingtypesgroup.ReadingTypeGroup'),
+            model = me.getModel('Mtr.model.readingtypes.ReadingType'),
             view = Ext.widget('reading-types-in-group', {
                 router: router
             }),
@@ -304,20 +318,30 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             actionsMenu = view.down('mnu-reading-types-group');
 
         me.fromDetail = true;
+
         me.getApplication().fireEvent('changecontentevent', view);
-        groupModel.load(aliasName, {
+        view.setLoading();
+        var store = Ext.getStore('Mtr.store.readingtypes.ReadingTypesByAlias');
+        store.getProxy().setUrl(aliasName);
+        store.load(function(records, operation, success) {
+            view.setLoading(false);
+        });
+
+       /* model.load(aliasName, {
             success: function (record) {
-                /*var detailsForm = readingTypesInGroup.down('reading-types-group-preview-form');
+                var detailsForm = readingTypesInGroup.down('reading-types-in-group');
                 actionsMenu.record = record;
                 Ext.suspendLayouts();
                 readingTypesInGroup.down('reading-types-menu').setHeader(record.get('name'));
-                me.getApplication().fireEvent('readingtypesload', record);
-                detailsForm.loadRecord(record);*/
+                me.getApplication().fireEvent('readingtypesingroupload', record);
+                detailsForm.loadRecord(record);
             },
             callback: function () {
                 mainView.setLoading(false);
             }
         });
+        */
+
     }
 });
 
