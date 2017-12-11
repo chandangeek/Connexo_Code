@@ -90,8 +90,6 @@ public interface MeteringService {
 
     List<ReadingType> getAvailableReadingTypes();
 
-    List<ReadingType> getReadingTypesByAlias(String aliasName);
-
     /**
      * Get a list of ReadingTypes which don't have an interval (eg. MacroPeriod and TimePeriod are NOT_APPLICABLE)
      *

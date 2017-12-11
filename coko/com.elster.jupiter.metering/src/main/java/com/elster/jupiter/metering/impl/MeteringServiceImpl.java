@@ -431,12 +431,6 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
-    public List<ReadingType> getReadingTypesByAlias(String aliasName) {
-        return dataModel.mapper(ReadingType.class).select(Where.where("aliasname").isEqualTo(aliasName));
-        //return DefaultFinder.of(ReadingType.class, where("aliasName").like(aliasName), dataModel).sorted("fullAliasName", true);
-    }
-
-    @Override
     public List<ReadingType> getAvailableEquidistantReadingTypes() {
         return dataModel.stream(ReadingType.class)
                 .filter(where(ReadingTypeImpl.Fields.equidistant.name()).isEqualTo(true))
