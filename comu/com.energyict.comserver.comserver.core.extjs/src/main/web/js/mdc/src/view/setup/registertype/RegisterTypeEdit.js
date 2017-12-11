@@ -118,7 +118,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                 text: Uni.I18n.translate('general.readingtype.addReadingType', 'MDC', 'Add reading type'),
                                 xtype: 'button',
                                 margin: '0 0 0 10',
-                                itemId: 'addReadingTypeButton'
+                                itemId: 'addReadingTypeButton',
+                                hidden: !(Uni.Auth.hasPrivilegeInApp('privilege.administer.readingType','SYS'))
                             }
                         ]
                     },
