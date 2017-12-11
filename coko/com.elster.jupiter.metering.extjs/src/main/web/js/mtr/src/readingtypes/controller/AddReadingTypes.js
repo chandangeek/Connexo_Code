@@ -45,6 +45,10 @@ Ext.define('Mtr.readingtypes.controller.AddReadingTypes', {
             selector: '#add-reading-types add-reading-types-form'
         },
         {
+            ref: 'radioGroup',
+            selector: '#specify-by-radiogroup'
+        },
+        {
             ref: 'addReadingTypeFormErrorMessage',
             selector: '#add-reading-types add-reading-types-form #form-errors'
         }
@@ -65,11 +69,28 @@ Ext.define('Mtr.readingtypes.controller.AddReadingTypes', {
 
     showOverview: function () {
         var me = this,
+            queryValues = Uni.util.QueryString.getQueryStringValues(false),
             widget,
             record = Ext.create('Mtr.readingtypes.model.AddReadingType');
+
         widget = Ext.widget('add-reading-types');
         widget.loadRecord(record);
+
+        if (Ext.isDefined(queryValues.obis)){
+            me.displayDefaultFields(queryValues.obis);
+        }
+
         me.getApplication().fireEvent('changecontentevent', widget);
+    },
+
+    displayDefaultFields: function (value){
+        var me = this,
+            cimField = me.getAddReadingTypeForm().down('textfield[name=mRID]'),
+            form = me.getAddReadingTypeForm().down('#reading-type-add-fields-container');
+
+        me.getAddReadingTypeForm().down('#specify-by-radiogroup').setValue({specifyBy: 'form'});
+        form.enable();
+        cimField.disable();
     },
 
     addButtonClick: function () {
@@ -113,8 +134,10 @@ Ext.define('Mtr.readingtypes.controller.AddReadingTypes', {
                                 errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.readingTypesExists', 'MTR', 'Reading types already exists'));
                                 errorMsg.show()
                             } else if (specifyBy == 'cim') {
-                                router.getRoute('administration/readingtypes').forward();
-                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('readingtypesmanagment.addReadingType.acknowledge', 'MTR', '{0} reading types added', [count]));
+                                if (me.goBackToLink(record) === false) {
+                                    router.getRoute('administration/readingtypes').forward();
+                                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('readingtypesmanagment.addReadingType.acknowledge', 'MTR', '{0} reading types added', [count]));
+                                }
                             }
                         }
                     },
@@ -150,10 +173,16 @@ Ext.define('Mtr.readingtypes.controller.AddReadingTypes', {
         Ext.resumeLayouts(true);
         record.save({
             success: function (record, operation) {
-                var response = Ext.JSON.decode(operation.response.responseText),
-                    addedCount = response.countCreatedReadingTypes;
-                router.getRoute('administration/readingtypes').forward();
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.readingTypesAddedAcknowledge', addedCount, 'MTR', '{0} reading types added', '{0} reading type added', '{0} reading types added'));
+
+                if (me.goBackToLink(record) === false) {
+                    var response = Ext.JSON.decode(operation.response.responseText),
+                        addedCount = response.countCreatedReadingTypes;
+                    router.getRoute('administration/readingtypes').forward();
+                    me.getApplication().fireEvent(
+                        'acknowledge',
+                        Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.readingTypesAddedAcknowledge', addedCount, 'MTR', '{0} reading types added', '{0} reading type added', '{0} reading types added'));
+                }
+
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
@@ -172,9 +201,54 @@ Ext.define('Mtr.readingtypes.controller.AddReadingTypes', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        router.getRoute('administration/readingtypes').forward(null,
-           me.qString
-        );
+
+        if (me.goBackToLink() === false) {
+            router.getRoute('administration/readingtypes').forward(null, me.qString);
+        }
+    },
+
+
+
+    goBackToLink: function(record) {
+        var me = this,
+            queryValues = Uni.util.QueryString.getQueryStringValues(false);
+
+        var url = me.buildBackUrl(queryValues.back);
+        if (url){
+            // Pass newly added reading type
+            if (record) {
+                url = Ext.String.urlAppend(url, "mRID=" + record.getData().mRID);
+            }
+
+            // Obis code needs to be sent back
+            if (Ext.isDefined(queryValues.obis)) {
+                url = Ext.String.urlAppend(url, "obis=" + queryValues.obis);
+            }
+
+            location.href = url;
+            return true;
+        }
+        return false;
+    },
+
+    buildBackUrl: function(key){
+        var url = null,
+            urlOption = {
+                'addRegister': function () {
+                    var host = location.protocol + "//" + location.host,
+                        pathname = "/apps/multisense/index.html",
+                        hash = "#/administration/registertypes/add";
+
+                    url = host + pathname + hash;
+                },
+                'default': function () {
+                    url = null;
+                }
+            };
+
+        // invoke
+        urlOption[key]();
+        return  Ext.isDefined(key) ? url : null;
     }
 });
 
