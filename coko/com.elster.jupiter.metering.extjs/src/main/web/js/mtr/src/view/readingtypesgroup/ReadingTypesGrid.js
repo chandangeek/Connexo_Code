@@ -6,14 +6,14 @@ Ext.define('Mtr.view.readingtypesgroup.ReadingTypesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.reading-types-in-group-grid',
     itemId: 'reading-types-in-group-grid',
-    store: 'Mtr.store.readingtypes.ReadingTypesByAlias',
+    store: 'Mtr.store.readingtypesgroup.ReadingTypesByAlias',
     router: null,
     requires: [
         'Mtr.view.readingtypesgroup.ReadingTypesGridActionMenu',
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mtr.store.readingtypes.ReadingTypesByAlias'
+        'Mtr.store.readingtypesgroup.ReadingTypesByAlias'
     ],
     initComponent: function(){
         var me = this;

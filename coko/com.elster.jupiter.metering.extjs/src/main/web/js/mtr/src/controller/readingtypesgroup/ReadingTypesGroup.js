@@ -22,7 +22,7 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
     stores: [
         'Mtr.store.readingtypes.ReadingTypes',
         'Mtr.store.readingtypesgroup.ReadingTypeGroups',
-        'Mtr.store.readingtypes.ReadingTypesByAlias'
+        'Mtr.store.readingtypesgroup.ReadingTypesByAlias'
     ],
 
 
@@ -312,7 +312,7 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
         me.fromDetail = true;
 
         me.getApplication().fireEvent('changecontentevent', view);
-        var store = Ext.getStore('Mtr.store.readingtypes.ReadingTypesByAlias');
+        var store = Ext.getStore('Mtr.store.readingtypesgroup.ReadingTypesByAlias');
         store.getProxy().setUrl(aliasName);
         store.load();
     }

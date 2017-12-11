@@ -50,7 +50,7 @@ Ext.define('Mtr.view.readingtypesgroup.ReadingTypesInGroup', {
                 {
                     xtype: 'reading-types-group-filter-top-panel',
                     itemId: 'reading-types-group-filter-top-panel',
-                    store: Ext.getStore('Mtr.store.readingtypes.ReadingTypesByAlias'),
+                    store: Ext.getStore('Mtr.store.readingtypesgroup.ReadingTypesByAlias'),
                     dock: 'top'
                 }
             ],
