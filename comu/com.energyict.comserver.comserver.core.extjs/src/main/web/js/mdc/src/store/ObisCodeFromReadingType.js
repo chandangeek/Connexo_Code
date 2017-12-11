@@ -1,10 +1,7 @@
 
 Ext.define('Mdc.store.ObisCodeFromReadingType', {
     extend: 'Ext.data.Store',
-    requires: [
-        'Mdc.model.ObisCode'
-    ],
-    model: 'Mdc.model.ObisCode',
+    fields: ['obisCode'],
     storeId: 'ObisCodeFromReadingType',
     proxy: {
         type: 'rest',

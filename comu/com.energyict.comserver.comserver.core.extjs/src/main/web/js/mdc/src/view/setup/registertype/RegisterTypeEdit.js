@@ -69,48 +69,63 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                         itemId: 'editObisCodeField',
                         name: 'obisCode'
                     },
+
                     {
-                        itemId: 'readingTypeCombo',
-                        xtype: 'reading-type-combo',
-                        name: 'readingType',
-                        fieldLabel: Uni.I18n.translate('general.readingtype', 'MDC', 'Reading type'),
-                        valueField: 'name',
-                        forceSelection: true,
-                        store: 'AvailableReadingTypesForRegisterType',
-                        listConfig: {
-                            cls: 'isu-combo-color-list',
-                            emptyText: Uni.I18n.translate('general.readingtype.startTypingToSelect', 'MDC', 'Start typing to select a reading type...')
+                        xtype: 'container',
+                        layout: {
+                            type: 'hbox'
                         },
 
-                        listeners: {
-                            beforequery: function (qe) {
-                                delete qe.combo.lastQuery;
-                                qe.combo.getStore().removeAll();
+                        width: 1000,
+                        items: [
+                            {
+                                itemId: 'readingTypeCombo',
+                                xtype: 'reading-type-combo',
+                                name: 'readingType',
+                                fieldLabel: Uni.I18n.translate('general.readingtype', 'MDC', 'Reading type'),
+                                valueField: 'name',
+                                forceSelection: true,
+                                store: 'AvailableReadingTypesForRegisterType',
+                                listConfig: {
+                                    cls: 'isu-combo-color-list',
+                                    emptyText: Uni.I18n.translate('general.readingtype.startTypingToSelect', 'MDC', 'Start typing to select a reading type...')
+                                },
+
+                                listeners: {
+                                    blur: function (combo) {
+                                        if (combo.store.loading) {
+                                            Ext.Ajax.suspendEvent('requestexception');
+                                            Ext.Ajax.abortAll();
+                                            combo.reset();
+                                            Ext.Ajax.resumeEvent('requestexception');
+                                        }
+                                    }
+                                },
+                                lastQuery: '',
+                                queryMode: 'remote',
+                                queryParam: 'like',
+                                queryDelay: 500,
+                                queryCaching: false,
+                                minChars: 1,
+                                required: true,
+                                editable: true,
+                                typeAhead: true,
+                                labelWidth: 250,
+                                width: 700,
+                                emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
                             },
-                            blur: function (combo) {
-                                if (combo.store.loading) {
-                                    Ext.Ajax.suspendEvent('requestexception');
-                                    Ext.Ajax.abortAll();
-                                    combo.reset();
-                                    Ext.Ajax.resumeEvent('requestexception');
-                                }
+                            {
+                                text: Uni.I18n.translate('general.readingtype.addReadingType', 'MDC', 'Add reading type'),
+                                xtype: 'button',
+                                margin: '0 0 0 10',
+                                itemId: 'addReadingTypeButton'
                             }
-                        },
-                        lastQuery: '',
-                        queryMode: 'remote',
-                        queryParam: 'like',
-                        queryDelay: 500,
-                        queryCaching: false,
-                        minChars: 1,
-                        required: true,
-                        editable: true,
-                        typeAhead: true,
-                        emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
+                        ]
                     },
-
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: '&nbsp;',
+                        margin:'20 0 0 0',
                         layout: {
                             type: 'hbox',
                             align: 'stretch'

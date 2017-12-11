@@ -68,33 +68,73 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             '#registerTypeDetail menuitem[action=editRegisterType]': {
                 click: this.editRegisterTypeFromDetails
             },
+            '#registerTypeEdit #addReadingTypeButton': {
+                click: this.addReadingType
+            },
             '#registerTypeEdit #readingTypeCombo': {
             select: this.showObisCode,
-            expand: this.expandRegisterTypeCombo
+            expand: this.handleComboExpandEvent
 
 
     }
 });
 },
+    getReadingTypeUrl: function() {
+        var host = location.protocol + "//" + location.host,
+            pathname = "/apps/admin/index.html",
+            hash = "#/administration/readingtypes/add";
 
-    expandRegisterTypeCombo: function (combo) {
+        return host + pathname + hash;
+    },
+
+    addReadingType: function() {
+        var me = this,
+            url = me.getReadingTypeUrl(),
+            obisCode = me.getEditObisCodeField().getValue();
+
+        url = Ext.String.urlAppend(url, "back=addRegister");
+
+        if (!Ext.isEmpty(obisCode))
+            url = Ext.String.urlAppend(url, "obis=" + obisCode);
+
+        location.href = url;
+    },
+
+    clearPageErrors: function() {
+        this.getRegisterTypeEditForm().getForm().clearInvalid();
+    },
+
+    displayError: function(operation) {
+        var me = this,
+            json = Ext.decode(operation.response.responseText);
+
+        if (json && json.errors) {
+            Ext.each(json.errors, function (error) {
+                if (error.id === 'obisCodeCached.obisCode') {
+                    error.id = 'obisCode';
+                }
+            });
+            me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
+        }
+    },
+
+    handleComboExpandEvent: function(combo) {
     var me = this,
         store = combo.getStore();
 
-        me.getRegisterTypeEditForm().getForm().clearInvalid();
+        me.hideErrorPanel();
+        me.clearPageErrors();
         store.getProxy().extraParams = ({obisCode: me.getEditObisCodeField().getValue()});
     },
 
    showObisCode: function(combo) {
        var me = this;
 
-       me.getRegisterTypeEditForm().getForm().clearInvalid();
+       me.hideErrorPanel();
+       me.clearPageErrors();
 
-       // This check will prevent an additional REST call, when we already mapped
-       // to an obis code, but we select again a value from the combobox. Combobox
-       // is filtered using the obis code value.
        if (me.getEditObisCodeField().getValue() === "") {
-           if (combo.valueModels && combo.valueModels[0]) {
+           if (!Ext.isEmpty(combo.valueModels)) {
                var store = me.getStore('Mdc.store.ObisCodeFromReadingType');
                store.getProxy().extraParams = ({mRID: combo.valueModels[0].get('mRID')});
                store.load({
@@ -106,18 +146,13 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                            });
                            me.getEditObisCodeField().setValue(obisCode);
                        } else {
-                           var json = Ext.decode(operation.response.responseText);
-                           if (json && json.errors) {
-                               me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
-                           }
+                           me.displayError(operation);
                        }
-                   },
-                   scope: this
+                   }
                });
            }
-
        }
-    },
+   },
 
     onRegisterTypesStoreLoad: function () {
         if (this.getRegisterTypesStore().data.items.length > 0) {
@@ -208,6 +243,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                     }
                 });
                 widget.down('#readingTypeCombo').disable();
+                widget.down('#addReadingTypeButton').disable();
                 if (registerType.get('isLinkedByDeviceType') === true) {
                     widget.down('obis-field').disable();
                     widget.down('#createEditButton').disable();
@@ -235,20 +271,42 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             availableReadingTypes: availableReadingTypesStore
         });
 
-        availableReadingTypesStore.getProxy().on('exception', me.handleExceptionStore, me);
+        me.loadDefaultValues(availableReadingTypesStore);
+
+        //availableReadingTypesStore.getProxy().on('exception', me.handleExceptionStore, me);
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.down('#registerTypeEditForm').setTitle(Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Add register type'));
     },
 
-    handleExceptionStore: function (abc, response, operation) {
-        var me = this;
-        me.getRegisterTypeEditForm().getForm().clearInvalid();
-        var json = Ext.decode(operation.response.responseText);
-        if (json && json.errors) {
-            me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
+    loadDefaultValues: function(store) {
+        var me = this,
+            queryValues = Uni.util.QueryString.getQueryStringValues(false);
+
+        if (Ext.isDefined(queryValues.obis)){
+            me.getEditObisCodeField().setValue(queryValues.obis);
         }
 
+        if (Ext.isDefined(queryValues.mRID)){
+            store.getProxy().extraParams = ({mRID: queryValues.mRID});
+            store.load({
+                callback: function (records, operation, success) {
+                    if (success) {
+                        if (records && records[0]){
+                            me.getReadingTypeCombo().setValue(records[0].getData().name);
+                        }
+                    } else {
+                        me.displayError(operation);
+                    }
+                }
+            })
+        }
     },
+
+/*    handleExceptionStore: function (placeholder, response, operation) {
+        var me = this;
+        me.clearPageErrors();
+        me.displayError(operation);
+    },*/
 
     createEditRegisterType: function (btn) {
         var me = this,
@@ -271,7 +329,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         this.getRegisterTypeEditForm().getForm().clearInvalid();
         me.hideErrorPanel();
         if (record) {
-            me.getRegisterTypeEditForm().getForm().clearInvalid();
+            me.clearPageErrors();
             if (!me.getRegisterTypeEditForm().getForm().isValid()){
                 me.showErrorPanel();
                 return;
@@ -292,16 +350,9 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                     location.href = backUrl;
                 },
                 failure: function (rec, operation) {
-                    var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors) {
-                        Ext.each(json.errors, function(error){
-                           if(error.id === 'obisCodeCached.obisCode') {
-                               error.id = 'obisCode';
-                           }
-                        });
-                        me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
-                        me.showErrorPanel();
-                    }
+                    me.displayError(operation);
+                    me.showErrorPanel();
+
                 },
                 callback: function () {
                     editView.setLoading(false);
