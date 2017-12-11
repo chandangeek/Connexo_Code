@@ -129,7 +129,7 @@ Ext.define('Pkj.controller.history.Main', {
                             controller: 'Pkj.controller.KeyPairs',
                             action: 'showGenerateKeyPairPage'
                         },
-                        import: {
+                        'import': {
                             route: 'import',
                             title: Uni.I18n.translate('general.importKeypair', 'PKJ', 'Import key pair'),
                             privileges: Pkj.privileges.CertificateManagement.adminCertificates,
