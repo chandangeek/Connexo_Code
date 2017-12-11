@@ -121,7 +121,7 @@ public class SymmetricKeyAccessorImpl extends AbstractSecurityAccessorImpl<Symme
         if (tempSymmetricKeyWrapperReference!=null && tempSymmetricKeyWrapperReference.isPresent()) {
             ((SymmetricKeyWrapper)tempSymmetricKeyWrapperReference.get()).delete();
         }
-        getDevice().removeKeyAccessor(this);
+        getDevice().removeSecurityAccessor(this);
     }
 
     @Override
