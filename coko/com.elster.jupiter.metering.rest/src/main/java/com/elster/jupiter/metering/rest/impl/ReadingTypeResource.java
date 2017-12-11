@@ -17,6 +17,7 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.transaction.CommitException;
@@ -127,11 +128,10 @@ public class ReadingTypeResource {
             infos.add(aliasesList.get(0));
         });
 
-        //Collections.sort(infos, (p1, p2) -> p1.aliasName.compareTo(p2.aliasName));
-        infos.stream().sorted(Comparator.comparing(readingType -> readingType.aliasName.toUpperCase())).collect(Collectors.toList());
-        //infos.stream().sorted((p1, p2) -> p1.aliasName.compareTo(p2.aliasName)).collect(Collectors.toList());
-
-        return PagedInfoList.fromPagedList("groups", infos, queryParameters);
+        return PagedInfoList.fromPagedList("groups", ListPager.of(infos
+                .stream()
+                .sorted(Comparator.comparing(ReadingTypeInfo::getName, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList())).from(queryParameters).find(), queryParameters);
     }
 
     @GET
