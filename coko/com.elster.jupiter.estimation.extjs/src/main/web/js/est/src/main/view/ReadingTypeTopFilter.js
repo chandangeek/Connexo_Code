@@ -9,6 +9,7 @@ Ext.define('Est.main.view.ReadingTypeTopFilter', {
         'Est.main.store.ReadingTypes',
         'Est.main.store.UnitsOfMeasure',
         'Est.main.store.TimeOfUse',
+        'Est.main.store.ReadingTypeGroup',
         'Est.main.store.Intervals'
     ],
     store: 'Est.main.store.ReadingTypes',
@@ -18,6 +19,24 @@ Ext.define('Est.main.view.ReadingTypeTopFilter', {
         var me = this;
 
         this.filters = [
+            {
+                type: 'combobox',
+                dataIndex: 'aliasName',
+                emptyText: Uni.I18n.translate('general.readingTypeGroup', 'EST', 'Reading type group'),
+                displayField: 'aliasName',
+                valueField: 'aliasName',
+                itemId: 'est-reading-type-group',
+                store: 'Est.main.store.ReadingTypeGroup',
+                applyParamValue: function (params, includeUndefined, flattenObjects) {
+                    var me = this,
+                        record = me.findRecord(me.valueField || me.displayField, me.getValue());
+
+                    if (record) {
+                        params['aliasName'] = record.get('aliasName');
+                    }
+                }
+
+            },
             {
                 type: 'text',
                 dataIndex: 'fullAliasName',

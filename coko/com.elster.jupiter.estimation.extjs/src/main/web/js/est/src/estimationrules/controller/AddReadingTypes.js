@@ -23,6 +23,7 @@ Ext.define('Est.estimationrules.controller.AddReadingTypes', {
         'Est.main.store.ReadingTypes',
         'Est.main.store.UnitsOfMeasure',
         'Est.main.store.TimeOfUse',
+        'Est.main.store.ReadingTypeGroup',
         'Est.main.store.Intervals',
         'Est.main.store.SelectedReadingTypes',
         'Est.main.view.AddReadingTypesNoItemsFoundPanel'
