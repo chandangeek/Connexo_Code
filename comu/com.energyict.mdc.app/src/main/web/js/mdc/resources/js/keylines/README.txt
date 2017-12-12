@@ -26,5 +26,4 @@ map/*               Map display code
 ng/*                AngularJS integration code
 react/*             ReactJS integration code (beta)
 ts/keylines.d.ts    TypeScript definition file for KeyLines (alpha)
-vue/*               VueJS integration code (beta)
 server.js           A simple NodeJS webserver for testing the zip contents

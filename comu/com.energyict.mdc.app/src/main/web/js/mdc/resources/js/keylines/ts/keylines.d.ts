@@ -1,7 +1,7 @@
 //
 //     Copyright © 2011-2017 Cambridge Intelligence Limited.
 //     All rights reserved.
-//     KeyLines v3.8.0-3469 professional
+//     KeyLines v3.5.3-3431 professional
 //
 declare module KeyLines {
   
@@ -128,7 +128,7 @@ declare module KeyLines {
     ff?: string,
     /** The font size (pt) of the link label. Default: 14. */
     fs?: number,
-    /** An array of objects describing the glyphs shown next to the link label. */
+    /** An array of objects describing the glyphs shown on the link. */
     g?: Array<Glyph>,
     /** Whether the link is hidden. Default: false. */
     hi?: boolean,
@@ -138,33 +138,12 @@ declare module KeyLines {
     off?: number,
     /** The link style. If 'h', the link is a horizontal link, with a central section at a specified y-position, and diagonal sections at each end. Otherwise, the link is a standard link. */
     st?: "h",
-    /** The label positioned at the centre of the link. Use new lines for multiline labels. */
+    /** The link label. Use new lines for multiline labels. */
     t?: string,
-    /** The link label positioned at the id1 end. Use new lines for multiline labels. Can be one of the following options:string - Add a new label to inherit properties from the label at the centre of the link.LinkEndLabel - Use LinkEndLabel properties. */
-    t1?: string | LinkEndLabel,
-    /** The link label positioned at the id2 end. Use new lines for multiline labels. Can be one of the following options:string - Add a new label to inherit properties from the label at the centre of the link.LinkEndLabel - Use LinkEndLabel properties. */
-    t2?: string | LinkEndLabel,
-    /** The width of the link line. If you add arrows to links, this width will affect the size of the arrowheads. Default: 1. */
+    /** The width of the link line. Default: 1. */
     w?: number,
     /** The position of the central section of the link along the Y-axis, in world coordinates. Only applies when the st property is 'h'. Default: 0. */
     y?: number
-  }
-      
-  interface LinkEndLabel {
-    /** Whether the label should be displayed in bold font. The default is inherited from the link's fb setting. */
-    fb?: boolean,
-    /** The background colour of the font. The default is inherited from the label at the centre of the link. */
-    fbc?: string,
-    /** The colour for the label font. The default is inherited from the label at the centre of the link. */
-    fc?: string,
-    /** The font family to use for the label. The default is inherited from the label at the centre of the link. */
-    ff?: string,
-    /** The font size (pt) of the link label. The default is inherited from the label at the centre of the link. */
-    fs?: number,
-    /** An array of objects describing the glyphs shown next to the link label. */
-    g?: Array<Glyph>,
-    /** The link label. Use new lines for multiline labels. */
-    t?: string
   }
       
   interface LinkProperties extends LinkStyle {
@@ -401,7 +380,7 @@ declare module KeyLines {
   }
       
   interface ExpandLayoutOptions {
-    /** The name of the layout to apply - 'standard', 'hierarchy', 'sequential', 'radial' or 'tweak'. By default it applies the 'standard' layout, but without performing the fit chart to window and tidy options. Other layouts are not supported. Default: 'standard'. */
+    /** The name of the layout to apply - 'standard', 'hierarchy', 'radial' or 'tweak'. By default it applies the 'standard' layout, but without performing the fit chart to window and tidy options. Other layouts are not supported. Default: 'standard'. */
     name?: "standard" | "hierarchy" | "radial" | "tweak",
     /** Specifies which nodes should be fixed in position when the layout is run. The options are: 'all', 'none', 'adjacent' and 'nonadjacent'. 'fix' only applies to 'standard' and 'tweak' layouts. Default: 'nonadjacent'. */
     fix?: "all" | "none" | "adjacent" | "nonadjacent",
@@ -409,26 +388,24 @@ declare module KeyLines {
     consistent?: boolean,
     /** The easing function to use: either 'linear' or 'cubic'. Default: 'cubic'. */
     easing?: "linear" | "cubic",
-    /** Fit the chart into the window at the end of the layout. Default: false. */
+    /** Fit the chart into the window at the end of the layout. Default: true. */
     fit?: boolean,
     /** If true, the hierarchy will be flattened by removing extra space between levels. Default: false. */
     flatten?: boolean,
-    /** The name of the custom property that defines which level a node belongs to in the 'hierarchy', 'radial' and 'sequential' layouts. Custom properties are set on the 'd' property of nodes. The levels on the nodes must be numbers.
-    The lowest number represents the level at the top of the hierarchy.          Requirement depends on which layout you use:  'hierarchy' and 'radial' layouts: required unless the top option is specified. If both 'level' and 'top' are specified, 'top' is ignored.'sequential' layout: required. No option to specify 'top'. */
+    /** The name of the custom property that defines which level a node belongs to in the 'hierarchy' and 'radial' layouts. Custom properties are set on the 'd' property of nodes. The levels on the nodes must be numbers.
+    The lowest number represents the level at the top of the hierarchy. Required for the 'hierarchy' and 'radial' layouts, unless the top option is specified. If both 'level' and 'top' are specified, 'top' is ignored. */
     level?: string,
-    /** The orientation of the hierarchy layout.  There are four orientations available: 'up', 'down', 'left' and 'right'. Default: 'down'. */
+    /** The orientation of the hierarchy layout. There are four available orientations: 'down', 'right', 'up', 'left'. Default: 'down'. */
     orientation?: "down" | "right" | "up" | "left",
-    /**  How to space nodes at each level of the sequential layout. To compare spacing options, see the Use Sequential Layout demo. Options are: ‘auto’: A natural-looking layout with nodes spaced to minimise link lengths. Connected components are nested together to make the most of screen space.          ‘equal’: node positions are more regular with equal spacing within each connected component and a clear separation between them.          ‘stretched’: as for ‘equal’ but each level’s spacing is stretched so they take up an equal amount of space.. Default: 'auto'. */
-    spacing?: string,
     /** If true, curved links are straightened. If false, they remain curved. Default: true. */
     straighten?: boolean,
     /** The tidy option pushes apart the components of the chart so they don't overlap. Not used for 'lens'. Default: true. */
     tidy?: boolean,
     /** A number (0 -> 10) which controls how close the nodes should be. Higher values make the nodes closer. Default: 5. */
     tightness?: number,
-    /** A node id or an array of node ids which should be at the top of the hierarchy/centre of the radial layout. 
+    /** An array of node ids which should be at the top of the hierarchy/centre of the radial layout. 
     Required for the 'hierarchy' and 'radial' layouts, unless the level option is specified. If both 'level' and 'top' are specified, 'top' is ignored. */
-    top?: string | Array<string>
+    top?: Array<string>
   }
       
   interface ExpandFilter {
@@ -561,28 +538,26 @@ declare module KeyLines {
     easing?: "linear" | "cubic",
     /** Fit the chart into the window at the end of the layout. Default: true. */
     fit?: boolean,
-    /** An array of node ids with a fixed position that will not change during the layout. Only used for the 'standard' and 'tweak' layouts. */
+    /** An array of node ids which should be fixed. */
     fixed?: Array<string>,
     /** If true, the hierarchy will be flattened by removing extra space between levels. Default: false. */
     flatten?: boolean,
-    /** The name of the custom property that defines which level a node belongs to in the 'hierarchy', 'radial' and 'sequential' layouts. Custom properties are set on the 'd' property of nodes. The levels on the nodes must be numbers.
-    The lowest number represents the level at the top of the hierarchy.                Requirement depends on which layout you use:  'hierarchy' and 'radial' layouts: required unless the top option is specified. If both 'level' and 'top' are specified, 'top' is ignored.'sequential' layout: required. No option to specify 'top'. */
+    /** the name of the custom property that defines which level a node belongs to in the 'hierarchy' and 'radial' layouts. Custom properties are set on the 'd' property of nodes. The levels on the nodes must be numbers.
+    The lowest number represents the level at the top of the hierarchy. Required for the 'hierarchy' and 'radial' layouts, unless the top option is specified. If both 'level' and 'top' are specified, 'top' is ignored. */
     level?: string,
     /** The orientation of the hierarchy layout.  There are four orientations available: 'up', 'down', 'left' and 'right'. Default: 'down'. */
     orientation?: "down" | "right" | "up" | "left",
-    /**  How to space nodes at each level of the sequential layout. To compare spacing options, see the Use Sequential Layout demo. Options are: ‘auto’: A natural-looking layout with nodes spaced to minimise link lengths. Connected components are nested together to make the most of screen space.               ‘equal’: node positions are more regular with equal spacing within each connected component and a clear separation between them.               ‘stretched’: as for ‘equal’ but each level’s spacing is stretched so they take up an equal amount of space.. Default: 'auto'. */
-    spacing?: string,
     /** If true, curved links are straightened. If false, they remain curved. Default: true. */
     straighten?: boolean,
-    /** The tidy option pushes apart the components of the chart so they don't overlap. Not used for 'lens' or 'sequential'. Default: true. */
+    /** The tidy option pushes apart the components of the chart so they don't overlap. Not used for 'lens'. Default: true. */
     tidy?: boolean,
-    /** A number (0 -> 10) which controls how close the nodes should be. For 'sequential', it applies to nodes at the same level. Higher values make the nodes closer. Default: 5. */
+    /** A number (0 -> 10) which controls how close the nodes should be. Higher values make the nodes closer. Default: 5. */
     tightness?: number,
     /** If animated, the time the animation should take, in milliseconds. Default: 700. */
     time?: number,
-    /** A node id or an array of node ids which should be at the top of the hierarchy/centre of the radial layout. 
+    /** An array of node ids which should be at the top of the hierarchy/centre of the radial layout. 
     Required for the 'hierarchy' and 'radial' layouts, unless the level option is specified. If both 'level' and 'top' are specified, 'top' is ignored. */
-    top?: string | Array<string>
+    top?: Array<string>
   }
       
   interface LockOptions {
@@ -776,8 +751,8 @@ declare module KeyLines {
   }
       
   interface ChartOptions {
-    /** Controls the appearance of arrows on links. Possible values are 'small', 'normal', 'large' and 'xlarge'. Arrowhead size is also proportional to the link width ('w'). Default: 'normal'. */
-    arrows?: "normal" | "small" | "large" | "xlarge",
+    /** Controls the appearance of arrows on links. Possible values are 'normal' and 'small'. Default: 'normal'. */
+    arrows?: "normal" | "small",
     /** The rgb colour to use for the background of the chart itself. */
     backColour?: string,
     /** The alpha value to apply to background items, in the range 0 to 1. */
@@ -857,17 +832,15 @@ declare module KeyLines {
   }
       
   interface PingOptions {
-    /** The rgb colour to use for the animated effect. Default: 'mid-grey'. */
+    /** The rgb colour to use for the halo. Default: 'mid-grey'. */
     c?: string,
-    /** The maximum width of the links' animated effect. Default: 40. */
-    lw?: number,
-    /** The radius of the nodes' halo at the end of the animation. Default: 80. */
+    /** The radius of the halo at the end of the animation. Default: 80. */
     r?: number,
     /** The number of times the animation should be repeated. Default: 1. */
     repeat?: number,
     /** The time the animation should take, in milliseconds. Default: 800. */
     time?: number,
-    /** The width of the nodes' halo at the end of the animation. Default: 20. */
+    /** The width of the halo at the end of the animation. Default: 20. */
     w?: number
   }
       
@@ -925,9 +898,7 @@ declare module KeyLines {
     /** Whether the transition should be animated. Default: false. */
     animate?: boolean,
     /** The length of the animation in milliseconds. Default: 1000. */
-    time?: number,
-    /** The id or array of ids to zoom to in 'fit' or 'height' mode. If no ids are specified 'fit' will fit the chart to the window, 'height' will fit the chart height to the window. */
-    ids?: string | Array<string>
+    time?: number
   }
 
   interface ComboDefinition {
@@ -1125,9 +1096,7 @@ declare module KeyLines {
 
   interface Component {
     /** The id of the HTML element to replace with the component. */
-    id?: string,
-    /** The DOM element that you want to replace with the component. */
-    element?: HTMLElement,
+    id: string,
     /** The type of component to create, either 'chart' or 'timebar'. The default is 'chart'. */
     type?: "chart" | "timebar",
     /** Chart or Time Bar options for the new component (optional). */
@@ -1182,15 +1151,8 @@ declare module KeyLines {
   interface Histogram {
     /** The colour of the histogram bars. Default: light grey. */
     colour?: string,
-    /** The colour of the histogram bars when they are hovered over. Default: grey. */
+    /** the colour of the histogram bars when they are hovered over. Default: grey. */
     highlightColour?: string
-  }
-      
-  interface MaxRange {
-    /** The number of the specified units. */
-    value?: number,
-    /** The unit of the maximum range. The supported units are: 'year', 'month', 'week', 'day', 'hour', 'min' and 'sec'. */
-    units?: string
   }
       
   interface MinScale {
@@ -1224,8 +1186,6 @@ declare module KeyLines {
     histogram?: Histogram,
     /** Specifies how dates and times are displayed. */
     locale?: Locale,
-    /** Specifies the time range at the time bar's maximum zoom level, for example with a maxRange fixed to { units: 'hour', value: 6 } the time bar will not zoom out beyond six-hour intervals. This is useful if your dataset spans a large time range and you want to limit the amount of data visible.For the 'auto' default, KeyLines calculates the range between the data's earliest and latest dates/times and multiplies it by two.. Default: 'auto'. */
-    maxRange?: string | MaxRange,
     /** Specifies the time interval at the time bar's minimum scale level, for example with a minScale fixed to { units: 'hour', value: 6 } the time bar will not zoom in beyond six-hour intervals. This can be useful when the data has no precise information about the hour or the minute of the event to stop zooming further. */
     minScale?: MinScale,
     /** The speed that the time bar moves at when playing, in pixels per second.
@@ -1237,8 +1197,6 @@ declare module KeyLines {
     showControlBar?: boolean,
     /** Whether the extend button is displayed. Default: false. */
     showExtend?: boolean,
-    /** Whether the fit button is displayed. Default: true. */
-    showFit?: boolean,
     /** Whether the play button is displayed. Default: true. */
     showPlay?: boolean,
     /** The colour to set the slider. The default is white with an opacity of 0.6. */
@@ -1363,15 +1321,15 @@ declare module KeyLines {
     * @param options Options controlling the hide operation*/
     hide(id: string | Array<string>, options?: HideOptions): Promise<void>;
         
-    /** labelPosition returns information about the label by the item with the id specified. This function does not return the label position for 't1' or 't2' labels.
+    /** labelPosition returns information about the label by the item with the id specified.
     * @param id The identity of the item.
-    * @returns An object containing label coordinate properties: {x1: (left), x2: (right), y1: (top), y2: (bottom)}.*/
+    * @returns An object containing label coordinate properties: {x1: (left), x2: (right), y1: (top), y2: (bottom)}*/
     labelPosition(id: string): LabelPosition;
         
     /** The layout function positions the nodes of the chart.
     * @param name The name of the layout to be invoked. The default is 'standard'.
     * @param options Sets various features of the layout*/
-    layout(name?: "standard" | "hierarchy" | "sequential" | "lens" | "radial" | "structural" | "tweak", options?: LayoutOptions): Promise<void>;
+    layout(name?: "standard" | "hierarchy" | "lens" | "radial" | "structural" | "tweak", options?: LayoutOptions): Promise<void>;
         
     /** Replaces the chart data with the new data specified. Any existing objects in the chart will be dereferenced.
     * @param data The data to load into the chart*/
@@ -1403,8 +1361,8 @@ declare module KeyLines {
     * @param options Options controlling the pan operation.*/
     pan(direction: "up" | "down" | "left" | "right" | "selection", options?: PanOptions): Promise<void>;
         
-    /** The ping function adds an animated effect to a specified item, animates it, and then removes it again.
-    * @param id The id string or array of id strings of items to be animated.
+    /** The ping function adds a halo to a specified node, animates it, and then removes it again.
+    * @param id The id string or array of id strings of nodes to be animated.
     * @param options Options to control the animation*/
     ping(id: string | Array<string>, options?: PingOptions): Promise<void>;
         
@@ -1421,7 +1379,7 @@ declare module KeyLines {
     selection(): Array<string>;
         
     /** The serialize function returns a complete serialization of the current chart content in the form specified by the object properties section. This can be used for saving the chart state in a database or for implementing features like undo or redo.*/
-    serialize(): ChartData & TimeBarData;
+    serialize(): ChartData;
         
     /** setItem creates a new item in the chart with the specified properties.
     * @param item The item object to set in the chart
@@ -1473,7 +1431,7 @@ declare module KeyLines {
     worldCoordinates(x: number, y: number): Coordinates;
         
     /** Zoom the chart in the manner specified.
-    * @param how How to zoom the chart: 'in', 'out', 'one', 'fit' (fit chart or specified ids to window), 'height' (fit chart height or height of specified ids to window) or 'selection' (fit selection to window).
+    * @param how How to zoom the chart: 'in', 'out', 'one', 'fit' (fit chart to window), 'height' (fit chart height to window) or 'selection' (fit selection to window)
     * @param options Options controlling the zoom operation*/
     zoom(how: "in" | "out" | "one" | "fit" | "height" | "selection", options?: ZoomOptions): Promise<void>;
   
@@ -1789,7 +1747,7 @@ declare module KeyLines {
         
     /** isCombo is used to test whether a node or link is a combo, or just a normal item.
     * @param id The id string or the array of id strings of the items to be tested.
-    * @param options Options controlling whether links or nodes are tested.
+    * @param options Options controlling which whether links or nodes are tested.
     * @returns True if any node or link id are a combo, false otherwise.*/
     isCombo(id: string | Array<string>, options?: IsComboOptions): boolean;
         
@@ -1915,12 +1873,7 @@ declare module KeyLines {
     /** Creates a KeyLines Chart in your web page in the HTML element with the given id.
     * @param id The id of the HTML element to replace with the Chart.
     * @returns A promise with the created Chart.*/
-    create(id?: string): Promise<Chart>;
-        
-    /** Creates a KeyLines Chart in your web page in the DOM element provided.
-    * @param element The DOM element to replace with the Chart.
-    * @returns A promise with the created Chart.*/
-    create(element?: HTMLElement): Promise<Chart>;
+    create(id: string): Promise<Chart>;
         
     /** Creates a KeyLines component in your web page using an object defining the component.
     * @param component The definition object for the component.
@@ -1963,16 +1916,10 @@ declare module KeyLines {
     promisify(Promise?: PromiseConstructor): void;
         
     /** setSize must be called when you change the size of the component.
-    * @param id The id of the component element.
+    * @param id The id of the component element. 
     * @param width The new width in pixels.
     * @param height The new height in pixels.*/
     setSize(id: string, width: number, height: number): void;
-        
-    /** setSize must be called when you change the size of the component.
-    * @param element The HTMLElement of the component.
-    * @param width The new width in pixels.
-    * @param height The new height in pixels.*/
-    setSize(element: HTMLElement, width: number, height: number): void;
         
     /** toggleFullScreen allows a given HTMLElement to be put in Full Screen mode, using the browser's full screen API.
     * @param element The element which should be made full screen. Cannot be null.

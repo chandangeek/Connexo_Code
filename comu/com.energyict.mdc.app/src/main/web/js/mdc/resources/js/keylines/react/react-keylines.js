@@ -1,5 +1,5 @@
 //
-//     React components KeyLines v3.8.0-3469
+//     React components KeyLines v3.5.3-3431
 //
 //     Copyright © 2011-2017 Cambridge Intelligence Limited.
 //     All rights reserved.
@@ -40,11 +40,11 @@ function createKeyLinesComponent(type, onLoadFn, onResizeFn) {
     componentDidMount() {
       // create a definition of KeyLines component
       const def = {
-        element: this.klComponent,
+        id: this.props.id,
         type: this.type,
         options: this.props.options 
       };
-
+      
       KeyLines.create(def, (err, loaded) => {
         this.component = loaded;
         this.onResize();
@@ -121,8 +121,8 @@ function createKeyLinesComponent(type, onLoadFn, onResizeFn) {
     
     render() {
       return (
-        <div ref={(container) => { this.container = container; }} className={this.props.containerClassName}>
-          <div  ref={(klComponent) => { this.klComponent = klComponent; }} style={this.props.style}></div>
+        <div ref="container" className={this.props.containerClassName}>
+          <div ref="klComponent" id={this.props.id} style={this.props.style}></div>
           {this.props.children}
         </div>
       );
@@ -138,6 +138,7 @@ function createKeyLinesComponent(type, onLoadFn, onResizeFn) {
   };
   
   KlComponent.propTypes = {
+    id: PropTypes.string.isRequired, // this is the DOM ID of the KeyLines component element
     data: PropTypes.object,      // this will be the component format
     animateOnLoad: PropTypes.bool,  // this will set the animation flag of the layout on load
     options: PropTypes.object,      // component options
@@ -163,12 +164,12 @@ function createChartComponent() {
   
   function onResize() {
     // find containing dimensions
-    const w = this.klComponent.offsetWidth;
-    const h = this.klComponent.offsetHeight;
+    const w = this.refs.klComponent.offsetWidth;
+    const h = this.refs.klComponent.offsetHeight;
     if (this.component) {
       const { width, height } = this.component.viewOptions();
       if (((width !== w) || (height !== h)) && (w > 0) && (h > 0)) {
-        KeyLines.setSize(this.klComponent, w, h);
+        KeyLines.setSize(this.props.id, w, h);
         this.component.zoom('fit');
       }
     }
@@ -189,10 +190,10 @@ function createTimebarComponent() {
   
   function onResize() {
     // find containing dimensions
-    const w = this.klComponent.offsetWidth;
-    const h = this.klComponent.offsetHeight;
+    const w = this.refs.klComponent.offsetWidth;
+    const h = this.refs.klComponent.offsetHeight;
     if (this.component && w > 0 && h > 0) {
-      KeyLines.setSize(this.klComponent, w, h);
+      KeyLines.setSize(this.props.id, w, h);
     }
   }
   
@@ -201,5 +202,4 @@ function createTimebarComponent() {
 
 // Define the Timebar component
 export const Timebar = createTimebarComponent();
-
 export default Chart;

@@ -1,5 +1,5 @@
 //
-//     Angular components KeyLines v3.8.0-3469
+//     Angular components KeyLines v3.5.3-3431
 //
 //     Copyright © 2011-2017 Cambridge Intelligence Limited.
 //     All rights reserved.
@@ -41,14 +41,14 @@ export class KlComponentsService {
 
 @Component({
   selector: 'kl-component',
-  template: '<div [ngClass]="containerClass"><div #container><div [ngStyle]="style"></div></div></div>'
+  template: '<div [ngClass]="containerClass"><div #container><div [id]="id" [ngStyle]="style"></div></div></div>'
 })
 export class KlComponent implements OnChanges, OnDestroy {
+  @Input() id: string;
   @Input('ngStyle') style: any; //optional
 
   @Input('klType') type: "chart" | "timebar" = "chart"; // optional
   @Input('klOptions') options: KeyLines.ChartOptions | KeyLines.TimeBarOptions = {}; // optional
-
   @Input('klContainerClass') containerClass: string = ""; // optional
 
   @Output('klReady') klReady = new EventEmitter(); // optional
@@ -59,7 +59,6 @@ export class KlComponent implements OnChanges, OnDestroy {
   private containerElement: ElementRef;
   // The KeyLines component
   private component: KeyLines.Chart | KeyLines.TimeBar;
-
   // constructor
   constructor(el: ElementRef) {
     // Remove KL id to the parent
@@ -69,7 +68,6 @@ export class KlComponent implements OnChanges, OnDestroy {
   isChart(component: KeyLines.Chart | KeyLines.TimeBar): component is KeyLines.Chart {
     return this.type === "chart";
   }
-
   // lifecycle hooks
   ngOnChanges(changes: {[propertyName: string]: SimpleChange}) {
     const { options } = changes;
@@ -85,7 +83,8 @@ export class KlComponent implements OnChanges, OnDestroy {
 
   // Kl instructions
   getHeader(): KeyLines.Component {
-    return { element: this.containerElement.nativeElement, type: this.type, options: this.options };
+    const { id, type, options } = this;
+    return { id, type, options };
   }
 
   setUpComponent(component: KeyLines.Chart | KeyLines.TimeBar) {
@@ -98,7 +97,6 @@ export class KlComponent implements OnChanges, OnDestroy {
     // bind the component events
     this.registerEvent();
   }
-
   registerEvent() {
     this.component.bind('all', (name: string, ...args: string[]) => {
       if (name !== 'redraw') {
@@ -121,7 +119,6 @@ export class KlComponent implements OnChanges, OnDestroy {
       this.component.options(options);
     }
   }
-
   onResize(doFit: boolean = true) {
     if (this.component) {
       // find containing dimensions
@@ -129,7 +126,7 @@ export class KlComponent implements OnChanges, OnDestroy {
       const h = this.containerElement.nativeElement.offsetHeight;
       const { width, height } = this.containerElement.nativeElement.children[0];
       if ((w > 0 && h > 0) && (w !== width || h !== height)) {
-        KeyLines.setSize(this.containerElement.nativeElement, w, h);
+        KeyLines.setSize(this.id, w, h);
         if (doFit && this.isChart(this.component)) {
           this.component.zoom('fit');
         }
@@ -145,6 +142,7 @@ export class KlComponent implements OnChanges, OnDestroy {
 export class KlComponents implements AfterViewInit {
   @Input('klBasePath') basePath: string = ""; // optional
   @Input('klImagesPath') imagesPath: string = ""; // optional
+
   @Output('klReady') klReady = new EventEmitter(); // optional
 
   // save the KeyLines service

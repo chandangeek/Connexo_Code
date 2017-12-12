@@ -1,5 +1,5 @@
 //
-//     Angular directive for KeyLines v3.8.0-3469
+//     Angular directive for KeyLines v3.5.3-3431
 //
 //     Copyright © 2011-2017 Cambridge Intelligence Limited.
 //     All rights reserved.
@@ -238,16 +238,11 @@ angular.module('ngKeylines', [])
           klComponentController = scope.componentCtrl;
       // Define the component to create
       var toCreate = {
+        id: id,
         type: klComponentController.klType || 'chart',
         options: klComponentController.klOptions || {}
       };
 
-      if (id) {
-        toCreate.id = id;
-      } else {
-        toCreate.element = element[0];
-      }
-      
       // Remove KL id to the parent
       // Use the transclude element instead
       element.removeAttr('id');
