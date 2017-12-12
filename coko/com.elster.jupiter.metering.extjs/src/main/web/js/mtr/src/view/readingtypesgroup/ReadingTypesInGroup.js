@@ -9,9 +9,8 @@ Ext.define('Mtr.view.readingtypesgroup.ReadingTypesInGroup', {
         'Mtr.view.readingtypesgroup.Menu',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.view.panel.FilterToolbar',
-        'Mtr.view.readingtypes.Preview',
+        'Mtr.view.readingtypesgroup.ReadingTypePreview',
         'Mtr.view.readingtypesgroup.ReadingTypesGrid',
-        'Mtr.view.readingtypesgroup.GroupActionMenu',
         'Mtr.util.readingtypesgroup.FilterTopPanel'
     ],
 
@@ -72,9 +71,7 @@ Ext.define('Mtr.view.readingtypesgroup.ReadingTypesInGroup', {
                         ]
                     },
                     previewComponent: {
-                        //xtype: 'fim-history-preview',
-                        //itemId: 'pnl-history-preview',
-                        xtype: 'reading-types-preview',
+                        xtype: 'reading-types-groups-readingtype-preview',
                         router: me.router
                     }
                 }

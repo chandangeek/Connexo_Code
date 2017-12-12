@@ -9,7 +9,6 @@ Ext.define('Mtr.view.readingtypesgroup.ReadingTypesGrid', {
     store: 'Mtr.store.readingtypesgroup.ReadingTypesByAlias',
     router: null,
     requires: [
-        'Mtr.view.readingtypesgroup.ReadingTypesGridActionMenu',
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
@@ -22,7 +21,7 @@ Ext.define('Mtr.view.readingtypesgroup.ReadingTypesGrid', {
             {
                 header: Uni.I18n.translate('readingtypesmanagement.readingTypes', 'MTR', 'Reading Type'),
                 dataIndex: 'fullAliasName',
-                flex: 1
+                flex: 3
             },
             {
                 header: Uni.I18n.translate('readingtypesmanagment.status', 'MTR', 'Status'),
@@ -33,14 +32,6 @@ Ext.define('Mtr.view.readingtypesgroup.ReadingTypesGrid', {
                         : Uni.I18n.translate('readingtypesmanagement.inactive', 'MTR', 'Inactive');
                 },
                 flex: 1
-            },
-            {
-                xtype: 'uni-actioncolumn',
-                width: 120,
-                menu: {
-                    xtype: 'reading-types-grid-action-menu',
-                    itemId: 'reading-types-grid-action-menu'
-                }
             }
         ]
 
@@ -51,15 +42,7 @@ Ext.define('Mtr.view.readingtypesgroup.ReadingTypesGrid', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('readingtypesmanagment.pagingtoolbartop.displayMsg', 'MTR', '{0} - {1} of {2} reading types'),
                 displayMoreMsg: Uni.I18n.translate('readingtypesmanagment.pagingtoolbartop.displayMoreMsg', 'MTR', '{0} - {1} of more than {2} reading types'),
-                emptyMsg: Uni.I18n.translate('readingtypesmanagment.pagingtoolbartop.emptyMsg', 'MTR', 'There are no reading types to display'),
-                items: [
-                    {
-                        xtype: 'button',
-                        privileges : Mtr.privileges.ReadingTypes.admin,
-                        action: 'bulk',
-                        itemId: 'reading-types-bulk-action-button',
-                        text: Uni.I18n.translate('general.bulkAction', 'MTR', 'Bulk action')
-                    }]
+                emptyMsg: Uni.I18n.translate('readingtypesmanagment.pagingtoolbartop.emptyMsg', 'MTR', 'There are no reading types to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',

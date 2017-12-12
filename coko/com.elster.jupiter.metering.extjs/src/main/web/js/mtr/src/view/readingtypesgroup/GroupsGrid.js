@@ -8,7 +8,6 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsGrid', {
     store: 'Mtr.store.readingtypesgroup.ReadingTypeGroups',
     router: null,
     requires: [
-        'Mtr.view.readingtypesgroup.GroupActionMenu',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],
@@ -28,14 +27,6 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsGrid', {
                 header: Uni.I18n.translate('readingtypesmanagement.numberOfReadingTypes', 'MTR', 'Active reading types'),
                 dataIndex: 'numberOfReadingTypes',
                 flex: 1
-            },
-            {
-                xtype: 'uni-actioncolumn',
-                width: 120,
-                privileges : Mtr.privileges.ReadingTypes.admin,
-                menu: {
-                    xtype: 'readingTypesGroup-action-menu'
-                }
             }
         ];
 

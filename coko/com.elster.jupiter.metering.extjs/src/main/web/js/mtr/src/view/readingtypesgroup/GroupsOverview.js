@@ -9,9 +9,7 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsOverview', {
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mtr.view.readingtypesgroup.GroupPreview',
-        'Mtr.view.readingtypesgroup.GroupsGrid',
-        'Mtr.view.readingtypesgroup.GroupActionMenu'
-        // 'Mtr.util.FilterTopPanel'
+        'Mtr.view.readingtypesgroup.GroupsGrid'
     ],
 
     router : null,
@@ -22,14 +20,6 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsOverview', {
         me.content = {
             xtype: 'panel',
             ui: 'large',
-            // dockedItems: [
-            //     {
-            //         xtype: 'reading-types-filter-top-panel',
-            //         itemId: 'reading-types-filter-top-panel',
-            //         store: Ext.getStore('Mtr.store.readingtypes.ReadingTypes'),
-            //         dock: 'top'
-            //     }
-            // ],
             title: Uni.I18n.translate('readingtypes.readingTypeGroups', 'MTR', 'Reading type groups'),
             items: [
                 {

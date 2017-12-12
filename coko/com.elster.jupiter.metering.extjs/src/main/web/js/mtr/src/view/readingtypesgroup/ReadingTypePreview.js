@@ -2,11 +2,12 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mtr.view.readingtypesgroup.GroupPreview', {
+Ext.define('Mtr.view.readingtypesgroup.ReadingTypePreview', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.readingTypesGroup-preview',
+    alias: 'widget.reading-types-groups-readingtype-preview',
+    itemId: 'reading-types-groups-readingtype-preview',
     requires: [
-        'Mtr.view.readingtypesgroup.GroupPreviewForm'
+        'Mtr.view.readingtypes.PreviewForm'
     ],
     frame: true,
 
@@ -14,11 +15,10 @@ Ext.define('Mtr.view.readingtypesgroup.GroupPreview', {
         var me = this;
 
         me.items = {
-            xtype: 'readingTypesGroup-preview-form',
+            xtype: 'reading-types-preview-form',
             router: me.router
         };
 
         me.callParent(arguments);
     }
 });
-
