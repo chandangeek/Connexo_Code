@@ -36,6 +36,10 @@ public class ReadingTypeFilter {
         condition = condition.and(Operator.LIKEIGNORECASE.compare("fullAliasName", Where.toOracleSql(name)));
     }
 
+    public void addAliasNameCondition(String aliasName) {
+        condition = condition.and(Operator.LIKEIGNORECASE.compare("aliasName", Where.toOracleSql(aliasName)));
+    }
+
     public void addMRIDCondition(String mRID) {
         condition = condition.and(Operator.LIKE.compare("mRID", Where.toOracleSql(mRID)));
     }
