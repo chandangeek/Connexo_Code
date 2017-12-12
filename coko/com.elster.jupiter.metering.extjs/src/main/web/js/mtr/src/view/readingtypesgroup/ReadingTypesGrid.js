@@ -19,7 +19,7 @@ Ext.define('Mtr.view.readingtypesgroup.ReadingTypesGrid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('readingtypesmanagement.readingTypes', 'MTR', 'Reading Type'),
+                header: Uni.I18n.translate('readingtypesmanagement.readingTypes', 'MTR', 'Reading type'),
                 dataIndex: 'fullAliasName',
                 flex: 3
             },

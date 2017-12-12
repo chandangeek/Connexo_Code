@@ -53,7 +53,7 @@ Ext.define('Mtr.view.readingtypesgroup.ReadingTypesInGroup', {
                     dock: 'top'
                 }
             ],
-            title: Uni.I18n.translate('general.readingTypes', 'MTR', 'Reading Types'),
+            title: Uni.I18n.translate('general.readingTypes', 'MTR', 'Reading types'),
             items: [
                 {
                     xtype: 'preview-container',

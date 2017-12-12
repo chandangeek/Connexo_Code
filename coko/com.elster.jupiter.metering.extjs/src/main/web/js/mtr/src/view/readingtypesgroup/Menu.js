@@ -23,7 +23,7 @@ Ext.define('Mtr.view.readingtypesgroup.Menu' , {
                 href: me.router.getRoute('administration/readingtypegroups/view').buildUrl()
             },
             {
-                text: Uni.I18n.translate('readingtypes.readingTypeGroupReadingTypes', 'MTR', 'Reading Types'),
+                text: Uni.I18n.translate('readingtypes.readingTypeGroupReadingTypes', 'MTR', 'Reading types'),
                 itemId: 'reading-type-group-reading-types-link',
                 href: me.router.getRoute('administration/readingtypegroups/readingtypes').buildUrl({aliasName: me.router.arguments.aliasName})
             }

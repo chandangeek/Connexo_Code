@@ -69,19 +69,147 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
 
     minorFilters: [
         {
-            text: Uni.I18n.translate('readingTypes.attribute.kind', 'MTR', 'Kind'),
-            name: 'kind',
+            text: Uni.I18n.translate('readingTypes.attribute.accumulation', 'MTR', 'Accumulation'),
+            name: 'accumulation',
             filterConfig: {
                 type: 'closablecombobox',
-                dataIndex: 'measurementKind',
-                emptyText: Uni.I18n.translate('readingTypes.attribute.kind', 'MTR', 'Kind'),
+                dataIndex: 'accumulation',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.accumulation', 'MTR', 'Accumulation'),
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
                 forceSelection: true,
                 queryMode: 'local',
-                itemId: 'reading-type-kind',
-                store: 'Mtr.store.readingtypes.attributes.Kind'
+                itemId: 'reading-type-accumulation',
+                store: 'Mtr.store.readingtypes.attributes.Accumulation'
+            }
+        },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.argumentDenominator', 'MTR', 'Argument denominator'),
+            name: 'argumentDenominator',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'argumentDenominator',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.argumentDenominator', 'MTR', 'Argument denominator'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                forceSelection: true,
+                queryMode: 'local',
+                itemId: 'reading-type-interharmonic-argument-denominator',
+                store: 'Mtr.store.readingtypes.attributes.ArgumentDenominator'
+            }
+        },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.argumentNumerator', 'MTR', 'Argument numerator'),
+            name: 'argumentNumerator',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'argumentNumerator',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.argumentNumerator', 'MTR', 'Argument numerator'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                forceSelection: true,
+                queryMode: 'local',
+                itemId: 'reading-type-interharmonic-argument-numerator',
+                store: 'Mtr.store.readingtypes.attributes.ArgumentNumerator'
+            }
+        },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.commodity', 'MTR', 'Commodity'),
+            name: 'commodity',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'commodity',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.commodity', 'MTR', 'Commodity'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                forceSelection: true,
+                queryMode: 'local',
+                itemId: 'reading-type-commodity',
+                store: 'Mtr.store.readingtypes.attributes.Commodity'
+            }
+        },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.consumptionTier', 'MTR', 'Consumption tier'),
+            name: 'consumptionTier',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'consumptionTier',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.consumptionTier', 'MTR', 'Consumption tier'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                forceSelection: true,
+                queryMode: 'local',
+                itemId: 'reading-type-interharmonic-consumption-tier',
+                store: 'Mtr.store.readingtypes.attributes.ConsumptionTier'
+            }
+        },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.criticalPeakPeriod', 'MTR', 'Critical peak period'),
+            name: 'criticalPeakPeriod',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'criticalPeakPeriod',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.criticalPeakPeriod', 'MTR', 'Critical peak period'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                forceSelection: true,
+                queryMode: 'local',
+                itemId: 'reading-type-interharmonic-critical-peak-period',
+                store: 'Mtr.store.readingtypes.attributes.CriticalPeakPeriod'
+            }
+        },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.currency', 'MTR', 'Currency'),
+            name: 'currency',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'currency',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.currency', 'MTR', 'Currency'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                forceSelection: true,
+                queryMode: 'local',
+                itemId: 'reading-type-currency',
+                store: 'Mtr.store.readingtypes.attributes.Currency'
+            }
+        },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.dataQualifier', 'MTR', 'Data qualifier'),
+            name: 'dataQualifier',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'aggregate',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.dataQualifier', 'MTR', 'Data qualifier'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                forceSelection: true,
+                queryMode: 'local',
+                itemId: 'reading-type-data-qualifier',
+                store: 'Mtr.store.readingtypes.attributes.DataQualifier'
+            }
+        },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.directionOfFlow', 'MTR', 'Direction of flow'),
+            name: 'directionOfFlow',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'flowDirection',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.directionOfFlow', 'MTR', 'Direction of flow'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                forceSelection: true,
+                queryMode: 'local',
+                itemId: 'reading-type-direction-of-Flow',
+                store: 'Mtr.store.readingtypes.attributes.DirectionOfFlow'
             }
         },
         {
@@ -117,19 +245,52 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
             }
         },
         {
-            text: Uni.I18n.translate('readingTypes.attribute.argumentNumerator', 'MTR', 'Argument numerator'),
-            name: 'argumentNumerator',
+            text: Uni.I18n.translate('readingTypes.attribute.kind', 'MTR', 'Kind'),
+            name: 'kind',
             filterConfig: {
                 type: 'closablecombobox',
-                dataIndex: 'argumentNumerator',
-                emptyText: Uni.I18n.translate('readingTypes.attribute.argumentNumerator', 'MTR', 'Argument numerator'),
+                dataIndex: 'measurementKind',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.kind', 'MTR', 'Kind'),
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
                 forceSelection: true,
                 queryMode: 'local',
-                itemId: 'reading-type-interharmonic-argument-numerator',
-                store: 'Mtr.store.readingtypes.attributes.ArgumentNumerator'
+                itemId: 'reading-type-kind',
+                store: 'Mtr.store.readingtypes.attributes.Kind'
+            }
+        },
+
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.multiplier', 'MTR', 'Multiplier'),
+            name: 'multiplier',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'metricMultiplier',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.multiplier', 'MTR', 'Multiplier'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                forceSelection: true,
+                queryMode: 'local',
+                itemId: 'reading-type-multiplier',
+                store: 'Mtr.store.readingtypes.attributes.Multiplier'
+            }
+        },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.phase', 'MTR', 'Phase'),
+            name: 'phase',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'phases',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.phase', 'MTR', 'Phase'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                forceSelection: true,
+                queryMode: 'local',
+                itemId: 'reading-type-interharmonic-phase',
+                store: 'Mtr.store.readingtypes.attributes.Phase'
             }
         }
     ],
