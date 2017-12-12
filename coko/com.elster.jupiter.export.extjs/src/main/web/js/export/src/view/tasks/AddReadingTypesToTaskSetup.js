@@ -13,6 +13,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
         'Dxp.view.tasks.AddReadingTypesToTaskFilter',
         'Dxp.view.tasks.AddReadingTypesToTaskBulk',
         'Dxp.store.LoadedReadingTypes',
+        'Dxp.store.ReadingTypeGroup',
         'Dxp.store.UnitsOfMeasure',
         'Dxp.store.TimeOfUse',
         'Dxp.store.Intervals',

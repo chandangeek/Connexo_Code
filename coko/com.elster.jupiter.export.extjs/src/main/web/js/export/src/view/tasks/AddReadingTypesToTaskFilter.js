@@ -10,6 +10,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
     defaultFilters: null,
 
     requires:[
+        'Dxp.store.ReadingTypeGroup',
         'Dxp.store.UnitsOfMeasure',
         'Dxp.store.Intervals',
         'Dxp.store.MetrologyConfigurations',
@@ -32,6 +33,24 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
         }
 
         me.filters = [
+            {
+                type: 'combobox',
+                dataIndex: 'aliasName',
+                emptyText: Uni.I18n.translate('dataExportTasks.readingTypeGroup', 'DES', 'Reading type group'),
+                displayField: 'aliasName',
+                valueField: 'aliasName',
+                itemId: 'cbo-reading-type-group',
+                store: 'Dxp.store.ReadingTypeGroup',
+                applyParamValue: function (params, includeUndefined, flattenObjects) {
+                    var me = this,
+                        record = me.findRecord(me.valueField || me.displayField, me.getValue());
+
+                    if (record) {
+                        params['aliasName'] = record.get('aliasName');
+                    }
+                }
+
+            },
             {
                 type: 'text',
                 dataIndex: 'fullAliasName',
