@@ -10,6 +10,7 @@ Ext.define('Cfg.view.validation.ReadingTypeTopFilter', {
         'Cfg.store.ReadingTypesToAddForRule',
         'Cfg.store.UnitsOfMeasure',
         'Cfg.store.TimeOfUse',
+        'Cfg.store.ReadingTypeGroup',
         'Cfg.store.Intervals'
     ],
     store: 'Cfg.store.ReadingTypesToAddForRule',
@@ -19,6 +20,25 @@ Ext.define('Cfg.view.validation.ReadingTypeTopFilter', {
         var me = this;
 
         this.filters = [
+            {
+                type: 'combobox',
+                dataIndex: 'aliasName',
+                emptyText: Uni.I18n.translate('validation.readingTypeGroup', 'CFG', 'Reading type group'),
+                displayField: 'aliasName',
+                valueField: 'aliasName',
+                itemId: 'readingTypeGroupCombo',
+                store: 'ReadingTypeGroup',
+                action: 'setUrlFOrReadingTypeGroup',
+                applyParamValue: function (params, includeUndefined, flattenObjects) {
+                    var me = this,
+                        record = me.findRecord(me.valueField || me.displayField, me.getValue());
+
+                    if (record) {
+                        params['aliasName'] = record.get('aliasName');
+                    }
+                }
+
+            },
             {
                 type: 'text',
                 dataIndex: 'fullAliasName',
@@ -95,5 +115,9 @@ Ext.define('Cfg.view.validation.ReadingTypeTopFilter', {
     setActive: function() {
         this.getFilterByItemId('activeFilter').setInitialValue(true);
         this.getFilterByItemId('activeFilter').setFilterValue(true);
+    },
+
+    setUrlFOrReadingTypeGroup: function (aliasName) {
+
     }
 });

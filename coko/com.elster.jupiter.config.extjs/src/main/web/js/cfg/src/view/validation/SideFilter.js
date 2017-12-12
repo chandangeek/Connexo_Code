@@ -28,6 +28,14 @@ Ext.define('Cfg.view.validation.SideFilter', {
             },
             items: [
                 {
+                    itemId: 'cbo-reading-type-group',
+                    name: 'aliasName',
+                    fieldLabel: Uni.I18n.translate('validation.readingTypeGroup', 'CFG', 'Reading type group'),
+                    forceSelection: true,
+                    displayField: 'name',
+                    valueField: 'aliasName'
+                },
+                {
                     xtype: 'textfield',
                     name: 'name',
                     itemId: 'readingTypeNameTextField',

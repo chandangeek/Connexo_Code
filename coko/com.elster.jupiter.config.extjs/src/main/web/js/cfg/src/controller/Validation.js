@@ -12,6 +12,7 @@ Ext.define('Cfg.controller.Validation', {
         'UnitsOfMeasure',
         'Intervals',
         'TimeOfUse',
+        'ReadingTypeGroup',
         'ReadingTypesForRule',
         'AdaptedReadingTypes',
         'Cfg.store.ReadingTypesToAddForRule',
