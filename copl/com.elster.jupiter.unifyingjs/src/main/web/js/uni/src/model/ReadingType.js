@@ -29,7 +29,8 @@ Ext.define('Uni.model.ReadingType', {
         'names',
         'phases',
         'tou',
-        'unit'
+        'unit',
+        'aliasName'
     ],
 
     idProperty: 'mRID'
