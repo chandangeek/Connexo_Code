@@ -28,10 +28,6 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
 
     refs: [
         {
-            ref: 'page',
-            selector: '#reading-types-setup'
-        },
-        {
             ref: 'pageReadingTypesInGroup',
             selector: '#reading-types-in-group'
         },
@@ -44,10 +40,6 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             selector: '#reading-types-groups-readingtype-preview'
         },
         {
-            ref: 'readingTypesGrid',
-            selector: '#metering-reading-types-grid'
-        },
-        {
             ref: 'readingTypesInGroupFilterPanel',
             selector: '#reading-types-group-filter-top-panel'
         },
@@ -58,10 +50,6 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
         {
             ref: 'groupPreview',
             selector: 'readingTypesGroup-preview'
-        },
-        {
-            ref: 'readingTypesGroupPreviewMenu',
-            selector: 'readingTypesGroup-preview readingTypesGroup-action-menu'
         },
         {
             ref: 'readingTypesGroupDetails',
@@ -101,8 +89,7 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
     showOverview: function () {
         var me = this,
             widget,
-            store = me.getStore('Mtr.store.readingtypesgroup.ReadingTypeGroups'),
-            viewport = Ext.ComponentQuery.query('viewport')[0];
+            store = me.getStore('Mtr.store.readingtypesgroup.ReadingTypeGroups');
         widget = Ext.widget('reading-type-groups-overview', {router: me.getController('Uni.controller.history.Router')});
         me.getApplication().fireEvent('changecontentevent', widget);
         store.load();
