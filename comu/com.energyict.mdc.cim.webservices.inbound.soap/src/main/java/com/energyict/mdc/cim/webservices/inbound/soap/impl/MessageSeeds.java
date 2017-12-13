@@ -32,7 +32,16 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_DEVICE_TYPE(1003, "NoSuchDeviceType", "No such device type: ''{0}''."),
     NO_SUCH_DEVICE_CONFIGURATION(1004, "NoSuchDeviceConfiguration", "No such device configuration: ''{0}''."),
     NO_METER_WITH_MRID(1005, "NoMeterWithMRID", "No meter is found by MRID ''{0}''."),
-    NO_METER_WITH_NAME(1006, "NoMeterWithName", "No meter is found by name ''{0}''."),;
+    NO_METER_WITH_NAME(1006, "NoMeterWithName", "No meter is found by name ''{0}''."),
+
+    // end device events
+    UNABLE_TO_GET_END_DEVICE_EVENTS(2001, "UnableToGetEndDeviceEvents", "Unable to get end device events"),
+    NO_END_DEVICE_WITH_MRID(2002, "NoEndDeviceWithMRID", "No end device is found by MRID ''{0}''."),
+    NO_END_DEVICE_WITH_NAME(2003, "NoEndDeviceWithName", "No end device is found by name ''{0}''."),
+    INVALID_OR_EMPTY_TIME_PERIOD(3003, "InvalidOrEmptyTimePeriod",
+            "Can''t construct a valid time period: provided start ''{0}'' is after or coincides with the end ''{1}''."),
+
+    ;
 
     private final int number;
     private final String key;

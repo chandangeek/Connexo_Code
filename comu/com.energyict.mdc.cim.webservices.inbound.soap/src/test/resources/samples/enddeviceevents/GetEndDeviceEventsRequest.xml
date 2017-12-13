@@ -1,0 +1,36 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:get="http://iec.ch/TC57/2011/GetEndDeviceEventsMessage"
+                  xmlns:mes="http://iec.ch/TC57/2011/schema/message"
+                  xmlns:get1="http://iec.ch/TC57/2011/GetEndDeviceEvents#"
+>
+    <soapenv:Header/>
+    <soapenv:Body>
+        <get:GetEndDeviceEvents>
+            <get:Header>
+                <mes:Verb>get</mes:Verb>
+                <mes:Noun>EndDeviceEvents</mes:Noun>
+            </get:Header>
+            <get:Request>
+                <get1:GetEndDeviceEvents>
+
+
+                    <get1:Meter>
+                        <get1:mRID>e67e8dbd-96b4-470b-9c02-0513502625eb</get1:mRID>
+                        <get1:Names>
+                            <get1:name>SPE01000003</get1:name>
+                        </get1:Names>
+                    </get1:Meter>
+
+                    <get1:TimeSchedule>
+                        <get1:scheduleInterval>
+                            <get1:end>2017-12-31T00:00:00+01:00</get1:end>
+                            <get1:start>2017-12-01T00:00:00+01:00</get1:start>
+                        </get1:scheduleInterval>
+                    </get1:TimeSchedule>
+
+                </get1:GetEndDeviceEvents>
+            </get:Request>
+
+        </get:GetEndDeviceEvents>
+    </soapenv:Body>
+</soapenv:Envelope>
