@@ -13,7 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
-    FILE_IO(1001, "file.io.reading.failure", "Failure while doing IO on file {0}", Level.SEVERE),
+    FILE_IO(1001, "file.io.reading.failure", "Failure while doing IO on file {0}: {1}", Level.SEVERE),
     FAILED_TO_START_IMPORT_SCHEDULES(2001, "importschedule.start.failed", "Could not start Import schedules, please check if FIM is installed properly.", Level.SEVERE),
     NO_SUCH_IMPORTER(2002, "importschedule.noSuchImporter", "Importer {0} does not exist.", Level.SEVERE),
     CAN_NOT_BE_EMPTY(2, Constants.NAME_REQUIRED_KEY, "This field is required", Level.SEVERE),

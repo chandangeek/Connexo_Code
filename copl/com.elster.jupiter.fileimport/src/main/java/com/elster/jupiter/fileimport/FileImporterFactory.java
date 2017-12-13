@@ -18,8 +18,14 @@ public interface FileImporterFactory extends HasDynamicProperties, HasName {
 
     String getDisplayName();
 
+    /**
+     * @return the name of the queue on which the file import messages will be posted
+     */
     String getDestinationName();
 
+    /**
+     * return the application name for which the importer was defined (SYS, MDC, MDM)
+     */
     String getApplicationName();
 
     void validateProperties(List<FileImporterProperty> properties);
