@@ -23,20 +23,6 @@ Ext.define('Est.tasksmanagement.view.AddEdit', {
         var me = this;
         me.items = [
             {
-                xtype: 'combobox',
-                itemId: 'followedBy-combo',
-                fieldLabel: Uni.I18n.translate('general.followedBy', 'EST', 'Followed by'),
-                name: 'nextRecurrentTasks',
-                width: 600,
-                multiSelect: true,
-                queryMode: 'local',
-                store: 'Est.tasksmanagement.store.AllTasks',
-                editable: false,
-                emptyText: Uni.I18n.translate('estimationtasks.taskSelectorPrompt', 'EST', 'Select a task ...'),
-                displayField: 'name',
-                valueField: 'id'
-            },
-            {
                 xtype: 'textfield',
                 name: 'name',
                 itemId: 'task-name',
@@ -63,6 +49,20 @@ Ext.define('Est.tasksmanagement.view.AddEdit', {
                 store: 'LogLevelsStore',
                 queryMode: 'local',
                 displayField: 'displayValue',
+                valueField: 'id'
+            },
+            {
+                xtype: 'combobox',
+                itemId: 'followedBy-combo',
+                fieldLabel: Uni.I18n.translate('general.followedBy', 'EST', 'Followed by'),
+                name: 'nextRecurrentTasks',
+                width: 600,
+                multiSelect: true,
+                queryMode: 'local',
+                store: 'Est.tasksmanagement.store.AllTasks',
+                editable: false,
+                emptyText: Uni.I18n.translate('estimationtasks.taskSelectorPrompt', 'EST', 'Select a task ...'),
+                displayField: 'name',
                 valueField: 'id'
             },
             {
