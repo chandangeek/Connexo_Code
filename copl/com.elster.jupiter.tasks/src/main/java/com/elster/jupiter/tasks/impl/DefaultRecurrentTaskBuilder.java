@@ -118,16 +118,6 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder, RecurrentTask
         }
         recurrentTask.setNextRecurrentTasks(nextRecurrentTasks);
         recurrentTask.save();
-
-        // save next recurrent task
-       /* recurrentTask.getNextRecurrentTasks().clear();
-        nextRecurrentTasks.forEach(nextRecurrentTask -> {
-            recurrentTask.saveNextRecurrentTask(nextRecurrentTask);
-           // NextRecurrentTaskImpl nrt = dataModel.getInstance(NextRecurrentTaskImpl.class).init(recurrentTask, nextRecurrentTask);
-          //  nrt.save();
-          //  recurrentTask.getNextRecurrentTasks().add(nextRecurrentTask);
-        });
-        //recurrentTask.save();*/
         return recurrentTask;
     }
 }
