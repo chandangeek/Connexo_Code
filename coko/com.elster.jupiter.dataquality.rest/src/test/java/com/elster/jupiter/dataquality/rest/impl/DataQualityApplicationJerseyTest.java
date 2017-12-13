@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.tasks.TaskService;
 
 import javax.ws.rs.core.Application;
 import java.time.Instant;
@@ -31,6 +32,8 @@ public class DataQualityApplicationJerseyTest extends FelixRestApplicationJersey
     MeteringGroupsService meteringGroupsService;
     @Mock
     MetrologyConfigurationService metrologyConfigurationService;
+    @Mock
+    TaskService taskService;
 
     @Override
     protected Application getApplication() {
@@ -39,6 +42,7 @@ public class DataQualityApplicationJerseyTest extends FelixRestApplicationJersey
         application.setDataQualityKpiService(dataQualityKpiService);
         application.setMeteringGroupsService(meteringGroupsService);
         application.setMetrologyConfigurationService(metrologyConfigurationService);
+        application.setTaskService(taskService);
         return application;
     }
 

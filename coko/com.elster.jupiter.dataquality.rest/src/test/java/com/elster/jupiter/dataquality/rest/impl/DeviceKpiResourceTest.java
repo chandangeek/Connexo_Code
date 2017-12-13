@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -114,7 +115,7 @@ public class DeviceKpiResourceTest extends DataQualityApplicationJerseyTest {
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        verify(dataQualityKpiService).newDataQualityKpi(endDeviceGroup, FREQUENCY);
+        verify(dataQualityKpiService).newDataQualityKpi(endDeviceGroup, FREQUENCY, new ArrayList<>());
     }
 
     @Test
