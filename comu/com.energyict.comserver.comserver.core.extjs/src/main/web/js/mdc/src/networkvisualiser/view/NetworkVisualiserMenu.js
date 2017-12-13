@@ -52,6 +52,13 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                         itemId: 'mdc-visualiser-layer-communication-status',
                         name: 'rb',
                         inputValue: '6'
+                    },
+                    {
+                        xtype: 'checkboxfield',
+                        boxLabel: Uni.I18n.translate('general.layer.maps', 'MDC', 'Maps'),
+                        itemId: 'mdc-visualiser-layer-maps',
+                        name: 'rb',
+                        inputValue: '7'
                     }
                 ],
                 listeners: {
@@ -73,7 +80,10 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
             hopsCheckBox = field.down('#mdc-visualiser-layer-hops'),
             qualityCheckBox = field.down('#mdc-visualiser-layer-quality'),
             lifeCylceStatusCheckBox = field.down('#mdc-visualiser-layer-life-cycle-status'),
-            commStatusCheckBox = field.down('#mdc-visualiser-layer-communication-status');
+            commStatusCheckBox = field.down('#mdc-visualiser-layer-communication-status'),
+            mapsCheckBox = field.down('#mdc-visualiser-layer-maps'),
+            optionsMenu = Ext.ComponentQuery.query('#uni-visualiser-menu')[0].down('#layer-options-section');
+
 
         if(!newValues.rb) {
             filters.concat(newValues.rb);
@@ -116,6 +126,11 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                     break;
                 case "6":
                     me.addLayer(me.showCommunicationStatus);
+                    break;
+                case "7":
+                    optionsMenu.hide();
+                    me.showMap();
+                    //me.addLayer(me.showMap);
                     break;
             }
 
@@ -178,6 +193,11 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                     break;
                 case "6":
                     me.removeLayer(me.showCommunicationStatus);
+                    break;
+                case "7":
+                    optionsMenu.show();
+                    me.hideMap();
+                    //me.removeLayer(me.showMap);
                     break;
             }
             me.clearAllLegendItems();

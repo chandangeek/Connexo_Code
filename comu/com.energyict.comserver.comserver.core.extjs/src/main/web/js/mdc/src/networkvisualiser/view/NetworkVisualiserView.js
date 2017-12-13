@@ -241,6 +241,16 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         }
     },
 
+    showMap: function () {
+        var me = this;
+        me.chart.map().show();
+    },
+
+    hideMap: function () {
+        var me = this;
+        me.chart.map().hide();
+    },
+
     showDeviceLifeCycleStatus: function(){
         var me = this,
             deviceTypeColors = {},
