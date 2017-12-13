@@ -109,7 +109,7 @@ public class DeviceCertificatesImportProcessorTest {
         when(builder.getSecurityAccessor().getTempValue()).thenReturn(Optional.of(builder.getCertificateWrapper()));
 
         processor.process(builder.getZipFile(), importZipEntry, logger);
-        verify(builder.getDevice(), times(2)).getKeyAccessor(any(SecurityAccessorType.class));
+        verify(builder.getDevice(), times(2)).getSecurityAccessor(any(SecurityAccessorType.class));
         verify(builder.getSecurityAccessor(), never()).save();
     }
 
@@ -122,7 +122,7 @@ public class DeviceCertificatesImportProcessorTest {
         when(builder.getSecurityAccessor().getTempValue()).thenReturn(Optional.empty());
 
         processor.process(builder.getZipFile(), importZipEntry, logger);
-        verify(builder.getDevice(), times(2)).getKeyAccessor(any(SecurityAccessorType.class));
+        verify(builder.getDevice(), times(2)).getSecurityAccessor(any(SecurityAccessorType.class));
         verify(builder.getSecurityAccessor()).setTempValue(any(SecurityValueWrapper.class));
         verify(builder.getSecurityAccessor()).save();
     }
@@ -136,7 +136,7 @@ public class DeviceCertificatesImportProcessorTest {
         when(builder.getSecurityAccessor().getTempValue()).thenReturn(Optional.of(builder.getCertificateWrapper()));
 
         processor.process(builder.getZipFile(), importZipEntry, logger);
-        verify(builder.getDevice(), times(2)).getKeyAccessor(any(SecurityAccessorType.class));
+        verify(builder.getDevice(), times(2)).getSecurityAccessor(any(SecurityAccessorType.class));
         verify(builder.getSecurityAccessor()).setActualValue(any(SecurityValueWrapper.class));
         verify(builder.getSecurityAccessor()).save();
     }
@@ -150,7 +150,7 @@ public class DeviceCertificatesImportProcessorTest {
         when(builder.getSecurityAccessor().getTempValue()).thenReturn(Optional.of(builder.getCertificateWrapper()));
 
         processor.process(builder.getZipFile(), importZipEntry, logger);
-        verify(builder.getDevice(), times(2)).getKeyAccessor(any(SecurityAccessorType.class));
+        verify(builder.getDevice(), times(2)).getSecurityAccessor(any(SecurityAccessorType.class));
         verify(builder.getSecurityAccessor()).setActualValue(any(SecurityValueWrapper.class));
         verify(builder.getSecurityAccessor()).save();
     }
@@ -253,7 +253,7 @@ public class DeviceCertificatesImportProcessorTest {
             when(securityAccessorType.getName()).thenReturn(securityAccessorTypeName);
             when(zipFile.getInputStream(any(ZipEntry.class))).thenReturn(getCertificate(certificateFileName));
             when(device.getDeviceType()).thenReturn(deviceType);
-            when(device.getKeyAccessor(any(SecurityAccessorType.class))).thenReturn(Optional.of(securityAccessor));
+            when(device.getSecurityAccessor(any(SecurityAccessorType.class))).thenReturn(Optional.of(securityAccessor));
             when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
             when(securityAccessorType.getKeyType()).thenReturn(keyType);
             when(clientCertificateWrapper.getCertificate()).thenReturn(Optional.of(certificate));

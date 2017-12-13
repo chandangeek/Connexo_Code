@@ -111,10 +111,10 @@ public class DeviceCertificatesImportProcessor implements FileImportZipProcessor
 
     private SecurityAccessor getKeyAccessor(Device device, SecurityAccessorType securityAccessorType) {
         SecurityAccessor accessor;
-        if (device.getKeyAccessor(securityAccessorType).isPresent()) {
-            accessor = device.getKeyAccessor(securityAccessorType).get();
+        if (device.getSecurityAccessor(securityAccessorType).isPresent()) {
+            accessor = device.getSecurityAccessor(securityAccessorType).get();
         } else {
-            accessor = device.newKeyAccessor(securityAccessorType);
+            accessor = device.newSecurityAccessor(securityAccessorType);
         }
         return accessor;
     }
