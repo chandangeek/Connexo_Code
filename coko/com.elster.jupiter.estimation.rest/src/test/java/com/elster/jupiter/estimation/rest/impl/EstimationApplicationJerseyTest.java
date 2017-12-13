@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
 
@@ -37,6 +38,8 @@ public class EstimationApplicationJerseyTest extends FelixRestApplicationJerseyT
     PropertyValueInfoService propertyValueInfoService;
     @Mock
     MetrologyConfigurationService metrologyConfigurationService;
+    @Mock
+    TaskService taskService;
 
     @Override
     protected Application getApplication() {
@@ -49,6 +52,7 @@ public class EstimationApplicationJerseyTest extends FelixRestApplicationJerseyT
         estimationApplication.setPropertyValueInfoService(propertyValueInfoService);
         estimationApplication.setMetrologyConfigurationService(metrologyConfigurationService);
         estimationApplication.setMeteringService(meteringService);
+        estimationApplication.setTaskService(taskService);
         return estimationApplication;
     }
 
