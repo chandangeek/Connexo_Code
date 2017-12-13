@@ -33,4 +33,12 @@ public interface SymmetricKeyFactory{
      * @return List of PropertySpecs an actual implementation would have
      */
     List<PropertySpec> getPropertySpecs();
+
+    /**
+     * Returns a {@link DeviceSecretImporter}. The importer will know which SecurityValueWrapper to create, more specifically, which
+     * properties it should contain, and how to create it.
+     * @param securityAccessorType Information for the importer, might not be needed
+     * @return The {@link DeviceSecretImporter}
+     */
+    DeviceSecretImporter getDeviceKeyImporter(SecurityAccessorType securityAccessorType);
 }

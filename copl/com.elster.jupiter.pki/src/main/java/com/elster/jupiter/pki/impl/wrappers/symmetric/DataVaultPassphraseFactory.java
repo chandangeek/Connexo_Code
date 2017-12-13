@@ -4,19 +4,26 @@
 
 package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.ExpirationSupport;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.PassphraseFactory;
 import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.PlaintextPassphrase;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.pki.impl.wrappers.SoftwareSecurityDataModel;
 import com.elster.jupiter.pki.impl.wrappers.TableSpecs;
 import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Comparison;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -24,13 +31,18 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component(name="PlaintextPassphraseFactory", service = PassphraseFactory.class, immediate = true)
 public class DataVaultPassphraseFactory implements PassphraseFactory, ExpirationSupport {
 
     public static final String KEY_ENCRYPTION_METHOD = "DataVault";
 
+    private Optional<String> certificateAlias = Optional.empty();
+
     private volatile DataModel dataModel;
+    private volatile Thesaurus thesaurus;
+    private volatile SecurityManagementService securityManagementService;
 
     // OSGi
     @SuppressWarnings("unused")
@@ -42,9 +54,24 @@ public class DataVaultPassphraseFactory implements PassphraseFactory, Expiration
         this.setSsmModel(ssmModel);
     }
 
+    @Activate
+    public void activate(BundleContext bundleContext) {
+        certificateAlias = Optional.ofNullable(bundleContext.getProperty(AbstractDataVaultImporter.IMPORT_KEY));
+    }
+
     @Reference
     public void setSsmModel(SoftwareSecurityDataModel ssmModel) {
         this.dataModel = ssmModel.getDataModel();
+    }
+
+    @Reference
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(SoftwareSecurityDataModel.COMPONENTNAME, Layer.DOMAIN);
     }
 
     @Override
@@ -77,4 +104,8 @@ public class DataVaultPassphraseFactory implements PassphraseFactory, Expiration
         return dataModel.getInstance(PlaintextPassphraseImpl.class).getPropertySpecs();
     }
 
+    @Override
+    public DeviceSecretImporter getDevicePassphraseImporter(SecurityAccessorType securityAccessorType) {
+        return new DataVaultPassphraseImporter(securityAccessorType, thesaurus, securityManagementService, certificateAlias);
+    }
 }

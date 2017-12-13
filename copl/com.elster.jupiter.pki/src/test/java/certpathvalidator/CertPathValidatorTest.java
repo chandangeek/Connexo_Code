@@ -109,7 +109,7 @@ public class CertPathValidatorTest {
         trustAnchors.add(subCaTrustAnchor);
 
         PKIXParameters pkixParameters = new PKIXParameters(trustAnchors);
-        CertStoreParameters ccsp = new CollectionCertStoreParameters(Arrays.asList(root, subCa, crl));
+        CertStoreParameters ccsp = new CollectionCertStoreParameters(Arrays.asList(crl));
         CertStore store = CertStore.getInstance("Collection", ccsp);
         pkixParameters.addCertStore(store);
         pkixParameters.setRevocationEnabled(true);
