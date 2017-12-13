@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis', {
                 queryMode: 'local',
                 store: 'Mdc.store.AllTasks',
                 editable: false,
-                emptyText: Uni.I18n.translate('estimationtasks.taskSelectorPrompt', 'EST', 'Select a task ...'),
+                emptyText: Uni.I18n.translate('estimationtasks.taskSelectorPrompt', 'MDC', 'Select a task ...'),
                 displayField: 'name',
                 valueField: 'id'
             },
