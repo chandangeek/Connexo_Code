@@ -60,8 +60,8 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
 
     listeners: {
         boxready: function (panel) {
-            // this.initCanvas(panel);
-            this.initShit();
+            this.initCanvas(panel);
+            // this.initShit();
         },
         resize: function(panel,w,h){
             KeyLines.setSize('graph-drawing-area', w-10, h-this.yOffset);
@@ -134,12 +134,22 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 me.chart.bind('contextmenu', me.contextMenu, me);
                 me.chart.bind('delete', function() { return true; }); // prevent deleting nodes
                 me.chart.bind('dragstart', me.preventDraggingNonNodes, me);
+                // me.chart.map().options({
+                //     tiles: {
+                //         url: 'http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+                //         maxZoom: 16,
+                //         //attribution: 'Map data: © OpenStreetMap, SRTM | Map style: © OpenTopoMap(CC-BY-SA)'
+                //         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                //     }
+                // });
+                // me.chart.map().show();
                 me.chart.load({
                     type: 'LinkChart'
                 });
+                me.loadData(chart);
             });
 
-                me.loadData();
+
     },
 
     contextMenu: function(id, x, y) {
@@ -493,7 +503,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         me.legendPanel.show().alignTo(Ext.get('graph-drawing-area'), 'bl-bl', [-5, -15]);
     },
 
-    loadData: function(){
+    loadData: function (chart) {
         var me = this,
             performAfterTheQuery = function() {
                 me.addFloatingPanels();
@@ -577,8 +587,10 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                             failedComTasks: node.get('failedComTasks')
                         },
                         pos: {
-                            lat: 50.82979 + (Math.random() * 0.1 - 0.05),
-                            lng: 3.30008 + (Math.random() * 0.1 - 0.05)
+                            lat: Ext.isEmpty(node.get('deviceCoordinates')) ? 45.2251093 : node.get('deviceCoordinates').latitude.value,
+                            lng: Ext.isEmpty(node.get('deviceCoordinates')) ? 22.0192515 : node.get('deviceCoordinates').longitude.value
+                            //lat: 45.595855 ,
+                            // lng: 21.845745
                         }
                     }
                 );

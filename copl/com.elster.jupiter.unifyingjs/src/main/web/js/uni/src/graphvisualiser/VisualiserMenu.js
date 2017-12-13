@@ -83,6 +83,7 @@ Ext.define('Uni.graphvisualiser.VisualiserMenu', {
                     {
                         xtype: 'form',
                         margin: '15 0 0 0',
+                        id: 'layer-options-section',
                         title: Uni.I18n.translate('general.options', 'UNI', 'Options'),
                         items: [
                             {
