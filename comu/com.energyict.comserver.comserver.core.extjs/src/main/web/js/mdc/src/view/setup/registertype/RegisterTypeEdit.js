@@ -65,63 +65,92 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                         hidden: true
                     },
                     {
-                        xtype: 'obis-field',
-                        itemId: 'editObisCodeField',
-                        name: 'obisCode'
+                        xtype: 'fieldcontainer',
+                        itemId: 'editObisCodeFieldWithTooltip',
+                        layout: 'hbox',
+                        width: 750,
+                        required: true,
+                        items: [
+                            {
+                                xtype: 'obis-field',
+                                itemId: 'editObisCodeField',
+                                labelWidth: 250,
+                                width: 700,
+                                afterSubTpl: null,
+                                name: 'obisCode'
+                            },
+                            {
+                                xtype: 'button',
+                                tooltip: Uni.I18n.translate('general.obisformat.tooltip', 'MDC', 'Provide the values for the 6 attributes of the OBIS code, separated by a "."'),
+                                text: '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;"></span>',
+                                disabled: true, // to avoid a hand cursor
+                                ui: 'blank',
+                                itemId: 'obisFormatHelp',
+                                shadow: false,
+                                margin: '6 0 0 6',
+                                width: 16
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'component',
+                        html:  Uni.I18n.translate('general.readingTypeToObisMappingMessage', 'MDC', 'The selected reading type could not be mapped to an OBIS code'),
+                        itemId: 'readingTypeToObisMappingMessage',
+                        style: {
+                            'font': 'italic 13px/17px Lato',
+                            'color': '#686868',
+                            'margin-top': '6px',
+                            'margin-bottom': '6px',
+                            'margin-left': '250px'
+                        },
+                        hidden: true
                     },
 
                     {
-                        xtype: 'container',
-                        layout: {
-                            type: 'hbox'
+                        itemId: 'readingTypeCombo',
+                        xtype: 'reading-type-combo',
+                        name: 'readingType',
+                        fieldLabel: Uni.I18n.translate('general.readingtype', 'MDC', 'Reading type'),
+                        valueField: 'name',
+                        forceSelection: true,
+                        store: 'AvailableReadingTypesForRegisterType',
+                        listConfig: {
+                            cls: 'isu-combo-color-list',
+                            emptyText: Uni.I18n.translate('general.readingtype.startTypingToSelect', 'MDC', 'Start typing to select a reading type...')
                         },
 
-                        width: 1000,
-                        items: [
-                            {
-                                itemId: 'readingTypeCombo',
-                                xtype: 'reading-type-combo',
-                                name: 'readingType',
-                                fieldLabel: Uni.I18n.translate('general.readingtype', 'MDC', 'Reading type'),
-                                valueField: 'name',
-                                forceSelection: true,
-                                store: 'AvailableReadingTypesForRegisterType',
-                                listConfig: {
-                                    cls: 'isu-combo-color-list',
-                                    emptyText: Uni.I18n.translate('general.readingtype.startTypingToSelect', 'MDC', 'Start typing to select a reading type...')
-                                },
-
-                                listeners: {
-                                    blur: function (combo) {
-                                        if (combo.store.loading) {
-                                            Ext.Ajax.suspendEvent('requestexception');
-                                            Ext.Ajax.abortAll();
-                                            combo.reset();
-                                            Ext.Ajax.resumeEvent('requestexception');
-                                        }
-                                    }
-                                },
-                                lastQuery: '',
-                                queryMode: 'remote',
-                                queryParam: 'like',
-                                queryDelay: 500,
-                                queryCaching: false,
-                                minChars: 1,
-                                required: true,
-                                editable: true,
-                                typeAhead: true,
-                                labelWidth: 250,
-                                width: 700,
-                                emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
-                            },
-                            {
-                                text: Uni.I18n.translate('general.readingtype.addReadingType', 'MDC', 'Add reading type'),
-                                xtype: 'button',
-                                margin: '0 0 0 10',
-                                itemId: 'addReadingTypeButton',
-                                hidden: !(Uni.Auth.hasPrivilegeInApp('privilege.administer.readingType','SYS'))
+                        listeners: {
+                            blur: function (combo) {
+                                if (combo.store.loading) {
+                                    Ext.Ajax.suspendEvent('requestexception');
+                                    Ext.Ajax.abortAll();
+                                    combo.reset();
+                                    Ext.Ajax.resumeEvent('requestexception');
+                                }
                             }
-                        ]
+                        },
+
+                        queryMode: 'remote',
+                        queryParam: 'like',
+                        queryDelay: 500,
+                        queryCaching: false,
+                        minChars: 1,
+                        required: true,
+                        editable: true,
+                        typeAhead: true,
+                        emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
+                    },
+                    {
+                        xtype: 'component',
+                        html: Uni.I18n.translate('general.obisCodeToReadingTypeMessage', 'MDC', 'The OBIS code cannot be mapped to a reading type. Displaying full reading type list.'),
+                        itemId: 'obisCodeToReadingTypeMessage',
+                        style: {
+                            'font': 'italic 13px/17px Lato',
+                            'color': '#686868',
+                            'margin-top': '6px',
+                            'margin-left': '250px'
+                        },
+                        hidden: true
                     },
                     {
                         xtype: 'fieldcontainer',
