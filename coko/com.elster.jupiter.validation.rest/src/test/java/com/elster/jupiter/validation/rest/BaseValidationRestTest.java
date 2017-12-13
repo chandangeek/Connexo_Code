@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.validation.DataValidationTask;
@@ -53,6 +54,8 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
     protected PropertyValueInfoService propertyValueInfoService;
     @Mock
     protected MetrologyPurpose metrologyPurpose;
+    @Mock
+    protected TaskService taskService;
 
     protected DataValidationTaskBuilder builder = initBuilderStub();
 
@@ -94,6 +97,7 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
         app.setNlsService(nlsService);
         app.setTimeService(timeService);
         app.setPropertyValueInfoService(propertyValueInfoService);
+        app.setTaskService(taskService);
         return app;
     }
 }
