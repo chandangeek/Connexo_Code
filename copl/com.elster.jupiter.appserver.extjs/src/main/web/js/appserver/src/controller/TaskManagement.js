@@ -146,7 +146,7 @@ Ext.define('Apr.controller.TaskManagement', {
                 taskManagement && taskManagement.controller && taskManagement.controller.getTask(this, record.get('id'), me.viewHistoryTaskLoaded)
                 break;
             case 'removeTask':
-                taskManagement && taskManagement.controller && taskManagement.controller.removeTaskManagement(record, me.operationStart, me.operationCompleted, this);
+                taskManagement && taskManagement.controller && taskManagement.controller.removeTaskManagement(record, me.removeOperationStart, me.removeOperationCompleted, this);
                 break;
             case 'setTriggers':
                 me.showSetTriggers(record);
@@ -296,6 +296,16 @@ Ext.define('Apr.controller.TaskManagement', {
         var me = this;
 
         me.getPage() && me.getPage().setLoading(false);
+        me.removeOperationCompleted(status);
+
+    },
+
+    removeOperationStart: function () {
+    },
+
+    removeOperationCompleted: function () {
+        var me = this;
+
         if (status && me.getPage()) {
             var grid = me.getTaskManagementGrid();
             grid.down('pagingtoolbartop').totalCount = 0;
