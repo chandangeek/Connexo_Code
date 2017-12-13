@@ -18,20 +18,6 @@ Ext.define('Cfg.view.taskmanagement.AddTaskManagement', {
         var me = this;
         me.items = [
             {
-                xtype: 'combobox',
-                itemId: 'followedBy-combo',
-                fieldLabel: Uni.I18n.translate('general.followedBy', 'CFG', 'Followed by'),
-                name: 'nextRecurrentTasks',
-                width: 600,
-                multiSelect: true,
-                queryMode: 'local',
-                store: 'Cfg.store.AllTasks',
-                editable: false,
-                emptyText: Uni.I18n.translate('validationTasks.taskSelectorPrompt', 'CFG', 'Select a task ...'),
-                displayField: 'name',
-                valueField: 'id'
-            },
-            {
                 xtype: 'textfield',
                 name: 'name',
                 itemId: 'txt-task-name',
@@ -57,6 +43,20 @@ Ext.define('Cfg.view.taskmanagement.AddTaskManagement', {
                 store: 'LogLevelsStore',
                 queryMode: 'local',
                 displayField: 'displayValue',
+                valueField: 'id'
+            },
+            {
+                xtype: 'combobox',
+                itemId: 'followedBy-combo',
+                fieldLabel: Uni.I18n.translate('general.followedBy', 'CFG', 'Followed by'),
+                name: 'nextRecurrentTasks',
+                width: 600,
+                multiSelect: true,
+                queryMode: 'local',
+                store: 'Cfg.store.AllTasks',
+                editable: false,
+                emptyText: Uni.I18n.translate('validationTasks.taskSelectorPrompt', 'CFG', 'Select a task ...'),
+                displayField: 'name',
                 valueField: 'id'
             },
             {
