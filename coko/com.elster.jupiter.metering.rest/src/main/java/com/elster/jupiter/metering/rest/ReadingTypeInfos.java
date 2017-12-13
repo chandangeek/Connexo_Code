@@ -15,6 +15,7 @@ import java.util.List;
 public class ReadingTypeInfos {
     public int total;
     public List<ReadingTypeInfo> readingTypes = new ArrayList<>();
+    public boolean mappingError = false;
 
     public ReadingTypeInfos() {
     }
@@ -46,4 +47,7 @@ public class ReadingTypeInfos {
         }
     }
 
+    public void mappingError(boolean mappingError) {
+        this.mappingError = mappingError;
+    }
 }
