@@ -1,17 +1,15 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
-import com.energyict.obis.ObisCode;
-
 class ObisCodeInfo  {
 
-    private final String obisValue;
+    private final String obisCode;
 
-    ObisCodeInfo(ObisCode obisCode) {
-        this.obisValue = obisCode.getValue();
+    ObisCodeInfo(String obisCode) {
+        this.obisCode = obisCode;
     }
 
     public String getObisValue(){
-        return obisValue;
+        return obisCode;
     }
 
 }

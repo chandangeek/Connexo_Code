@@ -7,6 +7,7 @@ package com.energyict.mdc.masterdata.rest.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFilter;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -61,36 +62,38 @@ public class ReadingTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public ReadingTypeInfos getUnusedReadingTypes(@BeanParam JsonQueryParameters queryParameters,
-                                                  @QueryParam("obisCode") String obisCodeString,
-                                                  @QueryParam("mRID") String mRIDString) {
+                                                  @QueryParam("obisCode") String obisCodeString) {
 
-        // mRID is present when we're returning from the Add ReadingType page
-        if (mRIDString != null && !mRIDString.isEmpty()) {
-            return meteringService.getReadingType(mRIDString)
-                    .map(ReadingTypeInfos::new)
-                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        List<String> readingTypesInUseIds = masterDataService.findAllRegisterTypes()
+                .stream()
+                .map(rT -> rT.getReadingType().getMRID())
+                .collect(Collectors.toList());
 
+        List<ReadingType> readingTypes;
+        boolean mappingError = true;
+        String searchText = queryParameters.getLike();
+        ObisFilterProvider provider = new ObisFilterProvider(obisCodeString);
+        // If obis is missing or invalid, we use the like condition
+        if (!provider.hasValidObis()) {
+            readingTypes = this.findReadingTypes(SearchFilterProvider.getFilter(searchText), readingTypesInUseIds);
         } else {
-            List<String> readingTypesInUseIds = masterDataService.findAllRegisterTypes()
-                    .stream()
-                    .map(rT -> rT.getReadingType().getMRID())
-                    .collect(Collectors.toList());
-
-            // Filter reading types based on obis code and search text.
-            // If obis is not present or it doesn't map to a reading type,we filter based on the search text only.
-            // If obis is not present or it doesn't map to a reading type and the search text is not present,
-            // we return all reading type values that are not in use.
-            String searchText = queryParameters.getLike();
-            ObisAndSearchFilterProvider provider = new ObisAndSearchFilterProvider(obisCodeString);
-            ReadingTypeFilter filter = provider.getFilter(searchText);
-            List<ReadingType> readingTypes = this.findReadingTypes(filter, readingTypesInUseIds);
-            if (readingTypes.isEmpty()){
-                filter = SearchFilterProvider.getFilter(searchText);
+            ReadingTypeFilter filter = provider.getFilter();
+            // If obis is mapping to a reading type, we add the like condition to the filter
+            if (this.isObisMapping(filter)) {
+                Condition condition = SearchFilterProvider.getCondition(queryParameters.getLike()).orElse(Condition.TRUE);
+                filter.addCondition(condition);
                 readingTypes = this.findReadingTypes(filter, readingTypesInUseIds);
+                mappingError = false;
+            } else {
+                // If obis is not mapping to a reading type, we use the like condition
+               readingTypes = this.findReadingTypes(SearchFilterProvider.getFilter(searchText), readingTypesInUseIds);
             }
-
-            return readingTypes.isEmpty() ? new ReadingTypeInfos() : new ReadingTypeInfos(readingTypes);
         }
+
+        ReadingTypeInfos infos = new ReadingTypeInfos(readingTypes);
+        infos.mappingError(mappingError);
+        return infos;
+
     }
 
     @GET
@@ -100,10 +103,12 @@ public class ReadingTypeResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public ObisCodeInfo getObisCodeByReadingType(@QueryParam("mRID") String mRID) {
 
-        ReadingTypeInformation readingTypeInformation = mdcReadingTypeUtilService.getReadingTypeInformationFrom(mRID)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_CIM_OBIS_MAPPING, "readingType"));
+        String obisCode = mdcReadingTypeUtilService.getReadingTypeInformationFrom(mRID)
+                .map(ReadingTypeInformation::getObisCode)
+                .map(ObisCode::getValue)
+                .orElse("");
 
-        return new ObisCodeInfo(readingTypeInformation.getObisCode());
+        return new ObisCodeInfo(obisCode);
     }
 
     @GET
@@ -112,10 +117,12 @@ public class ReadingTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public ReadingTypeInfos getReadingTypes(@BeanParam JsonQueryParameters queryParameters) {
+
         String searchText = queryParameters.getLike();
-        if (searchText != null && !searchText.isEmpty()) {
+        Optional<Condition> condition = SearchFilterProvider.getCondition(searchText);
+        if (condition.isPresent()){
             ReadingTypeFilter filter = new ReadingTypeFilter();
-            filter.addCondition(SearchFilterProvider.getCondition(searchText));
+            filter.addCondition(condition.get());
             return new ReadingTypeInfos(meteringService.findReadingTypes(filter).stream()
                     .limit(50)
                     .collect(Collectors.toList()));
@@ -138,46 +145,30 @@ public class ReadingTypeResource {
                 .collect(Collectors.toList());
     }
 
+    private boolean isObisMapping(ReadingTypeFilter filter) {
+        return !meteringService.findReadingTypes(filter).find().isEmpty();
+    }
 
-    /**
-     * Creates a ReadingTypeFilter using the obis code string and the like string from the URL
-     */
-    private class ObisAndSearchFilterProvider {
 
-        private final String obisCode;
+    private class ObisFilterProvider {
 
-        ObisAndSearchFilterProvider(String obisCode) {
-            this.obisCode = obisCode;
+        private final ObisCode obisCode;
+
+        ObisFilterProvider(String obisCodeString){
+            this.obisCode = (obisCodeString == null || obisCodeString.isEmpty()) ? null : ObisCode.fromString(obisCodeString);
         }
 
-        /**
-         * @param searchText like="bulk.." string from the URL
-         * @return ReadingTypeFilter. Doesn't return null
-         */
-        ReadingTypeFilter getFilter(String searchText) {
-            if (obisCode == null || obisCode.isEmpty()) {
-                return SearchFilterProvider.getFilter(searchText);
-            }
-
+        ReadingTypeFilter getFilter() {
+            String mRID = mdcReadingTypeUtilService.getReadingTypeFilterFrom(this.obisCode);
             ReadingTypeFilter filter = new ReadingTypeFilter();
-            filter.addCondition(this.getCondition());
-            filter.addCondition(SearchFilterProvider.getCondition(searchText));
+            filter.addCondition(Where.where("mRID").matches(mRID, ""));
             return filter;
         }
 
-        /**
-         *
-         * @return Condition TRUE if obisCode is invalid, a regex used to match reading types otherwise
-         */
-        private Condition getCondition() {
-            ObisCode obis = ObisCode.fromString(this.obisCode);
-            if (obis.isInvalid()) {
-                return Condition.TRUE;
-            }
-
-            String mRID = mdcReadingTypeUtilService.getReadingTypeFilterFrom(obis);
-            return Where.where("mRID").matches(mRID, "");
+        boolean hasValidObis() {
+            return obisCode != null && !obisCode.isInvalid();
         }
+
     }
 
     /**
@@ -187,7 +178,7 @@ public class ReadingTypeResource {
 
         static ReadingTypeFilter getFilter(String searchText) {
             ReadingTypeFilter filter = new ReadingTypeFilter();
-            filter.addCondition(getCondition(searchText));
+            filter.addCondition(getCondition(searchText).orElse(Condition.TRUE));
             return filter;
         }
 
@@ -196,8 +187,8 @@ public class ReadingTypeResource {
          * @param searchText like="bulk.." string from the URL
          * @return Condition.TRUE if text is missing, a regex used to match reading types otherwise
          */
-        static Condition getCondition(String searchText) {
-            return (searchText == null || searchText.isEmpty()) ? Condition.TRUE : buildCondition(searchText);
+        static Optional<Condition> getCondition(String searchText) {
+            return (searchText == null || searchText.isEmpty()) ? Optional.empty() : Optional.of(buildCondition(searchText));
         }
 
         private static Condition buildCondition(String dbSearchText) {
