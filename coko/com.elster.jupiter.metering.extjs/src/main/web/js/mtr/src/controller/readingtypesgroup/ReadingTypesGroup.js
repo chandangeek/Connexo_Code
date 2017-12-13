@@ -67,12 +67,22 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             ref: 'readingTypeGroupOverview',
             selector: '#reading-types-group-details'
         }
+
     ],
 
     init: function () {
         this.control({
+            '#add-reading-type-button': {
+                click: this.browseAdd
+            },
+            '#overview-add-reading-type-button': {
+                click: this.browseAdd
+            },
             '#mtr-add-readingTypeGroup-button': {  //lori
                 click: this.browseGroupAdd
+            },
+            'reading-type-groups-grid': {
+                select: this.showPreview
             },
             'reading-types-in-group-grid': {
                 select: this.showReadingTypePreview
@@ -107,6 +117,13 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             addController = this.getController('Mtr.controller.readingtypesgroup.AddReadingTypesGroup');
         addController.qString = router.getQueryStringValues();
         router.getRoute('administration/readingtypegroups/add').forward();  //lori
+    },
+
+    browseAdd: function () {
+        var router = this.getController('Uni.controller.history.Router'),
+            addController = this.getController('Mtr.controller.readingtypesgroup.AddReadingTypesGroup');
+        addController.qString = router.getQueryStringValues();
+        router.getRoute('administration/readingtypes/add').forward();
     },
 
     showReadingTypesGroupDetails: function (aliasName) {
