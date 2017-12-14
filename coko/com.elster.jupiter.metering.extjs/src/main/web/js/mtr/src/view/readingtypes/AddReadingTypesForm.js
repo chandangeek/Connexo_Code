@@ -24,7 +24,7 @@ Ext.define('Mtr.view.readingtypes.AddReadingTypesForm', {
             },
             {
                 xtype: 'textfield',
-                fieldLabel: Uni.I18n.translate('readingTypesManagement.addReadingTypes.alias', 'MTR', 'Alias'),
+                fieldLabel: Uni.I18n.translate('readingTypesManagement.addReadingTypes.alias', 'MTR', 'Name'),
                 itemId: 'alias-name',
                 name: 'aliasName',
                 required: true,
