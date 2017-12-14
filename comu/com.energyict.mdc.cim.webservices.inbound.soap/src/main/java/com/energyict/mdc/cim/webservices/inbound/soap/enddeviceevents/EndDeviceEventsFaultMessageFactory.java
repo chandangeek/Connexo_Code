@@ -27,19 +27,19 @@ class EndDeviceEventsFaultMessageFactory {
         this.replyTypeFactory = replyTypeFactory;
     }
 
-    Supplier<FaultMessage> getEndDeviceEventsFaultMessageSupplier(MessageSeeds messageSeed, Object... args) {
-        return () -> getEndDeviceEventsFaultMessage(replyTypeFactory.failureReplyType(messageSeed, args));
+    Supplier<FaultMessage> createEndDeviceEventsFaultMessageSupplier(MessageSeeds messageSeed, Object... args) {
+        return () -> createEndDeviceEventsFaultMessage(replyTypeFactory.failureReplyType(messageSeed, args));
     }
 
-    FaultMessage getEndDeviceEventsFaultMessage(String message, String errorCode) {
-        return getEndDeviceEventsFaultMessage(replyTypeFactory.failureReplyType(message, errorCode));
+    FaultMessage createEndDeviceEventsFaultMessage(String message, String errorCode) {
+        return createEndDeviceEventsFaultMessage(replyTypeFactory.failureReplyType(message, errorCode));
     }
 
-    FaultMessage getEndDeviceEventsFaultMessage(String message) {
-        return getEndDeviceEventsFaultMessage(message, null);
+    FaultMessage createEndDeviceEventsFaultMessage(String message) {
+        return createEndDeviceEventsFaultMessage(message, null);
     }
 
-    private FaultMessage getEndDeviceEventsFaultMessage(ReplyType replyType) {
+    private FaultMessage createEndDeviceEventsFaultMessage(ReplyType replyType) {
         EndDeviceEventsFaultMessageType faultMessageType = messageFactory.createEndDeviceEventsFaultMessageType();
         faultMessageType.setReply(replyType);
         return new FaultMessage(MessageSeeds.UNABLE_TO_GET_END_DEVICE_EVENTS.translate(thesaurus), faultMessageType);
