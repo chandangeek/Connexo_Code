@@ -45,9 +45,8 @@ class ObisCodeToReadingTypeFilterFactory {
         MEASURING_PERIOD() {
             @Override
             String getFilter(ObisCode obisCode) {
-                List<TimeAttribute> measuringPeriodList = MeasuringPeriodMapping.getMeasuringPeriodListFor(obisCode);
-                int[] measuringPeriodArray = measuringPeriodList.stream().mapToInt(TimeAttribute::getId).toArray();
-                return this.createRegexFrom(measuringPeriodArray) + REGEX_DOT;
+                TimeAttribute timeAttribute = MeasuringPeriodMapping.getMeasuringPeriodFor(obisCode, null);
+                return String.valueOf(timeAttribute.getId()) + REGEX_DOT;
             }
         },
         ACCUMULATION() {

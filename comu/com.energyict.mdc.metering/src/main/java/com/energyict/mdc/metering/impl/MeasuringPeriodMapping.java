@@ -45,25 +45,6 @@ enum MeasuringPeriodMapping {
         return TimeAttribute.NOTAPPLICABLE;
     }
 
-    /**
-     * Without additional information ( like timeDuration ), we won't always be able to
-     * map the obis code to one macro period value, so we return all possible mappings.
-     * @param obisCode
-     * @return Non-empty list of TimeAttribute objects
-     */
-    static List<TimeAttribute> getMeasuringPeriodListFor(ObisCode obisCode) {
-        List<TimeAttribute> measuringPeriodList = new ArrayList<>();
-        if (obisCode != null) {
-            for (MeasuringPeriodMapping mpm : values()) {
-                if (obisCode.getE() == 0 || mpm.minutes != 60 * 24) {
-                    measuringPeriodList.add(mpm.timeAttribute);
-                }
-            }
-        }
-        measuringPeriodList.add(TimeAttribute.NOTAPPLICABLE);
-        return measuringPeriodList;
-    }
-
     private static int getMinutes(TimeDuration timeDuration) {
         return timeDuration.getSeconds() / 60;
     }

@@ -27,14 +27,6 @@ public class MeasuringPeriodMappingTest {
     }
 
     @Test
-    public void nullSafeObisCodeListTest() {
-        ObisCode nullSafe = null;
-        List<TimeAttribute> timeAttributeList = MeasuringPeriodMapping.getMeasuringPeriodListFor(nullSafe);
-
-        assertThat(timeAttributeList).contains(TimeAttribute.NOTAPPLICABLE);
-    }
-
-    @Test
     public void nullSafeTimeDurationTest() {
         TimeDuration nullSafe = null;
         TimeAttribute timeAttribute = MeasuringPeriodMapping.getMeasuringPeriodFor(obisCode, nullSafe);
@@ -106,11 +98,4 @@ public class MeasuringPeriodMappingTest {
         assertThat(timeAttribute).isEqualTo(TimeAttribute.NOTAPPLICABLE);
     }
 
-    @Test
-    public void multipleMeasuringPeriodTest(){
-        List<TimeAttribute> timeAttributeList = MeasuringPeriodMapping.getMeasuringPeriodListFor(obisCode);
-        assertThat(timeAttributeList.size()).isGreaterThan(1);
-        assertThat(timeAttributeList).contains(TimeAttribute.MINUTE15);
-        assertThat(timeAttributeList).contains(TimeAttribute.NOTAPPLICABLE);
-    }
 }
