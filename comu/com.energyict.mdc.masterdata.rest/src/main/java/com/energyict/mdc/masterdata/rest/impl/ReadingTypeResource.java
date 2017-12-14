@@ -64,36 +64,33 @@ public class ReadingTypeResource {
     public ReadingTypeInfos getUnusedReadingTypes(@BeanParam JsonQueryParameters queryParameters,
                                                   @QueryParam("obisCode") String obisCodeString) {
 
+        // True if obis code is missing, invalid or doesn't map to a reading type
+        boolean mappingError = true;
+        ReadingTypeFilter filter = null;
+        String searchText = queryParameters.getLike();
+
+        SearchObisUtil obisUtil = new SearchObisUtil(obisCodeString);
+        if (obisUtil.hasValidObis()) {
+            filter = obisUtil.getFilter(mdcReadingTypeUtilService);
+            if (this.doesObisMapToReadingType(filter)){
+                filter.addCondition(SearchTextUtil.getCondition(searchText).orElse(Condition.TRUE));
+                mappingError = false;
+            }
+        }
+
+        if (mappingError){
+            filter = SearchTextUtil.getFilter(searchText);
+        }
+
         List<String> readingTypesInUseIds = masterDataService.findAllRegisterTypes()
                 .stream()
                 .map(rT -> rT.getReadingType().getMRID())
                 .collect(Collectors.toList());
 
-        List<ReadingType> readingTypes;
-        boolean mappingError = true;
-        String searchText = queryParameters.getLike();
-        ObisFilterProvider provider = new ObisFilterProvider(obisCodeString);
-        // If obis is missing or invalid, we use the like condition
-        if (!provider.hasValidObis()) {
-            readingTypes = this.findReadingTypes(SearchFilterProvider.getFilter(searchText), readingTypesInUseIds);
-        } else {
-            ReadingTypeFilter filter = provider.getFilter();
-            // If obis is mapping to a reading type, we add the like condition to the filter
-            if (this.isObisMapping(filter)) {
-                Condition condition = SearchFilterProvider.getCondition(queryParameters.getLike()).orElse(Condition.TRUE);
-                filter.addCondition(condition);
-                readingTypes = this.findReadingTypes(filter, readingTypesInUseIds);
-                mappingError = false;
-            } else {
-                // If obis is not mapping to a reading type, we use the like condition
-               readingTypes = this.findReadingTypes(SearchFilterProvider.getFilter(searchText), readingTypesInUseIds);
-            }
-        }
-
+        List<ReadingType> readingTypes = this.findReadingTypes(filter, readingTypesInUseIds);
         ReadingTypeInfos infos = new ReadingTypeInfos(readingTypes);
-        infos.mappingError(mappingError);
+        infos.mappingError = mappingError;
         return infos;
-
     }
 
     @GET
@@ -117,9 +114,7 @@ public class ReadingTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public ReadingTypeInfos getReadingTypes(@BeanParam JsonQueryParameters queryParameters) {
-
-        String searchText = queryParameters.getLike();
-        Optional<Condition> condition = SearchFilterProvider.getCondition(searchText);
+        Optional<Condition> condition = SearchTextUtil.getCondition(queryParameters.getLike());
         if (condition.isPresent()){
             ReadingTypeFilter filter = new ReadingTypeFilter();
             filter.addCondition(condition.get());
@@ -131,12 +126,6 @@ public class ReadingTypeResource {
     }
 
 
-    /**
-     *
-     * @param filter ReadingTypeFilter
-     * @param readingTypesInUseIds ReadingType MRID list extracted from the Register Type List
-     * @return Filtered list of ReadingTypes that are not currently in use
-     */
     private List<ReadingType> findReadingTypes(ReadingTypeFilter filter, List<String> readingTypesInUseIds) {
         return meteringService.findReadingTypes(filter)
                 .stream()
@@ -145,72 +134,9 @@ public class ReadingTypeResource {
                 .collect(Collectors.toList());
     }
 
-    private boolean isObisMapping(ReadingTypeFilter filter) {
+    private boolean doesObisMapToReadingType(ReadingTypeFilter filter) {
         return !meteringService.findReadingTypes(filter).find().isEmpty();
     }
 
 
-    private class ObisFilterProvider {
-
-        private final ObisCode obisCode;
-
-        ObisFilterProvider(String obisCodeString){
-            this.obisCode = (obisCodeString == null || obisCodeString.isEmpty()) ? null : ObisCode.fromString(obisCodeString);
-        }
-
-        ReadingTypeFilter getFilter() {
-            String mRID = mdcReadingTypeUtilService.getReadingTypeFilterFrom(this.obisCode);
-            ReadingTypeFilter filter = new ReadingTypeFilter();
-            filter.addCondition(Where.where("mRID").matches(mRID, ""));
-            return filter;
-        }
-
-        boolean hasValidObis() {
-            return obisCode != null && !obisCode.isInvalid();
-        }
-
-    }
-
-    /**
-     * Creates a ReadingTypeFilter using the like string from the URL
-     */
-    private static class SearchFilterProvider {
-
-        static ReadingTypeFilter getFilter(String searchText) {
-            ReadingTypeFilter filter = new ReadingTypeFilter();
-            filter.addCondition(getCondition(searchText).orElse(Condition.TRUE));
-            return filter;
-        }
-
-        /**
-         *
-         * @param searchText like="bulk.." string from the URL
-         * @return Condition.TRUE if text is missing, a regex used to match reading types otherwise
-         */
-        static Optional<Condition> getCondition(String searchText) {
-            return (searchText == null || searchText.isEmpty()) ? Optional.empty() : Optional.of(buildCondition(searchText));
-        }
-
-        private static Condition buildCondition(String dbSearchText) {
-            String regex = "*" + dbSearchText.replace(" ", "*") + "*";
-            return Where.where("fullAliasName").likeIgnoreCase(regex)
-                    .and(mrIdMatchOfNormalRegisters()
-                            .or(mrIdMatchOfBillingRegisters())
-                            .or(mrIdMatchOfPeriodRelatedRegisters()));
-        }
-
-        private static Condition mrIdMatchOfPeriodRelatedRegisters() {
-            return Where.where("mRID").matches("^[11-13]\\.\\[1-24]\\.0", "");
-        }
-
-        private static Condition mrIdMatchOfBillingRegisters() {
-            return Where.where("mRID").matches("^8\\.\\d+\\.0", "");
-        }
-
-        private static Condition mrIdMatchOfNormalRegisters() {
-            return Where.where("mRID").matches("^0\\.\\d+\\.0", "");
-        }
-
-
-    }
 }
