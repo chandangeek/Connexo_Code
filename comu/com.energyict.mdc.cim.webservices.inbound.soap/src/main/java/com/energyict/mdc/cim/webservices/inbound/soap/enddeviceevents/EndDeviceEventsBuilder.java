@@ -26,7 +26,6 @@ import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
 import javax.inject.Inject;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -36,7 +35,6 @@ import java.util.Set;
 public class EndDeviceEventsBuilder {
     private final ObjectFactory payloadObjectFactory = new ObjectFactory();
 
-    private final Clock clock;
     private final MeteringService meteringService;
     private final EndDeviceEventsFaultMessageFactory faultMessageFactory;
 
@@ -45,11 +43,9 @@ public class EndDeviceEventsBuilder {
 
     @Inject
     public EndDeviceEventsBuilder(MeteringService meteringService,
-                           EndDeviceEventsFaultMessageFactory faultMessageFactory,
-                           Clock clock) {
+                           EndDeviceEventsFaultMessageFactory faultMessageFactory) {
         this.meteringService = meteringService;
         this.faultMessageFactory = faultMessageFactory;
-        this.clock = clock;
     }
 
     public EndDeviceEventsBuilder prepareGetFrom(List<Meter> meters, List<TimeSchedule> timeSchedules) throws FaultMessage {
@@ -119,7 +115,7 @@ public class EndDeviceEventsBuilder {
         }
         Instant end = interval.getEnd();
         if (end == null) {
-            end = clock.instant();
+            return Range.greaterThan(start);
         }
         if (!end.isAfter(start)) {
             throw faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(
