@@ -17,6 +17,9 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * Processes the csv file contents. Is responsible for parsing the csv file content and processing its data.
+ */
 public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileImporter {
 
     public static class Builder<T extends FileImportRecord> {
@@ -64,6 +67,11 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
     private DeviceDataCsvImporter() {
     }
 
+    /**
+     * Is responsible for doing the actual import. It processes the contents of the entire csv file.
+     *
+     * @param fileImportOccurrence Represents the entire file data that is to be processed.
+     */
     @Override
     public void process(FileImportOccurrence fileImportOccurrence) {
         logger.init(fileImportOccurrence);
