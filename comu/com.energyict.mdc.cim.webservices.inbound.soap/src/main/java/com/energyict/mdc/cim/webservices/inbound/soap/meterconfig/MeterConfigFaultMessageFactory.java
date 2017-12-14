@@ -28,21 +28,21 @@ class MeterConfigFaultMessageFactory {
         this.replyTypeFactory = replyTypeFactory;
     }
 
-    Supplier<FaultMessage> createMeterConfigFaultMessageSupplier(MessageSeeds messageSeed, Object... args) {
-        return () -> createMeterConfigFaultMessage(replyTypeFactory.failureReplyType(messageSeed, args));
+    Supplier<FaultMessage> meterConfigFaultMessageSupplier(MessageSeeds messageSeed, Object... args) {
+        return () -> meterConfigFaultMessage(messageSeed, replyTypeFactory.failureReplyType(messageSeed, args));
     }
 
-    FaultMessage createMeterConfigFaultMessage(String message, String errorCode) {
-        return createMeterConfigFaultMessage(replyTypeFactory.failureReplyType(message, errorCode));
+    FaultMessage meterConfigFaultMessage(MessageSeeds messageSeed, String message, String errorCode) {
+        return meterConfigFaultMessage(messageSeed, replyTypeFactory.failureReplyType(message, errorCode));
     }
 
-    FaultMessage createMeterConfigFaultMessage(String message) {
-        return createMeterConfigFaultMessage(message, null);
+    FaultMessage meterConfigFaultMessage(MessageSeeds messageSeed, String message) {
+        return meterConfigFaultMessage(messageSeed, message, null);
     }
 
-    private FaultMessage createMeterConfigFaultMessage(ReplyType replyType) {
+    private FaultMessage meterConfigFaultMessage(MessageSeeds messageSeed, ReplyType replyType) {
         MeterConfigFaultMessageType faultMessageType = meterConfigMessageObjectFactory.createMeterConfigFaultMessageType();
         faultMessageType.setReply(replyType);
-        return new FaultMessage(MessageSeeds.UNABLE_TO_CREATE_DEVICE.translate(thesaurus), faultMessageType);
+        return new FaultMessage(messageSeed.translate(thesaurus), faultMessageType);
     }
 }
