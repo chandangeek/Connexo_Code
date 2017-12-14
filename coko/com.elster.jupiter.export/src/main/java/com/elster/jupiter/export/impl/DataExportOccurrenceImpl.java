@@ -6,6 +6,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportRunParameters;
 import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -78,8 +79,8 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
             exportedDataInterval = Interval.of(instantRange);
             exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
         } else {
-            task.getStandardDataSelectorConfig(at)
-                    .map(selector -> selector.getExportPeriod().getOpenClosedInterval(at.atZone(ZoneId.systemDefault())))
+            Optional<DataSelectorConfig> standardDataSelector = occurrence.getRetryTime().isPresent() ? task.getStandardDataSelectorConfig(at) : task.getStandardDataSelectorConfig();
+            standardDataSelector.map(selector -> selector.getExportPeriod().getOpenClosedInterval(at.atZone(ZoneId.systemDefault())))
                     .ifPresent(instantRange -> {
                         exportedDataInterval = Interval.of(instantRange);
                         exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
