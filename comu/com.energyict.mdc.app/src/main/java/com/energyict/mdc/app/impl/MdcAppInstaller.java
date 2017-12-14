@@ -7,7 +7,6 @@ package com.energyict.mdc.app.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -209,6 +208,14 @@ public class MdcAppInstaller {
                     com.elster.jupiter.issue.security.Privileges.Constants.CLOSE_ISSUE,
                     com.elster.jupiter.issue.security.Privileges.Constants.COMMENT_ISSUE,
                     com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ISSUE,
+
+                    //Alarms
+                    com.energyict.mdc.device.alarms.security.Privileges.Constants.ACTION_ALARM,
+                    com.energyict.mdc.device.alarms.security.Privileges.Constants.ASSIGN_ALARM,
+                    com.energyict.mdc.device.alarms.security.Privileges.Constants.CLOSE_ALARM,
+                    com.energyict.mdc.device.alarms.security.Privileges.Constants.COMMENT_ALARM,
+                    com.energyict.mdc.device.alarms.security.Privileges.Constants.VIEW_ALARM,
+
 
                     //Issues configuration
                     com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ASSIGNMENT_RULE,
