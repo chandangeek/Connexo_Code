@@ -95,7 +95,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
         when(device.forValidation()).thenReturn(deviceValidation);
         doReturn(false).when(deviceValidation).isValidationActive(any(Channel.class), eq(NOW));
-        when(deviceValidation.getLastChecked(any(Channel.class))).thenReturn(Optional.<Instant>empty());
+        when(deviceValidation.getLastChecked(any(Channel.class))).thenReturn(Optional.empty());
         when(device.getMultiplier()).thenReturn(BigDecimal.ONE);
         when(channel1.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
         when(channel2.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
@@ -112,13 +112,13 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         ChannelSpec channelSpec = mock(ChannelSpec.class);
         when(channelSpec.getOverflow()).thenReturn(Optional.empty());
         when(channel.getInterval()).thenReturn(TimeDuration.minutes(15));
-        when(channel.getLastReading()).thenReturn(Optional.<Instant>empty());
+        when(channel.getLastReading()).thenReturn(Optional.empty());
         when(channel.getName()).thenReturn("Channel: " + id);
         when(channel.getId()).thenReturn(id);
         when(channel.getDevice()).thenReturn(device);
         when(channel.getReadingType()).thenReturn(readingType);
         when(channel.getChannelSpec()).thenReturn(channelSpec);
-        when(channel.getLastDateTime()).thenReturn(Optional.<Instant>empty());
+        when(channel.getLastDateTime()).thenReturn(Optional.empty());
         when(channel.getUnit()).thenReturn(unit);
         when(channel.getOverflow()).thenReturn(Optional.empty());
         when(channel.getCalculatedReadingType(clock.instant())).thenReturn(Optional.empty());
@@ -140,7 +140,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
                 .request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
-        assertThat(jsonModel.<List<Number>>get("$.channels[*].id")).containsOnly(3, 4);
+        assertThat(jsonModel.<List<Number>>get("$.channels[*].id")).containsExactly(4, 3);
     }
 
     @Test
@@ -175,7 +175,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
 
     public ReadingType mockReadingType(String alias, String mrid) {
         ReadingType readingType = mock(ReadingType.class);
-        OfInt iterator = Arrays.asList(mrid.split("\\.")).stream().mapToInt(Integer::parseInt).iterator();
+        OfInt iterator = Arrays.stream(mrid.split("\\.")).mapToInt(Integer::parseInt).iterator();
         when(readingType.getAliasName()).thenReturn(alias);
         when(readingType.getMRID()).thenReturn(mrid);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.get(iterator.next()));
@@ -194,7 +194,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.with(iterator.next()));
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.get(iterator.next()));
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
-        when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(readingType.getFullAliasName()).thenReturn(alias);
         when(readingType.isCumulative()).thenReturn(true);
         return readingType;
