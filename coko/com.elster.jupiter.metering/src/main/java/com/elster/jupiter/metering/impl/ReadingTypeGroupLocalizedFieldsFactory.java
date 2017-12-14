@@ -8,6 +8,7 @@ import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.metering.ReadingTypeFieldsFactory;
 import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.units.Unit;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -64,13 +65,16 @@ public class ReadingTypeGroupLocalizedFieldsFactory implements ReadingTypeFields
 
             case UNIT: {
                 MeasurementKind kind = this.filterBy != null ? MeasurementKind.get(this.filterBy) : null;
-                values = Arrays.stream(UnitByMeasurementKind.values())
-                        .filter(mk -> mk.name().compareToIgnoreCase(kind.name()) == 0)
-                        .findFirst().orElse(UnitByMeasurementKind.NOTAPPLICABLE)
-                        .getValues()
-                        .stream()
-                        .map(c -> new CodeField(c.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.UnitFields(c)).format())).sorted()
-                        .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll);
+                if (kind != null)  // lori
+                {
+                    values = Arrays.stream(UnitByMeasurementKind.values())
+                            .filter(mk -> mk.name().compareToIgnoreCase(kind.name()) == 0)
+                            .findFirst().orElse(UnitByMeasurementKind.NOTAPPLICABLE)
+                            .getValues()
+                            .stream()
+                            .map(c -> new CodeField(c.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.UnitFields(c)).format() + (c.getUnit().equals(Unit.UNITLESS) ? "" : (" (" + thesaurus.getFormat(new ReadingTypeTranslationKeys.Unit(c)).format() + ")")))).sorted()
+                            .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll);
+                }
                 break;
             }
             case FLOW_DIRECTION: {
@@ -130,7 +134,7 @@ public class ReadingTypeGroupLocalizedFieldsFactory implements ReadingTypeFields
 
             case MULTIPLIER: {
                 values = Arrays.stream(MetricMultiplier.values())
-                        .map(c -> new CodeField(c.getMultiplier(), thesaurus.getFormat(new ReadingTypeTranslationKeys.Multiplier(c)).format())).sorted()
+                        .map(c -> new CodeField(c.getMultiplier(), String.valueOf(c.getMultiplier()) + (c.getMultiplier() != 0 ? " (" + thesaurus.getFormat(new ReadingTypeTranslationKeys.Multiplier(c)).format() + ")" : ""))).sorted()
                         .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll);
                 break;
             }
