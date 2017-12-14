@@ -53,4 +53,37 @@ public class CreateReadingTypeInfo {
                 , currency.size()};
         return Arrays.stream(sizes).filter(e -> e > 0).reduce((a, b) -> a * b).getAsLong();
     }
+
+    private static List<Integer> makeList(Integer value) {
+        return (value == null) ? Arrays.asList() : Arrays.asList(value);
+    }
+
+    public static CreateReadingTypeInfo fromBasicCreateReadingTypeInfo(CreateBasicReadingTypeInfo createBasicReadingTypeInfo) {
+        CreateReadingTypeInfo createReadingTypeInfo = new CreateReadingTypeInfo();
+
+        createReadingTypeInfo.mRID = createBasicReadingTypeInfo.mRID;
+        createReadingTypeInfo.aliasName = createBasicReadingTypeInfo.aliasName;
+        createReadingTypeInfo.macroPeriod = makeList(createBasicReadingTypeInfo.basicMacroPeriod);
+        createReadingTypeInfo.aggregate = makeList(createBasicReadingTypeInfo.basicAggregate);
+        createReadingTypeInfo.measuringPeriod = makeList(createBasicReadingTypeInfo.basicMeasuringPeriod);
+        createReadingTypeInfo.accumulation = makeList(createBasicReadingTypeInfo.basicAccumulation);
+        createReadingTypeInfo.flowDirection = makeList(createBasicReadingTypeInfo.basicFlowDirection);
+        createReadingTypeInfo.commodity = (createBasicReadingTypeInfo.basicCommodity != null) ?
+                Arrays.asList(createBasicReadingTypeInfo.basicCommodity, 1) : Arrays.asList();
+
+        // createReadingTypeInfo.commodity =  makeList(createBasicReadingTypeInfo.basicCommodity); //// de adaugat 1 daca e 2 sau invers;
+        createReadingTypeInfo.measurementKind = makeList(createBasicReadingTypeInfo.basicMeasurementKind);
+        createReadingTypeInfo.interHarmonicNumerator = makeList(null);
+        createReadingTypeInfo.interHarmonicDenominator = makeList(null);
+        createReadingTypeInfo.argumentNumerator = makeList(null);
+        createReadingTypeInfo.argumentDenominator = makeList(null);
+        createReadingTypeInfo.tou = makeList(createBasicReadingTypeInfo.basicTou);
+        createReadingTypeInfo.cpp = makeList(createBasicReadingTypeInfo.basicCpp);
+        createReadingTypeInfo.consumptionTier = makeList(createBasicReadingTypeInfo.basicConsumptionTier);
+        createReadingTypeInfo.phases = makeList(createBasicReadingTypeInfo.basicPhases);
+        createReadingTypeInfo.metricMultiplier = makeList(createBasicReadingTypeInfo.basicMetricMultiplier);
+        createReadingTypeInfo.unit = makeList(createBasicReadingTypeInfo.basicUnit);
+        createReadingTypeInfo.currency = makeList(null);
+        return createReadingTypeInfo;
+    }
 }

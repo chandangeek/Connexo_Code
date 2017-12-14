@@ -13,13 +13,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.ListPager;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.RestValidationBuilder;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -30,22 +24,10 @@ import com.elster.jupiter.util.conditions.Where;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -222,8 +204,6 @@ public class ReadingTypeResource {
     @Path("/basiccodes/{field}/{filter}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getGroupCodesWithFilter(@PathParam("field") String field, @PathParam("filter") Integer filter, @BeanParam JsonQueryParameters queryParameters) {
-        //Integer commodity = kind ? queryFilter.getInteger("commodity") : null;
-        //Integer filterBy=null;
         List<ReadingTypeCodeInfo> infoList = Arrays.stream(ReadingTypeFields.values())
                 .filter(candidate -> candidate.getFieldName().equalsIgnoreCase(field))
                 .map(c -> meteringService.getReadingTypeGroupFieldCodesFactory(filter)
@@ -260,6 +240,24 @@ public class ReadingTypeResource {
             count = codes.size() - (int) codes.stream().filter(existsMrids::contains).count();
         }
         return Response.ok().entity(Pair.of("countReadingTypesToCreate", count).asMap()).build();
+    }
+
+    @POST
+    @Path("/extendedcount")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response createExtendedReadingTypeCount(CreateReadingTypeInfo createReadingTypeInfo) {
+
+        return createReadingTypeCount(createReadingTypeInfo);
+    }
+
+    @POST
+    @Path("/basiccount")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response createBasicReadingTypeCount(CreateBasicReadingTypeInfo createBasicReadingTypeInfo) {
+
+        return createReadingTypeCount(CreateReadingTypeInfo.fromBasicCreateReadingTypeInfo(createBasicReadingTypeInfo));
     }
 
     @POST
@@ -313,6 +311,22 @@ public class ReadingTypeResource {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.READINGTYPE_CREATING_FAIL);
         }
         return Response.ok().entity(Pair.of("countCreatedReadingTypes", createdCount).asMap()).build();
+    }
+
+    @POST
+    @Path("/basic")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response createBasicReadingType(CreateBasicReadingTypeInfo createBasicReadingTypeInfo) {
+        return createReadingType(CreateReadingTypeInfo.fromBasicCreateReadingTypeInfo(createBasicReadingTypeInfo));
+    }
+
+    @POST
+    @Path("/extended")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response createExtendedReadingType(CreateReadingTypeInfo createExtendedReadingTypeInfo) {
+        return createReadingType(createExtendedReadingTypeInfo);
     }
 
     @PUT
