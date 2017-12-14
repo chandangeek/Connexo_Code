@@ -14,7 +14,8 @@ Ext.define('Pkj.controller.Main', {
     controllers: [
         'Pkj.controller.history.Main',
         'Pkj.controller.TrustStores',
-        'Pkj.controller.Certificates'
+        'Pkj.controller.Certificates',
+        'Pkj.controller.KeyPairs'
     ],
 
     stores: [
@@ -56,6 +57,10 @@ Ext.define('Pkj.controller.Main', {
                     {
                         text: Uni.I18n.translate('general.certificates', 'PKJ', 'Certificates'),
                         href: '#/administration/certificates'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.keyPairManagment', 'PKJ', 'Keypairs'),
+                        href: '#/administration/keypairs'
                     }
                 ]
             });
