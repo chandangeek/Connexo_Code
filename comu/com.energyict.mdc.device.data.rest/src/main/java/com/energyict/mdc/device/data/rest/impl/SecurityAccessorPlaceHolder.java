@@ -64,6 +64,11 @@ public class SecurityAccessorPlaceHolder implements SecurityAccessor {
             }
 
             @Override
+            public void delete() {
+
+            }
+
+            @Override
             public void setProperties(Map<String, Object> properties) {
 
             }
