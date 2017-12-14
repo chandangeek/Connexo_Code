@@ -41,8 +41,22 @@ Ext.define('Mdc.model.ComServer', {
         {name: 'eventRegistrationPort', type: 'int', useNull: true}
     ],
     associations: [
-        {name: 'changesInterPollDelay', type: 'hasOne', model: 'Mdc.model.field.TimeInfo', associationKey: 'changesInterPollDelay'},
-        {name: 'schedulingInterPollDelay', type: 'hasOne', model: 'Mdc.model.field.TimeInfo', associationKey: 'schedulingInterPollDelay'},
+        {
+            name: 'changesInterPollDelay',
+            type: 'hasOne',
+            model: 'Mdc.model.field.TimeInfo',
+            associationKey: 'changesInterPollDelay',
+            associatedName: 'changesInterPollDelay',
+            setterName: 'setChangesInterPollDelay'
+        },
+        {
+            name: 'schedulingInterPollDelay',
+            type: 'hasOne',
+            model: 'Mdc.model.field.TimeInfo',
+            associationKey: 'schedulingInterPollDelay',
+            associatedName: 'schedulingInterPollDelay',
+            setterName: 'setSchedulingInterPollDelay'
+        },
         {name: 'outboundComPorts', type: 'hasMany', model: 'Mdc.model.ComPort', foreignKey: 'comserver_id', associationKey: 'outboundComPorts',
             getTypeDiscriminator: function (node) {
                 return 'Mdc.model.OutboundComPort';

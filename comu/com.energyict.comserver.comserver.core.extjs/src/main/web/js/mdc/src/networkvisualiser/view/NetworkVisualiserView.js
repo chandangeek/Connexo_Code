@@ -349,7 +349,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
     },
 
     preprocessSingleSelectionMenuItemsBeforeShowing: function(menu, doShowMenuFunction) {
-        var doShowMenuFunctionCalled = false;
+        var menuWillBeShown = false;
         menu.items.each(function(menuItem) {
             if (menuItem.xtype !== 'menuseparator') {
                 var chartItem = menuItem.visualiser.chart.getItem(menuItem.chartNodeId),
@@ -372,6 +372,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
                         } else {
                             var communicationTasksOfDeviceStore = Ext.getStore('Mdc.store.CommunicationTasksOfDevice');
                             communicationTasksOfDeviceStore.getProxy().setExtraParam('deviceId', chartItem.d.name);
+                            menuWillBeShown = true;
                             communicationTasksOfDeviceStore.load({
                                 callback: function (records) {
                                     Ext.Array.each(records, function (comTaskRecord) {
@@ -385,7 +386,6 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
                                         }
                                     });
                                     if (Ext.isFunction(doShowMenuFunction)) {
-                                        doShowMenuFunctionCalled = true;
                                         doShowMenuFunction();
                                     }
                                 }
@@ -396,7 +396,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             }
         });
         // Fallback (to be sure the menu is called):
-        if (!doShowMenuFunctionCalled && Ext.isFunction(doShowMenuFunction)) {
+        if (!menuWillBeShown && Ext.isFunction(doShowMenuFunction)) {
             doShowMenuFunction();
         }
     }
