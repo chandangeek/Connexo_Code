@@ -91,6 +91,10 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     onAvailableReadingTypesForRegisterTypeStoreLoad: function (store) {
         var me = this,
             reader = store.proxy.reader;
+
+        if (me.getReadingTypeCombo().isDisabled())
+            return;
+
         // Obis codes doesn't map to reading type and obis field is not empty
         if (reader.rawData && reader.rawData.mappingError && me.getEditObisCodeField().getValue())
             me.getObisCodeToReadingTypeMessage().show();
@@ -225,6 +229,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             record = Ext.create(Mdc.model.RegisterType);
         }
 
+        me.getAvailableReadingTypesForRegisterTypeStore().getProxy().extraParams = {};
         this.getRegisterTypeEditForm().getForm().clearInvalid();
         me.hideErrorPanel();
         if (record) {
