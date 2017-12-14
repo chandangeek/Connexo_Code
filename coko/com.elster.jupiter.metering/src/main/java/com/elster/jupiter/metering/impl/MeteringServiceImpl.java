@@ -89,6 +89,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -261,6 +262,13 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Optional<EndDevice> findEndDeviceByName(String name) {
         return dataModel.mapper(EndDevice.class).getUnique("name", name, "obsoleteTime", null);
+    }
+
+    @Override
+    public Finder<EndDevice> findEndDevices(Set<String> mRIDs, Set<String> deviceNames) {
+        Condition condition = ListOperator.IN.contains("mRID", mRIDs.stream().collect(Collectors.toList()))
+                .or(ListOperator.IN.contains("name", deviceNames.stream().collect(Collectors.toList())));
+        return DefaultFinder.of(EndDevice.class, condition, dataModel).defaultSortColumn("name");
     }
 
     @Override

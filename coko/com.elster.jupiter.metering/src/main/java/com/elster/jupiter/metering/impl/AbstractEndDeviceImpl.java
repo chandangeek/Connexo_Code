@@ -33,11 +33,13 @@ import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 
 import javax.inject.Provider;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -322,6 +324,11 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     @Override
+    public List<EndDeviceEventRecord> getDeviceEvents(RangeSet<Instant> range) {
+        return dataModel.query(EndDeviceEventRecord.class).select(inRangeSet(range), Order.ascending("createdDateTime"));
+    }
+
+    @Override
     public List<EndDeviceEventRecord> getDeviceEventsByReadTime(Range<Instant> range) {
         return dataModel.query(EndDeviceEventRecord.class).select(createdInRange(range), Order.ascending("createdDateTime"));
     }
@@ -362,6 +369,16 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
 
     private Condition inRange(Range<Instant> range) {
         return where("endDevice").isEqualTo(this).and(where("createdDateTime").in(range));
+    }
+
+    private Condition inRangeSet(RangeSet<Instant> rangeSet) {
+        Condition condition = where("endDevice").isEqualTo(this);
+        Iterator<Range<Instant>> iterator = rangeSet.asRanges().iterator();
+        Condition createdDateTimeCondition = where("createdDateTime").in(iterator.next());
+        while (iterator.hasNext()) {
+            createdDateTimeCondition = createdDateTimeCondition.or(where("createdDateTime").in(iterator.next()));
+        }
+        return condition.and(createdDateTimeCondition);
     }
 
     private Condition createdInRange(Range<Instant> range) {

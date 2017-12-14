@@ -18,6 +18,7 @@ import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 
 import java.time.Instant;
 import java.util.List;
@@ -54,6 +55,8 @@ public interface EndDevice extends HasId, IdentifiedObject {
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range);
 
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, List<EndDeviceEventType> eventTypes);
+
+    List<EndDeviceEventRecord> getDeviceEvents(RangeSet<Instant> range);
 
     List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter);
 
