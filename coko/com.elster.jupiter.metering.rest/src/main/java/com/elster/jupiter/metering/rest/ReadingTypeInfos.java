@@ -16,9 +16,6 @@ public class ReadingTypeInfos {
     public int total;
     public List<ReadingTypeInfo> readingTypes = new ArrayList<>();
 
-    // True when obis code maps to a reading type
-    public boolean mappingError = true;
-
     public ReadingTypeInfos() {
     }
 
