@@ -7,14 +7,11 @@ package com.energyict.mdc.masterdata.rest.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFilter;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -24,18 +21,14 @@ import com.energyict.obis.ObisCode;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.swing.text.html.Option;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -64,33 +57,27 @@ public class ReadingTypeResource {
     public ReadingTypeInfos getUnusedReadingTypes(@BeanParam JsonQueryParameters queryParameters,
                                                   @QueryParam("obisCode") String obisCodeString) {
 
-        // True if obis code is missing, invalid or doesn't map to a reading type
-        boolean mappingError = true;
-        ReadingTypeFilter filter = null;
-        String searchText = queryParameters.getLike();
-
-        SearchObisUtil obisUtil = new SearchObisUtil(obisCodeString);
-        if (obisUtil.hasValidObis()) {
-            filter = obisUtil.getFilter(mdcReadingTypeUtilService);
-            if (this.doesObisMapToReadingType(filter)){
-                filter.addCondition(SearchTextUtil.getCondition(searchText).orElse(Condition.TRUE));
-                mappingError = false;
-            }
-        }
-
-        if (mappingError){
-            filter = SearchTextUtil.getFilter(searchText);
-        }
-
         List<String> readingTypesInUseIds = masterDataService.findAllRegisterTypes()
                 .stream()
                 .map(rT -> rT.getReadingType().getMRID())
                 .collect(Collectors.toList());
 
-        List<ReadingType> readingTypes = this.findReadingTypes(filter, readingTypesInUseIds);
-        ReadingTypeInfos infos = new ReadingTypeInfos(readingTypes);
-        infos.mappingError = mappingError;
-        return infos;
+        ReadingTypeFilter filter;
+        List<ReadingType> readingTypes;
+        String searchText = queryParameters.getLike();
+        SearchObisUtil obisUtil = new SearchObisUtil(obisCodeString);
+        if (obisUtil.hasValidObis()) {
+            filter = obisUtil.getFilter(mdcReadingTypeUtilService);
+            if (this.doesObisMapToReadingType(filter)){
+                filter.addCondition(SearchTextUtil.getCondition(searchText).orElse(Condition.TRUE));
+                readingTypes = this.findReadingTypes(filter, readingTypesInUseIds);
+                return new ReadingTypeFromObisInfos(readingTypes, false);
+            }
+        }
+
+        filter = SearchTextUtil.getFilter(searchText);
+        readingTypes = this.findReadingTypes(filter, readingTypesInUseIds);
+        return new ReadingTypeFromObisInfos(readingTypes, true);
     }
 
     @GET
@@ -99,7 +86,6 @@ public class ReadingTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public ObisCodeInfo getObisCodeByReadingType(@QueryParam("mRID") String mRID) {
-
         String obisCode = mdcReadingTypeUtilService.getReadingTypeInformationFrom(mRID)
                 .map(ReadingTypeInformation::getObisCode)
                 .map(ObisCode::getValue)
@@ -124,7 +110,6 @@ public class ReadingTypeResource {
         }
         return new ReadingTypeInfos();
     }
-
 
     private List<ReadingType> findReadingTypes(ReadingTypeFilter filter, List<String> readingTypesInUseIds) {
         return meteringService.findReadingTypes(filter)
