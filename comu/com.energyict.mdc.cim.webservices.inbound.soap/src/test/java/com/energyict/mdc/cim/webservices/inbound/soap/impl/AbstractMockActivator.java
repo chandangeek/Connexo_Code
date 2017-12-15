@@ -1,7 +1,6 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -16,6 +15,7 @@ import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import org.osgi.framework.BundleContext;
 
 import java.time.Clock;
@@ -52,7 +52,7 @@ public abstract class AbstractMockActivator {
     @Mock
     protected DeviceService deviceService;
     @Mock
-    protected MetrologyConfigurationService metrologyConfigurationService;
+    protected DeviceLifeCycleService deviceLifeCycleService;
     @Mock
     protected UserService userService;
     @Mock
@@ -82,8 +82,8 @@ public abstract class AbstractMockActivator {
         activator.setThreadPrincipalService(threadPrincipalService);
         activator.setNlsService(nlsService);
         activator.setMeteringService(meteringService);
-        activator.setMetrologyConfigurationService(metrologyConfigurationService);
         activator.setDeviceConfigurationService(deviceConfigurationService);
+        activator.setDeviceLifeCycleService(deviceLifeCycleService);
         activator.setDeviceService(deviceService);
         activator.setUserService(userService);
         activator.activate(mock(BundleContext.class));

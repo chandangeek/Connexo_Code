@@ -5,7 +5,6 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -62,7 +61,6 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MeteringService meteringService;
-    private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
@@ -77,7 +75,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     @Inject
     public InboundSoapEndpointsActivator(BundleContext bundleContext, Clock clock, ThreadPrincipalService threadPrincipalService,
                                          TransactionService transactionService, MeteringService meteringService, NlsService nlsService,
-                                         UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService,
+                                         UpgradeService upgradeService,
                                          DeviceLifeCycleService deviceLifeCycleService, DeviceConfigurationService deviceConfigurationService,
                                          DeviceService deviceService, UserService userService) {
         this();
@@ -87,7 +85,6 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
         setMeteringService(meteringService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
-        setMetrologyConfigurationService(metrologyConfigurationService);
         setDeviceLifeCycleService(deviceLifeCycleService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceService(deviceService);
@@ -106,7 +103,6 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(MeteringService.class).toInstance(meteringService);
-                bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(DeviceLifeCycleService.class).toInstance(deviceLifeCycleService);
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(DeviceService.class).toInstance(deviceService);
@@ -151,11 +147,6 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
-        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Reference

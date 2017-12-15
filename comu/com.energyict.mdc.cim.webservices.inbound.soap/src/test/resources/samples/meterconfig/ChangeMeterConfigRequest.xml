@@ -1,4 +1,7 @@
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:met="http://iec.ch/TC57/2011/MeterConfigMessage" xmlns:mes="http://iec.ch/TC57/2011/schema/message" xmlns:met1="http://iec.ch/TC57/2011/MeterConfig#" xmlns:cus="http://connexo.elster.com/2017/schema/customattributes">
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:met="http://iec.ch/TC57/2011/MeterConfigMessage"
+                  xmlns:mes="http://iec.ch/TC57/2011/schema/message" xmlns:met1="http://iec.ch/TC57/2011/MeterConfig#"
+                  xmlns:cus="http://connexo.elster.com/2017/schema/customattributes">
     <soapenv:Header/>
     <soapenv:Body>
         <met:ChangeMeterConfig>
