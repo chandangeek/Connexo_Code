@@ -8,8 +8,6 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.obis.ObisCode;
 
-import java.util.List;
-
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -97,5 +95,4 @@ public class MeasuringPeriodMappingTest {
         TimeAttribute timeAttribute = MeasuringPeriodMapping.getMeasuringPeriodFor(ObisCode.fromString("1.0.1.8.1.255"), new TimeDuration(86400));
         assertThat(timeAttribute).isEqualTo(TimeAttribute.NOTAPPLICABLE);
     }
-
 }

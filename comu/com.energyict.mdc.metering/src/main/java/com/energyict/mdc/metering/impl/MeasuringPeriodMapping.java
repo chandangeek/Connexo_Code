@@ -8,9 +8,6 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.obis.ObisCode;
 
-import java.util.ArrayList;
-import java.util.List;
-
 enum MeasuringPeriodMapping {
 
     ONE_MINUTE(TimeAttribute.MINUTE1, 1),

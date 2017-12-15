@@ -55,7 +55,6 @@ enum PhaseMapping {
         return Phase.NOTAPPLICABLE;
     }
 
-
     Phase getCimPhase() {
         return cimPhase;
     }
