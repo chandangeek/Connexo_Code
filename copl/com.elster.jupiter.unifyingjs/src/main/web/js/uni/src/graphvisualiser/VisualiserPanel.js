@@ -134,15 +134,6 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 me.chart.bind('contextmenu', me.contextMenu, me);
                 me.chart.bind('delete', function() { return true; }); // prevent deleting nodes
                 me.chart.bind('dragstart', me.preventDraggingNonNodes, me);
-                // me.chart.map().options({
-                //     tiles: {
-                //         url: 'http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-                //         maxZoom: 16,
-                //         //attribution: 'Map data: © OpenStreetMap, SRTM | Map style: © OpenTopoMap(CC-BY-SA)'
-                //         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                //     }
-                // });
-                // me.chart.map().show();
                 me.chart.load({
                     type: 'LinkChart'
                 });

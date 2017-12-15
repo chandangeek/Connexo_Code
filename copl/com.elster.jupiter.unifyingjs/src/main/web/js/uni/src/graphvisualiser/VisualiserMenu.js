@@ -88,6 +88,7 @@ Ext.define('Uni.graphvisualiser.VisualiserMenu', {
                         items: [
                             {
                                 xtype: 'radiogroup',
+                                id: 'radiogroup-map-provider',
                                 margin: '-8 0 0 0',
                                 columns: 1,
                                 vertical: true,
