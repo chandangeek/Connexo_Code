@@ -69,6 +69,60 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                 }
             }
         ]);
+
+        me.down('#uni-visualiser-menu-visulisation-panel').add([
+            {
+                xtype: 'form',
+                margin: '15 0 0 0',
+                hidden: true,
+                id: 'layer-map-provider-section',
+                title: Uni.I18n.translate('general.map.provider', 'UNI', ' Map Provider'),
+                items: [
+                    {
+                        xtype: 'radiogroup',
+                        margin: '-8 0 0 0',
+                        columns: 1,
+                        vertical: true,
+                        items: [
+                            {
+                                boxLabel: Uni.I18n.translate('general.layout.google.maps', 'UNI', 'Google Maps'),
+                                name: 'rb',
+                                inputValue: '1',
+                                checked: true
+                            },
+                            {
+                                boxLabel: Uni.I18n.translate('general.layout.open.street.map', 'UNI', 'OpenStreet Map'),
+                                name: 'rb',
+                                inputValue: '2'
+                            },
+                            {
+                                boxLabel: Uni.I18n.translate('general.layout.here.map', 'UNI', 'HERE Map'),
+                                name: 'rb',
+                                inputValue: '3'
+                            },
+                            {
+                                boxLabel: Uni.I18n.translate('general.layout.mapbox', 'UNI', 'Mapbox'),
+                                name: 'rb',
+                                inputValue: '4'
+                            }
+                        ],
+                        listeners: {
+                            change: {
+                                fn: this.changeMapProvider,
+                                scope: this.visualiser
+                            }
+                        }
+                    }
+                ]
+            }
+
+        ]);
+    },
+
+
+    changeMapProvider: function (field, newValues, oldValues) {
+        var me = this;
+        me.changeMapProvider(newValues.rb);
     },
 
     checkboxHandler: function(field, newValues, oldValues){
@@ -130,6 +184,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                 case "7":
                     optionsMenu.hide();
                     me.showMap();
+
                     //me.addLayer(me.showMap);
                     break;
             }
