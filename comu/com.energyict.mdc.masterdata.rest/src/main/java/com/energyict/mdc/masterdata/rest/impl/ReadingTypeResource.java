@@ -62,26 +62,14 @@ public class ReadingTypeResource {
                 .map(rT -> rT.getReadingType().getMRID())
                 .collect(Collectors.toList());
 
-        ReadingTypeFilter filter;
-        List<ReadingType> readingTypes;
-        String searchText = queryParameters.getLike();
-
-        if (obisCodeString != null && !obisCodeString.isEmpty()){
-            ObisCode code = ObisCode.fromString(obisCodeString);
-            if (!code.isInvalid()){
-                filter = this.createFilter(code);
-                if (this.doesObisMapToReadingType(filter)){
-                    filter.addCondition(this.getSearchTextCondition(searchText).orElse(Condition.TRUE));
-                    readingTypes = this.findReadingTypes(filter, readingTypesInUseIds);
-                    return new ReadingTypeFromObisInfos(readingTypes, false);
-                }
-            }
-        }
-
-        filter = this.createFilter(searchText);
-        readingTypes = this.findReadingTypes(filter, readingTypesInUseIds);
-        return new ReadingTypeFromObisInfos(readingTypes, true);
+        Condition searchCondition = this.getSearchTextCondition(queryParameters.getLike()).orElse(Condition.TRUE);
+        ObisParamHandler obisHandler = new ObisParamHandler(obisCodeString);
+        ReadingTypeFilter filter = obisHandler.getReadingTypeFilter().orElse(new ReadingTypeFilter());
+        filter.addCondition(searchCondition);
+        List<ReadingType> readingTypes = this.findReadingTypes(filter, readingTypesInUseIds);
+        return new ReadingTypeFromObisInfos(readingTypes, obisHandler.mappingToReadingTypeFailed());
     }
+
 
     @GET
     @Transactional
@@ -122,25 +110,56 @@ public class ReadingTypeResource {
                 .collect(Collectors.toList());
     }
 
-    private boolean doesObisMapToReadingType(ReadingTypeFilter filter) {
-        return !meteringService.findReadingTypes(filter).find().isEmpty();
-    }
-
-    private ReadingTypeFilter createFilter(ObisCode code) {
-        ReadingTypeFilter filter = new ReadingTypeFilter();
-        String mRID = mdcReadingTypeUtilService.getReadingTypeFilterFrom(code);
-        filter.addCondition(ReadingTypeConditionUtil.mridFromObisMatch(mRID));
-        return filter;
-    }
-
-    private ReadingTypeFilter createFilter(String searchText) {
-        ReadingTypeFilter filter = new ReadingTypeFilter();
-        filter.addCondition(this.getSearchTextCondition(searchText).orElse(Condition.TRUE));
-        return filter;
-    }
 
     private Optional<Condition> getSearchTextCondition(String text) {
         return (text == null || text.isEmpty()) ? Optional.empty() : Optional.of(ReadingTypeConditionUtil.searchTextMatch(text));
     }
 
+
+    /**
+     * Class that handles the obis query parameter.
+     * Returns a valid ReadingTypeFilter if the obis code is valid and it maps to a reading type
+     */
+    private class ObisParamHandler {
+
+        private final String obisCode;
+        // Default to obis doesn't map to reading type
+        private boolean mappingError = true;
+
+        ObisParamHandler(String obisParam){
+            this.obisCode = obisParam;
+        }
+
+        Optional<ReadingTypeFilter> getReadingTypeFilter() {
+            return this.getCode().flatMap(this::createFilter);
+        }
+
+        boolean mappingToReadingTypeFailed() {
+            return mappingError;
+        }
+
+        private Optional<ReadingTypeFilter> createFilter(ObisCode code) {
+            ReadingTypeFilter filter = new ReadingTypeFilter();
+            String mRID = mdcReadingTypeUtilService.getReadingTypeFilterFrom(code);
+            filter.addCondition(ReadingTypeConditionUtil.mridFromObisMatch(mRID));
+            return this.checkMappingToReadingType(filter) ? Optional.empty() : Optional.of(filter);
+        }
+
+        private boolean checkMappingToReadingType(ReadingTypeFilter filter) {
+            this.mappingError =  meteringService.findReadingTypes(filter).find().isEmpty();
+            return this.mappingError;
+        }
+
+        private Optional<ObisCode> getCode(){
+            if (this.obisCode == null || this.obisCode.isEmpty())
+                return Optional.empty();
+
+            ObisCode code = ObisCode.fromString(this.obisCode);
+            return code.isInvalid() ? Optional.empty() : Optional.of(code);
+        }
+
+    }
+
 }
+
+
