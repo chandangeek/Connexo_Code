@@ -238,28 +238,6 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         return channelType;
     }
 
-    private ReadingType mockReadingType() {
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMRID()).thenReturn("mrid");
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
-        when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.FIXEDBLOCK1MIN);
-        when(readingType.getAccumulation()).thenReturn(Accumulation.BULKQUANTITY);
-        when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
-        when(readingType.getCommodity()).thenReturn(Commodity.AIR);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
-        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1, 2));
-        when(readingType.getArgument()).thenReturn(new RationalNumber(1, 2));
-        when(readingType.getTou()).thenReturn(3);
-        when(readingType.getCpp()).thenReturn(4);
-        when(readingType.getConsumptionTier()).thenReturn(5);
-        when(readingType.getPhases()).thenReturn(Phase.PHASEA);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
-        when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
-        return readingType;
-    }
-
     @Test
     public void testUpdateLoadProfileTypeOkVersion() {
         TimeDuration interval = getTimeDuration();

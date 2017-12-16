@@ -65,17 +65,20 @@ public class ReadingTypeResource {
         ReadingTypeFilter filter;
         List<ReadingType> readingTypes;
         String searchText = queryParameters.getLike();
-        SearchObisUtil obisUtil = new SearchObisUtil(obisCodeString);
-        if (obisUtil.hasValidObis()) {
-            filter = obisUtil.getFilter(mdcReadingTypeUtilService);
-            if (this.doesObisMapToReadingType(filter)){
-                filter.addCondition(SearchTextUtil.getCondition(searchText).orElse(Condition.TRUE));
-                readingTypes = this.findReadingTypes(filter, readingTypesInUseIds);
-                return new ReadingTypeFromObisInfos(readingTypes, false);
+
+        if (obisCodeString != null && !obisCodeString.isEmpty()){
+            ObisCode code = ObisCode.fromString(obisCodeString);
+            if (!code.isInvalid()){
+                filter = this.createFilter(code);
+                if (this.doesObisMapToReadingType(filter)){
+                    filter.addCondition(this.getSearchTextCondition(searchText).orElse(Condition.TRUE));
+                    readingTypes = this.findReadingTypes(filter, readingTypesInUseIds);
+                    return new ReadingTypeFromObisInfos(readingTypes, false);
+                }
             }
         }
 
-        filter = SearchTextUtil.getFilter(searchText);
+        filter = this.createFilter(searchText);
         readingTypes = this.findReadingTypes(filter, readingTypesInUseIds);
         return new ReadingTypeFromObisInfos(readingTypes, true);
     }
@@ -100,7 +103,7 @@ public class ReadingTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public ReadingTypeInfos getReadingTypes(@BeanParam JsonQueryParameters queryParameters) {
-        Optional<Condition> condition = SearchTextUtil.getCondition(queryParameters.getLike());
+        Optional<Condition> condition = this.getSearchTextCondition(queryParameters.getLike());
         if (condition.isPresent()){
             ReadingTypeFilter filter = new ReadingTypeFilter();
             filter.addCondition(condition.get());
@@ -123,5 +126,21 @@ public class ReadingTypeResource {
         return !meteringService.findReadingTypes(filter).find().isEmpty();
     }
 
+    private ReadingTypeFilter createFilter(ObisCode code) {
+        ReadingTypeFilter filter = new ReadingTypeFilter();
+        String mRID = mdcReadingTypeUtilService.getReadingTypeFilterFrom(code);
+        filter.addCondition(ReadingTypeConditionUtil.mridFromObisMatch(mRID));
+        return filter;
+    }
+
+    private ReadingTypeFilter createFilter(String searchText) {
+        ReadingTypeFilter filter = new ReadingTypeFilter();
+        filter.addCondition(this.getSearchTextCondition(searchText).orElse(Condition.TRUE));
+        return filter;
+    }
+
+    private Optional<Condition> getSearchTextCondition(String text) {
+        return (text == null || text.isEmpty()) ? Optional.empty() : Optional.of(ReadingTypeConditionUtil.searchTextMatch(text));
+    }
 
 }

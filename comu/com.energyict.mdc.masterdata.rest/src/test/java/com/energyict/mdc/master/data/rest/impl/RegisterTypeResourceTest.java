@@ -55,9 +55,6 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
     private static final long BAD_VERSION = 8;
     private static final long REGISTER_ID = 1L;
 
-    @Mock
-    private ReadingType readingType;
-
     @Test
     public void testGetEmptyRegisterTypeList() throws Exception {
         Finder<RegisterType> finder = mockFinder(Collections.<RegisterType>emptyList());
@@ -74,27 +71,9 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
         when(registerType.getId()).thenReturn(13L);
         when(registerType.getObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
         when(deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType)).thenReturn(true);
+        ReadingType readingType = mockReadingType();
         when(registerType.getReadingType()).thenReturn(readingType);
-        when(readingType.getAliasName()).thenReturn("register type");
-        when(readingType.getMRID()).thenReturn("mrid");
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
-        when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.FIXEDBLOCK1MIN);
-        when(readingType.getAccumulation()).thenReturn(Accumulation.BULKQUANTITY);
-        when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
-        when(readingType.getCommodity()).thenReturn(Commodity.AIR);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
-        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1,2));
-        when(readingType.getArgument()).thenReturn(new RationalNumber(1,2));
-        when(readingType.getTou()).thenReturn(3);
-        when(readingType.getCpp()).thenReturn(4);
-        when(readingType.getConsumptionTier()).thenReturn(5);
-        when(readingType.getPhases()).thenReturn(Phase.PHASEA);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
-        when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
-        when(readingType.getCalculatedReadingType()).thenReturn(Optional.empty());
-        when(readingType.isCumulative()).thenReturn(true);
+
 
         List<RegisterSpec> registerSpecs = mock(List.class);
         when(registerSpecs.size()).thenReturn(1);
@@ -135,37 +114,10 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
             .containsKey("names");
     }
 
-    private <T> Finder<T> mockFinder(List<T> list) {
-        Finder<T> finder = mock(Finder.class);
-        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
-        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
-        when(finder.find()).thenReturn(list);
-        when(finder.stream()).thenReturn(list.stream());
-        return finder;
-    }
+
 
     private RegisterType mockRegisterType() {
-        when(readingType.getAliasName()).thenReturn("register type");
-        when(readingType.getMRID()).thenReturn("mrid");
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
-        when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.FIXEDBLOCK1MIN);
-        when(readingType.getAccumulation()).thenReturn(Accumulation.BULKQUANTITY);
-        when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
-        when(readingType.getCommodity()).thenReturn(Commodity.AIR);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
-        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1,2));
-        when(readingType.getArgument()).thenReturn(new RationalNumber(1,2));
-        when(readingType.getTou()).thenReturn(3);
-        when(readingType.getCpp()).thenReturn(4);
-        when(readingType.getConsumptionTier()).thenReturn(5);
-        when(readingType.getPhases()).thenReturn(Phase.PHASEA);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
-        when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
-        when(readingType.getCalculatedReadingType()).thenReturn(Optional.empty());
-        when(readingType.isCumulative()).thenReturn(true);
+        ReadingType readingType = mockReadingType();
         RegisterType registerType = mock(RegisterType.class);
         when(registerType.getId()).thenReturn(REGISTER_ID);
         when(registerType.getVersion()).thenReturn(OK_VERSION);
