@@ -34,7 +34,7 @@ public class ReadingTypeResourceTest extends MasterDataApplicationJerseyTest {
 
     @Before
     public void setUpGetReadingTypeFilterFrom() {
-        ObisCode code = mock(ObisCode.class);
+        ObisCode code = ObisCode.fromString(obis);
         when(mdcReadingTypeUtilService.getReadingTypeFilterFrom(code)).thenReturn("");
     }
 
@@ -76,10 +76,10 @@ public class ReadingTypeResourceTest extends MasterDataApplicationJerseyTest {
         Finder<RegisterType> registerTypeFinder = mockFinder(Collections.singletonList(registerType));
         when(masterDataService.findAllRegisterTypes()).thenReturn(registerTypeFinder);
 
-        String response = target("/unusedreadingtypes").queryParam("obisCode", obis).request().get(String.class);
+        String response = target("/unusedreadingtypes").queryParam("like", "someText").request().get(String.class);
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Integer>get("$.total")).isEqualTo(0);
-        assertThat(model.<Boolean>get("$.mappingError")).isFalse();
+        assertThat(model.<Boolean>get("$.mappingError")).isTrue();
     }
 
     private RegisterType mockRegisterType() {
