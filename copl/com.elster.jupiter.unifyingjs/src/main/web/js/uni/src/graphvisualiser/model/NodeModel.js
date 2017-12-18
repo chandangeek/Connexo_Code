@@ -13,6 +13,7 @@ Ext.define('Uni.graphvisualiser.model.NodeModel', {
         'gateway',
         'failedCommunications',
         'failedComTasks',
-        'deviceCoordinates'
+        'deviceCoordinates',
+        'hasCoordonates'
     ]
 });
