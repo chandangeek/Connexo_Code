@@ -73,6 +73,7 @@ public abstract class AbstractGraphLayer<T extends HasId> implements GraphLayer<
             String key = (String)e.nextElement();
             result.put(key, properties.get(key));
         }
+        properties.clear();
         return result;
     }
 

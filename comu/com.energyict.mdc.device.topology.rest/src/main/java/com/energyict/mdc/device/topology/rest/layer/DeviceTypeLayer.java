@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.geo.Latitude;
+import com.elster.jupiter.util.geo.Longitude;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
@@ -10,6 +12,7 @@ import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
 import org.osgi.service.component.annotations.Component;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -27,15 +30,20 @@ public class DeviceTypeLayer extends AbstractGraphLayer<Device> {
 
     public final static String NAME = "topology.GraphLayer.DeviceType";
 
+    private BigDecimal latitude;
+    private BigDecimal longitude;
+    private SpatialCoordinates parentCoordinates;
+
     public enum PropertyNames implements TranslationKey {
         DEVICE_TYPE("deviceType", "Device type"),
         DEVICE_CONFIGURATION("deviceConfiguration", "Device configuration"),
+        HAS_COORDONATES("hasCoordonates", "Has coordonates"),
         DEVICE_COORDINATES("deviceCoordinates", "Device coordinates");
 
         private String propertyName;
         private String defaultFormat;
 
-        PropertyNames(String propertyName, String defaultFormat){
+        PropertyNames(String propertyName, String defaultFormat) {
             this.propertyName = propertyName;
             this.defaultFormat = defaultFormat;
         }
@@ -45,7 +53,7 @@ public class DeviceTypeLayer extends AbstractGraphLayer<Device> {
             return LayerNames.DeviceTypeLayer.fullName() + ".node." + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
         }
 
-        public String getPropertyName(){
+        public String getPropertyName() {
             return propertyName;
         }
 
@@ -65,16 +73,20 @@ public class DeviceTypeLayer extends AbstractGraphLayer<Device> {
         return LayerNames.DeviceTypeLayer.fullName();
     }
 
-    public void setDeviceType(String deviceTypeName){
+    public void setDeviceType(String deviceTypeName) {
         setProperty(PropertyNames.DEVICE_TYPE.getPropertyName(), deviceTypeName);
     }
 
-    public void setDeviceConfiguration(String deviceConfigurationName){
+    public void setDeviceConfiguration(String deviceConfigurationName) {
         setProperty(PropertyNames.DEVICE_CONFIGURATION.getPropertyName(), deviceConfigurationName);
     }
 
-    public void setDeviceCoordinates(Optional<SpatialCoordinates> deviceCoordinates) {
-        deviceCoordinates.ifPresent(spatialCoordinates -> setProperty(PropertyNames.DEVICE_COORDINATES.getPropertyName(), spatialCoordinates));
+    private void setDeviceCoordinates(SpatialCoordinates deviceCoordinates) {
+        setProperty(PropertyNames.DEVICE_COORDINATES.getPropertyName(), deviceCoordinates);
+    }
+
+    private void setDeviceCoordinatesPresents(Boolean hasCoordinates) {
+        setProperty(PropertyNames.HAS_COORDONATES.getPropertyName(), hasCoordinates);
     }
 
     @Override
@@ -86,8 +98,31 @@ public class DeviceTypeLayer extends AbstractGraphLayer<Device> {
         Device device = ((DeviceNodeInfo) nodeInfo).getDevice();
         this.setDeviceType(device.getDeviceType().getName());
         this.setDeviceConfiguration(device.getDeviceConfiguration().getName());
-        this.setDeviceCoordinates(device.getSpatialCoordinates());
+        Device parent = nodeInfo.getParent();
+        if (parent != null && parentCoordinates == null) {
+            parentCoordinates = parent.getSpatialCoordinates().get();
+        }
+        Optional<SpatialCoordinates> spatialCoordinates = device.getSpatialCoordinates();
+        if (spatialCoordinates.isPresent()) {
+            setDeviceCoordinates(spatialCoordinates.get());
+            setDeviceCoordinatesPresents(true);
+        } else {
+            setDeviceCoordinates(getCoordinatesInCloseProximityWithParentNode(parentCoordinates));
+            setDeviceCoordinatesPresents(false);
+        }
         return propertyMap();
+    }
+
+    private SpatialCoordinates getCoordinatesInCloseProximityWithParentNode(SpatialCoordinates coordinates) {
+        if (latitude == null) {
+            latitude = coordinates.getLatitude().getValue();
+        }
+        if (longitude == null) {
+            longitude = coordinates.getLongitude().getValue();
+        }
+        latitude = latitude.add(new BigDecimal(0.5));
+        longitude = longitude.subtract(new BigDecimal(0.5));
+        return new SpatialCoordinates(new Latitude(latitude), new Longitude(longitude), coordinates.getElevation());
     }
 
 }
