@@ -37,6 +37,7 @@ Ext.define('Apr.view.taskmanagement.Add', {
                     {
                         xtype: 'combobox',
                         fieldLabel: Uni.I18n.translate('general.type', 'APR', 'Type'),
+                        emptyText: Uni.I18n.translate('general.selectType', 'APR', 'Select a task type ...'),
                         required: true,
                         name: 'taskType',
                         width: 600,
