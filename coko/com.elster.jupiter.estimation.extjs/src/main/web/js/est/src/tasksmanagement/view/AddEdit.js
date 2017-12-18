@@ -62,7 +62,7 @@ Ext.define('Est.tasksmanagement.view.AddEdit', {
                 store: 'Est.tasksmanagement.store.AllTasks',
                 editable: false,
                 emptyText: Uni.I18n.translate('estimationtasks.taskSelectorPrompt', 'EST', 'Select a task ...'),
-                displayField: 'name',
+                displayField: 'displayName',
                 valueField: 'id'
             },
             {
