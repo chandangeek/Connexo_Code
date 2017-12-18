@@ -36,25 +36,11 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis', {
             },
             {
                 xtype: 'combobox',
-                itemId: 'followedBy-combo',
-                fieldLabel: Uni.I18n.translate('general.followedBy', 'MDC', 'Followed by'),
-                name: 'nextRecurrentTasks',
-                width: 600,
-                multiSelect: true,
-                queryMode: 'local',
-                store: 'Mdc.store.AllTasks',
-                editable: false,
-                emptyText: Uni.I18n.translate('estimationtasks.taskSelectorPrompt', 'MDC', 'Select a task ...'),
-                displayField: 'name',
-                valueField: 'id'
-            },
-            {
-                xtype: 'combobox',
                 name: 'deviceGroup',
                 emptyText: Uni.I18n.translate('general.selectADeviceGroup', 'MDC', 'Select a device group...'),
                 itemId: 'cmb-device-group',
                 fieldLabel: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group'),
-                store: 'Mdc.store.MeterExportGroups',
+                store: 'Mdc.store.AvailableDeviceGroups',
                 queryMode: 'local',
                 editable: false,
                 displayField: 'name',
@@ -112,20 +98,48 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis', {
                 afterSubTpl: '<div id="displayRangeSubTpl"/>'
             },
             {
-                xtype: 'numberfield',
-                name: 'target',
+                xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('datacollectionkpis.kpiTarget', 'MDC', 'KPI target'),
-                itemId: 'kpi-target',
-                value: 0,
-                minValue: 0,
-                maxValue: 100,
-                listeners: {
-                    blur: function (field) {
-                        if (field.getValue() < 0 || field.getValue() > 100) {
-                            field.setValue(0);
+                labelWidth: 250,
+                layout: 'hbox',
+                required: true,
+                items: [
+                    {
+                        xtype: 'numberfield',
+                        name: 'target',
+                        itemId: 'kpi-target',
+                        margin: '0 5 0 0',
+                        value: 0,
+                        width: 70,
+                        minValue: 0,
+                        maxValue: 100,
+                        listeners: {
+                            blur: function (field) {
+                                if (field.getValue() < 0 || field.getValue() > 100) {
+                                    field.setValue(0);
+                                }
+                            }
                         }
-                    }
-                }
+                    },
+                    {
+                        xtype: 'displayfield',
+                        value: '%'
+                    }]
+
+            },
+            {
+                xtype: 'combobox',
+                itemId: 'followedBy-combo',
+                fieldLabel: Uni.I18n.translate('general.followedBy', 'MDC', 'Followed by'),
+                name: 'nextRecurrentTasks',
+                width: 600,
+                multiSelect: true,
+                queryMode: 'local',
+                store: 'Mdc.store.AllTasks',
+                editable: false,
+                emptyText: Uni.I18n.translate('estimationtasks.taskSelectorPrompt', 'MDC', 'Select a task ...'),
+                displayField: 'displayName',
+                valueField: 'id'
             }
         ];
         me.callParent(arguments);

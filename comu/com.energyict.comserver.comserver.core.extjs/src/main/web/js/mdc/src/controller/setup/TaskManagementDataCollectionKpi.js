@@ -6,7 +6,8 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
     extend: 'Mdc.controller.setup.DataCollectionKpi',
     stores: [
         'Mdc.store.DataCollectionKpiType',
-        'Mdc.store.AllTasks'
+        'Mdc.store.AllTasks',
+        'Mdc.store.AvailableDeviceGroups'
     ],
     views: [
         'Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis',
@@ -69,12 +70,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
     getTaskForm: function (caller, completedFunc) {
         var me = this,
             form = Ext.create('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis'),
-            deviceGroupStore = form.down('combobox[name=deviceGroup]').getStore(),
-            kpiModel = Ext.ModelManager.getModel('Mdc.model.DataCollectionKpi'),
-            deviceGroupCombo = form.down('#cmb-device-group'),
-            followByStore = form.down('#followedBy-combo').getStore(),
-            deviceGroupDisplayField = form.down('#devicegroupDisplayField'),
-            createBtn = form.down('#createEditButton');
+            followByStore = form.down('#followedBy-combo').getStore();
 
         followByStore.load({
             callback: function () {
@@ -82,18 +78,6 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
             }
         });
 
-        /*deviceGroupStore.load({
-         callback: function () {
-         if (deviceGroupStore.getCount() == 0) {
-                    Ext.suspendLayouts();
-                    deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('datacollectionkpis.noDeviceGroup', 'MDC', 'No device group defined yet.') + '</span>');
-                    deviceGroupDisplayField.show();
-                    deviceGroupCombo.hide();
-                    createBtn.disable();
-                    Ext.resumeLayouts(true);
-                }
-            }
-         });*/
         return form;
     },
 
@@ -214,7 +198,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
                 store.each(function (record) {
                     setTitleFunc.call(controller, record.get('deviceGroup').name);
                     Ext.suspendLayouts();
-                    form.loadRecord(record);
+
 
                     var nextRecurrentTasks = taskManagementId == record.get('communicationTaskId') ? record.get('communicationNextRecurrentTasks') : record.get('connectionNextRecurrentTasks');
                     if (nextRecurrentTasks) {
@@ -238,6 +222,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
                     form.down('[name=collectionType]').disable();
                     form.down('[name=deviceGroup]').disable();
                     form.down('[name=frequency]').disable();
+                    form.loadRecord(record);
                     Ext.resumeLayouts(true);
                     editOperationCompleteLoading.call(controller)
                 });
@@ -394,6 +379,8 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
                 }
             }
         });
+        new Ext.get('displayRangeSubTpl').setHTML('');
+        new Ext.get('frequencySubTpl').setHTML('');
         form.doLayout();
     },
 
@@ -406,7 +393,9 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
             afterSubTpl = '';
 
         if (newValue) {
-            afterSubTplTxt = '<div class="x-form-display-field"><i>' + Uni.I18n.translate('datacollectionkpis.templateTxt', 'MDC', "This change will be also applied for '{0}' {1} task", [combo.getRawValue(),
+            var name = typeof combo.getValue() == 'object' ? combo.getValue().name : combo.getRawValue();
+
+            afterSubTplTxt = '<div class="x-form-display-field"><i>' + Uni.I18n.translate('datacollectionkpis.templateTxt', 'MDC', "This change will be also applied for '{0}' {1} task", [name,
                     collectionTypeValue == 'connection' ? Uni.I18n.translate('datacollectionkpis.communicationKPI', 'MDC', 'communication KPI') :
                         Uni.I18n.translate('datacollectionkpis.connectionKPI', 'MDC', 'connection KPI')]) + '</i></div>';
         }

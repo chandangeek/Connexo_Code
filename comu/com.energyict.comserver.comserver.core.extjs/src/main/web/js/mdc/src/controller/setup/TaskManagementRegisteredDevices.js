@@ -67,8 +67,7 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
             followByStore = form.down('#followedBy-combo').getStore(),
             kpiModel = Ext.ModelManager.getModel('Mdc.registereddevices.model.RegisteredDevicesKPI'),
             deviceGroupCombo = form.down('#mdc-registered-devices-kpi-add-device-group-combo'),
-            deviceGroupDisplayField = form.down('#mdc-registered-devices-kpi-add-device-group-displayField'),
-            createBtn = form.down('#mdc-registered-devices-kpi-add-addEditButton');
+            deviceGroupDisplayField = form.down('#mdc-registered-devices-kpi-add-device-group-displayField');
 
         followByStore.load({
             callback: function () {
@@ -84,7 +83,6 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
                             deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('general.noDeviceGroups', 'MDC', 'No device groups available') + '</span>');
                             deviceGroupDisplayField.show();
                             deviceGroupCombo.hide();
-                            createBtn.disable();
                             Ext.resumeLayouts(true);
                         }
                         completedFunc.call(caller, form);

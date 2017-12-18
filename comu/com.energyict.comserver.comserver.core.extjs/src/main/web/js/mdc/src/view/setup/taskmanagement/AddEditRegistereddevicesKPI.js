@@ -21,20 +21,6 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKPI', {
         me.items = [
             {
                 xtype: 'combobox',
-                itemId: 'followedBy-combo',
-                fieldLabel: Uni.I18n.translate('general.followedBy', 'MDC', 'Followed by'),
-                name: 'nextRecurrentTasks',
-                width: 600,
-                multiSelect: true,
-                queryMode: 'local',
-                store: 'Mdc.registereddevices.store.AllTasks',
-                editable: false,
-                emptyText: Uni.I18n.translate('datacollectionkpis.taskSelectorPrompt', 'MDC', 'Select a task ...'),
-                displayField: 'name',
-                valueField: 'id'
-            },
-            {
-                xtype: 'combobox',
                 name: 'deviceGroup',
                 emptyText: Uni.I18n.translate('general.selectADeviceGroup', 'MDC', 'Select a device group...'),
                 itemId: 'mdc-registered-devices-kpi-add-device-group-combo',
@@ -97,6 +83,20 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKPI', {
                         }
                     }
                 }
+            },
+            {
+                xtype: 'combobox',
+                itemId: 'followedBy-combo',
+                fieldLabel: Uni.I18n.translate('general.followedBy', 'MDC', 'Followed by'),
+                name: 'nextRecurrentTasks',
+                width: 600,
+                multiSelect: true,
+                queryMode: 'local',
+                store: 'Mdc.registereddevices.store.AllTasks',
+                editable: false,
+                emptyText: Uni.I18n.translate('datacollectionkpis.taskSelectorPrompt', 'MDC', 'Select a task ...'),
+                displayField: 'displayName',
+                valueField: 'id'
             }
         ];
         me.callParent(arguments);
