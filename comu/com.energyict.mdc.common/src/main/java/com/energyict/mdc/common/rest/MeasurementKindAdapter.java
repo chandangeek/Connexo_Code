@@ -134,7 +134,7 @@ public class MeasurementKindAdapter extends MapBasedXmlAdapter<MeasurementKind> 
         register("Bill carry over",MeasurementKind.BILLCARRYOVER);
         register("Connection fee",MeasurementKind.CONNECTIONFEE);
         register("Audible volume",MeasurementKind.AUDIBLEVOLUME);
-        register("Volume metric flow",MeasurementKind.VOLUMETRICFLOW);
+        register("Volumetric flow", MeasurementKind.VOLUMETRICFLOW);
         register("Relative humidity",MeasurementKind.RELATIVEHUMIDITY);
         register("sky cover",MeasurementKind.SKYCOVER);
         register("voltage",MeasurementKind.VOLTAGE);
