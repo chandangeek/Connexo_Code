@@ -24,7 +24,7 @@ Ext.define('Tme.view.relativeperiod.UsageGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('relativeperiod.usage.type', 'TME', 'Type'),
+                header: Uni.I18n.translate('relativeperiod.usage.type', 'TME', 'Category'),
                 dataIndex: 'type',
                 flex: 1
             },
