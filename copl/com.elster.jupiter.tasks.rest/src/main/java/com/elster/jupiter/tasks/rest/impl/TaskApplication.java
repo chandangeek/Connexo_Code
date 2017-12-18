@@ -106,6 +106,7 @@ public class TaskApplication extends Application implements TranslationKeyProvid
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(TranslationKeys.values()));
+        keys.addAll(Arrays.asList(TaskTypesTranslationKeys.values()));
         return keys;
     }
 }

@@ -165,7 +165,7 @@ public class TaskResource {
         List<TaskMinInfo> tasks = taskService.getRecurrentTasks()
                 .stream()
                 .filter(recurrentTask -> recurrentTask.getApplication().compareToIgnoreCase(applicationName) == 0)
-                .map(rt -> TaskMinInfo.from(rt))
+                .map(rt -> TaskMinInfo.from(thesaurus, rt))
                 .collect(Collectors.toList());
         return tasks;
     }
@@ -178,6 +178,6 @@ public class TaskResource {
         RecurrentTask recurrentTask = taskService.getRecurrentTask(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
 
-        return TaskTrigger.from(recurrentTask);
+        return TaskTrigger.from(thesaurus, recurrentTask);
     }
 }
