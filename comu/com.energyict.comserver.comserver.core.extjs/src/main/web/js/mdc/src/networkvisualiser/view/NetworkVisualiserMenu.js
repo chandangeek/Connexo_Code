@@ -83,6 +83,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                         margin: '-8 0 0 0',
                         columns: 1,
                         vertical: true,
+                        id: 'radiogroup-map-provider',
                         items: [
                             {
                                 boxLabel: Uni.I18n.translate('general.layout.google.maps', 'UNI', 'Google Maps'),

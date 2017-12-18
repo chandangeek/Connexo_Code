@@ -246,8 +246,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             mapProviderOptions = Ext.ComponentQuery.query('#layer-map-provider-section')[0];
         mapProviderOptions.show();
         var optionMapWithSavedState = Ext.ComponentQuery.query('#radiogroup-map-provider')[0];
-        optionMapWithSavedState.saveState();
-        var optionMap = optionMapWithSavedState.getChecked()[0].inputValue;
+        var optionMap = optionMapWithSavedState.getValue().rb;
 
         me.chart.map().show();
         me.changeMapProvider(optionMap);
