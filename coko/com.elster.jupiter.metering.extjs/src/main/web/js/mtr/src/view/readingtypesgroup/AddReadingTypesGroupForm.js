@@ -154,23 +154,29 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                         listeners: {
                             change: function (group, newValue) {
                                 var cimField = me.down('textfield[name=mRID]'),
-                                    formExtended = me.down('#reading-types-group-extended-container'),
-                                    formBasic = me.down('#reading-types-group-basic-container');
-
+                                    tabFormBasic = me.down('#reading-types-groups-add-basic-tab'),
+                                    tabFormExtended = me.down('#reading-types-groups-add-extended-tab');
+                                //  formExtended = me.down('#reading-types-group-extended-container'),
+                                //  formBasic = me.down('#reading-types-group-basic-container');
+                                cim_form = newValue.specifyBy;
                                 switch (newValue.specifyBy) {
                                     case 'cim':
-                                        formExtended.disable();
-                                        formBasic.disable();
+                                        //formExtended.disable();
+                                        //formBasic.disable();
                                         cimField.enable();
+                                        tabFormBasic.disable();
+                                        tabFormExtended.disable();
                                         // me.setBasicAddCount(1);
                                         // me.setExtendedAddCount(1);
                                         break;
                                     case 'form':
-                                        formExtended.enable();
-                                        formBasic.enable();
+                                        //formExtended.enable();
+                                        //formBasic.enable();
+                                        tabFormBasic.enable();
+                                        tabFormExtended.enable();
                                         cimField.disable();
-                                        //me.updateBasicAddCount();
-                                        //me.updateExtendedAddCount();
+                                        //  me.updateBasicAddCount();
+                                        //  me.updateExtendedAddCount();
                                         break;
                                 }
                             }
@@ -187,7 +193,8 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                         name: 'mRID',
                         width: 420,
                         afterSubTpl: '<div class="x-form-display-field"><i>' + Uni.I18n.translate('readingTypesManagement.addReadingTypes.cimCodeValuesInstruction', 'MTR', "Provide the values for the 18 attributes of the CIM code, separated by a ' . '") + '</i></div>'
-                    }]
+                    }
+                ]
             },
             {
                 xtype: 'tabpanel',
@@ -295,7 +302,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         title: Uni.I18n.translate('readingTypesManagement.addReadingTypes.additional.parameters', 'MTR', 'Additional parameters'),
                                         ui: 'medium',
                                         disabled: false,
-                                        margin: '0 0 0 50'
+                                        margin: '30 0 0 50'  //ask Mircea
                                         //required: true,
 
                                     },
@@ -325,7 +332,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                             listeners: {
                                                 change: function () {
                                                     me.fireEvent('change', me)
-                                                    //  me.updateBasicAddCount();
+                                                    me.updateBasicAddCount();
                                                 }
                                             }
                                         },
@@ -390,27 +397,27 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                             //     itemId: 'add-reading-types-basic-count',
                             //     value: Uni.I18n.translate('readingtypesmanagement.addreadingtypes.defaultCountMsg', 'MTR', 'You are going to add 1 reading type. 1000 is the limit')
                             // },
-                            {
-                                xtype: 'fieldcontainer',
-                                labelWidth: 250,
-                                fieldLabel: '&nbsp',
-                                items: [
-                                    {
-                                        text: Uni.I18n.translate('general.add', 'MTR', 'Add'),
-                                        xtype: 'button',
-                                        ui: 'action',
-                                        action: 'add',
-                                        itemId: 'add-reading-types-group-basic-add-button'
-                                    },
-                                    {
-                                        text: Uni.I18n.translate('general.cancel', 'MTR', 'Cancel'),
-                                        xtype: 'button',
-                                        ui: 'link',
-                                        itemId: 'add-reading-types-group-basic-cancel-button',
-                                        href: ''
-                                    }
-                                ]
-                            }
+                            // {
+                            //     xtype: 'fieldcontainer',
+                            //     labelWidth: 250,
+                            //     fieldLabel: '&nbsp',
+                            //     items: [
+                            //         {
+                            //             text: Uni.I18n.translate('general.add', 'MTR', 'Add'),
+                            //             xtype: 'button',
+                            //             ui: 'action',
+                            //             action: 'add',
+                            //             itemId: 'add-reading-types-group-basic-add-button'
+                            //         },
+                            //         {
+                            //             text: Uni.I18n.translate('general.cancel', 'MTR', 'Cancel'),
+                            //             xtype: 'button',
+                            //             ui: 'link',
+                            //             itemId: 'add-reading-types-group-basic-cancel-button',
+                            //             href: ''
+                            //         }
+                            //     ]
+                            // }
                         ]
                     },
                     {
@@ -435,7 +442,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                     listeners: {
                                         change: function () {
                                             me.fireEvent('change', me);
-                                            // me.updateExtendedAddCount();
+                                            me.updateExtendedAddCount();
                                         }
                                     }
                                 },
@@ -567,47 +574,61 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                     return '<i>' + value + '</i>'
                                 }
                             },
-                            {
-                                xtype: 'displayfield',
-                                labelWidth: 250,
-                                fieldLabel: '&nbsp',
-                                fieldCls: 'x-panel-body-form-error',
-                                itemId: 'add-reading-types-extended-count',
-                                value: Uni.I18n.translate('readingtypesmanagement.addreadingtypes.defaultCountMsg', 'MTR', 'You are going to add 1 reading type. 1000 is the limit')
-                            },
-                            {
-                                xtype: 'fieldcontainer',
-                                labelWidth: 250,
-                                fieldLabel: '&nbsp',
-                                items: [
-                                    {
-                                        text: Uni.I18n.translate('general.add', 'MTR', 'Add'),
-                                        xtype: 'button',
-                                        ui: 'action',
-                                        action: 'add',
-                                        itemId: 'add-reading-types-group-extended-add-button'
-                                    },
-                                    {
-                                        text: Uni.I18n.translate('general.cancel', 'MTR', 'Cancel'),
-                                        xtype: 'button',
-                                        ui: 'link',
-                                        itemId: 'add-reading-types-group-extended-cancel-button',
-                                        href: ''
-                                    }
-                                ]
-                            }
+                            // {
+                            //     xtype: 'displayfield',
+                            //     labelWidth: 250,
+                            //     fieldLabel: '&nbsp',
+                            //     fieldCls: 'x-panel-body-form-error',
+                            //     itemId: 'add-reading-types-extended-count',
+                            //     value: Uni.I18n.translate('readingtypesmanagement.addreadingtypes.defaultCountMsg', 'MTR', 'You are going to add 1 reading type. 1000 is the limit')
+                            // },
+                            // {
+                            //     xtype: 'fieldcontainer',
+                            //     labelWidth: 250,
+                            //     fieldLabel: '&nbsp',
+                            //     items: [
+                            //         {
+                            //             text: Uni.I18n.translate('general.add', 'MTR', 'Add'),
+                            //             xtype: 'button',
+                            //             ui: 'action',
+                            //             action: 'add',
+                            //             itemId: 'add-reading-types-group-extended-add-button'
+                            //         },
+                            //         {
+                            //             text: Uni.I18n.translate('general.cancel', 'MTR', 'Cancel'),
+                            //             xtype: 'button',
+                            //             ui: 'link',
+                            //             itemId: 'add-reading-types-group-extended-cancel-button',
+                            //             href: ''
+                            //         }
+                            //     ]
+                            // }
                         ]
+                    }
+                ]
+            },
+            {
+                xtype: 'fieldcontainer',
+                labelWidth: 250,
+                fieldLabel: '&nbsp',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.add', 'MTR', 'Add'),
+                        xtype: 'button',
+                        ui: 'action',
+                        action: 'add',
+                        itemId: 'add-reading-types-group-general-add-button'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.cancel', 'MTR', 'Cancel'),
+                        xtype: 'button',
+                        ui: 'link',
+                        itemId: 'add-reading-types-group-general-cancel-button',
+                        href: ''
                     }
                 ]
             }
         ];
         me.callParent(arguments)
     },
-
-    getEmptyComponent: function () {
-        return {
-            xtype: 'uni-form-empty-message',
-            text: Uni.I18n.translate('readingTypesManagement.attribute.empty', 'MTR', 'Select a Commodity to specify additional parameters.')
-        };
-    }
 });

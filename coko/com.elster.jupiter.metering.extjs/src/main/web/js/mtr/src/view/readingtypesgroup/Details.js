@@ -7,7 +7,8 @@ Ext.define('Mtr.view.readingtypesgroup.Details', {
     alias: 'widget.reading-type-groups-details',
     requires: [
         'Mtr.view.readingtypesgroup.Menu',
-        'Mtr.view.readingtypesgroup.PreviewForm'
+        'Mtr.view.readingtypesgroup.PreviewForm',
+        'Mtr.view.readingtypesgroup.GroupActionMenu'
     ],
 
     router: null,
@@ -24,6 +25,14 @@ Ext.define('Mtr.view.readingtypesgroup.Details', {
                     xtype: 'readingTypesGroup-preview-form',
                     itemId: 'reading-types-group-details',
 
+                }
+            },
+            {
+                xtype: 'uni-button-action',
+                itemId: 'btn-action',
+                margin: '20 0 0 0',
+                menu: {
+                    xtype: 'readingTypesGroup-action-menu'
                 }
             }
         ]

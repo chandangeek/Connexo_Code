@@ -116,6 +116,10 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
         {
             ref: 'noAdditionalParameters',
             selector: '#add-reading-types-group #no-additional-parameters'
+        },
+        {
+            ref: 'tabPanel',
+            selector: '#reading-types-add-group-tab-panel'
         }
     ],
 
@@ -124,16 +128,22 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
     init: function () {
         var me = this;
         this.control({
-            '#add-reading-types-group #add-reading-types-group-basic-add-button': {
-                click: this.addBasicButtonClick
+            // '#add-reading-types-group #add-reading-types-group-basic-add-button': {
+            //     click: this.addBasicButtonClick
+            // },
+            // '#add-reading-types-group #add-reading-types-group-extended-add-button': {
+            //     click: this.addExtendedButtonClick
+            // },
+            // '#add-reading-types-group #add-reading-types-group-basic-cancel-button': {
+            //     click: this.goBack
+            // },
+            // '#add-reading-types-group #add-reading-types-group-extended-cancel-button': {
+            //     click: this.goBack
+            // },
+            '#add-reading-types-group #add-reading-types-group-general-add-button': {
+                click: this.addGeneralButtonClick
             },
-            '#add-reading-types-group #add-reading-types-group-extended-add-button': {
-                click: this.addExtendedButtonClick
-            },
-            '#add-reading-types-group #add-reading-types-group-basic-cancel-button': {
-                click: this.goBack
-            },
-            '#add-reading-types-group #add-reading-types-group-extended-cancel-button': {
+            '#add-reading-types-group #add-reading-types-group-general-cancel-button': {
                 click: this.goBack
             },
             '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=basicCommodity]': {
@@ -187,10 +197,10 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
 
         me.getBasicAggregate().setDisabled(commodity == 0);
 
-        me.getBasicMetricMultiplier().setVisible(true);
-        me.getBasicMetricMultiplier().setDisabled(commodity == 0);
-
         var showAdditionalParameters = (commodity == 1 || commodity == 2);
+
+        me.getBasicMetricMultiplier().setVisible(showAdditionalParameters);
+        me.getBasicMetricMultiplier().setDisabled(commodity == 0);
 
         me.getBasicPhases().setVisible(showAdditionalParameters);
         me.getBasicPhases().setDisabled(commodity == 0);
@@ -248,6 +258,18 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
         // me.getBasicMeasuringPeriod().select(0);  // 'Select a time period...' text is displayed
     },
 
+    addGeneralButtonClick: function () {
+        var me = this;
+        var tabPanel = me.getTabPanel();
+        var activeTab = tabPanel.getActiveTab();
+        if (activeTab.itemId === 'reading-types-groups-add-basic-tab') {
+            me.addBasicButtonClick();
+        }
+        else {
+            me.addExtendedButtonClick();
+        }
+    },
+
     addBasicButtonClick: function () {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
@@ -256,7 +278,7 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
             record = form.getBasicRecord();//updateRecord().getRecord(),
         specifyBy = record.get('specifyBy');
         // ,
-        // addCount = specifyBy == 'form' ? me.getAddReadingTypeForm().addBasicCount : 1;
+        //  addCount = specifyBy == 'form' ? me.getAddReadingTypeForm().addBasicCount : 1;
         if (form.isValid()) {
             // if (addCount > 0) {
                 errorMsg.hide();
@@ -303,14 +325,14 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
                         }
                     }
                 });
-            } else {
-                errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.noAttrSpecified', 'MTR', 'No attributes specified'));
-                errorMsg.show();
-            }
-        // } else {
-        //     errorMsg.setText(errorMsg.defaultText);
-        //     errorMsg.show();
-        // }
+            // } else {
+            //     errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.noAttrSpecified', 'MTR', 'No attributes specified'));
+            //     errorMsg.show();
+            // }
+        } else {
+            errorMsg.setText(errorMsg.defaultText);
+            errorMsg.show();
+        }
     },
 
     addExtendedButtonClick: function () {
@@ -323,7 +345,7 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
         //,
         //addCount = specifyBy == 'form' ? me.getAddReadingTypeForm().addExtendedCount : 1;
         if (form.isValid()) {
-            if (addCount > 0) {
+            //if (addCount > 0) {
                 errorMsg.hide();
                 if (specifyBy == 'form') {
                     record.set('mRID', null);
@@ -368,10 +390,10 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
                         }
                     }
                 });
-            } else {
-                errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.noAttrSpecified', 'MTR', 'No attributes specified'));
-                errorMsg.show();
-            }
+            // } else {
+            //     errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.noAttrSpecified', 'MTR', 'No attributes specified'));
+            //     errorMsg.show();
+            // }
         } else {
             errorMsg.setText(errorMsg.defaultText);
             errorMsg.show();
@@ -447,7 +469,7 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        router.getRoute('administration/readingtypes').forward(null,
+        router.getRoute('administration/readingtypegroups').forward(null,
             me.qString
         );
     }

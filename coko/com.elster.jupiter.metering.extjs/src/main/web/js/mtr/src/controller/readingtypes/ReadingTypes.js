@@ -64,7 +64,7 @@ Ext.define('Mtr.controller.readingtypes.ReadingTypes', {
             '#add-reading-type-button': {
                 click: this.browseAdd
             },
-            // '#overview-add-reading-type-button': {
+            // '#overview-add-reading-type-button': { // lori - vezi daca stea trebuie sterse
             //     click: this.browseAdd
             // },
             '#reading-types-bulk-action-button': {

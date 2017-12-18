@@ -8,6 +8,7 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsGrid', {
     store: 'Mtr.store.readingtypesgroup.ReadingTypeGroups',
     router: null,
     requires: [
+        'Mtr.view.readingtypesgroup.ReadingTypesGridActionMenu',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],
@@ -21,12 +22,20 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsGrid', {
                     var url = me.router.getRoute('administration/readingtypegroups/view').buildUrl({aliasName: encodeURIComponent(value)});
                     return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
-                flex: 3
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('readingtypesmanagement.numberOfReadingTypes', 'MTR', 'Active reading types'),
                 dataIndex: 'numberOfReadingTypes',
                 flex: 1
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                width: 120,
+                menu: {
+                    xtype: 'reading-types-grid-action-menu',
+                    itemId: 'reading-types-grid-action-menu'
+                }
             }
         ];
 

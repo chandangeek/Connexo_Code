@@ -66,8 +66,11 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
         {
             ref: 'readingTypeGroupOverview',
             selector: '#reading-types-group-details'
+        },
+        {
+            ref: 'readingTypesGroupPreviewMenu',
+            selector: 'readingTypesGroup-preview readingTypesGroup-action-menu'
         }
-
     ],
 
     init: function () {
@@ -79,6 +82,9 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
                 click: this.browseAdd
             },
             '#mtr-add-readingTypeGroup-button': {  //lori
+                click: this.browseGroupAdd
+            },
+            '#mtr-reading-type-groups-overview-add-button': {  //lori
                 click: this.browseGroupAdd
             },
             'reading-type-groups-grid': {
