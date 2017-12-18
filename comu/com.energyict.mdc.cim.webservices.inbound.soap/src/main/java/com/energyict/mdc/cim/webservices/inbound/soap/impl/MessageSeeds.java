@@ -25,7 +25,11 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_IDENTIFIER_MISSING(1003, "DeviceIdentifierMissing", "''Name'' or ''serialNumber'' or ''mRID'' must be specified in the payload."),
     NO_SUCH_DEVICE_TYPE(1004, "NoSuchDeviceType", "No such device type: ''{0}''."),
     NO_SUCH_DEVICE_CONFIGURATION(1005, "NoSuchDeviceConfiguration", "No such device configuration: ''{0}''."),
-    NO_METER_WITH_NAME(1006, "NoMeterWithName", "No meter is found by name ''{0}''."),;
+    NO_METER_WITH_NAME(1006, "NoMeterWithName", "No meter is found by name ''{0}''."),
+    NO_METER_WITH_MRID(1007, "NoMeterWithMRID", "No meter is found by mrid ''{0}''."),
+    NOT_VALID_MULTIPLIER_REASON(1008, "NotValidMultiplierReason", "''{0}'' is not valid multiplier reason."),
+    NOT_VALID_STATUS_REASON(1009, "NotValidStatusReason", "''{0}'' is not valid status reason."),
+    ;
 
     private final int number;
     private final String key;
