@@ -15,20 +15,6 @@ Ext.define('Cfg.view.taskmanagement.AddDataQualityKpiManagement', {
     items: [
         {
             xtype: 'combobox',
-            itemId: 'followedBy-combo',
-            fieldLabel: Uni.I18n.translate('general.followedBy', 'CFG', 'Followed by'),
-            name: 'nextRecurrentTasks',
-            width: 600,
-            multiSelect: true,
-            queryMode: 'local',
-            store: 'Cfg.store.AllTasks',
-            editable: false,
-            emptyText: Uni.I18n.translate('addDataExportTask.taskSelectorPrompt', 'CFG', 'Select a task ...'),
-            displayField: 'name',
-            valueField: 'id'
-        },
-        {
-            xtype: 'combobox',
             name: 'deviceGroup',
             emptyText: Uni.I18n.translate('datavalidationkpis.selectDeviceGroup', 'CFG', 'Select a device group...'),
             itemId: 'cmb-device-group',
@@ -69,6 +55,20 @@ Ext.define('Cfg.view.taskmanagement.AddDataQualityKpiManagement', {
             allowBlank: false,
             required: true,
             width: 600
+        },
+        {
+            xtype: 'combobox',
+            itemId: 'followedBy-combo',
+            fieldLabel: Uni.I18n.translate('general.followedBy', 'CFG', 'Followed by'),
+            name: 'nextRecurrentTasks',
+            width: 600,
+            multiSelect: true,
+            queryMode: 'local',
+            store: 'Cfg.store.AllTasks',
+            editable: false,
+            emptyText: Uni.I18n.translate('addDataExportTask.taskSelectorPrompt', 'CFG', 'Select a task ...'),
+            displayField: 'displayName',
+            valueField: 'id'
         }
     ],
 

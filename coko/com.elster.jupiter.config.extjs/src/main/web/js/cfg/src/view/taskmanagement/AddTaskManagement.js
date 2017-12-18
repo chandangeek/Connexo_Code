@@ -56,7 +56,7 @@ Ext.define('Cfg.view.taskmanagement.AddTaskManagement', {
                 store: 'Cfg.store.AllTasks',
                 editable: false,
                 emptyText: Uni.I18n.translate('validationTasks.taskSelectorPrompt', 'CFG', 'Select a task ...'),
-                displayField: 'name',
+                displayField: 'displayName',
                 valueField: 'id'
             },
             {
