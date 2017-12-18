@@ -129,7 +129,7 @@ public enum MeasurementKind {
 	BILLCARRYOVER(152,"Bill carry-over"),
 	CONNECTIONFEE(153,"Connection fee"),
 	AUDIBLEVOLUME(154,"Audible volume"),
-	VOLUMETRICFLOW(155,"Volume metric flow"),
+	VOLUMETRICFLOW(155, "Volumetric flow"),
 	RELATIVEHUMIDITY(156,"Relative humidity"),
 	SKYCOVER(157,"Sky cover"),
 	VOLTAGE(158,"Voltage"),
