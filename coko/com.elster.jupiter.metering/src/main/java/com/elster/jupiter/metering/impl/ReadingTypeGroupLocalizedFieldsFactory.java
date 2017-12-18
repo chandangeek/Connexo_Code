@@ -134,7 +134,8 @@ public class ReadingTypeGroupLocalizedFieldsFactory implements ReadingTypeFields
 
             case MULTIPLIER: {
                 values = Arrays.stream(MetricMultiplier.values())
-                        .map(c -> new CodeField(c.getMultiplier(), String.valueOf(c.getMultiplier()) + (c.getMultiplier() != 0 ? " (" + thesaurus.getFormat(new ReadingTypeTranslationKeys.Multiplier(c)).format() + ")" : ""))).sorted()
+                        .map(c -> new CodeField(c.getMultiplier(), String.valueOf(c.getMultiplier()) + (c.getMultiplier() != 0 ? " (" + thesaurus.getFormat(new ReadingTypeTranslationKeys.Multiplier(c)).format() + ")" : "")))
+                        .sorted((a, b) -> Integer.compare(a.code, b.code))
                         .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll);
                 break;
             }
@@ -179,16 +180,16 @@ public class ReadingTypeGroupLocalizedFieldsFactory implements ReadingTypeFields
                 MeasurementKind.POWERFACTOR,
                 MeasurementKind.VOLTAGE
         )),
-        ELECTRICITY_SECONDARY_METERED(EnumSet.of(
-                MeasurementKind.NOTAPPLICABLE,
-                MeasurementKind.CURRENT,
-                MeasurementKind.CURRENTANGLE,
-                MeasurementKind.DEMAND,
-                MeasurementKind.ENERGY,
-                MeasurementKind.POWER,
-                MeasurementKind.POWERFACTOR,
-                MeasurementKind.VOLTAGE
-        )),
+        //        ELECTRICITY_SECONDARY_METERED(EnumSet.of(
+//                MeasurementKind.NOTAPPLICABLE,
+//                MeasurementKind.CURRENT,
+//                MeasurementKind.CURRENTANGLE,
+//                MeasurementKind.DEMAND,
+//                MeasurementKind.ENERGY,
+//                MeasurementKind.POWER,
+//                MeasurementKind.POWERFACTOR,
+//                MeasurementKind.VOLTAGE
+//        )),
         NATURALGAS(EnumSet.of(
                 MeasurementKind.NOTAPPLICABLE,
                 MeasurementKind.VOLUME,
@@ -315,7 +316,10 @@ public class ReadingTypeGroupLocalizedFieldsFactory implements ReadingTypeFields
         NOTAPPLICABLE(EnumSet.of(
                 FlowDirection.NOTAPPLICABLE)),
         ELECTRICITY_PRIMARY_METERED(EnumSet.complementOf(EnumSet.range(FlowDirection.Q1PLUSQ2, FlowDirection.Q3MINUSQ2))),
-        ELECTRICITY_SECONDARY_METERED(EnumSet.complementOf(EnumSet.range(FlowDirection.Q1PLUSQ2, FlowDirection.Q3MINUSQ2)));
+        //ELECTRICITY_SECONDARY_METERED(EnumSet.complementOf(EnumSet.range(FlowDirection.Q1PLUSQ2, FlowDirection.Q3MINUSQ2))),
+        NATURALGAS(EnumSet.of(FlowDirection.FORWARD, FlowDirection.REVERSE)),
+        POTABLEWATER(EnumSet.of(FlowDirection.FORWARD, FlowDirection.REVERSE));
+
         EnumSet<FlowDirection> set;
 
         FlowDirectionByCommodity(EnumSet<FlowDirection> set) {
