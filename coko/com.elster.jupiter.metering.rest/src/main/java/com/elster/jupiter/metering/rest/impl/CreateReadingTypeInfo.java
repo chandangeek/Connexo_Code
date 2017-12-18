@@ -68,10 +68,8 @@ public class CreateReadingTypeInfo {
         createReadingTypeInfo.measuringPeriod = makeList(createBasicReadingTypeInfo.basicMeasuringPeriod);
         createReadingTypeInfo.accumulation = makeList(createBasicReadingTypeInfo.basicAccumulation);
         createReadingTypeInfo.flowDirection = makeList(createBasicReadingTypeInfo.basicFlowDirection);
-        createReadingTypeInfo.commodity = (createBasicReadingTypeInfo.basicCommodity != null) ?
-                Arrays.asList(createBasicReadingTypeInfo.basicCommodity, 1) : Arrays.asList();
-
-        // createReadingTypeInfo.commodity =  makeList(createBasicReadingTypeInfo.basicCommodity); //// de adaugat 1 daca e 2 sau invers;
+        createReadingTypeInfo.commodity = (createBasicReadingTypeInfo.basicCommodity != null && createBasicReadingTypeInfo.basicCommodity == 2) ?
+                Arrays.asList(createBasicReadingTypeInfo.basicCommodity, 1) : Arrays.asList(); // Electricity 1 & 2
         createReadingTypeInfo.measurementKind = makeList(createBasicReadingTypeInfo.basicMeasurementKind);
         createReadingTypeInfo.interHarmonicNumerator = makeList(null);
         createReadingTypeInfo.interHarmonicDenominator = makeList(null);
