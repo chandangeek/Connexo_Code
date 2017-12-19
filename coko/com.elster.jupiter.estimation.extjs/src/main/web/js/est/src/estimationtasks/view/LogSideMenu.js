@@ -8,21 +8,20 @@ Ext.define('Est.estimationtasks.view.LogSideMenu', {
     router: null,
     title: Uni.I18n.translate('general.estimationTask', 'EST', 'Estimation task'),
     objectType: Uni.I18n.translate('general.estimationTask', 'EST', 'Estimation task'),
-
     initComponent: function () {
         var me = this;
         me.callParent(me);
         me.add({
                 text: Uni.I18n.translate('general.details', 'EST', 'Details'),
                 itemId: 'estimationtasks-overview-link',
-                href: me.router.getRoute('administration/estimationtasks/estimationtask').buildUrl({taskId: me.taskId})
+            href: me.router.getRoute(me.detailLogRoute).buildUrl({taskId: me.taskId})
         });
 
         me.add(
             {
                 text: Uni.I18n.translate('estimationtasks.general.log', 'EST', 'Log'),
                 itemId: 'estimationtasks-log-link',
-                href: me.router.getRoute('administration/estimationtasks/estimationtask/history').buildUrl({occurenceId: me.occurenceId})
+                href: me.router.getRoute(me.logRoute).buildUrl({occurenceId: me.occurenceId})
             }
         );
     }

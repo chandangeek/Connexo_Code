@@ -5,7 +5,6 @@
 Ext.define('Est.estimationtasks.view.SideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.estimationtasks-side-menu',
-
     router: null,
     title: Uni.I18n.translate('general.estimationTask', 'EST', 'Estimation task'),
     objectType: Uni.I18n.translate('general.estimationTask', 'EST', 'Estimation task'),
@@ -16,12 +15,12 @@ Ext.define('Est.estimationtasks.view.SideMenu', {
             {
                 text: Uni.I18n.translate('general.details', 'EST', 'Details'),
                 itemId: 'estimationtasks-overview-link',
-                href: me.router.getRoute('administration/estimationtasks/estimationtask').buildUrl({taskId: me.taskId})
+                href: me.router.getRoute(me.detailRoute).buildUrl({taskId: me.taskId})
             },
             {
                 text: Uni.I18n.translate('estimationtasks.general.history', 'EST', 'History'),
                 itemId: 'estimationtasks-history-link',
-                href: me.router.getRoute('administration/estimationtasks/estimationtask/history').buildUrl()
+                href: me.router.getRoute(me.historyRoute).buildUrl()
             }
         ];
 

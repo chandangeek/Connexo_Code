@@ -4,7 +4,9 @@
 
 Ext.define('Est.estimationtasks.model.EstimationTask', {
     extend: 'Uni.model.Version',
+    requires: ['Est.estimationtasks.model.TaskInfo'],
     fields: [
+        'previousRecurrentTasks', 'nextRecurrentTasks',
         {name: 'id', type: 'number', useNull: true},
         {name: 'active', type: 'boolean'},
         {name: 'revalidate', type: 'boolean', defaultValue: false},
@@ -180,7 +182,29 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
             nextRun ? Uni.DateTime.formatDateTimeLong(Ext.isDate(nextRun) ? nextRun : new Date(nextRun)) : '-'
         ]);
     },
+    associations: [
+        {
+            name: 'previousRecurrentTasks',
+            type: 'hasMany',
+            model: 'Cfg.model.TaskInfo',
+            associationKey: 'previousRecurrentTasks',
+            foreignKey: 'previousRecurrentTasks',
+            getTypeDiscriminator: function (node) {
+                return 'Cfg.model.TaskInfo';
+            }
+        },
+        {
+            name: 'nextRecurrentTasks',
+            type: 'hasMany',
+            model: 'Cfg.model.TaskInfo',
+            associationKey: 'nextRecurrentTasks',
+            foreignKey: 'nextRecurrentTasks',
+            getTypeDiscriminator: function (node) {
+                return 'Cfg.model.TaskInfo';
+            }
+        },
 
+    ],
     proxy: {
         type: 'rest',
         url: '/api/est/estimation/tasks',
