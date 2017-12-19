@@ -5,8 +5,8 @@
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.UnableToCreate;
-import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.time.TimeDuration;
@@ -24,6 +24,7 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
 
     private DeviceConfiguration deviceConfiguration;
     private BigDecimal client;
+    private int suite;
     private int authLevel;
     private int encLevel;
 
@@ -35,6 +36,11 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
 
     public SecurityPropertySetBuilder withDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
         this.deviceConfiguration = deviceConfiguration;
+        return this;
+    }
+
+    public SecurityPropertySetBuilder withSuite(int suite) {
+        this.suite = suite;
         return this;
     }
 
@@ -69,6 +75,7 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
     public SecurityPropertySet create() {
         com.energyict.mdc.device.config.SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet(getName())
                 .client(client)
+                .securitySuite(suite)
                 .authenticationLevel(authLevel)
                 .encryptionLevel(encLevel);
         // Add for each of the propertySpecs a configuration security property - the propertySpec name will be used as name for the KeyAccessorType
