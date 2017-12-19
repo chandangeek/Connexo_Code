@@ -198,8 +198,9 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
         me.getBasicAggregate().setDisabled(commodity == 0);
 
         var showAdditionalParameters = (commodity == 1 || commodity == 2);
+        var showMetricComboBox = (commodity == 1 || commodity == 2) || (commodity == 7 || commodity == 9);
 
-        me.getBasicMetricMultiplier().setVisible(showAdditionalParameters);
+        me.getBasicMetricMultiplier().setVisible(showMetricComboBox);
         me.getBasicMetricMultiplier().setDisabled(commodity == 0);
 
         me.getBasicPhases().setVisible(showAdditionalParameters);
