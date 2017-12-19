@@ -129,7 +129,7 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
         this.forwardDeltaPrimaryMonthlyEnergyReadingType = inMemoryPersistence.getMeteringService()
                 .getReadingType(getForwardDeltaPrimaryMonthlyEnergyReadingType().period(MacroPeriod.MONTHLY).code())
                 .get();
-        this.forwardEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(forwardBulkSecondaryEnergyReadingType).getObisCode();
+        this.forwardEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFrom(forwardBulkSecondaryEnergyReadingType).get().getObisCode();
         String reverseBulkSecondaryCode = getReverseSecondaryBulkReadingTypeCodeBuilder().code();
         this.reverseBulkSecondaryEnergyReadingType = inMemoryPersistence.getMeteringService().getReadingType(reverseBulkSecondaryCode).get();
         String reverseBulkPrimaryCode = ReadingTypeCodeBuilder
@@ -139,7 +139,7 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
         inMemoryPersistence.getMeteringService().getReadingType(reverseBulkPrimaryCode).get();
-        this.reverseEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(reverseBulkSecondaryEnergyReadingType).getObisCode();
+        this.reverseEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFrom(reverseBulkSecondaryEnergyReadingType).get().getObisCode();
         String averageForwardEnergyReadingTypeMRID = ReadingTypeCodeBuilder
                 .of(Commodity.ELECTRICITY_SECONDARY_METERED)
                 .accumulate(Accumulation.BULKQUANTITY)
@@ -147,7 +147,7 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
                 .flow(FlowDirection.FORWARD)
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
-        inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(averageForwardEnergyReadingTypeMRID).getObisCode();
+        inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFrom(averageForwardEnergyReadingTypeMRID).get().getObisCode();
     }
 
 
