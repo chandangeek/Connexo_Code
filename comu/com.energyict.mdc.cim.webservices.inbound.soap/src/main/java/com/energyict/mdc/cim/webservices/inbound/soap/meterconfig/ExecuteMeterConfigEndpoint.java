@@ -77,9 +77,9 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
             MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
             Meter meter = meterConfig.getMeter().stream().findFirst() // only process first meter
                     .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.EMPTY_LIST, "MeterConfig.Meter"));
-            Device updatedDevice = deviceBuilder.prepareUpdateFrom(meter).build();
+            Device changedDevice = deviceBuilder.prepareChangeFrom(meter).build();
             context.commit();
-            return createResponseMessage(updatedDevice, meterConfig, HeaderType.Verb.CHANGED);
+            return createResponseMessage(changedDevice, meterConfig, HeaderType.Verb.CHANGED);
         } catch (VerboseConstraintViolationException | SecurityException | InvalidLastCheckedException | DeviceLifeCycleActionViolationException e) {
             throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.UNABLE_TO_CHANGE_DEVICE, e.getLocalizedMessage());
         } catch (LocalizedException e) {

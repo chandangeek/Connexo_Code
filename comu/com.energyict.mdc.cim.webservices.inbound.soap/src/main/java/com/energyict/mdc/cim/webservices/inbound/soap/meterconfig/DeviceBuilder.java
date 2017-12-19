@@ -81,7 +81,7 @@ class DeviceBuilder {
         };
     }
 
-    PreparedDeviceBuilder prepareUpdateFrom(Meter meter) throws FaultMessage {
+    PreparedDeviceBuilder prepareChangeFrom(Meter meter) throws FaultMessage {
         String deviceName = extractDeviceNameForUpdateOrThrowException(meter);
         Optional<String> mrid = extractMrid(meter);
         Optional<String> serialNumber = extractSerialNumber(meter);

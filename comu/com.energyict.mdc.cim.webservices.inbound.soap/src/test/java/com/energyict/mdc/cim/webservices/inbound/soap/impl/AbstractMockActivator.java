@@ -68,9 +68,7 @@ public abstract class AbstractMockActivator {
 
     private void initMocks() {
         when(nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP)).thenReturn(thesaurus);
-
         when(transactionService.getContext()).thenReturn(transactionContext);
-
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
     }
 
