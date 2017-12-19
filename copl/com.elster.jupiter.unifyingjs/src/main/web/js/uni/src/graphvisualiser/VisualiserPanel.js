@@ -39,6 +39,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     linkIcon: 'icon-arrow-down-right2',
     issueAlarmIcon: 'icon-circle-small',
     failedCommunicationIcon: 'icon-circle',
+    noCoordDevice: 'icon-ruler',
 
     neutralColor: '#006699',
     whiteColor: '#FFFFFF',
@@ -48,6 +49,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     failedCommunicationStatusColor: '#FF0000',
     goodLinkQualityColor: '#70BB51',
     badLinkQualityColor: '#EB5642',
+    noCoordinatesColor: '#ffff00',
     colors: [
         '#BEE64B', '#33CC99', '#00CCCC', '#7ED4E6', '#2887C8', '#C3CDE6', '#7070CC', '#C9A0DC', '#733380', '#2D383A',
         '#5E8C31', '#7BA05B', '#4D8C57', '#3AA655', '#93DFB8', '#1AB385', '#29AB87', '#00CC99', '#00755E',
@@ -560,6 +562,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                         b: null, // no border (color)
                         c: me.whiteColor, // fill color
                         // t: node.get('name'), // No name/label in the graph
+                        e: 0.5,
                         fi: {
                             c: me.neutralColor,
                             t: icon
@@ -637,6 +640,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 items.push(
                     {
                     id: node.id,
+                        e: 0.5,
                     b: null, // no border (color)
                     c: me.whiteColor, // fill color
                     fi: {
