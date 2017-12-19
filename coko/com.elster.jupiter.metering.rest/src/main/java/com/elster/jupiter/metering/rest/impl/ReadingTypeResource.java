@@ -13,12 +13,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.RestValidationBuilder;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -29,20 +24,10 @@ import com.elster.jupiter.util.conditions.Where;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -100,6 +85,79 @@ public class ReadingTypeResource {
     }
 
     @GET
+    @Path("/groups/")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getReadingTypesGroupedByAlias(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+
+        List<ReadingTypeInfo> readingTypes = meteringService.getAvailableReadingTypes()
+                .stream()
+                .map(readingTypeInfoFactory::from)
+                .collect(Collectors.toList());
+
+        Map<String, List<ReadingTypeInfo>> readingTypesByAlias = readingTypes
+                .stream()
+                .collect(Collectors.groupingBy(ReadingTypeInfo::getName));
+
+        List<ReadingTypeInfo> infos = new ArrayList();
+
+        readingTypesByAlias.forEach((alias, aliasesList) -> {
+            int activeAliases = 0;
+            for (int i=0; i<aliasesList.stream().count();i++)
+                if(aliasesList.get(i).active) activeAliases++;
+
+            aliasesList.get(0).setNumberOfReadingTypes(activeAliases);
+            infos.add(aliasesList.get(0));
+        });
+
+        return PagedInfoList.fromPagedList("groups", ListPager.of(infos
+                .stream()
+                .sorted(Comparator.comparing(ReadingTypeInfo::getName, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList())).from(queryParameters).find(), queryParameters);
+    }
+
+    @GET
+    @Path("/groups/{aliasName}/readingtypes")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getReadingTypesByAlias(@PathParam("aliasName") String aliasName, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+
+        String searchText = queryParameters.getLike();
+        if (searchText != null && !searchText.isEmpty()) {
+            ReadingTypeFilter filter = new ReadingTypeFilter();
+            filter.addCondition(getReadingTypeFilterCondition(searchText));
+            List<ReadingTypeInfo> infos = meteringService.findReadingTypesByAlias(filter, aliasName).stream()
+                    .filter(readingType -> readingType.getAliasName().compareTo(aliasName) == 0)
+                    .limit(50)
+                    .map(readingTypeInfoFactory::from)
+                    .collect(Collectors.toList());
+            return PagedInfoList.fromPagedList("readingTypes", infos, queryParameters);
+        }
+
+        List<ReadingTypeInfo> readingTypeInfos = meteringService.findReadingTypesByAlias(readingTypeFilterFactory.from(jsonQueryFilter),aliasName)
+                .from(queryParameters)
+                .stream()
+                .map(readingTypeInfoFactory::from)
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromPagedList("readingTypes", readingTypeInfos, queryParameters);
+    }
+
+    @GET
+    @Path("/groups/{aliasName}")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getReadingTypeAlias(@PathParam("aliasName") String aliasName) {
+
+        List<ReadingTypeInfo> readingTypeInfos = meteringService.findReadingTypeByAlias(aliasName)
+                .stream()
+                .map(readingTypeInfoFactory::from)
+                .collect(Collectors.toList());
+
+        return Response.ok().entity(readingTypeInfos.get(0)).build();
+    }
+
+    @GET
     @Path("/{mRID}/")
     @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -133,6 +191,29 @@ public class ReadingTypeResource {
         return PagedInfoList.fromCompleteList(field + "Codes", infoList, queryParameters);
     }
 
+    @GET
+    @Path("/basiccodes/{field}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getGroupCodes(@PathParam("field") String field, @BeanParam JsonQueryParameters queryParameters) {
+        //Integer commodity = kind ? queryFilter.getInteger("commodity") : null;
+        //Integer filterBy=null;
+        return getGroupCodesWithFilter(field, null, queryParameters);
+    }
+
+    @GET
+    @Path("/basiccodes/{field}/{filter}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getGroupCodesWithFilter(@PathParam("field") String field, @PathParam("filter") Integer filter, @BeanParam JsonQueryParameters queryParameters) {
+        List<ReadingTypeCodeInfo> infoList = Arrays.stream(ReadingTypeFields.values())
+                .filter(candidate -> candidate.getFieldName().equalsIgnoreCase(field))
+                .map(c -> meteringService.getReadingTypeGroupFieldCodesFactory(filter)
+                        .getCodeFields(c.getFieldName()).entrySet()
+                        .stream().map(e -> new ReadingTypeCodeInfo(e.getKey(), e.getValue())))
+                .flatMap(Function.identity()).collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList(field + "Codes", infoList, queryParameters);
+    }
+
+
     @POST
     @Path("/count")
     @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
@@ -159,6 +240,24 @@ public class ReadingTypeResource {
             count = codes.size() - (int) codes.stream().filter(existsMrids::contains).count();
         }
         return Response.ok().entity(Pair.of("countReadingTypesToCreate", count).asMap()).build();
+    }
+
+    @POST
+    @Path("/extendedcount")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response createExtendedReadingTypeCount(CreateReadingTypeInfo createReadingTypeInfo) {
+
+        return createReadingTypeCount(createReadingTypeInfo);
+    }
+
+    @POST
+    @Path("/basiccount")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response createBasicReadingTypeCount(CreateBasicReadingTypeInfo createBasicReadingTypeInfo) {
+
+        return createReadingTypeCount(CreateReadingTypeInfo.fromBasicCreateReadingTypeInfo(createBasicReadingTypeInfo));
     }
 
     @POST
@@ -212,6 +311,22 @@ public class ReadingTypeResource {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.READINGTYPE_CREATING_FAIL);
         }
         return Response.ok().entity(Pair.of("countCreatedReadingTypes", createdCount).asMap()).build();
+    }
+
+    @POST
+    @Path("/basic")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response createBasicReadingType(CreateBasicReadingTypeInfo createBasicReadingTypeInfo) {
+        return createReadingType(CreateReadingTypeInfo.fromBasicCreateReadingTypeInfo(createBasicReadingTypeInfo));
+    }
+
+    @POST
+    @Path("/extended")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response createExtendedReadingType(CreateReadingTypeInfo createExtendedReadingTypeInfo) {
+        return createReadingType(createExtendedReadingTypeInfo);
     }
 
     @PUT

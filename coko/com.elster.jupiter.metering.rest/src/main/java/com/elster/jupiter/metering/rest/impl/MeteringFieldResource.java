@@ -37,9 +37,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -61,6 +63,36 @@ public class MeteringFieldResource {
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.thesaurus = thesaurus;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
+    }
+
+    @GET
+    @Path("/readingtypegroup")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getReadingTypeGroup(@BeanParam JsonQueryFilter queryFilter, @BeanParam JsonQueryParameters queryParameters) {
+
+        List<ReadingTypeInfo> readingTypes = meteringService.getAvailableReadingTypes()
+                .stream()
+                .filter(getReadingTypeFilterPredicate(queryFilter))
+                .map(readingTypeInfoFactory::from)
+                .collect(Collectors.toList());
+
+        Map<String, List<ReadingTypeInfo>> readingTypesByAlias = readingTypes
+                .stream()
+                .collect(Collectors.groupingBy(ReadingTypeInfo::getName));
+
+        List<ReadingTypeInfo> infos = new ArrayList();
+
+        readingTypesByAlias.forEach((k, v) -> {
+            List<ReadingTypeInfo> l = v;
+            long length = l.stream().count();
+            l.get(0).setNumberOfReadingTypes(length);
+            infos.add(l.get(0));
+        });
+
+        infos.stream().collect(Collectors.toList());
+
+        return Response.ok(PagedInfoList.fromCompleteList("readingTypeGroup", infos, queryParameters)).build();
     }
 
     @GET
@@ -124,6 +156,11 @@ public class MeteringFieldResource {
         if (queryFilter.hasFilters()) {
             if (queryFilter.hasProperty("mRID")) {
                 filter = filter.and(rt -> rt.getMRID().toLowerCase().contains(queryFilter.getString("mRID").toLowerCase()));
+            }
+            if (queryFilter.hasProperty("aliasName")) {
+                filter = filter.and(rt -> rt.getName()
+                        .toLowerCase()
+                        .contains(queryFilter.getString("aliasName").toLowerCase()));
             }
             if (queryFilter.hasProperty("name")) {
                 filter = filter.and(rt -> rt.getFullAliasName().toLowerCase().contains(queryFilter.getString("name").toLowerCase()));

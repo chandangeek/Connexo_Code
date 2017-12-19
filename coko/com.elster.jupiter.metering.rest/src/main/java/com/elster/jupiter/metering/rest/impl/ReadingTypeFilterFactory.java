@@ -41,6 +41,11 @@ public class ReadingTypeFilterFactory {
             filter.addSelectedReadingTypesCondition(jsonQueryFilter.getStringList("selectedreadingtypes"));
         }
 
+        if (jsonQueryFilter.hasProperty("aliasName")) {
+            String aliasName = jsonQueryFilter.getString("aliasName");
+            filter.addAliasNameCondition(aliasName);
+        }
+
         if (jsonQueryFilter.hasProperty("fullAliasName")) {
             String fullAliasName = jsonQueryFilter.getString("fullAliasName");
             if(!fullAliasName.contains("*") && !fullAliasName.contains("?")) {
