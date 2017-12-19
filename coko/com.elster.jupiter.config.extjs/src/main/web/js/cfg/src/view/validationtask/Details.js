@@ -37,9 +37,7 @@ Ext.define('Cfg.view.validationtask.Details', {
                 {
                     xtype: 'uni-button-action',
                     margin: '20 0 0 0',
-                    menu: {
-                        xtype: 'cfg-validation-tasks-action-menu'
-                    }
+                    menu: me.actionMenu
                 }
             ]
         };
@@ -53,7 +51,9 @@ Ext.define('Cfg.view.validationtask.Details', {
                         xtype: 'cfg-tasks-menu',
                         itemId: 'tasks-view-menu',
                         router: me.router,
-                        taskId: me.taskId
+                        taskId: me.taskId,
+                        detailRoute: me.detailRoute,
+                        historyRoute: me.historyRoute
                     }
                 ]
             }

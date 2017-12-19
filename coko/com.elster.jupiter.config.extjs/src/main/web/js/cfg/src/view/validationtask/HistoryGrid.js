@@ -16,7 +16,7 @@ Ext.define('Cfg.view.validationtask.HistoryGrid', {
         'Cfg.view.validationtask.HistoryActionMenu',
         'Uni.DateTime'
     ],
-
+    historyActionItemId: 'historyActionItemId',
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -25,7 +25,7 @@ Ext.define('Cfg.view.validationtask.HistoryGrid', {
                 dataIndex: 'startedOn',
                 flex: 2,
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('administration/validationtasks/validationtask/history/occurrence').buildUrl({occurrenceId: record.get('id')}),
+                    var url = me.router.getRoute(me.viewLogRoute).buildUrl({occurrenceId: record.get('id')}),
                         date = value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                     return '<a href="' + url + '">' + date + '</a>';
                 }
@@ -47,7 +47,8 @@ Ext.define('Cfg.view.validationtask.HistoryGrid', {
                 xtype: 'uni-actioncolumn',
                 width: 120,
                 menu: {
-                    xtype: 'cfg-tasks-history-action-menu'
+                    xtype: 'cfg-tasks-history-action-menu',
+                    itemId: me.historyActionItemId
                 }
             }
         ];

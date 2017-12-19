@@ -48,10 +48,13 @@ Ext.define('Cfg.controller.Log', {
                     view = Ext.widget('cfg-log-setup', {
                         router: router,
                         task: record,
-                        runStartedOn: runStartedOnFormatted
+                        runStartedOn: runStartedOnFormatted,
+                        detailLogRoute: me.detailLogRoute,
+                        logRoute: me.logRoute
                     });
                     view.down('#log-view-menu').setHeader(record.get('name'));
                     me.getApplication().fireEvent('validationtaskload', record);
+                    me.getApplication().fireEvent('viewHistoryTaskLog', Uni.I18n.translate('validationTasks.general.validationTaskLog', 'CFG', 'Validation task log'));
                     view.down('#log-preview-form').loadRecord(occurrenceTask);
                     view.down('#run-started-on').setValue(runStartedOnFormatted);
                     me.getApplication().fireEvent('changecontentevent', view);

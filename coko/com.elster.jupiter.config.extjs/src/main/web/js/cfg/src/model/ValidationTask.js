@@ -9,7 +9,7 @@ Ext.define('Cfg.model.ValidationTask', {
     ],
 
     fields: [
-			'id', 'name',
+        'id', 'name', 'previousRecurrentTasks', 'nextRecurrentTasks',
         {
             name: 'logLevel',
             type: 'int',
@@ -151,6 +151,29 @@ Ext.define('Cfg.model.ValidationTask', {
             nextRun ? Uni.DateTime.formatDateTimeLong(Ext.isDate(nextRun) ? nextRun : new Date(nextRun)) : '-'
         ]);
     },
+
+    associations: [
+        {
+            name: 'previousRecurrentTasks',
+            type: 'hasMany',
+            model: 'Cfg.model.TaskInfo',
+            associationKey: 'previousRecurrentTasks',
+            foreignKey: 'previousRecurrentTasks',
+            getTypeDiscriminator: function (node) {
+                return 'Cfg.model.TaskInfo';
+            }
+        },
+        {
+            name: 'nextRecurrentTasks',
+            type: 'hasMany',
+            model: 'Cfg.model.TaskInfo',
+            associationKey: 'nextRecurrentTasks',
+            foreignKey: 'nextRecurrentTasks',
+            getTypeDiscriminator: function (node) {
+                return 'Cfg.model.TaskInfo';
+            }
+        }
+    ],
 
     proxy: {
         type: 'rest',

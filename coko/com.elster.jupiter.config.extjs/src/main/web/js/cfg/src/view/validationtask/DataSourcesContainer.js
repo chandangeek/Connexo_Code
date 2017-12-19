@@ -9,7 +9,7 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
     appName: null,
     edit: false,
     htmlEncode: true,
-
+    comboWidth: 300,
     initComponent: function () {
         var me = this,
             setValue = function (value) {
@@ -35,7 +35,7 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
                         items: [
                             {
                                 xtype: 'combobox',
-                                width: 300,
+                                width: me.comboWidth,
                                 itemId: 'cbo-validation-task-device-group',
                                 required: true,
                                 editable: false,

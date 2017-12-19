@@ -29,6 +29,20 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                 labelWidth: 250
             },
             {
+                fieldLabel: Uni.I18n.translate('general.followedBy', 'CFG', 'Followed by'),
+                xtype: 'displayfield',
+                htmlEncode: false,
+                itemId: 'followedBy-field-container',
+                labelWidth: 250
+            },
+            {
+                fieldLabel: Uni.I18n.translate('general.precededBy', 'CFG', 'Preceded by'),
+                xtype: 'displayfield',
+                htmlEncode: false,
+                itemId: 'precededBy-field-container',
+                labelWidth: 250
+            },
+            {
                 xtype: 'log-level-displayfield',
                 labelWidth: 250
             },
@@ -93,5 +107,15 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
             }         
         ];
         me.callParent();
+    },
+    setRecurrentTasks: function (itemId, recurrentTasks) {
+        var me = this,
+            recurrentTaskList = [];
+
+        Ext.isArray(recurrentTasks) && Ext.Array.each(recurrentTasks, function (recurrentTask) {
+            recurrentTaskList.push('- ' + Ext.htmlEncode(recurrentTask.name));
+        });
+        me.down(itemId).setValue((recurrentTaskList.length == 0) ? recurrentTaskList = '-' : recurrentTaskList.join('<br/>'));
+        return;
     }
 });

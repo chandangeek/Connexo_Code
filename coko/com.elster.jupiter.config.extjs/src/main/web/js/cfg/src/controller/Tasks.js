@@ -77,6 +77,12 @@ Ext.define('Cfg.controller.Tasks', {
     taskId: null,
     MULTISENSE_KEY: 'MultiSense',
     INSIGHT_KEY: 'MdmApp',
+    historyActionItemId: 'cfg-tasks-history-action-menu',
+
+    actionMenu: {
+        xtype: 'cfg-validation-tasks-action-menu'
+    },
+    viewLogRoute: 'administration/validationtasks/validationtask/history/occurrence',
 
     init: function () {
         this.control({
@@ -95,7 +101,7 @@ Ext.define('Cfg.controller.Tasks', {
             'cfg-validation-tasks-action-menu': {
                 click: this.chooseAction
             },
-            'cfg-tasks-history-action-menu': {
+            '#cfg-tasks-history-action-menu': {
                 click: this.chooseAction
             },
             'cfg-validation-tasks-history cfg-tasks-history-grid': {
@@ -103,6 +109,10 @@ Ext.define('Cfg.controller.Tasks', {
             }
         });
     },
+
+    detailRoute: 'administration/validationtasks/validationtask',
+    historyRoute: 'administration/validationtasks/validationtask/history',
+
     showValidationTasks: function () {
         var me = this,
             view = Ext.widget('validation-tasks-setup', {
@@ -127,7 +137,10 @@ Ext.define('Cfg.controller.Tasks', {
             view = Ext.widget('cfg-validation-tasks-details', {
                 router: router,
                 taskId: currentTaskId,
-                appName: Uni.util.Application.getAppName()
+                appName: Uni.util.Application.getAppName(),
+                actionMenu: me.actionMenu,
+                detailRoute: me.detailRoute,
+                historyRoute: me.historyRoute
             }),
             actionsMenu = view.down('cfg-validation-tasks-action-menu');
 
@@ -137,18 +150,20 @@ Ext.define('Cfg.controller.Tasks', {
                 var detailsForm = view.down('cfg-tasks-preview-form'),
                     propertyForm = detailsForm.down('property-form');
 
-                actionsMenu.record = record;
-                actionsMenu.down('#view-history').hide();
+                actionsMenu && (actionsMenu.record = record);
+                actionsMenu && actionsMenu.down('#view-history').hide();
                 view.down('#tasks-view-menu').setHeader(record.get('name'));
                 me.getApplication().fireEvent('changecontentevent', view);
                 me.getApplication().fireEvent('validationtaskload', record);
                 detailsForm.loadRecord(record);
+                detailsForm.setRecurrentTasks('#followedBy-field-container', record.get('nextRecurrentTasks'));
+                detailsForm.setRecurrentTasks('#precededBy-field-container', record.get('previousRecurrentTasks'));
                 if (record.get('status') !== 'Busy') {
                     if (record.get('status') === 'Failed') {
                         view.down('#lbl-reason-field').show();
                     }
                     if (Cfg.privileges.Validation.canRun()) {
-                        view.down('#run-task').show();
+                        view.down('#run-task') && view.down('#run-task').show();
                     }
                 }
             }
@@ -167,12 +182,17 @@ Ext.define('Cfg.controller.Tasks', {
         view = Ext.widget('cfg-validation-tasks-history', {
             appName: Uni.util.Application.getAppName(),
             router: router,
-            taskId: currentTaskId
+            taskId: currentTaskId,
+            detailRoute: me.detailRoute,
+            historyRoute: me.historyRoute,
+            viewLogRoute: me.viewLogRoute,
+            historyActionItemId: me.historyActionItemId
         });
 
         taskModel.load(currentTaskId, {
             success: function (record) {
                 view.down('#tasks-view-menu').setHeader(record.get('name'));
+                me.getApplication().fireEvent('loadTask', record);
                 me.getApplication().fireEvent('changecontentevent', view);
                 store.load();
             }
@@ -279,10 +299,13 @@ Ext.define('Cfg.controller.Tasks', {
                         taskForm.loadRecord(record);
 
                         if (record.data.nextRun && (record.data.nextRun !== 0)) {
+                            view.down('#start-on').setValue(record.data.nextRun);
+                        }
+
+                        if (schedule) {
                             view.down('#rgr-validation-tasks-recurrence-trigger').setValue({recurrence: true});
                             view.down('#num-recurrence-number').setValue(schedule.count);
                             recurrenceTypeCombo.setValue(schedule.timeUnit);
-                            view.down('#start-on').setValue(record.data.nextRun);
                         } else {
                             recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
                         }
@@ -355,7 +378,7 @@ Ext.define('Cfg.controller.Tasks', {
                 me.removeTask(menu.record);
                 break;
             case 'viewLog':
-                route = 'administration/validationtasks/validationtask/history/occurrence';
+                route = me.viewLogRoute;
                 break;
             case 'viewHistory':
                 route = 'administration/validationtasks/validationtask/history';
@@ -539,8 +562,8 @@ Ext.define('Cfg.controller.Tasks', {
             dataSourcesContainer.setDataSourcesToRecord(record);
         }
 
+        startOnDate = moment(form.down('#start-on').getValue()).valueOf();
         if (form.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
-            startOnDate = moment(form.down('#start-on').getValue()).valueOf();
             timeUnitValue = form.down('#cbo-recurrence-type').getValue();
             dayOfMonth = moment(startOnDate).date();
             if (dayOfMonth >= 29) {
@@ -628,11 +651,11 @@ Ext.define('Cfg.controller.Tasks', {
                     });
                     break;
             }
-            record.set('nextRun', startOnDate);
         } else {
-            record.set('nextRun', null);
+
             record.set('schedule', null);
         }
+        record.set('nextRun', startOnDate);
 
         page.setLoading(true);
         record.endEdit();

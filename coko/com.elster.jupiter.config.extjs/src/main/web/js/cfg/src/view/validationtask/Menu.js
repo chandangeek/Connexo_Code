@@ -17,7 +17,7 @@ Ext.define('Cfg.view.validationtask.Menu', {
             {
                 text: Uni.I18n.translate('general.details', 'CFG', 'Details'),
                 itemId: 'tasks-view-link',
-                href: '#/administration/validationtasks/' + me.taskId
+                href: me.router.getRoute(me.detailRoute).buildUrl({taskId: me.taskId})
             }
         ];
 
@@ -26,7 +26,7 @@ Ext.define('Cfg.view.validationtask.Menu', {
                 {
                     text: Uni.I18n.translate('validationTasks.general.history', 'CFG', 'History'),
                     itemId: 'tasks-history-link',
-                    href: me.router.getRoute('administration/validationtasks/validationtask/history').buildUrl()
+                    href: me.router.getRoute(me.historyRoute).buildUrl()
                 }
             );
         }
