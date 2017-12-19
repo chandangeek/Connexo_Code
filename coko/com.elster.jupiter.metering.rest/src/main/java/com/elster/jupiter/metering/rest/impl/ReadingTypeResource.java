@@ -267,7 +267,13 @@ public class ReadingTypeResource {
         List<String> mRIDs = new ArrayList<>();
         if (!Checks.is(createReadingTypeInfo.mRID).emptyOrOnlyWhiteSpace()) {
             if (meteringService.getReadingType(createReadingTypeInfo.mRID).isPresent()) {
-                throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.READINGTYPE_ALREADY_EXISTS, createReadingTypeInfo.mRID);
+                ReadingType alreadyExistingReadingType = this.meteringService.findReadingTypes(Collections.singletonList(createReadingTypeInfo.mRID)).stream().findFirst().get();
+                String currentAliasName = alreadyExistingReadingType.getAliasName();
+                if (currentAliasName != null && !currentAliasName.isEmpty()) {
+                    int l = currentAliasName.length();
+                    throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.READINGTYPE_ALREADY_EXISTS_IN_GROUP, createReadingTypeInfo.mRID, currentAliasName);
+                } else
+                    throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.READINGTYPE_ALREADY_EXISTS, createReadingTypeInfo.mRID);
             }
             mRIDs.add(createReadingTypeInfo.mRID);
         } else {
