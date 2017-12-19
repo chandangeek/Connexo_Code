@@ -11,10 +11,8 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroup', {
         'Mtr.view.readingtypesgroup.AddReadingTypesGroupForm'
     ],
 
-
-
     loadRecord: function (record) {
-        var me = this;   //lori
+        var me = this;
         me.down('add-reading-types-group-form').loadRecord(record);
     },
 

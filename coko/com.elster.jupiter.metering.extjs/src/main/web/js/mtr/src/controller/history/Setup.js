@@ -14,7 +14,7 @@ Ext.define('Mtr.controller.history.Setup', {
             route: 'administration',
             disabled: true,
             items: {
-                readingtypegroups: {   //lori
+                readingtypegroups: {
                     title: Uni.I18n.translate('readingtypes.readingTypeGroups', 'MTR', 'Reading type groups'),
                     route: 'readingtypegroups',
                     controller: 'Mtr.controller.readingtypesgroup.ReadingTypesGroup',

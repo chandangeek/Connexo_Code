@@ -51,7 +51,6 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
         'Mtr.store.readingtypesgroup.attributes.ConsumptionTier'
     ],
 
-
     refs: [
         {
             ref: 'addReadingTypeForm',
@@ -128,18 +127,6 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
     init: function () {
         var me = this;
         this.control({
-            // '#add-reading-types-group #add-reading-types-group-basic-add-button': {
-            //     click: this.addBasicButtonClick
-            // },
-            // '#add-reading-types-group #add-reading-types-group-extended-add-button': {
-            //     click: this.addExtendedButtonClick
-            // },
-            // '#add-reading-types-group #add-reading-types-group-basic-cancel-button': {
-            //     click: this.goBack
-            // },
-            // '#add-reading-types-group #add-reading-types-group-extended-cancel-button': {
-            //     click: this.goBack
-            // },
             '#add-reading-types-group #add-reading-types-group-general-add-button': {
                 click: this.addGeneralButtonClick
             },
@@ -153,21 +140,16 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
                 change: this.basicMeasurementKindChange
             },
             '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=basicMacroPeriod]': {
-                change: this.basicMacroPeriodChange //,
-                //select:this.basicMacroPeriodSelect
+                change: this.basicMacroPeriodChange
             }
         });
     },
 
-
     showOverview: function () {
         var me = this,
             widget,
-            record = Ext.create('Mtr.model.readingtypesgroup.AddReadingTypeGroup'); //lori
-        // record = Ext.create('Mtr.model.readingtypes.ReadingTypeGroup'); //lori
-
-        //deocamdata il folosesc pe cel de la reading types
-        widget = Ext.widget('add-reading-types-group'); // lori
+            record = Ext.create('Mtr.model.readingtypesgroup.AddReadingTypeGroup');
+        widget = Ext.widget('add-reading-types-group');
         widget.loadRecord(record);
         me.getApplication().fireEvent('changecontentevent', widget);
     },
@@ -226,9 +208,9 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
 
     basicMacroPeriodSelect: function (combo, records) {
         if (records.length > 0) {
-
         }
     },
+
     basicMacroPeriodChange: function (combo, newValue) {
         this.prepareAccumulation();
         this.prepareMeasuringPeriod();
@@ -276,12 +258,10 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
             router = this.getController('Uni.controller.history.Router'),
             form = me.getAddReadingTypeForm(),
             errorMsg = me.getAddReadingTypeFormErrorMessage(),
-            record = form.getBasicRecord();//updateRecord().getRecord(),
+            record = form.getBasicRecord();
         specifyBy = record.get('specifyBy');
-        // ,
-        //  addCount = specifyBy == 'form' ? me.getAddReadingTypeForm().addBasicCount : 1;
+
         if (form.isValid()) {
-            // if (addCount > 0) {
                 errorMsg.hide();
                 if (specifyBy == 'form') {
                     record.set('mRID', null);
@@ -326,10 +306,6 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
                         }
                     }
                 });
-            // } else {
-            //     errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.noAttrSpecified', 'MTR', 'No attributes specified'));
-            //     errorMsg.show();
-            // }
         } else {
             errorMsg.setText(errorMsg.defaultText);
             errorMsg.show();
@@ -341,12 +317,10 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
             router = this.getController('Uni.controller.history.Router'),
             form = me.getAddReadingTypeForm(),
             errorMsg = me.getAddReadingTypeFormErrorMessage(),
-            record = form.getExtendedRecord();//updateRecord().getRecord(),
+            record = form.getExtendedRecord();
         specifyBy = record.get('specifyBy');
-        //,
-        //addCount = specifyBy == 'form' ? me.getAddReadingTypeForm().addExtendedCount : 1;
+
         if (form.isValid()) {
-            //if (addCount > 0) {
                 errorMsg.hide();
                 if (specifyBy == 'form') {
                     record.set('mRID', null);
@@ -391,10 +365,6 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
                         }
                     }
                 });
-            // } else {
-            //     errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.noAttrSpecified', 'MTR', 'No attributes specified'));
-            //     errorMsg.show();
-            // }
         } else {
             errorMsg.setText(errorMsg.defaultText);
             errorMsg.show();
@@ -464,7 +434,6 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
             }
         });
     },
-
 
     goBack: function () {
         var me = this,
