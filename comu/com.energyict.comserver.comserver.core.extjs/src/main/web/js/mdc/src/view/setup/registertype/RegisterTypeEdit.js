@@ -65,6 +65,48 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                         hidden: true
                     },
                     {
+                        xtype: 'fieldcontainer',
+                        itemId: 'editObisCodeFieldWithTooltip',
+                        layout: 'hbox',
+                        width: 750,
+                        required: true,
+                        items: [
+                            {
+                                xtype: 'obis-field',
+                                itemId: 'editObisCodeField',
+                                labelWidth: 250,
+                                width: 700,
+                                afterSubTpl: null,
+                                name: 'obisCode'
+                            },
+                            {
+                                xtype: 'button',
+                                tooltip: Uni.I18n.translate('general.obisformat.tooltip', 'MDC', 'Provide the values for the 6 attributes of the OBIS code, separated by a "."'),
+                                text: '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;"></span>',
+                                disabled: true, // to avoid a hand cursor
+                                ui: 'blank',
+                                itemId: 'obisFormatHelp',
+                                shadow: false,
+                                margin: '6 0 0 6',
+                                width: 16
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'component',
+                        html:  Uni.I18n.translate('general.readingtype.readingTypeToObisMappingMessage', 'MDC', 'The selected reading type could not be mapped to an OBIS code'),
+                        itemId: 'readingTypeToObisMappingMessage',
+                        style: {
+                            'font': 'italic 13px/17px Lato',
+                            'color': '#686868',
+                            'margin-top': '6px',
+                            'margin-bottom': '6px',
+                            'margin-left': '250px'
+                        },
+                        hidden: true
+                    },
+
+                    {
                         itemId: 'readingTypeCombo',
                         xtype: 'reading-type-combo',
                         name: 'readingType',
@@ -99,13 +141,21 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                         emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
                     },
                     {
-                        xtype: 'obis-field',
-                        itemId: 'editObisCodeField',
-                        name: 'obisCode'
+                        xtype: 'component',
+                        html: Uni.I18n.translate('general.readingtype.obisCodeToReadingTypeMessage', 'MDC', 'The OBIS code cannot be mapped to a reading type. Displaying the full reading type list.'),
+                        itemId: 'obisCodeToReadingTypeMessage',
+                        style: {
+                            'font': 'italic 13px/17px Lato',
+                            'color': '#686868',
+                            'margin-top': '6px',
+                            'margin-left': '250px'
+                        },
+                        hidden: true
                     },
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: '&nbsp;',
+                        margin:'20 0 0 0',
                         layout: {
                             type: 'hbox',
                             align: 'stretch'
