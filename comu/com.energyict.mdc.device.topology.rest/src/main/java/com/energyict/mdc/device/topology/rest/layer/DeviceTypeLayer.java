@@ -1,18 +1,14 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.geo.Latitude;
-import com.elster.jupiter.util.geo.Longitude;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
-
 import org.osgi.service.component.annotations.Component;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,38 +26,8 @@ public class DeviceTypeLayer extends AbstractGraphLayer<Device> {
 
     public final static String NAME = "topology.GraphLayer.DeviceType";
 
-    private BigDecimal latitude;
-    private BigDecimal longitude;
-    private SpatialCoordinates parentCoordinates;
-
-    public enum PropertyNames implements TranslationKey {
-        DEVICE_TYPE("deviceType", "Device type"),
-        DEVICE_CONFIGURATION("deviceConfiguration", "Device configuration"),
-        HAS_COORDONATES("hasCoordonates", "Has coordonates"),
-        DEVICE_COORDINATES("deviceCoordinates", "Device coordinates");
-
-        private String propertyName;
-        private String defaultFormat;
-
-        PropertyNames(String propertyName, String defaultFormat) {
-            this.propertyName = propertyName;
-            this.defaultFormat = defaultFormat;
-        }
-
-        @Override
-        public String getKey() {
-            return LayerNames.DeviceTypeLayer.fullName() + ".node." + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
-        }
-
-        public String getPropertyName() {
-            return propertyName;
-        }
-
-        @Override
-        public String getDefaultFormat() {
-            return defaultFormat;
-        }
-    }
+    private SpatialCoordinates parentCoordinates = new SpatialCoordinates();
+    private int i = 1;
 
     @Override
     public GraphLayerType getType() {
@@ -98,31 +64,45 @@ public class DeviceTypeLayer extends AbstractGraphLayer<Device> {
         Device device = ((DeviceNodeInfo) nodeInfo).getDevice();
         this.setDeviceType(device.getDeviceType().getName());
         this.setDeviceConfiguration(device.getDeviceConfiguration().getName());
-        Device parent = nodeInfo.getParent();
-        if (parent != null && parentCoordinates == null) {
-            parentCoordinates = parent.getSpatialCoordinates().get();
-        }
         Optional<SpatialCoordinates> spatialCoordinates = device.getSpatialCoordinates();
         if (spatialCoordinates.isPresent()) {
             setDeviceCoordinates(spatialCoordinates.get());
             setDeviceCoordinatesPresents(true);
         } else {
-            setDeviceCoordinates(getCoordinatesInCloseProximityWithParentNode(parentCoordinates));
+            setDeviceCoordinates(nodeInfo.getCoordinates());
             setDeviceCoordinatesPresents(false);
         }
         return propertyMap();
     }
 
-    private SpatialCoordinates getCoordinatesInCloseProximityWithParentNode(SpatialCoordinates coordinates) {
-        if (latitude == null) {
-            latitude = coordinates.getLatitude().getValue();
+    public enum PropertyNames implements TranslationKey {
+        DEVICE_TYPE("deviceType", "Device type"),
+        DEVICE_CONFIGURATION("deviceConfiguration", "Device configuration"),
+        HAS_COORDONATES("hasCoordonates", "Has coordonates"),
+        DEVICE_COORDINATES("deviceCoordinates", "Device coordinates");
+
+        private String propertyName;
+        private String defaultFormat;
+
+        PropertyNames(String propertyName, String defaultFormat) {
+            this.propertyName = propertyName;
+            this.defaultFormat = defaultFormat;
         }
-        if (longitude == null) {
-            longitude = coordinates.getLongitude().getValue();
+
+        @Override
+        public String getKey() {
+            return LayerNames.DeviceTypeLayer.fullName() + ".node." + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
         }
-        latitude = latitude.add(new BigDecimal(0.5));
-        longitude = longitude.subtract(new BigDecimal(0.5));
-        return new SpatialCoordinates(new Latitude(latitude), new Longitude(longitude), coordinates.getElevation());
+
+        public String getPropertyName() {
+            return propertyName;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return defaultFormat;
+        }
     }
+
 
 }

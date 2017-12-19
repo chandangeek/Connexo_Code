@@ -1,13 +1,9 @@
 package com.energyict.mdc.device.topology.rest.info;
 
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
-
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreType;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,11 +23,13 @@ public abstract class NodeInfo<T extends HasId> {
     @JsonIgnore
     protected T nodeObject;
     @JsonIgnore
+    protected Map<String, Object> allProperties = new HashMap<>();
+    @JsonIgnore
     private List<GraphLayer<T>> layers = new ArrayList<>();
     @JsonIgnore
     private T parent;
     @JsonIgnore
-    protected Map<String, Object> allProperties =  new HashMap<>();
+    private SpatialCoordinates coordinates;
 
     public NodeInfo(T nodeObject) {
         this.nodeObject = nodeObject;
@@ -97,4 +95,13 @@ public abstract class NodeInfo<T extends HasId> {
         return (int) (this.nodeObject.getId() ^ (this.nodeObject.getId() >>> 32));
     }
 
+    @JsonIgnore
+    public SpatialCoordinates getCoordinates() {
+        return coordinates;
+    }
+
+    @JsonIgnore
+    public void setCoordinates(SpatialCoordinates coordinates) {
+        this.coordinates = coordinates;
+    }
 }

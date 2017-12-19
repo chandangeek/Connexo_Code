@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.topology.rest.impl;
 
+import com.elster.jupiter.util.geo.Elevation;
+import com.elster.jupiter.util.geo.Latitude;
+import com.elster.jupiter.util.geo.Longitude;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -8,10 +12,13 @@ import com.energyict.mdc.device.topology.rest.GraphLayerService;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.GraphInfo;
+import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -36,7 +43,7 @@ public class DeviceGraphFactory implements GraphFactory {
         this.clock = clock;
     }
 
-    public DeviceGraphFactory forceRefresh(boolean forceRefresh){
+    public DeviceGraphFactory forceRefresh(boolean forceRefresh) {
         this.forceRefresh = forceRefresh;
         return this;
     }
@@ -50,6 +57,7 @@ public class DeviceGraphFactory implements GraphFactory {
                 if (existing.isValid(now)) {
                     existing.setProperty("nodeCount", existing.size());
                     existing.setProperty("buildTime", Duration.between(now, clock.instant()).toMillis());
+                    setNodeCoordinates(existing);
                     return existing;
                 }
             }
@@ -95,10 +103,11 @@ public class DeviceGraphFactory implements GraphFactory {
 
     /**
      * Searches for a DeviceNodeInfo representing the device in all cached graphs
+     *
      * @param device to find the node for
      * @return an Optional holding the found node
      */
-    public Optional<DeviceNodeInfo> getNode(Device device){
+    public Optional<DeviceNodeInfo> getNode(Device device) {
         Device gateway = this.topologyService.getPhysicalGateway(device).orElse(device);
         Instant now = clock.instant();
         GraphInfo<Device> cachedGraphInfo = cachedGraphs.get(gateway.getId());
@@ -111,15 +120,44 @@ public class DeviceGraphFactory implements GraphFactory {
     }
 
     private DeviceNodeInfo newNode(Device device) {
-        final DeviceNodeInfo node = new DeviceNodeInfo(device, Optional.empty(), Optional.empty() );
+        final DeviceNodeInfo node = new DeviceNodeInfo(device, Optional.empty(), Optional.empty());
         graphLayerService.getGraphLayers().stream().filter((layer) -> layer.getType() == GraphLayerType.NODE).forEach(node::addLayer);
         return node;
     }
 
     private DeviceNodeInfo newNode(G3CommunicationPathSegment segment) {
-        final DeviceNodeInfo node = new DeviceNodeInfo(segment.getTarget(),Optional.of(segment.getSource()), segment.getInterval() == null ? Optional.empty() : Optional.of(segment.getInterval().toClosedOpenRange()));
+        final DeviceNodeInfo node = new DeviceNodeInfo(segment.getTarget(), Optional.of(segment.getSource()), segment.getInterval() == null ? Optional.empty() : Optional.of(segment.getInterval().toClosedOpenRange()));
         graphLayerService.getGraphLayers().stream().filter((layer) -> layer.getType() == GraphLayerType.NODE).forEach(node::addLayer);
         return node;
     }
+
+    private GraphInfo<Device> setNodeCoordinates(GraphInfo<Device> graphInfo) {
+        int i = 1;
+        SpatialCoordinates coordinates = ((DeviceNodeInfo) graphInfo.getRootNode()).getDevice().getSpatialCoordinates().orElse(new SpatialCoordinates(new Latitude(new BigDecimal(45.2251093)), new Longitude(new BigDecimal(22.0192515)), new Elevation(BigDecimal.ONE)));
+        Collection<NodeInfo<Device>> graphInfoNodes = graphInfo.getNodes();
+        for (NodeInfo<Device> nodeInfo : graphInfoNodes) {
+            Device device = ((DeviceNodeInfo) nodeInfo).getDevice();
+            if (!device.getSpatialCoordinates().isPresent()) {
+                nodeInfo.setCoordinates(getCoordinatesInCloseProximityWithParent(graphInfoNodes.size(), i, coordinates));
+                i++;
+            }
+        }
+        return graphInfo;
+    }
+
+    private SpatialCoordinates getCoordinatesInCloseProximityWithParent(int numberOfNodes, int i, SpatialCoordinates coordinates) {
+        SpatialCoordinates spatialCoordinates = new SpatialCoordinates();
+        double radius = 0.005;
+        double slice = 2 * Math.PI / numberOfNodes;
+        double angle = slice * i;
+        BigDecimal newX = (coordinates.getLatitude().getValue().add(new BigDecimal(radius * Math.cos(angle))));
+        BigDecimal newY = (coordinates.getLongitude().getValue().add(new BigDecimal(radius * Math.sin(angle))));
+        spatialCoordinates.setLatitude(new Latitude(newX));
+        spatialCoordinates.setLongitude(new Longitude(newY));
+        spatialCoordinates.setElevation(coordinates.getElevation());
+        return spatialCoordinates;
+    }
+
+
 
 }
