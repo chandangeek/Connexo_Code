@@ -244,8 +244,8 @@ public class ReadingTypeGroupLocalizedFieldsFactory implements ReadingTypeFields
         ENERGY(EnumSet.of(
                 ReadingTypeUnit.NOTAPPLICABLE,
                 ReadingTypeUnit.WATTHOUR,
-                ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR,
-                ReadingTypeUnit.VOLTAMPEREREACTIVE,
+                //ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR,
+                //ReadingTypeUnit.VOLTAMPEREREACTIVE,
                 ReadingTypeUnit.JOULE,
                 ReadingTypeUnit.BRITISHTHERMALUNIT)),
 
@@ -317,8 +317,8 @@ public class ReadingTypeGroupLocalizedFieldsFactory implements ReadingTypeFields
                 FlowDirection.NOTAPPLICABLE)),
         ELECTRICITY_PRIMARY_METERED(EnumSet.complementOf(EnumSet.range(FlowDirection.Q1PLUSQ2, FlowDirection.Q3MINUSQ2))),
         //ELECTRICITY_SECONDARY_METERED(EnumSet.complementOf(EnumSet.range(FlowDirection.Q1PLUSQ2, FlowDirection.Q3MINUSQ2))),
-        NATURALGAS(EnumSet.of(FlowDirection.FORWARD, FlowDirection.REVERSE)),
-        POTABLEWATER(EnumSet.of(FlowDirection.FORWARD, FlowDirection.REVERSE));
+        NATURALGAS(EnumSet.of(FlowDirection.NOTAPPLICABLE, FlowDirection.FORWARD, FlowDirection.REVERSE)),
+        POTABLEWATER(EnumSet.of(FlowDirection.NOTAPPLICABLE, FlowDirection.FORWARD, FlowDirection.REVERSE));
 
         EnumSet<FlowDirection> set;
 
