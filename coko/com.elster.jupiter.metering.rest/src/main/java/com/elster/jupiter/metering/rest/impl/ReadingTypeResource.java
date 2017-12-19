@@ -195,8 +195,6 @@ public class ReadingTypeResource {
     @Path("/basiccodes/{field}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getGroupCodes(@PathParam("field") String field, @BeanParam JsonQueryParameters queryParameters) {
-        //Integer commodity = kind ? queryFilter.getInteger("commodity") : null;
-        //Integer filterBy=null;
         return getGroupCodesWithFilter(field, null, queryParameters);
     }
 
