@@ -29,6 +29,7 @@ Ext.define('Wss.controller.Webservices', {
     refs: [
         {ref: 'preview', selector: 'webservices-preview'},
         {ref: 'addForm', selector: '#addForm'},
+        {ref: 'propertyForm', selector: 'endpoint-add property-form'},
         {ref: 'landingPageForm', selector: 'webservice-landing-page webservices-preview-form form'},
         {ref: 'paging', selector: 'webservices-grid pagingtoolbartop'}
     ],
@@ -136,7 +137,7 @@ Ext.define('Wss.controller.Webservices', {
     },
 
     saveEndPoint: function (button, record, acknowledgement) {
-        var form = button.up('form'),
+        var form = this.getAddForm(),
             me = this,
             formErrorsPanel = form.down('#addEndPointFormErrors');
         if(!form.isValid() && form.down('#logLevelCombo') === null) {
@@ -166,6 +167,15 @@ Ext.define('Wss.controller.Webservices', {
             record.set('group', null);
         }
         record.set('direction', null);
+        var properties = [];
+        this.getPropertyForm().getRecord().properties().each(function (property) {
+            properties.push(property.raw);
+        });
+        this.getPropertyForm().updateRecord();
+        if (!Ext.isEmpty(this.getPropertyForm().getRecord())) {
+            record.propertiesStore = this.getPropertyForm().getRecord().properties();
+            record.set('properties', this.getPropertyForm().getFieldValues().properties);
+        }
         record.save({
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge', acknowledgement);

@@ -4,6 +4,9 @@
 
 Ext.define('Wss.model.Webservice', {
     extend: 'Uni.model.Version',
+    requires: [
+        'Uni.property.model.Property'
+    ],
     fields: [
         {name: 'name', type: 'string'},
         {name: 'direction', type: 'auto'},
@@ -16,5 +19,12 @@ Ext.define('Wss.model.Webservice', {
         reader: {
             type: 'json'
         }
-    }
+    },
+    associations: [
+        {name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
+            getTypeDiscriminator: function () {
+                return 'Uni.property.model.Property';
+            }
+        }
+    ]
 });

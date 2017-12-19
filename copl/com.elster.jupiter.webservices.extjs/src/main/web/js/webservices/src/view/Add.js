@@ -8,7 +8,8 @@ Ext.define('Wss.view.Add', {
     itemId: 'endpoint-add',
     requires: [
         'Uni.util.FormErrorMessage',
-        'Uni.util.FormInfoMessage'
+        'Uni.util.FormInfoMessage',
+        'Uni.property.form.Property'
     ],
 
     initComponent: function(){
@@ -75,32 +76,43 @@ Ext.define('Wss.view.Add', {
                                         me.onSelectWebServiceType(combobox, newValue, oldValue);
                                     }
                                 }
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'property-form',
+                        itemId: 'property-form',
+                        width: '100%',
+                        defaults: {
+                            labelWidth: 250,
+                            width: 325,
+                            resetButtonHidden: true,
+                            hasNotValueSameAsDefaultMessage: true
+                        }
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        itemId: 'form-buttons',
+                        fieldLabel: '&nbsp;',
+                        layout: 'hbox',
+                        labelWidth: 250,
+                        margin: '20 0 0 0',
+                        items: [
+                            {
+                                xtype: 'button',
+                                itemId: 'btn-add-webservice-endpoint',
+                                text: this.action === 'edit'?Uni.I18n.translate('general.save', 'WSS', 'Save'):Uni.I18n.translate('general.add', 'WSS', 'Add'),
+                                ui: 'action',
+                                action: me.action
                             },
                             {
-                                xtype: 'fieldcontainer',
-                                itemId: 'form-buttons',
-                                fieldLabel: '&nbsp;',
-                                layout: 'hbox',
-                                margin: '20 0 0 0',
-                                items: [
-                                    {
-                                        xtype: 'button',
-                                        itemId: 'btn-add-webservice-endpoint',
-                                        text: this.action === 'edit'?Uni.I18n.translate('general.save', 'WSS', 'Save'):Uni.I18n.translate('general.add', 'WSS', 'Add'),
-                                        ui: 'action',
-                                        action: me.action
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        itemId: 'btn-cancel-webservice-endpoint',
-                                        text: Uni.I18n.translate('general.cancel', 'WSS', 'Cancel'),
-                                        ui: 'link',
-                                        action: 'cancel',
-                                        href: me.returnLink
-                                    }
-                                ]
+                                xtype: 'button',
+                                itemId: 'btn-cancel-webservice-endpoint',
+                                text: Uni.I18n.translate('general.cancel', 'WSS', 'Cancel'),
+                                ui: 'link',
+                                action: 'cancel',
+                                href: me.returnLink
                             }
-
                         ]
                     }
                 ]
@@ -163,6 +175,7 @@ Ext.define('Wss.view.Add', {
             if(record){
                 this.addFormFields(record.get('direction').id, record.get('type'));
                 form.getForm().setValues(values);
+                this.down('#property-form').loadRecord(record);
             }
         }
     },
@@ -324,32 +337,6 @@ Ext.define('Wss.view.Add', {
                 }
             );
         }
-        form.add(
-            {
-                xtype: 'fieldcontainer',
-                itemId: 'form-buttons',
-                fieldLabel: '&nbsp;',
-                layout: 'hbox',
-                margin: '20 0 0 0',
-                items: [
-                    {
-                        xtype: 'button',
-                        itemId: 'btn-add-webservice-endpoint',
-                        text: this.action === 'edit'?Uni.I18n.translate('general.save', 'WSS', 'Save'):Uni.I18n.translate('general.add', 'WSS', 'Add'),
-                        ui: 'action',
-                        action: me.action
-                    },
-                    {
-                        xtype: 'button',
-                        itemId: 'btn-cancel-webservice-endpoint',
-                        text: Uni.I18n.translate('general.cancel', 'WSS', 'Cancel'),
-                        ui: 'link',
-                        action: 'cancel',
-                        href: me.returnLink
-                    }
-                ]
-            }
-        );
         Ext.resumeLayouts(true);
     }
 });

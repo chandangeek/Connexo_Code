@@ -7,7 +7,8 @@ Ext.define('Wss.model.Endpoint', {
     requires: [
         'Wss.model.LogLevel',
         'Wss.model.AuthenticationMethod',
-        'Wss.model.Role'
+        'Wss.model.Role',
+        'Uni.property.model.Property'
     ],
     fields: [
        // {name: 'id', type: 'number'},
@@ -55,7 +56,13 @@ Ext.define('Wss.model.Endpoint', {
         }
     ],
 
-
+    associations: [
+        {name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
+            getTypeDiscriminator: function () {
+                return 'Uni.property.model.Property';
+            }
+        }
+    ],
 
     proxy: {
         type: 'rest',
