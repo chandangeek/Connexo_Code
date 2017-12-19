@@ -65,7 +65,7 @@ public class ReadingTypeGroupLocalizedFieldsFactory implements ReadingTypeFields
 
             case UNIT: {
                 MeasurementKind kind = this.filterBy != null ? MeasurementKind.get(this.filterBy) : null;
-                if (kind != null)  // lori
+                if (kind != null)
                 {
                     values = Arrays.stream(UnitByMeasurementKind.values())
                             .filter(mk -> mk.name().compareToIgnoreCase(kind.name()) == 0)
@@ -122,7 +122,6 @@ public class ReadingTypeGroupLocalizedFieldsFactory implements ReadingTypeFields
                         .map(c -> new CodeField(c.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.AccumulationFields(c)).format())).sorted()
                         .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll);
                 break;
-                // .filter(mk->mk.name().compareToIgnoreCase(macroPeriodOption.name())==0) // no filter needed
             }
 
             case MEASUREMENT_PERIOD: {
