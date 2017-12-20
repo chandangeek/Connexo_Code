@@ -132,13 +132,18 @@ public class DeviceGraphFactory implements GraphFactory {
     }
 
     private GraphInfo<Device> setNodeCoordinates(GraphInfo<Device> graphInfo) {
+        Map<String, SpatialCoordinates> mapOfParentWithCoordinates = new HashMap<>();
         int i = 1;
         SpatialCoordinates coordinates = ((DeviceNodeInfo) graphInfo.getRootNode()).getDevice().getSpatialCoordinates().orElse(new SpatialCoordinates(new Latitude(new BigDecimal(45.2251093)), new Longitude(new BigDecimal(22.0192515)), new Elevation(BigDecimal.ONE)));
         Collection<NodeInfo<Device>> graphInfoNodes = graphInfo.getNodes();
         for (NodeInfo<Device> nodeInfo : graphInfoNodes) {
+            Device parent = nodeInfo.getParent();
+            if (parent != null) {
+                mapOfParentWithCoordinates.put(parent.getName(), parent.getSpatialCoordinates().orElse(coordinates));
+            }
             Device device = ((DeviceNodeInfo) nodeInfo).getDevice();
             if (!device.getSpatialCoordinates().isPresent()) {
-                nodeInfo.setCoordinates(getCoordinatesInCloseProximityWithParent(graphInfoNodes.size(), i, coordinates));
+                nodeInfo.setCoordinates(getCoordinatesInCloseProximityWithParent(graphInfoNodes.size(), i, mapOfParentWithCoordinates.get(nodeInfo.getParent().getName())));
                 i++;
             }
         }
