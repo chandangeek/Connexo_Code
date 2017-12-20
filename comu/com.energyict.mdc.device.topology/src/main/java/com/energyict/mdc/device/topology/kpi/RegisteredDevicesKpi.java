@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.topology.kpi;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.util.HasId;
 
 import com.google.common.collect.Range;
@@ -39,4 +40,14 @@ public interface RegisteredDevicesKpi extends HasId {
     Optional<Instant> getLatestCalculation();
 
     void updateTarget(long target);
+
+    void setTarget(long target);
+
+    List<RecurrentTask> getNextRecurrentTasks();
+
+    List<RecurrentTask> getPrevRecurrentTasks();
+
+    void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
+
+    void save();
 }

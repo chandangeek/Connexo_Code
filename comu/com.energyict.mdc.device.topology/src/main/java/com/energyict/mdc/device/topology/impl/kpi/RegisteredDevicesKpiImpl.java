@@ -36,6 +36,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,6 +86,7 @@ public class RegisteredDevicesKpiImpl implements RegisteredDevicesKpi {
     @NotNull(groups = {Save.Create.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private transient TemporalAmount frequency;
     private Reference<RecurrentTask> kpiTask = ValueReference.absent();
+    private List<RecurrentTask> nextRecurrentTasks = new ArrayList<>();
 
     @Inject
     public RegisteredDevicesKpiImpl(DataModel dataModel, MessageService messageService, TaskService taskService, KpiService kpiService) {
@@ -103,15 +105,19 @@ public class RegisteredDevicesKpiImpl implements RegisteredDevicesKpi {
         return this;
     }
 
+    @Override
     public void setTarget(long target) {
         this.target = target;
     }
 
+    @Override
     public void save() {
         if (this.getId() == 0) {
             Save.CREATE.save(this.dataModel, this);
             newKpi();
             this.saveKpiAndTask();
+        } else {
+            this.saveTask();
         }
         Save.UPDATE.save(this.dataModel, this);
     }
@@ -134,9 +140,15 @@ public class RegisteredDevicesKpiImpl implements RegisteredDevicesKpi {
                     .setDestination(destination)
                     .setPayLoad(String.valueOf(this.getId()))
                     .scheduleImmediately(true)
+                    .setNextRecurrentTasks(nextRecurrentTasks)
                     .build();
             kpiTask.set(recurrentTask);
         }
+    }
+
+    private void saveTask() {
+        kpiTask.get().setNextRecurrentTasks(nextRecurrentTasks);
+        kpiTask.get().save();
     }
 
     public Kpi kpi() {
@@ -215,6 +227,26 @@ public class RegisteredDevicesKpiImpl implements RegisteredDevicesKpi {
     public void updateTarget(long target) {
         this.target = target;
         this.save();
+    }
+
+    @Override
+    public List<RecurrentTask> getNextRecurrentTasks() {
+        return kpiTask.getOptional()
+                .map(recurrentTask -> recurrentTask.getNextRecurrentTasks())
+                .orElse(Collections.emptyList());
+    }
+
+    @Override
+    public List<RecurrentTask> getPrevRecurrentTasks() {
+        return kpiTask.getOptional()
+                .map(recurrentTask -> recurrentTask.getPrevRecurrentTasks())
+                .orElse(Collections.emptyList());
+    }
+
+    @Override
+    public void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+        this.nextRecurrentTasks = nextRecurrentTasks;
+
     }
 
     public boolean hasDeviceGroup() {
