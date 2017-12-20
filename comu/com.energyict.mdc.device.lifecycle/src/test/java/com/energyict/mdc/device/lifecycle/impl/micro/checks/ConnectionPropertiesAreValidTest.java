@@ -151,7 +151,7 @@ public class ConnectionPropertiesAreValidTest {
         when(this.device.getComTaskExecutions()).thenReturn(Collections.singletonList(cte1));
         SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
         when(securityAccessor.getActualValue()).thenReturn(Optional.of("someValue"));
-        when(device.getKeyAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
+        when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
 
         // Business method
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
@@ -173,7 +173,7 @@ public class ConnectionPropertiesAreValidTest {
         ComTaskExecution cte1 = mock(ComTaskExecution.class);
         when(cte1.getConnectionTask()).thenReturn(Optional.of(ct1));
         when(this.device.getComTaskExecutions()).thenReturn(Collections.singletonList(cte1));
-        when(device.getKeyAccessor(securityAccessorType)).thenReturn(Optional.empty());
+        when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.empty());
 
         // Business method
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
@@ -198,7 +198,7 @@ public class ConnectionPropertiesAreValidTest {
         when(this.device.getComTaskExecutions()).thenReturn(Collections.singletonList(cte1));
         SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
         when(securityAccessor.getActualValue()).thenReturn(Optional.empty());
-        when(device.getKeyAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
+        when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
 
         // Business method
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
