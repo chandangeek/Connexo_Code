@@ -12,14 +12,14 @@
         <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
     <artifactId>yellowfin.installer</artifactId>
-    <version>1.4.0${revision}</version>
+    <version>2.0.0${revision}</version>
     <name>[Jupiter] com.elster.jupiter.yellowfin.installer</name>
 
     <dependencies>
         <dependency>
             <groupId>com.yellowfin</groupId>
             <artifactId>yellowfin-ws</artifactId>
-            <version>7.1.1</version>
+            <version>7.4</version>
         </dependency>
 
         <dependency>
