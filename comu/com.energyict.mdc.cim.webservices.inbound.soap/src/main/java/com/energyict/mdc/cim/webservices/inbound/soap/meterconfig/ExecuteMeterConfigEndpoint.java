@@ -4,13 +4,14 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
-import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.data.Device;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
@@ -25,7 +26,7 @@ import ch.iec.tc57._2011.schema.message.ReplyType;
 
 import javax.inject.Inject;
 
-public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
+public class ExecuteMeterConfigEndpoint implements MeterConfigPort, EndPointProp {
 
     private static final String NOUN = "MeterConfig";
 

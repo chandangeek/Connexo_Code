@@ -8,9 +8,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 
-import ch.iec.tc57._2011.getenddeviceevents.FaultMessage;
-import ch.iec.tc57._2011.getenddeviceeventsmessage.EndDeviceEventsFaultMessageType;
-import ch.iec.tc57._2011.getenddeviceeventsmessage.ObjectFactory;
+import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsFaultMessageType;
+import ch.iec.tc57._2011.enddeviceeventsmessage.ObjectFactory;
+import ch.iec.tc57._2011.receiveenddeviceevents.FaultMessage;
+import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 
 import javax.inject.Inject;
@@ -27,21 +28,25 @@ class EndDeviceEventsFaultMessageFactory {
         this.replyTypeFactory = replyTypeFactory;
     }
 
-    Supplier<FaultMessage> createEndDeviceEventsFaultMessageSupplier(MessageSeeds messageSeed, Object... args) {
-        return () -> createEndDeviceEventsFaultMessage(replyTypeFactory.failureReplyType(messageSeed, args));
+    Supplier<FaultMessage> createEndDeviceEventsFaultMessageSupplier(MessageSeeds basicMessage, MessageSeeds messageSeed, Object... args) {
+        return () -> createEndDeviceEventsFaultMessage(basicMessage, replyTypeFactory.failureReplyType(messageSeed, args));
     }
 
-    FaultMessage createEndDeviceEventsFaultMessage(String message, String errorCode) {
-        return createEndDeviceEventsFaultMessage(replyTypeFactory.failureReplyType(message, errorCode));
+    FaultMessage createEndDeviceEventsFaultMessage(MessageSeeds basicMessage, String message, String errorCode) {
+        return createEndDeviceEventsFaultMessage(basicMessage, replyTypeFactory.failureReplyType(message, errorCode));
     }
 
-    FaultMessage createEndDeviceEventsFaultMessage(String message) {
-        return createEndDeviceEventsFaultMessage(message, null);
+    FaultMessage createEndDeviceEventsFaultMessage(MessageSeeds basicMessage, String message) {
+        return createEndDeviceEventsFaultMessage(basicMessage, message, null);
     }
 
-    private FaultMessage createEndDeviceEventsFaultMessage(ReplyType replyType) {
+    FaultMessage createEndDeviceEventsFaultMessage(MessageSeeds basicMessage, ErrorType... errors) {
+        return createEndDeviceEventsFaultMessage(basicMessage, replyTypeFactory.failureReplyType(ReplyType.Result.FAILED, errors));
+    }
+
+    private FaultMessage createEndDeviceEventsFaultMessage(MessageSeeds basicMessage, ReplyType replyType) {
         EndDeviceEventsFaultMessageType faultMessageType = messageFactory.createEndDeviceEventsFaultMessageType();
         faultMessageType.setReply(replyType);
-        return new FaultMessage(MessageSeeds.UNABLE_TO_GET_END_DEVICE_EVENTS.translate(thesaurus), faultMessageType);
+        return new FaultMessage(basicMessage.translate(thesaurus), faultMessageType);
     }
 }
