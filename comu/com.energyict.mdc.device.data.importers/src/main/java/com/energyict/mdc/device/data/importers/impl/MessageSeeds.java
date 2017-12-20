@@ -111,10 +111,8 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_EXTRACT_SERIAL_NUMBER(541, "CouldNotExtractSerialNumber", "The device serial number could not be extracted from the filename {0}", Level.SEVERE),
     COULD_NOT_EXTRACT_CERTIFICATE_NAME(542, "CouldNotExtractCertificateName", "The certificate name could not be extracted from the filename {0}", Level.SEVERE),
     CERTIFICATE_NO_SUCH_KEY_ACCESSOR_TYPE(543, "CertificateNoSuchKeyAccessorType", "Can''t process certificate {0}. The security key that starts with X is not available", Level.WARNING),
-    NO_SERIAL_NUMBER(544, "ImportZipProcessorNoMatchingDevice", "Can''t process serialNumber {0}: No device found: {1}.", Level.WARNING),
+    NO_SERIAL_NUMBER(544, "ImportZipProcessorNoMatchingDevice", "Can''t process serialNumber {0}: No device found: {1}.", Level.WARNING)
     ;
-
-
 
     private final int number;
     private final String key;

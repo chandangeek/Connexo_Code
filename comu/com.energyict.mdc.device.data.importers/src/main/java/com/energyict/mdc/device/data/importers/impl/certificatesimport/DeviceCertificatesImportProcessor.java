@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl.certificatesimport;
 
-import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessorType;
@@ -9,38 +8,27 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.importers.impl.*;
-import com.energyict.mdc.device.data.importers.impl.certificatesimport.exceptions.InvalidPublicKeyException;
 import com.energyict.mdc.device.data.importers.impl.certificatesimport.exceptions.ZipProcessorException;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.ZipFile;
 
 public class DeviceCertificatesImportProcessor implements FileImportZipProcessor {
 
-    private final String publicKey;
     private final Thesaurus thesaurus;
 
     private volatile SecurityManagementService securityManagementService;
-    private volatile FileImportService fileImportService;
     private volatile DeviceService deviceService;
 
-    public DeviceCertificatesImportProcessor(DeviceDataImporterContext deviceDataImporterContext, String publicKey) {
+    public DeviceCertificatesImportProcessor(DeviceDataImporterContext deviceDataImporterContext) {
         securityManagementService = deviceDataImporterContext.getSecurityManagementService();
-        fileImportService = deviceDataImporterContext.getFileImportService();
         deviceService = deviceDataImporterContext.getDeviceService();
         thesaurus = deviceDataImporterContext.getThesaurus();
-        this.publicKey = publicKey;
     }
 
     @Override
@@ -69,27 +57,7 @@ public class DeviceCertificatesImportProcessor implements FileImportZipProcessor
         SecurityAccessor accessor = getKeyAccessor(device, securityAccessorType);
         X509Certificate certificate = getX509Certificate(zipFile, importZipEntry);
         ClientCertificateWrapper wrapper = getWrapper(importZipEntry, securityAccessorType, certificate);
-
-        validatePublicKey(publicKey, wrapper);
         save(accessor, wrapper);
-    }
-
-    private void validatePublicKey(String publicKey, ClientCertificateWrapper wrapper) {
-        try {
-            wrapper.getCertificate().get().verify(getPublic(publicKey, wrapper.getKeyType().getKeyAlgorithm()));
-        } catch (Exception e) {
-            throw new InvalidPublicKeyException(thesaurus, MessageSeeds.INVALID_PUBLIC_KEY, publicKey);
-        }
-    }
-
-    private PublicKey getPublic(String publicKey, String keyAlgorithm) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
-        Security.addProvider(new BouncyCastleProvider());
-        String fullPath = fileImportService.getBasePath() + File.separator + publicKey;
-
-        byte[] keyBytes = Files.readAllBytes(new File(fullPath).toPath());
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory kf = KeyFactory.getInstance((keyAlgorithm == null ? "RSA" : keyAlgorithm), "BC");
-        return kf.generatePublic(spec);
     }
 
     private void save(SecurityAccessor accessor, ClientCertificateWrapper wrapper) {

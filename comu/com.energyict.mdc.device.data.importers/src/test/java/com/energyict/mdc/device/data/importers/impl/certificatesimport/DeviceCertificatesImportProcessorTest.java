@@ -58,9 +58,7 @@ public class DeviceCertificatesImportProcessorTest {
     public void beforeTest() {
         reset(deviceService, securityManagementService, fileImportService, logger);
 
-        Thesaurus thesaurus = mock(Thesaurus.class,RETURNS_MOCKS);
-        when(thesaurus.getSimpleFormat(MessageSeeds.INVALID_PUBLIC_KEY))
-                .thenReturn(new SimpleNlsMessageFormat(MessageSeeds.INVALID_PUBLIC_KEY));
+        Thesaurus thesaurus = mock(Thesaurus.class, RETURNS_MOCKS);
         when(context.getThesaurus()).thenReturn(thesaurus);
         when(context.getDeviceService()).thenReturn(deviceService);
         when(context.getSecurityManagementService()).thenReturn(securityManagementService);
@@ -69,7 +67,7 @@ public class DeviceCertificatesImportProcessorTest {
         Path path = mock(Path.class);
         when(fileImportService.getBasePath()).thenReturn(path);
 
-        processor = new DeviceCertificatesImportProcessor(context, "publicKey_RSA");
+        processor = new DeviceCertificatesImportProcessor(context);
     }
 
     @Test
@@ -153,19 +151,6 @@ public class DeviceCertificatesImportProcessorTest {
         verify(builder.getDevice(), times(2)).getSecurityAccessor(any(SecurityAccessorType.class));
         verify(builder.getSecurityAccessor()).setActualValue(any(SecurityValueWrapper.class));
         verify(builder.getSecurityAccessor()).save();
-    }
-
-    @Test
-    public void testInvalidPublicKey() throws Exception {
-        DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build("ECDSA");
-        FileImportZipEntry importZipEntry = builder.getImportZipEntry();
-
-        try {
-            processor.process(builder.getZipFile(), importZipEntry, logger);
-            fail();
-        } catch (InvalidPublicKeyException expected) {
-            assertEquals("Public key publicKey_RSA match doesn't certificate key", expected.getMessage());
-        }
     }
 
     private ZipFile getZipFile(String fileName) {

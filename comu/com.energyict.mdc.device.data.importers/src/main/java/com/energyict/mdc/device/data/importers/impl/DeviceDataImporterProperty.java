@@ -106,18 +106,6 @@ public enum DeviceDataImporterProperty {
                 }
             }
         }
-    },
-    AUTHORIZATION(TranslationKeys.DEVICE_CERTIFICATES_IMPORTER_PUBLIC_KEY, TranslationKeys.DEVICE_CERTIFICATES_IMPORTER_PUBLIC_KEY_DESCRIPTION) {
-        @Override
-        public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
-            return context.getPropertySpecService()
-                    .stringSpec()
-                    .named(this.getPropertyKey(), this.getNameTranslationKey())
-                    .describedAs(this.getDescriptionTranslationKey())
-                    .fromThesaurus(context.getThesaurus())
-                    .markRequired()
-                    .finish();
-        }
     };
 
     private final TranslationKeys nameTranslationKey;
