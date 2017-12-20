@@ -7,6 +7,7 @@ package com.elster.jupiter.appserver.rest.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.streams.Functions;
@@ -29,12 +30,12 @@ public class AppServerInfo {
     public AppServerInfo() {
     }
 
-    public static AppServerInfo of(AppServer appServer, String importPath, String exportPath, Thesaurus thesaurus, WebServicesService webServicesService, UriInfo uriInfo) {
-        return new AppServerInfo(appServer, importPath, exportPath, thesaurus, webServicesService, uriInfo);
+    public static AppServerInfo of(AppServer appServer, String importPath, String exportPath, Thesaurus thesaurus, WebServicesService webServicesService, UriInfo uriInfo, PropertyValueInfoService propertyValueInfoService) {
+        return new AppServerInfo(appServer, importPath, exportPath, thesaurus, webServicesService, uriInfo, propertyValueInfoService);
     }
 
-    public AppServerInfo(AppServer appServer, String importPath, String exportPath, Thesaurus thesaurus, WebServicesService webServicesService, UriInfo uriInfo) {
-        EndPointConfigurationInfoFactory endPointConfigurationInfoFactory = new EndPointConfigurationInfoFactory(thesaurus, webServicesService);
+    public AppServerInfo(AppServer appServer, String importPath, String exportPath, Thesaurus thesaurus, WebServicesService webServicesService, UriInfo uriInfo, PropertyValueInfoService propertyValueInfoService) {
+        EndPointConfigurationInfoFactory endPointConfigurationInfoFactory = new EndPointConfigurationInfoFactory(thesaurus, webServicesService, propertyValueInfoService);
         name = appServer.getName();
         active = appServer.isActive();
         version = appServer.getVersion();

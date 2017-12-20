@@ -5,6 +5,7 @@
 package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -19,11 +20,13 @@ import java.util.Optional;
 public class EndPointConfigurationInfoFactory {
     Thesaurus thesaurus;
     private final WebServicesService webServicesService;
+    private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
-    public EndPointConfigurationInfoFactory(Thesaurus thesaurus, WebServicesService webServicesService) {
+    public EndPointConfigurationInfoFactory(Thesaurus thesaurus, WebServicesService webServicesService, PropertyValueInfoService propertyValueInfoService) {
         this.thesaurus = thesaurus;
         this.webServicesService = webServicesService;
+        this.propertyValueInfoService = propertyValueInfoService;
     }
 
     public EndPointConfigurationInfo from(EndPointConfiguration endPointConfiguration, UriInfo uriInfo) {
@@ -58,6 +61,7 @@ public class EndPointConfigurationInfoFactory {
         if(webService.isPresent()){
             info.type = webService.get().getProtocol().name();
         }
+        info.properties = propertyValueInfoService.getPropertyInfos(endPointConfiguration.getPropertySpecs(), endPointConfiguration.getProps());
         return info;
     }
 }

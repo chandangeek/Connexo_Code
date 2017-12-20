@@ -4,10 +4,12 @@
 
 package com.elster.jupiter.appserver.rest.impl;
 
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 
+import java.util.List;
 
 public class EndPointConfigurationInfo {
     public long id;
@@ -26,4 +28,5 @@ public class EndPointConfigurationInfo {
     public String type;
     public String previewUrl;
     public LongIdWithNameInfo group;
+    public List<PropertyInfo> properties;
 }

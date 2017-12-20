@@ -17,6 +17,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
@@ -80,9 +81,13 @@ public class AppServerResource {
     private final EndPointConfigurationService endPointConfigurationService;
     private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
     private final WebServicesService webServicesService;
+    private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
-    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, FileImportService fileImportService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, ConcurrentModificationExceptionFactory conflictFactory, EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, WebServicesService webServicesService) {
+    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, FileImportService fileImportService,
+                             TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus, DataExportService dataExportService,
+                             FileSystem fileSystem, ConcurrentModificationExceptionFactory conflictFactory, EndPointConfigurationService endPointConfigurationService,
+                             EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, WebServicesService webServicesService, PropertyValueInfoService propertyValueInfoService) {
         this.queryService = queryService;
         this.appService = appService;
         this.messageService = messageService;
@@ -96,6 +101,7 @@ public class AppServerResource {
         this.endPointConfigurationService = endPointConfigurationService;
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
         this.webServicesService = webServicesService;
+        this.propertyValueInfoService = propertyValueInfoService;
     }
 
     private AppServer fetchAppServer(String appServerName) {
@@ -122,7 +128,7 @@ public class AppServerResource {
                 .map(appServer -> {
                     String exportDir = dataExportService.getExportDirectory(appServer).map(Object::toString).orElse(null);
                     String importDir = appServer.getImportDirectory().map(Object::toString).orElse(null);
-                    return AppServerInfo.of(appServer, importDir, exportDir, thesaurus, webServicesService, uriInfo);
+                    return AppServerInfo.of(appServer, importDir, exportDir, thesaurus, webServicesService, uriInfo, propertyValueInfoService);
                 })
                 .collect(Collectors.toCollection(ArrayList::new));
 
@@ -138,7 +144,7 @@ public class AppServerResource {
         AppServer appServer = fetchAppServer(appServerName);
         String importPath = appServer.getImportDirectory().map(Object::toString).orElse(null);
         String exportPath = dataExportService.getExportDirectory(appServer).map(Object::toString).orElse(null);
-        return AppServerInfo.of(appServer, importPath, exportPath, thesaurus, webServicesService, uriInfo);
+        return AppServerInfo.of(appServer, importPath, exportPath, thesaurus, webServicesService, uriInfo, propertyValueInfoService);
     }
 
     @POST
@@ -192,7 +198,7 @@ public class AppServerResource {
             context.commit();
         }
         return Response.status(Response.Status.CREATED)
-                .entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus, webServicesService, uriInfo))
+                .entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus, webServicesService, uriInfo, propertyValueInfoService))
                 .build();
     }
 
@@ -226,7 +232,7 @@ public class AppServerResource {
             context.commit();
         }
         return Response.status(Response.Status.CREATED)
-                .entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus, webServicesService, uriInfo))
+                .entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus, webServicesService, uriInfo, propertyValueInfoService))
                 .build();
     }
 

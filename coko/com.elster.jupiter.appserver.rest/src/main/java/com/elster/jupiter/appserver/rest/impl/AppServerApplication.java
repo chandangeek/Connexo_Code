@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
@@ -54,6 +55,7 @@ public class AppServerApplication extends Application implements MessageSeedProv
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile WebServicesService webServicesService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
@@ -119,6 +121,11 @@ public class AppServerApplication extends Application implements MessageSeedProv
         this.dataExportService = dataExportService;
     }
 
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -140,6 +147,7 @@ public class AppServerApplication extends Application implements MessageSeedProv
                 bind(endPointConfigurationService).to(EndPointConfigurationService.class);
                 bind(EndPointConfigurationInfoFactory.class).to(EndPointConfigurationInfoFactory.class);
                 bind(webServicesService).to(WebServicesService.class);
+                bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
