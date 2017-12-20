@@ -15,6 +15,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.users.Group;
 
+import com.google.common.collect.ImmutableMap;
+
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
@@ -27,7 +29,14 @@ public enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<EndPointConfiguration> table = dataModel.addTable(this.name(), EndPointConfiguration.class);
-            table.map(EndPointConfigurationImpl.IMPLEMENTERS);
+//            table.map(EndPointConfigurationImpl.IMPLEMENTERS);
+
+            table.map(ImmutableMap.of(
+                    "0", InboundEndPointConfigurationImpl.class,
+                    "1", OutboundEndPointConfigurationImpl.class
+            ));
+
+
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             table.column("name").varChar().notNull().map(EndPointConfigurationImpl.Fields.NAME.fieldName()).add();

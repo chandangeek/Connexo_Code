@@ -4,8 +4,6 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf;
 
-import com.elster.jupiter.properties.PropertySpec;
-
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
@@ -70,5 +68,4 @@ public interface WebServicesService {
      */
     void removeAllEndPoints();
 
-    List<PropertySpec> getWebServicePropertySpecs(String webServiceName);
 }

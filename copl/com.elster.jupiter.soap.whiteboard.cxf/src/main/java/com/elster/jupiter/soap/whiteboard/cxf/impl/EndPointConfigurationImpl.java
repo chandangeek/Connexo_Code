@@ -15,8 +15,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.collections.ArrayDiffList;
@@ -25,7 +25,6 @@ import com.elster.jupiter.util.conditions.Where;
 
 import com.google.common.collect.ImmutableMap;
 
-import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.ByteArrayOutputStream;
@@ -81,24 +80,24 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     private long version;
 
     private final DataModel dataModel;
-    private final WebServicesService webServicesService;
+    private final EndPointService endPointService;
 
     private List<EndPointProperty> properties = new ArrayList<>();
 
     private static final String INBOUND_WEBSERVICE_DISCRIMINATOR = "0";
 
     private static final String OUTBOUND_WEBSERVICE_DISCRIMINATOR = "1";
+
     static final Map<String, Class<? extends EndPointConfiguration>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends EndPointConfiguration>>of(
                     INBOUND_WEBSERVICE_DISCRIMINATOR, InboundEndPointConfigurationImpl.class,
                     OUTBOUND_WEBSERVICE_DISCRIMINATOR, OutboundEndPointConfigurationImpl.class);
 
-    @Inject
-    public EndPointConfigurationImpl(Clock clock, DataModel dataModel, TransactionService transactionService, WebServicesService webServicesService) {
+    public EndPointConfigurationImpl(Clock clock, DataModel dataModel, TransactionService transactionService, EndPointService endPointService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.transactionService = transactionService;
-        this.webServicesService = webServicesService;
+        this.endPointService = endPointService;
     }
 
     public void delete() {
@@ -325,7 +324,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return webServicesService.getWebServicePropertySpecs(getWebServiceName());
+        return endPointService.getWebServicePropertySpecs(getWebServiceName());
     }
 
     @Override

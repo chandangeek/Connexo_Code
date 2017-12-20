@@ -7,8 +7,8 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointService;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 
 import javax.inject.Inject;
@@ -27,8 +27,8 @@ public final class OutboundEndPointConfigurationImpl extends EndPointConfigurati
     private String password;
 
     @Inject
-    public OutboundEndPointConfigurationImpl(DataModel dataModel, Clock clock, TransactionService transactionService, WebServicesService webServicesService) {
-        super(clock, dataModel, transactionService, webServicesService);
+    public OutboundEndPointConfigurationImpl(DataModel dataModel, Clock clock, TransactionService transactionService, EndPointService endPointService) {
+        super(clock, dataModel, transactionService, endPointService);
     }
 
     public String getUsername() {

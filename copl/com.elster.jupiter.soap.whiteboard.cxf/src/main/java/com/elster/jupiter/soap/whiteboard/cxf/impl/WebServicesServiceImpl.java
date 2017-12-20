@@ -10,8 +10,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointService;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
@@ -47,7 +47,6 @@ import org.osgi.service.http.HttpService;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,7 +63,6 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
     private static final Logger logger = Logger.getLogger("WebServicesServiceImpl");
 
     private volatile ServiceRegistration<WebServicesService> registration;
-    private Map<String, EndPointFactory> webServices = new ConcurrentHashMap<>();
     private final Map<EndPointConfiguration, ManagedEndpoint> endpoints = new ConcurrentHashMap<>();
     private volatile SoapProviderSupportFactory soapProviderSupportFactory;
     private volatile BundleContext bundleContext;
@@ -75,6 +73,7 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
     private volatile UserService userService;
     private volatile TransactionService transactionService;
     private volatile HttpService httpService;
+    private volatile EndPointService endPointService;
 
     // OSGi
     public WebServicesServiceImpl() {
@@ -84,8 +83,9 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
     public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService,
                                   UpgradeService upgradeService, BundleContext bundleContext, EventService eventService,
                                   UserService userService, NlsService nlsService, TransactionService transactionService,
-                                  HttpService httpService) {
+                                  HttpService httpService, EndPointService endPointService) {
         setSoapProviderSupportFactory(soapProviderSupportFactory);
+        setEndPointService(endPointService);
         setOrmService(ormService);
         setUpgradeService(upgradeService);
         setEventService(eventService);
@@ -139,9 +139,14 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setEndPointService(EndPointService endPointService) {
+        this.endPointService = endPointService;
+    }
+
     @Override
     public Optional<WebService> getWebService(String webServiceName) {
-        final EndPointFactory endPointFactory = webServices.get(webServiceName);
+        final EndPointFactory endPointFactory = endPointService.getEndPointFactory(webServiceName);
         if (endPointFactory != null) {
             return Optional.of(new WebService() {
                 @Override
@@ -156,21 +161,11 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
 
                 @Override
                 public WebServiceProtocol getProtocol() {
-                    return webServices.get(webServiceName).getProtocol();
+                    return endPointFactory.getProtocol();
                 }
             });
         } else {
             return Optional.empty();
-        }
-    }
-
-    public List<PropertySpec> getWebServicePropertySpecs(String webServiceName) {
-        final EndPointFactory endPointFactory = webServices.get(webServiceName);
-        if (endPointFactory != null && endPointFactory.getEndPointProvider() instanceof InboundSoapEndPointProvider) {
-            InboundSoapEndPointProvider provider = (InboundSoapEndPointProvider) endPointFactory.getEndPointProvider();
-            return provider.get().getPropertySpecs();
-        } else {
-            return new ArrayList<>();
         }
     }
 
@@ -190,7 +185,7 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
 
     @Override
     public List<WebService> getWebServices() {
-        return webServices.entrySet().stream().map(e -> new WebService() {
+        return endPointService.getWebServices().entrySet().stream().map(e -> new WebService() {
 
             @Override
             public String getName() {
@@ -211,7 +206,7 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
 
     @Override
     public void publishEndPoint(EndPointConfiguration endPointConfiguration) {
-        EndPointFactory endPointFactory = webServices.get(endPointConfiguration.getWebServiceName());
+        EndPointFactory endPointFactory = endPointService.getEndPointFactory(endPointConfiguration.getWebServiceName());
         if (endPointFactory != null) {
             try {
                 ManagedEndpoint managedEndpoint = endPointFactory.createEndpoint(endPointConfiguration);
@@ -245,7 +240,7 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
 
     @Override
     public boolean isInbound(String webServiceName) {
-        EndPointFactory endPointFactory = webServices.get(webServiceName);
+        EndPointFactory endPointFactory = endPointService.getEndPointFactory(webServiceName);
         if (endPointFactory != null) {
             return endPointFactory.isInbound();
         } else {
@@ -261,33 +256,33 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
 
     // called by whiteboard
     public void register(String name, InboundSoapEndPointProvider endPointProvider) {
-        webServices.put(name, dataModel.getInstance(InboundSoapEndPointFactoryImpl.class).init(name, endPointProvider));
+        endPointService.addWebService(name, dataModel.getInstance(InboundSoapEndPointFactoryImpl.class).init(name, endPointProvider));
         eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     }
 
     // called by whiteboard
     public void register(String name, InboundRestEndPointProvider endPointProvider) {
-        webServices.put(name, dataModel.getInstance(InboundRestEndPointFactoryImpl.class).init(name, endPointProvider));
+        endPointService.addWebService(name, dataModel.getInstance(InboundRestEndPointFactoryImpl.class).init(name, endPointProvider));
         eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     }
 
     // called by whiteboard
     public void register(String name, OutboundSoapEndPointProvider endPointProvider) {
-        webServices.put(name, dataModel.getInstance(OutboundSoapEndPointFactoryImpl.class)
+        endPointService.addWebService(name, dataModel.getInstance(OutboundSoapEndPointFactoryImpl.class)
                 .init(name, endPointProvider));
         eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     }
 
     // called by whiteboard
     public void register(String name, OutboundRestEndPointProvider endPointProvider) {
-        webServices.put(name, dataModel.getInstance(OutboundRestEndPointFactoryImpl.class)
+        endPointService.addWebService(name, dataModel.getInstance(OutboundRestEndPointFactoryImpl.class)
                 .init(name, endPointProvider));
         eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     }
 
     // called by whiteboard
     public void unregister(String webServiceName) {
-        if (webServices.remove(webServiceName) != null) {
+        if (endPointService.removeWebService(webServiceName) != null) {
             List<EndPointConfiguration> endPointConfigurations = endpoints.keySet()
                     .stream()
                     .filter(e -> e.getWebServiceName().equals(webServiceName))
@@ -343,6 +338,7 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(String.class).annotatedWith(Names.named("LogDirectory")).toInstance(logDirectory);
                 bind(HttpService.class).toInstance(httpService);
+                bind(EndPointService.class).toInstance(endPointService);
             }
         };
     }
