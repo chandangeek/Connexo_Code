@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
@@ -44,6 +45,7 @@ public class WebServicesApplication extends Application implements MessageSeedPr
     private volatile UserService userService;
     private volatile TransactionService transactionService;
     private volatile EndPointConfigurationService endPointConfigurationService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
 
     @Override
@@ -90,6 +92,11 @@ public class WebServicesApplication extends Application implements MessageSeedPr
         this.userService = userService;
     }
 
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
     @Override
     public String getComponentName() {
         return COMPONENT_NAME;
@@ -124,6 +131,7 @@ public class WebServicesApplication extends Application implements MessageSeedPr
             bind(thesaurus).to(Thesaurus.class);
             bind(endPointConfigurationService).to(EndPointConfigurationService.class);
             bind(userService).to(UserService.class);
+            bind(propertyValueInfoService).to(PropertyValueInfoService.class);
         }
     }
 }

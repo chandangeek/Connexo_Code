@@ -5,6 +5,7 @@
 package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.rest.util.LongIdWithNameInfo;
@@ -23,6 +24,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created by bvn on 6/8/16.
@@ -33,14 +35,20 @@ public class EndPointConfigurationInfoFactory {
     private final UserService userService;
     private final ExceptionFactory exceptionFactory;
     private final WebServicesService webServicesService;
+    private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
-    public EndPointConfigurationInfoFactory(Thesaurus thesaurus, EndPointConfigurationService endPointConfigurationService, UserService userService, ExceptionFactory exceptionFactory, WebServicesService webServicesService) {
+    public EndPointConfigurationInfoFactory(Thesaurus thesaurus,
+                                            EndPointConfigurationService endPointConfigurationService,
+                                            UserService userService, ExceptionFactory exceptionFactory,
+                                            WebServicesService webServicesService,
+                                            PropertyValueInfoService propertyValueInfoService) {
         this.thesaurus = thesaurus;
         this.endPointConfigurationService = endPointConfigurationService;
         this.userService = userService;
         this.exceptionFactory = exceptionFactory;
         this.webServicesService = webServicesService;
+        this.propertyValueInfoService = propertyValueInfoService;
     }
 
     public EndPointConfigurationInfo from(EndPointConfiguration endPointConfiguration, UriInfo uriInfo) {
@@ -80,6 +88,7 @@ public class EndPointConfigurationInfoFactory {
             info.username = ((OutboundEndPointConfiguration) endPointConfiguration).getUsername();
             info.password = ((OutboundEndPointConfiguration) endPointConfiguration).getPassword();
         }
+        info.properties = propertyValueInfoService.getPropertyInfos(endPointConfiguration.getPropertySpecs(), endPointConfiguration.getProps());
         return info;
     }
 
@@ -107,11 +116,13 @@ public class EndPointConfigurationInfoFactory {
             }
         }
         builder.traceFile(info.traceFile);
+        if (info.properties != null) {
+            builder.withProperties(info.properties.stream().collect(Collectors.toMap(property -> property.key, property -> property.name)));
+        }
         EndPointConfiguration endPointConfiguration = builder.create();
         if (Boolean.TRUE.equals(info.active)) {
             endPointConfigurationService.activate(endPointConfiguration);
         }
-
         return endPointConfiguration;
     }
 
@@ -160,7 +171,7 @@ public class EndPointConfigurationInfoFactory {
                 endPointConfiguration.setGroup(group);
             }
         }
-        return endPointConfiguration;
+        return endPointConfiguration; // todo mlevan
     }
 
     private void applyCommonChanges(EndPointConfiguration endPointConfiguration, EndPointConfigurationInfo info) {
