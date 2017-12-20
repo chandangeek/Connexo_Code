@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.util;
 
+import aQute.bnd.annotation.ProviderType;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.Documented;
@@ -13,6 +15,7 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+@ProviderType
 @Target({ElementType.TYPE})
 @Retention(RUNTIME)
 @Documented

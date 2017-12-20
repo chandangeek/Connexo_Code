@@ -4,9 +4,12 @@
 
 package com.elster.jupiter.util;
 
+import aQute.bnd.annotation.ProviderType;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+@ProviderType
 public class UniqueNameValidator implements ConstraintValidator<UniqueName, ShouldHaveUniqueName> {
     private String message;
 
