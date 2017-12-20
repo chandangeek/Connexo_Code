@@ -113,9 +113,9 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         device = mock(Device.class);
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getSecurityAccessors()).thenReturn(Arrays.asList(clientCertificateAccessor, symmetrickeyAccessor));
-        when(device.getKeyAccessor(any(SecurityAccessorType.class))).thenReturn(Optional.empty());
-        when(device.getKeyAccessor(certificateKeyAccessorType)).thenReturn(Optional.ofNullable(clientCertificateAccessor));
-        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.ofNullable(symmetrickeyAccessor));
+        when(device.getSecurityAccessor(any(SecurityAccessorType.class))).thenReturn(Optional.empty());
+        when(device.getSecurityAccessor(certificateKeyAccessorType)).thenReturn(Optional.ofNullable(clientCertificateAccessor));
+        when(device.getSecurityAccessor(symmetricKeyAccessorType)).thenReturn(Optional.ofNullable(symmetrickeyAccessor));
         when(deviceService.findDeviceByName("BVN001")).thenReturn(Optional.of(device));
 
         when(securityManagementService.getPropertySpecs(symmetricKeyAccessorType)).thenReturn(symmetricKeyPropertySpecs);
@@ -300,7 +300,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     public void testGetKeysWithTempValue() throws Exception {
         SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
         symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
-        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.of(symmetrickeyAccessor));
+        when(device.getSecurityAccessor(symmetricKeyAccessorType)).thenReturn(Optional.of(symmetrickeyAccessor));
         when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
 
         Response response = target("/devices/BVN001/securityaccessors/keys").request().get();
@@ -367,7 +367,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(clientCertificateAccessor.getActualValue()).thenReturn(Optional.empty());
         when(clientCertificateAccessor.getKeyAccessorType()).thenReturn(certificateKeyAccessorType);
         when(clientCertificateAccessor.getPropertySpecs()).thenReturn(certificatePropertySpecs);
-        when(device.getKeyAccessor(certificateKeyAccessorType)).thenReturn(Optional.of(clientCertificateAccessor));
+        when(device.getSecurityAccessor(certificateKeyAccessorType)).thenReturn(Optional.of(clientCertificateAccessor));
         when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, certificateKeyAccessorType, 22L)).thenReturn(Optional.of(clientCertificateAccessor));
 
         Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
@@ -393,7 +393,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(clientCertificateAccessor.getActualValue()).thenReturn(Optional.empty());
         when(clientCertificateAccessor.getKeyAccessorType()).thenReturn(certificateKeyAccessorType);
         when(clientCertificateAccessor.getPropertySpecs()).thenReturn(certificatePropertySpecs);
-        when(device.getKeyAccessor(certificateKeyAccessorType)).thenReturn(Optional.of(clientCertificateAccessor));
+        when(device.getSecurityAccessor(certificateKeyAccessorType)).thenReturn(Optional.of(clientCertificateAccessor));
         when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, certificateKeyAccessorType, 22L)).thenReturn(Optional.of(clientCertificateAccessor));
 
         Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
@@ -497,7 +497,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
         SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
         symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
-        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.of(symmetrickeyAccessor));
+        when(device.getSecurityAccessor(symmetricKeyAccessorType)).thenReturn(Optional.of(symmetrickeyAccessor));
         when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
 
@@ -559,7 +559,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
         SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
         symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
-        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.of(symmetrickeyAccessor));
+        when(device.getSecurityAccessor(symmetricKeyAccessorType)).thenReturn(Optional.of(symmetrickeyAccessor));
         when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
 
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
@@ -581,12 +581,12 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         SymmetricKeyWrapper actualSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
         SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
         when(securityManagementService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
-        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.empty());
+        when(device.getSecurityAccessor(symmetricKeyAccessorType)).thenReturn(Optional.empty());
 
         SymmetricKeyWrapper symmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, null, null);
         SecurityAccessor toBeCreatedSecurityAccessor = mockSymmetricKeyAccessor(symmetricKeyWrapper, null);
 
-        when(device.newKeyAccessor(symmetricKeyAccessorType)).thenReturn(toBeCreatedSecurityAccessor);
+        when(device.newSecurityAccessor(symmetricKeyAccessorType)).thenReturn(toBeCreatedSecurityAccessor);
 
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
 
@@ -609,8 +609,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", "newcomserver"));
 
         when(clientCertificateAccessor.getTempValue()).thenReturn(Optional.of(tempClientCertificateWrapper));
-        when(device.getKeyAccessor(certificateKeyAccessorType)).thenReturn(Optional.empty());
-        when(device.newKeyAccessor(certificateKeyAccessorType)).thenReturn(clientCertificateAccessor);
+        when(device.getSecurityAccessor(certificateKeyAccessorType)).thenReturn(Optional.empty());
+        when(device.newSecurityAccessor(certificateKeyAccessorType)).thenReturn(clientCertificateAccessor);
         Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
 
         verify(clientCertificateAccessor, times(1)).setActualValue(actualClientCertificateWrapper);
@@ -629,7 +629,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
         SymmetricKeyWrapper tempSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "oldtempvalue");
         symmetrickeyAccessor = mockSymmetricKeyAccessor(actualSymmetricKeyWrapper, tempSymmetricKeyWrapper);
-        when(device.getKeyAccessor(symmetricKeyAccessorType)).thenReturn(Optional.ofNullable(symmetrickeyAccessor));
+        when(device.getSecurityAccessor(symmetricKeyAccessorType)).thenReturn(Optional.ofNullable(symmetrickeyAccessor));
         when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
 
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));

@@ -30,10 +30,6 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.data.kpi.rest.impl.RegisteredDevicesKpiInfo;
-import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
-import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -49,6 +45,7 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfo;
+import com.energyict.mdc.device.data.kpi.rest.impl.RegisteredDevicesKpiInfo;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -56,6 +53,8 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -64,6 +63,8 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.TypedProperties;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -453,8 +454,18 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No DeviceProtocolPluggableClass with id " + id, Response.Status.NOT_FOUND));
     }
 
+    public DataCollectionKpi findDataCollectionKpiByRecurrentTaskIdOrThrowException(long id) {
+        return dataCollectionKpiService.findDataCollectionKpiByRecurrentTask(id)
+                .orElseThrow(() -> new WebApplicationException("No DeviceProtocolPluggableClass with id " + id, Response.Status.NOT_FOUND));
+    }
+
     public RegisteredDevicesKpi findRegisteredDevicesKpiByIdOrThrowException(long id) {
         return registeredDevicesKpiService.findRegisteredDevicesKpi(id)
+                .orElseThrow(() -> new WebApplicationException("No RegisteredDevicesKpi with id " + id, Response.Status.NOT_FOUND));
+    }
+
+    public RegisteredDevicesKpi findRegisteredDevicesKpiByRecurrentTaskIdOrThrowException(long id) {
+        return registeredDevicesKpiService.findRegisteredDevicesKpiByRecurrentTask(id)
                 .orElseThrow(() -> new WebApplicationException("No RegisteredDevicesKpi with id " + id, Response.Status.NOT_FOUND));
     }
 
