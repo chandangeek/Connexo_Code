@@ -47,7 +47,6 @@ public class SecureDeviceKeyImporterFactory implements FileImporterFactory {
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
         TrustStore trustStore = (TrustStore) properties.get(SecureDeviceShipmentImporterProperty.TRUSTSTORE.getPropertyKey());
-//        PublicKey publicKey = (PublicKey) properties.get(SecureDeviceShipmentImporterProperty.PUBLICKEY.getPropertyKey());
         return new SecureDeviceKeyImporter(thesaurus, trustStore, deviceConfigurationService, deviceService, securityManagementService);
     }
 
@@ -114,22 +113,10 @@ public class SecureDeviceKeyImporterFactory implements FileImporterFactory {
                         .fromThesaurus(thesaurus)
                         .markExhaustive()
                         .addValues(securityManagementService.getAllTrustStores())
+                        .markRequired()
                         .finish();
             }
-        },
-        PUBLICKEY(TranslationKeys.DEVICE_DATA_IMPORTER_PUBLICKEY, TranslationKeys.DEVICE_DATA_IMPORTER_PUBLICKEY_DESCRIPTION) {
-            @Override
-            public PropertySpec getPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus, SecurityManagementService securityManagementService) {
-                return propertySpecService
-                        .referenceSpec(KeypairWrapper.class)
-                        .named(this.getPropertyKey(), this.getNameTranslationKey())
-                        .describedAs(this.getDescriptionTranslationKey())
-                        .fromThesaurus(thesaurus)
-                        .markExhaustive()
-                        .addValues(securityManagementService.getAllKeyPairs())
-                        .finish();
-            }
-        },
+        }
         ;
         private final TranslationKeys nameTranslationKey;
         private final TranslationKeys descriptionTranslationKey;
