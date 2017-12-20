@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xenc="http://www.w3.org/2001/04/xmlenc#"
+           xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+           xmlns:tns="http://customization.elster.com/shipment"
+           targetNamespace="http://customization.elster.com/shipment"
+           attributeFormDefault="unqualified"
+           elementFormDefault="qualified"
+           version="1.5" >
+    <xs:import namespace="http://www.w3.org/2001/04/xmlenc#" schemaLocation="xenc-schema.xsd"/>
+    <xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="xmldsig-core-schema.xsd"/>
+
+    <xs:element name="Shipment">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Header" type="tns:Header" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Body" type="tns:Body" minOccurs="1" maxOccurs="1"/>
+                <xs:element ref="ds:Signature" minOccurs="0" maxOccurs="1"/> <!-- if a signature is provided, the certificate must be included in PEM format -->
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="Header">
+        <xs:sequence>
+			<xs:element name="Manufacturer" type="xs:string" minOccurs="1" maxOccurs="1"/> <!-- Required to identify the private keys, in case of multiple suppliers -->
+			<xs:element name="Customer" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="DeviceType" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="DeviceCount" type="xs:integer" minOccurs="0" maxOccurs="1"/> <!-- Amount of items in shipment file -->
+            <xs:element name="BatchID" type="xs:string" minOccurs="0" maxOccurs="1"/> <!-- Order Reference -->
+            <xs:element name="DeliveryDate" type="xs:date" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="CertificationDate" type="xs:date" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="WrapKey" type="tns:WrapKey" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="Attribute" type="tns:NamedAttribute" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="WrapKey">
+        <xs:sequence>
+            <xs:element name="SymmetricKey" type="xenc:EncryptedKeyType" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="PublicKey" type="ds:RSAKeyValueType" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="Label" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="NamedAttribute">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="NamedEncryptedDataType">
+        <xs:complexContent>
+            <xs:extension base="xenc:EncryptedDataType">
+        	    <xs:attribute name="name" type="xs:string" use="required"/>
+				<xs:attribute name="WrapKeyLabel" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="Body">
+        <xs:sequence>
+            <xs:element name="Device" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="SerialNumber" type="xs:string" minOccurs="1" maxOccurs="1"/>
+						<xs:element name="UniqueIdentifier" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="MAC_Address" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="HostName" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                        <xs:element name="Firmware" type="tns:NamedAttribute" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:element name="Attribute" type="tns:NamedAttribute" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:element name="Key" type="tns:NamedEncryptedDataType" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

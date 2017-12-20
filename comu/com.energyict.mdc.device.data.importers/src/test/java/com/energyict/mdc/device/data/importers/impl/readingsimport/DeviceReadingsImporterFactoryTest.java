@@ -56,6 +56,7 @@ import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -137,7 +138,7 @@ public class DeviceReadingsImporterFactoryTest {
         context.setPropertySpecService(new PropertySpecServiceImpl());
         context.setThreadPrincipalService(threadPrincipalService);
         context.setUserService(userService);
-        context.setClock(Clock.system(ZoneOffset.UTC));
+        context.setClock(Clock.system(ZoneId.of("Europe/Athens"))); //CXO-7969
         when(context.getThesaurus()).thenReturn(thesaurus);
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
         when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
@@ -186,7 +187,7 @@ public class DeviceReadingsImporterFactoryTest {
         //time zone
         Optional<PropertySpec> timeZone = propertySpecs.stream().filter(propertySpec -> propertySpec.getName().equals(TIME_ZONE.getPropertyKey())).findFirst();
         assertThat(timeZone).isPresent();
-        assertThat(timeZone.get().getPossibleValues().getDefault()).isEqualTo("GMT+00:00");
+        assertThat(timeZone.get().getPossibleValues().getDefault()).isEqualTo("Europe/Athens"); //CXO-7969
 
         //number format
         Optional<PropertySpec> numberFormat = propertySpecs.stream().filter(propertySpec -> propertySpec.getName().equals(NUMBER_FORMAT.getPropertyKey())).findFirst();
@@ -358,7 +359,8 @@ public class DeviceReadingsImporterFactoryTest {
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
-        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION).format(2, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(firstReadingDate)));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION)
+                .format(2, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(firstReadingDate)));
         verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_AFTER_METER_ACTIVATION).format(3, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(lastReadingDate)));
         verifyNoMoreInteractions(logger);
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format());
@@ -403,7 +405,8 @@ public class DeviceReadingsImporterFactoryTest {
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
-        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION).format(2, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(firstReadingDate)));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION)
+                .format(2, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(firstReadingDate)));
         verifyNoMoreInteractions(logger);
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(1, 1, 1, 1));
 

@@ -39,7 +39,7 @@ import static com.elster.jupiter.orm.Version.version;
         immediate = true)
 public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, TranslationKeyProvider, MessageSeedProvider {
 
-    static final String COMPONENT = "DDI";
+    static public final String COMPONENT = "DDI";
 
     static final String DESTINATION_NAME = "DataImport";
     static final String SUBSCRIBER_NAME = "DataImport";
