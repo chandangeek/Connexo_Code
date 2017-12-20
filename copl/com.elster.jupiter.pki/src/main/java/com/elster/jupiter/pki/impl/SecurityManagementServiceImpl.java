@@ -22,12 +22,14 @@ import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.DeviceSecretImporter;
 import com.elster.jupiter.pki.ExpirationSupport;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.IssuerParameterFilter;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.KeyUsagesParameterFilter;
+import com.elster.jupiter.pki.KeypairWrapper;
 import com.elster.jupiter.pki.PassphraseFactory;
 import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.PrivateKeyFactory;
@@ -36,6 +38,7 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.SubjectParameterFilter;
+import com.elster.jupiter.pki.SymmetricAlgorithm;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
@@ -63,7 +66,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.operator.KeyWrapper;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -89,8 +91,8 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name="PkiService",
-        service = { SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
+@Component(name = "PkiService",
+        service = {SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = "name=" + SecurityManagementService.COMPONENTNAME,
         immediate = true)
 public class SecurityManagementServiceImpl implements SecurityManagementService, TranslationKeyProvider, MessageSeedProvider {
@@ -151,10 +153,14 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     public List<String> getKeyEncryptionMethods(CryptographicType cryptographicType) {
         switch (cryptographicType) {
             case ClientCertificate: // ClientCertificates are linked to an asymmetric key
-            case AsymmetricKey: return privateKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
-            case SymmetricKey: return symmetricKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
-            case Passphrase: return passphraseFactories.keySet().stream().sorted().collect(Collectors.toList());
-            default: return Collections.emptyList(); // No encryption methods for other cryptographic elements
+            case AsymmetricKey:
+                return privateKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
+            case SymmetricKey:
+                return symmetricKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
+            case Passphrase:
+                return passphraseFactories.keySet().stream().sorted().collect(Collectors.toList());
+            default:
+                return Collections.emptyList(); // No encryption methods for other cryptographic elements
         }
     }
 
@@ -405,7 +411,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return all;
     }
 
-    private List<ExpirationSupport> allFactoriesSupportingExpiration(){
+    private List<ExpirationSupport> allFactoriesSupportingExpiration() {
         List<ExpirationSupport> factoriesSupportingExpiration = new ArrayList<>();
         privateKeyFactories.values().stream().filter(pkf -> pkf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
         symmetricKeyFactories.values().stream().filter(skf -> skf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
@@ -618,16 +624,16 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return getDataModel().mapper(KeypairWrapper.class).lockObjectIfVersion(version, id);
     }
 
-    private List<CertificateWrapper> findExpiredCertificates(Expiration expiration, Instant when){
+    private List<CertificateWrapper> findExpiredCertificates(Expiration expiration, Instant when) {
         return dataModel.query(CertificateWrapper.class).select(
-                    where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR))
-                    .and(expiration.isExpired("expirationTime", when)));
+                where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR))
+                        .and(expiration.isExpired("expirationTime", when)));
     }
 
     @Override
     public Finder<CertificateWrapper> getAliasesByFilter(AliasSearchFilter searchFilter) {
         Condition searchCondition;
-        if (searchFilter.trustStore ==null) {
+        if (searchFilter.trustStore == null) {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
                     .likeIgnoreCase(searchFilter.alias)
                     .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
@@ -890,6 +896,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 underConstruction.setCurve(curveName);
                 return this;
             }
+
             @Override
             public KeyType add() {
                 underConstruction.save();
