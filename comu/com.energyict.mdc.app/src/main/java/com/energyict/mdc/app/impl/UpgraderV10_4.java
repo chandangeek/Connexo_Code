@@ -32,6 +32,9 @@ public class UpgraderV10_4 implements Upgrader {
                 com.energyict.mdc.device.topology.kpi.Privileges.Constants.ADMINISTRATE,
                 com.energyict.mdc.device.topology.kpi.Privileges.Constants.VIEW,
 
+                // TASKS
+                com.elster.jupiter.tasks.security.Privileges.Constants.VIEW_TASK_OVERVIEW,
+
                 // Security accessors management
                 com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_ACCESSORS,
                 com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_ACCESSORS

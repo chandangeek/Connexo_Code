@@ -214,6 +214,9 @@ class MdcAppPrivileges {
                 //calendars
                 com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS,
 
+                //tasks
+                com.elster.jupiter.tasks.security.Privileges.Constants.VIEW_TASK_OVERVIEW,
+
                 // security accessors management
                 com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_ACCESSORS,
                 com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_ACCESSORS
