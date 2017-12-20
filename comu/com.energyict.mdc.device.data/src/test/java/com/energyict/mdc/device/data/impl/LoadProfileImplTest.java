@@ -103,9 +103,9 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
 
     private void setupReadingTypes() {
         this.rt_bulkActiveEnergySecondary = inMemoryPersistence.getMeteringService().getReadingType(bulkActiveEnergySecondaryMrid).get();
-        this.obisCode1 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(rt_bulkActiveEnergySecondary).getObisCode();
+        this.obisCode1 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFrom(rt_bulkActiveEnergySecondary).get().getObisCode();
         this.rt_bulkReactiveEnergySecondary = inMemoryPersistence.getMeteringService().getReadingType(bulkReactiveEnergySecondaryMrid).get();
-        this.obisCode2 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(rt_bulkReactiveEnergySecondary).getObisCode();
+        this.obisCode2 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFrom(rt_bulkReactiveEnergySecondary).get().getObisCode();
         this.rt_deltaActiveEnergyPrimary15Min = inMemoryPersistence.getMeteringService().getReadingType(deltaActiveEnergyPrimary15MinMrid).get();
     }
 

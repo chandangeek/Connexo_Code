@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.impl.gogo;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -59,6 +60,7 @@ import static java.util.stream.Collectors.toList;
         property = {
                 "osgi.command.scope=ka",
                 "osgi.command.function=keyAccessors",
+                "osgi.command.function=importDeviceCertificateWithKey",
                 "osgi.command.function=importCertificateWithKey",
                 "osgi.command.function=generateCSR",
                 "osgi.command.function=truststores",
@@ -118,7 +120,7 @@ public class KeyAccessorCommands {
                 .orElseThrow(() -> new RuntimeException("No such device"));
         List<List<?>> collection = new ArrayList<>();
         for (SecurityAccessorType securityAccessorType : device.getDeviceType().getSecurityAccessorTypes()) {
-            Optional<SecurityAccessor> keyAccessor = device.getKeyAccessor(securityAccessorType);
+            Optional<SecurityAccessor> keyAccessor = device.getSecurityAccessor(securityAccessorType);
             String actualExtraValue = "";
             String tempExtraValue = "";
             if (keyAccessor.isPresent()) {
@@ -164,19 +166,54 @@ public class KeyAccessorCommands {
         } else if (value.getCSR().isPresent()) {
             extraValue += "CSR";
         }
-        PrivateKey privateKey = value.getPrivateKeyWrapper().getPrivateKey();
-        if (privateKey != null) {
+        if (value.getPrivateKeyWrapper().getPrivateKey().isPresent()) {
             extraValue += " + PK";
         }
         return extraValue;
     }
 
     public void importCertificateWithKey() {
-        System.out.println("Usage: importCertificateWithKey <device name> <cert accessor type name> <pkcs#12 file>  <password> <alias>");
-        System.out.println("e.g. : importCertificateWithKey ABC123 \"TLS SUITE 2\" tls.pkcs12 foo123 mycert");
+        System.out.println("Usage: importCertificateWithKey <certstore alias> <pkcs#12 file>  <password> <alias>");
+        System.out.println("e.g. : importCertificateWithKey 'MDC' tls.pkcs12 foo123 mycert");
     }
 
-    public void importCertificateWithKey(String deviceName, String certKatName, String pkcs12Name, String pkcs12Password, String alias)
+    public void importCertificateWithKey(String certificateAlias, String pkcs12Name, String pkcs12Password, String alias)
+            throws KeyStoreException, IOException, CertificateException,
+            NoSuchAlgorithmException, UnrecoverableKeyException {
+
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            KeyType keyType = securityManagementService.getKeyType("RSA 1024")
+                    .orElseThrow(() -> new RuntimeException("No such key type: RSA 1024"));
+
+            KeyStore pkcs12 = KeyStore.getInstance("pkcs12");
+            pkcs12.load(new FileInputStream(pkcs12Name), pkcs12Password.toCharArray());
+            Certificate certificate = pkcs12.getCertificate(alias);
+            if (certificate==null) {
+                throw new RuntimeException("The keystore does not contain a certificate with alias "+alias);
+            }
+            Key key = pkcs12.getKey(alias, pkcs12Password.toCharArray());
+            if (key==null) {
+                throw new RuntimeException("The keystore does not contain a key with alias "+alias);
+            }
+            ClientCertificateWrapper clientCertificateWrapper = securityManagementService.newClientCertificateWrapper(keyType, "DataVault")
+                    .alias(certificateAlias).add();
+            clientCertificateWrapper.setCertificate((X509Certificate) certificate);
+            PlaintextPrivateKeyWrapper privateKeyWrapper = (PlaintextPrivateKeyWrapper) clientCertificateWrapper.getPrivateKeyWrapper();
+            privateKeyWrapper.setPrivateKey((PrivateKey) key);
+            privateKeyWrapper.save();
+
+            context.commit();
+        }
+    }
+
+    public void importDeviceCertificateWithKey() {
+        System.out.println("Usage: importDeviceCertificateWithKey <device name> <cert accessor type name> <pkcs#12 file>  <password> <alias>");
+        System.out.println("e.g. : importDeviceCertificateWithKey ABC123 \"TLS SUITE 2\" tls.pkcs12 foo123 mycert");
+    }
+
+    public void importDeviceCertificateWithKey(String deviceName, String certKatName, String pkcs12Name, String pkcs12Password, String alias)
             throws KeyStoreException, IOException, CertificateException,
                         NoSuchAlgorithmException, UnrecoverableKeyException {
 
@@ -210,8 +247,8 @@ public class KeyAccessorCommands {
             privateKeyWrapper.setPrivateKey((PrivateKey) key);
             privateKeyWrapper.save();
 
-            SecurityAccessor securityAccessor = device.getKeyAccessor(certSecurityAccessorType)
-                    .orElseGet(()->device.newKeyAccessor(certSecurityAccessorType));
+            SecurityAccessor securityAccessor = device.getSecurityAccessor(certSecurityAccessorType)
+                    .orElseGet(()->device.newSecurityAccessor(certSecurityAccessorType));
             securityAccessor.setActualValue(clientCertificateWrapper);
             securityAccessor.save();
             context.commit();
@@ -236,7 +273,7 @@ public class KeyAccessorCommands {
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("No such security accessor type on the device type: " + keyAccessorTypeName));
 
-            SecurityAccessor securityAccessor = device.getKeyAccessor(securityAccessorType).orElseGet(()->device.newKeyAccessor(securityAccessorType));
+            SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType).orElseGet(()->device.newSecurityAccessor(securityAccessorType));
             if (securityAccessor.getActualValue().isPresent()) {
                 PlaintextPassphrase actualValue = (PlaintextPassphrase) securityAccessor.getActualValue().get();
                 actualValue.setPassphrase(cleartextPassword);
@@ -280,7 +317,7 @@ public class KeyAccessorCommands {
 
             SymmetricKeyWrapper symmetricKeyWrapper = securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
             ((PlaintextSymmetricKey)symmetricKeyWrapper).setKey(new SecretKeySpec(key.getEncoded(), key.getAlgorithm()));
-            Optional<SecurityAccessor> keyAccessorOptional = device.getKeyAccessor(securityAccessorType);
+            Optional<SecurityAccessor> keyAccessorOptional = device.getSecurityAccessor(securityAccessorType);
             SecurityAccessor<SymmetricKeyWrapper> securityAccessor;
             if (keyAccessorOptional.isPresent()) {
                 if (keyAccessorOptional.get().getActualValue().isPresent()) {
@@ -288,7 +325,7 @@ public class KeyAccessorCommands {
                 }
                 securityAccessor = keyAccessorOptional.get();
             } else {
-                securityAccessor = device.newKeyAccessor(securityAccessorType);
+                securityAccessor = device.newSecurityAccessor(securityAccessorType);
             }
             securityAccessor.setActualValue(symmetricKeyWrapper);
             securityAccessor.save();
@@ -350,7 +387,7 @@ public class KeyAccessorCommands {
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("No such security accessor type on the device type: " + keyAccessorTypeName));
 
-            SecurityAccessor securityAccessor = device.getKeyAccessor(securityAccessorType)
+            SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType)
                     .orElseThrow(() -> new RuntimeException("No security accessor for security accessor type " + keyAccessorTypeName));
 
             securityAccessor.renew();
@@ -380,7 +417,7 @@ public class KeyAccessorCommands {
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("No such security accessor type on the device type: " + keyAccessorTypeName));
 
-            SecurityAccessor securityAccessor = device.getKeyAccessor(securityAccessorType)
+            SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType)
                     .orElseThrow(() -> new RuntimeException("No security accessor for security accessor type " + keyAccessorTypeName));
 
             securityAccessor.swapValues();
@@ -410,7 +447,7 @@ public class KeyAccessorCommands {
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("No such security accessor type on the device type: " + keyAccessorTypeName));
 
-            SecurityAccessor securityAccessor = device.getKeyAccessor(securityAccessorType)
+            SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType)
                     .orElseThrow(() -> new RuntimeException("No security accessor for security accessor type " + keyAccessorTypeName));
 
             securityAccessor.clearTempValue();

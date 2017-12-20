@@ -126,7 +126,7 @@ public class CertificateAccessorImpl extends AbstractSecurityAccessorImpl<Certif
 
     @Override
     public void delete() {
-        getDevice().removeKeyAccessor(this);
+        getDevice().removeSecurityAccessor(this);
     }
 
     @Override
