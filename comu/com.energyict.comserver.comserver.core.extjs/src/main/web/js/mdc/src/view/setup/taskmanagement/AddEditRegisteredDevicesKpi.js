@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKPI', {
+Ext.define('Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKpi', {
     extend: 'Ext.form.Panel',
     alias: 'widget.registered-devices-kpi-addedit-tgm',
     requires: [

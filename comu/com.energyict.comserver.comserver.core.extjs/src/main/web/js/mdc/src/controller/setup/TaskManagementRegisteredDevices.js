@@ -6,7 +6,7 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
     extend: 'Mdc.registereddevices.controller.RegisteredDevices',
 
     views: [
-        'Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKPI',
+        'Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKpi',
         'Mdc.view.setup.taskmanagement.DetailsRegisteredDevicesKpi'
     ],
     stores: [
@@ -62,7 +62,7 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
 
     getTaskForm: function (caller, completedFunc) {
         var me = this,
-            form = Ext.create('Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKPI'),
+            form = Ext.create('Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKpi'),
             deviceGroupStore = form.down('combobox[name=deviceGroup]').getStore(),
             followByStore = form.down('#followedBy-combo').getStore(),
             kpiModel = Ext.ModelManager.getModel('Mdc.registereddevices.model.RegisteredDevicesKPI'),
