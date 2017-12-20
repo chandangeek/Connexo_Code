@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.cim.soap.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 
 import org.osgi.service.component.annotations.Activate;
@@ -33,7 +34,7 @@ public class GetMeterReadingsEndpointProvider implements InboundSoapEndPointProv
     }
 
     @Override
-    public Object get() {
+    public EndPointProp get() {
         return new GetMeterReadingsPortImpl(meteringService, meteringGroupsService, clock);
     }
 
