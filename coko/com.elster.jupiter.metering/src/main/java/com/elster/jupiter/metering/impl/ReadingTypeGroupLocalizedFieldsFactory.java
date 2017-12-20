@@ -334,6 +334,7 @@ public class ReadingTypeGroupLocalizedFieldsFactory implements ReadingTypeFields
 
     enum AccumulationByMacroPeriod {
         NOTAPPLICABLE(EnumSet.of(
+                Accumulation.NOTAPPLICABLE,
                 Accumulation.BULKQUANTITY,
                 Accumulation.CUMULATIVE));
 
