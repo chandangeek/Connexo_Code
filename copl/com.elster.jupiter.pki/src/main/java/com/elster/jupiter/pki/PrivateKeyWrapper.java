@@ -10,6 +10,7 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
@@ -35,13 +36,13 @@ public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValu
 
     /**
      * Returns the PrivateKey held by this element. How the value for the PrivateKey is determined, depends
-     * on the KeyEncryptionType
+     * on the KeyEncryptionType.
      *
      * @return The PrivateKey build from the provided properties. Note that java.security.PrivateKey is provided through
      * the Java's SPI.
      * @throws InvalidKeyException
      */
-    PrivateKey getPrivateKey() throws InvalidKeyException;
+    Optional<PrivateKey> getPrivateKey() throws InvalidKeyException;
 
     /**
      * These properties are defined by the implementor. In case of a plaintext key, there will be a property containing
@@ -70,7 +71,15 @@ public interface PrivateKeyWrapper extends HasDynamicPropertiesWithUpdatableValu
      * It's up to the implementing class to make sure all renewal information is available (through linking
      * KeyTypes/KeyAccessorTypes)
      * Note that not all key encryption methods will permit automatic renewal.
+     * @return returns the public key associated with the generated private key
      */
-    public void generateValue();
+    PublicKey generateValue();
+
+    /**
+     * Get the KeyType describing the private key.
+     * The KeyType will describe the key algorithm.
+     * @return
+     */
+    KeyType getKeyType();
 
 }

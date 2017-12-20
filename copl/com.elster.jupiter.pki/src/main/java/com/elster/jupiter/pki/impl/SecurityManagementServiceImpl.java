@@ -46,6 +46,7 @@ import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapp
 import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.RequestableCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.TrustedCertificateImpl;
+import com.elster.jupiter.pki.impl.wrappers.keypair.KeypairWrapperImpl;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.PropertySpec;
@@ -62,6 +63,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.operator.KeyWrapper;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -87,8 +89,8 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "PkiService",
-        service = {SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+@Component(name="PkiService",
+        service = { SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
         property = "name=" + SecurityManagementService.COMPONENTNAME,
         immediate = true)
 public class SecurityManagementServiceImpl implements SecurityManagementService, TranslationKeyProvider, MessageSeedProvider {
@@ -96,6 +98,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     private final Map<String, PrivateKeyFactory> privateKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, SymmetricKeyFactory> symmetricKeyFactories = new ConcurrentHashMap<>();
     private final Map<String, PassphraseFactory> passphraseFactories = new ConcurrentHashMap<>();
+
+    private final Map<String, SymmetricAlgorithm> symmetricAlgorithmMap = new ConcurrentHashMap<>();
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -125,21 +129,32 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     // OSGi constructor
     @SuppressWarnings("unused")
     public SecurityManagementServiceImpl() {
+        registerSymmetricAlgorithm(new SymmetricAlgorithm() {
+            @Override
+            public String getCipherName() {
+                return "AES/CBC/PKCS5PADDING";
+            }
 
+            @Override
+            public String getIdentifier() {
+                return "http://www.w3.org/2001/04/xmlenc#aes256-cbc";
+            }
+
+            @Override
+            public int getKeyLength() {
+                return 32;
+            }
+        });
     }
 
     @Override
     public List<String> getKeyEncryptionMethods(CryptographicType cryptographicType) {
         switch (cryptographicType) {
             case ClientCertificate: // ClientCertificates are linked to an asymmetric key
-            case AsymmetricKey:
-                return privateKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
-            case SymmetricKey:
-                return symmetricKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
-            case Passphrase:
-                return passphraseFactories.keySet().stream().sorted().collect(Collectors.toList());
-            default:
-                return Collections.emptyList(); // No encryption methods for other cryptographic elements
+            case AsymmetricKey: return privateKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
+            case SymmetricKey: return symmetricKeyFactories.keySet().stream().sorted().collect(Collectors.toList());
+            case Passphrase: return passphraseFactories.keySet().stream().sorted().collect(Collectors.toList());
+            default: return Collections.emptyList(); // No encryption methods for other cryptographic elements
         }
     }
 
@@ -282,6 +297,11 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
+    public List<KeypairWrapper> getAllKeyPairs() {
+        return getDataModel().mapper(KeypairWrapper.class).select(Condition.TRUE, Order.ascending(KeypairWrapperImpl.Fields.ALIAS.fieldName()).toUpperCase());
+    }
+
+    @Override
     public KeyTypeBuilder newSymmetricKeyType(String name, String keyAlgorithmName, int keySize) {
         KeyTypeImpl keyType = dataModel.getInstance(KeyTypeImpl.class);
         keyType.setName(name);
@@ -385,7 +405,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return all;
     }
 
-    private List<ExpirationSupport> allFactoriesSupportingExpiration() {
+    private List<ExpirationSupport> allFactoriesSupportingExpiration(){
         List<ExpirationSupport> factoriesSupportingExpiration = new ArrayList<>();
         privateKeyFactories.values().stream().filter(pkf -> pkf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
         symmetricKeyFactories.values().stream().filter(skf -> skf instanceof ExpirationSupport).map(ExpirationSupport.class::cast).forEach(factoriesSupportingExpiration::add);
@@ -396,6 +416,18 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     @Override
     public Optional<Comparison> getExpirationCondition(Expiration expiration, Instant when, String securityValueWrapperTableName) {
         return allFactoriesSupportingExpiration().stream().map(es -> es.isExpiredCondition(expiration, when)).filter(c -> c.getFieldName().startsWith(securityValueWrapperTableName)).findAny();
+    }
+
+    @Override
+    public DeviceSecretImporter getDeviceSecretImporter(SecurityAccessorType securityAccessorType) {
+        switch (securityAccessorType.getKeyType().getCryptographicType()) {
+            case SymmetricKey:
+                return getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getDeviceKeyImporter(securityAccessorType);
+            case Passphrase:
+                return getPassphraseFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getDevicePassphraseImporter(securityAccessorType);
+            default:
+                throw new UnsupportedImportOperation(thesaurus, securityAccessorType);
+        }
     }
 
     private SymmetricKeyFactory getSymmetricKeyFactoryOrThrowException(String keyEncryptionMethod) {
@@ -432,6 +464,23 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         ClientCertificateWrapperImpl clientCertificate = getDataModel().getInstance(ClientCertificateWrapperImpl.class)
                 .init(privateKeyWrapper, clientCertificateKeyType);
         return new ClientCertificateWrapperBuilder(clientCertificate);
+    }
+
+    @Override
+    public KeypairWrapper newKeypairWrapper(String alias, KeyType keyType, String keyEncryptionMethod) {
+        AbstractPlaintextPrivateKeyWrapperImpl privateKeyWrapper = (AbstractPlaintextPrivateKeyWrapperImpl) this.newPrivateKeyWrapper(keyType, keyEncryptionMethod);
+        KeypairWrapperImpl keypairWrapper = getDataModel().getInstance(KeypairWrapperImpl.class).init(keyType, privateKeyWrapper);
+        keypairWrapper.setAlias(alias);
+        keypairWrapper.save();
+        return keypairWrapper;
+    }
+
+    @Override
+    public KeypairWrapper newPublicKeyWrapper(String alias, KeyType keyType) {
+        KeypairWrapperImpl keypairWrapper = getDataModel().getInstance(KeypairWrapperImpl.class).init(keyType);
+        keypairWrapper.setAlias(alias);
+        keypairWrapper.save();
+        return keypairWrapper;
     }
 
     @Override
@@ -478,6 +527,26 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         }
     }
 
+    class KeypairWrapperBuilder implements SecurityManagementService.KeypairWrapperBuilder {
+        private final KeypairWrapper underConstruction;
+
+        public KeypairWrapperBuilder(KeypairWrapper underConstruction) {
+            this.underConstruction = underConstruction;
+        }
+
+        @Override
+        public SecurityManagementService.KeypairWrapperBuilder alias(String alias) {
+            underConstruction.setAlias(alias);
+            return this;
+        }
+
+        @Override
+        public KeypairWrapper add() {
+            underConstruction.save();
+            return underConstruction;
+        }
+    }
+
     @Override
     public Optional<ClientCertificateWrapper> findClientCertificateWrapper(String alias) {
         return getDataModel().mapper(ClientCertificateWrapper.class).getUnique(ClientCertificateWrapperImpl.Fields.ALIAS.fieldName(), alias);
@@ -506,6 +575,16 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
+    public Optional<KeypairWrapper> findKeypairWrapper(long id) {
+        return getDataModel().mapper(KeypairWrapper.class).getUnique(KeypairWrapperImpl.Fields.ID.fieldName(), id);
+    }
+
+    @Override
+    public Optional<KeypairWrapper> findKeypairWrapper(String alias) {
+        return getDataModel().mapper(KeypairWrapper.class).getUnique(KeypairWrapperImpl.Fields.ALIAS.fieldName(), alias);
+    }
+
+    @Override
     public Optional<CertificateWrapper> findAndLockCertificateWrapper(long id, long version) {
         return getDataModel().mapper(CertificateWrapper.class).lockObjectIfVersion(version, id);
     }
@@ -517,16 +596,38 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 getDataModel()).sorted(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName(), true);
     }
 
-    private List<CertificateWrapper> findExpiredCertificates(Expiration expiration, Instant when) {
+    @Override
+    public Optional<SymmetricAlgorithm> getSymmetricAlgorithm(String identifier) {
+        return symmetricAlgorithmMap.containsKey(identifier) ?
+                Optional.of(symmetricAlgorithmMap.get(identifier)) :
+                Optional.empty();
+    }
+
+    @Override
+    public void registerSymmetricAlgorithm(SymmetricAlgorithm symmetricAlgorithm) {
+        symmetricAlgorithmMap.put(symmetricAlgorithm.getIdentifier(), new SymmetricAlgorithmImpl(symmetricAlgorithm));
+    }
+
+    @Override
+    public Finder<KeypairWrapper> findAllKeypairs() {
+        return DefaultFinder.of(KeypairWrapper.class, dataModel).sorted(KeypairWrapperImpl.Fields.ALIAS.fieldName(), true);
+    }
+
+    @Override
+    public Optional<KeypairWrapper> findAndLockKeypairWrapper(long id, long version) {
+        return getDataModel().mapper(KeypairWrapper.class).lockObjectIfVersion(version, id);
+    }
+
+    private List<CertificateWrapper> findExpiredCertificates(Expiration expiration, Instant when){
         return dataModel.query(CertificateWrapper.class).select(
-                where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR))
-                        .and(expiration.isExpired("expirationTime", when)));
+                    where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR))
+                    .and(expiration.isExpired("expirationTime", when)));
     }
 
     @Override
     public Finder<CertificateWrapper> getAliasesByFilter(AliasSearchFilter searchFilter) {
         Condition searchCondition;
-        if (searchFilter.trustStore == null) {
+        if (searchFilter.trustStore ==null) {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
                     .likeIgnoreCase(searchFilter.alias)
                     .and(where("class").in(Arrays.asList(AbstractCertificateWrapperImpl.CERTIFICATE_DISCRIMINATOR, AbstractCertificateWrapperImpl.CLIENT_CERTIFICATE_DISCRIMINATOR)));
@@ -789,7 +890,6 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 underConstruction.setCurve(curveName);
                 return this;
             }
-
             @Override
             public KeyType add() {
                 underConstruction.save();

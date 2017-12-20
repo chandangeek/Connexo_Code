@@ -306,9 +306,9 @@ public class SecurityManagementServiceImplIT {
         PrivateKeyWrapper privateKeyWrapper = securityManagementService.newPrivateKeyWrapper(keyType, DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
         privateKeyWrapper.generateValue();
 
-        assertThat(privateKeyWrapper.getPrivateKey().getEncoded()).isNotEmpty();
-        assertThat(privateKeyWrapper.getPrivateKey().getAlgorithm()).isEqualTo("ECDSA");
-        assertThat(privateKeyWrapper.getPrivateKey().getFormat()).isEqualTo("PKCS#8");
+        assertThat(privateKeyWrapper.getPrivateKey().get().getEncoded()).isNotEmpty();
+        assertThat(privateKeyWrapper.getPrivateKey().get().getAlgorithm()).isEqualTo("ECDSA");
+        assertThat(privateKeyWrapper.getPrivateKey().get().getFormat()).isEqualTo("PKCS#8");
         assertThat(privateKeyWrapper.getProperties()).hasSize(1);
         assertThat(privateKeyWrapper.getProperties()).containsKey("privateKey");
         assertThat(privateKeyWrapper.getPropertySpecs()).hasSize(1);
@@ -337,9 +337,9 @@ public class SecurityManagementServiceImplIT {
         PrivateKeyWrapper privateKeyWrapper = securityManagementService.newPrivateKeyWrapper(keyType, DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
         privateKeyWrapper.generateValue();
 
-        assertThat(privateKeyWrapper.getPrivateKey().getEncoded()).isNotEmpty();
-        assertThat(privateKeyWrapper.getPrivateKey().getAlgorithm()).isEqualTo("RSA");
-        assertThat(privateKeyWrapper.getPrivateKey().getFormat()).isEqualTo("PKCS#8");
+        assertThat(privateKeyWrapper.getPrivateKey().get().getEncoded()).isNotEmpty();
+        assertThat(privateKeyWrapper.getPrivateKey().get().getAlgorithm()).isEqualTo("RSA");
+        assertThat(privateKeyWrapper.getPrivateKey().get().getFormat()).isEqualTo("PKCS#8");
         assertThat(privateKeyWrapper.getProperties()).hasSize(1);
         assertThat(privateKeyWrapper.getProperties()).containsKey("privateKey");
         assertThat(privateKeyWrapper.getPropertySpecs()).hasSize(1);
@@ -368,9 +368,9 @@ public class SecurityManagementServiceImplIT {
         PrivateKeyWrapper privateKeyWrapper = securityManagementService.newPrivateKeyWrapper(keyType, DataVaultPrivateKeyFactory.KEY_ENCRYPTION_METHOD);
         privateKeyWrapper.generateValue();
 
-        assertThat(privateKeyWrapper.getPrivateKey().getEncoded()).isNotEmpty();
-        assertThat(privateKeyWrapper.getPrivateKey().getAlgorithm()).isEqualTo("DSA");
-        assertThat(privateKeyWrapper.getPrivateKey().getFormat()).isEqualTo("PKCS#8");
+        assertThat(privateKeyWrapper.getPrivateKey().get().getEncoded()).isNotEmpty();
+        assertThat(privateKeyWrapper.getPrivateKey().get().getAlgorithm()).isEqualTo("DSA");
+        assertThat(privateKeyWrapper.getPrivateKey().get().getFormat()).isEqualTo("PKCS#8");
         assertThat(privateKeyWrapper.getProperties()).hasSize(1);
         assertThat(privateKeyWrapper.getProperties()).containsKey("privateKey");
         assertThat(privateKeyWrapper.getPropertySpecs()).hasSize(1);

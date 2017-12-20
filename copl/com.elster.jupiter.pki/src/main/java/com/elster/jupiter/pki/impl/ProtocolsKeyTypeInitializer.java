@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
  */
 
-package com.elster.jupiter.pki.impl.gogo;
+package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.transaction.TransactionContext;

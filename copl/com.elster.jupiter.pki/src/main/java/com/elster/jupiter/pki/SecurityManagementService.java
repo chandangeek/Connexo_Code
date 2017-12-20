@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * This is the main interface towards the security bundle. It provides access for the main PKI & HSM procedures.
+ * This is the main interface for security management. It provides access for the HSM & datavault keys, trust store, key types,
  */
 @ProviderType
 public interface SecurityManagementService {
@@ -57,6 +57,13 @@ public interface SecurityManagementService {
      * @return List of trust stores
      */
     List<TrustStore> getAllTrustStores();
+
+    /**
+     * Returns a list of all keypair wrappers that exist in the system. There is expected to be a limited set of keypair wrappers.
+     * Devices e.g. will only contain certificates, not uncertified keypairs.
+     * @return List of existing keypairs, sorted by alias
+     */
+    List<KeypairWrapper> getAllKeyPairs();
 
     /**
      * Get a list of names of all KeyEncryptionMethods that registered through whiteboard.
@@ -120,6 +127,22 @@ public interface SecurityManagementService {
     List<PropertySpec> getPropertySpecs(SecurityAccessorType securityAccessorType);
 
     /**
+     * List the PropertySpecs that are required to import a wrapper of the mentioned type.
+     * E.g. For a datavault keypair, we will need the keys themselves, on a HSM private key, we will need only the KEK label.
+     * @param keyAccessorType The key accessor describing the KeyEncryptionMethod and {@link CryptographicType}
+     * @return List of required property specs for importing an SecurityValueWrapper if this type.
+     */
+//    List<PropertySpec> getImportPropertySpecs(KeyAccessorType keyAccessorType);
+
+    /**
+     * List the PropertySpecs that are required to generate a wrapper of the mentioned type.
+     * E.g. For a datavault keypair, we will need no additional properties, for a HSM private key stored in the DB, we will need the label of the DB wrapper key.
+     * @param keyAccessorType The key accessor describing the KeyEncryptionMethod and {@link CryptographicType}
+     * @return List of required property specs for importing an SecurityValueWrapper if this type.
+     */
+//    List<PropertySpec> getGenerationPropertySpecs(KeyAccessorType keyAccessorType);
+
+    /**
      * Get an existing KeyType by name.
      * Returns Optional.empty() if not found
      * @param name The KpiType's name. The name is a unique identifier.
@@ -160,6 +183,13 @@ public interface SecurityManagementService {
     SymmetricKeyWrapper newSymmetricKeyWrapper(SecurityAccessorType securityAccessorType);
 
     /**
+     * Returns a DeviceSecretImporter, capable of importing a secret (Passphrase, Key or whatever) for the appropriate {@link SecurityAccessorType}
+     * @param securityAccessorType
+     * @return
+     */
+    DeviceSecretImporter getDeviceSecretImporter(SecurityAccessorType securityAccessorType);
+
+    /**
      * Creates a new PassphraseWrapper. The PkiService will delegate the actual creation and storage to the appropriate
      * factory given the provided key encryption method.
      * @param securityAccessorType Contains all information required by the pkiService and factories to figure out what has
@@ -181,6 +211,18 @@ public interface SecurityManagementService {
      * @return Persisted, empty ClientCertificateWrapper
      */
     ClientCertificateWrapperBuilder newClientCertificateWrapper(KeyType clientCertificateKeyType, String keyEncryptionMethod);
+
+    /**
+     * Create a new Keypair wrapper. A keypair wrapper contains a public and/or private key, without certificate.
+     * @param alias The keypair will be known by an alias. The alias will need to be unique in the keypair store.
+     * @param keyType The KeyType describes the key (RSA, DSA, EC) and the specific parameters.
+     * @param keyEncryptionMethod The KeyEncryptionMethod describes which wrapper will be used to store the private key
+     * (DataVault being the Connexo default)
+     * @return a newly created KeypairWrapper, containing an empty
+     */
+    KeypairWrapper newKeypairWrapper(String alias, KeyType keyType, String keyEncryptionMethod);
+
+    KeypairWrapper newPublicKeyWrapper(String alias, KeyType keyType);
 
     /**
      * Returns the client certificate known by the provided alias
@@ -211,6 +253,20 @@ public interface SecurityManagementService {
     Optional<CertificateWrapper> findCertificateWrapper(long id);
 
     /**
+     * Returns the KeypairWrapper identified by the provided id
+     * @param id The Keypair's id
+     * @return The {@link KeypairWrapper}, empty if not found.
+     */
+    Optional<KeypairWrapper> findKeypairWrapper(long id);
+
+    /**
+     * Returns the KeypairWrapper identified by alias
+     * @param alias The Keypair's alias
+     * @return The {@link KeypairWrapper}, empty if not found.
+     */
+    Optional<KeypairWrapper> findKeypairWrapper(String alias);
+
+    /**
      * Returns the CertificateWrapper identified by the provided id if the {@link CertificateWrapper} has the correct version
      * @param id The certificate's id
      * @param version The object's required version
@@ -223,6 +279,40 @@ public interface SecurityManagementService {
      * @return All Certificates and ClientCertificates, TrustedCertificates will not be part of the list.
      */
     Finder<CertificateWrapper> findAllCertificates();
+
+
+    /**
+     * Used by the secure shipment importer, this method allows the importer to determine which algorithm is to be used
+     * for which encryption method.
+     * Connexo has only a single algorithm by default:
+     *    http://www.w3.org/2001/04/xmlenc#aes256-cbc (identifier) -> algorithm AES/CBC/PKCS5PADDING with key length 32.
+     * Custom mappings can be added using the method registerSymmetricAlgorithm()
+     * @param identifier The identifier as found in the XMLSEC file.
+     * @return The {@link SymmetricAlgorithm} associated with this identifier, or Optional.empty() if there is none.
+     */
+    Optional<SymmetricAlgorithm> getSymmetricAlgorithm(String identifier);
+
+    /**
+     * Shipment importer used the SymmetricAlgorithm to determine which java algortihm is to be used for which XML algorithm identifier.
+     * This method can be used to add additional algorithms. The identifier of the SymmetricAlgorithm is used as key,
+     * therefore, existing mappings can be overridden as well.
+     * @param symmetricAlgorithm The SymmetricAlgorithm to register. The identifier will be used as id.
+     */
+    void registerSymmetricAlgorithm(SymmetricAlgorithm symmetricAlgorithm);
+
+    /**
+     * Returns a finder for all Keypairs in the Keypair-store.
+     * @return
+     */
+    Finder<KeypairWrapper> findAllKeypairs();
+
+    /**
+     * Returns the KeypairWrapper identified by the provided id if the {@link KeypairWrapper} has the correct version
+     * @param id The Keypair's id
+     * @param version The object's required version
+     * @return The {@link KeypairWrapper}, empty if not found.
+     */
+    Optional<KeypairWrapper> findAndLockKeypairWrapper(long id, long version);
 
     /**
      * List all known aliases from the certificate store that match the search filter.
@@ -354,7 +444,12 @@ public interface SecurityManagementService {
         ClientCertificateWrapper add();
     }
 
-    interface CertificateTypeBuilder {
+    public interface KeypairWrapperBuilder {
+        KeypairWrapperBuilder alias(String alias);
+        KeypairWrapper add();
+    }
+
+    public interface CertificateTypeBuilder {
         CertificateTypeBuilder description(String description);
         KeyType add();
     }

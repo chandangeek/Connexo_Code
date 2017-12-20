@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
  */
 
-package com.elster.jupiter.pki.impl.gogo;
+package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyType;
@@ -61,6 +61,22 @@ public enum ProtocolKeyTypes {
 
         public KeyType createKeyType(SecurityManagementService securityManagementService) {
             return securityManagementService.newPassphraseType(getName()).length(20).withLowerCaseCharacters().withUpperCaseCharacters().description("Generic password").add();
+        }
+    },
+    RSA {
+        @Override
+        public String getName() {
+            return "RSA 1024";
+        }
+
+        @Override
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService
+                    .newClientCertificateType(getName(), "SHA256withRSA")
+                    .description("Client certificates with RSA 1024 bit keys. This certificate will be linked to a private key.")
+                    .RSA()
+                    .keySize(1024)
+                    .add();
         }
     },
     TLS_CLIENT_SUITE_1 {

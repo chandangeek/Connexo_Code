@@ -9,7 +9,11 @@ import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertPathValidatorException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Optional;
@@ -77,4 +81,16 @@ public interface TrustStore extends HasId, HasName {
      * A trust store can only be deleted if it is no longer referred to by a KeyAccessorType.
      */
     void delete();
+
+    /**
+     * Verifies if the provided certificate can be trusted by this trust store. If no valid chain of trust could be established,
+     * an UntrustedCertificateException is thrown.
+     * @param certificate The certificate for which a chain of trust will be build
+     * @throws InvalidAlgorithmParameterException
+     * @throws NoSuchAlgorithmException
+     * @throws CertificateException
+     */
+    void validate(X509Certificate certificate) throws
+            InvalidAlgorithmParameterException,
+            NoSuchAlgorithmException, CertificateException, CertPathValidatorException;
 }

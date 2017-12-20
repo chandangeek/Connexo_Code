@@ -16,7 +16,7 @@ public enum MessageSeeds implements MessageSeed {
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "Name must be unique"),
     FIELD_TOO_LONG(1002, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
     FIELD_IS_REQUIRED(1003, Keys.FIELD_IS_REQUIRED, "This field is required"),
-    NO_SUCH_ENCRYPTION_METHOD(1004, Keys.NO_SUCH_ENCRYPTION_METHOD, "Storage method is unknown or not registered yet"),
+    NO_SUCH_ENCRYPTION_METHOD(1004, Keys.NO_SUCH_ENCRYPTION_METHOD, "Storage method for a secret value is unknown or not registered yet"),
     DUPLICATE_KEY_ENCRYPTION_REGISTRATION(1005, Keys.DUPLICATE_KEY_ENCRYPTION_REGISTRATION, "A key storage method with the same name for this type of elements has already been registered"),
     ALGORITHM_NOT_SUPPORTED(1006, "NoSuchAlgorithm", "The required algorithm is not supported in the environment at this time"),
     INVALID_KEY(1007, "InvalidKeyException", "The key could not be recreated due to erroneous encoding"),
@@ -44,10 +44,19 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_PASSWORD_LENGTH(1028, Keys.INVALIDPASSPHRASELENGTH, "Invalid passphrase length"),
     INVALID_KEY_SIZE(1029, Keys.INVALID_KEY_SIZE, "Invalid key size"),
     INVALID_HEX_VALUE(1030,Keys.INVALID_HEX_VALUE, "Not a properly hex encoded key"),
-    NO_SUCH_TRUSTSTORE(1031, "noSuchTrustStore", "The trust store could not be found"),
-    INVALID_DN(1032, "InvalidDN", "Invalid distinguished name encountered"),
-    EXCESSIVE_TIME_DURATION(1033, Keys.EXCESSIVE_TIME_DURATION, "Validity period must be shorter than or equal to 30 years."),
-    VETO_TRUSTSTORE_DELETION(1034, "trustStoreXstillInUse", "Trust store {0} is still in use");
+    UNSUPPORTED_IMPORT_TYPE(1031, "UnsupportedImportType", "Connexo can currently not import device secrets of type ''{0}'' (security accessor ''{1}'')"),
+    NO_IMPORT_KEY_DEFINED(1032, "NoImportKeyDefined", "DataVault importer requires an import key to be defined in the config file, however the property ''{0}'' was not set."),
+    IMPORT_KEY_NOT_FOUND(1033, "ImportKeyNotFound", "DataVault importer could not find the keypair ''{0}'' with associated private key, required during import"),
+    INCORRECT_IMPORT_KEY(1034, "IncorrectImportKey", "The keypair ''{0}'' does not seem to be associated with a private key and can not be used by the importer"),
+    DEVICE_KEY_IMPORT_FAILED(1035, "FailedToImportDeviceKey", "DataVault importer failed to import the device key: ''{0}''"),
+    PUBLIC_KEY_INVALID(1036, "CouldNotConstructKey", "The public key could not be created: {0}"),
+    CAN_NOT_GENERATE_PUBLIC(1037, "CanNotGeneratePublic", "A public key can not be generated, only a public/private keypair"),
+    NO_PUBLIC_KEY_TO_VERIFY(1038, "NoPublicKeyForVerification", "The public key can not be verified: no public key counterpart for verification"),
+    PUBLIC_KEY_DOES_NOT_MATCH(1039, "PublicKeyDoesNotMatch", "Incorrect public key used to encrypt wrap key"),
+    NO_SUCH_TRUSTSTORE(1040, "noSuchTrustStore", "The trust store could not be found"),
+    INVALID_DN(1041, "InvalidDN", "Invalid distinguished name encountered"),
+    EXCESSIVE_TIME_DURATION(1042, Keys.EXCESSIVE_TIME_DURATION, "Validity period must be shorter than or equal to 30 years."),
+    VETO_TRUSTSTORE_DELETION(1043, "trustStoreXstillInUse", "Trust store {0} is still in use");
 
     private final int number;
     private final String key;

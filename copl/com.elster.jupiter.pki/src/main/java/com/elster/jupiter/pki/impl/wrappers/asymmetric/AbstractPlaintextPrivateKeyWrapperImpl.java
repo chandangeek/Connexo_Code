@@ -17,6 +17,7 @@ import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.Checks;
 
 import com.google.common.collect.ImmutableMap;
 import org.bouncycastle.asn1.ASN1Sequence;
@@ -104,13 +105,13 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
         return encryptedPrivateKey;
     }
 
-    protected KeyType getKeyType() {
+    public KeyType getKeyType() {
         return keyTypeReference.get();
     }
 
     @Override
     public Optional<Instant> getExpirationTime() {
-        return Optional.ofNullable(expirationTime); // TODO provide link to certificate to determine expiration
+        return Optional.ofNullable(expirationTime);
     }
 
     @Override
@@ -142,9 +143,13 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
     }
 
     @Override
-    public PrivateKey getPrivateKey() {
+    public Optional<PrivateKey> getPrivateKey() {
         try {
-            return doGetPrivateKey();
+            if (Checks.is(this.encryptedPrivateKey).emptyOrOnlyWhiteSpace()) {
+                return Optional.empty();
+            } else {
+                return Optional.ofNullable(doGetPrivateKey());
+            }
         } catch (InvalidKeyException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_KEY, e);
         } catch (NoSuchAlgorithmException e) {
@@ -170,10 +175,11 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
     }
 
     @Override
-    public void generateValue() {
+    public PublicKey generateValue() {
         try {
-            doGenerateValue();
+            PublicKey publicKey = doGenerateValue();
             save();
+            return publicKey;
         } catch (InvalidKeyException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_KEY, e);
         } catch (NoSuchAlgorithmException e) {
@@ -187,7 +193,7 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
         }
     }
 
-    protected abstract void doGenerateValue() throws
+    protected abstract PublicKey doGenerateValue() throws
             InvalidKeyException,
             NoSuchAlgorithmException,
             InvalidKeySpecException,
@@ -233,7 +239,7 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
             extensionsGenerator.addExtension(Extension.extendedKeyUsage, true, getKeyType().getExtendedKeyUsage());
         }
         csrBuilder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, extensionsGenerator.generate());
-        ContentSigner contentSigner = new JcaContentSignerBuilder(signatureAlgorithm).build(getPrivateKey());
+        ContentSigner contentSigner = new JcaContentSignerBuilder(signatureAlgorithm).build(getPrivateKey().get());
         return csrBuilder.build(contentSigner);
     }
 
