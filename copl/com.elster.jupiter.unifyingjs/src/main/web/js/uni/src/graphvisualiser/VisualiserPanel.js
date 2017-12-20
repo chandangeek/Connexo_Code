@@ -509,7 +509,9 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                     if (me.showDeviceLegend) {
                         icon = '<span class="' + me.deviceIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
                         me.addLegendItem(icon, Uni.I18n.translate('general.device', 'UNI', 'Device'));
+
                     }
+
                 });
                 me.sideMenu.down('combobox').bindStore(me.nodeStoreForComboBox);
                 if (!Ext.isEmpty(me.deviceId2Select)) {
@@ -578,7 +580,8 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                             alarms: node.get('alarms'),
                             issues: node.get('issues'),
                             failedCommunications: node.get('failedCommunications'),
-                            failedComTasks: node.get('failedComTasks')
+                            failedComTasks: node.get('failedComTasks'),
+                            hasCoordonates: node.get('hasCoordonates')
                         },
                         pos: {
                             lat: Ext.isEmpty(node.get('deviceCoordinates')) ? 45.2251093 : node.get('deviceCoordinates').latitude.value,
@@ -671,6 +674,8 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         if (showDeviceLegend) {
             icon = '<span class="' + me.deviceIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
             me.addLegendItem(icon, Uni.I18n.translate('general.device', 'UNI', 'Device'));
+            iconNoCoordinates = '<span class="' + me.deviceIcon + '" style="display:inline-block; font-size:16px; color:' + '#a19fa3' + '"></span>';
+            me.addLegendItem(iconNoCoordinates, Uni.I18n.translate('general.device.noCoordinates', 'UNI', 'Device without coordinates'));
         }
     },
 
