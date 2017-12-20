@@ -136,14 +136,18 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             } else {
                 icon = KeyLines.getFontIcon(me.deviceIcon);
             }
+
             if (Ext.isEmpty(deviceTypeColors[node.d.deviceType])) {
+
                 deviceTypeColors[node.d.deviceType] = me.colors[colorIndex++];
+
             }
+
             return {
                 id: node.id,
                 b: null,
                 fi: {
-                    c: deviceTypeColors[node.d.deviceType],
+                    c: node.d.hasCoordonates ? deviceTypeColors[node.d.deviceType] : '#a19fa3',
                     t: icon
                 }
             }
