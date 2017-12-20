@@ -155,6 +155,7 @@ Ext.define('Cfg.controller.Tasks', {
                 view.down('#tasks-view-menu').setHeader(record.get('name'));
                 me.getApplication().fireEvent('changecontentevent', view);
                 me.getApplication().fireEvent('validationtaskload', record);
+                me.getApplication().fireEvent('loadTask', record);
                 detailsForm.loadRecord(record);
                 detailsForm.setRecurrentTasks('#followedBy-field-container', record.get('nextRecurrentTasks'));
                 detailsForm.setRecurrentTasks('#precededBy-field-container', record.get('previousRecurrentTasks'));
