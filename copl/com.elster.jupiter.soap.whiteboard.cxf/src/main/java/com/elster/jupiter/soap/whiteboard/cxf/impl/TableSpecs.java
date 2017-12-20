@@ -12,10 +12,15 @@ import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.users.Group;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
     WS_ENDPOINTCFG {
@@ -116,6 +121,20 @@ public enum TableSpecs {
             table.primaryKey("SCS_PK_ENDPOINT_LOG").on(idColumn).add();
             table.autoPartitionOn(timestampColumn, LifeCycleClass.WEBSERVICES);
 
+        }
+    },
+    WS_ENDPOINT_PROPS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EndPointProperty> table = dataModel.addTable(this.name(), EndPointProperty.class);
+            table.map(EndPointPropertyImpl.class);
+            table.since(version(10, 4));
+            Column endPointColumn = table.column("ENDPOINTCFG").number().notNull().conversion(NUMBER2LONG).add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            table.column("VALUE").varChar(SHORT_DESCRIPTION_LENGTH).map("stringValue").add();
+            table.primaryKey("PK_WS_ENDPOINT_PROPS").on(endPointColumn, nameColumn).add();
+            table.foreignKey("FK_WS_ENDPOINT_PROPS").references(WS_ENDPOINTCFG.name())
+                    .onDelete(DeleteRule.CASCADE).map("endPointCfg").reverseMap("properties").composition().on(endPointColumn).add();
         }
     };
 

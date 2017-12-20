@@ -5,6 +5,10 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.properties.HasDynamicProperties;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class represents a configuration for an endpoint. There will be a 1-on-1 relation between a javax.xml.ws.EndPoint
@@ -12,7 +16,7 @@ import com.elster.jupiter.domain.util.Finder;
  * EndPointConfiguration and not just EndPoint to avoid confusion with javax.xml.ws.endPoint. The relation is established/managed
  * by {ManagedEndpoint}. The AppServers will create the actual endpoint based on configuration as found in an EndPointConfiguration.
  */
-public interface EndPointConfiguration {
+public interface EndPointConfiguration extends HasDynamicProperties {
     long getId();
 
     String getName();
@@ -99,5 +103,13 @@ public interface EndPointConfiguration {
      * @return Finder of logs
      */
     Finder<EndPointLog> getLogs();
+
+    void setProperties(Map<String, Object> map);
+
+    EndPointProperty addProperty(String name, Object value);
+
+    List<EndPointProperty> getProperties();
+
+    Map<String, Object> getProps();
 
 }

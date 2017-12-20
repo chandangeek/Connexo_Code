@@ -7,6 +7,7 @@ package com.elster.jupiter.soap.whiteboard.cxf;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.users.Group;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -101,6 +102,8 @@ public interface EndPointConfigurationService {
         InboundEndPointConfigBuilder schemaValidation();
 
         InboundEndPointConfigBuilder logLevel(LogLevel logLevel);
+
+        InboundEndPointConfigBuilder withProperties(Map<String, Object> properties);
 
         EndPointConfiguration create();
     }

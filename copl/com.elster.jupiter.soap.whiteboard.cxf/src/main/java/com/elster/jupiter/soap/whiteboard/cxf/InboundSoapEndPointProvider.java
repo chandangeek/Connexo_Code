@@ -12,5 +12,5 @@ import aQute.bnd.annotation.ConsumerType;
  */
 @ConsumerType
 public interface InboundSoapEndPointProvider extends EndPointProvider {
-    Object get();
+    EndPointProp get();
 }

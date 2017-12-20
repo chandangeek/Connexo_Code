@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
@@ -28,6 +29,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.impl.soap.OutboundSoapEndPointFact
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.osgi.BundleWaiter;
 
@@ -45,7 +47,7 @@ import org.osgi.service.http.HttpService;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.io.File;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -159,6 +161,16 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
             });
         } else {
             return Optional.empty();
+        }
+    }
+
+    public List<PropertySpec> getWebServicePropertySpecs(String webServiceName) {
+        final EndPointFactory endPointFactory = webServices.get(webServiceName);
+        if (endPointFactory != null && endPointFactory.getEndPointProvider() instanceof InboundSoapEndPointProvider) {
+            InboundSoapEndPointProvider provider = (InboundSoapEndPointProvider) endPointFactory.getEndPointProvider();
+            return provider.get().getPropertySpecs();
+        } else {
+            return new ArrayList<>();
         }
     }
 
@@ -298,7 +310,7 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
         }
         this.dataModel.register(this.getModule(logDirectory));
         upgradeService.register(InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME), dataModel,
-                Installer.class, Collections.emptyMap());
+                Installer.class, V10_4SimpleUpgrader.V10_4_UPGRADER);
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();
         BundleWaiter.wait(this,bundleContext,"org.glassfish.hk2.osgi-resource-locator");

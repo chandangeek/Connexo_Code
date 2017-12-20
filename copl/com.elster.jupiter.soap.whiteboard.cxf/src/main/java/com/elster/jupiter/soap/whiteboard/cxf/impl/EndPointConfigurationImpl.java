@@ -10,12 +10,17 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.collections.ArrayDiffList;
+import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.conditions.Where;
 
 import com.google.common.collect.ImmutableMap;
@@ -28,8 +33,12 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Created by bvn on 4/29/16.
@@ -72,6 +81,10 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     private long version;
 
     private final DataModel dataModel;
+    private final WebServicesService webServicesService;
+
+    private List<EndPointProperty> properties = new ArrayList<>();
+
     private static final String INBOUND_WEBSERVICE_DISCRIMINATOR = "0";
 
     private static final String OUTBOUND_WEBSERVICE_DISCRIMINATOR = "1";
@@ -81,10 +94,11 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
                     OUTBOUND_WEBSERVICE_DISCRIMINATOR, OutboundEndPointConfigurationImpl.class);
 
     @Inject
-    public EndPointConfigurationImpl(Clock clock, DataModel dataModel, TransactionService transactionService) {
+    public EndPointConfigurationImpl(Clock clock, DataModel dataModel, TransactionService transactionService, WebServicesService webServicesService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.transactionService = transactionService;
+        this.webServicesService = webServicesService;
     }
 
     public void delete() {
@@ -217,7 +231,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public void setTraceFile(String traceFile) {
-        this.traceFile = traceFile.startsWith(File.separator)?traceFile.substring(1):traceFile;
+        this.traceFile = traceFile.startsWith(File.separator) ? traceFile.substring(1) : traceFile;
     }
 
     @Override
@@ -291,6 +305,60 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
                 Where.where(EndPointLogImpl.Fields.endPointConfiguration.fieldName())
                         .isEqualTo(this), dataModel).sorted(EndPointLogImpl.Fields.timestamp.fieldName(), false);
 
+    }
+
+    @Override
+    public EndPointProperty addProperty(String name, Object value) {
+        EndPointPropertyImpl newProperty = new EndPointPropertyImpl().init(this, name, value);
+        properties.add(newProperty);
+        return newProperty;
+    }
+
+    private void deleteProperty(EndPointProperty property) {
+        properties.remove(property);
+    }
+
+    @Override
+    public List<EndPointProperty> getProperties() {
+        return Collections.unmodifiableList(properties);
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return webServicesService.getWebServicePropertySpecs(getWebServiceName());
+    }
+
+    @Override
+    public Map<String, Object> getProps() {
+        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+        for (EndPointProperty property : getProperties()) {
+            builder.put(property.getName(), property.getValue());
+        }
+        return builder.build();
+    }
+
+    @Override
+    public void setProperties(Map<String, Object> propertyMap) {
+        DiffList<EndPointProperty> entryDiff = ArrayDiffList.fromOriginal(getProperties());
+        entryDiff.clear();
+        List<EndPointProperty> newProperties = new ArrayList<>();
+        for (Map.Entry<String, Object> property : propertyMap.entrySet()) {
+            EndPointPropertyImpl newProperty = new EndPointPropertyImpl().init(this, property.getKey(), property.getValue());
+            newProperties.add(newProperty);
+        }
+        entryDiff.addAll(newProperties);
+        for (EndPointProperty property : entryDiff.getRemovals()) {
+            properties.remove(property);
+        }
+        for (EndPointProperty property : entryDiff.getRemaining()) {
+            property.setValue(propertyMap.get(property.getName()));
+            Optional<EndPointProperty> any = properties.stream().filter(aProperty -> aProperty.getName().equals(property.getName())).findAny();
+            any.ifPresent(properties::remove);
+            properties.add(property);
+        }
+        for (EndPointProperty property : entryDiff.getAdditions()) {
+            properties.add(property);
+        }
     }
 
     @Override
