@@ -19,6 +19,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
         'Mdc.view.setup.datacollectionkpis.Edit'
     ],
     refs: [
+        {ref: 'dataCollectionKpiEdit', selector: 'dataCollectionKpiEdit'},
         {ref: 'dataCollectionKpisPreviewForm', selector: '#dataCollectionKpisDetailsForm'},
         {ref: 'dataCollectionKpisGrid', selector: '#datacollectionkpisgrid'},
         {ref: 'dataCollectionKpiEditForm', selector: '#dataCollectionKpiEditForm'},

@@ -21,7 +21,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     stores: [
         'RegisterTypes',
         'ReadingTypes',
-        'AvailableReadingTypesForRegisterType'
+        'AvailableReadingTypesForRegisterType',
+        'ObisCodeFromReadingType'
     ],
 
     refs: [
@@ -34,7 +35,10 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         {ref: 'registerTypeEditForm', selector: '#registerTypeEditForm'},
         {ref: 'registerTypeDetailForm', selector: '#registerTypeDetailForm'},
         {ref: 'registerTypeEditForm', selector: '#registerTypeEditForm'},
-        {ref: 'readingTypeCombo', selector: '#registerTypeEditForm #readingTypeCombo'}
+        {ref: 'readingTypeCombo', selector: '#registerTypeEditForm #readingTypeCombo'},
+        {ref: 'readingTypeToObisMappingMessage', selector: '#readingTypeToObisMappingMessage'},
+        {ref: 'obisCodeToReadingTypeMessage', selector: '#obisCodeToReadingTypeMessage'},
+        {ref: 'editObisCodeField', selector: '#registerTypeEditForm #editObisCodeField'}
     ],
 
     init: function () {
@@ -65,10 +69,13 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             },
             '#registerTypeDetail menuitem[action=editRegisterType]': {
                 click: this.editRegisterTypeFromDetails
+            },
+            '#registerTypeEdit #readingTypeCombo': {
+                select: this.selectReadingType,
+                expand: this.expandReadingTypes
             }
         });
     },
-
     onRegisterTypesStoreLoad: function () {
         if (this.getRegisterTypesStore().data.items.length > 0) {
             var setupWidget = this.getRegisterTypeSetup(),
@@ -79,6 +86,20 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             }
 
         }
+    },
+
+    onAvailableReadingTypesForRegisterTypeStoreLoad: function (store) {
+        var me = this,
+            reader = store.proxy.reader;
+
+        if (me.getReadingTypeCombo().isDisabled())
+            return;
+
+        // Obis codes doesn't map to reading type and obis field is not empty
+        if (reader.rawData && reader.rawData.mappingError && me.getEditObisCodeField().getValue())
+            me.getObisCodeToReadingTypeMessage().show();
+        else
+            me.getObisCodeToReadingTypeMessage().hide();
     },
 
     previewRegisterType: function (grid, record) {
@@ -186,6 +207,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var me = this;
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.down('#registerTypeEditForm').setTitle(Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Add register type'));
+
+        me.getAvailableReadingTypesForRegisterTypeStore().on('load', this.onAvailableReadingTypesForRegisterTypeStoreLoad, me);
     },
 
     createEditRegisterType: function (btn) {
@@ -206,6 +229,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             record = Ext.create(Mdc.model.RegisterType);
         }
 
+        me.getAvailableReadingTypesForRegisterTypeStore().getProxy().extraParams = {};
         this.getRegisterTypeEditForm().getForm().clearInvalid();
         me.hideErrorPanel();
         if (record) {
@@ -251,6 +275,40 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     editRegisterTypeFromDetails: function () {
         var record = this.getRegisterTypeDetailForm().getRecord();
         location.href = '#/administration/registertypes/' + record.get('id') + '/edit';
+    },
+
+    selectReadingType: function(combo) {
+        var me = this;
+        me.getReadingTypeToObisMappingMessage().hide();
+
+        if (me.getEditObisCodeField().getValue()){
+            return;
+        }
+        if (!Ext.isEmpty(combo.valueModels)) {
+            var store = me.getStore('Mdc.store.ObisCodeFromReadingType');
+            store.getProxy().extraParams = ({mRID: combo.valueModels[0].get('mRID')});
+            store.load({
+                callback: function (records, operation, success) {
+                    if (success) {
+                        if (Ext.isEmpty(records)) {
+                            me.getReadingTypeToObisMappingMessage().show();
+                        } else {
+                            var obisCode = '';
+                            Ext.Array.forEach(records, function (record) {
+                                obisCode += record.raw;
+                            });
+                            me.getEditObisCodeField().setValue(obisCode);
+                        }
+                    }
+                }
+            });
+        }
+    },
+
+    expandReadingTypes: function(combo) {
+        var me = this,
+            store = combo.getStore();
+        store.getProxy().extraParams = ({obisCode: me.getEditObisCodeField().getValue()});
     },
 
     showErrorPanel: function () {
