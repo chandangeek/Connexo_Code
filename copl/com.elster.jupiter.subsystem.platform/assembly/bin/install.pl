@@ -48,7 +48,7 @@ my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
 
 my $TOMCAT_DIR="tomcat";
 my $TOMCAT_BASE="$CONNEXO_DIR/partners"; 
-my $TOMCAT_ZIP="tomcat-7.0.59";
+my $TOMCAT_ZIP="tomcat-8.5.24";
 my $CATALINA_BASE="$TOMCAT_BASE/$TOMCAT_DIR";
 my $CATALINA_HOME=$CATALINA_BASE;
 $ENV{"CATALINA_HOME"}=$CATALINA_HOME;
@@ -230,7 +230,7 @@ sub read_config {
             print "Please enter the path containing the upgrade zip-file: ";
             chomp($UPGRADE_PATH=<STDIN>);
         }
-						    
+
         print "Do you want to install Connexo: (yes/no)";
         chomp($INSTALL_CONNEXO=<STDIN>);
         if ("$INSTALL_CONNEXO" eq "yes") {
@@ -245,7 +245,7 @@ sub read_config {
             print "Do you want to install Connexo as a daemon: (yes/no) ";
             chomp($CONNEXO_SERVICE=<STDIN>);
         }
-        
+
         print "\n";
         print "Do you want to install Facts: (yes/no)";
         chomp($INSTALL_FACTS=<STDIN>);
@@ -275,7 +275,7 @@ sub read_config {
             print "Please enter the database password for Connexo Flow: ";
             chomp($FLOW_DB_PASSWORD=<STDIN>);
         }
-        
+
         print "\n";
         if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
             if ("$INSTALL_CONNEXO" ne "yes") {
@@ -288,7 +288,7 @@ sub read_config {
 
         print "\n";
         print "Please enter the version of your services (e.g. 10.1) or leave empty: ";
-        chomp($SERVICE_VERSION=<STDIN>);        
+        chomp($SERVICE_VERSION=<STDIN>);
 
         print "\n";
         print "Do you want to activate SSO for Facts/Flow: (yes/no) ";
@@ -350,16 +350,16 @@ sub check_port {
     my $proto = getprotobyname('tcp');
     my $iaddr = inet_aton($HOST_NAME);
     my $paddr = sockaddr_in($_[0], $iaddr);
-    
+
     socket(SOCKET, PF_INET, SOCK_STREAM, $proto) || warn "socket: $!";
-    
+
     eval {
         #local $SIG{ALRM} = sub { die "timeout" };
         #alarm(10);
         connect(SOCKET, $paddr) || error();
         #alarm(0);
     };
-    
+
     if ($@) {
         close SOCKET || warn "close: $!";
         return 0;
@@ -437,7 +437,7 @@ sub install_connexo {
 
 sub install_tomcat {
 	if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
-		print "\n\nExtracting Apache Tomcat 7 ...\n";
+		print "\n\nExtracting Apache Tomcat 8.5 ...\n";
 		print "==========================================================================\n";
 
 		$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\";-Dorg.jboss.logging.provider=slf4j;-Dorg.uberfire.nio.git.ssh.algorithm=RSA";
@@ -446,6 +446,7 @@ sub install_tomcat {
 		print "Extracting $TOMCAT_ZIP.zip\n";
 		system("\"$JAVA_HOME/bin/jar\" -xf $TOMCAT_ZIP.zip") == 0 or die "system $JAVA_HOME/bin/jar -xvf $TOMCAT_ZIP.zip failed: $?";
 		if (-d "$TOMCAT_DIR") { rmtree("$TOMCAT_DIR"); }
+		sleep 2;
 		rename("apache-$TOMCAT_ZIP","$TOMCAT_DIR");
 
 		if (-e "$TOMCAT_BASE/connexo.filter.jar") {
@@ -463,7 +464,7 @@ sub install_tomcat {
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"user\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"manager\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"tomcat\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
-        replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/bin/service.bat","set DISPLAYNAME=Apache Tomcat 7.0 ","set DISPLAYNAME=");
+        replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/bin/service.bat","set DISPLAYNAME=Apache Tomcat 8.5 ","set DISPLAYNAME=");
 		print "Installing Apache Tomcat For Connexo as service ...\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.bat") or die "Could not open $TOMCAT_DIR/bin/setenv.bat: $!";
