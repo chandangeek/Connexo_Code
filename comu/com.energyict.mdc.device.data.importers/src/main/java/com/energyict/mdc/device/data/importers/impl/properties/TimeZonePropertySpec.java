@@ -16,7 +16,6 @@ import java.time.Clock;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class TimeZonePropertySpec extends BasicPropertySpec {
@@ -39,10 +38,7 @@ public class TimeZonePropertySpec extends BasicPropertySpec {
 
     public String getDefaultTimeZone(Clock clock) {
         TimeZone timeZone = TimeZone.getTimeZone(clock.getZone());
-        int rawOffset = timeZone.getOffset(clock.millis());
-        long hours = TimeUnit.MILLISECONDS.toHours(rawOffset);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(rawOffset) - TimeUnit.HOURS.toMinutes(hours);
-        return String.format("GMT%s%02d:%02d", rawOffset >= 0 ? "+" : "-", hours, minutes);
+        return timeZone.getID();    // CXO-7969
     }
 
     @Override

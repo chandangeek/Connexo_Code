@@ -212,7 +212,7 @@ public class SecurityAttributesImporterFactoryTest {
         PlaintextSymmetricKey symmetricKeyWrapper = mock(PlaintextSymmetricKey.class);
         when(securityAccessorAttr1.getActualValue()).thenReturn(Optional.of(symmetricKeyWrapper));
         when(securityAccessorAttr1.getTempValue()).thenReturn(Optional.empty());
-        when(device.getKeyAccessor(attr1)).thenReturn(Optional.of(securityAccessorAttr1));
+        when(device.getSecurityAccessor(attr1)).thenReturn(Optional.of(securityAccessorAttr1));
 
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(attr1));
         when(device.getDeviceType()).thenReturn(deviceType);
@@ -255,7 +255,7 @@ public class SecurityAttributesImporterFactoryTest {
         PlaintextPassphrase passphraseWrapper = mock(PlaintextPassphrase.class);
         when(securityAccessorAttr2.getActualValue()).thenReturn(Optional.of(passphraseWrapper));
         when(securityAccessorAttr2.getTempValue()).thenReturn(Optional.empty());
-        when(device.getKeyAccessor(attr2)).thenReturn(Optional.ofNullable(securityAccessorAttr2));
+        when(device.getSecurityAccessor(attr2)).thenReturn(Optional.ofNullable(securityAccessorAttr2));
 
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(attr2));
         when(device.getDeviceType()).thenReturn(deviceType);
@@ -296,11 +296,11 @@ public class SecurityAttributesImporterFactoryTest {
         when(securityManagementService.newSymmetricKeyWrapper(attr3)).thenReturn(newSymmetricKeyWrapper);
         when(attr3.getName()).thenReturn("kat3");
         when(attr3.getKeyType()).thenReturn(symmetricKeyType);
-        when(device.getKeyAccessor(attr3)).thenReturn(Optional.empty());
+        when(device.getSecurityAccessor(attr3)).thenReturn(Optional.empty());
         SecurityAccessor newSecurityAccessor = mock(SecurityAccessor.class);
         when(newSecurityAccessor.getActualValue()).thenReturn(Optional.empty(), Optional.of(newSymmetricKeyWrapper));
         when(newSecurityAccessor.getTempValue()).thenReturn(Optional.empty());
-        when(device.newKeyAccessor(attr3)).thenReturn(newSecurityAccessor);
+        when(device.newSecurityAccessor(attr3)).thenReturn(newSecurityAccessor);
 
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(attr3));
         when(device.getDeviceType()).thenReturn(deviceType);
@@ -343,10 +343,10 @@ public class SecurityAttributesImporterFactoryTest {
         when(attr3.getName()).thenReturn("kat3");
         when(attr3.getKeyType()).thenReturn(symmetricKeyType);
         SecurityAccessor securityAccessorWithoutActual = mock(SecurityAccessor.class);
-        when(device.getKeyAccessor(attr3)).thenReturn(Optional.ofNullable(securityAccessorWithoutActual));
+        when(device.getSecurityAccessor(attr3)).thenReturn(Optional.ofNullable(securityAccessorWithoutActual));
         when(securityAccessorWithoutActual.getActualValue()).thenReturn(Optional.empty(), Optional.of(newSymmetricKeyWrapper));
         when(securityAccessorWithoutActual.getTempValue()).thenReturn(Optional.empty());
-        when(device.newKeyAccessor(attr3)).thenReturn(securityAccessorWithoutActual);
+        when(device.newSecurityAccessor(attr3)).thenReturn(securityAccessorWithoutActual);
 
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(attr3));
         when(device.getDeviceType()).thenReturn(deviceType);
@@ -389,10 +389,10 @@ public class SecurityAttributesImporterFactoryTest {
         when(attr3.getName()).thenReturn("kat3");
         when(attr3.getKeyType()).thenReturn(symmetricKeyType);
         SecurityAccessor securityAccessorWithoutActual = mock(SecurityAccessor.class);
-        when(device.getKeyAccessor(attr3)).thenReturn(Optional.ofNullable(securityAccessorWithoutActual));
+        when(device.getSecurityAccessor(attr3)).thenReturn(Optional.ofNullable(securityAccessorWithoutActual));
         when(securityAccessorWithoutActual.getActualValue()).thenReturn(Optional.empty(), Optional.of(newSymmetricKeyWrapper));
         when(securityAccessorWithoutActual.getTempValue()).thenReturn(Optional.empty());
-        when(device.newKeyAccessor(attr3)).thenReturn(securityAccessorWithoutActual);
+        when(device.newSecurityAccessor(attr3)).thenReturn(securityAccessorWithoutActual);
         ConstraintViolation<?> constraintViolation = mock(ConstraintViolation.class);
         when(constraintViolation.getMessage()).thenReturn("Illegal key size");
         when(constraintViolation.getPropertyPath()).thenReturn(PathImpl.createPathFromString(""));
@@ -435,10 +435,10 @@ public class SecurityAttributesImporterFactoryTest {
         when(attr3.getName()).thenReturn("kat3");
         when(attr3.getKeyType()).thenReturn(symmetricKeyType);
         SecurityAccessor securityAccessorWithoutActual = mock(SecurityAccessor.class);
-        when(device.getKeyAccessor(attr3)).thenReturn(Optional.ofNullable(securityAccessorWithoutActual));
+        when(device.getSecurityAccessor(attr3)).thenReturn(Optional.ofNullable(securityAccessorWithoutActual));
         when(securityAccessorWithoutActual.getActualValue()).thenReturn(Optional.empty(), Optional.of(newSymmetricKeyWrapper));
         when(securityAccessorWithoutActual.getTempValue()).thenReturn(Optional.empty());
-        when(device.newKeyAccessor(attr3)).thenReturn(securityAccessorWithoutActual);
+        when(device.newSecurityAccessor(attr3)).thenReturn(securityAccessorWithoutActual);
         ConstraintViolation<?> constraintViolation = mock(ConstraintViolation.class);
         when(constraintViolation.getMessage()).thenReturn("Illegal key size");
         when(constraintViolation.getPropertyPath()).thenReturn(PathImpl.createPathFromString("key"));
