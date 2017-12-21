@@ -38,7 +38,6 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import com.energyict.obis.ObisCode;
 
@@ -50,7 +49,6 @@ import java.util.TimeZone;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -64,11 +62,6 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * FIXME: {@link MdcReadingTypeUtilService#getReadingTypeInformationFrom(java.lang.String)} returns empty optional
- * FIXME: for averageForwardEnergyReadingTypeMRID, last line of {@link DeviceServiceImplTest#setupReadingTypes()}
- */
-@Ignore
 public class DeviceServiceImplTest extends PersistenceIntegrationTest {
 
     private static final String DEVICENAME = "deviceName";
