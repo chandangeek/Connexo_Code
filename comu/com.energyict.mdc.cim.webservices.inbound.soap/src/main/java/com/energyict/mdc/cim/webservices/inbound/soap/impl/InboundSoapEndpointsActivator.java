@@ -13,6 +13,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.rest.PropertyValueConverter;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.transaction.TransactionService;
@@ -71,8 +73,10 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile DeviceService deviceService;
     private volatile UserService userService;
     private volatile PropertySpecService propertySpecService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+    private List<PropertyValueConverter> converters = new ArrayList<>();
 
     public InboundSoapEndpointsActivator() {
         // for OSGI purposes
@@ -117,6 +121,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(UserService.class).toInstance(userService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(PropertyValueInfoService.class).toInstance(propertyValueInfoService);
             }
         };
     }
@@ -125,12 +130,19 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     public void activate(BundleContext bundleContext) {
         dataModel = upgradeService.newNonOrmDataModel();
         dataModel.register(getModule());
+        addConverter(new ObisCodePropertyValueConverter());
         registerServices(bundleContext);
     }
 
     @Deactivate
     public void stop() {
         serviceRegistrations.forEach(ServiceRegistration::unregister);
+        this.converters.forEach(this.propertyValueInfoService::removePropertyValueInfoConverter);
+    }
+
+    private void addConverter(PropertyValueConverter converter) {
+        this.converters.add(converter);
+        this.propertyValueInfoService.addPropertyValueInfoConverter(converter);
     }
 
     private void registerServices(BundleContext bundleContext) {
@@ -203,6 +215,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
     }
 
     @Override

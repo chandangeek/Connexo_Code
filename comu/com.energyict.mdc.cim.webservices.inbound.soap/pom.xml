@@ -128,6 +128,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties.rest</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
