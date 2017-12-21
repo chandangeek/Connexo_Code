@@ -307,17 +307,6 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
-    public EndPointProperty addProperty(String name, Object value) {
-        EndPointPropertyImpl newProperty = new EndPointPropertyImpl().init(this, name, value);
-        properties.add(newProperty);
-        return newProperty;
-    }
-
-    private void deleteProperty(EndPointProperty property) {
-        properties.remove(property);
-    }
-
-    @Override
     public List<EndPointProperty> getProperties() {
         return Collections.unmodifiableList(properties);
     }
@@ -328,7 +317,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
-    public Map<String, Object> getProps() {
+    public Map<String, Object> getPropertiesWithValue() {
         ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
         for (EndPointProperty property : getProperties()) {
             builder.put(property.getName(), property.getValue());

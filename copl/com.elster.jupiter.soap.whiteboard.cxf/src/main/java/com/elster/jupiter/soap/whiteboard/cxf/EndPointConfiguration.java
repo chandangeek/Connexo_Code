@@ -106,10 +106,8 @@ public interface EndPointConfiguration extends HasDynamicProperties {
 
     void setProperties(Map<String, Object> map);
 
-    EndPointProperty addProperty(String name, Object value);
-
     List<EndPointProperty> getProperties();
 
-    Map<String, Object> getProps();
+    Map<String, Object> getPropertiesWithValue();
 
 }

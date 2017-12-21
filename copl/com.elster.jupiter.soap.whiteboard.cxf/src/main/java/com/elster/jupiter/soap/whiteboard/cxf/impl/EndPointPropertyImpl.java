@@ -11,7 +11,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 
 import javax.inject.Inject;
-import java.math.BigDecimal;
 import java.util.Objects;
 
 public class EndPointPropertyImpl implements EndPointProperty {
@@ -62,11 +61,8 @@ public class EndPointPropertyImpl implements EndPointProperty {
 
     @Override
     public void setValue(Object value) {
-        if (BigDecimal.class.equals(getPropertySpec().getValueFactory().getValueType())) {
-            this.stringValue = value != null ? toStringValue(new BigDecimal(value.toString())) : null;
-            return;
-        }
-        this.stringValue = toStringValue(value);
+        Object obj = getPropertySpec().getValueFactory().fromStringValue(value.toString());
+        this.stringValue = toStringValue(obj);
     }
 
     @SuppressWarnings("unchecked")
