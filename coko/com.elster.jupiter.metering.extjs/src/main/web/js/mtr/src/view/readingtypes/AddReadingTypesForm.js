@@ -108,116 +108,116 @@ Ext.define('Mtr.view.readingtypes.AddReadingTypesForm', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.macroPeriod', 'MTR', '#1 Macro period'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.macroPeriod', 'MTR', 'Macro period #1'),
                         store: 'Mtr.store.readingtypes.attributes.Interval',
                         cimIndex: 1,
                         name: 'macroPeriod'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.aggregate', 'MTR', '#2 Aggregate'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.aggregate', 'MTR', 'Aggregate #2'),
                         store: 'Mtr.store.readingtypes.attributes.DataQualifier',
                         cimIndex: 2,
                         name: 'aggregate'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measuringPeriod', 'MTR', '#3 Measuring period'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measuringPeriod', 'MTR', 'Measuring period #3'),
                         store: 'Mtr.store.readingtypes.attributes.MeasuringPeriod',
                         cimIndex: 3,
                         name: 'measuringPeriod'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.accumulation', 'MTR', '#4 Accumulation'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.accumulation', 'MTR', 'Accumulation #4'),
                         store: 'Mtr.store.readingtypes.attributes.Accumulation',
                         cimIndex: 4,
                         name: 'accumulation'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.flowDirection', 'MTR', '#5 Flow direction'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.flowDirection', 'MTR', 'Flow direction #5'),
                         store: 'Mtr.store.readingtypes.attributes.DirectionOfFlow',
                         cimIndex: 5,
                         name: 'flowDirection'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.commodity', 'MTR', '#6 Commodity'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.commodity', 'MTR', 'Commodity #6'),
                         store: 'Mtr.store.readingtypes.attributes.Commodity',
                         cimIndex: 6,
                         name: 'commodity'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measurementKind', 'MTR', '#7 Measurement kind'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measurementKind', 'MTR', 'Measurement kind #7'),
                         store: 'Mtr.store.readingtypes.attributes.Kind',
                         cimIndex: 7,
                         name: 'measurementKind'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.interharmonicNumerator', 'MTR', '#8 Interharmonic numerator'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.interharmonicNumerator', 'MTR', 'Interharmonic numerator #8'),
                         store: 'Mtr.store.readingtypes.attributes.InterharmonicNumerator',
                         cimIndex: 8,
                         name: 'interHarmonicNumerator',
                         showCimCodes: false
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.interharmonicDenominator', 'MTR', '#9 Interharmonic denominator'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.interharmonicDenominator', 'MTR', 'Interharmonic denominator #9'),
                         store: 'Mtr.store.readingtypes.attributes.InterharmonicDenominator',
                         cimIndex: 9,
                         name: 'interHarmonicDenominator',
                         showCimCodes: false
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.argumentNumerator', 'MTR', '#10 Argument numerator'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.argumentNumerator', 'MTR', 'Argument numerator #10'),
                         store: 'Mtr.store.readingtypes.attributes.ArgumentNumerator',
                         cimIndex: 10,
                         name: 'argumentNumerator',
                         showCimCodes: false
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.argumentDenominator', 'MTR', '#11 Argument denominator'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.argumentDenominator', 'MTR', 'Argument denominator #11'),
                         store: 'Mtr.store.readingtypes.attributes.ArgumentDenominator',
                         cimIndex: 11,
                         name: 'argumentDenominator',
                         showCimCodes: false
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.timeOfUse', 'MTR', '#12 Time of use'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.timeOfUse', 'MTR', 'Time of use #12'),
                         store: 'Mtr.store.readingtypes.attributes.TimeOfUse',
                         showCimCodes: false,
                         cimIndex: 12,
                         name: 'tou'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.criticalPeakPeriod', 'MTR', '#13 Critical peak period'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.criticalPeakPeriod', 'MTR', 'Critical peak period #13'),
                         store: 'Mtr.store.readingtypes.attributes.CriticalPeakPeriod',
                         showCimCodes: false,
                         cimIndex: 13,
                         name: 'cpp'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.consumptionTier', 'MTR', '#14 Consumption tier'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.consumptionTier', 'MTR', 'Consumption tier #14'),
                         store: 'Mtr.store.readingtypes.attributes.ConsumptionTier',
                         showCimCodes: false,
                         cimIndex: 14,
                         name: 'consumptionTier'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.phases', 'MTR', '#15 Phases'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.phases', 'MTR', 'Phases #15'),
                         store: 'Mtr.store.readingtypes.attributes.Phase',
                         cimIndex: 15,
                         name: 'phases'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.multiplier', 'MTR', '#16 Multiplier'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.multiplier', 'MTR', 'Multiplier #16'),
                         store: 'Mtr.store.readingtypes.attributes.Multiplier',
                         cimIndex: 16,
                         name: 'metricMultiplier'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.unit', 'MTR', '#17 Unit'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.unit', 'MTR', 'Unit #17'),
                         store: 'Mtr.store.readingtypes.attributes.UnitOfMeasures',
                         cimIndex: 17,
                         name: 'unit'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.currency', 'MTR', '#18 Currency'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.currency', 'MTR', 'Currency #18'),
                         store: 'Mtr.store.readingtypes.attributes.Currency',
                         cimIndex: 18,
                         name: 'currency'
