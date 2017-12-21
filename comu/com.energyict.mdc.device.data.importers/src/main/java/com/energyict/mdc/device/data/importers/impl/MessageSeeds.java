@@ -106,16 +106,21 @@ public enum MessageSeeds implements MessageSeed {
     ILLEGAL_KEY(537, "NoAValidPublicKey", "The key is not a valid public key: {0}", Level.SEVERE),
     DEVICE_WITH_NAME_DOES_NOT_EXIST(538, "NoDeviceWithName", "No device with name ''{0}'' could be found, skipped by importer", Level.WARNING),
     BOTH_VALUES_ALREADY_EXISTS(539, "ActualAndPassiveAlreadyExist", "Can''t process device ''{1}'': security accessor ''{0}'' already as an 'active' and a 'passive' value, skipped.", Level.WARNING),
-    NO_READINGTYPE_ON_DEVICE(540, "NoReadingtypeOnDeviceX", "Can''t process line {0}: reading type {1} is not found on device {2}", Level.WARNING),
-    NO_CUSTOMATTRIBUTE_ON_DEVICE(541, "NoCustomAttributeOnDeviceX", "Can''t process line {0}: can''t find custom attribute set {1} on device {2}", Level.WARNING),
-    NO_CUSTOMATTRIBUTE_ON_READINGTYPE_OF_DEVICE(542, "NoCustomAttributeOnReadingTypeOfDeviceX", "Can''t process line {0}: can''t find custom attribute set {1} on reading type {2} of device {3}", Level.WARNING),
-    NO_CUSTOMATTRIBUTE_VERSION_ON_DEVICE(543, "NoCustomAttributeVersionOnDeviceX", "Can''t process line {0}:  custom attribute set version with start date {1} is not found on device {2}", Level.WARNING),
-    UNRESOLVABLE_CUSTOMATTRIBUTE_CONFLICT(544, "UnresolvableCustomAttributesConflict", "Can''t process line {0}:  conflict of versions is found for custom attribute set {1} but conflicts resolution is switched off on device {2}", Level.WARNING),
-    MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE_ON_DEVICE(545, "MissingRequiredCustomAttributeValueOnDeviceX", "Can''t process line {0}: attribute {1} is required on custom attribute set {2} on device {3}", Level.WARNING),
-    INVALID_RANGE(546, "InvalidRange", "Can''t process line {0}: start time exceeds end time of custom attribute set {1} on device {2}", Level.WARNING),
-    WRONG_QUANTITY_FORMAT(547, "WrongQuantitiyFormat", "Can''t process line {0}: wrong unit format for column {1}. Supported multipliers: {2}, supported units: {3}", Level.WARNING),
-    WRONG_ENUM_FORMAT(548, "WrongEnumFormat", "Can''t process line {0}: wrong enumeration value for column {1}. Possible values: {2}", Level.WARNING),    ;
-
+    COULD_NOT_EXTRACT_SECURITY_ACCESSOR_TYPE(540, "CouldNotExtractSecurityAccessorType", "The security accessor type could not be extracted from the certificate {0}", Level.SEVERE),
+    COULD_NOT_EXTRACT_SERIAL_NUMBER(541, "CouldNotExtractSerialNumber", "The device serial number could not be extracted from the filename {0}", Level.SEVERE),
+    COULD_NOT_EXTRACT_CERTIFICATE_NAME(542, "CouldNotExtractCertificateName", "The certificate name could not be extracted from the filename {0}", Level.SEVERE),
+    CERTIFICATE_NO_SUCH_KEY_ACCESSOR_TYPE(543, "CertificateNoSuchKeyAccessorType", "Can''t process certificate {0}. The security key that starts with X is not available", Level.WARNING),
+    NO_SERIAL_NUMBER(544, "ImportZipProcessorNoMatchingDevice", "Can''t process serialNumber {0}: No device found: {1}.", Level.WARNING),
+    NO_READINGTYPE_ON_DEVICE(545, "NoReadingtypeOnDeviceX", "Can''t process line {0}: reading type {1} is not found on device {2}", Level.WARNING),
+    NO_CUSTOMATTRIBUTE_ON_DEVICE(546, "NoCustomAttributeOnDeviceX", "Can''t process line {0}: can''t find custom attribute set {1} on device {2}", Level.WARNING),
+    NO_CUSTOMATTRIBUTE_ON_READINGTYPE_OF_DEVICE(547, "NoCustomAttributeOnReadingTypeOfDeviceX", "Can''t process line {0}: can''t find custom attribute set {1} on reading type {2} of device {3}", Level.WARNING),
+    NO_CUSTOMATTRIBUTE_VERSION_ON_DEVICE(548, "NoCustomAttributeVersionOnDeviceX", "Can''t process line {0}:  custom attribute set version with start date {1} is not found on device {2}", Level.WARNING),
+    UNRESOLVABLE_CUSTOMATTRIBUTE_CONFLICT(549, "UnresolvableCustomAttributesConflict", "Can''t process line {0}:  conflict of versions is found for custom attribute set {1} but conflicts resolution is switched off on device {2}", Level.WARNING),
+    MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE_ON_DEVICE(550, "MissingRequiredCustomAttributeValueOnDeviceX", "Can''t process line {0}: attribute {1} is required on custom attribute set {2} on device {3}", Level.WARNING),
+    INVALID_RANGE(551, "InvalidRange", "Can''t process line {0}: start time exceeds end time of custom attribute set {1} on device {2}", Level.WARNING),
+    WRONG_QUANTITY_FORMAT(552, "WrongQuantitiyFormat", "Can''t process line {0}: wrong unit format for column {1}. Supported multipliers: {2}, supported units: {3}", Level.WARNING),
+    WRONG_ENUM_FORMAT(553, "WrongEnumFormat", "Can''t process line {0}: wrong enumeration value for column {1}. Possible values: {2}", Level.WARNING),
+    ;
 
     private final int number;
     private final String key;
