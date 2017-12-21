@@ -304,7 +304,6 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         disabled: false,
                                         margin: '30 0 0 50'
                                     },
-
                                     {
                                         margin: '0 0 0 260',
                                         xtype: 'uni-form-empty-message',
