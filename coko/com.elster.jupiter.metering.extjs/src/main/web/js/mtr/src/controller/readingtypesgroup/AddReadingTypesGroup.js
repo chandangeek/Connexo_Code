@@ -258,10 +258,11 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
             router = this.getController('Uni.controller.history.Router'),
             form = me.getAddReadingTypeForm(),
             errorMsg = me.getAddReadingTypeFormErrorMessage(),
-            record = form.getBasicRecord();
-        specifyBy = record.get('specifyBy');
-
+            record = form.getBasicRecord(),
+            specifyBy = record.get('specifyBy'),
+            addCount = specifyBy == 'form' ? me.getAddReadingTypeForm().addBasicCount : 1;
         if (form.isValid()) {
+            if (addCount > 0) {
                 errorMsg.hide();
                 if (specifyBy == 'form') {
                     record.set('mRID', null);
@@ -306,6 +307,10 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
                         }
                     }
                 });
+            } else {
+                errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.noAttrSpecified', 'MTR', 'No attributes specified'));
+                errorMsg.show();
+            }
         } else {
             errorMsg.setText(errorMsg.defaultText);
             errorMsg.show();
@@ -319,8 +324,9 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
             errorMsg = me.getAddReadingTypeFormErrorMessage(),
             record = form.getExtendedRecord();
         specifyBy = record.get('specifyBy');
-
+        addCount = specifyBy == 'form' ? me.getAddReadingTypeForm().addExtendedCount : 1;
         if (form.isValid()) {
+            if (addCount > 0) {
                 errorMsg.hide();
                 if (specifyBy == 'form') {
                     record.set('mRID', null);
@@ -365,6 +371,10 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
                         }
                     }
                 });
+            } else {
+                errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.noAttrSpecified', 'MTR', 'No attributes specified'));
+                errorMsg.show();
+            }
         } else {
             errorMsg.setText(errorMsg.defaultText);
             errorMsg.show();

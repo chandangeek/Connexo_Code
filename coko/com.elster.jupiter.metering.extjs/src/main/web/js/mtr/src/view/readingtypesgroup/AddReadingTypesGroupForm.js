@@ -13,6 +13,82 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
     defaults: {
         labelWidth: 250
     },
+    addBasicCount: 0,
+    addExtendedCount: 0,
+
+    setBasicAddCount: function (count) {
+        this.addBasicCount = count;
+        this.down('#add-reading-types-basic-count').setValue(Uni.I18n.translatePlural('readingtypesmanagement.addreadingtypesgroup.countMsg',
+            count, 'MTR', 'No reading types will be added',
+            'You are going to add {0} reading type. 1000 is the limit', 'You are going to add {0} reading types. 1000 is the limit')
+        );
+    },
+
+    updateBasicAddCount: function () {
+        var me = this,
+            count = 0;
+        var data = me.getBasicRecord().getData();
+
+        delete data.id;
+        delete data.mRID;
+        delete data.aliasName;
+        delete data.specifyBy;
+
+        if (data.basicCommodity == 2) //Electricity 1 & 2
+        {
+            count = 2;  //lori
+        }
+        else {
+            count = 0;
+        }
+        for (key in data) {
+            if (data[key] instanceof Array) {
+                if (!Ext.isEmpty(data[key][0])) {
+                    !count && (count = 1);
+                    count = count * data[key].length;
+                }
+            }
+        }
+        //update count
+        // for (key in data) {
+        //     if (!Ext.isEmpty(data[key])) {
+        //         !count && (count = 1);
+        //         count = count * 1;
+        //         if (data.basicCommodity == 2) //Elctricity 1 & 2
+        //         {
+        //             count = 2;  //lori
+        //         }
+        //     }
+        // }
+        me.setBasicAddCount(count);
+    },
+    setExtendedAddCount: function (count) {
+        this.addExtendedCount = count;
+        this.down('#add-reading-types-extended-count').setValue(Uni.I18n.translatePlural('readingtypesmanagment.addreadingtypesgroup.countMsg',
+            count, 'MTR', 'No reading types will be added',
+            'You are going to add {0} reading type. 1000 is the limit', 'You are going to add {0} reading types. 1000 is the limit')
+        );
+    },
+
+    updateExtendedAddCount: function () {
+        var me = this,
+            count = 0;
+        var data = me.getExtendedRecord().getData();
+
+        delete data.id;
+        delete data.mRID;
+        delete data.aliasName;
+        delete data.specifyBy;
+        for (key in data) {
+            if (data[key] instanceof Array) {
+                if (!Ext.isEmpty(data[key][0])) {
+                    !count && (count = 1);
+                    count = count * data[key].length;
+                }
+            }
+        }
+        me.setExtendedAddCount(count);
+    },
 
     getBasicRecord: function () {
         var record = this.updateRecord().getRecord();
@@ -92,11 +168,15 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         cimField.enable();
                                         tabFormBasic.disable();
                                         tabFormExtended.disable();
+                                        me.setBasicAddCount(1);
+                                        me.setExtendedAddCount(1);
                                         break;
                                     case 'form':
                                         tabFormBasic.enable();
                                         tabFormExtended.enable();
                                         cimField.disable();
+                                        me.updateBasicAddCount();
+                                        me.updateExtendedAddCount();
                                         break;
                                 }
                             }
@@ -146,12 +226,13 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                     listeners: {
                                         change: function (a, b) {
                                             me.fireEvent('change', me);
+                                            me.updateBasicAddCount();
                                         }
                                     }
                                 },
                                 items: [
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.commodity', 'MTR', '#6 Commodity'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.commodity', 'MTR', 'Commodity #6'),
                                         store: 'Mtr.store.readingtypesgroup.attributes.Commodity',
                                         cimIndex: 6,
                                         name: 'basicCommodity',
@@ -159,14 +240,14 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         disabled: false
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measurementKind', 'MTR', '#7 Measurement kind'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measurementKind', 'MTR', 'Measurement kind #7'),
                                         store: 'Mtr.store.readingtypesgroup.attributes.Kind',
                                         cimIndex: 7,
                                         name: 'basicMeasurementKind',
                                         required: true
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.flowDirection', 'MTR', '#5 Flow direction'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.flowDirection', 'MTR', 'Flow direction #5'),
                                         store: 'Mtr.store.readingtypesgroup.attributes.DirectionOfFlow',
                                         cimIndex: 5,
                                         disabled: true,
@@ -174,7 +255,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         required: true
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.unit', 'MTR', '#17 Unit'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.unit', 'MTR', 'Unit #17'),
                                         store: 'Mtr.store.readingtypesgroup.attributes.UnitOfMeasures',
                                         cimIndex: 17,
                                         disabled: true,
@@ -182,7 +263,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         required: true
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.macroPeriod', 'MTR', '#1 Macro period'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.macroPeriod', 'MTR', 'Macro period #1'),
                                         store: 'Mtr.store.readingtypesgroup.attributes.MacroPeriod',
                                         cimIndex: 1,
                                         disabled: false,
@@ -190,7 +271,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         required: true
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.accumulation', 'MTR', '#4 Accumulation'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.accumulation', 'MTR', 'Accumulation #4 '),
                                         store: 'Mtr.store.readingtypesgroup.attributes.Accumulation',
                                         emptyText: Uni.I18n.translate('readingTypesManagement.attribute.accumulation.emptyText', 'MTR', 'Select an accumulation...'),
                                         cimIndex: 4,
@@ -199,7 +280,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         name: 'basicAccumulation'
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measuringPeriod', 'MTR', '#3 Measuring period'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measuringPeriod', 'MTR', 'Measuring period #3'),
                                         store: 'Mtr.store.readingtypesgroup.attributes.MeasuringPeriod',
                                         emptyText: Uni.I18n.translate('readingTypesManagement.attribute.Accumulation.emptyText', 'MTR', 'Select a time period...'),
                                         cimIndex: 3,
@@ -208,7 +289,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         name: 'basicMeasuringPeriod'
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.aggregate', 'MTR', '#2 Aggregate'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.aggregate', 'MTR', 'Aggregate #2'),
                                         store: 'Mtr.store.readingtypesgroup.attributes.Aggregate',
                                         cimIndex: 2,
                                         disabled: false,
@@ -243,32 +324,33 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                             displayField: 'displayName',
                                             valueField: 'code',
                                             editable: false,
-                                            multiSelect: false,
+                                            multiSelect: true,
                                             emptyText: Uni.I18n.translate('general.notApplicable', 'MTR', 'Not applicable'),
                                             cimField: 'code',
                                             listeners: {
                                                 change: function () {
                                                     me.fireEvent('change', me)
+                                                    me.updateBasicAddCount();
                                                 }
                                             }
                                         },
                                         items: [
                                             {
-                                                fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.multiplier', 'MTR', '#16 Multiplier'),
+                                                fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.multiplier', 'MTR', 'Multiplier #16'),
                                                 store: 'Mtr.store.readingtypesgroup.attributes.Multiplier',
                                                 cimIndex: 16,
                                                 hidden: true,
                                                 name: 'basicMetricMultiplier'
                                             },
                                             {
-                                                fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.phases', 'MTR', '#15 Phases'),
+                                                fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.phases', 'MTR', 'Phases #15'),
                                                 store: 'Mtr.store.readingtypesgroup.attributes.Phase',
                                                 cimIndex: 15,
                                                 hidden: true,
                                                 name: 'basicPhases'
                                             },
                                             {
-                                                fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.timeOfUse', 'MTR', '#12 Time of use'),
+                                                fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.timeOfUse', 'MTR', 'Time of use #12'),
                                                 store: 'Mtr.store.readingtypesgroup.attributes.TimeOfUse',
                                                 showCimCodes: false,
                                                 cimIndex: 12,
@@ -276,7 +358,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                                 name: 'basicTou'
                                             },
                                             {
-                                                fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.criticalPeakPeriod', 'MTR', '#13 Critical peak period'),
+                                                fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.criticalPeakPeriod', 'MTR', 'Critical peak period #13'),
                                                 store: 'Mtr.store.readingtypesgroup.attributes.CriticalPeakPeriod',
                                                 showCimCodes: false,
                                                 cimIndex: 13,
@@ -284,7 +366,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                                 name: 'basicCpp'
                                             },
                                             {
-                                                fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.consumptionTier', 'MTR', '#14 Consumption tier'),
+                                                fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.consumptionTier', 'MTR', 'Consumption tier #14'),
                                                 store: 'Mtr.store.readingtypesgroup.attributes.ConsumptionTier',
                                                 showCimCodes: false,
                                                 cimIndex: 14,
@@ -305,6 +387,35 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                     return '<i>' + value + '</i>'
                                 }
                             },
+                            // {
+                            //     xtype: 'displayfield',
+                            //     labelWidth: 250,
+                            //     fieldLabel: '&nbsp',
+                            //     fieldCls: 'x-panel-body-form-error',
+                            //     itemId: 'add-reading-types-basic-count',
+                            //     value: Uni.I18n.translate('readingtypesmanagement.addreadingtypes.defaultCountMsg', 'MTR', 'You are going to add 1 reading type. 1000 is the limit')
+                            // },
+                            // {
+                            //     xtype: 'fieldcontainer',
+                            //     labelWidth: 250,
+                            //     fieldLabel: '&nbsp',
+                            //     items: [
+                            //         {
+                            //             text: Uni.I18n.translate('general.add', 'MTR', 'Add'),
+                            //             xtype: 'button',
+                            //             ui: 'action',
+                            //             action: 'add',
+                            //             itemId: 'add-reading-types-group-basic-add-button'
+                            //         },
+                            //         {
+                            //             text: Uni.I18n.translate('general.cancel', 'MTR', 'Cancel'),
+                            //             xtype: 'button',
+                            //             ui: 'link',
+                            //             itemId: 'add-reading-types-group-basic-cancel-button',
+                            //             href: ''
+                            //         }
+                            //     ]
+                            // }
                         ]
                     },
                     {
@@ -329,6 +440,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                     listeners: {
                                         change: function () {
                                             me.fireEvent('change', me);
+                                            me.updateExtendedAddCount();
                                         }
                                     }
                                 },
@@ -460,6 +572,35 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                     return '<i>' + value + '</i>'
                                 }
                             },
+                            // {
+                            //     xtype: 'displayfield',
+                            //     labelWidth: 250,
+                            //     fieldLabel: '&nbsp',
+                            //     fieldCls: 'x-panel-body-form-error',
+                            //     itemId: 'add-reading-types-extended-count',
+                            //     value: Uni.I18n.translate('readingtypesmanagement.addreadingtypes.defaultCountMsg', 'MTR', 'You are going to add 1 reading type. 1000 is the limit')
+                            // },
+                            // {
+                            //     xtype: 'fieldcontainer',
+                            //     labelWidth: 250,
+                            //     fieldLabel: '&nbsp',
+                            //     items: [
+                            //         {
+                            //             text: Uni.I18n.translate('general.add', 'MTR', 'Add'),
+                            //             xtype: 'button',
+                            //             ui: 'action',
+                            //             action: 'add',
+                            //             itemId: 'add-reading-types-group-extended-add-button'
+                            //         },
+                            //         {
+                            //             text: Uni.I18n.translate('general.cancel', 'MTR', 'Cancel'),
+                            //             xtype: 'button',
+                            //             ui: 'link',
+                            //             itemId: 'add-reading-types-group-extended-cancel-button',
+                            //             href: ''
+                            //         }
+                            //     ]
+                            // }
                         ]
                     }
                 ]
