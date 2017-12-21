@@ -14,7 +14,8 @@ import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
     INVALID_RANGE (1, Keys.INVALID_RANGE, "Invalid date range: start date is later than end date", Level.SEVERE),
-    INVALID_TIME_DURATION(2, "InvalidTimeDuration", "Invalid time duration", Level.SEVERE);
+    INVALID_TIME_DURATION(2, "InvalidTimeDuration", "Invalid time duration", Level.SEVERE),
+    CATEGORY_IN_USE(3, Keys.CATEGORY_IN_USE, "Category ''{0}'' cannot be edited or removed since the category is in use.", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -72,6 +73,7 @@ public enum MessageSeeds implements MessageSeed {
         private static final String KEY_PREFIX = TimeService.COMPONENT_NAME + ".";
 
         public static final String INVALID_RANGE       = KEY_PREFIX + "InvalideRange";
+        public static final String CATEGORY_IN_USE = KEY_PREFIX + "CategoryUse";
     }
 
 }

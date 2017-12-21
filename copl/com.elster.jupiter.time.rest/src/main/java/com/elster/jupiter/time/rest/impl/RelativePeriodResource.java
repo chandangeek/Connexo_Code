@@ -16,6 +16,7 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
+import com.elster.jupiter.time.CannotRemoveUsedCategoryException;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeOperation;
 import com.elster.jupiter.time.RelativePeriod;
@@ -26,6 +27,7 @@ import com.elster.jupiter.time.rest.RelativeDatePreviewInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfos;
 import com.elster.jupiter.time.rest.RelativePeriodPreviewInfo;
+import com.elster.jupiter.time.rest.impl.i18n.MessageSeeds;
 import com.elster.jupiter.time.security.Privileges;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -124,7 +126,14 @@ public class RelativePeriodResource {
                 .map(this::getCategoryName)
                 .collect(Collectors.toSet());
 
-       List<RelativePeriodUsageInfo> usageInfos = timeService.getTaskProviders()
+        return PagedInfoList.fromPagedList("usage", ListPager.of(getUsageInfos(id, categories))
+                .from(queryParameters)
+                .find(), queryParameters);
+    }
+
+    private List<RelativePeriodUsageInfo> getUsageInfos(long id, Set<String> categories) {
+
+        List<RelativePeriodUsageInfo> usageInfos = timeService.getTaskProviders()
                 .stream()
                 .filter(provider -> categories.isEmpty() || categories.contains(provider.getType()))
                 .map(provider -> provider.getUsageReferences(id))
@@ -132,7 +141,7 @@ public class RelativePeriodResource {
                 .sorted(Comparator.comparing(RelativePeriodUsageInfo::getTask, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
 
-        return PagedInfoList.fromPagedList("usage", ListPager.of(usageInfos).from(queryParameters).find(), queryParameters);
+        return usageInfos;
     }
 
     private String getCategoryName(long categoryId){
@@ -162,8 +171,17 @@ public class RelativePeriodResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
-    public RelativePeriodInfo setRelativePeriod(@PathParam("id") long id, RelativePeriodInfo relativePeriodInfo) {
+    public RelativePeriodInfo setRelativePeriod(@PathParam("id") long id, RelativePeriodInfo relativePeriodInfo, @BeanParam JsonQueryFilter filter) {
+        Set<String> categoriesUsage = filter.getLongList("category")
+                .stream()
+                .map(this::getCategoryName)
+                .collect(Collectors.toSet());
+
+        //verify if you can remove a category
+        validateCategoryEdit(id, categoriesUsage, relativePeriodInfo);
+
         relativePeriodInfo.id = id;
+
         try (TransactionContext context = transactionService.getContext()) {
             RelativePeriod relativePeriod = findRelativePeriodAndLock(relativePeriodInfo);
             RelativeDate relativeDateFrom = new RelativeDate(relativePeriodInfo.from.convertToRelativeOperations());
@@ -174,6 +192,28 @@ public class RelativePeriodResource {
             context.commit();
             return RelativePeriodInfo.withCategories(period);
         }
+    }
+
+    private void validateCategoryEdit(long id, Set<String> categories, RelativePeriodInfo relativePeriodChanged) {
+
+        List<RelativePeriodCategory> relativePeriodCategoriesOriginal = getRelativePeriodOrThrowException(id).getRelativePeriodCategories();
+        List<RelativePeriodCategory> relativePeriodCategory = getRelativePeriodCategoriesList(relativePeriodChanged);
+        List<RelativePeriodCategory> removedCategories = new ArrayList<>();
+        List<RelativePeriodUsageInfo> categoriesUsage = getUsageInfos(id, categories);
+
+        for (RelativePeriodCategory categoryOriginal : relativePeriodCategoriesOriginal) {
+            if (!relativePeriodCategory.stream()
+                    .anyMatch(category -> category.getName().equals(categoryOriginal.getName()))) {
+                removedCategories.add(categoryOriginal);
+            }
+        }
+
+        for (RelativePeriodCategory removed : removedCategories) {
+            if (categoriesUsage.stream().anyMatch(category -> category.getType().equals(removed.getDisplayName()))) {
+                throw new CannotRemoveUsedCategoryException(removed.getDisplayName(), thesaurus, MessageSeeds.CATEGORY_IN_USE);
+            }
+        }
+
     }
 
     @Path("/{id}")
