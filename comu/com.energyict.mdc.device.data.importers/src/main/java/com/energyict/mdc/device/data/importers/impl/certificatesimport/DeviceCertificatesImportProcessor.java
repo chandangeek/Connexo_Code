@@ -56,6 +56,8 @@ public class DeviceCertificatesImportProcessor implements FileImportZipProcessor
     private void setKeyWithCertificate(ZipFile zipFile, FileImportZipEntry importZipEntry, Device device, SecurityAccessorType securityAccessorType) throws CertificateException, IOException {
         SecurityAccessor accessor = getKeyAccessor(device, securityAccessorType);
         X509Certificate certificate = getX509Certificate(zipFile, importZipEntry);
+//        certificate.getPublicKey()
+
         ClientCertificateWrapper wrapper = getWrapper(importZipEntry, securityAccessorType, certificate);
         save(accessor, wrapper);
     }
