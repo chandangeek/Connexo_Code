@@ -75,11 +75,11 @@ public class CreateReadingTypeInfo {
         createReadingTypeInfo.interHarmonicDenominator = makeList(null);
         createReadingTypeInfo.argumentNumerator = makeList(null);
         createReadingTypeInfo.argumentDenominator = makeList(null);
-        createReadingTypeInfo.tou = makeList(createBasicReadingTypeInfo.basicTou);
-        createReadingTypeInfo.cpp = makeList(createBasicReadingTypeInfo.basicCpp);
-        createReadingTypeInfo.consumptionTier = makeList(createBasicReadingTypeInfo.basicConsumptionTier);
-        createReadingTypeInfo.phases = makeList(createBasicReadingTypeInfo.basicPhases);
-        createReadingTypeInfo.metricMultiplier = makeList(createBasicReadingTypeInfo.basicMetricMultiplier);
+        createReadingTypeInfo.tou = createBasicReadingTypeInfo.basicTou;
+        createReadingTypeInfo.cpp = createBasicReadingTypeInfo.basicCpp;
+        createReadingTypeInfo.consumptionTier = createBasicReadingTypeInfo.basicConsumptionTier;
+        createReadingTypeInfo.phases = createBasicReadingTypeInfo.basicPhases;
+        createReadingTypeInfo.metricMultiplier = createBasicReadingTypeInfo.basicMetricMultiplier;
         createReadingTypeInfo.unit = makeList(createBasicReadingTypeInfo.basicUnit);
         createReadingTypeInfo.currency = makeList(null);
         return createReadingTypeInfo;

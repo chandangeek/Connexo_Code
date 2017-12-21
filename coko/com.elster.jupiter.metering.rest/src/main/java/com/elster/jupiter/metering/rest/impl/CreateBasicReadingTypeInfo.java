@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.metering.rest.impl;
 
+import java.util.List;
+
 public class CreateBasicReadingTypeInfo {
     public String mRID;
     public String aliasName;
@@ -14,12 +16,12 @@ public class CreateBasicReadingTypeInfo {
     public Integer basicFlowDirection;
     public Integer basicCommodity;
     public Integer basicMeasurementKind;
-    public Integer basicTou;
-    public Integer basicCpp;
-    public Integer basicConsumptionTier;
-    public Integer basicPhases;
-    public Integer basicMetricMultiplier;
     public Integer basicUnit;
+    public List<Integer> basicTou;
+    public List<Integer> basicCpp;
+    public List<Integer> basicConsumptionTier;
+    public List<Integer> basicPhases;
+    public List<Integer> basicMetricMultiplier;
 
     public CreateBasicReadingTypeInfo() {
     }
