@@ -88,7 +88,7 @@ public class EndPointConfigurationInfoFactory {
             info.username = ((OutboundEndPointConfiguration) endPointConfiguration).getUsername();
             info.password = ((OutboundEndPointConfiguration) endPointConfiguration).getPassword();
         }
-        info.properties = propertyValueInfoService.getPropertyInfos(endPointConfiguration.getPropertySpecs(), endPointConfiguration.getProps());
+        info.properties = propertyValueInfoService.getPropertyInfos(endPointConfiguration.getPropertySpecs(), endPointConfiguration.getPropertiesWithValue());
         return info;
     }
 
@@ -117,7 +117,7 @@ public class EndPointConfigurationInfoFactory {
         }
         builder.traceFile(info.traceFile);
         if (info.properties != null) {
-            builder.withProperties(info.properties.stream().collect(Collectors.toMap(property -> property.key, property -> property.name)));
+            builder.withProperties(info.properties.stream().collect(Collectors.toMap(property -> property.key, property -> property.propertyValueInfo.getValue())));
         }
         EndPointConfiguration endPointConfiguration = builder.create();
         if (Boolean.TRUE.equals(info.active)) {

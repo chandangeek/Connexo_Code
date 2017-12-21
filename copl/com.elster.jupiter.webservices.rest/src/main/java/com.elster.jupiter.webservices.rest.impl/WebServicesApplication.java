@@ -15,6 +15,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -46,7 +47,7 @@ public class WebServicesApplication extends Application implements MessageSeedPr
     private volatile TransactionService transactionService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile PropertyValueInfoService propertyValueInfoService;
-
+    private volatile EndPointService endPointService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -97,6 +98,11 @@ public class WebServicesApplication extends Application implements MessageSeedPr
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
+    @Reference
+    public void setEndPointService(EndPointService endPointService) {
+        this.endPointService = endPointService;
+    }
+
     @Override
     public String getComponentName() {
         return COMPONENT_NAME;
@@ -132,6 +138,7 @@ public class WebServicesApplication extends Application implements MessageSeedPr
             bind(endPointConfigurationService).to(EndPointConfigurationService.class);
             bind(userService).to(UserService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
+            bind(endPointService).to(EndPointService.class);
         }
     }
 }
