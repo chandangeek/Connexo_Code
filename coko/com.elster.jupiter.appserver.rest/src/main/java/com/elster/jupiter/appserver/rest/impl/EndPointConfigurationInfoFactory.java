@@ -61,7 +61,7 @@ public class EndPointConfigurationInfoFactory {
         if(webService.isPresent()){
             info.type = webService.get().getProtocol().name();
         }
-        info.properties = propertyValueInfoService.getPropertyInfos(endPointConfiguration.getPropertySpecs(), endPointConfiguration.getProps());
+        info.properties = propertyValueInfoService.getPropertyInfos(endPointConfiguration.getPropertySpecs(), endPointConfiguration.getPropertiesWithValue());
         return info;
     }
 }
