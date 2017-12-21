@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents;
+package com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;

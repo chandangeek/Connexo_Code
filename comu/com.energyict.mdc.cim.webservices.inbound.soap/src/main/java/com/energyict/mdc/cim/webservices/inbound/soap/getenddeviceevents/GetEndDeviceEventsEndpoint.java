@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents;
+package com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents;
 
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
@@ -23,19 +23,20 @@ import ch.iec.tc57._2011.getenddeviceeventsmessage.GetEndDeviceEventsRequestMess
 import ch.iec.tc57._2011.schema.message.HeaderType;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 
 public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
-    private static final String NOUN = "EndDeviceEvents";
-    private static final String GET_END_DEVICE_EVENTS_ITEM = "GetEndDeviceEvents";
-    private static final String METERS_ITEM = GET_END_DEVICE_EVENTS_ITEM + ".Meters";
+    private static final String GET_END_DEVICE_EVENTS = "GetEndDeviceEvents";
+    private static final String METERS_ITEM = GET_END_DEVICE_EVENTS + ".Meters";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory
             = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.getenddeviceeventsmessage.ObjectFactory endDeviceEventsMessageObjectFactory
             = new ch.iec.tc57._2011.getenddeviceeventsmessage.ObjectFactory();
 
+    private final Clock clock;
     private final EndPointHelper endPointHelper;
     private final ReplyTypeFactory replyTypeFactory;
     private final EndDeviceEventsFaultMessageFactory messageFactory;
@@ -47,12 +48,14 @@ public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
                                ReplyTypeFactory replyTypeFactory,
                                EndDeviceEventsFaultMessageFactory messageFactory,
                                TransactionService transactionService,
-                               EndDeviceEventsBuilder endDeviceBuilder) {
+                               EndDeviceEventsBuilder endDeviceBuilder,
+                               Clock clock) {
         this.endPointHelper = endPointHelper;
         this.replyTypeFactory = replyTypeFactory;
         this.messageFactory = messageFactory;
         this.transactionService = transactionService;
         this.endDeviceBuilder = endDeviceBuilder;
+        this.clock = clock;
     }
 
     @Override
@@ -60,7 +63,7 @@ public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
         endPointHelper.setSecurityContext();
         try (TransactionContext context = transactionService.getContext()) {
             GetEndDeviceEvents getEndDeviceEvents = Optional.ofNullable(requestMessage.getRequest().getGetEndDeviceEvents())
-                    .orElseThrow(messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, GET_END_DEVICE_EVENTS_ITEM));
+                    .orElseThrow(messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, GET_END_DEVICE_EVENTS));
             List<Meter> meters = getEndDeviceEvents.getMeter();
             if (meters.isEmpty()) {
                 throw messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.EMPTY_LIST, METERS_ITEM).get();
@@ -80,7 +83,7 @@ public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
         // set header
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.REPLY);
-        header.setNoun(NOUN);
+        header.setNoun(GET_END_DEVICE_EVENTS);
         responseMessage.setHeader(header);
 
         // set reply

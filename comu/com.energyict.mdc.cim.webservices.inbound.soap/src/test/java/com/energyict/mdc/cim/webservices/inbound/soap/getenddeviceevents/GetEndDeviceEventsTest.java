@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents;
+package com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents;
 
 import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.domain.util.Finder;
@@ -28,7 +28,7 @@ import ch.iec.tc57._2011.getenddeviceeventsmessage.ObjectFactory;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
-import com.google.common.collect.RangeSet;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -75,7 +75,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         when(meteringService.findEndDevices(anySetOf(String.class), anySetOf(String.class))).thenReturn(finder);
         when(endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
         when(endDevice.getName()).thenReturn(END_DEVICE_NAME);
-        when(endDevice.getDeviceEvents(any(RangeSet.class))).thenReturn(Collections.singletonList(endDeviceEvent));
+        when(endDevice.getDeviceEvents(any(Range.class))).thenReturn(Collections.singletonList(endDeviceEvent));
         mockEndDeviceEvent();
     }
 
@@ -227,7 +227,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
-        assertThat(response.getHeader().getNoun()).isEqualTo("EndDeviceEvents");
+        assertThat(response.getHeader().getNoun()).isEqualTo("GetEndDeviceEvents");
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
 
         EndDeviceEvents endDeviceEvents = response.getPayload().getEndDeviceEvents();

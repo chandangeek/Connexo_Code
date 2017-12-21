@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents;
+package com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents;
 
 import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.metering.EndDevice;
@@ -26,6 +26,7 @@ import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.Set;
 public class EndDeviceEventsBuilder {
     private final ObjectFactory payloadObjectFactory = new ObjectFactory();
 
+    private final Clock clock;
     private final MeteringService meteringService;
     private final EndDeviceEventsFaultMessageFactory faultMessageFactory;
 
@@ -43,9 +45,11 @@ public class EndDeviceEventsBuilder {
 
     @Inject
     public EndDeviceEventsBuilder(MeteringService meteringService,
-                           EndDeviceEventsFaultMessageFactory faultMessageFactory) {
+                                  EndDeviceEventsFaultMessageFactory faultMessageFactory,
+                                  Clock clock) {
         this.meteringService = meteringService;
         this.faultMessageFactory = faultMessageFactory;
+        this.clock = clock;
     }
 
     public EndDeviceEventsBuilder prepareGetFrom(List<Meter> meters, List<TimeSchedule> timeSchedules) throws FaultMessage {
@@ -54,10 +58,11 @@ public class EndDeviceEventsBuilder {
 
         meters.stream().forEach(meter -> {
             Optional<String> mRID = extractMrid(meter);
+            Optional<String> name = extractName(meter);
             if (mRID.isPresent()) {
                 mRIDs.add(mRID.get());
-            } else {
-                extractName(meter).ifPresent(names::add); // todo should we notify the user if one meter is skipped due to the missing identifier
+            } else if (name.isPresent()) {
+                names.add(name.get());
             }
         });
 
@@ -66,10 +71,7 @@ public class EndDeviceEventsBuilder {
         }
 
         endDevices = meteringService.findEndDevices(mRIDs, names).find();
-
-        if (timeSchedules != null) {
-            timePeriods = getTimeIntervals(timeSchedules);
-        }
+        timePeriods = getTimeIntervals(timeSchedules);
 
         return this;
     }
@@ -92,7 +94,7 @@ public class EndDeviceEventsBuilder {
     /*
      * Filtering by date (between start & end date).
      * Start date is mandatory.
-     * If only a start date is given, the end date = now
+     * If only the start date is given, the end date = now
      */
 
     private RangeSet<Instant> getTimeIntervals(List<TimeSchedule> timeSchedules) throws FaultMessage {
@@ -100,9 +102,8 @@ public class EndDeviceEventsBuilder {
         if (timeSchedules.isEmpty()) {
             result.addAll(ImmutableRangeSet.of(Range.all()));
         } else {
-            for (TimeSchedule timeSchedule : timeSchedules) {
-                result.add(getTimeInterval(timeSchedule));
-            }
+            // only the first period is taken into account
+            result.add(getTimeInterval(timeSchedules.get(0)));
         }
         return result;
     }
@@ -115,7 +116,7 @@ public class EndDeviceEventsBuilder {
         }
         Instant end = interval.getEnd();
         if (end == null) {
-            return Range.greaterThan(start);
+            end = clock.instant();
         }
         if (!end.isAfter(start)) {
             throw faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(
@@ -131,7 +132,7 @@ public class EndDeviceEventsBuilder {
         List<EndDeviceEvent> endDeviceEventList = endDeviceEvents.getEndDeviceEvent();
 
         endDevices.stream().forEach(
-                endDevice -> endDevice.getDeviceEvents(timePeriods).stream().forEach(
+                endDevice -> endDevice.getDeviceEvents(timePeriods.span()).stream().forEach(
                         deviceEvent -> {
                             EndDeviceEvent endDeviceEvent = payloadObjectFactory.createEndDeviceEvent();
                             endDeviceEvent.setEndDeviceEventType(toEndDeviceEventType(deviceEvent.getEventType()));
