@@ -100,14 +100,13 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                         spec.getName(),
                         spec.getPossibleValues().getAllValues().stream().map(q -> String.valueOf(((Quantity) q).getMultiplier())).collect(Collectors.joining(",")),
                         spec.getPossibleValues().getAllValues().stream().map(q -> String.valueOf(((Quantity) q).getUnit())).collect(Collectors.joining(",")));
-            } else if (spec.getValueFactory().getValueType().equals(String.class)
-                    && spec.getPossibleValues() != null
+            } else if (spec.getPossibleValues() != null
                     && spec.getPossibleValues().isExhaustive()
-                    && !isValidEnumValues(spec, (String) values.getProperty(spec.getName()))) {
+                    && !isValidEnumValues(spec, values.getProperty(spec.getName()))) {
                 throw new ProcessorException(MessageSeeds.WRONG_ENUM_FORMAT,
                         data.getLineNumber(),
                         spec.getName(),
-                        spec.getPossibleValues().getAllValues().stream().collect(Collectors.joining(",")));
+                        spec.getPossibleValues().getAllValues().stream().map(String::valueOf).collect(Collectors.joining(",")));
             }
         }
     }
@@ -391,9 +390,9 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
     }
 
 
-    private boolean isValidEnumValues(PropertySpec spec, String value) {
+    private boolean isValidEnumValues(PropertySpec spec, Object value) {
         if (spec.getPossibleValues().getAllValues().stream()
-                .noneMatch(pv -> ((String) pv).equalsIgnoreCase(value))) {
+                .noneMatch(pv -> pv.equals(value))) {
             return false;
         }
         return true;
