@@ -234,8 +234,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     SecurityManagementService securityManagementService;
     MdcPropertyUtils mdcPropertyUtils;
     @Mock
-    protected
-    RegisteredDevicesKpiService registeredDevicesKpiService;
+    protected RegisteredDevicesKpiService registeredDevicesKpiService;
 
     @Mock
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -251,6 +250,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     DataModel dataModel;
     @Mock
     IssueActionService issueActionService;
+    @Mock
+    com.elster.jupiter.tasks.TaskService tskService;
 
     protected ChannelInfoFactory channelInfoFactory;
     ReadingTypeInfoFactory readingTypeInfoFactory;
@@ -363,6 +364,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setIssueInfoFactoryService(issueInfoFactoryService);
         application.setOrmService(ormService);
         application.setRegisteredDevicesKpiService(registeredDevicesKpiService);
+        application.setTskService(tskService);
         return application;
     }
 

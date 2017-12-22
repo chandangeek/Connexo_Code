@@ -32,6 +32,7 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
@@ -169,6 +170,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static OrmService ormService;
     private static IssueInfoFactoryService issueInfoFactoryService;
     private static RegisteredDevicesKpiService registeredDevicesKpiService;
+    private static TaskService tskService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
@@ -200,6 +202,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         ormService = mock(OrmService.class);
         issueInfoFactoryService = mock(IssueInfoFactoryService.class);
         obisCodeDescriptor = mock(ObisCodeDescriptor.class);
+        tskService = mock(TaskService.class);
         when(obisCodeDescriptor.describe(any(ObisCode.class))).thenReturn("obisCodeDescription");
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
@@ -423,6 +426,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setIssueInfoFactoryService(issueInfoFactoryService);
         application.setOrmService(ormService);
         application.setRegisteredDevicesKpiService(registeredDevicesKpiService);
+        application.setTskService(tskService);
         return application;
     }
 

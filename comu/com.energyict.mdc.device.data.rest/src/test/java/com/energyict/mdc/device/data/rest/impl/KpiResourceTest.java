@@ -7,7 +7,6 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
@@ -89,6 +88,8 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(kpiMock.getDisplayRange()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.DAYS));
         when(kpiMock.calculatesComTaskExecutionKpi()).thenReturn(false);
         when(kpiMock.calculatesConnectionSetupKpi()).thenReturn(false);
+        when(kpiMock.communicationKpiTask()).thenReturn(Optional.empty());
+        when(kpiMock.connectionKpiTask()).thenReturn(Optional.empty());
         when(dataCollectionKpiService.findDataCollectionKpi(71L)).thenReturn(Optional.of(kpiMock));
         String response = target("/kpis/71").request().get(String.class);
         JsonModel model = JsonModel.model(response);
@@ -344,6 +345,8 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(kpiMock.getLatestCalculation()).thenReturn(Optional.of(Instant.ofEpochMilli(10000000L)));
         when(kpiMock.getDisplayRange()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.DAYS));
         when(kpiMock.getVersion()).thenReturn(1L);
+        when(kpiMock.communicationKpiTask()).thenReturn(Optional.empty());
+        when(kpiMock.connectionKpiTask()).thenReturn(Optional.empty());
         when(dataCollectionKpiService.findDataCollectionKpi(kpiId)).thenReturn(Optional.of(kpiMock));
         when(dataCollectionKpiService.findAndLockDataCollectionKpiByIdAndVersion(kpiId, kpiMock.getVersion())).thenReturn(Optional.of(kpiMock));
         return kpiMock;
@@ -374,6 +377,8 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(kpiMock.getDisplayRange()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.DAYS));
         when(kpiMock.getLatestCalculation()).thenReturn(Optional.of(Instant.ofEpochMilli(10000000L)));
         when(kpiMock.getVersion()).thenReturn(1L);
+        when(kpiMock.communicationKpiTask()).thenReturn(Optional.empty());
+        when(kpiMock.connectionKpiTask()).thenReturn(Optional.empty());
         when(dataCollectionKpiService.findDataCollectionKpi(kpiId)).thenReturn(Optional.of(kpiMock));
         when(dataCollectionKpiService.findAndLockDataCollectionKpiByIdAndVersion(kpiId, kpiMock.getVersion())).thenReturn(Optional.of(kpiMock));
         return kpiMock;
