@@ -29,6 +29,7 @@ import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFo
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,12 +38,19 @@ import java.util.stream.Collectors;
 public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImportProcessor<CustomAttributesImportRecord> {
 
 
-    CustomAttributesImportProcessor(DeviceDataImporterContext context, SupportedNumberFormat numberFormat, SecurityManagementService securityManagementService) {
+    private String delimiter;
+
+    CustomAttributesImportProcessor(DeviceDataImporterContext context, String delimiter) {
         super(context);
+        this.delimiter = delimiter;
     }
 
     @Override
     public void process(CustomAttributesImportRecord data, FileImportLogger logger) throws ProcessorException {
+        if(!data.isComplete()){
+            throw new ProcessorException(MessageSeeds.INVALID_CUSTIMATTRIBUTE_HEADER, delimiter);
+        }
+
         Device device = findDeviceByIdentifier(data.getDeviceIdentifier())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceIdentifier()));
         if (!Checks.is(data.getReadingType()).emptyOrOnlyWhiteSpace()) {
@@ -55,6 +63,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                         .getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType())
                         .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_CUSTOMATTRIBUTE_ON_READINGTYPE_OF_DEVICE,
                                 data.getLineNumber(), "", data.getReadingType(), data.getDeviceIdentifier()));
+                checkUnusedCustomPropertySets(Collections.singletonList(registeredCustomPropertySet.getCustomPropertySet()), data);
                 validateCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), data, device.getId());
                 addCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), data, device.getId());
             } else {
@@ -64,6 +73,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                         .getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType())
                         .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_CUSTOMATTRIBUTE_ON_READINGTYPE_OF_DEVICE,
                                 data.getLineNumber(), "", data.getReadingType(), data.getDeviceIdentifier()));
+                checkUnusedCustomPropertySets(Collections.singletonList(registeredCustomPropertySet.getCustomPropertySet()), data);
                 validateCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), data, device.getId());
                 addCustomPropertySetValues(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), data, device.getId());
             }
@@ -116,8 +126,18 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
                 .filter(cps -> data.getCustomAttributes().keySet().stream().allMatch(k -> k.contains(cps.getId())))
                 .collect(Collectors.toList());
+        checkUnusedCustomPropertySets(customPropertySets, data);
         for (CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet : customPropertySets) {
             validateCustomPropertySetValues(customPropertySet, device, data, null);
+        }
+    }
+
+    private void checkUnusedCustomPropertySets(List<CustomPropertySet> customPropertySets, CustomAttributesImportRecord data) {
+        List<String> wrongCustomPropertySets = data.getCustomAttributes().keySet().stream().filter(k -> customPropertySets.stream().noneMatch(cps -> k.contains(cps.getId())))
+                .collect(Collectors.toList());
+        if (!wrongCustomPropertySets.isEmpty()) {
+            throw new ProcessorException(MessageSeeds.NO_CUSTOMATTRIBUTE_ON_DEVICE,
+                    data.getLineNumber(), wrongCustomPropertySets.get(0), data.getDeviceIdentifier());
         }
     }
 
@@ -166,7 +186,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
     private void validateCreateOrUpdateCustomAttributeValues(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributesImportRecord data, CustomPropertySetValues values) {
         if (values != null) {
             customPropertySet.getPropertySpecs().forEach(spec ->
-                    findCustomAttributeValue(customPropertySet, data, spec).ifPresent(v -> values.setProperty(spec.getName(), v)));
+                    findCustomAttributeKey(customPropertySet, data, spec).ifPresent(k -> values.setProperty(spec.getName(), data.getCustomAttributes().get(k))));
             validateMandatoryCustomProperties(customPropertySet, values, data);
             validatePossibleValues(customPropertySet, values, data);
             getContext().getCustomPropertySetService()
@@ -194,20 +214,13 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
 
     private CustomPropertySetValues updateValues(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributesImportRecord data, CustomPropertySetValues values) {
         customPropertySet.getPropertySpecs().forEach(spec ->
-                findCustomAttributeValue(customPropertySet, data, spec).ifPresent(v -> values.setProperty(spec.getName(), v)));
+                findCustomAttributeKey(customPropertySet, data, spec).ifPresent(k -> values.setProperty(spec.getName(), data.getCustomAttributes().get(k))));
         return values;
     }
 
-    private Optional<Object> findCustomAttributeValue(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributesImportRecord data, PropertySpec spec) {
-        return data.getCustomAttributes().entrySet().stream().filter(e -> e.getKey().equalsIgnoreCase(customPropertySet.getId() + "." + spec.getName()))
-                .findFirst().map(Map.Entry::getValue);
-    }
-
-    private void copyValues(CustomPropertySetValues source, CustomPropertySetValues target) {
-        source.propertyNames().forEach(propertyName -> {
-            Object propertyValue = source.getProperty(propertyName);
-            target.setProperty(propertyName, propertyValue);
-        });
+    private Optional<String> findCustomAttributeKey(CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet, CustomAttributesImportRecord data, PropertySpec spec) {
+        return data.getCustomAttributes().keySet().stream().filter(e -> e.equalsIgnoreCase(customPropertySet.getId() + "." + spec.getName()))
+                .findFirst();
     }
 
     private void addCustomPropertySetValues(Device device, CustomAttributesImportRecord data) {
@@ -230,6 +243,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                 .entrySet()
                 .stream()
                 .filter(e -> e.getKey().equalsIgnoreCase(customPropertySet.getId() + ".startTime"))
+                .filter(e -> e.getValue() != null)
                 .map(Map.Entry::getValue)
                 .findFirst()
                 .map(Instant.class::cast);
@@ -237,6 +251,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                 .entrySet()
                 .stream()
                 .filter(e -> e.getKey().equalsIgnoreCase(customPropertySet.getId() + ".endTime"))
+                .filter(e -> e.getValue() != null)
                 .map(Map.Entry::getValue)
                 .findFirst()
                 .map(Instant.class::cast);
@@ -244,6 +259,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                 .entrySet()
                 .stream()
                 .filter(e -> e.getKey().equalsIgnoreCase(customPropertySet.getId() + ".versionId"))
+                .filter(e -> e.getValue() != null)
                 .map(Map.Entry::getValue)
                 .findFirst()
                 .map(Instant.class::cast);

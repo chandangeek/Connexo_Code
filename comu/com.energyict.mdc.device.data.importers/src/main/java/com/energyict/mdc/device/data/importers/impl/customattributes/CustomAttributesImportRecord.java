@@ -14,12 +14,14 @@ public class CustomAttributesImportRecord extends FileImportRecord {
     private String readingType;
     private boolean autoResolution = true;
     private Map<String, Object> customAttributes = new HashMap<>();
+    private int mandatoryColumnsCount = 0;
 
     public String getReadingType() {
         return readingType;
     }
 
     public void setReadingType(String readingType) {
+        mandatoryColumnsCount++;
         this.readingType = readingType;
     }
 
@@ -28,6 +30,7 @@ public class CustomAttributesImportRecord extends FileImportRecord {
     }
 
     public void setAutoResolution(boolean autoResolution) {
+        mandatoryColumnsCount++;
         this.autoResolution = autoResolution;
     }
 
@@ -37,5 +40,9 @@ public class CustomAttributesImportRecord extends FileImportRecord {
 
     public void addCustomAttribute(String name, Object value) {
         customAttributes.put(name, value);
+    }
+
+    public boolean isComplete() {
+        return mandatoryColumnsCount >= 2;
     }
 }

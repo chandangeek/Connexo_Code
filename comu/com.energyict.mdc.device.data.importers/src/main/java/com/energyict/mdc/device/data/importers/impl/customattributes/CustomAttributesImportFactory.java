@@ -63,7 +63,7 @@ public class CustomAttributesImportFactory extends AbstractDeviceDataFileImporte
         String timeZone = (String) properties.get(TIME_ZONE.getPropertyKey());
 
         FileImportParser<CustomAttributesImportRecord> parser = new FileImportDescriptionBasedParser(new CustomAttributesImportDescription(dateFormat, timeZone, numberFormat, context));
-        FileImportProcessor<CustomAttributesImportRecord> processor = new CustomAttributesImportProcessor(getContext(), numberFormat, securityManagementService);
+        FileImportProcessor<CustomAttributesImportRecord> processor = new CustomAttributesImportProcessor(getContext(), delimiter);
         FileImportLogger<FileImportRecord> logger = new DevicePerLineFileImportLogger(getContext());
         return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build();
     }

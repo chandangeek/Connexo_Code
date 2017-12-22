@@ -76,9 +76,7 @@ public class CustomAttributesImportDescription implements FileImportDescription<
                     @Override
                     public void setFieldWithHeader(String header, String value) {
                         Object parsedValue = customAttributeParser.parseCustomAttribute(header, value);
-                        if (parsedValue != null) {
-                            record.addCustomAttribute(header, parsedValue);
-                        }
+                        record.addCustomAttribute(header, parsedValue);
                     }
                 })
                 .markRepetitive()

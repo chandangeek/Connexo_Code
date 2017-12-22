@@ -120,6 +120,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_RANGE(551, "InvalidRange", "Can''t process line {0}: start time exceeds end time of custom attribute set {1} on device {2}", Level.WARNING),
     WRONG_QUANTITY_FORMAT(552, "WrongQuantitiyFormat", "Can''t process line {0}: wrong unit format for column {1}. Supported multipliers: {2}, supported units: {3}", Level.WARNING),
     WRONG_ENUM_FORMAT(553, "WrongEnumFormat", "Can''t process line {0}: wrong enumeration value for column {1}. Possible values: {2}", Level.WARNING),
+    INVALID_CUSTIMATTRIBUTE_HEADER(554, "InvalidCustomAttributeFileHeader", "File should contain at least 3 columns separated by ''{0}''. Please check the delimiter.", Level.WARNING),
     ;
 
     private final int number;

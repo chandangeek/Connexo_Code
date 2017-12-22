@@ -13,6 +13,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -37,6 +38,10 @@ public class BigDecimalParser implements FieldParser<BigDecimal> {
     }
 
     private BigDecimal parseNonEmptyBigDecimalString(String value) throws ValueParserException {
+        if (value.split("\\" + numberFormat.getDecimalSeparator().toString()).length > 2
+                || !numberFormat.hasGroupSeparator() && Pattern.compile("[^0-9" + numberFormat.getDecimalSeparator() + " ]").matcher(value).find()) {
+            throw new ValueParserException(value, numberFormat.getExample());
+        }
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ENGLISH);
         symbols.setDecimalSeparator(numberFormat.getDecimalSeparator());
         if (numberFormat.getGroupSeparator() != null) {

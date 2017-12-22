@@ -35,6 +35,8 @@ public class CustomAttributeParser implements FieldParser {
         parsers.put(quantityParser.getValueType(), quantityParser);
         parsers.put(bigDecimalParser.getValueType(), bigDecimalParser);
         parsers.put(Boolean.class, new BooleanParser());
+        parsers.put(Long.class, new NumberParser());
+        parsers.put(Number.class, new NumberParser());
         customPropertySets = customPropertySetService.findActiveCustomPropertySets();
     }
 
