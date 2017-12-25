@@ -350,6 +350,22 @@
             <artifactId>bcpkix-jdk15on</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.ejbca.cesecore</groupId>
+            <artifactId>cesecore-interfaces</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ejbca</groupId>
+            <artifactId>ejbca-ws-cli</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ejbca</groupId>
+            <artifactId>ejbca-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ejbca</groupId>
+            <artifactId>ejbca-ws</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
         </dependency>
