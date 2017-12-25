@@ -36,14 +36,16 @@ public enum MessageSeeds implements MessageSeed {
 
     // end device events
     UNABLE_TO_GET_END_DEVICE_EVENTS(2001, "UnableToGetEndDeviceEvents", "Unable to get end device events"),
-    NO_END_DEVICE_WITH_MRID(2002, "NoEndDeviceWithMRID", "No end device is found by MRID ''{0}''."),
-    NO_END_DEVICE_WITH_NAME(2003, "NoEndDeviceWithName", "No end device is found by name ''{0}''."),
-    END_DEVICE_IDENTIFIER_MISSING(2004, "EndDeviceIdentifierMissing", "At least one ''mRID'' or ''Name'' must be specified in the request."),
+    END_DEVICE_IDENTIFIER_MISSING(2004, "EndDeviceIdentifierMissing", "At least one of ''mRID'' or ''Name'' must be specified in the request."),
     INVALID_OR_EMPTY_TIME_PERIOD(2005, "InvalidOrEmptyTimePeriod",
             "Can''t construct a valid time period: provided start ''{0}'' is after or coincides with the end ''{1}''."),
 
     INVALID_CREATED_END_DEVICE_EVENTS(3001, "InvalidCreatedEndDeviceEvents", "Invalid CreatedEndDeviceEvents is received"),
     INVALID_CLOSED_END_DEVICE_EVENTS(3002, "InvalidClosedEndDeviceEvents", "Invalid ClosedEndDeviceEvents is received"),
+    INVALID_SEVERITY(3003, "InvalidSeverity", "Severity should be equal to 'alarm'"),
+    NO_LOGBOOK_WITH_OBIS_CODE_AND_DEVICE(3004, "NoLogBookWithObisCodeAndDevice", "No LogBook is found by obis code ''{0}'' and meter's ID ''{1}''."),
+    NO_END_DEVICE_EVENT_TYPE_WITH_REF(3005, "NoEndDeviceEventTypeWithRef", "No end device event type is found with ref ''{0}''"),
+    NO_PROPERTIES_CONFIGURED(3006, "NoPropertiesConfigured", "NoPropertiesConfigured"),
     ;
 
     private final int number;

@@ -11,7 +11,6 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsFaultMessageType;
 import ch.iec.tc57._2011.enddeviceeventsmessage.ObjectFactory;
 import ch.iec.tc57._2011.receiveenddeviceevents.FaultMessage;
-import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 
 import javax.inject.Inject;
@@ -28,6 +27,10 @@ class EndDeviceEventsFaultMessageFactory {
         this.replyTypeFactory = replyTypeFactory;
     }
 
+    Supplier<FaultMessage> createEndDeviceEventsFaultMessageSupplier(MessageSeeds messageSeed, Object... args) {
+        return () -> createEndDeviceEventsFaultMessage(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS, replyTypeFactory.failureReplyType(messageSeed, args));
+    }
+
     Supplier<FaultMessage> createEndDeviceEventsFaultMessageSupplier(MessageSeeds basicMessage, MessageSeeds messageSeed, Object... args) {
         return () -> createEndDeviceEventsFaultMessage(basicMessage, replyTypeFactory.failureReplyType(messageSeed, args));
     }
@@ -38,10 +41,6 @@ class EndDeviceEventsFaultMessageFactory {
 
     FaultMessage createEndDeviceEventsFaultMessage(MessageSeeds basicMessage, String message) {
         return createEndDeviceEventsFaultMessage(basicMessage, message, null);
-    }
-
-    FaultMessage createEndDeviceEventsFaultMessage(MessageSeeds basicMessage, ErrorType... errors) {
-        return createEndDeviceEventsFaultMessage(basicMessage, replyTypeFactory.failureReplyType(ReplyType.Result.FAILED, errors));
     }
 
     private FaultMessage createEndDeviceEventsFaultMessage(MessageSeeds basicMessage, ReplyType replyType) {
