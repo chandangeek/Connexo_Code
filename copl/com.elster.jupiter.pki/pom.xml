@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -85,6 +86,7 @@
             <artifactId>users</artifactId>
         </dependency>
 
+        <!--  Bouncy castle library dependencies  -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
@@ -94,10 +96,28 @@
             <artifactId>bcpkix-jdk15on</artifactId>
         </dependency>
 
+        <!--  EJBCA library dependencies -->
+        <dependency>
+            <groupId>org.ejbca.cesecore</groupId>
+            <artifactId>cesecore-interfaces</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ejbca</groupId>
+            <artifactId>ejbca-ws-cli</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ejbca</groupId>
+            <artifactId>ejbca-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ejbca</groupId>
+            <artifactId>ejbca-ws</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging.h2</artifactId>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

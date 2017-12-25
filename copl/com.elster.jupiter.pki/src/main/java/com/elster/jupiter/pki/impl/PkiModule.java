@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.users.UserService;
@@ -21,7 +26,7 @@ public class PkiModule extends AbstractModule {
         requireBinding(UserService.class);
 
         bind(SecurityManagementService.class).to(SecurityManagementServiceImpl.class).in(Scopes.SINGLETON);
+        bind(CaService.class).to(CaServiceImpl.class).in(Scopes.SINGLETON);
     }
-
 
 }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -39,11 +43,11 @@ public enum MessageSeeds implements MessageSeed {
     CERTIFICATE_SUBJECT_DN_MISMATCH(1023, "SubjectMismatchCSR", "The certificate''s subject distinguished name does not match the CSR"),
     CERTIFICATE_KEY_USAGE_MISMATCH(1024, "KeyUsagesMismatchCSR", "The certificate''s key usage extension does not match the CSR"),
     CERTIFICATE_EXTENDED_KEY_USAGES_MISMATCH(1025, "ExtendedKeyUsagesMismatchCSR", "The certificate''s extended key usage extension does not match the CSR"),
-    INVALID_VALUE(1026,Keys.INVALID_VALUE, "This value is invalid"),
+    INVALID_VALUE(1026, Keys.INVALID_VALUE, "This value is invalid"),
     NO_POSSIBLE_CHARS_IN_PASSWORD(1027, Keys.NOVALIDCHARACTERS, "The passphrase type has no characters sets to choose from"),
     INVALID_PASSWORD_LENGTH(1028, Keys.INVALIDPASSPHRASELENGTH, "Invalid passphrase length"),
     INVALID_KEY_SIZE(1029, Keys.INVALID_KEY_SIZE, "Invalid key size"),
-    INVALID_HEX_VALUE(1030,Keys.INVALID_HEX_VALUE, "Not a properly hex encoded key"),
+    INVALID_HEX_VALUE(1030, Keys.INVALID_HEX_VALUE, "Not a properly hex encoded key"),
     UNSUPPORTED_IMPORT_TYPE(1031, "UnsupportedImportType", "Connexo can currently not import device secrets of type ''{0}'' (security accessor ''{1}'')"),
     NO_IMPORT_KEY_DEFINED(1032, "NoImportKeyDefined", "DataVault importer requires an import key to be defined in the config file, however the property ''{0}'' was not set."),
     IMPORT_KEY_NOT_FOUND(1033, "ImportKeyNotFound", "DataVault importer could not find the keypair ''{0}'' with associated private key, required during import"),
@@ -54,7 +58,10 @@ public enum MessageSeeds implements MessageSeed {
     NO_PUBLIC_KEY_TO_VERIFY(1038, "NoPublicKeyForVerification", "The public key can not be verified: no public key counterpart for verification"),
     PUBLIC_KEY_DOES_NOT_MATCH(1039, "PublicKeyDoesNotMatch", "Incorrect public key used to encrypt wrap key"),
     NO_SUCH_TRUSTSTORE(1040, "noSuchTrustStore", "The trust store could not be found"),
-    INVALID_DN(1041, "InvalidDN", "Invalid distinguished name encountered");
+    INVALID_DN(1041, "InvalidDN", "Invalid distinguished name encountered"),
+    PROPERTY_VALUE_REQUIRED(1042, "InvalidPropertyValue", "Value for property {0} is required"),
+    CA_RUNTIME_ERROR(1043, "CaError", "CA runtime error {0}"),
+    INVALID_REVOCATION_REASON(1044, "InvalidRevocationReason", "Invalid revocation reason {0}");
 
 
     private final int number;
