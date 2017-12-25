@@ -12,9 +12,11 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
@@ -42,7 +44,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class EndDeviceEventsBuilder {
-    private static final String ALARM_CLOSURE_COMMENT = "Alarm closed on web service call xxx"; //todo
+    private static final String ALARM_CLOSURE_COMMENT = "Alarm closed on %s call";
 
     private final MeteringService meteringService;
     private final LogBookService logBookService;
@@ -51,6 +53,7 @@ public class EndDeviceEventsBuilder {
 
     private final DeviceAlarmService deviceAlarmService;
     private final IssueService issueService;
+    private final ThreadPrincipalService threadPrincipalService;
 
     private final EndDeviceEventsFaultMessageFactory faultMessageFactory;
     private final Thesaurus thesaurus;
@@ -62,6 +65,7 @@ public class EndDeviceEventsBuilder {
                                   EndPointConfigurationService endPointConfigurationService,
                                   DeviceAlarmService deviceAlarmService,
                                   IssueService issueService,
+                                  ThreadPrincipalService threadPrincipalService,
                                   EndDeviceEventsFaultMessageFactory faultMessageFactory,
                                   Thesaurus thesaurus) {
         this.meteringService = meteringService;
@@ -70,6 +74,7 @@ public class EndDeviceEventsBuilder {
         this.endPointConfigurationService = endPointConfigurationService;
         this.deviceAlarmService = deviceAlarmService;
         this.issueService = issueService;
+        this.threadPrincipalService = threadPrincipalService;
         this.faultMessageFactory = faultMessageFactory;
         this.thesaurus = thesaurus;
     }
@@ -134,8 +139,6 @@ public class EndDeviceEventsBuilder {
             faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, "EndDeviceEvents.EndDeviceEvent");
         }
 
-        Optional<String> mrid = extractMrid(endDeviceEvent);
-        Instant createdDate = extractCreatedDateOrThrowException(endDeviceEvent);
         String eventTypeCode = extractEndDeviceFunctionRefOrThrowException(endDeviceEvent);
 
         return () -> {
@@ -145,9 +148,14 @@ public class EndDeviceEventsBuilder {
                     meteringService.findEndDeviceByName(endDeviceName.get())
                             .orElseThrow(faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.NO_METER_WITH_NAME, endDeviceName.get()));
 
+            LogBook logBook = getLogBook(endDevice);
             IssueStatus issueStatus = issueService.findStatus(IssueStatus.RESOLVED).get();
-            List<HistoricalDeviceAlarm> closedAlarms = deviceAlarmService.findOpenAlarmByDeviceId(endDevice.getId(), eventTypeCode).find()
-                    .stream().map(alarm -> alarm.close(issueStatus)).collect(Collectors.toList());
+            User user = (User)threadPrincipalService.getPrincipal();
+            List<HistoricalDeviceAlarm> closedAlarms = deviceAlarmService.findOpenAlarmByDeviceIdAndEventTypeAndLogBookId(endDevice.getId(), eventTypeCode, logBook.getId()).find()
+                    .stream().map(alarm -> {
+                        alarm.addComment(String.format(ALARM_CLOSURE_COMMENT, user.getName()), user);
+                        return alarm.close(issueStatus);
+                    }).collect(Collectors.toList());
 
             return null;
         };
@@ -253,10 +261,6 @@ public class EndDeviceEventsBuilder {
         return logBookService.findByDeviceAndObisCode(device, logBookObisCode)
                 .orElseThrow(faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS,
                         MessageSeeds.NO_LOGBOOK_WITH_OBIS_CODE_AND_DEVICE, logBookObisCode, endDevice.getId()));
-
-//        return logBookService.findByIdentifier(new LogBookIdentifierByObisCodeAndDevice(new DeviceIdentifierById(deviceId), logBookObisCode))
-//                .orElseThrow(faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS,
-//                        MessageSeeds.NO_LOGBOOK_WITH_OBIS_CODE_AND_DEVICE, logBookObisCode, deviceId));
     }
 
     private Device findDeviceForEndDevice(EndDevice endDevice) {

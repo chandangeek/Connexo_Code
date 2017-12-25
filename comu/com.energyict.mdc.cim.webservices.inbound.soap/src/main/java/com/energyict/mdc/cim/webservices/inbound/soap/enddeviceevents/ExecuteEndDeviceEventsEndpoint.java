@@ -1,7 +1,6 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents;
 
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -12,9 +11,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
-import com.energyict.mdc.device.alarms.DeviceAlarmService;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
@@ -48,10 +44,6 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
             = new ch.iec.tc57._2011.enddeviceeventsmessage.ObjectFactory();
 
     private final PropertySpecService propertySpecService;
-    private final LogBookService logBookService;
-    private final DeviceService deviceService;
-    private final DeviceAlarmService deviceAlarmService;
-    private final IssueService issueService;
     private final Thesaurus thesaurus;
 
     @Inject
@@ -62,10 +54,6 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
                                    EndDeviceEventsBuilder endDeviceBuilder,
                                    EndDeviceEventsFactory endDeviceEventsFactory,
                                    PropertySpecService propertySpecService,
-                                   LogBookService logBookService,
-                                   DeviceService deviceService,
-                                   DeviceAlarmService deviceAlarmService,
-                                   IssueService issueService,
                                    Thesaurus thesaurus) {
         this.endPointHelper = endPointHelper;
         this.replyTypeFactory = replyTypeFactory;
@@ -74,10 +62,6 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
         this.endDeviceBuilder = endDeviceBuilder;
         this.endDeviceEventsFactory = endDeviceEventsFactory;
         this.propertySpecService = propertySpecService;
-        this.logBookService = logBookService;
-        this.deviceService = deviceService;
-        this.deviceAlarmService = deviceAlarmService;
-        this.issueService = issueService;
         this.thesaurus = thesaurus;
     }
 
