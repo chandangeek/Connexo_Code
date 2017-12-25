@@ -330,7 +330,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                         customPropertySet.getId(),
                         data.getDeviceIdentifier());
             }
-            CustomPropertySetValues newValues = CustomPropertySetValues.emptyDuring(range);
+            CustomPropertySetValues newValues = CustomPropertySetValues.empty();
             if (additionalPrimaryKeyObject != null) {
                 getContext().getCustomPropertySetService()
                         .setValuesVersionFor(customPropertySet, businessObject, updateValues(customPropertySet, data, newValues), range, additionalPrimaryKeyObject);
@@ -390,7 +390,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
 
     private void checkInterval(Optional<Instant> startTime, Optional<Instant> endTime, CustomPropertySet customPropertySet, CustomAttributesImportRecord data) {
         if (startTime.isPresent() && endTime.isPresent() && !endTime.get().equals(Instant.EPOCH) && endTime.get().isBefore(startTime.get())) {
-            throw new ProcessorException(MessageSeeds.NO_CUSTOMATTRIBUTE_VERSION_ON_DEVICE,
+            throw new ProcessorException(MessageSeeds.INVALID_RANGE,
                     data.getLineNumber(),
                     customPropertySet.getId(),
                     data.getDeviceIdentifier());
