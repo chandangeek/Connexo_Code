@@ -293,6 +293,12 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                             customPropertySet.getId(),
                             data.getDeviceIdentifier());
                 }
+                if(!range.hasUpperBound()){
+                    throw new ProcessorException(MessageSeeds.NO_ENDTIME_SPECIFIED,
+                            data.getLineNumber(),
+                            customPropertySet.getId(),
+                            data.getDeviceIdentifier());
+                }
                 if (additionalPrimaryKeyObject != null) {
                     getContext().getCustomPropertySetService()
                             .setValuesVersionFor(customPropertySet, businessObject, values, range, versionId.get(), additionalPrimaryKeyObject);
@@ -332,6 +338,12 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                         data.getDeviceIdentifier());
             }
             CustomPropertySetValues newValues = CustomPropertySetValues.empty();
+            if(!range.hasUpperBound()){
+                throw new ProcessorException(MessageSeeds.NO_ENDTIME_SPECIFIED,
+                        data.getLineNumber(),
+                        customPropertySet.getId(),
+                        data.getDeviceIdentifier());
+            }
             if (additionalPrimaryKeyObject != null) {
                 getContext().getCustomPropertySetService()
                         .setValuesVersionFor(customPropertySet, businessObject, updateValues(customPropertySet, data, newValues), range, additionalPrimaryKeyObject);
@@ -354,7 +366,8 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
         if ((!startTime.isPresent() || startTime.get().equals(Instant.EPOCH))
                 && (!endTime.isPresent() || endTime.get().equals(Instant.EPOCH))) {
             return Range.all();
-        } else if (!startTime.isPresent() || startTime.get().equals(Instant.EPOCH)) {
+        } else if (!startTime.isPresent() || startTime.get().equals(Instant.EPOCH)
+                && (endTime.isPresent() && !endTime.get().equals(Instant.EPOCH))) {
             return Range.lessThan(endTime.get());
         } else if (!endTime.isPresent() || endTime.get().equals(Instant.EPOCH)) {
             return Range.atLeast(startTime.get());
@@ -369,8 +382,8 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
         if (!startTime.isPresent() && !endTime.isPresent()) {
             return oldRange;
         } else if (!startTime.isPresent()) {
-            if (oldRange.hasUpperBound()) {
-                return Range.closedOpen(startTime.get(), oldRange.upperEndpoint());
+            if (oldRange.hasLowerBound()) {
+                return Range.closedOpen(oldRange.lowerEndpoint(), endTime.get());
             } else if (endTime.get().equals(Instant.EPOCH)) {
                 return Range.all();
             } else {
@@ -378,7 +391,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
             }
         } else if (!endTime.isPresent()) {
             if (oldRange.hasUpperBound()) {
-                return Range.closedOpen(oldRange.lowerEndpoint(), endTime.get());
+                return Range.closedOpen(startTime.get(), oldRange.upperEndpoint());
             } else if (startTime.get().equals(Instant.EPOCH)) {
                 return Range.all();
             } else {
