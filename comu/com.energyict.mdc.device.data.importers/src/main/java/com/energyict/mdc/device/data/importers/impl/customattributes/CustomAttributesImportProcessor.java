@@ -155,6 +155,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                 .entrySet()
                 .stream()
                 .filter(e -> e.getKey().equalsIgnoreCase(customPropertySet.getId() + ".versionId"))
+                .filter(e -> e.getValue() != null || Instant.EPOCH.equals(e.getValue()))
                 .map(Map.Entry::getValue)
                 .findFirst();
         CustomPropertySetValues values = null;
@@ -259,7 +260,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                 .entrySet()
                 .stream()
                 .filter(e -> e.getKey().equalsIgnoreCase(customPropertySet.getId() + ".versionId"))
-                .filter(e -> e.getValue() != null)
+                .filter(e -> e.getValue() != null || Instant.EPOCH.equals(e.getValue()))
                 .map(Map.Entry::getValue)
                 .findFirst()
                 .map(Instant.class::cast);
