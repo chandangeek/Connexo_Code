@@ -36,7 +36,6 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
     private final EndDeviceEventsFaultMessageFactory messageFactory;
     private final TransactionService transactionService;
     private final EndDeviceEventsBuilder endDeviceBuilder;
-    private final EndDeviceEventsFactory endDeviceEventsFactory;
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory
             = new ch.iec.tc57._2011.schema.message.ObjectFactory();
@@ -52,7 +51,6 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
                                    EndDeviceEventsFaultMessageFactory messageFactory,
                                    TransactionService transactionService,
                                    EndDeviceEventsBuilder endDeviceBuilder,
-                                   EndDeviceEventsFactory endDeviceEventsFactory,
                                    PropertySpecService propertySpecService,
                                    Thesaurus thesaurus) {
         this.endPointHelper = endPointHelper;
@@ -60,7 +58,6 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
         this.messageFactory = messageFactory;
         this.transactionService = transactionService;
         this.endDeviceBuilder = endDeviceBuilder;
-        this.endDeviceEventsFactory = endDeviceEventsFactory;
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -73,9 +70,9 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
             EndDeviceEvent endDeviceEvent = endDeviceEvents.stream().findFirst()
                     .orElseThrow(messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS,
                             MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
-            com.elster.jupiter.metering.readings.EndDeviceEvent createdEndDeviceEvent = endDeviceBuilder.prepareCreateFrom(endDeviceEvent).build();
+            EndDeviceEvents createdEndDeviceEvents = endDeviceBuilder.prepareCreateFrom(endDeviceEvent).build();
             context.commit();
-            return createResponseMessage(createdEndDeviceEvent, HeaderType.Verb.CREATED, endDeviceEvents.size() > 1);
+            return createResponseMessage(createdEndDeviceEvents, HeaderType.Verb.CREATED, endDeviceEvents.size() > 1);
         } catch (VerboseConstraintViolationException e) {
             throw messageFactory.createEndDeviceEventsFaultMessage(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS, e.getLocalizedMessage());
         } catch (LocalizedException e) {
@@ -91,9 +88,9 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
             EndDeviceEvent endDeviceEvent = endDeviceEvents.stream().findFirst()
                     .orElseThrow(messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS,
                             MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
-            com.elster.jupiter.metering.readings.EndDeviceEvent closedEndDeviceEvent = endDeviceBuilder.prepareCloseFrom(endDeviceEvent).build();
+            EndDeviceEvents closedEndDeviceEvents = endDeviceBuilder.prepareCloseFrom(endDeviceEvent).build();
             context.commit();
-            return null;
+            return createResponseMessage(closedEndDeviceEvents, HeaderType.Verb.CLOSED, endDeviceEvents.size() > 1);
         } catch (VerboseConstraintViolationException e) {
             throw messageFactory.createEndDeviceEventsFaultMessage(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS, e.getLocalizedMessage());
         } catch (LocalizedException e) {
@@ -116,7 +113,7 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    private EndDeviceEventsResponseMessageType createResponseMessage(com.elster.jupiter.metering.readings.EndDeviceEvent createdEndDeviceEvent, HeaderType.Verb verb, boolean bulk) {
+    private EndDeviceEventsResponseMessageType createResponseMessage(EndDeviceEvents endDeviceEvents, HeaderType.Verb verb, boolean bulk) {
         EndDeviceEventsResponseMessageType responseMessage = endDeviceEventsMessageObjectFactory.createEndDeviceEventsResponseMessageType();
 
         // set header
@@ -126,12 +123,11 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
         responseMessage.setHeader(header);
 
         // set reply
-        ReplyType reply = bulk ? replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, "EndDeviceEvents.EndDeviceEvent") : replyTypeFactory.okReplyType();
+        ReplyType reply = bulk ? replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, END_DEVICE_EVENT_ITEM) : replyTypeFactory.okReplyType();
         responseMessage.setReply(reply);
 
         // set payload
         EndDeviceEventsPayloadType payload = endDeviceEventsMessageObjectFactory.createEndDeviceEventsPayloadType();
-        EndDeviceEvents endDeviceEvents = endDeviceEventsFactory.asEndDeviceEvents(createdEndDeviceEvent);
         payload.setEndDeviceEvents(endDeviceEvents);
         responseMessage.setPayload(payload);
 

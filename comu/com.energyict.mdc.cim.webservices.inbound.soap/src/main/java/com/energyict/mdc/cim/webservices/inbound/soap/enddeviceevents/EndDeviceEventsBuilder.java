@@ -30,6 +30,7 @@ import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import ch.iec.tc57._2011.enddeviceevents.Asset;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEventDetail;
+import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
 import ch.iec.tc57._2011.enddeviceevents.Name;
 import ch.iec.tc57._2011.enddeviceevents.Status;
 import ch.iec.tc57._2011.receiveenddeviceevents.FaultMessage;
@@ -55,6 +56,7 @@ public class EndDeviceEventsBuilder {
     private final IssueService issueService;
     private final ThreadPrincipalService threadPrincipalService;
 
+    private final EndDeviceEventsFactory endDeviceEventsFactory;
     private final EndDeviceEventsFaultMessageFactory faultMessageFactory;
     private final Thesaurus thesaurus;
 
@@ -66,6 +68,7 @@ public class EndDeviceEventsBuilder {
                                   DeviceAlarmService deviceAlarmService,
                                   IssueService issueService,
                                   ThreadPrincipalService threadPrincipalService,
+                                  EndDeviceEventsFactory endDeviceEventsFactory,
                                   EndDeviceEventsFaultMessageFactory faultMessageFactory,
                                   Thesaurus thesaurus) {
         this.meteringService = meteringService;
@@ -75,6 +78,7 @@ public class EndDeviceEventsBuilder {
         this.deviceAlarmService = deviceAlarmService;
         this.issueService = issueService;
         this.threadPrincipalService = threadPrincipalService;
+        this.endDeviceEventsFactory = endDeviceEventsFactory;
         this.faultMessageFactory = faultMessageFactory;
         this.thesaurus = thesaurus;
     }
@@ -123,7 +127,9 @@ public class EndDeviceEventsBuilder {
             eventData.ifPresent(value -> value.entrySet().stream().forEach(property -> builder.addProperty(property.getKey(), property.getValue())));
             status.ifPresent(value -> builder.setStatus(buildStatus(value)));
 
-            return builder.create();
+            com.elster.jupiter.metering.readings.EndDeviceEvent createdEvent = builder.create();
+
+            return endDeviceEventsFactory.asEndDeviceEvents(createdEvent);
         };
     }
 
@@ -151,13 +157,14 @@ public class EndDeviceEventsBuilder {
             LogBook logBook = getLogBook(endDevice);
             IssueStatus issueStatus = issueService.findStatus(IssueStatus.RESOLVED).get();
             User user = (User)threadPrincipalService.getPrincipal();
+
             List<HistoricalDeviceAlarm> closedAlarms = deviceAlarmService.findOpenAlarmByDeviceIdAndEventTypeAndLogBookId(endDevice.getId(), eventTypeCode, logBook.getId()).find()
                     .stream().map(alarm -> {
                         alarm.addComment(String.format(ALARM_CLOSURE_COMMENT, user.getName()), user);
                         return alarm.close(issueStatus);
                     }).collect(Collectors.toList());
 
-            return null;
+            return endDeviceEventsFactory.asEndDeviceEvents(closedAlarms);
         };
     }
 
@@ -165,7 +172,7 @@ public class EndDeviceEventsBuilder {
     interface PreparedEndDeviceEventBuilder {
 
         @TransactionRequired
-        com.elster.jupiter.metering.readings.EndDeviceEvent build() throws FaultMessage;
+        EndDeviceEvents build() throws FaultMessage;
     }
 
     private Optional<Asset> extractAsset(EndDeviceEvent endDeviceEvent) {
