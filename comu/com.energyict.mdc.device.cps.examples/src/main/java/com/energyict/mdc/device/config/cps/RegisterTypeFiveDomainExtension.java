@@ -45,7 +45,6 @@ public class RegisterTypeFiveDomainExtension extends AbstractPersistentDomainExt
 
     private Reference<RegisterSpec> registerSpec = Reference.empty();
 
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "CannotBeNull")
     private BigDecimal device;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "CannotBeNull")
     private BigDecimal testNumber;

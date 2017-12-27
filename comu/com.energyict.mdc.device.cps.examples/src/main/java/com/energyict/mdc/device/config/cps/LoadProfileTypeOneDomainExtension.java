@@ -45,7 +45,6 @@ public class LoadProfileTypeOneDomainExtension extends AbstractPersistentDomainE
 
     private Reference<ChannelSpec> channelSpec = Reference.empty();
 
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "CannotBeNull")
     private BigDecimal device;
     @NotNull(groups = {Save.Create.class, Save.Update.class})
     private BigDecimal testEnumNumberA;
