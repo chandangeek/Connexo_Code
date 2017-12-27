@@ -13,7 +13,9 @@ Ext.define('Mtr.view.readingtypes.bulk.ReadingTypesSelectionGrid', {
     selectedLabel: Uni.I18n.translate('readingtypesmanagment.bulk.selectedreadingtypes', 'MTR', 'Selected reading types'),
     selectedDescription: Uni.I18n.translate('readingtypesmanagment.bulk.selectedreadingtypesMsg', 'MTR', 'Select reading types in table below'),
 
-    cancelHref: '#/administration/readingtypes',
+    //cancelHref: '#/administration/readingtypes',
+    //cancelHref: '#/administration/readingtypegroups',
+    cancelHref: '#/administration/readingtypes1',
 
     radioGroupName: 'reading-types-selection-grid-step1',
 

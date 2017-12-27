@@ -294,7 +294,8 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
                                 errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.readingTypesExists', 'MTR', 'Reading types already exists'));
                                 errorMsg.show()
                             } else if (specifyBy == 'cim') {
-                                router.getRoute('administration/readingtypegroups').forward();
+                                // router.getRoute('administration/readingtypegroups').forward(); // lori set
+                                router.getRoute('administration/readingtypes1').forward();
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('readingtypesmanagment.addReadingType.acknowledge', 'MTR', '{0} reading types added', [count]));
                             }
                         }
@@ -358,7 +359,8 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
                                 errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.readingTypesExists', 'MTR', 'Reading types already exists'));
                                 errorMsg.show()
                             } else if (specifyBy == 'cim') {
-                                router.getRoute('administration/readingtypegroups').forward();
+                                //router.getRoute('administration/readingtypegroups').forward(); // lori set
+                                router.getRoute('administration/readingtypes1').forward();
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('readingtypesmanagment.addReadingType.acknowledge', 'MTR', '{0} reading types added', [count]));
                             }
                         }
@@ -397,8 +399,11 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
             success: function (record, operation) {
                 var response = Ext.JSON.decode(operation.response.responseText),
                     addedCount = response.countCreatedReadingTypes;
-                router.getRoute('administration/readingtypegroups').forward();
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.readingTypesAddedAcknowledge', addedCount, 'MTR', '{0} reading types added', '{0} reading type added', '{0} reading types added'));
+                //router.getRoute('administration/readingtypegroups').forward();  // lori set
+                router.getRoute('administration/readingtypes1').forward();
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.readingTypesAddedAcknowledge',
+                        addedCount, 'MTR', '{0} reading types added', '{0} reading type added', '{0} reading types added'));
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
@@ -429,7 +434,8 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
             success: function (record, operation) {
                 var response = Ext.JSON.decode(operation.response.responseText),
                     addedCount = response.countCreatedReadingTypes;
-                router.getRoute('administration/readingtypegroups').forward();
+                //router.getRoute('administration/readingtypegroups').forward();  // lori set
+                router.getRoute('administration/readingtypes1').forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.readingTypesAddedAcknowledge', addedCount, 'MTR', '{0} reading types added', '{0} reading type added', '{0} reading types added'));
             },
             failure: function (record, operation) {
@@ -448,8 +454,8 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
     goBack: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
-
-        router.getRoute('administration/readingtypegroups').forward(null,
+        //router.getRoute('administration/readingtypegroups').forward(null,
+        router.getRoute('administration/readingtypes1').forward(null,
             me.qString
         );
     }

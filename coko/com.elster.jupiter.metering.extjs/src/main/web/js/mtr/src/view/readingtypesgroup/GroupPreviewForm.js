@@ -80,7 +80,7 @@ Ext.define('Mtr.view.readingtypesgroup.GroupPreviewForm', {
                             {
                                 name: 'multiplier',
                                 itemId: 'mtr-readingTypesGroupPreview-multiplier',
-                                fieldLabel: Uni.I18n.translate('readingtypesmanagment.multiplier', 'MTR', 'Multiplier')
+                                fieldLabel: Uni.I18n.translate('readingtypesmanagment.multiplier', 'MTR', 'Scale')
                             },
                             {
                                 name: 'phases',

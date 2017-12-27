@@ -122,7 +122,8 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
         var router = this.getController('Uni.controller.history.Router'),
             addController = this.getController('Mtr.controller.readingtypesgroup.AddReadingTypesGroup');
         addController.qString = router.getQueryStringValues();
-        router.getRoute('administration/readingtypegroups/add').forward();
+        // router.getRoute('administration/readingtypegroups/add').forward();  //lori
+        router.getRoute('administration/readingtypes1/add').forward();
     },
 
     browseAdd: function () {

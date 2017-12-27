@@ -21,7 +21,8 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroup', {
         me.content = {
             xtype: 'form',
             ui: 'large',
-            title: Uni.I18n.translate('readingtypesmanagement.addreadingtypesgroup.title', 'MTR', 'Add reading type group'),
+            //title: Uni.I18n.translate('readingtypesmanagement.addreadingtypesgroup.title', 'MTR', 'Add reading type group'), // lori set
+            title: Uni.I18n.translate('readingtypesmanagement.addreadingtypesgroup.title', 'MTR', 'Add reading type'),
             items: [
                 {
                     xtype: 'add-reading-types-group-form'

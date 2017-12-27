@@ -126,7 +126,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
             },
             {
                 xtype: 'textfield',
-                fieldLabel: Uni.I18n.translate('readingTypesManagement.addReadingTypes.alias', 'MTR', 'Name'),
+                fieldLabel: Uni.I18n.translate('readingTypesManagement.addReadingTypes.alias', 'MTR', 'Reading type set'),
                 itemId: 'alias-name',
                 name: 'aliasName',
                 required: true,
@@ -240,14 +240,14 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         disabled: false
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measurementKind', 'MTR', 'Measurement kind #7'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measurementKind', 'MTR', 'Kind #7'),
                                         store: 'Mtr.store.readingtypesgroup.attributes.Kind',
                                         cimIndex: 7,
                                         name: 'basicMeasurementKind',
                                         required: true
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.flowDirection', 'MTR', 'Flow direction #5'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.flowDirection', 'MTR', 'Direction of flow  #5'),
                                         store: 'Mtr.store.readingtypesgroup.attributes.DirectionOfFlow',
                                         cimIndex: 5,
                                         disabled: true,
@@ -263,7 +263,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         required: true
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.macroPeriod', 'MTR', 'Macro period #1'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.macroPeriod', 'MTR', 'Period #1'),
                                         store: 'Mtr.store.readingtypesgroup.attributes.MacroPeriod',
                                         cimIndex: 1,
                                         disabled: false,
@@ -280,7 +280,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         name: 'basicAccumulation'
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measuringPeriod', 'MTR', 'Measuring period #3'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measuringPeriod', 'MTR', 'Time period #3'),
                                         store: 'Mtr.store.readingtypesgroup.attributes.MeasuringPeriod',
                                         emptyText: Uni.I18n.translate('readingTypesManagement.attribute.Accumulation.emptyText', 'MTR', 'Select a time period...'),
                                         cimIndex: 3,
@@ -335,7 +335,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         },
                                         items: [
                                             {
-                                                fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.multiplier', 'MTR', 'Multiplier #16'),
+                                                fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.multiplier', 'MTR', 'Scale #16'),
                                                 store: 'Mtr.store.readingtypesgroup.attributes.Multiplier',
                                                 cimIndex: 16,
                                                 hidden: true,
@@ -424,7 +424,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                 },
                                 items: [
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.macroPeriod', 'MTR', 'Macro period #1'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.macroPeriod', 'MTR', 'Period #1'),
                                         store: 'Mtr.store.readingtypes.attributes.Interval',
                                         cimIndex: 1,
                                         name: 'macroPeriod'
@@ -436,7 +436,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         name: 'aggregate'
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measuringPeriod', 'MTR', 'Measuring period #3'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measuringPeriod', 'MTR', 'Time #3'),
                                         store: 'Mtr.store.readingtypes.attributes.MeasuringPeriod',
                                         cimIndex: 3,
                                         name: 'measuringPeriod'

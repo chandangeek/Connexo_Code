@@ -19,7 +19,8 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsGrid', {
                 header: Uni.I18n.translate('general.name', 'MTR', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('administration/readingtypegroups/view').buildUrl({aliasName: encodeURIComponent(value)});
+                    //var url = me.router.getRoute('administration/readingtypegroups/view').buildUrl({aliasName: encodeURIComponent(value)}); // lori set
+                    var url = me.router.getRoute('administration/readingtypes1/view').buildUrl({aliasName: encodeURIComponent(value)});
                     return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 flex: 1
@@ -44,15 +45,19 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsGrid', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.displayMsg', 'MTR', '{0} - {1} of {2} groups'),
-                displayMoreMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.displayMoreMsg', 'MTR', '{0} - {1} of more than {2} groups'),
-                emptyMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.emptyMsg', 'MTR', 'There are no groups to display'),
+                // displayMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.displayMsg', 'MTR', '{0} - {1} of {2} groups'),
+                // displayMoreMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.displayMoreMsg', 'MTR', '{0} - {1} of more than {2} groups'),
+                // emptyMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.emptyMsg', 'MTR', 'There are no groups to display'),
+                displayMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.displayMsg', 'MTR', '{0} - {1} of {2} reading type sets'),
+                displayMoreMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.displayMoreMsg', 'MTR', '{0} - {1} of more than {2} reading type sets'),
+                emptyMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.emptyMsg', 'MTR', 'There are no reading type sets to display'),
                 items: [
                     {
                         xtype:'button',
                         itemId:'mtr-add-readingTypeGroup-button',
                         privileges : Mtr.privileges.ReadingTypes.admin,
-                        text:Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.addButton', 'MTR', 'Add reading type group')
+                        text: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.addButton', 'MTR', 'Add reading type')
+                        // text:Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.addButton', 'MTR', 'Add reading type group') // lori set
                     }
                 ]
             },

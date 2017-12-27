@@ -53,15 +53,18 @@ Ext.define('Mtr.controller.Main', {
                 title: Uni.I18n.translate('readingtypes.management', 'MTR', 'Reading types management'),
                 portal: 'administration',
                 items: [
+                    // {  // lori - set
+                    //     text: Uni.I18n.translate('readingtypes.readingtypes', 'MTR', 'Reading types'),
+                    //     href: '#/administration/readingtypes',
+                    //     route: 'readingtypes'
+                    // },
                     {
-                        text: Uni.I18n.translate('readingtypes.readingtypes', 'MTR', 'Reading types'),
-                        href: '#/administration/readingtypes',
-                        route: 'readingtypes'
-                    },
-                    {
-                        text: Uni.I18n.translate('readingtypes.readingTypeGroups', 'MTR', 'Reading type groups'),
-                        href: '#/administration/readingtypegroups',
-                        route: 'readingtypegroups'
+                        text: Uni.I18n.translate('readingtypes.readingTypes1', 'MTR', 'Reading types'),
+                        //  text: Uni.I18n.translate('F', 'MTR', 'Reading types'), // lori set
+                        //  href: '#/administration/readingtypegroups',
+                        href: '#/administration/readingtypes1',
+                        route: 'readingtypes1'
+                        //  route: 'readingtypegroups'
                     }
                 ]
             });

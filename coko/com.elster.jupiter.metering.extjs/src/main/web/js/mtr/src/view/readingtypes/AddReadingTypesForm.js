@@ -24,7 +24,7 @@ Ext.define('Mtr.view.readingtypes.AddReadingTypesForm', {
             },
             {
                 xtype: 'textfield',
-                fieldLabel: Uni.I18n.translate('readingTypesManagement.addReadingTypes.alias', 'MTR', 'Name'),
+                fieldLabel: Uni.I18n.translate('readingTypesManagement.addReadingTypes.alias', 'MTR', 'Reading type set'),
                 itemId: 'alias-name',
                 name: 'aliasName',
                 required: true,
@@ -108,7 +108,7 @@ Ext.define('Mtr.view.readingtypes.AddReadingTypesForm', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.macroPeriod', 'MTR', 'Macro period #1'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.macroPeriod', 'MTR', 'Period #1'),
                         store: 'Mtr.store.readingtypes.attributes.Interval',
                         cimIndex: 1,
                         name: 'macroPeriod'
@@ -120,7 +120,7 @@ Ext.define('Mtr.view.readingtypes.AddReadingTypesForm', {
                         name: 'aggregate'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measuringPeriod', 'MTR', 'Measuring period #3'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measuringPeriod', 'MTR', 'Time #3'),
                         store: 'Mtr.store.readingtypes.attributes.MeasuringPeriod',
                         cimIndex: 3,
                         name: 'measuringPeriod'
@@ -132,7 +132,7 @@ Ext.define('Mtr.view.readingtypes.AddReadingTypesForm', {
                         name: 'accumulation'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.flowDirection', 'MTR', 'Flow direction #5'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.flowDirection', 'MTR', 'Direction of flow #5'),
                         store: 'Mtr.store.readingtypes.attributes.DirectionOfFlow',
                         cimIndex: 5,
                         name: 'flowDirection'
@@ -144,7 +144,7 @@ Ext.define('Mtr.view.readingtypes.AddReadingTypesForm', {
                         name: 'commodity'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measurementKind', 'MTR', 'Measurement kind #7'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measurementKind', 'MTR', 'Kind #7'),
                         store: 'Mtr.store.readingtypes.attributes.Kind',
                         cimIndex: 7,
                         name: 'measurementKind'
@@ -205,7 +205,7 @@ Ext.define('Mtr.view.readingtypes.AddReadingTypesForm', {
                         name: 'phases'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.multiplier', 'MTR', 'Multiplier #16'),
+                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.multiplier', 'MTR', 'Scale #16'),
                         store: 'Mtr.store.readingtypes.attributes.Multiplier',
                         cimIndex: 16,
                         name: 'metricMultiplier'
