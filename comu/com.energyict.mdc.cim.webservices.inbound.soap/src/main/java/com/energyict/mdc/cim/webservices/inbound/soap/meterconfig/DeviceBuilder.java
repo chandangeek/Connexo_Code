@@ -170,12 +170,12 @@ class DeviceBuilder {
         return Stream.of(extractName(meter.getNames()), extractSerialNumber(meter), extractMrid(meter))
                 .flatMap(Functions.asStream())
                 .findFirst()
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.DEVICE_IDENTIFIER_MISSING));
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.CREATE_DEVICE_IDENTIFIER_MISSING));
     }
 
     private String extractDeviceNameForUpdateOrThrowException(Meter meter) throws FaultMessage {
         return extractName(meter.getNames())
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.DEVICE_IDENTIFIER_MISSING));
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.CHANGE_DEVICE_IDENTIFIER_MISSING));
     }
 
     private Optional<String> extractName(List<Name> names) {

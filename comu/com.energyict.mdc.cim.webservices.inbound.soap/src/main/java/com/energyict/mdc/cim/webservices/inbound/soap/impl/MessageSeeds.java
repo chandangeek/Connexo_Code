@@ -22,13 +22,14 @@ public enum MessageSeeds implements MessageSeed {
     // meter config
     UNABLE_TO_CREATE_DEVICE(1001, "UnableToCreateDevice", "Unable to create device"),
     UNABLE_TO_CHANGE_DEVICE(1002, "UnableToChangeDevice", "Unable to change device"),
-    DEVICE_IDENTIFIER_MISSING(1003, "DeviceIdentifierMissing", "''Name'' or ''serialNumber'' or ''mRID'' must be specified in the payload"),
-    NO_SUCH_DEVICE_TYPE(1004, "NoSuchDeviceType", "No such device type: ''{0}''"),
-    NO_SUCH_DEVICE_CONFIGURATION(1005, "NoSuchDeviceConfiguration", "No such device configuration: ''{0}''"),
-    NO_DEVICE_WITH_NAME(1006, "NoDeviceWithName", "No device found with name ''{0}''"),
-    NO_DEVICE_WITH_MRID(1007, "NoDeviceWithMRID", "No device found with mrid ''{0}''"),
-    NOT_VALID_MULTIPLIER_REASON(1008, "NotValidMultiplierReason", "''{0}'' is not a valid multiplier reason"),
-    NOT_VALID_STATUS_REASON(1009, "NotValidStatusReason", "''{0}'' is not a valid status reason"),
+    CREATE_DEVICE_IDENTIFIER_MISSING(1003, "DeviceIdentifierMissing", "''Name'' or ''serialNumber'' or ''mRID'' must be specified in the payload"),
+    CHANGE_DEVICE_IDENTIFIER_MISSING(1004, "DeviceIdentifierMissing", "''Name'' must be specified in the payload"),
+    NO_SUCH_DEVICE_TYPE(1005, "NoSuchDeviceType", "No such device type: ''{0}''"),
+    NO_SUCH_DEVICE_CONFIGURATION(1006, "NoSuchDeviceConfiguration", "No such device configuration: ''{0}''"),
+    NO_DEVICE_WITH_NAME(1007, "NoDeviceWithName", "No device found with name ''{0}''"),
+    NO_DEVICE_WITH_MRID(1008, "NoDeviceWithMRID", "No device found with mrid ''{0}''"),
+    NOT_VALID_MULTIPLIER_REASON(1009, "NotValidMultiplierReason", "''{0}'' is not a valid multiplier reason"),
+    NOT_VALID_STATUS_REASON(1010, "NotValidStatusReason", "''{0}'' is not a valid status reason"),
     ;
 
     private final int number;

@@ -52,8 +52,7 @@
                             <met1:value>2</met1:value>
                         </met1:MeterMultipliers>
                         <!--Optional-->
-                        <!--No name => name = serial number-->
-                        <!--No serial number => name = MRID-->
+                        <!--No MRID => name is not changed-->
                         <met1:Names>
                             <met1:name>DEVICE-111</met1:name>
                         </met1:Names>
