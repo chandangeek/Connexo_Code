@@ -41,13 +41,10 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsGrid', {
         ];
 
         this.dockedItems = [
-            {
+            {  // lori set
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                // displayMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.displayMsg', 'MTR', '{0} - {1} of {2} groups'),
-                // displayMoreMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.displayMoreMsg', 'MTR', '{0} - {1} of more than {2} groups'),
-                // emptyMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.emptyMsg', 'MTR', 'There are no groups to display'),
                 displayMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.displayMsg', 'MTR', '{0} - {1} of {2} reading type sets'),
                 displayMoreMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.displayMoreMsg', 'MTR', '{0} - {1} of more than {2} reading type sets'),
                 emptyMsg: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.emptyMsg', 'MTR', 'There are no reading type sets to display'),
@@ -57,7 +54,6 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsGrid', {
                         itemId:'mtr-add-readingTypeGroup-button',
                         privileges : Mtr.privileges.ReadingTypes.admin,
                         text: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.addButton', 'MTR', 'Add reading type')
-                        // text:Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.addButton', 'MTR', 'Add reading type group') // lori set
                     }
                 ]
             },
