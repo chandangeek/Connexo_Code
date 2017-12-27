@@ -460,7 +460,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         name: 'commodity'
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measurementKind', 'MTR', 'Measurement kind #7'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.measurementKind', 'MTR', 'Kind #7'),
                                         store: 'Mtr.store.readingtypes.attributes.Kind',
                                         cimIndex: 7,
                                         name: 'measurementKind'
