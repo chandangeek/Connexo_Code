@@ -97,9 +97,9 @@ class DeviceBuilder {
         return () -> {
             Device updatedDevice = mrid.isPresent() ?
                     deviceService.findDeviceByMrid(mrid.get())
-                            .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_METER_WITH_MRID, mrid.get())) :
+                            .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_MRID, mrid.get())) :
                     deviceService.findDeviceByName(deviceName)
-                            .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_METER_WITH_NAME, deviceName));
+                            .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_NAME, deviceName));
 
             if (multiplierReason.isPresent()) {
                 EventReason.forReason(multiplierReason.get())

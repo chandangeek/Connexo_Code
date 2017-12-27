@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.fsm.State;

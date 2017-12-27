@@ -52,7 +52,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
 
     public static final String COMPONENT_NAME = "SIM";
 
-    private static final String CIM_MERER_CONFIG = "CIM MeterConfig";
+    private static final String CIM_METER_CONFIG = "CIM MeterConfig";
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -124,7 +124,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     }
 
     private void registerServices(BundleContext bundleContext) {
-        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterConfigEndpoint.class), CIM_MERER_CONFIG);
+        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterConfigEndpoint.class), CIM_METER_CONFIG);
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
