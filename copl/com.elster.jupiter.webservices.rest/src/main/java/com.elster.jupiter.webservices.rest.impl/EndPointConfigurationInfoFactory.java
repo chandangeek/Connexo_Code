@@ -171,7 +171,10 @@ public class EndPointConfigurationInfoFactory {
                 endPointConfiguration.setGroup(group);
             }
         }
-        return endPointConfiguration; // todo mlevan
+        if (info.properties != null) {
+            endPointConfiguration.setProperties(info.properties.stream().collect(Collectors.toMap(property -> property.key, property -> property.propertyValueInfo.getValue())));
+        }
+        return endPointConfiguration;
     }
 
     private void applyCommonChanges(EndPointConfiguration endPointConfiguration, EndPointConfigurationInfo info) {
