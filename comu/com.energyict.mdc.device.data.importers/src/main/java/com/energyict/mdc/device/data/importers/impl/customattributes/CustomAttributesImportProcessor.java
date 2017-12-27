@@ -293,12 +293,6 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                             customPropertySet.getId(),
                             data.getDeviceIdentifier());
                 }
-                if(!range.hasUpperBound()){
-                    throw new ProcessorException(MessageSeeds.NO_ENDTIME_SPECIFIED,
-                            data.getLineNumber(),
-                            customPropertySet.getId(),
-                            data.getDeviceIdentifier());
-                }
                 if (additionalPrimaryKeyObject != null) {
                     getContext().getCustomPropertySetService()
                             .setValuesVersionFor(customPropertySet, businessObject, values, range, versionId.get(), additionalPrimaryKeyObject);
@@ -313,6 +307,17 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                         data.getDeviceIdentifier());
             }
         } else {
+            if(!endTime.isPresent()){
+                throw new ProcessorException(MessageSeeds.NO_ENDTIME_SPECIFIED,
+                        data.getLineNumber(),
+                        customPropertySet.getId(),
+                        data.getDeviceIdentifier());
+            } else if(!startTime.isPresent()){
+                throw new ProcessorException(MessageSeeds.NO_STARTTIME_SPECIFIED,
+                        data.getLineNumber(),
+                        customPropertySet.getId(),
+                        data.getDeviceIdentifier());
+            }
             Range<Instant> range = getRangeToCreate(startTime, endTime);
             OverlapCalculatorBuilder overlapCalculatorBuilder;
             if (additionalPrimaryKeyObject != null) {
@@ -338,12 +343,6 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                         data.getDeviceIdentifier());
             }
             CustomPropertySetValues newValues = CustomPropertySetValues.empty();
-            if(!range.hasUpperBound()){
-                throw new ProcessorException(MessageSeeds.NO_ENDTIME_SPECIFIED,
-                        data.getLineNumber(),
-                        customPropertySet.getId(),
-                        data.getDeviceIdentifier());
-            }
             if (additionalPrimaryKeyObject != null) {
                 getContext().getCustomPropertySetService()
                         .setValuesVersionFor(customPropertySet, businessObject, updateValues(customPropertySet, data, newValues), range, additionalPrimaryKeyObject);
