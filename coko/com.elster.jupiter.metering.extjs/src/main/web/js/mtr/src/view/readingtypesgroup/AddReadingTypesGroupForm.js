@@ -247,7 +247,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         required: true
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.flowDirection', 'MTR', 'Direction of flow  #5'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.flowDirection', 'MTR', 'Direction of flow #5'),
                                         store: 'Mtr.store.readingtypesgroup.attributes.DirectionOfFlow',
                                         cimIndex: 5,
                                         disabled: true,
