@@ -104,10 +104,10 @@ public interface EndPointConfiguration extends HasDynamicProperties {
      */
     Finder<EndPointLog> getLogs();
 
-    void setProperties(Map<String, Object> map);
-
     List<EndPointProperty> getProperties();
 
     Map<String, Object> getPropertiesWithValue();
+
+    void setProperties(Map<String, Object> map);
 
 }
