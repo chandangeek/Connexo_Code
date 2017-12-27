@@ -121,8 +121,8 @@ public enum MessageSeeds implements MessageSeed {
     WRONG_QUANTITY_FORMAT(552, "WrongQuantitiyFormat", "Can''t process line {0}: wrong unit format for column {1}. Supported multipliers: {2}, supported units: {3}", Level.WARNING),
     WRONG_ENUM_FORMAT(553, "WrongEnumFormat", "Can''t process line {0}: wrong enumeration value for column {1}. Possible values: {2}", Level.WARNING),
     INVALID_CUSTIMATTRIBUTE_HEADER(554, "InvalidCustomAttributeFileHeader", "File should contain at least 3 columns separated by ''{0}''. Please check the delimiter.", Level.WARNING),
-    NO_ENDTIME_SPECIFIED(555, "NoEndtimeSpecified", "Can''t process line {0}: end time is not specified for new version os custom attribute set {1} on device {2}", Level.WARNING),
-    NO_STARTTIME_SPECIFIED(556, "NoStarttimeSpecified", "Can''t process line {0}: start time is not specified for new version os custom attribute set {1} on device {2}", Level.WARNING),
+    NO_ENDTIME_SPECIFIED(555, "NoEndtimeSpecified", "Can''t process line {0}: end time is not specified for new version of custom attribute set {1} on device {2}", Level.WARNING),
+    NO_STARTTIME_SPECIFIED(556, "NoStarttimeSpecified", "Can''t process line {0}: start time is not specified for new version of custom attribute set {1} on device {2}", Level.WARNING),
 
     ;
 

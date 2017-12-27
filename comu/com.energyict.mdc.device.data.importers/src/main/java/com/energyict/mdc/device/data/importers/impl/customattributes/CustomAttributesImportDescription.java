@@ -83,4 +83,9 @@ public class CustomAttributesImportDescription implements FileImportDescription<
                 .build());
         return fields;
     }
+
+    @Override
+    public boolean isSkipTrailingNulls() {
+        return false;
+    }
 }

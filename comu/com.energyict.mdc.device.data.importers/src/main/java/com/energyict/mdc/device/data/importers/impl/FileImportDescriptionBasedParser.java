@@ -101,7 +101,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         List<String> rawValues = new ArrayList<>();
         for (int i = csvRecord.size() - 1; i >= 0; i--) {//reverse bypass
             String value = csvRecord.get(i);
-            if (!Checks.is(value).empty() || !rawValues.isEmpty()) {
+            if ((!Checks.is(value).empty() || !rawValues.isEmpty()) || (!this.descriptor.isSkipTrailingNulls() && i < headers.size())) {
                 rawValues.add(value);
             }
         }

@@ -15,4 +15,7 @@ public interface FileImportDescription<T extends FileImportRecord> {
 
     List<FileImportField<?>> getFields(T record);
 
+    default boolean isSkipTrailingNulls(){
+        return true;
+    }
 }
