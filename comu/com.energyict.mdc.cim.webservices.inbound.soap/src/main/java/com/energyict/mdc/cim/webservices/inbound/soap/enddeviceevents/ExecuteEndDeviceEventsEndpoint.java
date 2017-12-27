@@ -11,6 +11,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
@@ -30,6 +31,7 @@ import java.util.List;
 public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndPointProp {
     private static final String NOUN = "EndDeviceEvents";
     private static final String END_DEVICE_EVENT_ITEM = NOUN + ".EndDeviceEvent";
+    private static final String PAYLOAD_ITEM = "Payload";
 
     private final EndPointHelper endPointHelper;
     private final ReplyTypeFactory replyTypeFactory;
@@ -66,17 +68,17 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
     public EndDeviceEventsResponseMessageType createdEndDeviceEvents(EndDeviceEventsEventMessageType createdEndDeviceEventsEventMessage) throws FaultMessage {
         endPointHelper.setSecurityContext();
         try (TransactionContext context = transactionService.getContext()) {
-            List<EndDeviceEvent> endDeviceEvents = retrieveEndDeviceEvents(createdEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS);
+            List<EndDeviceEvent> endDeviceEvents = getEndDeviceEvents(createdEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS);
             EndDeviceEvent endDeviceEvent = endDeviceEvents.stream().findFirst()
-                    .orElseThrow(messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS,
+                    .orElseThrow(messageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS,
                             MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
             EndDeviceEvents createdEndDeviceEvents = endDeviceBuilder.prepareCreateFrom(endDeviceEvent).build();
             context.commit();
             return createResponseMessage(createdEndDeviceEvents, HeaderType.Verb.CREATED, endDeviceEvents.size() > 1);
         } catch (VerboseConstraintViolationException e) {
-            throw messageFactory.createEndDeviceEventsFaultMessage(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS, e.getLocalizedMessage());
+            throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS, e.getLocalizedMessage());
         } catch (LocalizedException e) {
-            throw messageFactory.createEndDeviceEventsFaultMessage(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS, e.getLocalizedMessage(), e.getErrorCode());
+            throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS, e.getLocalizedMessage(), e.getErrorCode());
         }
     }
 
@@ -84,17 +86,17 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
     public EndDeviceEventsResponseMessageType closedEndDeviceEvents(EndDeviceEventsEventMessageType closedEndDeviceEventsEventMessage) throws FaultMessage {
         endPointHelper.setSecurityContext();
         try (TransactionContext context = transactionService.getContext()) {
-            List<EndDeviceEvent> endDeviceEvents = retrieveEndDeviceEvents(closedEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS);
+            List<EndDeviceEvent> endDeviceEvents = getEndDeviceEvents(closedEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS);
             EndDeviceEvent endDeviceEvent = endDeviceEvents.stream().findFirst()
-                    .orElseThrow(messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS,
+                    .orElseThrow(messageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS,
                             MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
             EndDeviceEvents closedEndDeviceEvents = endDeviceBuilder.prepareCloseFrom(endDeviceEvent).build();
             context.commit();
             return createResponseMessage(closedEndDeviceEvents, HeaderType.Verb.CLOSED, endDeviceEvents.size() > 1);
         } catch (VerboseConstraintViolationException e) {
-            throw messageFactory.createEndDeviceEventsFaultMessage(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS, e.getLocalizedMessage());
+            throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS, e.getLocalizedMessage());
         } catch (LocalizedException e) {
-            throw messageFactory.createEndDeviceEventsFaultMessage(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS, e.getLocalizedMessage(), e.getErrorCode());
+            throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS, e.getLocalizedMessage(), e.getErrorCode());
         }
     }
 
@@ -113,7 +115,7 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    private EndDeviceEventsResponseMessageType createResponseMessage(EndDeviceEvents endDeviceEvents, HeaderType.Verb verb, boolean bulk) {
+    private EndDeviceEventsResponseMessageType createResponseMessage(EndDeviceEvents endDeviceEvents, HeaderType.Verb verb, boolean bulkRequired) {
         EndDeviceEventsResponseMessageType responseMessage = endDeviceEventsMessageObjectFactory.createEndDeviceEventsResponseMessageType();
 
         // set header
@@ -123,7 +125,9 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
         responseMessage.setHeader(header);
 
         // set reply
-        ReplyType reply = bulk ? replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, END_DEVICE_EVENT_ITEM) : replyTypeFactory.okReplyType();
+        ReplyType reply = bulkRequired ?
+                replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, END_DEVICE_EVENT_ITEM) :
+                replyTypeFactory.okReplyType();
         responseMessage.setReply(reply);
 
         // set payload
@@ -134,13 +138,13 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
         return responseMessage;
     }
 
-    private List<EndDeviceEvent> retrieveEndDeviceEvents(EndDeviceEventsPayloadType payload, MessageSeeds basicFaultMessage) throws ch.iec.tc57._2011.receiveenddeviceevents.FaultMessage {
+    private List<EndDeviceEvent> getEndDeviceEvents(EndDeviceEventsPayloadType payload, MessageSeeds basicFaultMessage) throws FaultMessage {
         if (payload == null) {
-            throw messageFactory.createEndDeviceEventsFaultMessageSupplier(basicFaultMessage, MessageSeeds.MISSING_ELEMENT, "Payload").get();
+            throw messageFactory.endDeviceEventsFaultMessageSupplier(basicFaultMessage, MessageSeeds.MISSING_ELEMENT, PAYLOAD_ITEM).get();
         }
         EndDeviceEvents endDeviceEvents = payload.getEndDeviceEvents();
         if (endDeviceEvents == null) {
-            throw messageFactory.createEndDeviceEventsFaultMessageSupplier(basicFaultMessage, MessageSeeds.MISSING_ELEMENT, NOUN).get();
+            throw messageFactory.endDeviceEventsFaultMessageSupplier(basicFaultMessage, MessageSeeds.MISSING_ELEMENT, NOUN).get();
         }
         return endDeviceEvents.getEndDeviceEvent();
     }
@@ -151,11 +155,9 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
 
         builder.add(propertySpecService
                 .specForValuesOf(new ObisCodeValueFactory())
-                .named("EndDeviceEvents.ObisCode", "Logbook OBIS code")
-                .describedAs("Logbook OBIS code")
-//                .named(TranslationKeys.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS)
-//                .describedAs(TranslationKeys.MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION)
-//                .fromThesaurus(thesaurus)
+                .named(TranslationKeys.LOGBOOK_OBIS_CODE)
+                .describedAs(TranslationKeys.LOGBOOK_OBIS_CODE)
+                .fromThesaurus(thesaurus)
                 .markRequired()
                 .markEditable()
                 .finish());

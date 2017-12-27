@@ -27,23 +27,19 @@ class EndDeviceEventsFaultMessageFactory {
         this.replyTypeFactory = replyTypeFactory;
     }
 
-    Supplier<FaultMessage> createEndDeviceEventsFaultMessageSupplier(MessageSeeds messageSeed, Object... args) {
-        return () -> createEndDeviceEventsFaultMessage(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS, replyTypeFactory.failureReplyType(messageSeed, args));
+    Supplier<FaultMessage> endDeviceEventsFaultMessageSupplier(MessageSeeds messageSeed, Object... args) {
+        return () -> endDeviceEventsFaultMessage(messageSeed, replyTypeFactory.failureReplyType(messageSeed, args));
     }
 
-    Supplier<FaultMessage> createEndDeviceEventsFaultMessageSupplier(MessageSeeds basicMessage, MessageSeeds messageSeed, Object... args) {
-        return () -> createEndDeviceEventsFaultMessage(basicMessage, replyTypeFactory.failureReplyType(messageSeed, args));
+    FaultMessage endDeviceEventsFaultMessage(MessageSeeds messageSeed, String message, String errorCode) {
+        return endDeviceEventsFaultMessage(messageSeed, replyTypeFactory.failureReplyType(message, errorCode));
     }
 
-    FaultMessage createEndDeviceEventsFaultMessage(MessageSeeds basicMessage, String message, String errorCode) {
-        return createEndDeviceEventsFaultMessage(basicMessage, replyTypeFactory.failureReplyType(message, errorCode));
+    FaultMessage endDeviceEventsFaultMessage(MessageSeeds basicMessage, String message) {
+        return endDeviceEventsFaultMessage(basicMessage, message, null);
     }
 
-    FaultMessage createEndDeviceEventsFaultMessage(MessageSeeds basicMessage, String message) {
-        return createEndDeviceEventsFaultMessage(basicMessage, message, null);
-    }
-
-    private FaultMessage createEndDeviceEventsFaultMessage(MessageSeeds basicMessage, ReplyType replyType) {
+    private FaultMessage endDeviceEventsFaultMessage(MessageSeeds basicMessage, ReplyType replyType) {
         EndDeviceEventsFaultMessageType faultMessageType = messageFactory.createEndDeviceEventsFaultMessageType();
         faultMessageType.setReply(replyType);
         return new FaultMessage(basicMessage.translate(thesaurus), faultMessageType);

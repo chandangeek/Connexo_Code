@@ -46,14 +46,23 @@ import java.util.stream.Stream;
 
 public class EndDeviceEventsBuilder {
     private static final String ALARM_CLOSURE_COMMENT = "Alarm closed on %s call";
+    private static final String ALARM_SEVERITY = "alarm";
 
-    private final MeteringService meteringService;
-    private final LogBookService logBookService;
-    private final DeviceService deviceService;
-    private final EndPointConfigurationService endPointConfigurationService;
+    private static final String END_DEVICE_EVENTS_ITEM = "EndDeviceEvents";
+    private static final String END_DEVICE_EVENT_ITEM = END_DEVICE_EVENTS_ITEM + ".EndDeviceEvent";
+    private static final String END_DEVICE_EVENT_CREATED_DATE_ITEM = END_DEVICE_EVENT_ITEM + ".createdDateTime";
+    private static final String END_DEVICE_EVENT_TYPE_ITEM = END_DEVICE_EVENT_ITEM + ".EndDeviceEventType.ref";
+
+    private static final String OBIS_CODE_PROPERTY = "endDeviceEvents.obisCode";
+
+    private static final String WEBSERVICE_NAME = "CIM EndDeviceEvents";
 
     private final DeviceAlarmService deviceAlarmService;
+    private final DeviceService deviceService;
+    private final EndPointConfigurationService endPointConfigurationService;
     private final IssueService issueService;
+    private final LogBookService logBookService;
+    private final MeteringService meteringService;
     private final ThreadPrincipalService threadPrincipalService;
 
     private final EndDeviceEventsFactory endDeviceEventsFactory;
@@ -92,7 +101,7 @@ public class EndDeviceEventsBuilder {
         Optional<String> endDeviceName = extractDeviceName(endDeviceEvent);
 
         if (!endDeviceMrid.isPresent() && !endDeviceName.isPresent()) {
-            faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, "EndDeviceEvents.EndDeviceEvent");
+            faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_EVENT_ITEM);
         }
 
         Optional<String> mrid = extractMrid(endDeviceEvent);
@@ -106,14 +115,9 @@ public class EndDeviceEventsBuilder {
         Optional<Map<String, String>> eventData = extractProperties(endDeviceEvent);
 
         return () -> {
-            EndDevice endDevice = endDeviceMrid.isPresent() ?
-                    meteringService.findEndDeviceByMRID(endDeviceMrid.get())
-                            .orElseThrow(faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.NO_METER_WITH_MRID, endDeviceMrid.get())) :
-                    meteringService.findEndDeviceByName(endDeviceName.get())
-                            .orElseThrow(faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.NO_METER_WITH_NAME, endDeviceName.get()));
-
+            EndDevice endDevice = getEndDevice(endDeviceMrid, endDeviceName);
             EndDeviceEventType eventType = meteringService.getEndDeviceEventType(eventTypeCode)
-                    .orElseThrow(faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.NO_END_DEVICE_EVENT_TYPE_WITH_REF, eventTypeCode));
+                    .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_END_DEVICE_EVENT_TYPE_WITH_REF, eventTypeCode));
 
             EndDeviceEventRecordBuilder builder = endDevice.addEventRecord(eventType, createdDate);
 
@@ -127,9 +131,7 @@ public class EndDeviceEventsBuilder {
             eventData.ifPresent(value -> value.entrySet().stream().forEach(property -> builder.addProperty(property.getKey(), property.getValue())));
             status.ifPresent(value -> builder.setStatus(buildStatus(value)));
 
-            com.elster.jupiter.metering.readings.EndDeviceEvent createdEvent = builder.create();
-
-            return endDeviceEventsFactory.asEndDeviceEvents(createdEvent);
+            return endDeviceEventsFactory.asEndDeviceEvents(builder.create());
         };
     }
 
@@ -142,21 +144,16 @@ public class EndDeviceEventsBuilder {
         Optional<String> endDeviceName = extractDeviceName(endDeviceEvent);
 
         if (!endDeviceMrid.isPresent() && !endDeviceName.isPresent()) {
-            faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, "EndDeviceEvents.EndDeviceEvent");
+            faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICE_EVENT_ITEM);
         }
 
         String eventTypeCode = extractEndDeviceFunctionRefOrThrowException(endDeviceEvent);
 
         return () -> {
-            EndDevice endDevice = endDeviceMrid.isPresent() ?
-                    meteringService.findEndDeviceByMRID(endDeviceMrid.get())
-                            .orElseThrow(faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.NO_METER_WITH_MRID, endDeviceMrid.get())) :
-                    meteringService.findEndDeviceByName(endDeviceName.get())
-                            .orElseThrow(faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.NO_METER_WITH_NAME, endDeviceName.get()));
-
+            EndDevice endDevice = getEndDevice(endDeviceMrid, endDeviceName);
             LogBook logBook = getLogBook(endDevice);
             IssueStatus issueStatus = issueService.findStatus(IssueStatus.RESOLVED).get();
-            User user = (User)threadPrincipalService.getPrincipal();
+            User user = (User) threadPrincipalService.getPrincipal();
 
             List<HistoricalDeviceAlarm> closedAlarms = deviceAlarmService.findOpenAlarmByDeviceIdAndEventTypeAndLogBookId(endDevice.getId(), eventTypeCode, logBook.getId()).find()
                     .stream().map(alarm -> {
@@ -199,14 +196,13 @@ public class EndDeviceEventsBuilder {
 
     private Instant extractCreatedDateOrThrowException(EndDeviceEvent endDeviceEvent) throws FaultMessage {
         return Optional.ofNullable(endDeviceEvent.getCreatedDateTime())
-                .orElseThrow(faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT,
-                        "EndDeviceEvents.EndDeviceEvent.createdDateTime"));
+                .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, END_DEVICE_EVENT_CREATED_DATE_ITEM));
     }
 
     private String extractSeverityOrThrowException(EndDeviceEvent endDeviceEvent) throws FaultMessage {
         return Optional.ofNullable(endDeviceEvent.getSeverity())
-                .filter(severity -> !Checks.is(severity).emptyOrOnlyWhiteSpace() && severity.equalsIgnoreCase("alarm"))
-                .orElseThrow(faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_SEVERITY));
+                .filter(severity -> !Checks.is(severity).emptyOrOnlyWhiteSpace() && severity.equalsIgnoreCase(ALARM_SEVERITY))
+                .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_SEVERITY));
     }
 
     private Optional<Status> extractStatus(EndDeviceEvent endDeviceEvent) {
@@ -247,27 +243,34 @@ public class EndDeviceEventsBuilder {
         return Optional.ofNullable(endDeviceEvent.getEndDeviceEventType())
                 .map(EndDeviceEvent.EndDeviceEventType::getRef)
                 .filter(ref -> !Checks.is(ref).emptyOrOnlyWhiteSpace())
-                .orElseThrow(faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT,
-                        "EndDeviceEvents.EndDeviceEvent[0].EndDeviceEventType.ref"));
+                .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, END_DEVICE_EVENT_TYPE_ITEM));
+    }
+
+    private EndDevice getEndDevice(Optional<String> endDeviceMrid, Optional<String> endDeviceName) throws FaultMessage {
+        return endDeviceMrid.isPresent() ?
+                meteringService.findEndDeviceByMRID(endDeviceMrid.get())
+                        .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_METER_WITH_MRID, endDeviceMrid.get())) :
+                meteringService.findEndDeviceByName(endDeviceName.get())
+                        .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_METER_WITH_NAME, endDeviceName.get()));
     }
 
     private LogBook getLogBook(EndDevice endDevice) throws FaultMessage {
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.findEndPointConfigurations().find().stream()
-                .filter(ws -> ws.getWebServiceName().equalsIgnoreCase("CIM EndDeviceEvents"))
+                .filter(ws -> ws.getWebServiceName().equalsIgnoreCase(WEBSERVICE_NAME))
                 .findFirst()
-                .orElseThrow(faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS));
+                .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_END_POINT_CONFIGURED));
 
         List<EndPointProperty> properties = endPointConfiguration.getProperties();
-        EndPointProperty property = properties.stream().filter(prop -> prop.getName().equalsIgnoreCase("EndDeviceEvents.ObisCode"))
-                .findAny().orElseThrow(faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.NO_PROPERTIES_CONFIGURED));
+        EndPointProperty property = properties.stream().filter(prop -> prop.getName().equalsIgnoreCase(OBIS_CODE_PROPERTY))
+                .findAny().orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_OBIS_CODE_CONFIGURED));
 
         ObisCode logBookObisCode = ObisCode.fromString(property.getValue().toString());
 
         Device device = findDeviceForEndDevice(endDevice);
 
         return logBookService.findByDeviceAndObisCode(device, logBookObisCode)
-                .orElseThrow(faultMessageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS,
-                        MessageSeeds.NO_LOGBOOK_WITH_OBIS_CODE_AND_DEVICE, logBookObisCode, endDevice.getId()));
+                .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_LOGBOOK_WITH_OBIS_CODE_AND_DEVICE,
+                        logBookObisCode, endDevice.getId()));
     }
 
     private Device findDeviceForEndDevice(EndDevice endDevice) {
