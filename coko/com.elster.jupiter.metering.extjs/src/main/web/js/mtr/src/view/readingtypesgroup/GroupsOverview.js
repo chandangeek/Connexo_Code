@@ -32,8 +32,8 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsOverview', {
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         itemId: 'mtr-noReadingTypeGroups',
-                        title: Uni.I18n.translate('readingtypesmanagement.empty.title', 'MTR', 'No reading types found'), //lori set
-                        // title: Uni.I18n.translate('readingtypesmanagement.empty.title', 'MTR', 'No reading type groups found'),
+                        // title: Uni.I18n.translate('readingtypesmanagement.empty.title', 'MTR', 'No reading types found'), //lori set -- sa sterg groups !!!
+                        title: Uni.I18n.translate('readingtypesmanagement.empty.title', 'MTR', 'No reading type groups found'),
                         reasons: [
                             Uni.I18n.translate('readingtypesmanagement.empty.list.noReadingTypes', 'MTR', 'No reading types added yet.'),
                             Uni.I18n.translate('readingtypesmanagement.empty.list.filter', 'MTR', 'No reading types comply with the filter.')
