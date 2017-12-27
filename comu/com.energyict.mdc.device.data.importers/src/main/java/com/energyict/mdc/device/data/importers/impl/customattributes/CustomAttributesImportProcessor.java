@@ -110,7 +110,8 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                         spec.getName(),
                         spec.getPossibleValues().getAllValues().stream().map(q -> String.valueOf(((Quantity) q).getMultiplier())).collect(Collectors.joining(",")),
                         spec.getPossibleValues().getAllValues().stream().map(q -> String.valueOf(((Quantity) q).getUnit())).collect(Collectors.joining(",")));
-            } else if (spec.getPossibleValues() != null
+            } else if (values.getProperty(spec.getName()) !=null
+                    && spec.getPossibleValues() != null
                     && spec.getPossibleValues().isExhaustive()
                     && !isValidEnumValues(spec, values.getProperty(spec.getName()))) {
                 throw new ProcessorException(MessageSeeds.WRONG_ENUM_FORMAT,
