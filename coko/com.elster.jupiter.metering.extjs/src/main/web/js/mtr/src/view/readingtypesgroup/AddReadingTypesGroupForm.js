@@ -521,7 +521,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         name: 'phases'
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.multiplier', 'MTR', 'Multiplier #16'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.multiplier', 'MTR', 'Scale #16'),
                                         store: 'Mtr.store.readingtypes.attributes.Multiplier',
                                         cimIndex: 16,
                                         name: 'metricMultiplier'
