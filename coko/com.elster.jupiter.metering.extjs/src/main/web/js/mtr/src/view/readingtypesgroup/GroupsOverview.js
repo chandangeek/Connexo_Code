@@ -33,19 +33,15 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsOverview', {
                         xtype: 'no-items-found-panel',
                         itemId: 'mtr-noReadingTypeGroups',
                         title: Uni.I18n.translate('readingtypesmanagement.readingtypes.empty.title', 'MTR', 'No reading types found'), //lori set
-                        //title: Uni.I18n.translate('readingtypesmanagement.empty.title', 'MTR', 'No reading type groups found'), // nu am putut sterge groups ->> err in Jenkins
                         reasons: [
-                            Uni.I18n.translate('readingtypesmanagement.empty.list.noReadingTypes', 'MTR', 'No reading types added yet.'),
+                            Uni.I18n.translate('readingtypesmanagement.readingtypes.empty.list.noReadingTypes', 'MTR', 'No reading types added yet.'),
                             Uni.I18n.translate('readingtypesmanagement.empty.list.filter', 'MTR', 'No reading types comply with the filter.')
-                            // Uni.I18n.translate('readingtypesmanagement.empty.list.noReadingTypes', 'MTR', 'No reading type groups added yet.'),
-                            // Uni.I18n.translate('readingtypesmanagement.empty.list.filter', 'MTR', 'No reading type groups comply with the filter.')
                         ],
                         stepItems: [
                             {
                                 xtype:'button',
                                 itemId:'mtr-reading-type-groups-overview-add-button',
-                                text: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.addButton', 'MTR', 'Add reading type PPP')
-                                // text:Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.addButton', 'MTR', 'Add reading type group') // lori set
+                                text: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.addButton', 'MTR', 'Add reading type PPP')  //lori set
                             }
                         ]
                     },

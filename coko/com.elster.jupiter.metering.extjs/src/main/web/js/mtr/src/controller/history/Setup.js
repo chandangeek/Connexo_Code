@@ -40,7 +40,7 @@ Ext.define('Mtr.controller.history.Setup', {
                             action: 'showOverview'
                         },
                         view: {
-                            title: Uni.I18n.translate('readingtypegroups.readingtypegroup', 'MTR', 'Reading type group'),
+                            title: Uni.I18n.translate('readingtypegroups.readingtypegroup', 'MTR', 'Reading type group XYZ'),
                             route: '{aliasName}/view',
                             controller: 'Mtr.controller.readingtypesgroup.ReadingTypesGroup',
                             privileges: Mtr.privileges.ReadingTypes.admin,
@@ -57,7 +57,7 @@ Ext.define('Mtr.controller.history.Setup', {
                         //     // adaug partea de edit  -- lori
                         // },
                         readingtypes: {
-                            title: Uni.I18n.translate('readingtypegroups.readingtypegroup', 'MTR', 'Reading type group'),
+                            title: Uni.I18n.translate('readingtypegroups.readingtypegroup', 'MTR', 'Reading type group XYZ'),
                             route: '{aliasName}/readingtypes',
                             controller: 'Mtr.controller.readingtypesgroup.ReadingTypesGroup',
                             privileges: Mtr.privileges.ReadingTypes.admin,
