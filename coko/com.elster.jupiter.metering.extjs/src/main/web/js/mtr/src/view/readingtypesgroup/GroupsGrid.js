@@ -53,7 +53,7 @@ Ext.define('Mtr.view.readingtypesgroup.GroupsGrid', {
                         xtype:'button',
                         itemId:'mtr-add-readingTypeGroup-button',
                         privileges : Mtr.privileges.ReadingTypes.admin,
-                        text: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.addButton', 'MTR', 'Add reading type')
+                        text: Uni.I18n.translate('readingtypesmanagement.pagingtoolbartop.addButton', 'MTR', 'Add reading type PPP')
                     }
                 ]
             },
