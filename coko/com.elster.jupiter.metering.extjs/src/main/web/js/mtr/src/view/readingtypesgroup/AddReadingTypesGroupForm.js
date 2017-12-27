@@ -448,7 +448,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroupForm', {
                                         name: 'accumulation'
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.flowDirection', 'MTR', 'Flow direction #5'),
+                                        fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.flowDirection', 'MTR', 'Direction of flow #5'),
                                         store: 'Mtr.store.readingtypes.attributes.DirectionOfFlow',
                                         cimIndex: 5,
                                         name: 'flowDirection'
