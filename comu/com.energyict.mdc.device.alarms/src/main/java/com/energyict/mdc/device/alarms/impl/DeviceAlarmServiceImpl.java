@@ -29,7 +29,6 @@ import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -303,13 +302,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     }
 
     @Override
-    public Finder<OpenDeviceAlarm> findOpenAlarmByDeviceIdAndEventTypeAndLogBookId(long id, String eventType, long logBookId) {
+    public Finder<OpenDeviceAlarm> findOpenAlarmByDeviceIdAndEventType(long id, String eventType) {
         Condition condition = where("deviceAlarmRelatedEvents.endDeviceId").isEqualTo(id)
-                .and(where("deviceAlarmRelatedEvents.eventTypeCode").isEqualTo(eventType))
-                .and(where("deviceAlarmRelatedEvents.eventRecord.logBookId").isEqualTo(logBookId));
+                .and(where("deviceAlarmRelatedEvents.eventTypeCode").isEqualTo(eventType));
         List<Class<?>> eagerClasses =  new ArrayList<>();
         eagerClasses.add(OpenDeviceAlarmRelatedEvent.class);
-        eagerClasses.add(EndDeviceEventRecord.class);
         return DefaultFinder.of(OpenDeviceAlarm.class, condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
     }
 

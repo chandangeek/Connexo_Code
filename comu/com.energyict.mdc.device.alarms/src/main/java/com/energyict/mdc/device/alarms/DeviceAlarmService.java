@@ -41,7 +41,7 @@ public interface DeviceAlarmService {
 
     List<IssueGroup> getDeviceAlarmGroupList(IssueGroupFilter builder);
 
-    Finder<OpenDeviceAlarm> findOpenAlarmByDeviceIdAndEventTypeAndLogBookId(long id, String eventType, long logBookId);
+    Finder<OpenDeviceAlarm> findOpenAlarmByDeviceIdAndEventType(long id, String eventType);
 
     Thesaurus thesaurus();
 }
