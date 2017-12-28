@@ -151,11 +151,10 @@ public class EndDeviceEventsBuilder {
 
         return () -> {
             EndDevice endDevice = getEndDevice(endDeviceMrid, endDeviceName);
-            LogBook logBook = getLogBook(endDevice);
             IssueStatus issueStatus = issueService.findStatus(IssueStatus.RESOLVED).get();
             User user = (User) threadPrincipalService.getPrincipal();
 
-            List<HistoricalDeviceAlarm> closedAlarms = deviceAlarmService.findOpenAlarmByDeviceIdAndEventTypeAndLogBookId(endDevice.getId(), eventTypeCode, logBook.getId()).find()
+            List<HistoricalDeviceAlarm> closedAlarms = deviceAlarmService.findOpenAlarmByDeviceIdAndEventType(endDevice.getId(), eventTypeCode).find()
                     .stream().map(alarm -> {
                         alarm.addComment(String.format(ALARM_CLOSURE_COMMENT, user.getName()), user);
                         return alarm.close(issueStatus);
@@ -258,7 +257,7 @@ public class EndDeviceEventsBuilder {
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.findEndPointConfigurations().find().stream()
                 .filter(ws -> ws.getWebServiceName().equalsIgnoreCase(WEBSERVICE_NAME))
                 .findFirst()
-                .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_END_POINT_CONFIGURED));
+                .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_END_POINT_WITH_WEBSERVICE_NAME, WEBSERVICE_NAME));
 
         List<EndPointProperty> properties = endPointConfiguration.getProperties();
         EndPointProperty property = properties.stream().filter(prop -> prop.getName().equalsIgnoreCase(OBIS_CODE_PROPERTY))
