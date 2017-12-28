@@ -18,6 +18,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -65,6 +66,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
     private volatile UserService userService;
+    private volatile BatchService batchService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
@@ -75,9 +77,9 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     @Inject
     public InboundSoapEndpointsActivator(BundleContext bundleContext, Clock clock, ThreadPrincipalService threadPrincipalService,
                                          TransactionService transactionService, MeteringService meteringService, NlsService nlsService,
-                                         UpgradeService upgradeService,
-                                         DeviceLifeCycleService deviceLifeCycleService, DeviceConfigurationService deviceConfigurationService,
-                                         DeviceService deviceService, UserService userService) {
+                                         UpgradeService upgradeService, DeviceLifeCycleService deviceLifeCycleService,
+                                         DeviceConfigurationService deviceConfigurationService, DeviceService deviceService,
+                                         UserService userService, BatchService batchService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -89,6 +91,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceService(deviceService);
         setUserService(userService);
+        setBatchService(batchService);
         activate(bundleContext);
     }
 
@@ -107,6 +110,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(UserService.class).toInstance(userService);
+                bind(BatchService.class).toInstance(batchService);
             }
         };
     }
@@ -182,6 +186,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setBatchService(BatchService batchService) {
+        this.batchService = batchService;
     }
 
     @Override

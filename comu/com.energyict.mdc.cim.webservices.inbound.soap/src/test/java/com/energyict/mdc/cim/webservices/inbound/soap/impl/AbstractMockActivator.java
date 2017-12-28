@@ -17,6 +17,7 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -61,6 +62,8 @@ public abstract class AbstractMockActivator {
     protected UserService userService;
     @Mock
     protected User user;
+    @Mock
+    protected BatchService batchService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -88,6 +91,7 @@ public abstract class AbstractMockActivator {
         activator.setDeviceLifeCycleService(deviceLifeCycleService);
         activator.setDeviceService(deviceService);
         activator.setUserService(userService);
+        activator.setBatchService(batchService);
         activator.activate(mock(BundleContext.class));
     }
 
