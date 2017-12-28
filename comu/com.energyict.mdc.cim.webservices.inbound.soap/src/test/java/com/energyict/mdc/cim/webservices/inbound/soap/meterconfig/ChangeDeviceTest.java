@@ -43,6 +43,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         SimpleEndDeviceFunction simpleEndDeviceFunction = createDefaultEndDeviceFunction();
         meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
         Meter meter = createDefaultMeter();
+        meter.setLotNumber("");
         meter.setConfigurationEvents(createConfigurationEvent());
         meter.setStatus(createStatus());
         meterConfig.getMeter().add(meter);
@@ -57,7 +58,6 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         verify(device).setManufacturer(MANUFACTURER);
         verify(device).setModelNumber(MODEL_NUMBER);
         verify(device).setModelVersion(MODEL_VERSION);
-        //verify(device).setMultiplier(BigDecimal.valueOf(MULTIPLIER), RECEIVED_DATE);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CHANGED);

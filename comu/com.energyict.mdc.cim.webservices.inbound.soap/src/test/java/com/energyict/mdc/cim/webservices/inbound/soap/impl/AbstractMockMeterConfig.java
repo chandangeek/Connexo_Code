@@ -113,7 +113,6 @@ public class AbstractMockMeterConfig extends AbstractMockActivator {
     protected Status createStatus() {
         Status status = new Status();
         status.setValue("Active");
-        status.setReason("changeStatus");
         return status;
     }
 
