@@ -1,0 +1,79 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:met="http://iec.ch/TC57/2011/MeterConfigMessage"
+                  xmlns:mes="http://iec.ch/TC57/2011/schema/message" xmlns:met1="http://iec.ch/TC57/2011/MeterConfig#"
+                  xmlns:cus="http://connexo.elster.com/2017/schema/customattributes">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <met:ChangeMeterConfig>
+            <met:Header>
+                <mes:Verb>change</mes:Verb>
+                <mes:Noun>MeterConfig</mes:Noun>
+            </met:Header>
+            <met:Payload>
+                <met1:MeterConfig>
+                    <met1:Meter>
+                        <!--Optional-->
+                        <met1:mRID>0d5b5d43-e8f2-45fd-b543-670a3012b714</met1:mRID>
+                        <!--Optional-->
+                        <met1:lotNumber>batch</met1:lotNumber>
+                        <!--Optional-->
+                        <met1:serialNumber>100500</met1:serialNumber>
+                        <!--Optional. For now ignored-->
+                        <met1:type>Actaris SL7000</met1:type>
+                        <!--Optional-->
+                        <met1:ConfigurationEvents>
+                            <!--Optional-->
+                            <met1:effectiveDateTime>2017-12-02T12:00:00+03:00</met1:effectiveDateTime>
+                            <!--Optional-->
+                            <met1:reason>changeMultiplier</met1:reason>
+                        </met1:ConfigurationEvents>
+                        <!--Optional. For now ignored-->
+                        <met1:ComFunction/>
+                        <!--Required-->
+                        <met1:SimpleEndDeviceFunction ref="123"/>
+                        <!--Optional-->
+                        <met1:EndDeviceInfo>
+                            <met1:AssetModel>
+                                <!--Optional-->
+                                <met1:modelNumber>2.0</met1:modelNumber>
+                                <!--Optional-->
+                                <met1:modelVersion>3.0</met1:modelVersion>
+                                <!--Optional-->
+                                <met1:Manufacturer>
+                                    <met1:Names>
+                                        <met1:name>manufacturer</met1:name>
+                                    </met1:Names>
+                                </met1:Manufacturer>
+                            </met1:AssetModel>
+                        </met1:EndDeviceInfo>
+                        <!--Optional-->
+                        <!--List of multipliers => only first one is processed-->
+                        <met1:MeterMultipliers>
+                            <met1:value>2</met1:value>
+                        </met1:MeterMultipliers>
+                        <!--Optional-->
+                        <!--No MRID => name is not changed-->
+                        <met1:Names>
+                            <met1:name>DEVICE-111</met1:name>
+                        </met1:Names>
+                        <!--Optional-->
+                        <met1:status>
+                            <met1:dateTime>2017-12-18T12:00:00+03:00</met1:dateTime>
+                            <met1:reason>changeStatus</met1:reason>
+                            <met1:value>Active</met1:value>
+                        </met1:status>
+                    </met1:Meter>
+                    <!--Required-->
+                    <met1:SimpleEndDeviceFunction>
+                        <!--Required-->
+                        <met1:mRID>123</met1:mRID>
+                        <!--Required-->
+                        <met1:configID>Prosumers</met1:configID>
+                        <!--Optional. For now ignored-->
+                        <met1:firmwareID>1.0</met1:firmwareID>
+                    </met1:SimpleEndDeviceFunction>
+                </met1:MeterConfig>
+            </met:Payload>
+        </met:ChangeMeterConfig>
+    </soapenv:Body>
+</soapenv:Envelope>

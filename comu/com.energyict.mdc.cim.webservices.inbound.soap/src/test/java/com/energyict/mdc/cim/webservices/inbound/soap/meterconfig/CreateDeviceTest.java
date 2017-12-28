@@ -4,111 +4,47 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockActivator;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockMeterConfig;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.LocalizedException;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
-import ch.iec.tc57._2011.meterconfig.LifecycleDate;
-import ch.iec.tc57._2011.meterconfig.Manufacturer;
 import ch.iec.tc57._2011.meterconfig.Meter;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfig.MeterMultiplier;
-import ch.iec.tc57._2011.meterconfig.Name;
 import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigFaultMessageType;
-import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigRequestMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
-import ch.iec.tc57._2011.meterconfigmessage.ObjectFactory;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class CreateDeviceTest extends AbstractMockActivator {
-
-    private static final String DEVICE_MRID = UUID.randomUUID().toString();
-    private static final String DEVICE_NAME = "SPE0000001";
-    private static final String SERIAL_NUMBER = "00000001";
-    private static final Instant RECEIVED_DATE = Instant.now();
-    private static final String DEVICE_TYPE_NAME = "Actaris SL7000";
-    private static final String BATCH = "batch";
-    private static final String MANUFACTURER = "Honeywell";
-    private static final String MODEL_NUMBER = "001";
-    private static final String MODEL_VERSION = "1.0.0";
-    private static final String DEVICE_CONFIG_ID = "123";
-    private static final String DEVICE_CONFIGURATION_NAME = "Default";
-    private static final float MULTIPLIER = 1.23456789f;
-    private static final String STATE_NAME = "I'm okay. And you?";
-
-    private final ObjectFactory meterConfigMessageObjectFactory = new ObjectFactory();
-
-    @Mock
-    private DeviceType deviceType;
-    @Mock
-    private DeviceConfiguration deviceConfiguration;
-    @Mock
-    private Device device;
-    @Mock
-    private Batch batch;
-    @Mock
-    private State state;
+public class CreateDeviceTest extends AbstractMockMeterConfig {
 
     @Before
     public void setUp() throws Exception {
-        when(deviceConfigurationService.findDeviceTypeByName(any())).thenReturn(Optional.empty());
-        when(deviceConfigurationService.findDeviceTypeByName(DEVICE_TYPE_NAME)).thenReturn(Optional.of(deviceType));
-        when(deviceType.getName()).thenReturn(DEVICE_TYPE_NAME);
-        when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
-        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
-        when(deviceConfiguration.getId()).thenReturn(Long.valueOf(DEVICE_CONFIG_ID));
-        when(deviceConfiguration.getName()).thenReturn(DEVICE_CONFIGURATION_NAME);
         when(deviceService.newDevice(deviceConfiguration, DEVICE_NAME, BATCH, RECEIVED_DATE)).thenReturn(device);
         when(deviceService.newDevice(deviceConfiguration, DEVICE_NAME, RECEIVED_DATE)).thenReturn(device);
         when(state.getName()).thenReturn(STATE_NAME);
         mockDevice();
-    }
-
-    private void mockDevice() {
-        when(device.getmRID()).thenReturn(DEVICE_MRID);
-        when(device.getName()).thenReturn(DEVICE_NAME);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(device.getSerialNumber()).thenReturn(SERIAL_NUMBER);
-        when(device.getManufacturer()).thenReturn(MANUFACTURER);
-        when(device.getModelNumber()).thenReturn(MODEL_NUMBER);
-        when(device.getModelVersion()).thenReturn(MODEL_VERSION);
-        when(device.getBatch()).thenReturn(Optional.of(batch));
-        when(batch.getName()).thenReturn(BATCH);
-        when(device.getMultiplier()).thenReturn(BigDecimal.valueOf(MULTIPLIER));
-        when(device.getState()).thenReturn(state);
     }
 
     @Test
@@ -123,7 +59,7 @@ public class CreateDeviceTest extends AbstractMockActivator {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_CREATE_DEVICE.translate(thesaurus));
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.EMPTY_LIST.translate(thesaurus));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -366,7 +302,7 @@ public class CreateDeviceTest extends AbstractMockActivator {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_CREATE_DEVICE.translate(thesaurus));
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.NO_SUCH_DEVICE_TYPE.translate(thesaurus));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -397,7 +333,7 @@ public class CreateDeviceTest extends AbstractMockActivator {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_CREATE_DEVICE.translate(thesaurus));
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION.translate(thesaurus));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -430,7 +366,7 @@ public class CreateDeviceTest extends AbstractMockActivator {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_CREATE_DEVICE.translate(thesaurus));
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.MISSING_ELEMENT.translate(thesaurus));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -459,7 +395,7 @@ public class CreateDeviceTest extends AbstractMockActivator {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_CREATE_DEVICE.translate(thesaurus));
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND.translate(thesaurus));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -490,7 +426,7 @@ public class CreateDeviceTest extends AbstractMockActivator {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_CREATE_DEVICE.translate(thesaurus));
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.MISSING_ELEMENT.translate(thesaurus));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -522,7 +458,7 @@ public class CreateDeviceTest extends AbstractMockActivator {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.UNABLE_TO_CREATE_DEVICE.translate(thesaurus));
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.MISSING_ELEMENT.translate(thesaurus));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -536,81 +472,5 @@ public class CreateDeviceTest extends AbstractMockActivator {
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
-    }
-
-    private SimpleEndDeviceFunction createDefaultEndDeviceFunction() {
-        return createSimpleEndDeviceFunction(DEVICE_CONFIG_ID, DEVICE_CONFIGURATION_NAME);
-    }
-
-    private SimpleEndDeviceFunction createSimpleEndDeviceFunction(String deviceConfigId, String deviceConfigurationName) {
-        SimpleEndDeviceFunction simpleEndDeviceFunction = new SimpleEndDeviceFunction();
-        simpleEndDeviceFunction.setMRID(deviceConfigId);
-        simpleEndDeviceFunction.setConfigID(deviceConfigurationName);
-        return simpleEndDeviceFunction;
-    }
-
-    private Meter createDefaultMeter() {
-        Meter meter = createMeter();
-        meter.setLotNumber(BATCH);
-        meter.setSerialNumber(SERIAL_NUMBER);
-        meter.getMeterMultipliers().add(createMeterMultiplier(MULTIPLIER));
-        EndDeviceInfo endDeviceInfo = createEndDeviceInfo(MODEL_NUMBER, MODEL_VERSION, MANUFACTURER);
-        meter.setEndDeviceInfo(endDeviceInfo);
-        return meter;
-    }
-
-    private Meter createMeter() {
-        Meter meter = createMeter(DEVICE_NAME, RECEIVED_DATE, DEVICE_TYPE_NAME);
-        Meter.SimpleEndDeviceFunction simpleEndDeviceFunctionRef = createSimpleEndDeviceFunctionRef(DEVICE_CONFIG_ID);
-        meter.getComFunctionOrConnectDisconnectFunctionOrSimpleEndDeviceFunction().add(simpleEndDeviceFunctionRef);
-        return meter;
-    }
-
-    private Meter createMeter(String deviceName, Instant receivedDate, String deviceTypeName) {
-        Meter meter = new Meter();
-        meter.getNames().add(name(deviceName));
-        LifecycleDate lifecycleDate = new LifecycleDate();
-        meter.setLifecycle(lifecycleDate);
-        lifecycleDate.setReceivedDate(receivedDate);
-        meter.setType(deviceTypeName);
-        return meter;
-    }
-
-    private MeterMultiplier createMeterMultiplier(float multiplier) {
-        MeterMultiplier meterMultiplier = new MeterMultiplier();
-        meterMultiplier.setValue(multiplier);
-        return meterMultiplier;
-    }
-
-    private EndDeviceInfo createEndDeviceInfo(String modelNumber, String modelVersion, String manufacturerName) {
-        EndDeviceInfo endDeviceInfo = new EndDeviceInfo();
-        ProductAssetModel productAssetModel = new ProductAssetModel();
-        endDeviceInfo.setAssetModel(productAssetModel);
-        productAssetModel.setModelNumber(modelNumber);
-        productAssetModel.setModelVersion(modelVersion);
-        Manufacturer manufacturer = new Manufacturer();
-        manufacturer.getNames().add(name(manufacturerName));
-        productAssetModel.setManufacturer(manufacturer);
-        return endDeviceInfo;
-    }
-
-    private Meter.SimpleEndDeviceFunction createSimpleEndDeviceFunctionRef(String deviceConfigId) {
-        Meter.SimpleEndDeviceFunction simpleEndDeviceFunctionRef = new Meter.SimpleEndDeviceFunction();
-        simpleEndDeviceFunctionRef.setRef(deviceConfigId);
-        return simpleEndDeviceFunctionRef;
-    }
-
-    private MeterConfigRequestMessageType createMeterConfigRequest(MeterConfig meterConfig) {
-        MeterConfigPayloadType meterConfigPayload = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
-        meterConfigPayload.setMeterConfig(meterConfig);
-        MeterConfigRequestMessageType meterConfigRequestMessage = meterConfigMessageObjectFactory.createMeterConfigRequestMessageType();
-        meterConfigRequestMessage.setPayload(meterConfigPayload);
-        return meterConfigRequestMessage;
-    }
-
-    private Name name(String value) {
-        Name name = new Name();
-        name.setName(value);
-        return name;
     }
 }

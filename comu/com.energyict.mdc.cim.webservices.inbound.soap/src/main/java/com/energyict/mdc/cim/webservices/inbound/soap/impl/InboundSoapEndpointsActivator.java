@@ -5,7 +5,6 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -20,9 +19,10 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
+import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -54,7 +54,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
 
     public static final String COMPONENT_NAME = "SIM";
 
-    private static final String CIM_MERER_CONFIG = "CIM MeterConfig";
+    private static final String CIM_METER_CONFIG = "CIM MeterConfig";
     private static final String CIM_GET_END_DEVICE_EVENTS = "CIM GetEndDeviceEvents";
 
     private volatile DataModel dataModel;
@@ -64,11 +64,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MeteringService meteringService;
-    private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
     private volatile UserService userService;
+    private volatile BatchService batchService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
@@ -79,9 +79,9 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     @Inject
     public InboundSoapEndpointsActivator(BundleContext bundleContext, Clock clock, ThreadPrincipalService threadPrincipalService,
                                          TransactionService transactionService, MeteringService meteringService, NlsService nlsService,
-                                         UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService,
-                                         DeviceLifeCycleService deviceLifeCycleService, DeviceConfigurationService deviceConfigurationService,
-                                         DeviceService deviceService, UserService userService) {
+                                         UpgradeService upgradeService, DeviceLifeCycleService deviceLifeCycleService,
+                                         DeviceConfigurationService deviceConfigurationService, DeviceService deviceService,
+                                         UserService userService, BatchService batchService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -89,11 +89,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
         setMeteringService(meteringService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
-        setMetrologyConfigurationService(metrologyConfigurationService);
         setDeviceLifeCycleService(deviceLifeCycleService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceService(deviceService);
         setUserService(userService);
+        setBatchService(batchService);
         activate(bundleContext);
     }
 
@@ -108,11 +108,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(MeteringService.class).toInstance(meteringService);
-                bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(DeviceLifeCycleService.class).toInstance(deviceLifeCycleService);
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(UserService.class).toInstance(userService);
+                bind(BatchService.class).toInstance(batchService);
             }
         };
     }
@@ -130,7 +130,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     }
 
     private void registerServices(BundleContext bundleContext) {
-        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterConfigEndpoint.class), CIM_MERER_CONFIG);
+        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterConfigEndpoint.class), CIM_METER_CONFIG);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(GetEndDeviceEventsEndpoint.class), CIM_GET_END_DEVICE_EVENTS);
     }
 
@@ -154,11 +154,6 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
-        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Reference
@@ -194,6 +189,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setBatchService(BatchService batchService) {
+        this.batchService = batchService;
     }
 
     @Override
