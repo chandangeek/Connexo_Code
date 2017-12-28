@@ -103,6 +103,11 @@ class DeviceBuilder {
             Device changedDevice = mrid.isPresent() ? findDeviceByMRID(mrid.get()) :
                     deviceService.findDeviceByName(deviceName)
                             .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_NAME, deviceName));
+
+            String currentModelNumber = changedDevice.getModelNumber();
+            String currentModelVersion = changedDevice.getModelVersion();
+            String currentManufacturer = changedDevice.getManufacturer();
+
             if (statusReason.isPresent()) {
                 EventReason.forReason(statusReason.get())
                         .filter(EventReason.CHANGE_STATUS::equals)
@@ -137,9 +142,9 @@ class DeviceBuilder {
             }
 
             serialNumber.ifPresent(changedDevice::setSerialNumber);
-            manufacturer.ifPresent(changedDevice::setManufacturer);
-            modelNumber.ifPresent(changedDevice::setModelNumber);
-            modelVersion.ifPresent(changedDevice::setModelVersion);
+            changedDevice.setModelNumber(modelNumber.orElse(currentModelNumber));
+            changedDevice.setModelVersion(modelVersion.orElse(currentModelVersion));
+            changedDevice.setManufacturer(manufacturer.orElse(currentManufacturer));
             changedDevice.save();
 
             return changedDevice;
@@ -240,23 +245,29 @@ class DeviceBuilder {
                 .filter(lotNumber -> !Checks.is(lotNumber).emptyOrOnlyWhiteSpace());
     }
 
+    private Optional<EndDeviceInfo> extractEndDeviceInfo(Meter meter) {
+        return Optional.ofNullable(meter.getEndDeviceInfo());
+    }
+
+    private Optional<ProductAssetModel> extractAssetModel(Meter meter) {
+        return extractEndDeviceInfo(meter)
+                .map(EndDeviceInfo::getAssetModel);
+    }
+
     private Optional<String> extractManufacturer(Meter meter) {
-        return Optional.ofNullable(meter.getEndDeviceInfo())
-                .flatMap(endDeviceInfo -> Optional.ofNullable(endDeviceInfo.getAssetModel()))
-                .flatMap(productAssetModel -> Optional.ofNullable(productAssetModel.getManufacturer()))
+        return extractAssetModel(meter)
+                .map(ProductAssetModel::getManufacturer)
                 .flatMap(manufacturer -> extractName(manufacturer.getNames()));
     }
 
     private Optional<String> extractModelNumber(Meter meter) {
-        return Optional.ofNullable(meter.getEndDeviceInfo())
-                .map(EndDeviceInfo::getAssetModel)
+        return extractAssetModel(meter)
                 .map(ProductAssetModel::getModelNumber)
                 .filter(modelNumber -> !Checks.is(modelNumber).emptyOrOnlyWhiteSpace());
     }
 
     private Optional<String> extractModelVersion(Meter meter) {
-        return Optional.ofNullable(meter.getEndDeviceInfo())
-                .map(EndDeviceInfo::getAssetModel)
+        return extractAssetModel(meter)
                 .map(ProductAssetModel::getModelVersion)
                 .filter(modelVersion -> !Checks.is(modelVersion).emptyOrOnlyWhiteSpace());
     }
