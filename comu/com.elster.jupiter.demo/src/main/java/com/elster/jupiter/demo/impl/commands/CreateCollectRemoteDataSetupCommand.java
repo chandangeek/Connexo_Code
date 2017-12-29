@@ -7,6 +7,7 @@ package com.elster.jupiter.demo.impl.commands;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.elster.jupiter.demo.impl.builders.DeviceConfigurationBuilder;
 import com.elster.jupiter.demo.impl.builders.FavoriteDeviceGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
@@ -23,7 +24,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.ports.ComPortType;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -152,10 +152,8 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     }
 
     private void createComBackground() {
-        Builders.from(new InboundComPortPoolTpl(InboundComPortPoolTpl.INBOUND_SERVLET_POOL_NAME, false,
-                "com.energyict.mdc.protocol.inbound.dlms.DlmsSerialNumberDiscover", ComPortType.SERVLET)).get();
-        Builders.from(new InboundComPortPoolTpl(InboundComPortPoolTpl.INBOUND_SERVLET_BEACON_PSK, true,
-                "com.energyict.mdc.protocol.inbound.g3.Beacon3100PushEventNotification", ComPortType.TCP)).get();
+        Builders.from(InboundComPortPoolTpl.INBOUND_SERVLET_POOL_NAME).get();
+        Builders.from(InboundComPortPoolTpl.INBOUND_SERVLET_BEACON_PSK).get();
 
         ComServer comServer = Builders.from(ComServerTpl.DEITVS_099).get();
         Builders.from(OutboundTCPComPortTpl.OUTBOUND_TCP_1).withComServer(comServer).get();
@@ -240,6 +238,11 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     }
 
     private void createDeviceStructure() {
+        Stream.of(DeviceTypeTpl.AM540_DLMS,
+                DeviceTypeTpl.BEACON_3100
+        ).forEach(deviceTypeTpl -> {
+            executeTransaction(() -> createDeviceStructureForDeviceType(deviceTypeTpl));
+        });
         Stream.of(DeviceTypeTpl.Actaris_SL7000,
                 DeviceTypeTpl.Elster_AS1440,
                 DeviceTypeTpl.Elster_A1800,
@@ -263,6 +266,12 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         }
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Actaris_SL7000 || deviceTypeTpl == DeviceTypeTpl.Siemens_7ED) {
             createDevices(Builders.from(DeviceConfigurationTpl.CONSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount);
+        }
+        if (deviceTypeTpl == DeviceTypeTpl.BEACON_3100) {
+            createDevices(Builders.from(DeviceConfigurationTpl.DEFAULT_BEACON).get(), deviceTypeTpl, deviceCount);
+        }
+        if (deviceTypeTpl == DeviceTypeTpl.AM540_DLMS) {
+            createDevices(Builders.from(DeviceConfigurationTpl.DEFAULT_AM540).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount);
         }
     }
 
@@ -297,15 +306,22 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
 
     private void createDeviceStructureForDeviceType(DeviceTypeTpl deviceTypeTpl) {
         DeviceType deviceType = Builders.from(deviceTypeTpl).withPostBuilder(this.attachDeviceTypeCPSPostBuilderProvider.get()).get();
-        createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.PROSUMERS, deviceTypeTpl);
-        createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.CONSUMERS, deviceTypeTpl);
+        if (deviceTypeTpl != DeviceTypeTpl.BEACON_3100 && deviceTypeTpl != DeviceTypeTpl.AM540_DLMS) {
+            createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.PROSUMERS, deviceTypeTpl);
+            createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.CONSUMERS, deviceTypeTpl);
+        }
+        if (deviceTypeTpl == DeviceTypeTpl.BEACON_3100) {
+            createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.DEFAULT_BEACON, deviceTypeTpl);
+        }
+        if (deviceTypeTpl == DeviceTypeTpl.AM540_DLMS) {
+            createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.DEFAULT_AM540, deviceTypeTpl);
+        }
     }
 
     private void createDeviceConfigurationWithDevices(DeviceType deviceType, DeviceConfigurationTpl deviceConfigurationTpl, DeviceTypeTpl deviceTypeTpl) {
-        DeviceConfiguration configuration = Builders.from(deviceConfigurationTpl).withDeviceType(deviceType).withValidateOnStore(deviceTypeTpl.isValidateOnStore())
-                .withPostBuilder(this.connectionMethodsProvider.get().withHost(host).withDefaultOutboundTcpProperties())
-                .withPostBuilder(new ChannelsOnDevConfPostBuilder())
-                .get();
+        DeviceConfigurationBuilder deviceConfigurationBuilder = Builders.from(deviceConfigurationTpl).withDeviceType(deviceType).withValidateOnStore(deviceTypeTpl.isValidateOnStore());
+        DeviceConfiguration configuration = deviceConfigurationTpl.isDirectlyAddressable() ? deviceConfigurationBuilder.withPostBuilder(this.connectionMethodsProvider.get().withHost(host).withDefaultOutboundTcpProperties())
+                .withPostBuilder(new ChannelsOnDevConfPostBuilder()).get() : deviceConfigurationBuilder.get();
         configuration.activate();
     }
 
