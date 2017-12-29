@@ -4,11 +4,7 @@
 
 package com.elster.jupiter.demo.impl.commands.devices;
 
-import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.PlaintextPassphrase;
-import com.elster.jupiter.pki.PlaintextSymmetricKey;
-import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.pki.*;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.SecurityAccessor;
@@ -66,7 +62,7 @@ public class KeyAccessorValuePersister {
                 .stream()
                 .filter(keyAccessor -> keyAccessor.getKeyAccessorType().equals(securityAccessorType))
                 .findFirst()
-                .orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
+                .orElseGet(() -> device.newKeyAccessor(securityAccessorType));
     }
 
     private void createNewActualValue(SecurityAccessor<SecurityValueWrapper> securityAccessor) {
