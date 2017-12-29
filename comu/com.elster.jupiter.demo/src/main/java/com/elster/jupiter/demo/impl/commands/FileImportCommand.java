@@ -96,6 +96,11 @@ public class FileImportCommand {
         }
 
         @Override
+        public String getPath(){
+            throw new UnsupportedOperationException("Virtual file occurrence has no real file occurrence");
+        }
+
+        @Override
         public Status getStatus() {
             return Status.PROCESSING;
         }
