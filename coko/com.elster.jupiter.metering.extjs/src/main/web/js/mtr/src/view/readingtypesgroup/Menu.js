@@ -20,12 +20,14 @@ Ext.define('Mtr.view.readingtypesgroup.Menu' , {
             {
                 text: Uni.I18n.translate('readingtypes.readingTypeGroupOverview', 'MTR', 'Overview'),
                 itemId: 'reading-type-group-overview-link',
-                href: me.router.getRoute('administration/readingtypegroups/view').buildUrl()
+                href: me.router.getRoute('administration/readingtypes1/view').buildUrl()
+                // href: me.router.getRoute('administration/readingtypegroups/view').buildUrl() // lori set
             },
             {
                 text: Uni.I18n.translate('readingtypes.readingTypeGroupReadingTypes', 'MTR', 'Reading types'),
                 itemId: 'reading-type-group-reading-types-link',
-                href: me.router.getRoute('administration/readingtypegroups/readingtypes').buildUrl({aliasName: me.router.arguments.aliasName})
+                href: me.router.getRoute('administration/readingtypes1/readingtypes').buildUrl({aliasName: me.router.arguments.aliasName})
+                //href: me.router.getRoute('administration/readingtypegroups/readingtypes').buildUrl({aliasName: me.router.arguments.aliasName})
             }
         ]
 

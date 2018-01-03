@@ -11,10 +11,8 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroup', {
         'Mtr.view.readingtypesgroup.AddReadingTypesGroupForm'
     ],
 
-
-
     loadRecord: function (record) {
-        var me = this;   //lori
+        var me = this;
         me.down('add-reading-types-group-form').loadRecord(record);
     },
 
@@ -23,7 +21,7 @@ Ext.define('Mtr.view.readingtypesgroup.AddReadingTypesGroup', {
         me.content = {
             xtype: 'form',
             ui: 'large',
-            title: Uni.I18n.translate('readingtypesmanagement.addreadingtypesgroup.title', 'MTR', 'Add reading types group'),
+            title: Uni.I18n.translate('readingtypesmanagement.addreadingtypesgroup.title', 'MTR', 'Add reading type group'), //lori set - trebuie sters group !!!
             items: [
                 {
                     xtype: 'add-reading-types-group-form'

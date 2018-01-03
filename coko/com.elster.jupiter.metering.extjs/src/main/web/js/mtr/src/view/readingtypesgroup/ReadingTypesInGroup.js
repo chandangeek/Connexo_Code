@@ -66,7 +66,7 @@ Ext.define('Mtr.view.readingtypesgroup.ReadingTypesInGroup', {
                         itemId: 'reading-types-empty-grid',
                         title: Uni.I18n.translate('readingtypesmanagement.readingtypes.empty.title', 'MTR', 'No reading types found'),
                         reasons: [
-                            Uni.I18n.translate('readingtypesmanagement.readingtypes.empty.list.item1', 'MTR', 'There are no reading types in this group.'),
+                            Uni.I18n.translate('readingtypesmanagement.readingtypes.empty.list.item1', 'MTR', 'There are no reading types in this set.'),
                             Uni.I18n.translate('readingtypesmanagement.readingtypes.empty.list.item2', 'MTR', 'No reading types comply with the filter.')
                         ]
                     },

@@ -78,13 +78,13 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
             '#add-reading-type-button': {
                 click: this.browseAdd
             },
-            '#overview-add-reading-type-button': {
-                click: this.browseAdd
-            },
-            '#mtr-add-readingTypeGroup-button': {  //lori
+            // '#overview-add-reading-type-button': {
+            //     click: this.browseAdd
+            // },
+            '#mtr-add-readingTypeGroup-button': {
                 click: this.browseGroupAdd
             },
-            '#mtr-reading-type-groups-overview-add-button': {  //lori
+            '#mtr-reading-type-groups-overview-add-button': {
                 click: this.browseGroupAdd
             },
             'reading-type-groups-grid': {
@@ -118,11 +118,12 @@ Ext.define('Mtr.controller.readingtypesgroup.ReadingTypesGroup', {
         me.getGroupPreviewForm().loadRecord(record);
     },
 
-    browseGroupAdd: function () {  //lori
+    browseGroupAdd: function () {
         var router = this.getController('Uni.controller.history.Router'),
             addController = this.getController('Mtr.controller.readingtypesgroup.AddReadingTypesGroup');
         addController.qString = router.getQueryStringValues();
-        router.getRoute('administration/readingtypegroups/add').forward();  //lori
+        // router.getRoute('administration/readingtypegroups/add').forward();  //lori
+        router.getRoute('administration/readingtypes1/add').forward();
     },
 
     browseAdd: function () {

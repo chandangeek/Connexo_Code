@@ -51,7 +51,6 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
         'Mtr.store.readingtypesgroup.attributes.ConsumptionTier'
     ],
 
-
     refs: [
         {
             ref: 'addReadingTypeForm',
@@ -128,18 +127,6 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
     init: function () {
         var me = this;
         this.control({
-            // '#add-reading-types-group #add-reading-types-group-basic-add-button': {
-            //     click: this.addBasicButtonClick
-            // },
-            // '#add-reading-types-group #add-reading-types-group-extended-add-button': {
-            //     click: this.addExtendedButtonClick
-            // },
-            // '#add-reading-types-group #add-reading-types-group-basic-cancel-button': {
-            //     click: this.goBack
-            // },
-            // '#add-reading-types-group #add-reading-types-group-extended-cancel-button': {
-            //     click: this.goBack
-            // },
             '#add-reading-types-group #add-reading-types-group-general-add-button': {
                 click: this.addGeneralButtonClick
             },
@@ -153,21 +140,16 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
                 change: this.basicMeasurementKindChange
             },
             '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=basicMacroPeriod]': {
-                change: this.basicMacroPeriodChange //,
-                //select:this.basicMacroPeriodSelect
+                change: this.basicMacroPeriodChange
             }
         });
     },
 
-
     showOverview: function () {
         var me = this,
             widget,
-            record = Ext.create('Mtr.model.readingtypesgroup.AddReadingTypeGroup'); //lori
-        // record = Ext.create('Mtr.model.readingtypes.ReadingTypeGroup'); //lori
-
-        //deocamdata il folosesc pe cel de la reading types
-        widget = Ext.widget('add-reading-types-group'); // lori
+            record = Ext.create('Mtr.model.readingtypesgroup.AddReadingTypeGroup');
+        widget = Ext.widget('add-reading-types-group');
         widget.loadRecord(record);
         me.getApplication().fireEvent('changecontentevent', widget);
     },
@@ -198,8 +180,9 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
         me.getBasicAggregate().setDisabled(commodity == 0);
 
         var showAdditionalParameters = (commodity == 1 || commodity == 2);
+        var showMetricComboBox = (commodity == 1 || commodity == 2) || (commodity == 7 || commodity == 9);
 
-        me.getBasicMetricMultiplier().setVisible(showAdditionalParameters);
+        me.getBasicMetricMultiplier().setVisible(showMetricComboBox);
         me.getBasicMetricMultiplier().setDisabled(commodity == 0);
 
         me.getBasicPhases().setVisible(showAdditionalParameters);
@@ -225,9 +208,9 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
 
     basicMacroPeriodSelect: function (combo, records) {
         if (records.length > 0) {
-
         }
     },
+
     basicMacroPeriodChange: function (combo, newValue) {
         this.prepareAccumulation();
         this.prepareMeasuringPeriod();
@@ -275,12 +258,11 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
             router = this.getController('Uni.controller.history.Router'),
             form = me.getAddReadingTypeForm(),
             errorMsg = me.getAddReadingTypeFormErrorMessage(),
-            record = form.getBasicRecord();//updateRecord().getRecord(),
-        specifyBy = record.get('specifyBy');
-        // ,
-        //  addCount = specifyBy == 'form' ? me.getAddReadingTypeForm().addBasicCount : 1;
+            record = form.getBasicRecord(),
+            specifyBy = record.get('specifyBy'),
+            addCount = specifyBy == 'form' ? me.getAddReadingTypeForm().addBasicCount : 1;
         if (form.isValid()) {
-            // if (addCount > 0) {
+            if (addCount > 0) {
                 errorMsg.hide();
                 if (specifyBy == 'form') {
                     record.set('mRID', null);
@@ -312,7 +294,8 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
                                 errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.readingTypesExists', 'MTR', 'Reading types already exists'));
                                 errorMsg.show()
                             } else if (specifyBy == 'cim') {
-                                router.getRoute('administration/readingtypegroups').forward();
+                                // router.getRoute('administration/readingtypegroups').forward(); // lori set
+                                router.getRoute('administration/readingtypes1').forward();
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('readingtypesmanagment.addReadingType.acknowledge', 'MTR', '{0} reading types added', [count]));
                             }
                         }
@@ -325,10 +308,10 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
                         }
                     }
                 });
-            // } else {
-            //     errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.noAttrSpecified', 'MTR', 'No attributes specified'));
-            //     errorMsg.show();
-            // }
+            } else {
+                errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.noAttrSpecified', 'MTR', 'No attributes specified'));
+                errorMsg.show();
+            }
         } else {
             errorMsg.setText(errorMsg.defaultText);
             errorMsg.show();
@@ -340,12 +323,11 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
             router = this.getController('Uni.controller.history.Router'),
             form = me.getAddReadingTypeForm(),
             errorMsg = me.getAddReadingTypeFormErrorMessage(),
-            record = form.getExtendedRecord();//updateRecord().getRecord(),
+            record = form.getExtendedRecord();
         specifyBy = record.get('specifyBy');
-        //,
-        //addCount = specifyBy == 'form' ? me.getAddReadingTypeForm().addExtendedCount : 1;
+        addCount = specifyBy == 'form' ? me.getAddReadingTypeForm().addExtendedCount : 1;
         if (form.isValid()) {
-            //if (addCount > 0) {
+            if (addCount > 0) {
                 errorMsg.hide();
                 if (specifyBy == 'form') {
                     record.set('mRID', null);
@@ -377,7 +359,8 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
                                 errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.readingTypesExists', 'MTR', 'Reading types already exists'));
                                 errorMsg.show()
                             } else if (specifyBy == 'cim') {
-                                router.getRoute('administration/readingtypegroups').forward();
+                                //router.getRoute('administration/readingtypegroups').forward(); // lori set
+                                router.getRoute('administration/readingtypes1').forward();
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('readingtypesmanagment.addReadingType.acknowledge', 'MTR', '{0} reading types added', [count]));
                             }
                         }
@@ -390,10 +373,10 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
                         }
                     }
                 });
-            // } else {
-            //     errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.noAttrSpecified', 'MTR', 'No attributes specified'));
-            //     errorMsg.show();
-            // }
+            } else {
+                errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.noAttrSpecified', 'MTR', 'No attributes specified'));
+                errorMsg.show();
+            }
         } else {
             errorMsg.setText(errorMsg.defaultText);
             errorMsg.show();
@@ -416,8 +399,11 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
             success: function (record, operation) {
                 var response = Ext.JSON.decode(operation.response.responseText),
                     addedCount = response.countCreatedReadingTypes;
-                router.getRoute('administration/readingtypegroups').forward();
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.readingTypesAddedAcknowledge', addedCount, 'MTR', '{0} reading types added', '{0} reading type added', '{0} reading types added'));
+                //router.getRoute('administration/readingtypegroups').forward();  // lori set
+                router.getRoute('administration/readingtypes1').forward();
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.readingTypesAddedAcknowledge',
+                        addedCount, 'MTR', '{0} reading types added', '{0} reading type added', '{0} reading types added'));
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
@@ -448,7 +434,8 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
             success: function (record, operation) {
                 var response = Ext.JSON.decode(operation.response.responseText),
                     addedCount = response.countCreatedReadingTypes;
-                router.getRoute('administration/readingtypegroups').forward();
+                //router.getRoute('administration/readingtypegroups').forward();  // lori set
+                router.getRoute('administration/readingtypes1').forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.readingTypesAddedAcknowledge', addedCount, 'MTR', '{0} reading types added', '{0} reading type added', '{0} reading types added'));
             },
             failure: function (record, operation) {
@@ -464,12 +451,11 @@ Ext.define('Mtr.controller.readingtypesgroup.AddReadingTypesGroup', {
         });
     },
 
-
     goBack: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
-
-        router.getRoute('administration/readingtypegroups').forward(null,
+        //router.getRoute('administration/readingtypegroups').forward(null,
+        router.getRoute('administration/readingtypes1').forward(null,
             me.qString
         );
     }

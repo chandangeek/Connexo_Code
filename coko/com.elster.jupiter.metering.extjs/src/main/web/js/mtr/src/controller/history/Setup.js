@@ -14,15 +14,19 @@ Ext.define('Mtr.controller.history.Setup', {
             route: 'administration',
             disabled: true,
             items: {
-                readingtypegroups: {   //lori
-                    title: Uni.I18n.translate('readingtypes.readingTypeGroups', 'MTR', 'Reading type groups'),
-                    route: 'readingtypegroups',
+                //readingtypegroups: { // lori set
+                readingtypes1: {
+                    // title: Uni.I18n.translate('readingtypes.readingTypeGroups', 'MTR', 'Reading type groups'), //lori set
+                    title: Uni.I18n.translate('readingtypes.readingTypes1', 'MTR', 'Reading types'),
+                    route: 'readingtypes1',
+                    // route: 'readingtypegroups', // lori set
                     controller: 'Mtr.controller.readingtypesgroup.ReadingTypesGroup',
                     privileges : Mtr.privileges.ReadingTypes.view,
                     action: 'showOverview',
                     items: {
                         add: {
-                            title: Uni.I18n.translate('readingtypes.readingTypeGroups.add', 'MTR', 'Add reading types'),
+                            //title: Uni.I18n.translate('readingtypes.readingTypeGroups.add', 'MTR', 'Add reading type group'), // lori set
+                            title: Uni.I18n.translate('readingtypes.readingTypes1.add', 'MTR', 'Add reading type'),
                             route: 'add',
                             controller: 'Mtr.controller.readingtypesgroup.AddReadingTypesGroup',
                             privileges: Mtr.privileges.ReadingTypes.admin,
@@ -36,7 +40,7 @@ Ext.define('Mtr.controller.history.Setup', {
                             action: 'showOverview'
                         },
                         view: {
-                            title: Uni.I18n.translate('readingtypegroups.readingtypegroup', 'MTR', 'Reading type group'),
+                            title: Uni.I18n.translate('readingtypegroups.readingtypegroup', 'MTR', 'Reading type group XYZ'),
                             route: '{aliasName}/view',
                             controller: 'Mtr.controller.readingtypesgroup.ReadingTypesGroup',
                             privileges: Mtr.privileges.ReadingTypes.admin,
@@ -49,8 +53,11 @@ Ext.define('Mtr.controller.history.Setup', {
                                 return this;
                             }
                         },
+                        // {
+                        //     // adaug partea de edit  -- lori
+                        // },
                         readingtypes: {
-                            title: Uni.I18n.translate('readingtypegroups.readingtypegroup', 'MTR', 'Reading type group'),
+                            title: Uni.I18n.translate('readingtypegroups.readingtypegroup', 'MTR', 'Reading type group XYZ'),
                             route: '{aliasName}/readingtypes',
                             controller: 'Mtr.controller.readingtypesgroup.ReadingTypesGroup',
                             privileges: Mtr.privileges.ReadingTypes.admin,
