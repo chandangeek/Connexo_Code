@@ -8,16 +8,17 @@ import com.elster.jupiter.demo.impl.builders.InboundComPortPoolBuilder;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.ports.ComPortType;
 
-public enum InboundComPortPoolTpl implements Template<InboundComPortPool, InboundComPortPoolBuilder> {
-    INBOUND_SERVLET_POOL_NAME("Inbound Servlet Pool", false, "com.energyict.mdc.protocol.inbound.dlms.DlmsSerialNumberDiscover", ComPortType.SERVLET),
-    INBOUND_SERVLET_BEACON_PSK("Beacon PSK", true, "com.energyict.mdc.protocol.inbound.g3.Beacon3100PushEventNotification", ComPortType.TCP);
+public class InboundComPortPoolTpl implements Template<InboundComPortPool, InboundComPortPoolBuilder>{
+
+    public static final String INBOUND_SERVLET_POOL_NAME = "Inbound Servlet Pool";
+    public static final String INBOUND_SERVLET_BEACON_PSK = "Beacon PSK";
 
     private String name;
     private boolean isActive;
     private String protocolPluggableClassName;
     private ComPortType comPortType;
 
-    InboundComPortPoolTpl(String name, boolean isActive, String protocolPluggableClassName, ComPortType comPortType) {
+    public InboundComPortPoolTpl(String name, boolean isActive, String protocolPluggableClassName, ComPortType comPortType) {
         this.name = name;
         this.isActive = isActive;
         this.protocolPluggableClassName = protocolPluggableClassName;

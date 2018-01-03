@@ -159,15 +159,7 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
     V200PR_6("Elster V200PR-6", "com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice", 0, null,
             Arrays.asList(RegisterTypeTpl.BULK_WATER_VOLUME),
             Arrays.asList(LoadProfileTypeTpl.HOURLY_WATER),
-            Collections.emptyList(), true),
-    BEACON_3100("Beacon 3100", "com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100", 0, OutboundTCPComPortPoolTpl.OUTBOUND_TCP,
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.emptyList(), true),
-    AM540_DLMS("AM540 DLMS (IDIS P2)", "com.energyict.protocolimplv2.dlms.idis.am540.AM540", 0, null,
-            Arrays.asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_BULK_A_MINUS, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2),
-            Collections.singletonList(LoadProfileTypeTpl._15_MIN_ELECTRICITY),
-            Collections.singletonList(LogBookTypeTpl.STANDARD_EVENT_LOG), true);
+            Collections.emptyList(), true);
 
     private String longName;
     private String protocol;

@@ -8,17 +8,20 @@ import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
-import com.energyict.mdc.device.config.*;
+import com.energyict.obis.ObisCode;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration, DeviceConfigurationBuilder> {
@@ -31,7 +34,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
     private List<RegisterType> registerTypes;
     private List<LoadProfileType> loadProfileTypes;
     private List<LogBookType> logBookTypes;
-    private Map<ComTask, SecurityPropertySetTpl> comTasks;
+    private List<ComTask> comTasks;
     private List<SecurityPropertySetBuilder> securityPropertySetBuilders;
     private BigDecimal overflowValue = new BigDecimal(9999999999L);
     private boolean validateOnStore = true;
@@ -91,7 +94,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         return this;
     }
 
-    public DeviceConfigurationBuilder withComTasks(Map<ComTask, SecurityPropertySetTpl> comTasks) {
+    public DeviceConfigurationBuilder withComTasks(List<ComTask> comTasks) {
         this.comTasks = comTasks;
         return this;
     }
@@ -167,20 +170,24 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
 
     private void addComTasks(DeviceConfiguration configuration) {
         if (comTasks != null) {
-            for (ComTask comTask : comTasks.keySet()) {
-                addComTask(configuration, comTask, comTasks.get(comTask));
+            for (ComTask comTask : comTasks) {
+                addComTask(configuration, comTask);
             }
         }
     }
 
-    public static void addComTask(DeviceConfiguration deviceConfiguration, ComTask comTask, SecurityPropertySetTpl spst) {
+    public static void addComTask(DeviceConfiguration deviceConfiguration, ComTask comTask) {
         if (comTask != null && deviceConfiguration != null) {
             List<SecurityPropertySet> securityPropertySets = deviceConfiguration.getSecurityPropertySets();
             if (securityPropertySets.isEmpty()) {
                 throw new UnableToCreate("Please specify at least one security set");
             }
-            Optional<SecurityPropertySet> securityPropertySet = securityPropertySets.stream().filter(o -> o.getName().equals(spst.getName())).findFirst();
-            deviceConfiguration.enableComTask(comTask, securityPropertySet.get())
+            SecurityPropertySet securityPropertySet = securityPropertySets
+                    .stream()
+                    .filter(sps -> SecurityPropertySetTpl.NO_SECURITY.getName().equals(sps.getName()))
+                    .findFirst()
+                    .orElse(securityPropertySets.get(0));
+            deviceConfiguration.enableComTask(comTask, securityPropertySet)
                     .setIgnoreNextExecutionSpecsForInbound(false)
                     .setPriority(100).add().save();
         }
