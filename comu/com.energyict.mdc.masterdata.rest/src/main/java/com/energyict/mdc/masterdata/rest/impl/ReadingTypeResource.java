@@ -22,9 +22,12 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 
 import java.util.Collections;
@@ -46,39 +49,65 @@ public class ReadingTypeResource {
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
+
     @GET
     @Transactional
     @Path("/unusedreadingtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public ReadingTypeInfos getUnusedReadingTypes(@BeanParam JsonQueryParameters queryParameters,
-                                                  @QueryParam("obisCode") String obisCodeString) {
+                                                  @QueryParam("obisCode") String obisCodeString,
+                                                  @QueryParam("mRID") String mRID) {
 
-        List<String> readingTypesInUseIds = masterDataService.findAllRegisterTypes()
-                .stream()
-                .map(rT -> rT.getReadingType().getMRID())
-                .collect(Collectors.toList());
+        if (mRID != null && !mRID.isEmpty()) {
+            return meteringService.getReadingType(mRID)
+                    .map(ReadingTypeInfos::new)
+                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        } else {
+            List<String> readingTypesInUseIds = masterDataService.findAllRegisterTypes()
+                    .stream()
+                    .map(rT -> rT.getReadingType().getMRID())
+                    .collect(Collectors.toList());
 
-        String searchText = queryParameters.getLike();
-        ObisMapper obisMapper = new ObisMapper(obisCodeString);
-        List<ReadingType> readingTypes = obisMapper.getReadingTypes(readingTypesInUseIds);
-        if (!readingTypes.isEmpty()) {
-            return this.createInfoFromObisAndSearchText(searchText, readingTypes);
+            List<ReadingType> readingTypes = ReadingTypeResourceUtil.getObisCode(obisCodeString)
+                    .map(this::getMRIDFilter)
+                    .map(filter -> this.findReadingTypes(filter, readingTypesInUseIds))
+                    .orElse(Collections.emptyList());
+
+            String searchText = queryParameters.getLike();
+            if (!readingTypes.isEmpty()) {
+                return this.createInfoFromObisAndSearchText(searchText, readingTypes);
+            }
+            return this.createInfoFromSearchText(searchText, readingTypesInUseIds);
         }
-        return this.createInfoFromSearchText(searchText, readingTypesInUseIds);
+    }
+
+
+    @GET
+    @Transactional
+    @Path("/mappedReadingType/{obis}")
+    @Produces(MediaType.TEXT_PLAIN + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    public StringResponse getMappedReadingType(@PathParam("obis") String obisCode) {
+        String response = ReadingTypeResourceUtil.getObisCode(obisCode)
+                .map(mdcReadingTypeUtilService::getReadingTypeFilterFrom)
+                .map(ReadingTypeResourceUtil::extractUniqueFromRegex)
+                .orElse("");
+
+        return new StringResponse(response);
     }
 
     @GET
     @Transactional
-    @Path("/obiscode")
+    @Path("/mappedObisCode/{mRID}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
-    public ObisCodeInfo getObisCodeByReadingType(@QueryParam("mRID") String mRID) {
+    public StringResponse getMappedObisCode(@PathParam("mRID") String mRID) {
         String obisCode = mdcReadingTypeUtilService.getReadingTypeInformationFrom(mRID)
                 .map(ReadingTypeInformation::getObisCode)
                 .map(ObisCode::getValue)
                 .orElse("");
-        return new ObisCodeInfo(obisCode);
+        return new StringResponse(obisCode);
     }
 
     @GET
@@ -137,36 +166,63 @@ public class ReadingTypeResource {
     }
 
     /**
-     * Class that processes the obis query parameter.
-     * Returns the list of ReadingTypes that the ObisCode maps to.
+     * Builds a filter that matches all reading types that map to the obis code
+     * @param obisCode obis query param
+     * @return Non null ReadingTypeFilter
      */
-    private class ObisMapper {
+    private ReadingTypeFilter getMRIDFilter(ObisCode obisCode) {
+        ReadingTypeFilter filter = new ReadingTypeFilter();
+        String mRID = mdcReadingTypeUtilService.getReadingTypeFilterFrom(obisCode);
+        filter.addCondition(ReadingTypeFilterUtil.getMRIDFilterCondition(mRID));
+        return filter;
+    }
 
-        private final String obisCode;
 
-        ObisMapper(String obisParam) {
-            this.obisCode = obisParam;
-        }
+    /**
+     * Util class for the Reading Type resource
+     */
+    private static class ReadingTypeResourceUtil {
 
-        List<ReadingType> getReadingTypes(List<String> readingTypesInUseIds) {
-             return this.getCode()
-                     .map(code -> getFilteredList(code, readingTypesInUseIds))
-                     .orElse(Collections.emptyList());
-        }
+        private final static String DELIMITER = "\\\\.";
+        private final static String NUMBER_REGEX = "[0-9]+";
+        private final static String DOT= ".";
+        private final static String DEFAULT_VALUE = "0";
 
-        private List<ReadingType> getFilteredList(ObisCode code, List<String> readingTypesInUseIds) {
-            ReadingTypeFilter filter = new ReadingTypeFilter();
-            String mRID = mdcReadingTypeUtilService.getReadingTypeFilterFrom(code);
-            filter.addCondition(ReadingTypeFilterUtil.getMRIDFilterContion(mRID));
-            return findReadingTypes(filter, readingTypesInUseIds);
-        }
 
-        private Optional<ObisCode> getCode() {
-            if (this.obisCode == null || this.obisCode.isEmpty()) {
+        /**
+         * @param codeString obis query param
+         * @return ObisCode object if present and valid
+         */
+        static Optional<ObisCode> getObisCode(String codeString) {
+            if (codeString == null || codeString.isEmpty()) {
                 return Optional.empty();
             }
-            ObisCode code = ObisCode.fromString(this.obisCode);
+            ObisCode code = ObisCode.fromString(codeString);
             return code.isInvalid() ? Optional.empty() : Optional.of(code);
+        }
+
+        /**
+         * Check every MRID field for multiple matches. If there is a single match,
+         * we return the unchanged value, otherwise we return a default value.
+         * Example:
+         * IN : 0\.0\.0.\.0\.1\.1\.(12|37)\.0\.0\.0\.0\.0\.[0-9]+\.[0-9]+\.0\.-?[0-9]+\.[0-9]+\.[0-9]+
+         * OUT: 0.0.0.0.1.1.0.0.0.0.0.0.0.0.0.0.0.0
+         * @param regex MRID regex that matches one or multiple reading types
+         * @return String
+         */
+        static String extractUniqueFromRegex(String regex) {
+            String values[] = regex.split(DELIMITER);
+            StringBuilder mrid = new StringBuilder();
+            int i = 1;
+            String code;
+            for(String value : values){
+                code = value.matches(NUMBER_REGEX) ? value : DEFAULT_VALUE;
+                mrid.append(code);
+
+                if (i++ != values.length)
+                    mrid.append(DOT);
+            }
+            return mrid.toString();
         }
     }
 }

@@ -46,7 +46,7 @@ class ReadingTypeFilterUtil {
      * @param mRID regular expression to match mRID values
      * @return Condition to query the database
      */
-    static Condition getMRIDFilterContion(String mRID){
+    static Condition getMRIDFilterCondition(String mRID){
         return Where.where("mRID").matches(mRID, "").and(mridMatchOfRegisters());
     }
 
