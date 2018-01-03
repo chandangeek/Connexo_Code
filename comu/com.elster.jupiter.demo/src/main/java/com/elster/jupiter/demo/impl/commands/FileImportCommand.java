@@ -6,7 +6,11 @@ package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.fileimport.*;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.ImportLogEntry;
+import com.elster.jupiter.fileimport.ImportSchedule;
+import com.elster.jupiter.fileimport.Status;
 
 import javax.inject.Inject;
 import java.io.InputStream;
@@ -88,6 +92,11 @@ public class FileImportCommand {
 
         @Override
         public String getFileName() {
+            throw new UnsupportedOperationException("Virtual file occurrence has no real file occurrence");
+        }
+
+        @Override
+        public String getPath(){
             throw new UnsupportedOperationException("Virtual file occurrence has no real file occurrence");
         }
 
