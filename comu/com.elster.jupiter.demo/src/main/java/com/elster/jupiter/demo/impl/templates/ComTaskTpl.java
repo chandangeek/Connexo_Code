@@ -37,7 +37,7 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
     },
     BEACON_INBOUND("Beacon inbound event notification",
             null,
-            Collections.singletonList(LogBookTypeTpl.STANDARD_EVENT_LOG),
+            Arrays.asList(LogBookTypeTpl.STANDARD_EVENT_LOG),
             null,
             null,
             null),
