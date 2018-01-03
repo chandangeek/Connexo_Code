@@ -12,49 +12,31 @@ import java.math.BigDecimal;
 public enum SecurityPropertySetTpl implements Template<SecurityPropertySet, SecurityPropertySetBuilder> {
     NO_SECURITY("No security",
             1,
-            -1,
+            0,
             0,  //NO_AUTHENTICATION
-            0  //NO_ENCRYPTION
-    ),
-    NO_SECURITY_ZERO_SUITE("No security",
-            1,
-            0, //SECURITY_SUITE_0
-            0, //NO_AUTHENTICATION
             0  //NO_ENCRYPTION
     ),
     HIGH_LEVEL("High level authentication (MD5) and encryption",
             1,
-            -1,
+            0,
             3,  //HIGH_LEVEL_MD5
             3  //DATA_AUTHENTICATION_ENCRYPTION
     ),
     HIGH_LEVEL_NO_ENCRYPTION_MD5("High level authentication (MD5) - No encryption",
             1,
-            -1,
+            0,
             3,  //HIGH_LEVEL_MD5
             0  //NO_ENCRYPTION
     ),
     HIGH_LEVEL_NO_ENCRYPTION_GMAC("High level authentication - No encryption",
             1,
-            -1,
+            0,
             5,  //HIGH_LEVEL_GMAC
-            0   //NO_ENCRYPTION
-    ),
-    BEACON1_GMAC("Beacon1 GMAC 5:3",
-            1,
-            0,  //SECURITY_SUITE_0
-            5,  //HIGH_LEVEL_GMAC
-            3   //MESSAGE_ENCRYPTION_AND_AUTHENTICATION
-    ),
-    BEACON2_GMAC("Beacon2 GMAC 5:3",
-            1,
-            0,  //SECURITY_SUITE_0
-            5,  //HIGH_LEVEL_GMAC
-            3   //MESSAGE_ENCRYPTION_AND_AUTHENTICATION
+            0  //NO_ENCRYPTION
     ),
     PASSWORD_ONLY("Password only",
             1,
-            -1,
+            0,
             1,  //LOW_LEVEL
             0  //NO_ENCRYPTION
     ),
