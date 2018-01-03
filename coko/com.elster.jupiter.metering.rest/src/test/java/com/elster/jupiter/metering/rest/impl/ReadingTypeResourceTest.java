@@ -172,7 +172,7 @@ public class ReadingTypeResourceTest extends MeteringApplicationJerseyTest {
         Contains contains = (Contains) condition;
         assertThat(contains.getFieldName()).isEqualTo("mRID");
         assertThat(contains.getOperator()).isEqualTo(ListOperator.IN);
-        //assertThat(contains.getCollection()).contains("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");  //lori
+        assertThat(contains.getCollection()).contains("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
     }
 
     @Test
@@ -213,7 +213,7 @@ public class ReadingTypeResourceTest extends MeteringApplicationJerseyTest {
         Contains contains = (Contains) condition;
         assertThat(contains.getFieldName()).isEqualTo("mRID");
         assertThat(contains.getOperator()).isEqualTo(ListOperator.IN);
-        // assertThat(contains.getCollection()).contains("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");  //lori
+        assertThat(contains.getCollection()).contains("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
     }
 
     @Test
@@ -260,7 +260,7 @@ public class ReadingTypeResourceTest extends MeteringApplicationJerseyTest {
                 .forEach(contains -> {
                             assertThat(contains.getFieldName()).isEqualTo("mRID");
                             assertThat(contains.getOperator()).isEqualTo(ListOperator.IN);
-                    //assertThat(contains.getCollection()).contains("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");  //lori
+                    assertThat(contains.getCollection()).contains("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
                         }
                 );
     }

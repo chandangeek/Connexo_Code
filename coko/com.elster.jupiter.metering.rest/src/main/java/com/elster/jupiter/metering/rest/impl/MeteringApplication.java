@@ -55,7 +55,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     private volatile ThreadPrincipalService threadPrincipalService;
 
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of( //lori
+        return ImmutableSet.of(
                 MetrologyConfigurationResource.class,
                 UsagePointResource.class,
                 DeviceResource.class,
