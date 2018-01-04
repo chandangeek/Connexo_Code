@@ -73,6 +73,7 @@ public class DeviceGraphFactory implements GraphFactory {
         graphInfo.setProperty("nodeCount", graphInfo.size());
         graphInfo.setProperty("buildTime", Duration.between(now, clock.instant()).toMillis());
         cachedGraphs.put(gateway.getId(), graphInfo);
+        setNodeCoordinates(graphInfo);
         return graphInfo;
     }
 

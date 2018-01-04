@@ -12,7 +12,8 @@ public enum LayerNames {
     DeviceSummaryExtraInfoLayer("topology.GraphLayer.DeviceSummary"),
     DeviceTypeLayer("topology.GraphLayer.DeviceType"),
     IssuesAndAlarmLayer("topology.GraphLayer.IssuesAndAlarms"),
-    LinkQualityLayer("topology.GraphLayer.linkQuality");
+    LinkQualityLayer("topology.GraphLayer.linkQuality"),
+    DeviceGeoCoordinatesLayer("topology.GraphLayer.DeviceGeoCoordinatesLayer");
 
     private String fullName; //Can be used as translation key
 

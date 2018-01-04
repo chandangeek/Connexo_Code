@@ -47,14 +47,6 @@ public class DeviceTypeLayer extends AbstractGraphLayer<Device> {
         setProperty(PropertyNames.DEVICE_CONFIGURATION.getPropertyName(), deviceConfigurationName);
     }
 
-    private void setDeviceCoordinates(SpatialCoordinates deviceCoordinates) {
-        setProperty(PropertyNames.DEVICE_COORDINATES.getPropertyName(), deviceCoordinates);
-    }
-
-    private void setDeviceCoordinatesPresents(Boolean hasCoordinates) {
-        setProperty(PropertyNames.HAS_COORDONATES.getPropertyName(), hasCoordinates);
-    }
-
     @Override
     public List<TranslationKey> getKeys() {
         return Arrays.asList(PropertyNames.values());
@@ -64,22 +56,13 @@ public class DeviceTypeLayer extends AbstractGraphLayer<Device> {
         Device device = ((DeviceNodeInfo) nodeInfo).getDevice();
         this.setDeviceType(device.getDeviceType().getName());
         this.setDeviceConfiguration(device.getDeviceConfiguration().getName());
-        Optional<SpatialCoordinates> spatialCoordinates = device.getSpatialCoordinates();
-        if (spatialCoordinates.isPresent()) {
-            setDeviceCoordinates(spatialCoordinates.get());
-            setDeviceCoordinatesPresents(true);
-        } else {
-            setDeviceCoordinates(nodeInfo.getCoordinates());
-            setDeviceCoordinatesPresents(false);
-        }
+
         return propertyMap();
     }
 
     public enum PropertyNames implements TranslationKey {
         DEVICE_TYPE("deviceType", "Device type"),
-        DEVICE_CONFIGURATION("deviceConfiguration", "Device configuration"),
-        HAS_COORDONATES("hasCoordonates", "Has coordonates"),
-        DEVICE_COORDINATES("deviceCoordinates", "Device coordinates");
+        DEVICE_CONFIGURATION("deviceConfiguration", "Device configuration");
 
         private String propertyName;
         private String defaultFormat;
