@@ -246,14 +246,12 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
     },
 
     showMap: function () {
-        var me = this,
-            mapProviderOptions = Ext.ComponentQuery.query('#layer-map-provider-section')[0];
-        mapProviderOptions.show();
-        var optionMapWithSavedState = Ext.ComponentQuery.query('#radiogroup-map-provider')[0];
-        var optionMap = optionMapWithSavedState.getValue().rb;
-
+        var me = this;
         me.chart.map().show();
-        me.changeMapProvider(optionMap);
+        leafletMap = me.chart.map().leafletMap();
+        var mutant = L.gridLayer.googleMutant({maxZoom: 24, type: 'roadmap'});
+        mutant.addTo(leafletMap);
+       // me.changeMapProvider(optionMap);
 
 
 
@@ -261,42 +259,41 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
 
     hideMap: function () {
         var me = this;
-        Ext.ComponentQuery.query('#layer-map-provider-section')[0].hide(),
         me.chart.map().hide();
     },
 
-    changeMapProvider: function (option) {
-        var me = this;
-        leafletMap = me.chart.map().leafletMap();
-        switch (option) {
-            case '1':
-                var mutant = L.gridLayer.googleMutant({
-                    maxZoom: 24,
-                    type: 'roadmap'
-                });
-                mutant.addTo(leafletMap);
-                break;
-            case '2':
-                L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                }).addTo(leafletMap);
-                break;
-            case '3':
-                L.tileLayer('http://1.base.maps.cit.api.here.com/maptile/2.1/maptile/newest/normal.day/{z}/{x}/{y}/256/png8?app_id=IBwKEP59EKs6Ty1WE4Hd&app_code=PAZzc13KXKBR7KvcXQmfXQ', {
-                    styleId: 997
-                }).addTo(leafletMap);
-                break;
-            case '4':
-                L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-                    maxZoom: 18,
-                    id: 'mapbox.streets',
-                    accessToken: 'pk.eyJ1IjoiaG9uZXltYXN0ZXIiLCJhIjoiY2piNmo0bm5zOHUwNTJ3cnpuYno1bmE2eiJ9.btH4z4_v-TWmEajkMSvw8Q'
-                }).addTo(leafletMap);
-                break;
-        }
-        ;
-    },
+    // changeMapProvider: function (option) {
+    //     var me = this;
+    //     leafletMap = me.chart.map().leafletMap();
+    //     switch (option) {
+    //         case '1':
+    //             var mutant = L.gridLayer.googleMutant({
+    //                 maxZoom: 24,
+    //                 type: 'roadmap'
+    //             });
+    //             mutant.addTo(leafletMap);
+    //             break;
+    //         case '2':
+    //             L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    //                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    //             }).addTo(leafletMap);
+    //             break;
+    //         case '3':
+    //             L.tileLayer('http://1.base.maps.cit.api.here.com/maptile/2.1/maptile/newest/normal.day/{z}/{x}/{y}/256/png8?app_id=IBwKEP59EKs6Ty1WE4Hd&app_code=PAZzc13KXKBR7KvcXQmfXQ', {
+    //                 styleId: 997
+    //             }).addTo(leafletMap);
+    //             break;
+    //         case '4':
+    //             L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+    //                 attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+    //                 maxZoom: 18,
+    //                 id: 'mapbox.streets',
+    //                 accessToken: 'pk.eyJ1IjoiaG9uZXltYXN0ZXIiLCJhIjoiY2piNmo0bm5zOHUwNTJ3cnpuYno1bmE2eiJ9.btH4z4_v-TWmEajkMSvw8Q'
+    //             }).addTo(leafletMap);
+    //             break;
+    //     }
+    //     ;
+    // },
 
     showDeviceLifeCycleStatus: function(){
         var me = this,
@@ -381,6 +378,8 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
                         return 'topology.GraphLayer.DeviceLifeCycleStatus';
                     case 'showCommunicationStatus':
                         return 'topology.GraphLayer.CommunicationStatus';
+                    case 'showMap':
+                        return 'topology.GraphLayer.DeviceGeoCoordinatesLayer';
                     default:
                         return undefined;
                 }
