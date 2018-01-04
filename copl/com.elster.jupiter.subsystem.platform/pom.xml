@@ -349,7 +349,7 @@
             <artifactId>tomcat</artifactId>
             <version>8.5.24</version>
             <type>zip</type>
-            <classifier>connexo-10.2.1</classifier>
+            <classifier>connexo</classifier>
             <scope>provided</scope>
         </dependency>
         <!-- WSo2 identity server-->
