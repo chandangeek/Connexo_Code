@@ -20,7 +20,7 @@
         <revision>-SNAPSHOT</revision>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <yellowfin.version>7.1.1</yellowfin.version>
+        <yellowfin.version>7.4</yellowfin.version>
         <axis.version>1.4</axis.version>
     </properties>
 
@@ -33,7 +33,7 @@
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina</artifactId>
-            <version>7.0.59</version>
+            <version>8.5.24</version>
         </dependency>
         <dependency>
             <groupId>com.elster.partners</groupId>
