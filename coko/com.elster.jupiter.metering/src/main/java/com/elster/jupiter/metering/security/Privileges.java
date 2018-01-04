@@ -15,17 +15,17 @@ public enum Privileges implements TranslationKey {
 
     //Privileges
     VIEW_ANY_USAGEPOINT(Constants.VIEW_ANY_USAGEPOINT, "View any usage point"),
-    ADMINISTER_ANY_USAGEPOINT(Constants.ADMINISTER_ANY_USAGEPOINT, "Administer any usage point"),
-    VIEW_OWN_USAGEPOINT(Constants.VIEW_OWN_USAGEPOINT, "View own usage point"),
-    ADMINISTER_OWN_USAGEPOINT(Constants.ADMINISTER_OWN_USAGEPOINT, "Administer own usage point"),
-	ADMINISTER_USAGEPOINT_TIME_SLICED_CPS(Constants.ADMINISTER_USAGEPOINT_TIME_SLICED_CPS, "Administer usage point time-sliced CAS"),
+	ADMINISTER_ANY_USAGEPOINT(Constants.ADMINISTER_ANY_USAGEPOINT, "Administrate any usage point"),
+	VIEW_OWN_USAGEPOINT(Constants.VIEW_OWN_USAGEPOINT, "View own usage point"),
+	ADMINISTER_OWN_USAGEPOINT(Constants.ADMINISTER_OWN_USAGEPOINT, "Administrate own usage point"),
+	ADMINISTER_USAGEPOINT_TIME_SLICED_CPS(Constants.ADMINISTER_USAGEPOINT_TIME_SLICED_CPS, "Administrate usage point time-sliced CAS"),
 
 	VIEW_READINGTYPE(Constants.VIEW_READINGTYPE, "View reading types"),
-    ADMINISTER_READINGTYPE(Constants.ADMINISTER_READINGTYPE, "Administer reading types"),
+	ADMINISTER_READINGTYPE(Constants.ADMINISTER_READINGTYPE, "Administrate reading types"),
 
 	VIEW_SERVICECATEGORY(Constants.VIEW_SERVICECATEGORY, "View service categories"),
 
-    ADMINISTER_METROLOGY_CONFIGURATION(Constants.ADMINISTER_METROLOGY_CONFIGURATION, "Administer metrology configuration"),
+	ADMINISTER_METROLOGY_CONFIGURATION(Constants.ADMINISTER_METROLOGY_CONFIGURATION, "Administrate metrology configuration"),
 	VIEW_METROLOGY_CONFIGURATION(Constants.VIEW_METROLOGY_CONFIGURATION, "View metrology configuration"),
 	MANAGE_USAGE_POINT_ATTRIBUTES(Constants.MANAGE_USAGE_POINT_ATTRIBUTES, "Manage usage point attributes"),
 	;
