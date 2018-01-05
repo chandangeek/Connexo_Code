@@ -90,13 +90,15 @@ public class ReadingTypeGroupLocalizedFieldsFactory implements ReadingTypeFields
             }
 
             case MACRO_PERIOD: {
-                Commodity commodity = this.filterBy != null ? Commodity.get(this.filterBy) : null;
+                // Commodity commodity = this.filterBy != null ? Commodity.get(this.filterBy) : null;  // initialy was only for Electricity
                 values = new LinkedHashMap();
                 values.put(MacroPeriod.NOTAPPLICABLE.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.MacroPeriod(MacroPeriod.NOTAPPLICABLE)).format());
-                if (commodity == Commodity.ELECTRICITY_PRIMARY_METERED) {
-                    values.put(0x10000,
+//                if (commodity == Commodity.ELECTRICITY_PRIMARY_METERED) {  // initialy was only for Electricity
+//                    values.put(0x10000,
+//                            thesaurus.getString("readingType.macroperiod.less1day", "Interval < 1 day"));
+//                }
+                values.put(0x10000,
                             thesaurus.getString("readingType.macroperiod.less1day", "Interval < 1 day"));
-                }
                 values.put(MacroPeriod.BILLINGPERIOD.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.MacroPeriod(MacroPeriod.BILLINGPERIOD)).format());
                 values.put(MacroPeriod.DAILY.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.MacroPeriod(MacroPeriod.DAILY)).format());
                 values.put(MacroPeriod.MONTHLY.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.MacroPeriod(MacroPeriod.MONTHLY)).format());
@@ -335,8 +337,9 @@ public class ReadingTypeGroupLocalizedFieldsFactory implements ReadingTypeFields
     enum AccumulationByMacroPeriod {
         NOTAPPLICABLE(EnumSet.of(
                 Accumulation.NOTAPPLICABLE,
-                Accumulation.BULKQUANTITY,
-                Accumulation.CUMULATIVE));
+                //   Accumulation.BULKQUANTITY,
+                Accumulation.DELTADELTA));
+
 
         EnumSet<Accumulation> set;
 
