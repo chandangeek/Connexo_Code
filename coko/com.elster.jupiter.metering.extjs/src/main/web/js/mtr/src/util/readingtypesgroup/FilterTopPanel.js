@@ -6,14 +6,14 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
     extend: 'Uni.grid.FilterPanelTop',
     alias: 'widget.reading-types-group-filter-top-panel',
     requires: [
-        'Mtr.store.readingtypes.attributes.TimeOfUse',
-        'Mtr.store.readingtypes.attributes.UnitOfMeasures',
-        'Mtr.store.readingtypes.attributes.Status',
-        'Mtr.store.readingtypes.attributes.Interval',
-        'Mtr.store.readingtypes.attributes.Kind',
-        'Mtr.store.readingtypes.attributes.InterharmonicNumerator',
-        'Mtr.store.readingtypes.attributes.InterharmonicDenominator',
-        'Mtr.store.readingtypes.attributes.ArgumentNumerator',
+        'Mtr.store.attributes.extended.TimeOfUse',
+        'Mtr.store.attributes.extended.UnitOfMeasures',
+        'Mtr.store.attributes.extended.Status',
+        'Mtr.store.attributes.extended.Interval',
+        'Mtr.store.attributes.extended.Kind',
+        'Mtr.store.attributes.extended.InterharmonicNumerator',
+        'Mtr.store.attributes.extended.InterharmonicDenominator',
+        'Mtr.store.attributes.extended.ArgumentNumerator',
         'Uni.grid.filtertop.ClosableCombobox'
     ],
     layout: 'form',
@@ -33,7 +33,7 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
             displayField: 'displayName',
             valueField: 'code',
             itemId: 'reading-type-status',
-            store: 'Mtr.store.readingtypes.attributes.Status'
+            store: 'Mtr.store.attributes.extended.Status'
         },
         {
             type: 'combobox',
@@ -43,7 +43,7 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
             valueField: 'code',
             multiSelect: true,
             itemId: 'reading-type-unit-of-measure',
-            store: 'Mtr.store.readingtypes.attributes.UnitOfMeasures'
+            store: 'Mtr.store.attributes.extended.UnitOfMeasures'
         },
         {
             type: 'combobox',
@@ -53,7 +53,7 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
             valueField: 'code',
             multiSelect: true,
             itemId: 'reading-type-time-of-use',
-            store: 'Mtr.store.readingtypes.attributes.TimeOfUse'
+            store: 'Mtr.store.attributes.extended.TimeOfUse'
         },
         {
             type: 'combobox',
@@ -63,7 +63,7 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
             valueField: 'code',
             multiSelect: true,
             itemId: 'reading-type-time',
-            store: 'Mtr.store.readingtypes.attributes.MeasuringPeriod'
+            store: 'Mtr.store.attributes.extended.MeasuringPeriod'
         }
     ],
 
@@ -81,7 +81,7 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
                 forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-accumulation',
-                store: 'Mtr.store.readingtypes.attributes.Accumulation'
+                store: 'Mtr.store.attributes.extended.Accumulation'
             }
         },
         {
@@ -97,7 +97,7 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
                 forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-interharmonic-argument-denominator',
-                store: 'Mtr.store.readingtypes.attributes.ArgumentDenominator'
+                store: 'Mtr.store.attributes.extended.ArgumentDenominator'
             }
         },
         {
@@ -113,7 +113,7 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
                 forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-interharmonic-argument-numerator',
-                store: 'Mtr.store.readingtypes.attributes.ArgumentNumerator'
+                store: 'Mtr.store.attributes.extended.ArgumentNumerator'
             }
         },
         {
@@ -129,7 +129,7 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
                 forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-commodity',
-                store: 'Mtr.store.readingtypes.attributes.Commodity'
+                store: 'Mtr.store.attributes.extended.Commodity'
             }
         },
         {
@@ -145,7 +145,7 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
                 forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-interharmonic-consumption-tier',
-                store: 'Mtr.store.readingtypes.attributes.ConsumptionTier'
+                store: 'Mtr.store.attributes.extended.ConsumptionTier'
             }
         },
         {
@@ -161,7 +161,7 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
                 forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-interharmonic-critical-peak-period',
-                store: 'Mtr.store.readingtypes.attributes.CriticalPeakPeriod'
+                store: 'Mtr.store.attributes.extended.CriticalPeakPeriod'
             }
         },
         {
@@ -177,7 +177,7 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
                 forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-currency',
-                store: 'Mtr.store.readingtypes.attributes.Currency'
+                store: 'Mtr.store.attributes.extended.Currency'
             }
         },
         {
@@ -193,7 +193,7 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
                 forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-data-qualifier',
-                store: 'Mtr.store.readingtypes.attributes.DataQualifier'
+                store: 'Mtr.store.attributes.extended.DataQualifier'
             }
         },
         {
@@ -209,7 +209,7 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
                 forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-direction-of-Flow',
-                store: 'Mtr.store.readingtypes.attributes.DirectionOfFlow'
+                store: 'Mtr.store.attributes.extended.DirectionOfFlow'
             }
         },
         {
@@ -225,7 +225,7 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
                 forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-interharmonic-interharmonic-denominator',
-                store: 'Mtr.store.readingtypes.attributes.InterharmonicDenominator'
+                store: 'Mtr.store.attributes.extended.InterharmonicDenominator'
             }
         },
         {
@@ -241,7 +241,7 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
                 forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-interharmonic-numerator',
-                store: 'Mtr.store.readingtypes.attributes.InterharmonicNumerator'
+                store: 'Mtr.store.attributes.extended.InterharmonicNumerator'
             }
         },
         {
@@ -257,24 +257,24 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
                 forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-kind',
-                store: 'Mtr.store.readingtypes.attributes.Kind'
+                store: 'Mtr.store.attributes.extended.Kind'
             }
         },
 
         {
-            text: Uni.I18n.translate('readingTypes.attribute.multiplier', 'MTR', 'Multiplier'),
+            text: Uni.I18n.translate('readingTypes.attribute.multiplier', 'MTR', 'Scale'),
             name: 'multiplier',
             filterConfig: {
                 type: 'closablecombobox',
                 dataIndex: 'metricMultiplier',
-                emptyText: Uni.I18n.translate('readingTypes.attribute.multiplier', 'MTR', 'Multiplier'),
+                emptyText: Uni.I18n.translate('readingTypes.attribute.multiplier', 'MTR', 'Scale'),
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
                 forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-multiplier',
-                store: 'Mtr.store.readingtypes.attributes.Multiplier'
+                store: 'Mtr.store.attributes.extended.Multiplier'
             }
         },
         {
@@ -290,11 +290,10 @@ Ext.define('Mtr.util.readingtypesgroup.FilterTopPanel', {
                 forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-interharmonic-phase',
-                store: 'Mtr.store.readingtypes.attributes.Phase'
+                store: 'Mtr.store.attributes.extended.Phase'
             }
         }
     ],
-
 
     setValueForDataIndex: function (dataIndex, value) {
         var me = this,
