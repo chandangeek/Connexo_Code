@@ -412,6 +412,48 @@ public class ReadingTypeResource {
     }
 
     @PUT
+    @Path("/groups/{oldName}/{newName}")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response updateReadingGroup(@PathParam("oldName") String oldName, @PathParam("newName") String newName) {
+
+        boolean nameExists = meteringService.getAvailableReadingTypes()
+                .stream()
+                .map(readingTypeInfoFactory::from)
+                .anyMatch(rt -> rt.aliasName.equalsIgnoreCase(newName));
+
+        if (nameExists) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.ALIAS_ALREADY_EXISTS, newName);
+        }
+
+        List<ReadingTypeInfo> readingTypes = meteringService.getAvailableReadingTypes()
+                .stream()
+                .map(readingTypeInfoFactory::from)
+                .filter(rt -> rt.aliasName.equalsIgnoreCase(oldName))
+                .collect(Collectors.toList());
+
+        try (TransactionContext context = transactionService.getContext()) {
+
+            readingTypes.forEach(rt ->
+            {
+                ReadingType readingType = meteringService.findAndLockReadingTypeByIdAndVersion(rt.mRID, rt.version)
+                        .orElseThrow(conflictFactory.contextDependentConflictOn(newName)
+                                .withActualVersion(() -> meteringService.getReadingType(rt.mRID).map(ReadingType::getVersion).orElse(null))
+                                .supplier());
+
+                readingType.setAliasName(newName);
+                readingType.update();
+            });
+
+            context.commit();
+
+            return Response.ok().build();
+        } catch (UnderlyingSQLFailedException | CommitException ex) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.READINGTYPE_CREATING_FAIL);
+        }
+    }
+
+    @PUT
     @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response updateReadingTypesByList(ReadingTypeBulkEditInfo readingTypeBulkEditInfo, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
