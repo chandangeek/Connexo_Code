@@ -12,12 +12,9 @@ Ext.define('Mtr.controller.Main', {
 
     controllers: [
         'Mtr.controller.history.Setup',
-        'Mtr.controller.readingtypes.ReadingTypes',
-        'Mtr.controller.readingtypes.OverviewSorting',
-        'Mtr.controller.readingtypes.AddReadingTypes',
-        'Mtr.controller.readingtypes.BulkAction',
-        'Mtr.controller.readingtypesgroup.AddReadingTypesGroup',
-        'Mtr.controller.readingtypesgroup.ReadingTypesGroup'
+        'Mtr.controller.BulkAction',
+        'Mtr.controller.AddReadingTypesGroup',
+        'Mtr.controller.ReadingTypesGroup'
     ],
 
     stores: [
@@ -52,19 +49,12 @@ Ext.define('Mtr.controller.Main', {
             var portalItem = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('readingtypes.management', 'MTR', 'Reading types management'),
                 portal: 'administration',
-                items: [
-                    // {  // lori - set
-                    //     text: Uni.I18n.translate('readingtypes.readingtypes', 'MTR', 'Reading types'),
-                    //     href: '#/administration/readingtypes',
-                    //     route: 'readingtypes'
-                    // },
+                items:
+                    [
                     {
-                        text: Uni.I18n.translate('readingtypes.readingTypes1', 'MTR', 'Reading types'),
-                        //  text: Uni.I18n.translate('F', 'MTR', 'Reading types'), // lori set
-                        //  href: '#/administration/readingtypegroups',
-                        href: '#/administration/readingtypes1',
-                        route: 'readingtypes1'
-                        //  route: 'readingtypegroups'
+                        text: Uni.I18n.translate('readingtypes.readingTypes', 'MTR', 'Reading types'),
+                        href: '#/administration/readingtypes',
+                        route: 'readingtypes'
                     }
                 ]
             });
