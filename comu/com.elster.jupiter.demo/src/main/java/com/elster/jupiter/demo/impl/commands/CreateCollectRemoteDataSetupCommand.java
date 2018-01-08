@@ -243,7 +243,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         ).forEach(deviceTypeTpl -> {
             executeTransaction(() -> createDeviceStructureForDeviceType(deviceTypeTpl));
         });
-       /* Stream.of(DeviceTypeTpl.Actaris_SL7000,
+        Stream.of(DeviceTypeTpl.Actaris_SL7000,
                 DeviceTypeTpl.Elster_AS1440,
                 DeviceTypeTpl.Elster_A1800,
                 DeviceTypeTpl.Iskra_38,
@@ -252,7 +252,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
                 .forEach(deviceTypeTpl -> {
                     executeTransaction(() -> createDeviceStructureForDeviceType(deviceTypeTpl));
                     executeTransaction(() -> createDevices(deviceTypeTpl));
-                });*/
+                });
     }
 
     private void createDevices(DeviceTypeTpl deviceTypeTpl) {
