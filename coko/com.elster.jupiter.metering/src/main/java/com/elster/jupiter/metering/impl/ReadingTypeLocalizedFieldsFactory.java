@@ -4,28 +4,16 @@
 
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.Phase;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.metering.ReadingTypeFieldsFactory;
 import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.units.Unit;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ReadingTypeLocalizedFieldsFactory implements ReadingTypeFieldsFactory {

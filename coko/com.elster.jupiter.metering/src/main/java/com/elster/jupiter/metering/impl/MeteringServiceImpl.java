@@ -75,7 +75,6 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.DayMonthTime;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import org.osgi.framework.BundleContext;
@@ -180,6 +179,16 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Finder<ReadingType> findReadingTypes(ReadingTypeFilter filter) {
         return DefaultFinder.of(ReadingType.class, filter.getCondition(), dataModel).sorted("fullAliasName", true);
+    }
+
+    @Override
+    public Finder<ReadingType> findReadingTypesByAlias(ReadingTypeFilter filter, String aliasName) {
+        return DefaultFinder.of(ReadingType.class, where("aliasName").like(aliasName).and(filter.getCondition()), dataModel).sorted("fullAliasName", true);
+    }
+
+    @Override
+    public Finder<ReadingType> findReadingTypeByAlias(String aliasName) {
+        return DefaultFinder.of(ReadingType.class, where("aliasName").like(aliasName), dataModel);
     }
 
     @Override
@@ -502,6 +511,11 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public ReadingTypeFieldsFactory getReadingTypeFieldCodesFactory() {
         return new ReadingTypeLocalizedFieldsFactory(this.meteringDataModelService.getThesaurus());
+    }
+
+    @Override
+    public ReadingTypeFieldsFactory getReadingTypeGroupFieldCodesFactory(Integer filterBy) {
+        return new ReadingTypeGroupLocalizedFieldsFactory(this.meteringDataModelService.getThesaurus(), filterBy);
     }
 
     @Override
