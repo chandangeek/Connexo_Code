@@ -56,12 +56,6 @@ Ext.define('Usr.view.userDirectory.PreviewForm', {
                                             [
                                                 {
                                                     xtype: 'displayfield',
-                                                    fieldLabel: Uni.I18n.translate('userDirectories.type', 'USR', 'Type'),
-                                                    name: 'typeDisplay',
-                                                    itemId: 'usr-user-directory-type'
-                                                },
-                                                {
-                                                    xtype: 'displayfield',
                                                     name: 'baseUser',
                                                     itemId: 'usr-user-directory-user-base-dn',
                                                     fieldLabel: Uni.I18n.translate('userDirectories.baseUser', 'USR', 'User base DN')
@@ -72,6 +66,18 @@ Ext.define('Usr.view.userDirectory.PreviewForm', {
                                                     itemId: 'usr-user-directory-group-base-dn',
                                                     fieldLabel: Uni.I18n.translate('userDirectories.baseGroup', 'USR', 'Group base DN'),
                                                     hidden: true
+                                                },
+                                                {
+                                                    xtype: 'displayfield',
+                                                    fieldLabel: Uni.I18n.translate('userDirectories.url', 'USR', 'URL'),
+                                                    name: 'url',
+                                                    itemId: 'usr-user-directory-url'
+                                                },
+                                                {
+                                                    xtype: 'displayfield',
+                                                    fieldLabel: Uni.I18n.translate('userDirectories.backupURL', 'USR', 'Backup URL'),
+                                                    name: 'backupUrl',
+                                                    itemId: 'usr-user-directory-backup-url'
                                                 }
                                         ]
                                     }
@@ -91,21 +97,38 @@ Ext.define('Usr.view.userDirectory.PreviewForm', {
                                 items: [
                                     {
                                         xtype: 'displayfield',
+                                        fieldLabel: Uni.I18n.translate('userDirectories.type', 'USR', 'Type'),
+                                        name: 'typeDisplay',
+                                        itemId: 'usr-user-directory-type'
+                                    },
+                                    {
+                                        xtype: 'displayfield',
                                         fieldLabel: Uni.I18n.translate('userDirectories.securityProtocol', 'USR', 'Security protocol'),
                                         name: 'securityProtocolDisplay',
                                         itemId: 'usr-user-directory-security-protocol'
                                     },
                                     {
                                         xtype: 'displayfield',
-                                        fieldLabel: Uni.I18n.translate('userDirectories.url', 'USR', 'URL'),
-                                        name: 'url',
-                                        itemId: 'usr-user-directory-url'
+                                        fieldLabel: Uni.I18n.translate('userDirectories.protocol.source', 'USR', 'Source'),
+                                        name: 'securityProtocolSource',
+                                        itemId: 'usr-user-directory-security-protocol-source'
                                     },
                                     {
                                         xtype: 'displayfield',
-                                        fieldLabel: Uni.I18n.translate('userDirectories.backupURL', 'USR', 'Backup URL'),
-                                        name: 'backupUrl',
-                                        itemId: 'usr-user-directory-backup-url'
+                                        fieldLabel: Uni.I18n.translate('userDirectories.certificateAlias', 'USR', 'Certificate alias'),
+                                        name: 'certificateAlias',
+                                        itemId: 'protocol-source-certificates',
+                                        hidden: true
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        fieldLabel: Uni.I18n.translate('userDirectories.trustStore', 'USR', 'Trust store'),
+                                        name: 'trustStore',
+                                        itemId: 'protocol-source-trustStores',
+                                        hidden: true,
+                                        renderer: function(value){
+                                            return value.name;
+                                        }
                                     }
                                 ]
                             }

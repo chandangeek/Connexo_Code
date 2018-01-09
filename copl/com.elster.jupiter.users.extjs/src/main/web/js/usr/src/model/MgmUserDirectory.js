@@ -49,11 +49,34 @@ Ext.define('Usr.model.MgmUserDirectory', {
                 }
             }
         },
+        {
+            name: 'securityProtocolSource',
+            persist: false,
+            convert: function (value, record) {
+                if (record.get('certificateAlias')) {
+                    return Uni.I18n.translate('userDirectories.protocol.source.certificates', 'USR', 'Certificates');
+                } else if (record.get('trustStore')){
+                    return Uni.I18n.translate('userDirectories.protocol.source.trustStores', 'USR', 'Trust stores');
+                }
+            }
+        },
         'directoryUser',
         'password',
         'backupUrl',
         'baseUser',
-        'baseGroup'
+        'baseGroup',
+        {
+            name: 'certificateAlias',
+            type: 'auto',
+            useNull: true,
+            defaultValue: null
+        },
+        {
+            name: 'trustStore',
+            type: 'auto',
+            useNull: true,
+            defaultValue: null
+        }
     ],
     
     proxy: {
