@@ -110,6 +110,10 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.cim.webservices.outbound.soap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
         </dependency>
         <dependency>
