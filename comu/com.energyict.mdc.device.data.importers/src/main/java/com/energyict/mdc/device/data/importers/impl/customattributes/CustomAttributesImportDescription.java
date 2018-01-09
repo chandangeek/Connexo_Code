@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.importers.impl.customattributes;
 
+import com.elster.jupiter.fileimport.csvimport.FieldParser;
 import com.elster.jupiter.fileimport.csvimport.fields.CommonField;
 import com.elster.jupiter.fileimport.csvimport.fields.FieldSetter;
 import com.elster.jupiter.fileimport.csvimport.fields.FileImportField;
@@ -19,8 +20,11 @@ import com.energyict.mdc.device.data.importers.impl.parsers.NumberParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.QuantityParser;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.collect.ImmutableMap;
+
+import java.time.ZonedDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class CustomAttributesImportDescription implements FileImportDescription<CustomAttributesImportRecord> {
 
@@ -39,35 +43,41 @@ public class CustomAttributesImportDescription implements FileImportDescription<
         return new CustomAttributesImportRecord();
     }
 
-    public List<FileImportField<?>> getFields(CustomAttributesImportRecord record) {
-        List<FileImportField<?>> fields = new ArrayList<>();
+    public Map<String, FileImportField<?>> getFields(CustomAttributesImportRecord record) {
+        Map<String, FileImportField<?>> fields = new LinkedHashMap<>();
         LiteralStringParser stringParser = new LiteralStringParser();
         BooleanParser booleanParser = new BooleanParser();
         QuantityParser quantityParser = new QuantityParser(bigDecimalParser, new NumberParser(), stringParser);
         CustomAttributeParser customAttributeParser = new CustomAttributeParser(context.getCustomPropertySetService(), stringParser, dateParser, quantityParser, bigDecimalParser);
 
+        fields.put("deviceIdentifier", CommonField.withParser(stringParser)
+                .withName("Device Identifier")
+                .withSetter(record::setDeviceIdentifier)
+                .markMandatory()
+                .build());
+
         // Device mRID or name
-        fields.add(CommonField.withParser(stringParser)
+        fields.put("mRID", CommonField.withParser(stringParser)
                 .withSetter(record::setDeviceIdentifier)
                 .markMandatory()
                 .build());
         // Reading type mRID
-        fields.add(CommonField.withParser(stringParser)
+        fields.put("readingType", CommonField.withParser(stringParser)
                 .withSetter(record::setReadingType)
-                .withName("readingType")
+                .withName("Reading Type")
                 .build());
         // Versioned custom attributes auto resolution
-        fields.add(CommonField.withParser(stringParser)
+        fields.put("autoResolution", CommonField.withParser(stringParser)
                 .withSetter(new FieldSetter<String>() {
                     @Override
                     public void setField(String value) {
                         record.setAutoResolution(Checks.is(value).emptyOrOnlyWhiteSpace() || booleanParser.parse(value));
                     }
                 })
-                .withName("autoResolution")
+                .withName("Auto Resolution")
                 .build());
         // Coustom attributes
-        fields.add(CommonField.withParser(customAttributeParser)
+        fields.put("customAttribute", CommonField.withParser(customAttributeParser)
                 .withSetter(new FieldSetter<String>() {
                     @Override
                     public void setField(String value) {
@@ -82,6 +92,15 @@ public class CustomAttributesImportDescription implements FileImportDescription<
                 .markRepetitive()
                 .build());
         return fields;
+    }
+
+    @Override
+    public Map<Class, FieldParser> getParsers() {
+        return ImmutableMap.of(
+                DateParser.class, dateParser,
+                BigDecimalParser.class, bigDecimalParser,
+                ZonedDateTime.class, dateParser
+        );
     }
 
     @Override

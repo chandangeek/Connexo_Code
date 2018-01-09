@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.data.importers.impl.attributes.protocols;
 
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
-import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
@@ -68,8 +68,8 @@ public class ProtocolAttributesImportProcessor extends AbstractDeviceDataFileImp
             String convertedValue = value;
             if (propertyParser.isPresent()) {
                 convertedValue = propertyParser.get().configure(propertiesConverterConfig).convert(value);
-            } else if (KeyAccessorType.class.isAssignableFrom(valueFactory.getValueType())){
-                convertedValue = device.getDeviceType().getKeyAccessorTypes().stream()
+            } else if (SecurityAccessorType.class.isAssignableFrom(valueFactory.getValueType())){
+                convertedValue = device.getDeviceType().getSecurityAccessorTypes().stream()
                         .filter(keyAccessorType -> keyAccessorType.getName().equalsIgnoreCase(value))
                         .map(keyAccessorType -> String.valueOf(keyAccessorType.getId()))
                         .findFirst()
