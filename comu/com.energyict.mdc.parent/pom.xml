@@ -108,6 +108,12 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.cim.webservices.inbound.soap</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.common</artifactId>
                 <version>5.0.0${revision}</version>
                 <scope>provided</scope>
@@ -643,6 +649,7 @@
                 <module>../com.energyict.mdc.app.help</module>
                 <module>../com.energyict.mdc.bpm</module>
                 <module>../com.energyict.mdc.bpm.extjs</module>
+                <module>../com.energyict.mdc.cim.webservices.inbound.soap</module>
                 <module>../com.energyict.mdc.cim.webservices.outbound.soap</module>
                 <module>../com.energyict.mdc.common</module>
                 <module>../com.energyict.mdc.dashboard</module>
