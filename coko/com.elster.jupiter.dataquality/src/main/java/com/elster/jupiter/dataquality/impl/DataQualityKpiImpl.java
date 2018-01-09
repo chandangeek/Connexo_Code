@@ -183,15 +183,6 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
         this.dataQualityKpiTask.get().delete();
     }
 
-    @Override
-    public void makeObsolete() {
-    }
-
-    @Override
-    public Optional<Instant> getObsoleteTime() {
-        return Optional.empty();
-    }
-
     abstract KpiType getKpiType();
 
     abstract String getRecurrentTaskName();
