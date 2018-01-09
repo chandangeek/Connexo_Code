@@ -58,7 +58,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     LOGBOOK_LAST_EVENT("device.logbook.last.event", "Last event timestamp"),
     LOADPROFILE("device.loadprofile", "Load profile"),
     LOADPROFILE_NAME("device.loadprofile.name", "Name"),
-    LOADPROFILE_LAST_READING("device.loadprofile.last.reading", "Last reading"),
+    LOADPROFILE_LAST_READING("device.loadprofile.last.reading", "Data until"),
     COMTASK("device.comtask", "Communication task"),
     COMTASK_NAME("device.comtask.name", "Name"),
     COMTASK_SECURITY_SETTING("device.comtask.security", "Security settings"),
