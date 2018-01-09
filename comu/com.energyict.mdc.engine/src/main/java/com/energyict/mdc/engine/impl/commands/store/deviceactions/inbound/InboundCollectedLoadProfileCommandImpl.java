@@ -23,11 +23,7 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
 import com.energyict.protocol.ChannelInfo;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Optional;
+import java.util.*;
 
 public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandImpl {
 

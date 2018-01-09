@@ -71,7 +71,10 @@ class Installer implements FullInstaller {
     }
 
     private void publishEvents() {
-        Stream.of(EventType.DEVICE_CONNECTION_COMPLETION.topic(), EventType.DEVICE_CONNECTION_FAILURE.topic())
+        Stream.of(EventType.DEVICE_CONNECTION_COMPLETION.topic(),
+                EventType.DEVICE_CONNECTION_FAILURE.topic(),
+                EventType.UNKNOWN_INBOUND_DEVICE.topic(),
+                EventType.UNKNOWN_SLAVE_DEVICE.topic())
                 .map(eventService::getEventType)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
