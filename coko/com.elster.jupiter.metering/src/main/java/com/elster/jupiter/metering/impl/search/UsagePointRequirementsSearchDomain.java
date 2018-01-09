@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,7 @@ public class UsagePointRequirementsSearchDomain extends UsagePointSearchDomain i
 
     @Override
     public List<String> targetApplications() {
-        return Arrays.asList("COKO", "COIN", "COMU");
+        return Collections.singletonList("NONE");
     }
 
     @Override
