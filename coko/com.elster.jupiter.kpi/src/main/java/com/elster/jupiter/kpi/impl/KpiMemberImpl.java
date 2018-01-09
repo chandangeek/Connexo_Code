@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
@@ -128,16 +129,22 @@ class KpiMemberImpl implements IKpiMember {
     public Range<Instant> addScores(TimeSeriesDataStorer storer, Map<Instant, BigDecimal> scores) {
         TimeSeries timeSeries = getTimeSeries();
         RangeBuilder rangeBuilder = new RangeBuilder();
-        scores.entrySet().forEach(entry -> {
-            storer.add(timeSeries, entry.getKey(), entry.getValue(), getTarget(entry.getKey()));
-            rangeBuilder.add(entry.getKey());
+        scores.forEach((timestamp, value) -> {
+            if (Objects.equals(BigDecimal.ZERO, value) && !getKpi().keepZeroValues()) {
+                storer.remove(timeSeries, timestamp);
+            } else {
+                storer.add(timeSeries, timestamp, value, getTarget(timestamp));
+            }
+            rangeBuilder.add(timestamp);
         });
         return rangeBuilder.getRange();
     }
 
     @Override
     public void checkKpiScores(Range<Instant> range) {
-        getScores(range).stream().filter(not(KpiEntry::meetsTarget)).forEach(entry -> eventService.postEvent(EventType.KPI_TARGET_MISSED.topic(), new KpiMissEventImpl(this, entry)));
+        getScores(range).stream()
+                .filter(not(KpiEntry::meetsTarget))
+                .forEach(entry -> eventService.postEvent(EventType.KPI_TARGET_MISSED.topic(), new KpiMissEventImpl(this, entry)));
     }
 
     @Override

@@ -19,6 +19,7 @@ public interface KpiBuilder {
 
     /**
      * Finalizes the build process and returns the resulting Kpi, and its members.
+     *
      * @return the resulting Kpi
      */
     Kpi create();
@@ -30,7 +31,16 @@ public interface KpiBuilder {
     KpiBuilder named(String name);
 
     /**
+     * Forces the resulting kpi keep or not zero values of collected metrics in database.
+     * By default the kpi will store all values(even zeros).
+     *
+     * @return the builder to chain on
+     */
+    KpiBuilder keepZeros(boolean keepZeros);
+
+    /**
      * Starts building a new member for the Kpi under construction
+     *
      * @return the KpiMemberBuilder that will allow specifying member details.
      */
     KpiMemberBuilder member();
@@ -67,18 +77,21 @@ public interface KpiBuilder {
 
         /**
          * Sets this KpiMember to have a dynamic target. This will overrule previous calls to this method or to withTargetSetAt()
+         *
          * @return the builder to chain on
          */
         KpiMemberBuilder withDynamicTarget();
 
         /**
          * Indicates the target is a minimum value, i.e. scores are expected to be equal to or higher than the target.
+         *
          * @return the builder to chain on
          */
         KpiMemberBuilder asMinimum();
 
         /**
          * Indicates the target is a maximum value, i.e. scores are expected to be equal to or lower than the target.
+         *
          * @return the builder to chain on
          */
         KpiMemberBuilder asMaximum();
@@ -91,6 +104,7 @@ public interface KpiBuilder {
 
         /**
          * Finalizes specifying the KpiMember under construction.
+         *
          * @return the builder for the parent Kpi to chain on.
          */
         KpiBuilder add();

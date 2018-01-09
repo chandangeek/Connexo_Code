@@ -60,4 +60,9 @@ public interface Kpi extends HasName {
      * @return an updater
      */
     KpiUpdater startUpdate();
+
+    /**
+     * @return true if this Kpi is intended to persist zero values of metrics
+     */
+    boolean keepZeroValues();
 }

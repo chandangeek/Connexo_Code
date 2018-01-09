@@ -36,6 +36,7 @@ class KpiImpl implements Kpi {
 
     private long id;
     private String name;
+    private boolean keepZeros;
     private List<IKpiMember> members = new ArrayList<>();
 
     private transient TimeZone timeZone;
@@ -60,15 +61,16 @@ class KpiImpl implements Kpi {
         this.eventService = eventService;
     }
 
-    KpiImpl init(String name, TimeZone timeZone, TemporalAmount intervalLength) {
+    KpiImpl init(String name, TimeZone timeZone, TemporalAmount intervalLength, boolean keepZeros) {
         this.name = name;
         this.timeZone = timeZone;
         this.intervalLength = intervalLength;
+        this.keepZeros = keepZeros;
         return this;
     }
 
-    static KpiImpl from(DataModel dataModel, String name, TimeZone timeZone, TemporalAmount intervalLength) {
-        return dataModel.getInstance(KpiImpl.class).init(name, timeZone, intervalLength);
+    static KpiImpl from(DataModel dataModel, String name, TimeZone timeZone, TemporalAmount intervalLength, boolean keepZeros) {
+        return dataModel.getInstance(KpiImpl.class).init(name, timeZone, intervalLength, keepZeros);
     }
 
     @Override
@@ -186,7 +188,6 @@ class KpiImpl implements Kpi {
         TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
         Map<IKpiMember, Range<Instant>> memberRangeMap = new HashMap<>();
         for (Map.Entry<KpiMember, Map<Instant, BigDecimal>> kpiMemberMapEntry : memberScores.entrySet()) {
-
             Optional<IKpiMember> iKpiMember = getIKpiMember(kpiMemberMapEntry.getKey());
             if (iKpiMember.isPresent()) {
                 memberRangeMap.put(iKpiMember.get(), iKpiMember.get().addScores(storer, kpiMemberMapEntry.getValue()));
@@ -205,5 +206,10 @@ class KpiImpl implements Kpi {
     @Override
     public KpiUpdater startUpdate() {
         return new KpiUpdaterImpl(this);
+    }
+
+    @Override
+    public boolean keepZeroValues() {
+        return keepZeros;
     }
 }
