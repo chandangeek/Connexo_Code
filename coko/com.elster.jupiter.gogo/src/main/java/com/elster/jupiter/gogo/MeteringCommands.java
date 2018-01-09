@@ -10,6 +10,7 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.Meter;
@@ -20,6 +21,7 @@ import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
@@ -66,7 +68,10 @@ import java.util.stream.Collectors;
                 "osgi.command.function=listEndDeviceEventTypes",
                 "osgi.command.function=addDeviceEvent",
                 "osgi.command.function=listReadingQualityTypes",
-                "osgi.command.function=addReadingQuality"
+                "osgi.command.function=addReadingQuality",
+                "osgi.command.function=aggregatedChannelGetReading",
+                "osgi.command.function=aggregatedChannelGetReadingBefore",
+                "osgi.command.function=aggregatedChannelGetReadingOnorBefore"
         }, immediate = true)
 public class MeteringCommands {
 
@@ -502,6 +507,121 @@ public class MeteringCommands {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void aggregatedChannelGetReading(String usagePointName, String contractName, String readingTypeMRID, String dateTime) {
+        //find meter
+        Optional<UsagePoint> usagePoint = meteringService.findUsagePointByName(usagePointName);
+        if (!usagePoint.isPresent()) {
+            System.out.println("No usagepoint found with name " + usagePoint);
+            return;
+        }
+        //find reading type
+        Optional<ReadingType> readingType = meteringService.getReadingType(readingTypeMRID);
+        if (!readingType.isPresent()) {
+            System.out.println("Unknown reading type '" + readingTypeMRID + "'. Skipping.");
+            return;
+        }
+        //parse timestamp
+        ZonedDateTime timeStamp = LocalDateTime.from(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").parse(dateTime)).atZone(ZoneId.systemDefault());
+
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = usagePoint.get().getCurrentEffectiveMetrologyConfiguration().get();
+        Optional<MetrologyContract> metrologyContract = effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
+                .getContracts()
+                .stream()
+                .filter(mc -> mc.getMetrologyPurpose().getName().equals(contractName))
+                .findFirst();
+
+        if (!metrologyContract.isPresent()) {
+            System.out.println("No contract found with name " + contractName);
+        }
+
+        transactionService.execute(() -> {
+            Optional<BaseReadingRecord> reading = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract.get(), readingType.get()).get().getReading(timeStamp.toInstant());
+            printReading(reading.get());
+            return null;
+        });
+
+    }
+
+    private void printReading(BaseReadingRecord readingRecord) {
+        StringBuilder builder = new StringBuilder(readingRecord.toString()).append("\n");
+        builder.append("  ").append("timeStamp ").append(readingRecord.getTimeStamp().atZone(ZoneId.systemDefault())).append("\n");
+        builder.append("  ").append("reportedTimeStamp ").append(readingRecord.getReportedDateTime().atZone(ZoneId.systemDefault())).append("\n");
+        builder.append("  ").append("value ").append(readingRecord.getValue()).append("\n");
+        System.out.println(builder.toString());
+    }
+
+    public void aggregatedChannelGetReadingBefore(String usagePointName, String contractName, String readingTypeMRID, String dateTime, int readingCount) {
+        //find meter
+        Optional<UsagePoint> usagePoint = meteringService.findUsagePointByName(usagePointName);
+        if (!usagePoint.isPresent()) {
+            System.out.println("No usagepoint found with name " + usagePoint);
+            return;
+        }
+        //find reading type
+        Optional<ReadingType> readingType = meteringService.getReadingType(readingTypeMRID);
+        if (!readingType.isPresent()) {
+            System.out.println("Unknown reading type '" + readingTypeMRID + "'. Skipping.");
+            return;
+        }
+        //parse timestamp
+        ZonedDateTime timeStamp = LocalDateTime.from(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").parse(dateTime)).atZone(ZoneId.systemDefault());
+
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = usagePoint.get().getCurrentEffectiveMetrologyConfiguration().get();
+        Optional<MetrologyContract> metrologyContract = effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
+                .getContracts()
+                .stream()
+                .filter(mc -> mc.getMetrologyPurpose().getName().equals(contractName))
+                .findFirst();
+
+        if (!metrologyContract.isPresent()) {
+            System.out.println("No contract found with name " + contractName);
+        }
+
+        transactionService.execute(() -> {
+            List<BaseReadingRecord> readingsBefore = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract.get(), readingType.get())
+                    .get()
+                    .getReadingsBefore(timeStamp.toInstant(), readingCount);
+            readingsBefore.forEach(this::printReading);
+            return null;
+        });
+    }
+
+    public void aggregatedChannelGetReadingOnorBefore(String usagePointName, String contractName, String readingTypeMRID, String dateTime, int readingCount) {
+        //find meter
+        Optional<UsagePoint> usagePoint = meteringService.findUsagePointByName(usagePointName);
+        if (!usagePoint.isPresent()) {
+            System.out.println("No usagepoint found with name " + usagePoint);
+            return;
+        }
+        //find reading type
+        Optional<ReadingType> readingType = meteringService.getReadingType(readingTypeMRID);
+        if (!readingType.isPresent()) {
+            System.out.println("Unknown reading type '" + readingTypeMRID + "'. Skipping.");
+            return;
+        }
+        //parse timestamp
+        ZonedDateTime timeStamp = LocalDateTime.from(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").parse(dateTime)).atZone(ZoneId.systemDefault());
+
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = usagePoint.get().getCurrentEffectiveMetrologyConfiguration().get();
+        Optional<MetrologyContract> metrologyContract = effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()
+                .getContracts()
+                .stream()
+                .filter(mc -> mc.getMetrologyPurpose().getName().equals(contractName))
+                .findFirst();
+
+        if (!metrologyContract.isPresent()) {
+            System.out.println("No contract found with name " + contractName);
+        }
+
+        transactionService.execute(() -> {
+            List<BaseReadingRecord> readingsBefore = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract.get(), readingType.get())
+                    .get()
+                    .getReadingsOnOrBefore(timeStamp.toInstant(), readingCount);
+            readingsBefore.forEach(this::printReading);
+            return null;
+        });
     }
 
     private <T> T executeTransaction(Transaction<T> transaction) {
