@@ -11,11 +11,14 @@ import java.time.ZonedDateTime;
 
 @ProviderType
 public interface TimeSeriesDataStorer {
+
     void add(TimeSeries timeSeries, Instant instant, Object... values);
 
     default void add(TimeSeries timeSeries, ZonedDateTime dateTime, Object... values) {
         add(timeSeries, dateTime.toInstant(), values);
     }
+
+    void remove(TimeSeries timeSeries, Instant instant);
 
     boolean overrules();
 
