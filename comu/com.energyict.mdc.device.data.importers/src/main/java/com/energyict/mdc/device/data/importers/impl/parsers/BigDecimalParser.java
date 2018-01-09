@@ -56,5 +56,4 @@ public class BigDecimalParser implements FieldParser<BigDecimal> {
             throw new ValueParserException(value, numberFormat.getExample());
         }
     }
-
 }

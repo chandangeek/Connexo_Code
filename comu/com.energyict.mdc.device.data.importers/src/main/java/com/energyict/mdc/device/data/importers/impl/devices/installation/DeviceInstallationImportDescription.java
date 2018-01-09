@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
+import com.elster.jupiter.fileimport.csvimport.FieldParser;
 import com.elster.jupiter.fileimport.csvimport.fields.CommonField;
 import com.elster.jupiter.fileimport.csvimport.fields.FileImportField;
 import com.elster.jupiter.metering.LocationTemplate.TemplateField;
@@ -15,16 +16,26 @@ import com.energyict.mdc.device.data.importers.impl.parsers.DateParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.LiteralStringParser;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.IntStream;
+import com.google.common.collect.ImmutableMap;
+
+import java.math.BigDecimal;
+import java.time.ZonedDateTime;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Stream;
 
 public class DeviceInstallationImportDescription implements FileImportDescription<DeviceInstallationImportRecord> {
-
+    private LiteralStringParser stringParser;
+    private BooleanParser booleanParser;
+    private BigDecimalParser bigDecimalParser;
     private DateParser dateParser;
     private volatile DeviceDataImporterContext context;
 
     public DeviceInstallationImportDescription(String dateFormat, String timeZone, DeviceDataImporterContext context) {
+        stringParser = new LiteralStringParser();
+        booleanParser = new BooleanParser();
+        bigDecimalParser = new BigDecimalParser(SupportedNumberFormat.FORMAT3);
         this.dateParser = new DateParser(dateFormat, timeZone);
         this.context = context;
     }
@@ -34,55 +45,74 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
         return new DeviceInstallationImportRecord();
     }
 
-    public List<FileImportField<?>> getFields(DeviceInstallationImportRecord record) {
-        List<FileImportField<?>> fields = new ArrayList<>();
-        LiteralStringParser stringParser = new LiteralStringParser();
-        BigDecimalParser bigDecimalParser = new BigDecimalParser(SupportedNumberFormat.FORMAT3);
+    @Override
+    public Map<String, FileImportField<?>> getFields(DeviceInstallationImportRecord record) {
+        Map<String, FileImportField<?>> fields = new LinkedHashMap<>();
         // Device mRID or name
-        fields.add(CommonField.withParser(stringParser)
+        fields.put("deviceIdentifier", CommonField.withParser(stringParser)
+                .withName("Device identifier")
                 .withSetter(record::setDeviceIdentifier)
                 .markMandatory()
                 .build());
         // Transition date
-        fields.add(CommonField.withParser(dateParser)
+        fields.put("transitionDate", CommonField.withParser(dateParser)
+                .withName("Transition date")
                 .withSetter(record::setTransitionDate)
                 .markMandatory()
                 .build());
         // Geo coordinates
-        IntStream.range(0, 3).forEach(cnt ->
-                fields.add(CommonField.withParser(stringParser)
-                .withSetter(record::setGeoCoordinates)
-                .build()));
+        Stream.of("Latitude", "Longitude", "Elevation").forEach(name ->
+                fields.put("geoCoordinate" + name, CommonField.withParser(stringParser)
+                        .withName(name)
+                        .withSetter(record::setGeoCoordinates)
+                        .build()));
         context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                .sorted((t1,t2)->Integer.compare(t1.getRanking(),t2.getRanking()))
+                .sorted(Comparator.comparingInt(TemplateField::getRanking))
                 .map(TemplateField::getName)
-                .forEach(s-> fields.add(CommonField.withParser(stringParser)
+                .forEach(name -> fields.put("locationField" + name, CommonField.withParser(stringParser)
+                        .withName("Location field " + name)
                         .withSetter(record::addLocation)
                         .build()));
         // Master device mRID or name
-        fields.add(CommonField.withParser(stringParser)
+        fields.put("masterDeviceIdentifier", CommonField.withParser(stringParser)
+                .withName("Master device identifier")
                 .withSetter(record::setMasterDeviceIdentifier)
                 .build());
         // Usage point mRID or name
-        fields.add(CommonField.withParser(stringParser)
+        fields.put("usagePointIdentifier", CommonField.withParser(stringParser)
+                .withName("Usage point identifier")
                 .withSetter(record::setUsagePointIdentifier)
                 .build());
         // Service category
-        fields.add(CommonField.withParser(stringParser)
+        fields.put("serviceCategory", CommonField.withParser(stringParser)
+                .withName("Service category")
                 .withSetter(record::setServiceCategory)
                 .build());
         // Install inactive flag
-        fields.add(CommonField.withParser(new BooleanParser())
+        fields.put("installInactive", CommonField.withParser(booleanParser)
+                .withName("Install inactive")
                 .withSetter(record::setInstallInactive)
                 .build());
         // Start validation date
-        fields.add(CommonField.withParser(dateParser)
+        fields.put("startValidationDate", CommonField.withParser(dateParser)
+                .withName("Start validation date")
                 .withSetter(record::setStartValidationDate)
                 .build());
         // Multiplier
-        fields.add(CommonField.withParser(bigDecimalParser)
+        fields.put("multiplier", CommonField.withParser(bigDecimalParser)
+                .withName("Multiplier")
                 .withSetter(record::setMultiplier)
                 .build());
         return fields;
+    }
+
+    @Override
+    public Map<Class, FieldParser> getParsers() {
+        return ImmutableMap.of(
+                String.class, stringParser,
+                Boolean.class, booleanParser,
+                BigDecimal.class, bigDecimalParser,
+                ZonedDateTime.class, dateParser
+        );
     }
 }

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.importers.impl.devices.activation;
 
+import com.elster.jupiter.fileimport.csvimport.FieldParser;
 import com.elster.jupiter.fileimport.csvimport.fields.CommonField;
 import com.elster.jupiter.fileimport.csvimport.fields.FileImportField;
 import com.energyict.mdc.device.data.importers.impl.FileImportDescription;
@@ -11,14 +12,18 @@ import com.energyict.mdc.device.data.importers.impl.parsers.BooleanParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.DateParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.LiteralStringParser;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.collect.ImmutableMap;
+
+import java.time.ZonedDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class DeviceActivationDeactivationImportDescription implements FileImportDescription<DeviceActivationDeactivationRecord> {
-
+    private LiteralStringParser stringParser;
     private DateParser dateParser;
 
     public DeviceActivationDeactivationImportDescription(String dateFormat, String timeZone) {
+        stringParser = new LiteralStringParser();
         this.dateParser = new DateParser(dateFormat, timeZone);
     }
 
@@ -27,24 +32,35 @@ public class DeviceActivationDeactivationImportDescription implements FileImport
         return new DeviceActivationDeactivationRecord();
     }
 
-    public List<FileImportField<?>> getFields(DeviceActivationDeactivationRecord record) {
-        List<FileImportField<?>> fields = new ArrayList<>();
-        LiteralStringParser stringParser = new LiteralStringParser();
+    @Override
+    public Map<String, FileImportField<?>> getFields(DeviceActivationDeactivationRecord record) {
+        Map<String, FileImportField<?>> fields = new LinkedHashMap<>();
         // Device mRID or name
-        fields.add(CommonField.withParser(stringParser)
+        fields.put("deviceIdentifier", CommonField.withParser(stringParser)
+                .withName("Device Identifier")
                 .withSetter(record::setDeviceIdentifier)
                 .markMandatory()
                 .build());
         // Transition date
-        fields.add(CommonField.withParser(dateParser)
+        fields.put("transitionDate", CommonField.withParser(dateParser)
+                .withName("Transition date")
                 .withSetter(record::setTransitionDate)
                 .markMandatory()
                 .build());
         // Activation flag
-        fields.add(CommonField.withParser(new BooleanParser())
+        fields.put("activate", CommonField.withParser(new BooleanParser())
+                .withName("Activate")
                 .withSetter(record::setActivate)
                 .markMandatory()
                 .build());
         return fields;
+    }
+
+    @Override
+    public Map<Class, FieldParser> getParsers() {
+        return ImmutableMap.of(
+                String.class, stringParser,
+                ZonedDateTime.class, dateParser
+        );
     }
 }

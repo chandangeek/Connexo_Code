@@ -9,11 +9,10 @@ import com.elster.jupiter.fileimport.csvimport.exceptions.ImportException;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.importers.impl.attributes.security.PropertySpecAwareConstraintViolationException;
+import com.energyict.mdc.device.data.importers.impl.attributes.PropertySpecAwareConstraintViolationException;
 import com.energyict.mdc.upl.issue.Warning;
 
 import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 
 public abstract class FileImportLoggerImpl<T extends FileImportRecord> implements FileImportLogger<T> {
 

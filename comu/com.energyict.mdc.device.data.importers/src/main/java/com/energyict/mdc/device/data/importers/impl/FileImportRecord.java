@@ -7,30 +7,21 @@ package com.energyict.mdc.device.data.importers.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileImportRecord {
-
-    private long lineNumber;
+public class FileImportRecord extends com.elster.jupiter.fileimport.csvimport.FileImportRecord {
     private String deviceIdentifier;
     private List<String> location = new ArrayList<>();
     private List<String> geoCoordinates = new ArrayList<>();
 
     public FileImportRecord() {
+        super();
     }
 
     public FileImportRecord(long lineNumber) {
-        this.lineNumber = lineNumber;
-    }
-
-    public void setLineNumber(long lineNumber) {
-        this.lineNumber = lineNumber;
+        super(lineNumber);
     }
 
     public void setDeviceIdentifier(String deviceIdentifier) {
         this.deviceIdentifier = deviceIdentifier;
-    }
-
-    public long getLineNumber() {
-        return lineNumber;
     }
 
     public String getDeviceIdentifier() {
