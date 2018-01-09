@@ -43,7 +43,6 @@ public enum TableSpecs {
             Column usagePointGroup = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column metrologyPurpose = table.column("METROLOGYPURPOSE").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column dataQualityKpiTask = table.column("DATAQUALITYKPITASK").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            table.column("OBSOLETETIME").number().map(DataQualityKpiImpl.Fields.OBSOLETE_TIME.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
 
             table.primaryKey("PK_DQK_DATA_QUALITY_KPI").on(id).add();
             table.foreignKey("FK_DQK_ENDDEVICEGROUP")
@@ -78,6 +77,9 @@ public enum TableSpecs {
 
             Column dataValidationKpiColumn = table.column("DATAQUALITYKPI").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             Column childKpiColumn = table.column("CHILDKPI").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("device").map("deviceId").number().conversion(ColumnConversion.NUMBER2LONGNULLZERO).since(version(10, 3, 1)).add();
+            table.column("usagepoint").map("usagePointId").number().conversion(ColumnConversion.NUMBER2LONGNULLZERO).since(version(10, 3, 1)).add();
+            table.column("channelContainer").map("channelContainer").number().conversion(ColumnConversion.NUMBER2LONGNULLZERO).since(version(10, 3, 1)).add();
             table.primaryKey("PK_DQK_DATAQUALITYKPIMEMBER").on(dataValidationKpiColumn, childKpiColumn).add();
             table.foreignKey("FK_DQK_KPIMEMBER_KPI")
                     .references(DQK_DATAQUALITYKPI.name())

@@ -56,8 +56,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.elster.jupiter.dataquality.impl.DataQualityKpiMember.KPIMEMBERNAME_SEPARATOR;
-import static com.elster.jupiter.dataquality.impl.UsagePointDataQualityKpiImpl.KPIMEMBERNAME_SUFFIX_SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Mockito.mock;
@@ -216,28 +214,6 @@ public class UsagePointDataQualityKpiIT extends BaseTestIT {
 
     @Test
     @Transactional
-    public void makeObsolete() {
-        UsagePointGroup usagePointGroup = createUsagePointGroup();
-        UsagePointDataQualityKpiImpl kpi = (UsagePointDataQualityKpiImpl) dataQualityKpiService.newDataQualityKpi(usagePointGroup, metrologyPurpose, ONE_HOUR);
-        String recurrentTaskName = kpi.getRecurrentTaskName();
-
-        // Business method
-        kpi.makeObsolete();
-
-        // Asserts
-        Optional<UsagePointDataQualityKpi> dataQualityKpi = dataQualityKpiService.findUsagePointDataQualityKpi(kpi.getId());
-        assertThat(dataQualityKpi).isPresent();
-        assertThat(dataQualityKpi.get().getObsoleteTime()).isPresent();
-
-        List<UsagePointDataQualityKpi> found = dataQualityKpiService.usagePointDataQualityKpiFinder().forGroup(usagePointGroup).forPurpose(metrologyPurpose).find();
-        assertThat(found).isEmpty();
-
-        Optional<RecurrentTask> recurrentTask = get(TaskService.class).getRecurrentTask(recurrentTaskName);
-        assertThat(recurrentTask).isEmpty();
-    }
-
-    @Test
-    @Transactional
     public void updateMembersEmptyUsagePointGroup() {
         UsagePointGroup usagePointGroup = createUsagePointGroup();
         UsagePointDataQualityKpiImpl kpi = (UsagePointDataQualityKpiImpl) dataQualityKpiService.newDataQualityKpi(usagePointGroup, metrologyPurpose, ONE_HOUR);
@@ -269,8 +245,8 @@ public class UsagePointDataQualityKpiIT extends BaseTestIT {
         assertThat(kpi.getKpiMembers()).hasSize(1);
 
         DataQualityKpiMember dataQualityKpiMember = kpi.getKpiMembers().get(0);
-        assertThat(dataQualityKpiMember.getTargetIdentifier())
-                .isEqualTo(usagePoint.getId() + KPIMEMBERNAME_SUFFIX_SEPARATOR + channelsContainer.getId());
+        assertThat(dataQualityKpiMember.getUsagePointId()).isEqualTo(usagePoint.getId());
+        assertThat(dataQualityKpiMember.getChannelContainer()).isEqualTo(channelsContainer.getId());
 
         Kpi childKpi = dataQualityKpiMember.getChildKpi();
         assertThat(childKpi.getIntervalLength()).isEqualTo(ONE_HOUR);
@@ -282,7 +258,6 @@ public class UsagePointDataQualityKpiIT extends BaseTestIT {
                         Stream.of(new DataQualityKpiMemberType.ValidatorKpiMemberType(validator),
                                 new DataQualityKpiMemberType.EstimatorKpiMemberType(estimator)))
                         .map(DataQualityKpiMemberType::getName)
-                        .map(member -> member + KPIMEMBERNAME_SEPARATOR + usagePoint.getId() + KPIMEMBERNAME_SUFFIX_SEPARATOR + channelsContainer.getId())
                         .toArray(String[]::new);
         assertThat(kpiMemberNames).containsOnly(expectedKpiMemberNames);
     }
@@ -303,12 +278,10 @@ public class UsagePointDataQualityKpiIT extends BaseTestIT {
         // Asserts
         kpi = (UsagePointDataQualityKpiImpl) dataQualityKpiService.findUsagePointDataQualityKpi(kpi.getId()).get();
         assertThat(kpi.getKpiMembers()).hasSize(2);
-        assertThat(kpi.getKpiMembers().stream().map(DataQualityKpiMember::getTargetIdentifier).toArray()).containsOnly(
-                usagePoint_1.getId() + KPIMEMBERNAME_SUFFIX_SEPARATOR + channelsContainer_1.getId(),
-                usagePoint_2.getId() + KPIMEMBERNAME_SUFFIX_SEPARATOR + channelsContainer_2.getId());
+        assertThat(kpi.getKpiMembers().stream().map(DataQualityKpiMember::getUsagePointId).toArray()).containsOnly(usagePoint_1.getId(), usagePoint_2.getId());
+        assertThat(kpi.getKpiMembers().stream().map(DataQualityKpiMember::getChannelContainer).toArray()).containsOnly(channelsContainer_1.getId(), channelsContainer_2.getId());
         Kpi removedKpi = kpi.getKpiMembers().stream()
-                .filter(dataQualityKpiMember -> dataQualityKpiMember.getTargetIdentifier()
-                        .equals(usagePoint_1.getId() + KPIMEMBERNAME_SUFFIX_SEPARATOR + channelsContainer_1.getId()))
+                .filter(dataQualityKpiMember -> dataQualityKpiMember.getUsagePointId() == usagePoint_1.getId())
                 .map(DataQualityKpiMember::getChildKpi)
                 .findFirst().get();
 
@@ -323,8 +296,7 @@ public class UsagePointDataQualityKpiIT extends BaseTestIT {
         // Asserts
         kpi = (UsagePointDataQualityKpiImpl) dataQualityKpiService.findUsagePointDataQualityKpi(kpi.getId()).get();
         assertThat(kpi.getKpiMembers()).hasSize(1);
-        assertThat(kpi.getKpiMembers().stream().map(DataQualityKpiMember::getTargetIdentifier).toArray())
-                .containsOnly(usagePoint_2.getId() + KPIMEMBERNAME_SUFFIX_SEPARATOR + channelsContainer_2.getId());
+        assertThat(kpi.getKpiMembers().stream().map(DataQualityKpiMember::getUsagePointId).toArray()).containsOnly(usagePoint_2.getId());
         assertThat(get(KpiService.class).getKpi(removedKpi.getId())).isEmpty();
     }
 
@@ -347,7 +319,6 @@ public class UsagePointDataQualityKpiIT extends BaseTestIT {
         String[] expectedKpiMemberNames =
                 Stream.of(DataQualityKpiMemberType.PredefinedKpiMemberType.values())
                         .map(DataQualityKpiMemberType::getName)
-                        .map(member -> member + KPIMEMBERNAME_SEPARATOR + usagePoint.getId() + KPIMEMBERNAME_SUFFIX_SEPARATOR + channelsContainer.getId())
                         .toArray(String[]::new);
         assertThat(kpiMemberNames).containsOnly(expectedKpiMemberNames);
 
@@ -372,7 +343,6 @@ public class UsagePointDataQualityKpiIT extends BaseTestIT {
                         Stream.of(new DataQualityKpiMemberType.ValidatorKpiMemberType(validator),
                                 new DataQualityKpiMemberType.EstimatorKpiMemberType(estimator)))
                         .map(DataQualityKpiMemberType::getName)
-                        .map(member -> member + KPIMEMBERNAME_SEPARATOR + usagePoint.getId() + KPIMEMBERNAME_SUFFIX_SEPARATOR + channelsContainer.getId())
                         .toArray(String[]::new);
         assertThat(kpiMemberNames).containsOnly(expectedKpiMemberNames);
     }
@@ -391,14 +361,11 @@ public class UsagePointDataQualityKpiIT extends BaseTestIT {
         // Asserts
         kpi = (UsagePointDataQualityKpiImpl) dataQualityKpiService.findUsagePointDataQualityKpi(kpi.getId()).get();
         assertThat(kpi.getKpiMembers()).hasSize(1);
-        Kpi childKpi = kpi.getKpiMembers().get(0).getChildKpi();
-        String[] kpiMemberNames = childKpi.getMembers().stream().map(KpiMember::getName).toArray(String[]::new);
         String[] expectedKpiMemberNames =
                 Stream.of(DataQualityKpiMemberType.PredefinedKpiMemberType.values())
                         .map(DataQualityKpiMemberType::getName)
-                        .map(member -> member + KPIMEMBERNAME_SEPARATOR + usagePoint.getId() + KPIMEMBERNAME_SUFFIX_SEPARATOR + initialChannelsContainer.getId())
                         .toArray(String[]::new);
-        assertThat(kpiMemberNames).containsOnly(expectedKpiMemberNames);
+        assertThat(kpi.getKpiMembers().get(0).getChildKpi().getMembers().stream().map(KpiMember::getName).toArray(String[]::new)).containsOnly(expectedKpiMemberNames);
 
         // But once metrology configuration has been changed
         ChannelsContainer newChannelsContainer = mockChannelsContainer(2);
@@ -414,17 +381,14 @@ public class UsagePointDataQualityKpiIT extends BaseTestIT {
 
         // Asserts
         kpi = (UsagePointDataQualityKpiImpl) dataQualityKpiService.findUsagePointDataQualityKpi(kpi.getId()).get();
-        assertThat(kpi.getKpiMembers()).hasSize(1);
-        childKpi = kpi.getKpiMembers().get(0).getChildKpi();
-        kpiMemberNames = childKpi.getMembers().stream().map(KpiMember::getName).toArray(String[]::new);
-        expectedKpiMemberNames =
-                Stream.of(DataQualityKpiMemberType.PredefinedKpiMemberType.values())
-                        .map(DataQualityKpiMemberType::getName)
-                        .flatMap(member -> Stream.of(
-                                member + KPIMEMBERNAME_SEPARATOR + usagePoint.getId() + KPIMEMBERNAME_SUFFIX_SEPARATOR + initialChannelsContainer.getId(),
-                                member + KPIMEMBERNAME_SEPARATOR + usagePoint.getId() + KPIMEMBERNAME_SUFFIX_SEPARATOR + newChannelsContainer.getId())
-                        ).toArray(String[]::new);
-        assertThat(kpiMemberNames).containsOnly(expectedKpiMemberNames);
+        assertThat(kpi.getKpiMembers()).hasSize(2);
+        assertThat(kpi.getKpiMembers().stream().map(DataQualityKpiMember::getUsagePointId).toArray()).contains(usagePoint.getId(), usagePoint.getId());
+        assertThat(kpi.getKpiMembers().stream().map(DataQualityKpiMember::getChannelContainer).toArray()).contains(initialChannelsContainer.getId(), newChannelsContainer.getId());
+
+        kpi.getKpiMembers()
+                .stream()
+                .map(DataQualityKpiMember::getChildKpi).map(childKpi -> childKpi.getMembers().stream().map(KpiMember::getName).toArray(String[]::new))
+                .forEach(kpiMemberNames -> assertThat(kpiMemberNames).containsOnly(expectedKpiMemberNames));
     }
 
     private MeteringService spyMeteringService(DataQualityKpi kpi) {

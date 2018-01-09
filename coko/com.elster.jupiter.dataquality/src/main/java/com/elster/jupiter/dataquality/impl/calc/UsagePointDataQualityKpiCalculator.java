@@ -5,6 +5,7 @@
 package com.elster.jupiter.dataquality.impl.calc;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.dataquality.impl.DataQualityKpiMember;
 import com.elster.jupiter.dataquality.impl.UsagePointDataQualityKpiImpl;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
@@ -15,6 +16,7 @@ import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.collect.Range;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,15 +60,16 @@ class UsagePointDataQualityKpiCalculator extends AbstractDataQualityKpiCalculato
     }
 
     private void store(UsagePoint usagePoint) {
+        List<DataQualityKpiMember> dataQualityKpiMembersFor = getDataQualityKpiMembersFor(usagePoint.getId());
         usagePoint.getEffectiveMetrologyConfigurations(Range.openClosed(super.getStart(), super.getEnd()))
                 .stream()
                 .map(effectiveMC -> getChannelsContainerForPurpose(effectiveMC, this.metrologyPurpose))
                 .flatMap(Functions.asStream())
                 .forEach(channelsContainer ->
-                        super.storeForChannels(
-                                usagePoint.getId(),
-                                UsagePointDataQualityKpiImpl.kpiMemberNameSuffix(usagePoint, channelsContainer),
-                                channelsContainer.getChannels()));
+                        dataQualityKpiMembersFor.stream()
+                                .filter(dataQualityKpiMember -> dataQualityKpiMember.getChannelContainer() == channelsContainer.getId())
+                                .findFirst()
+                                .ifPresent(member -> super.storeForChannels(member, channelsContainer.getChannels())));
     }
 
     private Optional<ChannelsContainer> getChannelsContainerForPurpose(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, MetrologyPurpose purpose) {

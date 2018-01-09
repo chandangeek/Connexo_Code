@@ -5,6 +5,7 @@
 package com.elster.jupiter.dataquality.impl.calc;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.dataquality.impl.DataQualityKpiMember;
 import com.elster.jupiter.dataquality.impl.DeviceDataQualityKpiImpl;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -17,6 +18,7 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,7 +66,10 @@ class DeviceDataQualityKpiCalculator extends AbstractDataQualityKpiCalculator {
         }
         Meter meter = (Meter) endDevice;
         Set<Channel> channels = getEffectiveChannels(meter, super.getStart(), super.getEnd());
-        super.storeForChannels(meter.getId(), DeviceDataQualityKpiImpl.kpiMemberNameSuffix(meter), channels);
+        List<DataQualityKpiMember> dataQualityKpiMembersFor = getDataQualityKpiMembersFor(meter.getId());
+        if (dataQualityKpiMembersFor.size() > 0) {
+            super.storeForChannels(dataQualityKpiMembersFor.get(0), channels);
+        }
     }
 
     private Set<Channel> getEffectiveChannels(Meter meter, Instant start, Instant end) {
