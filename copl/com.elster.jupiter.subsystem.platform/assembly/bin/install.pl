@@ -446,7 +446,7 @@ sub install_tomcat {
 		print "Extracting $TOMCAT_ZIP.zip\n";
 		system("\"$JAVA_HOME/bin/jar\" -xf $TOMCAT_ZIP.zip") == 0 or die "system $JAVA_HOME/bin/jar -xvf $TOMCAT_ZIP.zip failed: $?";
 		if (-d "$TOMCAT_DIR") { rmtree("$TOMCAT_DIR"); }
-		sleep 2;
+		sleep 10;
 		rename("apache-$TOMCAT_ZIP","$TOMCAT_DIR");
 
 		if (-e "$TOMCAT_BASE/connexo.filter.jar") {
@@ -820,7 +820,7 @@ sub start_tomcat {
 			if (! -e "$TOMCAT_BASE/$TOMCAT_DIR/bin/jsvc") {
 				chdir "$CATALINA_HOME/bin";
 				system("tar xfz commons-daemon-native.tar.gz");
-				chdir "$CATALINA_HOME/bin/commons-daemon-1.0.15-native-src/unix";
+				chdir "$CATALINA_HOME/bin/commons-daemon-1.1.0-native-src/unix";
 				system("./configure");
 				system("make");
 				copy("jsvc","../..");
