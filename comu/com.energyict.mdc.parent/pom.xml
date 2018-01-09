@@ -114,6 +114,12 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.cim.webservices.outbound.soap</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.common</artifactId>
                 <version>5.0.0${revision}</version>
                 <scope>provided</scope>
