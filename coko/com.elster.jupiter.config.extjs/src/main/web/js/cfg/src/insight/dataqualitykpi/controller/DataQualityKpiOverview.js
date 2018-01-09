@@ -79,7 +79,7 @@ Ext.define('Cfg.insight.dataqualitykpi.controller.DataQualityKpiOverview', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             title: Uni.I18n.translate('general.removex.kpi', 'CFG', "Remove '{0}'?", record.get('usagePointGroup').name),
-            msg: Uni.I18n.translate('dataqualitykpis.deleteConfirmation.msg', 'CFG', 'This data quality KPI will no longer be available in the system. Already calculated data will not be removed.'),
+            msg: Uni.I18n.translate('dataqualitykpis.deleteConfirmation.msg', 'CFG', 'This data quality KPI will no longer be available in the system.'),
             fn: confirm
         });
 
