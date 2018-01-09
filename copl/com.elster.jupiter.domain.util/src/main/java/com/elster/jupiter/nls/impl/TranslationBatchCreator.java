@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.Optional;
 
 /**
  * Creates {@link NlsEntry NlsEntries} in batch from an InputStream.
@@ -35,11 +36,11 @@ class TranslationBatchCreator extends TranslationBatchExecutor {
 
     private void insertNlsEntry(String csvLine, PreparedStatement statement) throws UnderlyingSQLFailedException {
         try {
-            TranslationCsvEntry entry = TranslationCsvEntry.parseFrom(csvLine, this.getLocale(), this.getCsvSeparator());
-            if (this.keyExists(entry)) {
-                if (entry.validate(this.getLogger())) {
-                    entry.bindToInsertBatch(statement);
-                    this.addImpactedThesaurus(entry);
+            Optional<TranslationCsvEntry> entry = TranslationCsvEntry.parseFrom(csvLine, this.getLocale(), this.getCsvSeparator());
+            if (this.keyExists(entry.get())) {
+                if (entry.get().validate(this.getLogger())) {
+                    entry.get().bindToInsertBatch(statement);
+                    this.addImpactedThesaurus(entry.get());
                 } else {
                     this.getLogger().warning(() -> "Ignored entry " + entry + " because it is not valid (see messages above)");
                 }

@@ -48,10 +48,10 @@ class TranslationBatchUpdater extends TranslationBatchExecutor {
     }
 
     private void upsertNlsEntry(String csvLine) {
-        TranslationCsvEntry entry = TranslationCsvEntry.parseFrom(csvLine, this.getLocale(), this.getCsvSeparator());
+        Optional<TranslationCsvEntry> entry = TranslationCsvEntry.parseFrom(csvLine, this.getLocale(), this.getCsvSeparator());
         // We ignore translation for NlsKeys that don't exist
-        if (this.keyExists(entry)) {
-            this.upsertNlsEntry(entry);
+        if (this.keyExists(entry.get())) {
+            this.upsertNlsEntry(entry.get());
         }
     }
 
