@@ -12,10 +12,9 @@ Ext.define('Mtr.controller.Main', {
 
     controllers: [
         'Mtr.controller.history.Setup',
-        'Mtr.readingtypes.controller.ReadingTypes',
-        'Mtr.readingtypes.controller.OverviewSorting',
-        'Mtr.readingtypes.controller.AddReadingTypes',
-        'Mtr.readingtypes.controller.BulkAction'
+        'Mtr.controller.BulkAction',
+        'Mtr.controller.AddReadingTypesGroup',
+        'Mtr.controller.ReadingTypesGroup'
     ],
 
     stores: [
@@ -47,12 +46,13 @@ Ext.define('Mtr.controller.Main', {
 
         if (Mtr.privileges.ReadingTypes.canView()) {
 
-            var exportItem = Ext.create('Uni.model.PortalItem', {
+            var portalItem = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('readingtypes.management', 'MTR', 'Reading types management'),
                 portal: 'administration',
-                items: [
+                items:
+                    [
                     {
-                        text: Uni.I18n.translate('readingtypes.readingtypes', 'MTR', 'Reading types'),
+                        text: Uni.I18n.translate('readingtypes.readingTypes', 'MTR', 'Reading types'),
                         href: '#/administration/readingtypes',
                         route: 'readingtypes'
                     }
@@ -60,7 +60,7 @@ Ext.define('Mtr.controller.Main', {
             });
 
             Uni.store.PortalItems.add(
-                exportItem
+                portalItem
             );
         }
     }

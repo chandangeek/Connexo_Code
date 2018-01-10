@@ -15,25 +15,62 @@ Ext.define('Mtr.controller.history.Setup', {
             disabled: true,
             items: {
                 readingtypes: {
-                    title: Uni.I18n.translate('readingtypes.title', 'MTR', 'Reading types'),
+                    title: Uni.I18n.translate('readingtypes.readingTypes.breadcrumbs', 'MTR', 'Reading types'),
                     route: 'readingtypes',
-                    controller: 'Mtr.readingtypes.controller.ReadingTypes',
+                    controller: 'Mtr.controller.ReadingTypesGroup',
                     privileges : Mtr.privileges.ReadingTypes.view,
                     action: 'showOverview',
                     items: {
                         add: {
-                            title: Uni.I18n.translate('readingtypes.add', 'MTR', 'Add reading types'),
+                            title: Uni.I18n.translate('readingtypes.readingTypes.add', 'MTR', 'Add reading type'),
                             route: 'add',
-                            controller: 'Mtr.readingtypes.controller.AddReadingTypes',
-                            privileges : Mtr.privileges.ReadingTypes.admin,
+                            controller: 'Mtr.controller.AddReadingTypesGroup',
+                            privileges: Mtr.privileges.ReadingTypes.admin,
                             action: 'showOverview'
                         },
                         bulk: {
+
                             title: Uni.I18n.translate('general.bulk', 'MTR', 'Bulk action'),
-                            route: 'bulk',
-                            controller: 'Mtr.readingtypes.controller.BulkAction',
-                            privileges : Mtr.privileges.ReadingTypes.admin,
-                            action: 'showOverview'
+                            route: '{aliasName}/bulk',
+                            controller: 'Mtr.controller.BulkAction',
+                            privileges: Mtr.privileges.ReadingTypes.admin,
+                            action: 'showOverview',
+                            callback: function (route) {
+                                this.getApplication().on('groupdetailsloaded', function (readingTypeGroupName) {
+                                    route.setTitle(readingTypeGroupName);
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
+
+                        },
+                        view: {
+                            title: Uni.I18n.translate('readingtypegroups.readingtypegroup', 'MTR', 'Reading type'),
+                            route: '{aliasName}/view',
+                            controller: 'Mtr.controller.ReadingTypesGroup',
+                            privileges: Mtr.privileges.ReadingTypes.admin,
+                            action: 'showReadingTypesGroupDetails',
+                            callback: function (route) {
+                                this.getApplication().on('groupdetailsloaded', function (readingTypeGroupName) {
+                                    route.setTitle(readingTypeGroupName);
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
+                        },
+                        readingtypes: {
+                            title: Uni.I18n.translate('readingtypegroups.readingtypegroup', 'MTR', 'Reading type'),
+                            route: '{aliasName}/readingtypes',
+                            controller: 'Mtr.controller.ReadingTypesGroup',
+                            privileges: Mtr.privileges.ReadingTypes.admin,
+                            action: 'showReadingTypesInGroup',
+                            callback: function (route) {
+                                this.getApplication().on('groupdetailsloaded', function (readingTypeGroupName) {
+                                    route.setTitle(readingTypeGroupName);
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
                         }
                     }
                 }
@@ -41,3 +78,5 @@ Ext.define('Mtr.controller.history.Setup', {
         }
     }
 });
+
+
