@@ -32,7 +32,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_KEYPAIR(19, "NoSuchKeypair", "No such keypair could be located"),
     NO_PUBLIC_KEY_PRESENT(20, "NoPublicKeyPresent", "No public key found"),
     INVALID_PUBLIC_KEY(21, "InvalidPublicKey", "File does not contain a valid public key"),
-    INVALID_KEY(22,"InvalidKey","Invalid key");
+    INVALID_KEY(22, "InvalidKey", "Invalid key"),
+    CERTIFICATE_USED_BY_DIRECTORY(23, "CertificateUsedByDirectory", "Could not remove the certificate: {0}. The certificate is used by user directory"),
+    TRUSTSTORE_USED_BY_DIRECTORY(24, "TrustStoreUsedByDirectory", "Could not remove the trust store: {0}. The trust store is used by user directory"),;
 
     private final int number;
     private final String key;

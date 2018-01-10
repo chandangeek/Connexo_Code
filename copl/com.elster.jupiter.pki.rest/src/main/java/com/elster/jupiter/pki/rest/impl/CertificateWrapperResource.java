@@ -6,10 +6,23 @@ package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.pki.*;
+import com.elster.jupiter.pki.AliasParameterFilter;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.IssuerParameterFilter;
+import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.KeyUsagesParameterFilter;
+import com.elster.jupiter.pki.RequestableCertificateWrapper;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.SubjectParameterFilter;
 import com.elster.jupiter.pki.security.Privileges;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Where;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -20,7 +33,14 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -184,6 +204,9 @@ public class CertificateWrapperResource {
     public Response removeCertificate(@PathParam("id") long certificateId) {
         CertificateWrapper certificateWrapper = securityManagementService.findCertificateWrapper(certificateId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
+        if (!securityManagementService.getDirectoryCertificateUsagesQuery().select(Where.where("certificate").isEqualTo(certificateWrapper)).isEmpty()) {
+            throw exceptionFactory.newException(MessageSeeds.CERTIFICATE_USED_BY_DIRECTORY, certificateId);
+        }
         certificateWrapper.delete();
         return Response.status(Response.Status.OK).build();
     }
