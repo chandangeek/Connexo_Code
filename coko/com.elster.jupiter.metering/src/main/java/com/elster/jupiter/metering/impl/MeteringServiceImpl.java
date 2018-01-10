@@ -15,8 +15,38 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceControlType;
+import com.elster.jupiter.metering.GasDayOptions;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationMember;
+import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.LocationTemplate.TemplateField;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeterFilter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.PurgeConfiguration;
+import com.elster.jupiter.metering.ReadingQualityComment;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingTypeFieldsFactory;
+import com.elster.jupiter.metering.ReadingTypeFilter;
+import com.elster.jupiter.metering.ReadingTypeMridFilter;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.metering.StorerProcess;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -36,7 +66,12 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.conditions.*;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Membership;
+import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.DayMonthTime;
@@ -48,7 +83,12 @@ import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -231,6 +271,13 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Optional<EndDevice> findEndDeviceByName(String name) {
         return dataModel.mapper(EndDevice.class).getUnique("name", name, "obsoleteTime", null);
+    }
+
+    @Override
+    public Finder<EndDevice> findEndDevices(Set<String> mRIDs, Set<String> deviceNames) {
+        Condition condition = ListOperator.IN.contains("mRID", mRIDs.stream().collect(Collectors.toList()))
+                .or(ListOperator.IN.contains("name", deviceNames.stream().collect(Collectors.toList())));
+        return DefaultFinder.of(EndDevice.class, condition, dataModel).defaultSortColumn("name");
     }
 
     @Override

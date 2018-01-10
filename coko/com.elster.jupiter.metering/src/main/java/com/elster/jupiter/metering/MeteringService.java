@@ -22,6 +22,7 @@ import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ProviderType
 public interface MeteringService {
@@ -81,6 +82,8 @@ public interface MeteringService {
     Optional<EndDevice> findEndDeviceByMRID(String mRID);
 
     Optional<EndDevice> findEndDeviceByName(String name);
+
+    Finder<EndDevice> findEndDevices(Set<String> mRIDs, Set<String> deviceNames);
 
     Finder<Meter> findMeters(MeterFilter filter);
 
