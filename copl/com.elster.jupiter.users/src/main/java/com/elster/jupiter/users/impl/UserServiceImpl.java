@@ -47,7 +47,6 @@ import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -196,6 +195,11 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Override
     public List<UserDirectory> getUserDirectories() {
         return dataModel.mapper(UserDirectory.class).find();
+    }
+
+    @Override
+    public List<LdapUserDirectory> getLdapUserDirectories() {
+        return dataModel.mapper(LdapUserDirectory.class).find();
     }
 
     @Override

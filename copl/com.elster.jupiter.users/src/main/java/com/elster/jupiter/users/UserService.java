@@ -4,12 +4,11 @@
 
 package com.elster.jupiter.users;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Thesaurus;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -125,6 +124,8 @@ public interface UserService {
     List<UserDirectory> getUserDirectories();
 
     Query<UserDirectory> getLdapDirectories();
+
+    List<LdapUserDirectory> getLdapUserDirectories();
 
     LdapUserDirectory getLdapUserDirectory(long id);
 

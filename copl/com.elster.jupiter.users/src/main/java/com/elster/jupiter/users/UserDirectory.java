@@ -4,18 +4,28 @@
 
 package com.elster.jupiter.users;
 
+import aQute.bnd.annotation.ProviderType;
+
+import java.security.KeyStore;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface UserDirectory {
 
     List<Group> getGroups(User user);
 
     List<LdapUser> getLdapUsers();
 
+    List<LdapUser> getLdapUsers(KeyStore keyStore);
+
     boolean getLdapUserStatus(String userName);
 
+    boolean getLdapUserStatus(String userName, KeyStore keyStore);
+
     Optional<User> authenticate(String name, String password);
+
+    Optional<User> authenticate(String name, String password, KeyStore keyStore);
 
     boolean isManageGroupsInternal();
 
@@ -43,6 +53,6 @@ public interface UserDirectory {
 
     void delete();
 
-    User newUser(String userName, String description, boolean allowPwdChange,boolean status);
+    User newUser(String userName, String description, boolean allowPwdChange, boolean status);
 
 }
