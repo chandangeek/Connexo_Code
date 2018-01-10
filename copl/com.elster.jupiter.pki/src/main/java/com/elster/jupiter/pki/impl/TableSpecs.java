@@ -8,11 +8,13 @@ import com.elster.jupiter.orm.Encrypter;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeypairWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.keypair.KeypairWrapperImpl;
+import com.elster.jupiter.users.UserDirectory;
 import javafx.scene.chart.ValueAxis;
 
 import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
@@ -171,6 +173,47 @@ public enum TableSpecs {
                     .references(KeyTypeImpl.class)
 //                    .composition() // Due to bug CXO-5905
                     .map(KeypairWrapperImpl.Fields.KEY_TYPE.fieldName())
+                    .add();
+
+        }
+    },
+
+    
+    PKI_DIRECTORY_CERTIFICATE {
+        @Override
+        void addTo(DataModel dataModel, Encrypter encrypter) {
+            Table<DirectoryCertificateUsage> table = dataModel.addTable(this.name(), DirectoryCertificateUsage.class).since(Version.version(10,4));
+            table.map(DirectoryCertificateUsageImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column directory = table.column(DirectoryCertificateUsageImpl.Fields.DIRECTORY.name())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .notNull()
+                    .add();
+            Column certificate = table.column(DirectoryCertificateUsageImpl.Fields.CERTIFICATE.name())
+                    .number()
+                    .conversion(NUMBER2LONG)
+                    .add();
+            Column truststore = table.column(DirectoryCertificateUsageImpl.Fields.TRUSTSTORE.name())
+                    .number()
+                    .conversion(NUMBER2LONG)
+                    .add();
+            table.addAuditColumns();
+            table.primaryKey("PKI_PK_DIRECTORY_CERT").on(id).add();
+            table.foreignKey("PKI_FK_DIRECTORY_CERT_DIR")
+                    .on(directory)
+                    .references(UserDirectory.class)
+                    .map(DirectoryCertificateUsageImpl.Fields.DIRECTORY.fieldName())
+                    .add();
+            table.foreignKey("PKI_FK_DIRECTORY_CERT_CERT")
+                    .on(certificate)
+                    .references(CertificateWrapper.class)
+                    .map(DirectoryCertificateUsageImpl.Fields.CERTIFICATE.fieldName())
+                    .add();
+            table.foreignKey("PKI_FK_DIRECTORY_CERT_TSTORE")
+                    .on(truststore)
+                    .references(TrustStore.class)
+                    .map(DirectoryCertificateUsageImpl.Fields.TRUSTSTORE.fieldName())
                     .add();
 
         }

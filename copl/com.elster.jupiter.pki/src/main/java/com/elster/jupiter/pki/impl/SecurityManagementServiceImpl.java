@@ -26,6 +26,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
@@ -762,6 +763,20 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return getQueryService().wrap(dataModel.query(CertificateWrapper.class));
     }
 
+    @Override
+    public DirectoryCertificateUsage newDirectoryCertificateUsage(UserDirectory userDirectory) {
+        return dataModel.getInstance(DirectoryCertificateUsageImpl.class).init(userDirectory);
+    }
+
+    @Override
+    public Optional<DirectoryCertificateUsage> getUserDirectoryCertificateUsage(UserDirectory userDirectory) {
+        return getDataModel().mapper(DirectoryCertificateUsage.class).getUnique(DirectoryCertificateUsageImpl.Fields.DIRECTORY.fieldName(), userDirectory);
+    }
+
+    @Override
+    public Query<DirectoryCertificateUsage> getDirectoryCertificateUsagesQuery() {
+        return getQueryService().wrap(dataModel.query(DirectoryCertificateUsage.class, TrustStore.class, CertificateWrapper.class));
+    }
 
     private class ClientCertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {
         private final KeyTypeImpl underConstruction;
