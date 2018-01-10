@@ -288,7 +288,7 @@ Ext.define('Mtr.view.AddReadingTypesGroupForm', {
                                         fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.macroPeriod', 'MTR', 'Period #1'),
                                         store: 'Mtr.store.attributes.basic.MacroPeriod',
                                         cimIndex: 1,
-                                        disabled: false,
+                                        disabled: true,
                                         name: 'basicMacroPeriod',
                                         required: true
                                     },
@@ -299,6 +299,7 @@ Ext.define('Mtr.view.AddReadingTypesGroupForm', {
                                         cimIndex: 4,
                                         hidden: true,
                                         disabled: false,
+                                        multiSelect: false,
                                         name: 'basicAccumulation'
                                     },
                                     {
@@ -308,13 +309,14 @@ Ext.define('Mtr.view.AddReadingTypesGroupForm', {
                                         cimIndex: 3,
                                         hidden: true,
                                         disabled: false,
+                                        multiSelect: false,
                                         name: 'basicMeasuringPeriod'
                                     },
                                     {
                                         fieldLabel: Uni.I18n.translate('readingTypesManagement.attribute.aggregate', 'MTR', 'Aggregate #2'),
                                         store: 'Mtr.store.attributes.basic.Aggregate',
                                         cimIndex: 2,
-                                        disabled: false,
+                                        disabled: true,
                                         required: true,
                                         name: 'basicAggregate'
                                     },
@@ -332,7 +334,6 @@ Ext.define('Mtr.view.AddReadingTypesGroupForm', {
                                         itemId: 'no-additional-parameters',
                                         text: Uni.I18n.translate('readingTypesManagement.addReadingTypes.additional.noCommodity', 'MTR', 'Select a Commodity to specify additional parameters')
                                     },
-
 
                                     {
                                         xtype: 'fieldcontainer',

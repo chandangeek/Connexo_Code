@@ -128,8 +128,20 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
 
     qString: null,
 
+    // Util object that handles the MRID in the URL processing
+    cimHandler: null,
+
+    // List of objects that handle the comboboxes
+    comboProcessors: [],
+
+    // Flag that notifies the first change of commodity
+    firstRun: true,
+
+    // Combo processors factory
+    factory: null,
+
+
     init: function () {
-        var me = this;
         this.control({
             '#add-reading-types-group #add-reading-types-group-general-add-button': {
                 click: this.addGeneralButtonClick
@@ -156,111 +168,87 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
         widget = Ext.widget('add-reading-types-group');
         widget.loadRecord(record);
         me.getApplication().fireEvent('changecontentevent', widget);
+        me.preloadComboBoxes();
+
     },
 
-    basicCommodityChange: function (combo, newValue) {
+    /**
+     * Preload combos if we have an MRID value in the URL from
+     * the Add Register Type page
+     */
+    preloadComboBoxes: function (){
         var me = this;
-        var commodity = me.getBasicCommodity().getValue();
-        me.getNoAdditionalParameters().setVisible(commodity == 0)
 
-        me.getBasicMeasurementKind().setDisabled(commodity == 0);
-        me.getBasicMeasurementKind().getStore().getProxy().setExtraParam('filter', newValue);
-        me.getBasicMeasurementKind().getStore().load();
-        me.getBasicMeasurementKind().select(0);
+        if (!me.cimHandler) {
+            me.cimHandler = Ext.create('Mtr.controller.readingtypesgroup.processors.CIMHandler', {});
+        }
+        if (!me.factory) {
+            me.factory = Ext.create('Mtr.controller.readingtypesgroup.processors.ComboProcessorFactory', {
+                controller: me
+            });
+        }
+        // All combos are linked to the commodity one. If commodity has a preload value,
+        // it will tell all the other combos to process
+        me.factory.getProcessor(me.getBasicCommodity()).process();
 
-        me.getBasicFlowDirection().setDisabled(commodity == 0);
-        me.getBasicFlowDirection().getStore().getProxy().setExtraParam('filter', newValue);
-        me.getBasicFlowDirection().getStore().load();
-        me.getBasicFlowDirection().select(0);
-
-        me.getBasicMacroPeriod().setDisabled(commodity == 0);
-        me.getBasicMacroPeriod().getStore().getProxy().setExtraParam('filter', newValue);
-        me.getBasicMacroPeriod().getStore().load();
-        me.getBasicMacroPeriod().select(0);
-
-        this.prepareAccumulation();
-        this.prepareMeasuringPeriod();
-
-        me.getBasicAggregate().setDisabled(commodity == 0);
-
-        var showAdditionalParameters = (commodity == 1 || commodity == 2);
-        var showMetricComboBox = (commodity == 1 || commodity == 2) || (commodity == 7 || commodity == 9);
-
-        me.getBasicMetricMultiplier().setVisible(showMetricComboBox);
-        me.getBasicMetricMultiplier().setDisabled(commodity == 0);
-
-        me.getBasicPhases().setVisible(showAdditionalParameters);
-        me.getBasicPhases().setDisabled(commodity == 0);
-
-        me.getBasicTimeOfUse().setVisible(showAdditionalParameters);
-        me.getBasicTimeOfUse().setDisabled(commodity == 0);
-
-        me.getBasicCriticalPeakPeriod().setVisible(showAdditionalParameters);
-        me.getBasicCriticalPeakPeriod().setDisabled(commodity == 0);
-
-        me.getBasicConsumptionTier().setVisible(showAdditionalParameters);
-        me.getBasicConsumptionTier().setDisabled(commodity == 0);
-    },
-
-    basicMeasurementKindChange: function (combo, newValue) {
-        var me = this;
-        me.getBasicUnit().setDisabled(newValue == 0);
-        me.getBasicUnit().select(0);
-        me.getBasicUnit().getStore().getProxy().setExtraParam('filter', newValue);
-        me.getBasicUnit().getStore().load();
-    },
-
-    basicMacroPeriodSelect: function (combo, records) {
-        if (records.length > 0) {
+        // Need to set the controller value for all processors every time we get on the page
+        if (!me.firstRun) {
+            me.comboProcessors.forEach(function (item) {
+                item.setController(me);
+            });
         }
     },
 
-    basicMacroPeriodChange: function (combo, newValue) {
-        this.prepareAccumulation();
-        this.prepareMeasuringPeriod();
-    },
-
-    prepareAccumulation: function () {
+    /**
+     * Register all processors that listen to the commodity value.
+     */
+    registerProcessors: function(){
         var me = this;
-        var commodity = me.getBasicCommodity().getValue();
-        var macroPeriodValue = me.getBasicMacroPeriod().getValue() || 0;
-        //var show = (commodity == 1 || commodity == 2);  // initialy was only for Electricity
-        var show = true;
-        show = show && (macroPeriodValue == 0);
-        me.getBasicAccumulation().setVisible(show);
-        if (show) {
-            me.getBasicAccumulation().getStore().load();
-            ///me.getBasicAccumulation().select(0);  // 'Select an accumulation...' text is displayed
+        if (me.firstRun) {
+            me.firstRun = false;
+            me.comboProcessors.push(me.factory.getProcessor(me.getBasicMeasurementKind()));
+            me.comboProcessors.push(me.factory.getProcessor(me.getBasicFlowDirection()));
+            me.comboProcessors.push(me.factory.getProcessor(me.getBasicMacroPeriod()));
+            me.comboProcessors.push(me.factory.getProcessor(me.getBasicAggregate()));
+            me.comboProcessors.push(me.factory.getProcessor(me.getBasicAccumulation()));
+            me.comboProcessors.push(me.factory.getProcessor(me.getBasicMetricMultiplier()));
+            me.comboProcessors.push(me.factory.getProcessor(me.getBasicPhases()));
+            me.comboProcessors.push(me.factory.getProcessor(me.getBasicTimeOfUse()));
+            me.comboProcessors.push(me.factory.getProcessor(me.getBasicCriticalPeakPeriod()));
+            me.comboProcessors.push(me.factory.getProcessor(me.getBasicConsumptionTier()));
         }
     },
 
-    prepareMeasuringPeriod: function () {
+    basicCommodityChange: function (combo, commodity) {
         var me = this;
-        var commodity = me.getBasicCommodity().getValue();
-        var macroPeriodValue = me.getBasicMacroPeriod().getValue() || 0;
-        var show = true;
-        //var show = (commodity == 1 || commodity == 2); // initialy was only for Electricity
-        show = show && (macroPeriodValue == 0x10000);
-
-        me.getBasicMeasuringPeriod().setVisible(show);
-        me.getBasicMeasuringPeriod().getStore().load();
-        // me.getBasicMeasuringPeriod().select(0);  // 'Select a time period...' text is displayed
+        me.getNoAdditionalParameters().setVisible(commodity === 0);
+        me.registerProcessors();
+        me.comboProcessors.forEach(function (item){
+           item.process();
+        });
     },
+
+    basicMeasurementKindChange: function () {
+        this.factory.getProcessor(this.getBasicUnit()).process();
+    },
+
+    basicMacroPeriodChange: function () {
+        this.factory.getProcessor(this.getBasicAccumulation()).process();
+        this.factory.getProcessor(this.getBasicMeasuringPeriod()).process();
+    },
+
 
     addGeneralButtonClick: function () {
-        var me = this;
-        var tabPanel = me.getTabPanel();
-        var activeTab = tabPanel.getActiveTab();
-
         var me = this,
+            tabPanel = me.getTabPanel(),
+            activeTab = tabPanel.getActiveTab(),
             router = this.getController('Uni.controller.history.Router'),
             form = me.getAddReadingTypeForm(),
             errorMsg = me.getAddReadingTypeFormErrorMessage(),
-            isBasic = activeTab.itemId === 'reading-types-groups-add-basic-tab';
-
-        record = form.getRecord(isBasic);
-        specifyBy = record.get('specifyBy');
-        addCount = (specifyBy == 'form') ? me.getAddReadingTypeForm().getCount(isBasic) : 1;
+            isBasic = activeTab.itemId === 'reading-types-groups-add-basic-tab',
+            record = form.getRecord(isBasic),
+            specifyBy = record.get('specifyBy'),
+            addCount = (specifyBy == 'form') ? me.getAddReadingTypeForm().getCount(isBasic) : 1;
 
         if (form.isValid()) {
             if (addCount > 0) {
@@ -279,7 +267,7 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
                     callback: function (record, operation, success) {
                         if (success) {
                             var resp = Ext.JSON.decode(operation.response.responseText),
-                                count = resp.countReadingTypesToCreate;
+                                count = resp.total;
                             if (specifyBy == 'form' && count > 0) {
                                 Ext.widget('confirmation-window', {
                                     confirmBtnUi: 'action',
@@ -298,8 +286,10 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
                                 errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.readingTypesExists', 'MTR', 'Reading types already exists'));
                                 errorMsg.show()
                             } else if (specifyBy == 'cim') {
-                                router.getRoute('administration/readingtypes').forward();
-                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('readingtypesmanagment.addReadingType.acknowledge', 'MTR', '{0} reading types added', [count]));
+                                if (me.goBackWithOptions(resp) === false) {
+                                    router.getRoute('administration/readingtypes').forward();
+                                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('readingtypesmanagment.addReadingType.acknowledge', 'MTR', '{0} reading types added', [count]));
+                                }
                             }
                         }
                     },
@@ -353,11 +343,14 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
         record.save({
             success: function (record, operation) {
                 var response = Ext.JSON.decode(operation.response.responseText),
-                    addedCount = response.countCreatedReadingTypes;
-                router.getRoute('administration/readingtypes').forward();
-                me.getApplication().fireEvent('acknowledge',
-                    Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.readingTypesAddedAcknowledge',
-                        addedCount, 'MTR', '{0} reading types added', '{0} reading type added', '{0} reading types added'));
+                    addedCount = response.total;
+                if (me.goBackWithOptions(response) === false) {
+                    router.getRoute('administration/readingtypes').forward();
+                    me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.readingTypesAddedAcknowledge',
+                            addedCount, 'MTR', '{0} reading types added', '{0} reading type added', '{0} reading types added'));
+
+                }
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
@@ -375,9 +368,47 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
     goBack: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
-        router.getRoute('administration/readingtypes').forward(null,
-            me.qString
-        );
+
+        if (me.goBackWithOptions(null) === false) {
+            router.getRoute('administration/readingtypes').forward(null,
+                me.qString
+            );
+        }
+    },
+
+
+    /**
+     * This method takes us back to the Add Register Type page
+     * @param response Response after adding reading types
+     * @returns {boolean}
+     */
+    goBackWithOptions: function (response) {
+        var me = this,
+            url,
+            queryValues = Uni.util.QueryString.getQueryStringValues(false);
+
+        if (queryValues.back && queryValues.back === "addRegister") {
+            url = me.getBackUrl();
+            if (queryValues.obis) {
+                url = Ext.String.urlAppend(url, "obis=" + queryValues.obis);
+            }
+            if (!Ext.isEmpty(response)) {
+                // If we're adding multiple reading types, we return the first one only
+                url = Ext.String.urlAppend(url, "mRID=" + response.MRIDs[0]);
+            }
+            location.href = url;
+            return true;
+
+        }
+        return false;
+    },
+
+    getBackUrl: function () {
+        var host = location.protocol + "//" + location.host,
+            pathname = "/apps/multisense/index.html",
+            hash = "#/administration/registertypes/add";
+
+        return host + pathname + hash;
     }
 });
 
