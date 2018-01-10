@@ -347,9 +347,10 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     expandReadingTypes: function(combo) {
         var me = this,
             obis = me.getEditObisCodeField().getValue();
-
         if (obis){
             combo.getStore().getProxy().extraParams = ({obisCode: obis});
+        } else {
+            combo.getStore().getProxy().extraParams = {};
         }
     },
 
@@ -359,8 +360,12 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             obis =  me.getEditObisCodeField().getValue(),
             url = me.getReadingTypeUrl();
 
-        // This flag tells kore how to get back to this page.
+        // This flag tells kore how to return to this page.
         url = Ext.String.urlAppend(url, "back=addRegister");
+        // Obis will still be loaded when we return to this page
+        if (obis){
+            url = Ext.String.urlAppend(url, "obis=" + obis);
+        }
 
         if (mRID){
             location.href = Ext.String.urlAppend(url, "mRID=" + mRID);
@@ -381,10 +386,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         }
     },
 
+
     getReadingTypeUrl: function() {
         var host = location.protocol + "//" + location.host,
             pathname = "/apps/admin/index.html",
-            hash = "#/administration/readingtypegroups/add";
+            hash = "#/administration/readingtypes/add";
         return host + pathname + hash;
     },
 
