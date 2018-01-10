@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.rest.impl;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class CreateReadingTypeInfo {
@@ -55,10 +56,10 @@ public class CreateReadingTypeInfo {
     }
 
     private static List<Integer> makeList(Integer value) {
-        return (value == null) ? Arrays.asList() : Arrays.asList(value);
+        return (value == null) ? Collections.emptyList() : Collections.singletonList(value);
     }
 
-    public static CreateReadingTypeInfo fromBasicCreateReadingTypeInfo(CreateBasicReadingTypeInfo createBasicReadingTypeInfo) {
+    static CreateReadingTypeInfo fromBasicCreateReadingTypeInfo(CreateBasicReadingTypeInfo createBasicReadingTypeInfo) {
         CreateReadingTypeInfo createReadingTypeInfo = new CreateReadingTypeInfo();
 
         createReadingTypeInfo.mRID = createBasicReadingTypeInfo.mRID;
@@ -68,8 +69,9 @@ public class CreateReadingTypeInfo {
         createReadingTypeInfo.measuringPeriod = makeList(createBasicReadingTypeInfo.basicMeasuringPeriod);
         createReadingTypeInfo.accumulation = makeList(createBasicReadingTypeInfo.basicAccumulation);
         createReadingTypeInfo.flowDirection = makeList(createBasicReadingTypeInfo.basicFlowDirection);
-        createReadingTypeInfo.commodity = (createBasicReadingTypeInfo.basicCommodity != null && createBasicReadingTypeInfo.basicCommodity == 2) ?
-                Arrays.asList(createBasicReadingTypeInfo.basicCommodity, 1) : Arrays.asList(); // Electricity 1 & 2
+
+        createReadingTypeInfo.commodity = (createBasicReadingTypeInfo.basicCommodity != null && createBasicReadingTypeInfo.basicCommodity == 2) ? Arrays.asList(1,2) : makeList(createBasicReadingTypeInfo.basicCommodity); // Electricity 1 & 2
+
         createReadingTypeInfo.measurementKind = makeList(createBasicReadingTypeInfo.basicMeasurementKind);
         createReadingTypeInfo.interHarmonicNumerator = makeList(null);
         createReadingTypeInfo.interHarmonicDenominator = makeList(null);

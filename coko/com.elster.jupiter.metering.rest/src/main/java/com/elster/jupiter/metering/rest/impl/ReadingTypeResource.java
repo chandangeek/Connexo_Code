@@ -216,15 +216,14 @@ public class ReadingTypeResource {
     @Path("/count")
     @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response createReadingTypeCount(CreateReadingTypeInfo createReadingTypeInfo) {
+    public Response createReadingTypeCount(CreateReadingTypeInfo createReadingTypeInfo, @BeanParam JsonQueryParameters queryParameters) {
 
-        Integer count;
-
+        List<String> newMridCodes;
         if (!Checks.is(createReadingTypeInfo.mRID).emptyOrOnlyWhiteSpace()) {
             if (meteringService.getReadingType(createReadingTypeInfo.mRID).isPresent()) {
                 throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.READINGTYPE_ALREADY_EXISTS, createReadingTypeInfo.mRID);
             }
-            count = 1;
+            newMridCodes = Collections.singletonList(createReadingTypeInfo.mRID);
         } else {
 
             long countVariations = createReadingTypeInfo.countVariations();
@@ -234,34 +233,39 @@ public class ReadingTypeResource {
             }
 
             List<String> codes = new ReadingTypeListFactory(createReadingTypeInfo).getCodeStringList();
-            final List<String> existsMrids = meteringService.findReadingTypes(codes).stream().map(ReadingType::getMRID).collect(Collectors.toList());
-            count = codes.size() - (int) codes.stream().filter(existsMrids::contains).count();
+            final List<String> existsMrids = meteringService.findReadingTypes(codes)
+                    .stream()
+                    .map(ReadingType::getMRID)
+                    .collect(Collectors.toList());
+            newMridCodes = codes
+                    .stream()
+                    .filter(code -> !existsMrids.contains(code))
+                    .collect(Collectors.toList());
         }
-        return Response.ok().entity(Pair.of("countReadingTypesToCreate", count).asMap()).build();
+        PagedInfoList infoList = PagedInfoList.fromCompleteList("MRIDs", newMridCodes, queryParameters);
+        return Response.ok().entity(infoList).build();
     }
 
     @POST
     @Path("/extendedcount")
     @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response createExtendedReadingTypeCount(CreateReadingTypeInfo createReadingTypeInfo) {
-
-        return createReadingTypeCount(createReadingTypeInfo);
+    public Response createExtendedReadingTypeCount(CreateReadingTypeInfo createReadingTypeInfo, @BeanParam JsonQueryParameters queryParameters) {
+        return createReadingTypeCount(createReadingTypeInfo, queryParameters);
     }
 
     @POST
     @Path("/basiccount")
     @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response createBasicReadingTypeCount(CreateBasicReadingTypeInfo createBasicReadingTypeInfo) {
-
-        return createReadingTypeCount(CreateReadingTypeInfo.fromBasicCreateReadingTypeInfo(createBasicReadingTypeInfo));
+    public Response createBasicReadingTypeCount(CreateBasicReadingTypeInfo createBasicReadingTypeInfo, @BeanParam JsonQueryParameters queryParameters) {
+            return createReadingTypeCount(CreateReadingTypeInfo.fromBasicCreateReadingTypeInfo(createBasicReadingTypeInfo), queryParameters);
     }
 
     @POST
     @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response createReadingType(CreateReadingTypeInfo createReadingTypeInfo) {
+    public Response createReadingType(CreateReadingTypeInfo createReadingTypeInfo,@BeanParam  JsonQueryParameters queryParameters) {
         List<String> mRIDs = new ArrayList<>();
         if (!Checks.is(createReadingTypeInfo.mRID).emptyOrOnlyWhiteSpace()) {
             if (meteringService.getReadingType(createReadingTypeInfo.mRID).isPresent()) {
@@ -304,33 +308,34 @@ public class ReadingTypeResource {
         }
         validationBuilder.validate();
 
-        int createdCount = 0;
         try (TransactionContext context = transactionService.getContext()) {
             for (String mRID : mRIDs) {
                 meteringService.createReadingType(mRID, createReadingTypeInfo.aliasName);
-                createdCount++;
             }
             context.commit();
         } catch (UnderlyingSQLFailedException | CommitException ex) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.READINGTYPE_CREATING_FAIL);
         }
-        return Response.ok().entity(Pair.of("countCreatedReadingTypes", createdCount).asMap()).build();
+
+
+        PagedInfoList infoList = PagedInfoList.fromCompleteList("MRIDs", mRIDs, queryParameters);
+        return Response.ok().entity(infoList).build();
     }
 
     @POST
     @Path("/basic")
     @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response createBasicReadingType(CreateBasicReadingTypeInfo createBasicReadingTypeInfo) {
-        return createReadingType(CreateReadingTypeInfo.fromBasicCreateReadingTypeInfo(createBasicReadingTypeInfo));
+    public Response createBasicReadingType(CreateBasicReadingTypeInfo createBasicReadingTypeInfo, @BeanParam JsonQueryParameters queryParameters) {
+        return createReadingType(CreateReadingTypeInfo.fromBasicCreateReadingTypeInfo(createBasicReadingTypeInfo), queryParameters );
     }
 
     @POST
     @Path("/extended")
     @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response createExtendedReadingType(CreateReadingTypeInfo createExtendedReadingTypeInfo) {
-        return createReadingType(createExtendedReadingTypeInfo);
+    public Response createExtendedReadingType(CreateReadingTypeInfo createExtendedReadingTypeInfo, @BeanParam JsonQueryParameters queryParameters) {
+        return createReadingType(createExtendedReadingTypeInfo, queryParameters);
     }
 
     @PUT

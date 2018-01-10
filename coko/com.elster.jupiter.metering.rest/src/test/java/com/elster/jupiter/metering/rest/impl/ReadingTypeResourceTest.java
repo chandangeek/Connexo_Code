@@ -19,6 +19,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.jayway.jsonpath.JsonModel;
+
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -110,7 +111,7 @@ public class ReadingTypeResourceTest extends MeteringApplicationJerseyTest {
         Response response = target("/readingtypes/count").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<Integer>get("$.countReadingTypesToCreate")).isEqualTo(8);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(8);
     }
 
     @Test
