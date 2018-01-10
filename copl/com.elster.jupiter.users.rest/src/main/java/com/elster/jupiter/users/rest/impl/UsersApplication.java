@@ -7,6 +7,7 @@ package com.elster.jupiter.users.rest.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -14,7 +15,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.UserInfoFactory;
-
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -35,6 +35,7 @@ public class UsersApplication extends Application {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
+    private volatile SecurityManagementService securityManagementService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -73,6 +74,11 @@ public class UsersApplication extends Application {
     }
 
     @Reference
+    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
+        this.securityManagementService = securityManagementService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
@@ -96,9 +102,11 @@ public class UsersApplication extends Application {
             bind(threadPrincipalService).to(ThreadPrincipalService.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(securityManagementService).to(SecurityManagementService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(GroupInfoFactory.class).to(GroupInfoFactory.class);
             bind(UserInfoFactoryImpl.class).to(UserInfoFactory.class);
+            bind(UserDirectoryInfoFactory.class).to(UserDirectoryInfoFactory.class);
         }
     }
 }
