@@ -5,12 +5,14 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFilter;
 
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.metering.ReadingTypeInformation;
 
 import com.energyict.obis.ObisCode;
 import com.jayway.jsonpath.JsonModel;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -87,5 +89,26 @@ public class ReadingTypeResourceTest extends MasterDataApplicationJerseyTest {
         ReadingType rt = mockReadingType();
         when(registerType.getReadingType()).thenReturn(rt);
         return registerType;
+    }
+
+
+    @Test
+    public void testAddReadingTypeFromObis() {
+        ObisCode code = ObisCode.fromString(obis);
+        when(mdcReadingTypeUtilService.getReadingTypeFilterFrom(code)).thenReturn("0\\.0\\.0\\.(1|2)\\.1\\.1\\.12\\.0\\.0\\.0\\.0\\.0\\.0\\.0\\.32\\.0\\.72\\.0");
+        String response = target("/mappedReadingType/"+obis).request().get(String.class);
+        JsonModel model = JsonModel.model(response);
+        assertThat(model.<String>get("$.response")).isEqualTo("0.0.0.0.1.1.12.0.0.0.0.0.0.0.32.0.72.0");
+
+    }
+
+    @Test
+    public void testMapMridToObisCode() {
+        String mrid = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.32.0.72.0";
+        ReadingTypeInformation info = new ReadingTypeInformation(ObisCode.fromString(obis), null, null);
+        when(mdcReadingTypeUtilService.getReadingTypeInformationFrom(mrid)).thenReturn(Optional.of(info));
+        String response = target("/mappedObisCode/"+mrid).request().get(String.class);
+        JsonModel model = JsonModel.model(response);
+        assertThat(model.<String>get("$.response")).isEqualTo(obis);
     }
 }

@@ -82,20 +82,19 @@ public class ReadingTypeResource {
         }
     }
 
-
     @GET
     @Transactional
     @Path("/mappedReadingType/{obis}")
-    @Produces(MediaType.TEXT_PLAIN + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public StringResponse getMappedReadingType(@PathParam("obis") String obisCode) {
         String response = ReadingTypeResourceUtil.getObisCode(obisCode)
                 .map(mdcReadingTypeUtilService::getReadingTypeFilterFrom)
                 .map(ReadingTypeResourceUtil::extractUniqueFromRegex)
                 .orElse("");
-
         return new StringResponse(response);
     }
+
 
     @GET
     @Transactional
