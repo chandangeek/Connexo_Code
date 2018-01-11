@@ -13,6 +13,8 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.executemeterconfig.MeterConfigPort;
@@ -58,14 +60,14 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort, EndPointProp
         try (TransactionContext context = transactionService.getContext()) {
             MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
             Meter meter = meterConfig.getMeter().stream().findFirst() // only process first meter
-                    .orElseThrow(faultMessageFactory.createMeterConfigFaultMessageSupplier(MessageSeeds.EMPTY_LIST, "MeterConfig.Meter"));
+                    .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.EMPTY_LIST, "MeterConfig.Meter"));
             Device createdDevice = deviceBuilder.prepareCreateFrom(meter, meterConfig).build();
             context.commit();
             return createResponseMessage(createdDevice, meterConfig, HeaderType.Verb.CREATED);
         } catch (VerboseConstraintViolationException e) {
-            throw faultMessageFactory.createMeterConfigFaultMessage(e.getLocalizedMessage());
+            throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.UNABLE_TO_CREATE_DEVICE, e.getLocalizedMessage());
         } catch (LocalizedException e) {
-            throw faultMessageFactory.createMeterConfigFaultMessage(e.getLocalizedMessage(), e.getErrorCode());
+            throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.UNABLE_TO_CREATE_DEVICE, e.getLocalizedMessage(), e.getErrorCode());
         }
     }
 
@@ -75,14 +77,14 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort, EndPointProp
         try (TransactionContext context = transactionService.getContext()) {
             MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
             Meter meter = meterConfig.getMeter().stream().findFirst() // only process first meter
-                    .orElseThrow(faultMessageFactory.createMeterConfigFaultMessageSupplier(MessageSeeds.EMPTY_LIST, "MeterConfig.Meter"));
-            Device updatedDevice = deviceBuilder.prepareUpdateFrom(meter).build();
+                    .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.EMPTY_LIST, "MeterConfig.Meter"));
+            Device changedDevice = deviceBuilder.prepareChangeFrom(meter).build();
             context.commit();
-            return createResponseMessage(updatedDevice, meterConfig, HeaderType.Verb.CHANGED);
-        } catch (VerboseConstraintViolationException e) {
-            throw faultMessageFactory.createMeterConfigFaultMessage(e.getLocalizedMessage());
+            return createResponseMessage(changedDevice, meterConfig, HeaderType.Verb.CHANGED);
+        } catch (VerboseConstraintViolationException | SecurityException | InvalidLastCheckedException | DeviceLifeCycleActionViolationException e) {
+            throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.UNABLE_TO_CHANGE_DEVICE, e.getLocalizedMessage());
         } catch (LocalizedException e) {
-            throw faultMessageFactory.createMeterConfigFaultMessage(e.getLocalizedMessage(), e.getErrorCode());
+            throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.UNABLE_TO_CHANGE_DEVICE, e.getLocalizedMessage(), e.getErrorCode());
         }
     }
 

@@ -1,9 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -16,9 +19,10 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import org.osgi.framework.BundleContext;
 
 import java.time.Clock;
@@ -59,13 +63,13 @@ public abstract class AbstractMockActivator {
     @Mock
     protected DeviceService deviceService;
     @Mock
-    protected MetrologyConfigurationService metrologyConfigurationService;
+    protected DeviceLifeCycleService deviceLifeCycleService;
     @Mock
     protected UserService userService;
     @Mock
     protected User user;
     @Mock
-    protected DeviceLifeCycleService deviceLifeCycleService;
+    protected BatchService batchService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -77,9 +81,7 @@ public abstract class AbstractMockActivator {
 
     private void initMocks() {
         when(nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP)).thenReturn(thesaurus);
-
         when(transactionService.getContext()).thenReturn(transactionContext);
-
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
     }
 
@@ -91,11 +93,11 @@ public abstract class AbstractMockActivator {
         activator.setThreadPrincipalService(threadPrincipalService);
         activator.setNlsService(nlsService);
         activator.setMeteringService(meteringService);
-        activator.setMetrologyConfigurationService(metrologyConfigurationService);
         activator.setDeviceConfigurationService(deviceConfigurationService);
+        activator.setDeviceLifeCycleService(deviceLifeCycleService);
         activator.setDeviceService(deviceService);
         activator.setUserService(userService);
-        activator.setDeviceLifeCycleService(deviceLifeCycleService);
+        activator.setBatchService(batchService);
         activator.activate(mock(BundleContext.class));
     }
 

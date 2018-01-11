@@ -11,10 +11,10 @@ import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
-import ch.iec.tc57._2011.meterconfig.Status;
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
 import ch.iec.tc57._2011.meterconfig.LifecycleDate;
@@ -22,7 +22,9 @@ import ch.iec.tc57._2011.meterconfig.Meter;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfig.MeterMultiplier;
 import ch.iec.tc57._2011.meterconfig.Name;
+import ch.iec.tc57._2011.meterconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
+import ch.iec.tc57._2011.meterconfig.Status;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
@@ -31,6 +33,7 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -43,19 +46,23 @@ class DeviceBuilder {
     private final DeviceLifeCycleService deviceLifeCycleService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceService deviceService;
+    private final BatchService batchService;
+    private final Clock clock;
     private final MeterConfigFaultMessageFactory faultMessageFactory;
 
     @Inject
-    DeviceBuilder(DeviceLifeCycleService deviceLifeCycleService,DeviceConfigurationService deviceConfigurationService,
-                  DeviceService deviceService, MeterConfigFaultMessageFactory faultMessageFactory) {
+    DeviceBuilder(DeviceLifeCycleService deviceLifeCycleService, DeviceConfigurationService deviceConfigurationService,
+                  DeviceService deviceService, BatchService batchService, Clock clock, MeterConfigFaultMessageFactory faultMessageFactory) {
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceService = deviceService;
+        this.batchService = batchService;
+        this.clock = clock;
         this.faultMessageFactory = faultMessageFactory;
     }
 
     PreparedDeviceBuilder prepareCreateFrom(Meter meter, MeterConfig meterConfig) throws FaultMessage {
-        String deviceName = extractDeviceNameOrThrowException(meter);
+        String deviceName = extractDeviceNameForCreateOrThrowException(meter);
         DeviceConfiguration deviceConfig = extractDeviceConfigOrThrowException(meter, meterConfig.getSimpleEndDeviceFunction());
         Instant shipmentDate = extractShipmentDateOrThrowException(meter);
         Optional<String> batch = extractBatch(meter);
@@ -78,35 +85,69 @@ class DeviceBuilder {
         };
     }
 
-    PreparedDeviceBuilder prepareUpdateFrom(Meter meter) throws FaultMessage {
-        String deviceName = extractDeviceNameOrThrowException(meter);
-        Optional<Instant> shipmentDate = extractShipmentDate(meter);
-        Optional<String> stateStatus = extractStateStatus(meter);
-        Optional<Instant> stateDate = extractStateDate(meter);
+    PreparedDeviceBuilder prepareChangeFrom(Meter meter) throws FaultMessage {
+        String deviceName = extractDeviceNameForUpdateOrThrowException(meter);
+        Optional<String> mrid = extractMrid(meter);
+        Optional<String> batch = extractBatch(meter);
         Optional<String> serialNumber = extractSerialNumber(meter);
         Optional<String> manufacturer = extractManufacturer(meter);
         Optional<String> modelNumber = extractModelNumber(meter);
         Optional<String> modelVersion = extractModelVersion(meter);
         Optional<BigDecimal> multiplier = extractMultiplier(meter);
+        Optional<String> statusReason = extractStatusReason(meter);
+        Optional<String> statusValue = extractStatusValue(meter);
+        Optional<Instant> statusEffectiveDate = extractStatusEffectiveDate(meter);
+        Optional<String> multiplierReason = extractConfigurationReason(meter);
+        Optional<Instant> multiplierEffectiveDate = extractConfigurationEffectiveDate(meter);
         return () -> {
-            Device updatedDevice = deviceService.findDeviceByName(deviceName)
-                    .orElseThrow(faultMessageFactory.createMeterConfigFaultMessageSupplier(MessageSeeds.NO_METER_WITH_NAME, deviceName));
-            List<ExecutableAction> executableActions = deviceLifeCycleService.getExecutableActions(updatedDevice);
-            serialNumber.ifPresent(updatedDevice::setSerialNumber);
-            manufacturer.ifPresent(updatedDevice::setManufacturer);
-            modelNumber.ifPresent(updatedDevice::setModelNumber);
-            modelVersion.ifPresent(updatedDevice::setModelVersion);
-            shipmentDate.ifPresent(instant -> multiplier.ifPresent(m -> updatedDevice.setMultiplier(m, instant)));
-            updatedDevice.save();
-            if (stateStatus.isPresent() && stateDate.isPresent()) {
-                Optional<ExecutableAction> executableAction =  deviceLifeCycleService.getExecutableActions(updatedDevice)
+            Device changedDevice = mrid.isPresent() ? findDeviceByMRID(mrid.get()) :
+                    deviceService.findDeviceByName(deviceName)
+                            .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_NAME, deviceName));
+
+            String currentModelNumber = changedDevice.getModelNumber();
+            String currentModelVersion = changedDevice.getModelVersion();
+            String currentManufacturer = changedDevice.getManufacturer();
+
+            if (statusReason.isPresent()) {
+                EventReason.forReason(statusReason.get())
+                        .filter(EventReason.CHANGE_STATUS::equals)
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NOT_VALID_STATUS_REASON, statusReason.get()));
+                String state = statusValue.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter[0].status.value"));
+                Instant effectiveDate = statusEffectiveDate.orElse(clock.instant());
+                ExecutableAction executableAction = deviceLifeCycleService.getExecutableActions(changedDevice)
                         .stream()
                         .filter(action -> action.getAction() instanceof AuthorizedTransitionAction)
-                        .filter(action -> isActionForState((AuthorizedTransitionAction) action.getAction(), stateStatus.get()))
-                        .findFirst();
-                executableAction.ifPresent(action -> action.execute(stateDate.get(), Collections.emptyList()));
+                        .filter(action -> isActionForState((AuthorizedTransitionAction) action.getAction(), state))
+                        .findFirst()
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_STATE, statusValue.orElse("")));
+                executableAction.execute(effectiveDate, Collections.emptyList());
+                changedDevice.save();
+                changedDevice = findDeviceByMRID(changedDevice.getmRID());
             }
-            return updatedDevice;
+
+            if (multiplierReason.isPresent()) {
+                EventReason.forReason(multiplierReason.get())
+                        .filter(EventReason.CHANGE_MULTIPLIER::equals)
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NOT_VALID_MULTIPLIER_REASON, multiplierReason.get()));
+                changedDevice.setMultiplier(multiplier.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter[0].multiplier")),
+                        multiplierEffectiveDate.orElse(clock.instant()));
+            }
+
+            if (mrid.isPresent()) {
+                changedDevice.setName(deviceName);
+            }
+
+            if (batch.isPresent()) {
+                batchService.findOrCreateBatch(batch.get()).addDevice(changedDevice);
+            }
+
+            serialNumber.ifPresent(changedDevice::setSerialNumber);
+            changedDevice.setModelNumber(modelNumber.orElse(currentModelNumber));
+            changedDevice.setModelVersion(modelVersion.orElse(currentModelVersion));
+            changedDevice.setManufacturer(manufacturer.orElse(currentManufacturer));
+            changedDevice.save();
+
+            return changedDevice;
         };
     }
 
@@ -117,6 +158,11 @@ class DeviceBuilder {
         Device build() throws FaultMessage;
     }
 
+    private Device findDeviceByMRID(String mrid) throws FaultMessage {
+        return deviceService.findDeviceByMrid(mrid)
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_MRID, mrid));
+    }
+
     private DeviceConfiguration extractDeviceConfigOrThrowException(Meter meter, List<SimpleEndDeviceFunction> endDeviceFunctions) throws FaultMessage {
         DeviceType deviceType = extractDeviceTypeOrThrowException(meter);
         String comFuncReference = extractEndDeviceFunctionRef(meter);
@@ -124,47 +170,57 @@ class DeviceBuilder {
                 .stream()
                 .filter(endDeviceFunc -> comFuncReference.equals(endDeviceFunc.getMRID()))
                 .findAny()
-                .orElseThrow(faultMessageFactory.createMeterConfigFaultMessageSupplier(MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND,
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND,
                         "MeterConfig.Meter[0].SimpleEndDeviceFunction", "MeterConfig.SimpleEndDeviceFunction"));
         String deviceConfigurationName = Optional.ofNullable(endDeviceFunction.getConfigID())
-                .orElseThrow(faultMessageFactory.createMeterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT,
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT,
                         "MeterConfig.SimpleEndDeviceFunction[" + endDeviceFunctions.indexOf(endDeviceFunction) + "].configID"));
         return deviceType.getConfigurations()
                 .stream()
                 .filter(config -> deviceConfigurationName.equals(config.getName()))
                 .findAny()
-                .orElseThrow(faultMessageFactory.createMeterConfigFaultMessageSupplier(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION, deviceConfigurationName));
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION, deviceConfigurationName));
     }
 
     private DeviceType extractDeviceTypeOrThrowException(Meter meter) throws FaultMessage {
         String deviceTypeName = extractDeviceTypeName(meter);
         return deviceConfigurationService.findDeviceTypeByName(deviceTypeName)
-                .orElseThrow(faultMessageFactory.createMeterConfigFaultMessageSupplier(MessageSeeds.NO_SUCH_DEVICE_TYPE, deviceTypeName));
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.NO_SUCH_DEVICE_TYPE, deviceTypeName));
     }
 
-    private String extractDeviceNameOrThrowException(Meter meter) throws FaultMessage {
-        return Stream.of(extractName(meter), extractSerialNumber(meter), extractMrid(meter))
+    private String extractDeviceNameForCreateOrThrowException(Meter meter) throws FaultMessage {
+        return Stream.of(extractName(meter.getNames()), extractSerialNumber(meter), extractMrid(meter))
                 .flatMap(Functions.asStream())
                 .findFirst()
-                .orElseThrow(faultMessageFactory.createMeterConfigFaultMessageSupplier(MessageSeeds.DEVICE_IDENTIFIER_MISSING));
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.CREATE_DEVICE_IDENTIFIER_MISSING));
     }
 
-    private Optional<String> extractName(Meter meter) {
-        return meter.getNames().stream().map(Name::getName).filter(name -> !Checks.is(name).emptyOrOnlyWhiteSpace()).findFirst();
+    private String extractDeviceNameForUpdateOrThrowException(Meter meter) throws FaultMessage {
+        return extractName(meter.getNames())
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.CHANGE_DEVICE_IDENTIFIER_MISSING));
+    }
+
+    private Optional<String> extractName(List<Name> names) {
+        return names.stream()
+                .map(Name::getName)
+                .filter(name -> !Checks.is(name).emptyOrOnlyWhiteSpace())
+                .findFirst();
     }
 
     private Optional<String> extractSerialNumber(Meter meter) {
-        return Optional.ofNullable(meter.getSerialNumber()).filter(serialNumber -> !Checks.is(serialNumber).emptyOrOnlyWhiteSpace());
+        return Optional.ofNullable(meter.getSerialNumber())
+                .filter(serialNumber -> !Checks.is(serialNumber).emptyOrOnlyWhiteSpace());
     }
 
     private Optional<String> extractMrid(Meter meter) {
-        return Optional.ofNullable(meter.getMRID()).filter(mrid -> !Checks.is(mrid).emptyOrOnlyWhiteSpace());
+        return Optional.ofNullable(meter.getMRID())
+                .filter(mrid -> !Checks.is(mrid).emptyOrOnlyWhiteSpace());
     }
 
     private String extractDeviceTypeName(Meter meter) throws FaultMessage {
         return Optional.ofNullable(meter.getType())
                 .filter(deviceTypeName -> !Checks.is(deviceTypeName).emptyOrOnlyWhiteSpace())
-                .orElseThrow(faultMessageFactory.createMeterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter[0].type"));
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter[0].type"));
     }
 
     private String extractEndDeviceFunctionRef(Meter meter) throws FaultMessage {
@@ -175,44 +231,43 @@ class DeviceBuilder {
                 .map(Meter.SimpleEndDeviceFunction::getRef)
                 .filter(ref -> !Checks.is(ref).emptyOrOnlyWhiteSpace())
                 .findFirst()
-                .orElseThrow(faultMessageFactory.createMeterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter[0].SimpleEndDeviceFunction.ref"));
-    }
-
-    private Optional<Instant> extractShipmentDate(Meter meter) throws FaultMessage {
-        return Optional.ofNullable(meter.getLifecycle())
-                .map(LifecycleDate::getReceivedDate);
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter[0].SimpleEndDeviceFunction.ref"));
     }
 
     private Instant extractShipmentDateOrThrowException(Meter meter) throws FaultMessage {
-        return extractShipmentDate(meter)
-                .orElseThrow(faultMessageFactory.createMeterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter[0].lifecycle.receivedDate"));
+        return Optional.ofNullable(meter.getLifecycle())
+                .map(LifecycleDate::getReceivedDate)
+                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter[0].lifecycle.receivedDate"));
     }
 
     private Optional<String> extractBatch(Meter meter) {
-        return Optional.ofNullable(meter.getLotNumber()).filter(lotNumber -> !Checks.is(lotNumber).emptyOrOnlyWhiteSpace());
+        return Optional.ofNullable(meter.getLotNumber())
+                .filter(lotNumber -> !Checks.is(lotNumber).emptyOrOnlyWhiteSpace());
+    }
+
+    private Optional<EndDeviceInfo> extractEndDeviceInfo(Meter meter) {
+        return Optional.ofNullable(meter.getEndDeviceInfo());
+    }
+
+    private Optional<ProductAssetModel> extractAssetModel(Meter meter) {
+        return extractEndDeviceInfo(meter)
+                .map(EndDeviceInfo::getAssetModel);
     }
 
     private Optional<String> extractManufacturer(Meter meter) {
-        return Optional.ofNullable(meter.getEndDeviceInfo())
-                .flatMap(endDeviceInfo -> Optional.ofNullable(endDeviceInfo.getAssetModel()))
-                .flatMap(productAssetModel -> Optional.ofNullable(productAssetModel.getManufacturer()))
-                .flatMap(manufacturer -> manufacturer.getNames()
-                        .stream()
-                        .map(Name::getName)
-                        .filter(name -> !Checks.is(name).emptyOrOnlyWhiteSpace())
-                        .findFirst());
+        return extractAssetModel(meter)
+                .map(ProductAssetModel::getManufacturer)
+                .flatMap(manufacturer -> extractName(manufacturer.getNames()));
     }
 
     private Optional<String> extractModelNumber(Meter meter) {
-        return Optional.ofNullable(meter.getEndDeviceInfo())
-                .map(EndDeviceInfo::getAssetModel)
+        return extractAssetModel(meter)
                 .map(ProductAssetModel::getModelNumber)
                 .filter(modelNumber -> !Checks.is(modelNumber).emptyOrOnlyWhiteSpace());
     }
 
     private Optional<String> extractModelVersion(Meter meter) {
-        return Optional.ofNullable(meter.getEndDeviceInfo())
-                .map(EndDeviceInfo::getAssetModel)
+        return extractAssetModel(meter)
                 .map(ProductAssetModel::getModelVersion)
                 .filter(modelVersion -> !Checks.is(modelVersion).emptyOrOnlyWhiteSpace());
     }
@@ -226,14 +281,40 @@ class DeviceBuilder {
                 .map(BigDecimal::valueOf);
     }
 
-    private Optional<String> extractStateStatus(Meter meter) {
-        return Optional.ofNullable(meter.getStatus())
-                .map(Status::getValue);
+    private Optional<Status> extractMeterStatus(Meter meter) {
+        return Optional.ofNullable(meter.getStatus());
     }
 
-    private Optional<Instant> extractStateDate(Meter meter) {
-        return Optional.ofNullable(meter.getStatus())
+    private Optional<String> extractStatusReason(Meter meter) throws FaultMessage {
+        return extractMeterStatus(meter)
+                .map(Status::getReason)
+                .filter(value -> !Checks.is(value).emptyOrOnlyWhiteSpace());
+    }
+
+    private Optional<String> extractStatusValue(Meter meter) throws FaultMessage {
+        return extractMeterStatus(meter)
+                .map(Status::getValue)
+                .filter(value -> !Checks.is(value).emptyOrOnlyWhiteSpace());
+    }
+
+    private Optional<Instant> extractStatusEffectiveDate(Meter meter) throws FaultMessage {
+        return extractMeterStatus(meter)
                 .map(Status::getDateTime);
+    }
+
+    private Optional<ConfigurationEvent> extractConfigurationEvent(Meter meter) {
+        return Optional.ofNullable(meter.getConfigurationEvents());
+    }
+
+    private Optional<String> extractConfigurationReason(Meter meter) throws FaultMessage {
+        return extractConfigurationEvent(meter)
+                .map(ConfigurationEvent::getReason)
+                .filter(value -> !Checks.is(value).emptyOrOnlyWhiteSpace());
+    }
+
+    private Optional<Instant> extractConfigurationEffectiveDate(Meter meter) throws FaultMessage {
+        return extractConfigurationEvent(meter)
+                .map(ConfigurationEvent::getEffectiveDateTime);
     }
 
     private boolean isActionForState(AuthorizedTransitionAction authorizedTransitionAction, String state) {

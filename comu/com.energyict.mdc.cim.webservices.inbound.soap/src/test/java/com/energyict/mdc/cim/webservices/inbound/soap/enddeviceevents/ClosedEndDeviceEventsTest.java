@@ -1,4 +1,4 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents;
 
-public class EndDeviceEventsBuilder {
+public class ClosedEndDeviceEventsTest {
 }

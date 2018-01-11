@@ -24,9 +24,11 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
+import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -62,6 +64,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     public static final String COMPONENT_NAME = "SIM";
 
     private static final String CIM_MERER_CONFIG = "CIM MeterConfig";
+    private static final String CIM_GET_END_DEVICE_EVENTS = "CIM GetEndDeviceEvents";
     private static final String CIM_END_DEVICE_EVENTS = "CIM EndDeviceEvents";
 
     private volatile DataModel dataModel;
@@ -71,7 +74,6 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MeteringService meteringService;
-    private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
@@ -82,6 +84,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile IssueService issueService;
+    private volatile BatchService batchService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -105,11 +108,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
         setMeteringService(meteringService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
-        setMetrologyConfigurationService(metrologyConfigurationService);
         setDeviceLifeCycleService(deviceLifeCycleService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceService(deviceService);
         setUserService(userService);
+        setBatchService(batchService);
         setPropertySpecService(propertySpecService);
         setPropertyValueInfoService(propertyValueInfoService);
         setLogBookService(logBookService);
@@ -139,6 +142,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
                 bind(DeviceAlarmService.class).toInstance(deviceAlarmService);
                 bind(IssueService.class).toInstance(issueService);
+                bind(BatchService.class).toInstance(batchService);
             }
         };
     }
@@ -164,6 +168,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
 
     private void registerServices(BundleContext bundleContext) {
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterConfigEndpoint.class), CIM_MERER_CONFIG);
+        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(GetEndDeviceEventsEndpoint.class), CIM_GET_END_DEVICE_EVENTS);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteEndDeviceEventsEndpoint.class), CIM_END_DEVICE_EVENTS);
     }
 
@@ -187,11 +192,6 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
-        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Reference
@@ -227,6 +227,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setBatchService(BatchService batchService) {
+        this.batchService = batchService;
     }
 
     @Reference

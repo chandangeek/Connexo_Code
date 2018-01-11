@@ -86,6 +86,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>users</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>properties</artifactId>
         </dependency>
         <dependency>
@@ -95,10 +99,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>users</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -246,6 +246,7 @@
                     <wsdlDirectory>src/main/resources</wsdlDirectory>
                     <wsdlFiles>
                         <wsdlFile>meterconfig/ExecuteMeterConfig.wsdl</wsdlFile>
+                        <wsdlFile>getenddeviceevents/GetEndDeviceEvents.wsdl</wsdlFile>
                         <wsdlFile>enddeviceevents/ReceiveEndDeviceEvents.wsdl</wsdlFile>
                     </wsdlFiles>
                     <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
