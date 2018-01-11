@@ -43,6 +43,7 @@ import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateF
 import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckInfoFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.StateTransitionEventTypeFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionBusinessProcessInfoFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionWebServiceEndpointInfoFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
 
 import com.google.common.collect.ImmutableSet;
@@ -224,7 +225,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
             bind(DeviceLifeCycleFactory.class).to(DeviceLifeCycleFactory.class);
             bind(MicroActionAndCheckInfoFactory.class).to(MicroActionAndCheckInfoFactory.class);
             bind(TransitionBusinessProcessInfoFactory.class).to(TransitionBusinessProcessInfoFactory.class);
-
+            bind(TransitionWebServiceEndpointInfoFactory.class).to(TransitionWebServiceEndpointInfoFactory.class);
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);
             bind(eventService).to(EventService.class);
