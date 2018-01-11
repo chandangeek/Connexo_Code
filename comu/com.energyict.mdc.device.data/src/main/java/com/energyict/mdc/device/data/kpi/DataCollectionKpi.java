@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.kpi;
 
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 
@@ -82,6 +83,11 @@ public interface DataCollectionKpi extends HasId {
     boolean calculatesComTaskExecutionKpi();
 
     /**
+     * return communication KPI task
+     */
+    Optional<RecurrentTask> communicationKpiTask();
+
+    /**
      * Returns the amount of time between each calculation of the
      * communication task execution KPI for the devices contained in the {@link EndDeviceGroup}.
      *
@@ -100,6 +106,10 @@ public interface DataCollectionKpi extends HasId {
     List<DataCollectionKpiScore> getComTaskExecutionKpiScores(Range<Instant> interval);
 
     void setFrequency(TemporalAmount intervalLength);
+
+    void connectionNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
+
+    void communicationNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
 
     TemporalAmount getFrequency();
 
@@ -142,6 +152,11 @@ public interface DataCollectionKpi extends HasId {
      * Stops calculation of the connection KPI
      */
     void dropConnectionSetupKpi();
+
+    /**
+     * return connection KPI task
+     */
+    Optional<RecurrentTask> connectionKpiTask();
 
     long getVersion();
 }

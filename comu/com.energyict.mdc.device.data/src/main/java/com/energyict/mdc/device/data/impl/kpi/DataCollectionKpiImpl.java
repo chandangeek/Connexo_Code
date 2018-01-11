@@ -40,6 +40,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -96,6 +97,8 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     private Reference<RecurrentTask> connectionKpiTask = ValueReference.absent();
     private Reference<RecurrentTask> communicationKpiTask = ValueReference.absent();
     private RecurrentTaskSaveStrategy recurrentTaskSaveStrategy = new CreateAllSchedules();
+    private List<RecurrentTask> connectionNextRecurrentTasks = new ArrayList<>();
+    private List<RecurrentTask> communicationNextRecurrentTasks = new ArrayList<>();
 
     @NotNull(message = MessageSeeds.Keys.FIELD_REQUIRED, groups={Save.Create.class, Save.Update.class})
     private transient TemporalAmount frequency;
@@ -125,6 +128,8 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
             Save.CREATE.save(this.dataModel, this);
         }
         // Now save the KPIs and the recurrent task
+        recurrentTaskSaveStrategy.setConnectionNextRecurrentTasks(connectionNextRecurrentTasks);
+        recurrentTaskSaveStrategy.setCommunicationNextRecurrentTasks(communicationNextRecurrentTasks);
         this.recurrentTaskSaveStrategy.save();
         // Update myself (with validation this time) to set the KPIs and the recurrent task
         Save.UPDATE.save(this.dataModel, this);
@@ -150,6 +155,16 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.CAN_NOT_CHANGE_FREQUENCY);
         }
         this.frequency = frequency;
+    }
+
+    @Override
+    public void connectionNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+        connectionNextRecurrentTasks = nextRecurrentTasks;
+    }
+
+    @Override
+    public void communicationNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+        communicationNextRecurrentTasks = nextRecurrentTasks;
     }
 
     @Override
@@ -253,7 +268,8 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         }
     }
 
-    Optional<RecurrentTask> connectionKpiTask() {
+    @Override
+    public Optional<RecurrentTask> connectionKpiTask() {
         return connectionKpiTask.getOptional();
     }
 
@@ -318,7 +334,8 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         }
     }
 
-    Optional<RecurrentTask> communicationKpiTask() {
+    @Override
+    public Optional<RecurrentTask> communicationKpiTask() {
         return communicationKpiTask.getOptional();
     }
 
@@ -380,6 +397,12 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
 
     private interface RecurrentTaskSaveStrategy {
         void save();
+
+        void setConnectionNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
+
+        void setCommunicationNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
+
+        void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
     }
 
     private class CreateAllSchedules implements RecurrentTaskSaveStrategy {
@@ -390,6 +413,20 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         public void save() {
             this.connectionKpi.save();
             this.communicationKpi.save();
+        }
+
+        @Override
+        public void setConnectionNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+            connectionKpi.setNextRecurrentTasks(nextRecurrentTasks);
+        }
+
+        @Override
+        public void setCommunicationNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+            communicationKpi.setNextRecurrentTasks(nextRecurrentTasks);
+        }
+
+        @Override
+        public void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
         }
     }
 
@@ -402,11 +439,26 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
             this.connectionKpi.save();
             this.communicationKpi.save();
         }
+
+        @Override
+        public void setConnectionNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+            connectionKpi.setNextRecurrentTasks(nextRecurrentTasks);
+        }
+
+        @Override
+        public void setCommunicationNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+            communicationKpi.setNextRecurrentTasks(nextRecurrentTasks);
+        }
+
+        @Override
+        public void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+        }
     }
 
     private class CreateOneRecurrentTask implements RecurrentTaskSaveStrategy {
         private final Reference<Kpi> kpi;
         private final Reference<RecurrentTask> recurrentTask;
+        private List<RecurrentTask> nextRecurrentTasks = new ArrayList<>();
         private final KpiType kpiType;
 
         protected CreateOneRecurrentTask(Reference<Kpi> kpi, Reference<RecurrentTask> recurrentTask, KpiType kpiType) {
@@ -428,9 +480,23 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
                         .setDestination(destination)
                         .setPayLoad(scheduledExcutionPayload())
                         .scheduleImmediately(true)
+                        .setNextRecurrentTasks(nextRecurrentTasks)
                         .build();
                 this.setRecurrentTask(recurrentTask);
             }
+        }
+
+        @Override
+        public void setConnectionNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+        }
+
+        @Override
+        public void setCommunicationNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+        }
+
+        @Override
+        public void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+            this.nextRecurrentTasks = nextRecurrentTasks;
         }
 
         protected Optional<RecurrentTask> getRecurrentTask() {
@@ -618,6 +684,8 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     private class UpdateOneRecurrentTask extends CreateOneRecurrentTask {
+        private List<RecurrentTask> nextRecurrentTasks = new ArrayList<>();
+
         protected UpdateOneRecurrentTask(Reference<Kpi> kpi, Reference<RecurrentTask> recurrentTask, KpiType kpiType) {
             super(kpi, recurrentTask, kpiType);
         }
@@ -630,7 +698,16 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
              */
             if (!this.getRecurrentTask().isPresent()) {
                 super.save();
+            } else {
+                RecurrentTask task = this.getRecurrentTask().get();
+                task.setNextRecurrentTasks(nextRecurrentTasks);
+                task.save();
             }
+        }
+
+        @Override
+        public void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+            this.nextRecurrentTasks = nextRecurrentTasks;
         }
     }
 

@@ -8,7 +8,9 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
@@ -20,6 +22,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link DataCollectionKpiService} interface.
@@ -50,6 +54,12 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
     @Override
     public Optional<DataCollectionKpi> findDataCollectionKpi(long id) {
         return this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<DataCollectionKpi> findDataCollectionKpiByRecurrentTask(long id) {
+        Condition condition = where("COMMUNICATIONKPI_TASK").isEqualTo(id).or(where("CONNECTIONKPI_TASK").isEqualTo(id));
+        return this.deviceDataModelService.dataModel().query(DataCollectionKpi.class).select(condition).stream().findFirst();
     }
 
     @Override
@@ -131,6 +141,18 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
         public DataCollectionKpi save() {
             this.state = this.state.save(this.underConstruction, this.connectionKpiBuilder, this.communicationKpiBuilder);
             return this.underConstruction;
+        }
+
+        @Override
+        public DataCollectionKpiBuilder connectionNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+            this.underConstruction.connectionNextRecurrentTasks(nextRecurrentTasks);
+            return this;
+        }
+
+        @Override
+        public DataCollectionKpiBuilder communicationNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
+            this.underConstruction.communicationNextRecurrentTasks(nextRecurrentTasks);
+            return this;
         }
     }
 
