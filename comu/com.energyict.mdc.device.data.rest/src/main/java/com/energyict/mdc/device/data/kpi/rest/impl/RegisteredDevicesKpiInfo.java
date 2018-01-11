@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
 import java.time.Instant;
+import java.util.List;
 
 public class RegisteredDevicesKpiInfo {
     public Long id;
@@ -16,4 +17,6 @@ public class RegisteredDevicesKpiInfo {
     public long target;
     public Instant latestCalculationDate;
     public long version;
+    public List<TaskInfo> nextRecurrentTasks;
+    public List<TaskInfo> previousRecurrentTasks;
 }
