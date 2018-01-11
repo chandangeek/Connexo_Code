@@ -39,7 +39,8 @@ Ext.define('MdcApp.controller.Main', {
         'Mdc.privileges.MetrologyConfiguration',
         'Mdc.privileges.CommandLimitationRules',
         'Dal.privileges.Alarm',
-        'Mdc.privileges.RegisteredDevicesKpi'
+        'Mdc.privileges.RegisteredDevicesKpi',
+        'Mdc.privileges.TaskManagement'
     ],
     applicationTitle: 'Connexo MultiSense',
     applicationKey: 'MDC',

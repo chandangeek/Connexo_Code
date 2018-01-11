@@ -213,7 +213,10 @@ class MdcAppPrivileges {
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION,
 
                 //calendars
-                com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS
+                com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS,
+
+                //tasks
+                com.elster.jupiter.tasks.security.Privileges.Constants.VIEW_TASK_OVERVIEW
         );
     }
 }
