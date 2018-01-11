@@ -121,6 +121,19 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
             page.setLoading('Saving...');
             formErrorsPanel.hide();
             form.getForm().clearInvalid();
+
+
+            model.setChangesInterPollDelay(Ext.create('Mdc.model.field.TimeInfo', {
+                count: model.get('changesInterPollDelay').count,
+                timeUnit: model.get('changesInterPollDelay').timeUnit
+            }));
+            model.setSchedulingInterPollDelay(Ext.create('Mdc.model.field.TimeInfo', {
+                    count: model.get('schedulingInterPollDelay').count,
+                    timeUnit: model.get('schedulingInterPollDelay').timeUnit
+                })
+            );
+
+
             model.save({
                 backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/comservers').buildUrl(),
                 callback: function (model, operation, success) {

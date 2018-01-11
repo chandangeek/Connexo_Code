@@ -59,9 +59,11 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
                 select: this.showIssueAndAlarmPreview
             }
         });
+        this.getController('Mdc.controller.setup.ApplyAlarmAction');
     },
 
     showDeviceHistory: function (deviceId) {
+        deviceId = encodeURIComponent(deviceId);
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
             router = me.getController('Uni.controller.history.Router'),

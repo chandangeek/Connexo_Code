@@ -170,6 +170,21 @@ Ext.define('Mdc.controller.Search', {
             scope: me
         });
 
+        grid.down('pagingtoolbartop').insert(1, {
+            xtype: 'uni-form-info-message',
+            itemId: 'information-message-search-overview',
+            text: Uni.I18n.translate('search.overview.informationMessage', 'MDC', "Attention: the search result only allows to sort the columns on the active page. All subsequent pages will not be sorted."),
+            margin: '0 10 5 0',
+            iconCmp: {
+                xtype: 'component',
+                style: 'font-size: 22px; color: #71adc7; margin: 0px -22px 0px -22px;',
+                cls: 'icon-info'
+            },
+            width: 720,
+            height: 30,
+            style: 'border: 1px solid #71adc7; border-radius: 10px; padding: 3px 0px 5px 32px;',
+        });
+
         Ext.resumeLayouts(true);
 
         var listeners = me.service.on({
