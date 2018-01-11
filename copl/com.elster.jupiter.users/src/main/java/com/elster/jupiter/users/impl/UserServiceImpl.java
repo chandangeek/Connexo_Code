@@ -40,6 +40,7 @@ import com.elster.jupiter.users.ResourceBuilder;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.UserDirectorySecurityProvider;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
@@ -59,6 +60,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.security.KeyStore;
 import java.security.Principal;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -100,6 +102,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private volatile UpgradeService upgradeService;
     private volatile Publisher publisher;
     private volatile Clock clock;
+
+    private final List<UserDirectorySecurityProvider> userDirectorySecurityProviders = new ArrayList<>();
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
     private static final String TRUSTSTORE_PASS = "com.elster.jupiter.users.truststorepass";
@@ -622,6 +626,16 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         this.clock = clock;
     }
 
+    @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
+    public void addUserDirectorySecurityProvider(UserDirectorySecurityProvider userDirectorySecurityProvider) {
+        this.userDirectorySecurityProviders.add(userDirectorySecurityProvider);
+    }
+
+    @SuppressWarnings("unused")
+    public void removeUserDirectorySecurityProvider(UserDirectorySecurityProvider userDirectorySecurityProvider) {
+        this.userDirectorySecurityProviders.remove(userDirectorySecurityProvider);
+    }
+
     @Override
     public void addModulePrivileges(PrivilegesProvider privilegesProvider) {
         synchronized (privilegeProviderRegistrationLock) {
@@ -804,6 +818,11 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                 .filter(Operator.EQUAL.compare("groupId", group.getId()))
                 .map(UserInGroup::getUser)
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Optional<KeyStore> findKeyStoreForUserDirectory(LdapUserDirectory userDirectory) {
+        return userDirectorySecurityProviders.stream().map(userDirectorySecurityProvider -> userDirectorySecurityProvider.getKeyStore(userDirectory)).findFirst();
     }
 
     void createDefaultPrivilegeCategory() {

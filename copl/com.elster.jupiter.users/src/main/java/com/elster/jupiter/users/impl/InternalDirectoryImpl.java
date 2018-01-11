@@ -11,7 +11,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
-import java.security.KeyStore;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,11 +44,6 @@ public final class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
     }
 
     @Override
-    public List<LdapUser> getLdapUsers(KeyStore keyStore) {
-        return null;
-    }
-
-    @Override
     public Optional<User> authenticate(String name, String password) {
         Optional<User> found = userService.findUser(name, getDomain());
         if(!found.isPresent()){
@@ -61,11 +55,6 @@ public final class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
         }
 
         return Optional.empty();
-    }
-
-    @Override
-    public Optional<User> authenticate(String name, String password, KeyStore keyStore) {
-        return authenticate(name, password);
     }
 
     @Override
@@ -81,11 +70,4 @@ public final class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
     public boolean getLdapUserStatus(String user){
         return false;
     }
-
-    @Override
-    public boolean getLdapUserStatus(String userName, KeyStore keyStore) {
-        return false;
-    }
-
-
 }

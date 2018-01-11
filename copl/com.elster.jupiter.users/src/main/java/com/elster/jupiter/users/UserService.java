@@ -10,6 +10,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Thesaurus;
 
+import java.security.KeyStore;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -168,4 +169,6 @@ public interface UserService {
     ResourceBuilder buildResource();
 
     Set<User> findUsers(Group group);
+
+    Optional<KeyStore> findKeyStoreForUserDirectory(LdapUserDirectory userDirectory);
 }

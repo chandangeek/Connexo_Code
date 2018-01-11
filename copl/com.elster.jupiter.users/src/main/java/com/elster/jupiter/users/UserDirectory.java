@@ -6,7 +6,6 @@ package com.elster.jupiter.users;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.security.KeyStore;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,15 +16,9 @@ public interface UserDirectory {
 
     List<LdapUser> getLdapUsers();
 
-    List<LdapUser> getLdapUsers(KeyStore keyStore);
-
     boolean getLdapUserStatus(String userName);
 
-    boolean getLdapUserStatus(String userName, KeyStore keyStore);
-
     Optional<User> authenticate(String name, String password);
-
-    Optional<User> authenticate(String name, String password, KeyStore keyStore);
 
     boolean isManageGroupsInternal();
 

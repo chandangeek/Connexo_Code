@@ -82,22 +82,17 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     @Override
-    public Optional<User> authenticate(String name, String password, KeyStore keyStore) {
+    public Optional<User> authenticate(String name, String password) {
         List<String> urls = getUrls();
         if (getSecurity() == null || getSecurity().toUpperCase().contains("NONE")) {
             return authenticateSimple(name, password, urls);
         } else if (getSecurity().toUpperCase().contains("SSL")) {
-            return authenticateSSL(name, password, urls, keyStore);
+            return authenticateSSL(name, password, urls, userService.findKeyStoreForUserDirectory(this).orElse(null));
         } else if (getSecurity().toUpperCase().contains("TLS")) {
-            return authenticateTLS(name, password, urls, keyStore);
+            return authenticateTLS(name, password, urls, userService.findKeyStoreForUserDirectory(this).orElse(null));
         } else {
             return Optional.empty();
         }
-    }
-
-    @Override
-    public Optional<User> authenticate(String name, String password) {
-        return authenticate(name, password, null);
     }
 
     private Optional<User> authenticateSimple(String name, String password, List<String> urls) {
@@ -190,23 +185,9 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         if (getSecurity() == null || getSecurity().toUpperCase().contains("NONE")) {
             return getLdapUsersSimple(urls);
         } else if (getSecurity().toUpperCase().contains("SSL")) {
-            return getLdapUsersSSL(urls, null);
+            return getLdapUsersSSL(urls, userService.findKeyStoreForUserDirectory(this).orElse(null));
         } else if (getSecurity().toUpperCase().contains("TLS")) {
-            return getLdapUsersTLS(urls, null);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public List<LdapUser> getLdapUsers(KeyStore keyStore) {
-        List<String> urls = getUrls();
-        if (getSecurity() == null || getSecurity().toUpperCase().contains("NONE")) {
-            return getLdapUsersSimple(urls);
-        } else if (getSecurity().toUpperCase().contains("SSL")) {
-            return getLdapUsersSSL(urls, keyStore);
-        } else if (getSecurity().toUpperCase().contains("TLS")) {
-            return getLdapUsersTLS(urls, keyStore);
+            return getLdapUsersTLS(urls, userService.findKeyStoreForUserDirectory(this).orElse(null));
         } else {
             return null;
         }
@@ -479,22 +460,16 @@ final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     @Override
-    public boolean getLdapUserStatus(String userName, KeyStore keyStore) {
+    public boolean getLdapUserStatus(String userName) {
         List<String> urls = getUrls();
         if (getSecurity() == null || getSecurity().toUpperCase().contains("NONE")) {
             return getLdapUserStatusSimple(userName, urls);
         } else if (getSecurity().toUpperCase().contains("SSL")) {
-            return getLdapUserStatusSSL(userName, urls, keyStore);
+            return getLdapUserStatusSSL(userName, urls, userService.findKeyStoreForUserDirectory(this).orElse(null));
         } else if (getSecurity().toUpperCase().contains("TLS")) {
-            return getLdapUserStatusTLS(userName, urls, keyStore);
+            return getLdapUserStatusTLS(userName, urls, userService.findKeyStoreForUserDirectory(this).orElse(null));
         } else {
             return false;
         }
     }
-
-    @Override
-    public boolean getLdapUserStatus(String userName) {
-        return getLdapUserStatus(userName, null);
-    }
-
 }
