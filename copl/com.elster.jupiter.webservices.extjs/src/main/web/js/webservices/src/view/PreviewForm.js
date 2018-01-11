@@ -179,6 +179,19 @@ Ext.define('Wss.view.PreviewForm', {
                         Ext.isEmpty(value) ? this.hide() : this.show();
                         return value;
                     }
+                },
+                {
+                    xtype: 'property-form',
+                    itemId: 'property-form',
+                    width: '100%',
+                    isEdit: false,
+                    isReadOnly: true,
+                    defaults: {
+                        labelWidth: 250,
+                        width: 325,
+                        resetButtonHidden: true,
+                        hasNotValueSameAsDefaultMessage: true
+                    }
                 }
             ]
         };

@@ -59,5 +59,6 @@ Ext.define('Wss.view.LandingPage', {
 
         me.callParent(arguments);
         me.down('webservices-preview-form').down('form').loadRecord(me.record);
+        me.down('#property-form').loadRecord(me.record);
     }
 });

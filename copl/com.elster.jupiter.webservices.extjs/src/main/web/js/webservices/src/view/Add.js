@@ -135,7 +135,7 @@ Ext.define('Wss.view.Add', {
         form.getForm().setValues(this.record.data);
         form.down('#logLevelCombo').select(this.record.getLogLevel());
         form.down('#authenticationCombo').select(this.record.getAuthenticationMethod());
-
+        this.down('#property-form').loadRecord(this.record);
         form.down('#webServiceCombo').disable();
         if (this.record.getAuthenticationMethod().get('id') !== 'none' && Ext.isEmpty(this.record.getGroup())) {
             if (form.down('#userRoleField'))form.down('#userRoleField').select('all');

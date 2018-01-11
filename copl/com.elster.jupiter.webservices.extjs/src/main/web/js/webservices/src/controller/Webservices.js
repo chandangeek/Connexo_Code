@@ -209,6 +209,7 @@ Ext.define('Wss.controller.Webservices', {
             form = previewForm.down('form');
 
         form.loadRecord(record);
+        form.down('#property-form').loadRecord(record);
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         if (preview.down('webservices-action-menu')) {
             preview.down('webservices-action-menu').record = record;
