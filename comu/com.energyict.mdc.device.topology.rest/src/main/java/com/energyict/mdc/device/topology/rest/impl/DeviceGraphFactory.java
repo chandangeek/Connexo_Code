@@ -143,7 +143,7 @@ public class DeviceGraphFactory implements GraphFactory {
                 mapOfParentWithCoordinates.put(parent.getName(), parent.getSpatialCoordinates().orElse(coordinates));
             }
             Device device = ((DeviceNodeInfo) nodeInfo).getDevice();
-            if (!device.getSpatialCoordinates().isPresent()) {
+            if (!device.getSpatialCoordinates().isPresent() && !nodeInfo.isGateway()) {
                 nodeInfo.setCoordinates(getCoordinatesInCloseProximityWithParent(graphInfoNodes.size(), i, mapOfParentWithCoordinates.get(nodeInfo.getParent().getName())));
                 i++;
             }

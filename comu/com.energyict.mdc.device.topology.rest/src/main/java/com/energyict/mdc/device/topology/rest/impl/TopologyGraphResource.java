@@ -3,7 +3,6 @@ package com.energyict.mdc.device.topology.rest.impl;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
-
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
@@ -11,13 +10,10 @@ import com.energyict.mdc.device.topology.rest.GraphLayerService;
 import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.DeviceSummaryNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.GraphInfo;
+import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URLDecoder;
@@ -37,16 +33,18 @@ public class TopologyGraphResource {
     private final GraphLayerService graphLayerService;
     private final ExceptionFactory exceptionFactory;
     private final DeviceGraphFactory deviceGraphFactory;
+    private final BundleContext bundleContext;
 
     @Inject
     public TopologyGraphResource(DeviceService deviceService,
                                  GraphLayerService graphLayerService,
                                  ExceptionFactory exceptionFactory,
-                                 DeviceGraphFactory deviceGraphFactory) {
+                                 DeviceGraphFactory deviceGraphFactory, BundleContext bundleContext) {
         this.deviceService = deviceService;
         this.graphLayerService = graphLayerService;
         this.exceptionFactory = exceptionFactory;
         this.deviceGraphFactory = deviceGraphFactory;
+        this.bundleContext = bundleContext;
     }
 
     @GET
@@ -56,9 +54,9 @@ public class TopologyGraphResource {
         boolean forceRefresh = false; // do not use the cached graphInfo
         if (layerFilter.hasFilters()) {
             List<String> encodedLayerNames = layerFilter.getStringList("layers");
-            List<String>  decodedLayerNames = new ArrayList<>(encodedLayerNames.size());
-            for (String encodedLayerName :encodedLayerNames){
-                 decodedLayerNames.add(URLDecoder.decode(encodedLayerName));
+            List<String> decodedLayerNames = new ArrayList<>(encodedLayerNames.size());
+            for (String encodedLayerName : encodedLayerNames) {
+                decodedLayerNames.add(URLDecoder.decode(encodedLayerName));
             }
             activateGraphLayers(decodedLayerNames);
             if (layerFilter.hasProperty("refresh")) {
@@ -66,7 +64,7 @@ public class TopologyGraphResource {
             }
         }
         Device device = deviceService.findDeviceByName(name).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_NOT_FOUND, name));
-        GraphInfo graphInfo =  deviceGraphFactory.forceRefresh(forceRefresh).from(device);
+        GraphInfo graphInfo = deviceGraphFactory.forceRefresh(forceRefresh).from(device);
         return Response.ok(graphInfo).build();
     }
 
@@ -76,6 +74,14 @@ public class TopologyGraphResource {
     public Response getGraphLayers() {
         List<String> layersNames = graphLayerService.getGraphLayers().stream().map(GraphLayer::getName).collect(Collectors.toList());
         return Response.ok(layersNames.toArray()).build();
+    }
+
+    @GET
+    @Path("/configuration")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getConfiguration() {
+        GeoLocationConfigurationProperties geoLocationConfigurationProperties = new GeoLocationConfigurationProperties(bundleContext);
+        return Response.ok(geoLocationConfigurationProperties.buildGeoLocationConfigurationInfo()).build();
     }
 
     @GET
@@ -89,8 +95,7 @@ public class TopologyGraphResource {
         return Response.ok(deviceSummaryNodeInfo).build();
     }
 
-    private void activateGraphLayers(final List<String> names ) {
-        graphLayerService.getGraphLayers().stream().forEach((layer)-> layer.setActive(names.contains(layer.getName())));
+    private void activateGraphLayers(final List<String> names) {
+        graphLayerService.getGraphLayers().stream().forEach((layer) -> layer.setActive(names.contains(layer.getName())));
     }
-
 }

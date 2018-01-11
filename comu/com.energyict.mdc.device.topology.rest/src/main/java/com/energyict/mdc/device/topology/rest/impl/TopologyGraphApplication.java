@@ -9,7 +9,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
-
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.framework.BundleContext;
@@ -19,11 +18,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component(name = "com.energyict.mdc.device.topology.graph", service = {Application.class}, immediate = true, property = {"alias=/dtg", "app="+TopologyGraphApplication.APP_KEY, "name=" + TopologyGraphApplication.COMPONENT_NAME})
 public class TopologyGraphApplication extends Application implements MessageSeedProvider {
@@ -39,11 +34,13 @@ public class TopologyGraphApplication extends Application implements MessageSeed
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile DeviceGraphFactory deviceGraphFactory;
+    private volatile BundleContext context;
 
     @Activate
     public void activate(BundleContext context) {
         // DeviceGraphFactory has a cache of GraphInfo's
         setDeviceGraphFactory(new DeviceGraphFactory(topologyService, graphLayerService, clock));
+        setContext(context);
     }
 
     @Override
@@ -104,6 +101,10 @@ public class TopologyGraphApplication extends Application implements MessageSeed
         return Arrays.asList(MessageSeeds.values());
     }
 
+    public void setContext(BundleContext context) {
+        this.context = context;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -116,6 +117,7 @@ public class TopologyGraphApplication extends Application implements MessageSeed
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(clock).to(Clock.class);
             bind(deviceGraphFactory).to(DeviceGraphFactory.class);
+            bind(context).to(BundleContext.class);
         }
     }
 }

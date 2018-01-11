@@ -3,23 +3,12 @@ package com.energyict.mdc.device.topology.rest.info;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
-
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.annotation.*;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @param <T> type of nodeObject
@@ -31,8 +20,8 @@ import java.util.Optional;
 @JsonPropertyOrder({"nodes", "links"})
 public class GraphInfo<T extends HasId>  {
 
-    private Map<String, Object> properties = new HashMap<>();
     private final GraphLayerService graphLayerService;
+    private Map<String, Object> properties = new HashMap<>();
     private NodeInfo<T> rootNode;
     @JsonIgnore
     private Map<Long,NodeInfo<T>> nodes = new HashMap<>();
@@ -63,7 +52,6 @@ public class GraphInfo<T extends HasId>  {
         this.addNode(rootNode);
         this.rootNode = rootNode;
     }
-
     /**
      * Can we consider the graphInfo still valid for given Period
      * @param when instant for which we check the validity (time to life = 1h)
