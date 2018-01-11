@@ -49,7 +49,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     failedCommunicationStatusColor: '#FF0000',
     goodLinkQualityColor: '#70BB51',
     badLinkQualityColor: '#EB5642',
-    noCoordinatesColor: '#ffff00',
+    noCoordinatesColor: '#a19fa3',
     colors: [
         '#BEE64B', '#33CC99', '#00CCCC', '#7ED4E6', '#2887C8', '#C3CDE6', '#7070CC', '#C9A0DC', '#733380', '#2D383A',
         '#5E8C31', '#7BA05B', '#4D8C57', '#3AA655', '#93DFB8', '#1AB385', '#29AB87', '#00CC99', '#00755E',
@@ -99,7 +99,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
 
     initShit: function () {
         var mapopts = {
-//      zoomSnap: 0.1
+            zoom: 1
         };
         var map = L.map('graph-drawing-area', mapopts).setView([45.828315, 21.2800133], 15);
 
@@ -566,7 +566,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                         // t: node.get('name'), // No name/label in the graph
                         e: 0.5,
                         fi: {
-                            c: me.neutralColor,
+                            c: (!Ext.isEmpty(node.get('hasCoordonates')) && !node.get('hasCoordonates')) ? me.noCoordinatesColor : me.neutralColor,
                             t: icon
                         },
                         fb: true, // label in bold
@@ -584,9 +584,11 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                             hasCoordonates: node.get('hasCoordonates')
                         },
                         pos: {
-                            lat: Ext.isEmpty(node.get('deviceCoordinates')) ? 45.2251093 : node.get('deviceCoordinates').latitude.value,
-                            lng: Ext.isEmpty(node.get('deviceCoordinates')) ? 22.0192515 : node.get('deviceCoordinates').longitude.value
-                            //lat: 45.595855 ,
+                            lat: Ext.isEmpty(node.get('deviceCoordinates')) ? '' : node.get('deviceCoordinates').latitude.value,
+                            lng: Ext.isEmpty(node.get('deviceCoordinates')) ? '' : node.get('deviceCoordinates').longitude.value
+                            // lat: Ext.isEmpty(node.get('deviceCoordinates')) ? 45.2251093 : node.get('deviceCoordinates').latitude.value,
+                            // lng: Ext.isEmpty(node.get('deviceCoordinates')) ? 22.0192515 : node.get('deviceCoordinates').longitude.value
+                            // //lat: 45.595855 ,
                             // lng: 21.845745
                         }
                     }
@@ -647,7 +649,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                     b: null, // no border (color)
                     c: me.whiteColor, // fill color
                     fi: {
-                        c: me.neutralColor,
+                        c: (!Ext.isEmpty(node.d.hasCoordonates) && !node.d.hasCoordonates) ? me.noCoordinatesColor : me.neutralColor,
                         t: icon
                     },
                     ha0: null,
