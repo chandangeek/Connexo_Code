@@ -10,7 +10,6 @@ import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
-import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -49,12 +48,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -231,7 +224,7 @@ public class UserDirectoryResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public PagedInfoList getExtUsers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id,@Context SecurityContext securityContext) {
         LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
-        List<LdapUser> ldapUsers = ldapUserDirectory.getLdapUsers(getKeyStore(ldapUserDirectory));
+        List<LdapUser> ldapUsers = ldapUserDirectory.getLdapUsers();
         List<LdapUsersInfo> ldapUsersInfos = ListPager.of(ldapUsers)
                 .paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null))
                 .find()
@@ -276,29 +269,5 @@ public class UserDirectoryResource {
         return restQueryService.wrap(query);
     }
 
-    private KeyStore getKeyStore(LdapUserDirectory ldapUserDirectory) {
-        return securityManagementService.getUserDirectoryCertificateUsage(ldapUserDirectory)
-                .map(directoryCertificateUsage -> {
-                    KeyStore keyStore = null;
-                    try {
-                        keyStore = KeyStore.getInstance("JKS");
-                        keyStore.load(null, null);
-                        Optional<TrustStore> trustStore = directoryCertificateUsage.getTrustStore();
-                        Optional<CertificateWrapper> certificate = directoryCertificateUsage.getCertificate();
-                        if (trustStore.isPresent()) {
-                            for (TrustedCertificate cert : trustStore.get().getCertificates()) {
-                                if (cert.getCertificate().isPresent()) {
-                                    keyStore.setCertificateEntry(cert.getAlias(), cert.getCertificate().get());
-                                }
-                            }
-                        } else if (certificate.isPresent() && certificate.get().getCertificate().isPresent()) {
-                            X509Certificate trustedCertificate = certificate.get().getCertificate().get();
-                            keyStore.setCertificateEntry(certificate.get().getAlias(), trustedCertificate);
-                        }
-                        return keyStore;
-                    } catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException e) {
-                        return null;
-                    }
-                }).orElse(null);
-    }
+
 }
