@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockMeterConfig;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockMeterConfig;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;

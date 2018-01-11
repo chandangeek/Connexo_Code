@@ -131,7 +131,6 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(MeteringService.class).toInstance(meteringService);
-                bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(DeviceLifeCycleService.class).toInstance(deviceLifeCycleService);
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(DeviceService.class).toInstance(deviceService);
