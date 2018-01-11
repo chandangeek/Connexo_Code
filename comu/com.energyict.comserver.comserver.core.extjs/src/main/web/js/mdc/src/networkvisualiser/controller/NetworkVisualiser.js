@@ -35,6 +35,7 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
         me.getApplication().fireEvent('changecontentevent', widget);
     },
 
+
     showNetwork: function(deviceName) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),

@@ -1,10 +1,15 @@
 Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
     extend: 'Uni.graphvisualiser.VisualiserMenu',
     alias: 'widget.networkvisualisermenu',
+    models: [
+        'Uni.graphvisualiser.model.GraphModel'
+    ],
 
-    initComponent: function(){
+    initComponent: function () {
         var me = this;
         me.callParent(arguments);
+
+
         me.down('#uni-layer-section').add([
             {
                 xtype: 'checkboxgroup',
@@ -55,10 +60,11 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                     },
                     {
                         xtype: 'checkboxfield',
-                        boxLabel: Uni.I18n.translate('general.layer.maps', 'MDC', 'Maps'),
+                        boxLabel: Uni.I18n.translate('general.layer.map', 'MDC', 'Map'),
                         itemId: 'mdc-visualiser-layer-maps',
                         name: 'rb',
-                        inputValue: '7'
+                        inputValue: '7',
+                        hidden: true
                     }
                 ],
                 listeners: {
@@ -70,63 +76,77 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
             }
         ]);
 
-    //     me.down('#uni-visualiser-menu-visulisation-panel').add([
-    //         {
-    //             xtype: 'form',
-    //             margin: '15 0 0 0',
-    //             hidden: true,
-    //             id: 'layer-map-provider-section',
-    //             title: Uni.I18n.translate('general.map.provider', 'UNI', ' Map Provider'),
-    //             items: [
-    //                 {
-    //                     xtype: 'radiogroup',
-    //                     margin: '-8 0 0 0',
-    //                     columns: 1,
-    //                     vertical: true,
-    //                     id: 'radiogroup-map-provider',
-    //                     items: [
-    //                         {
-    //                             boxLabel: Uni.I18n.translate('general.layout.google.maps', 'UNI', 'Google Maps'),
-    //                             name: 'rb',
-    //                             inputValue: '1',
-    //                             checked: true
-    //                         },
-    //                         {
-    //                             boxLabel: Uni.I18n.translate('general.layout.open.street.map', 'UNI', 'OpenStreet Map'),
-    //                             name: 'rb',
-    //                             inputValue: '2'
-    //                         },
-    //                         {
-    //                             boxLabel: Uni.I18n.translate('general.layout.here.map', 'UNI', 'HERE Map'),
-    //                             name: 'rb',
-    //                             inputValue: '3'
-    //                         },
-    //                         {
-    //                             boxLabel: Uni.I18n.translate('general.layout.mapbox', 'UNI', 'Mapbox'),
-    //                             name: 'rb',
-    //                             inputValue: '4'
-    //                         }
-    //                     ],
-    //                     listeners: {
-    //                         change: {
-    //                             fn: this.changeMapProvider,
-    //                             scope: this.visualiser
-    //                         }
-    //                     }
-    //                 }
-    //             ]
-    //         }
-    //
-    //     ]);
-    // },
-    //
-    //
-    // changeMapProvider: function (field, newValues, oldValues) {
-    //     var me = this;
-    //     // me.changeMapProvider(newValues.rb);
+        Ext.Ajax.request({
+            url: '/api/dtg/topology/configuration',
+            method: 'GET',
+
+            success: function (option) {
+                var response = Ext.JSON.decode(option.responseText);
+                me.down('#mdc-visualiser-layer-maps').setVisible(response.geolocationEnabled);
+                geoLocationlayer = response.geolocationTileLayer;
+                geoLocationZoom = response.maxZoom,
+                    geoLocationType = response.geolocationType;
+            }
+        });
+
+
+        //     me.down('#uni-visualiser-menu-visulisation-panel').add([
+        //         {
+        //             xtype: 'form',
+        //             margin: '15 0 0 0',
+        //             hidden: true,
+        //             id: 'layer-map-provider-section',
+        //             title: Uni.I18n.translate('general.map.provider', 'UNI', ' Map Provider'),
+        //             items: [
+        //                 {
+        //                     xtype: 'radiogroup',
+        //                     margin: '-8 0 0 0',
+        //                     columns: 1,
+        //                     vertical: true,
+        //                     id: 'radiogroup-map-provider',
+        //                     items: [
+        //                         {
+        //                             boxLabel: Uni.I18n.translate('general.layout.google.maps', 'UNI', 'Google Maps'),
+        //                             name: 'rb',
+        //                             inputValue: '1',
+        //                             checked: true
+        //                         },
+        //                         {
+        //                             boxLabel: Uni.I18n.translate('general.layout.open.street.map', 'UNI', 'OpenStreet Map'),
+        //                             name: 'rb',
+        //                             inputValue: '2'
+        //                         },
+        //                         {
+        //                             boxLabel: Uni.I18n.translate('general.layout.here.map', 'UNI', 'HERE Map'),
+        //                             name: 'rb',
+        //                             inputValue: '3'
+        //                         },
+        //                         {
+        //                             boxLabel: Uni.I18n.translate('general.layout.mapbox', 'UNI', 'Mapbox'),
+        //                             name: 'rb',
+        //                             inputValue: '4'
+        //                         }
+        //                     ],
+        //                     listeners: {
+        //                         change: {
+        //                             fn: this.changeMapProvider,
+        //                             scope: this.visualiser
+        //                         }
+        //                     }
+        //                 }
+        //             ]
+        //         }
+        //
+        //     ]);
+        // },
+        //
+        //
+        // changeMapProvider: function (field, newValues, oldValues) {
+        //     var me = this;
+        //     // me.changeMapProvider(newValues.rb);
     },
 
-    checkboxHandler: function(field, newValues, oldValues){
+    checkboxHandler: function (field, newValues, oldValues) {
         var me = this, // = VisualiserPanel
             oldFilters = [],
             filters = [],
@@ -140,16 +160,16 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
             optionsMenu = Ext.ComponentQuery.query('#uni-visualiser-menu')[0].down('#layer-options-section');
 
 
-        if(!newValues.rb) {
+        if (!newValues.rb) {
             filters.concat(newValues.rb);
-        } else if(typeof newValues.rb === 'string'){
+        } else if (typeof newValues.rb === 'string') {
             filters[0] = newValues.rb;
         } else {
             filters = newValues.rb;
         }
-        if(!oldValues.rb) {
+        if (!oldValues.rb) {
             oldFilters.concat(oldValues.rb);
-        } else if(typeof oldValues.rb === 'string'){
+        } else if (typeof oldValues.rb === 'string') {
             oldFilters[0] = oldValues.rb;
         } else {
             oldFilters = oldValues.rb;
@@ -157,7 +177,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
 
         if (filters.length > oldFilters.length) { // An extra layer has been selected
             var result = Ext.Array.difference(filters, oldFilters); // Determine the added layer
-            switch(result[0]) {
+            switch (result[0]) {
                 case '1':
                     hopsCheckBox.setDisabled(true);
                     lifeCylceStatusCheckBox.setDisabled(true);
@@ -185,6 +205,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                 case "7":
                     optionsMenu.hide();
                     me.showMap();
+                    // me.addLayer(me.showDeviceTypesMaps());
                     me.addLayer(me.showMap);
 
                     //me.addLayer(me.showMap);
@@ -229,7 +250,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
             }
         } else if (filters.length < oldFilters.length) { // A layer has been removed
             var result = Ext.Array.difference(oldFilters, filters); // Determine the removed layer
-            switch(result[0]) {
+            switch (result[0]) {
                 case '1':
                     hopsCheckBox.setDisabled(false);
                     lifeCylceStatusCheckBox.setDisabled(false);
@@ -257,7 +278,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                 case "7":
                     optionsMenu.show();
                     me.hideMap();
-                    //me.removeLayer(me.showMap);
+                    me.removeLayer(me.showMap);
                     break;
             }
             me.clearAllLegendItems();
