@@ -60,7 +60,7 @@ public class UserDirectoryResourceTest extends UsersRestApplicationJerseyTest {
         when(securityManagementService.getUserDirectoryCertificateUsage(userDirectory)).thenReturn(Optional.of(directoryCertificateUsage));
         when(directoryCertificateUsage.getDirectory()).thenReturn(userDirectory);
         when(userDirectory.getId()).thenReturn(1L);
-        when(userDirectory.getLdapUsers(any(KeyStore.class))).thenReturn(Collections.singletonList(ldapUser));
+        when(userDirectory.getLdapUsers()).thenReturn(Collections.singletonList(ldapUser));
         when(directoryCertificateUsage.getTrustStore()).thenReturn(Optional.of(trustStore));
         when(trustStore.getCertificates()).thenReturn(Collections.singletonList(trustedCertificate));
         when(trustedCertificate.getCertificate()).thenReturn(Optional.of(certificate));
@@ -69,7 +69,7 @@ public class UserDirectoryResourceTest extends UsersRestApplicationJerseyTest {
 
         String response = target("/userdirectories/1/extusers").request().get(String.class);
 
-        verify(userDirectory).getLdapUsers(any(KeyStore.class));
+        verify(userDirectory).getLdapUsers();
 
         JsonModel model = JsonModel.model(response);
         assertThat(model.<String>get("$.extusers[0].name")).isEqualTo("testUser");
