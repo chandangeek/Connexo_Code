@@ -6,7 +6,6 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
@@ -48,7 +47,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Path("/devicelifecycles")
 public class DeviceLifeCycleResource {
 
@@ -65,6 +63,7 @@ public class DeviceLifeCycleResource {
     private final Provider<DeviceLifeCycleStateResource> lifeCycleStateResourceProvider;
     private final Provider<DeviceLifeCycleActionResource> lifeCycleStateTransitionsResourceProvider;
     private final Provider<TransitionBusinessProcessResource> transitionBusinessProcessResourceProvider;
+    private final Provider<TransitionWebServiceEndpointResource> transitionWebServiceEndpointProvider;
     private final DeviceLifeCycleFactory deviceLifeCycleFactory;
     private final DeviceLifeCyclePrivilegeFactory deviceLifeCyclePrivilegeFactory;
     private final StateTransitionEventTypeFactory stateTransitionEventTypeFactory;
@@ -76,6 +75,7 @@ public class DeviceLifeCycleResource {
                                    Provider<DeviceLifeCycleStateResource> lifeCycleStateResourceProvider,
                                    Provider<DeviceLifeCycleActionResource> lifeCycleStateTransitionsResourceProvider,
                                    Provider<TransitionBusinessProcessResource> transitionBusinessProcessResourceProvider,
+                                   Provider<TransitionWebServiceEndpointResource> transitionWebServiceEndpointProvider,
                                    DeviceLifeCycleFactory deviceLifeCycleFactory,
                                    DeviceLifeCyclePrivilegeFactory deviceLifeCyclePrivilegeFactory,
                                    StateTransitionEventTypeFactory stateTransitionEventTypeFactory) {
@@ -86,6 +86,7 @@ public class DeviceLifeCycleResource {
         this.stateTransitionEventTypeFactory = stateTransitionEventTypeFactory;
         this.lifeCycleStateResourceProvider = lifeCycleStateResourceProvider;
         this.transitionBusinessProcessResourceProvider = transitionBusinessProcessResourceProvider;
+        this.transitionWebServiceEndpointProvider = transitionWebServiceEndpointProvider;
         this.lifeCycleStateTransitionsResourceProvider = lifeCycleStateTransitionsResourceProvider;
         this.deviceLifeCyclePrivilegeFactory = deviceLifeCyclePrivilegeFactory;
     }
@@ -211,6 +212,11 @@ public class DeviceLifeCycleResource {
     @Path("/statechangebusinessprocesses")
     public TransitionBusinessProcessResource getTransitionBusinessProcessResource() {
         return this.transitionBusinessProcessResourceProvider.get();
+    }
+
+    @Path("/statechangewebserviceendpoints")
+    public TransitionWebServiceEndpointResource getTransitionWebServiceEndpointResource() {
+        return this.transitionWebServiceEndpointProvider.get();
     }
 
     @GET

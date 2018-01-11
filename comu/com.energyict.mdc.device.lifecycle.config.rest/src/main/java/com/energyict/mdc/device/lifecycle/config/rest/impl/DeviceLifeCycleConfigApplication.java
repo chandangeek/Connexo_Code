@@ -20,6 +20,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -34,6 +35,7 @@ import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCy
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleStateResource;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.ResourceHelper;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.TransitionBusinessProcessResource;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.TransitionWebServiceEndpointResource;
 import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfoFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivilegeFactory;
@@ -73,7 +75,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile BpmService bpmService;
-
+    private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile EventService eventService;
@@ -101,6 +103,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
                 DeviceLifeCycleStateResource.class,
                 DeviceLifeCycleActionResource.class,
                 TransitionBusinessProcessResource.class,
+                TransitionWebServiceEndpointResource.class,
                 RestValidationExceptionMapper.class);
     }
 
@@ -161,6 +164,11 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     }
 
     @Reference
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
+    }
+
+    @Reference
     public void setPropertyValueConverterFactory(MdcPropertyValueConverterFactory propertyValueConverterFactory) {
         this.propertyValueConverterFactory = propertyValueConverterFactory;
     }
@@ -200,6 +208,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
         protected void configure() {
             bind(userService).to(UserService.class);
             bind(bpmService).to(BpmService.class);
+            bind(endPointConfigurationService).to(EndPointConfigurationService.class);
             bind(transactionService).to(TransactionService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(nlsService).to(NlsService.class);
@@ -223,5 +232,4 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
             bind(deviceLifeCycleService).to(DeviceLifeCycleService.class);
         }
     }
-
 }
