@@ -822,7 +822,11 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public Optional<KeyStore> findKeyStoreForUserDirectory(LdapUserDirectory userDirectory) {
-        return userDirectorySecurityProviders.stream().map(userDirectorySecurityProvider -> userDirectorySecurityProvider.getKeyStore(userDirectory)).findFirst();
+        return userDirectorySecurityProviders.stream()
+                .map(userDirectorySecurityProvider -> userDirectorySecurityProvider.getKeyStore(userDirectory))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
     }
 
     void createDefaultPrivilegeCategory() {

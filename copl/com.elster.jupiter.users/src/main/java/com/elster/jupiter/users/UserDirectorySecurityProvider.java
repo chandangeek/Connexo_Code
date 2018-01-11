@@ -5,7 +5,8 @@
 package com.elster.jupiter.users;
 
 import java.security.KeyStore;
+import java.util.Optional;
 
 public interface UserDirectorySecurityProvider {
-    KeyStore getKeyStore(LdapUserDirectory ldapUserDirectory);
+    Optional<KeyStore> getKeyStore(LdapUserDirectory ldapUserDirectory);
 }
