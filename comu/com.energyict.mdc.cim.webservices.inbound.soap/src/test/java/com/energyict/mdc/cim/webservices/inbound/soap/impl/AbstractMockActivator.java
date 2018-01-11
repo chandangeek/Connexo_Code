@@ -6,22 +6,28 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import org.osgi.framework.BundleContext;
 
@@ -69,6 +75,18 @@ public abstract class AbstractMockActivator {
     @Mock
     protected User user;
     @Mock
+    protected PropertySpecService propertySpecService;
+    @Mock
+    protected PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    protected LogBookService logBookService;
+    @Mock
+    protected EndPointConfigurationService endPointConfigurationService;
+    @Mock
+    protected DeviceAlarmService deviceAlarmService;
+    @Mock
+    protected IssueService issueService;
+    @Mock
     protected BatchService batchService;
 
     private InboundSoapEndpointsActivator activator;
@@ -97,6 +115,12 @@ public abstract class AbstractMockActivator {
         activator.setDeviceLifeCycleService(deviceLifeCycleService);
         activator.setDeviceService(deviceService);
         activator.setUserService(userService);
+        activator.setPropertySpecService(propertySpecService);
+        activator.setPropertyValueInfoService(propertyValueInfoService);
+        activator.setLogBookService(logBookService);
+        activator.setEndPointConfigurationService(endPointConfigurationService);
+        activator.setDeviceAlarmService(deviceAlarmService);
+        activator.setIssueService(issueService);
         activator.setBatchService(batchService);
         activator.activate(mock(BundleContext.class));
     }

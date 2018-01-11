@@ -6,7 +6,6 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -95,8 +94,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider {
 
     @Inject
     public InboundSoapEndpointsActivator(BundleContext bundleContext, Clock clock, ThreadPrincipalService threadPrincipalService,
-                                         TransactionService transactionService, MeteringService meteringService, NlsService nlsService,
-                                         UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService,
+                                         TransactionService transactionService, MeteringService meteringService,
+                                         NlsService nlsService, UpgradeService upgradeService,
                                          DeviceLifeCycleService deviceLifeCycleService, DeviceConfigurationService deviceConfigurationService,
                                          DeviceService deviceService, UserService userService,
                                          PropertySpecService propertySpecService, PropertyValueInfoService propertyValueInfoService, LogBookService logBookService,
