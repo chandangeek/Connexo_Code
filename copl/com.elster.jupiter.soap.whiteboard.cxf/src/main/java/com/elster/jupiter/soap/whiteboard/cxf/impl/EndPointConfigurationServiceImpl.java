@@ -69,7 +69,8 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     @Inject // Test purposes only
     public EndPointConfigurationServiceImpl(EventService eventService, NlsService nlsService, OrmService ormService,
                                             UserService userService, TransactionService transactionService,
-                                            HttpService httpService, WebServicesService webServicesService) {
+                                            HttpService httpService, WebServicesService webServicesService,
+                                            EndPointService endPointService) {
         setEventService(eventService);
         setNlsService(nlsService);
         setOrmService(ormService);
@@ -77,6 +78,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         setTransactionService(transactionService);
         setHttpService(httpService);
         setWebServicesService(webServicesService);
+        setEndPointService(endPointService);
         activate();
     }
 
