@@ -96,6 +96,8 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     FtpsDestination addFtpsDestination(String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension);
 
+    SftpDestination addSftpDestination(String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension);
+
     void removeDestination(DataExportDestination destination);
 
     List<DataExportDestination> getDestinations();

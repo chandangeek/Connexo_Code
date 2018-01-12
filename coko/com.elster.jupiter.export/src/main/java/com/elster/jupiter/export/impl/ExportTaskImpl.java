@@ -20,6 +20,7 @@ import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.FtpsDestination;
+import com.elster.jupiter.export.SftpDestination;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
@@ -506,6 +507,15 @@ final class ExportTaskImpl implements IExportTask {
         destinations.add(ftpsDestination);
         doSave();
         return ftpsDestination;
+    }
+
+
+    @Override
+    public SftpDestination addSftpDestination(String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
+        SftpDestinationImpl sftpDestination = SftpDestinationImpl.from(this, dataModel, server, port, user, password, fileLocation, fileName, fileExtension);
+        destinations.add(sftpDestination);
+        doSave();
+        return sftpDestination;
     }
 
     @Override
