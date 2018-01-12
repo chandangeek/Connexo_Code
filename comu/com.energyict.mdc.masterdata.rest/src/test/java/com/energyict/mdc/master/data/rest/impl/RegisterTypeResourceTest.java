@@ -86,9 +86,10 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
             .containsKey("obisCode")
             .containsKey("isLinkedByDeviceType")
             .containsKey("readingType");
-        assertThat((Map)map.get("readingType")).hasSize(25)
+        assertThat((Map)map.get("readingType")).hasSize(27)
             .containsKey("mRID")
             .containsKey("aliasName")
+            .containsKey("name")
             .containsKey("active")
             .containsKey("macroPeriod")
             .containsKey("aggregate")
@@ -111,6 +112,7 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
             .containsKey("currency")
             .containsKey("version")
             .containsKey("isCumulative")
+            .containsKey("numberOfReadingTypes")
             .containsKey("names");
     }
 
