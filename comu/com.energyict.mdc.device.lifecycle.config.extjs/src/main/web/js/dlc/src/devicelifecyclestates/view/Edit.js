@@ -201,6 +201,138 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                 },
                 {
                     xtype: 'fieldcontainer',
+                    fieldLabel: Uni.I18n.translate('deviceLifeCycleStates.webServiceCall.entry', 'DLC', 'Web service call on entry'),
+                    itemId: 'webServicesOnEntryContainer',
+                    required: false,
+                    msgTarget: 'under',
+                    layout: 'hbox',
+                    width: 1200,
+                    items: [
+                        {
+                            xtype: 'gridpanel',
+                            itemId: 'webServicesOnEntryGrid',
+                            store: 'Dlc.devicelifecyclestates.store.WebServiceEndpointsOnEntry',
+                            hideHeaders: true,
+                            disableSelection: true,
+                            trackMouseOver: false,
+                            width: 285,
+                            maxHeight: 300,
+                            hidden: true,
+                            style: {
+                                paddingBottom: '8px'
+                            },
+                            columns: [
+                                {
+                                    dataIndex: 'name',
+                                    renderer: function (value, metaData, record) {
+                                        return value + ' (' + record.get('version') + ')';
+                                    },
+                                    flex: 1
+                                },
+                                {
+                                    xtype: 'uni-actioncolumn-remove',
+                                    align: 'right',
+                                    handler: function (grid, rowIndex) {
+                                        grid.getStore().removeAt(rowIndex);
+                                        this.up('#dlc-state-edit').showGridsOrMessages();
+                                    }
+                                }
+                            ],
+                            listeners: {
+                                afterrender: function () {
+                                    this.view.el.dom.style.overflowX = 'hidden'
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'component',
+                            html: Uni.I18n.translate('deviceLifeCycleStates.noWebServicesAdded', 'DLC', 'No web service endpoints have been added'),
+                            itemId: 'noOnEntryWebServicesAddedMsg',
+                            style: {
+                                'font': 'italic 13px/17px Lato',
+                                'color': '#686868',
+                                'margin-top': '6px',
+                                'margin-right': '10px'
+                            },
+                            hidden: true
+                        },
+                        {
+                            xtype: 'button',
+                            itemId: 'addOnEntryWebServiceEndpoints',
+                            action:'onEntry',
+                            text: Uni.I18n.translate('transitionBusinessProcess.addWebServiceEndpoint', 'DLC', 'Add web service endpoint'),
+                            margin: '0 0 0 10'
+                        }
+                    ]
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    fieldLabel: Uni.I18n.translate('deviceLifeCycleStates.webServiceCall.exit', 'DLC', 'Web service call on exit'),
+                    itemId: 'webServicesOnExitContainer',
+                    required: false,
+                    msgTarget: 'under',
+                    layout: 'hbox',
+                    width: 1200,
+                    items: [
+                        {
+                            xtype: 'component',
+                            html: Uni.I18n.translate('deviceLifeCycleStates.noWebServicesAdded', 'DLC', 'No web service endpoints have been added'),
+                            itemId: 'noOnExitWebServicesAddedMsg',
+                            style: {
+                                'font': 'italic 13px/17px Lato',
+                                'color': '#686868',
+                                'margin-top': '6px',
+                                'margin-right': '10px'
+                            },
+                            hidden: true
+                        },
+                        {
+                            xtype: 'grid',
+                            itemId: 'webServicesOnExitGrid',
+                            store: 'Dlc.devicelifecyclestates.store.WebServiceEndpointsOnExit',
+                            hideHeaders: true,
+                            disableSelection: true,
+                            trackMouseOver: false,
+                            width: 285,
+                            maxHeight: 300,
+                            hidden: true,
+                            style: {
+                                paddingBottom: '8px'
+                            },
+                            columns: [
+                                {
+                                    dataIndex: 'name',
+                                    renderer: function (value, metaData, record) {
+                                        return value + ' (' + record.get('version') + ')';
+                                    },
+                                    flex: 1
+                                },
+                                {
+                                    xtype: 'uni-actioncolumn-remove',
+                                    align: 'right',
+                                    handler: function (grid, rowIndex) {
+                                        grid.getStore().removeAt(rowIndex);
+                                        this.up('#dlc-state-edit').showGridsOrMessages();
+                                    }
+                                }
+                            ],
+                            listeners: {
+                                afterrender: function () {
+                                    this.view.el.dom.style.overflowX = 'hidden'
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'button',
+                            itemId: 'addOnExitWebServiceEndpoints',
+                            action:'onExit',
+                            text: Uni.I18n.translate('transitionBusinessProcess.addWebServiceEndpoint', 'DLC', 'Add web service endpoint'),
+                            margin: '0 0 0 10'
+                        }
+                    ]
+                },
+                {
+                    xtype: 'fieldcontainer',
                     ui: 'actions',
                     fieldLabel: '&nbsp',
                     items: [
@@ -240,11 +372,11 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                     }
                 }
                 this.getForm().loadRecord(record);
-                if (!this.down('#cbo-stage').getValue()) {
+                if (record.get('stage') && !this.down('#cbo-stage').getValue()) {
                     this.down('#cbo-stage').select(record.get('stage').id);
                 }
                 var processOnEntryStore = this.down('#processesOnEntryGrid').getStore();
-                if (processOnEntryStore.modelId != record.getId()){
+                if (processOnEntryStore.modelId !== record.getId()){
                     processOnEntryStore.removeAll();
                     Ext.each(record.get("onEntry"), function (transitionBusinessProcess) {
                         processOnEntryStore.add(transitionBusinessProcess);
@@ -253,12 +385,29 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                 }
 
                 var processOnExitStore = this.down('#processesOnExitGrid').getStore();
-                if (processOnExitStore.modelId != record.getId()) {
+                if (processOnExitStore.modelId !== record.getId()) {
                     processOnExitStore.removeAll();
                     Ext.each(record.get("onExit"), function (transitionBusinessProcess) {
                         processOnExitStore.add(transitionBusinessProcess);
                     });
                     processOnExitStore.modelId = record.getId();
+                }
+                var webServicesOnEntryStore = this.down('#webServicesOnEntryGrid').getStore();
+                if (webServicesOnEntryStore.modelId !== record.getId()){
+                    webServicesOnEntryStore.removeAll();
+                    Ext.each(record.get("onEntryEndPointConfigurations"), function (transitionBusinessProcess) {
+                        webServicesOnEntryStore.add(transitionBusinessProcess);
+                    });
+                    webServicesOnEntryStore.modelId = record.getId();
+                }
+
+                var webServicesOnExitStore = this.down('#webServicesOnExitGrid').getStore();
+                if (webServicesOnExitStore.modelId !== record.getId()) {
+                    webServicesOnExitStore.removeAll();
+                    Ext.each(record.get("onExitEndPointConfigurations "), function (webServices) {
+                        webServicesOnExitStore.add(webServices);
+                    });
+                    webServicesOnExitStore.modelId = record.getId();
                 }
                 this.up('#dlc-state-edit').showGridsOrMessages();
             }
@@ -268,7 +417,9 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
 
     showGridsOrMessages : function() {
         var processOnEntryStore = this.down('#processesOnEntryGrid').getStore(),
-            processOnExitStore = this.down('#processesOnExitGrid').getStore();
+            processOnExitStore = this.down('#processesOnExitGrid').getStore(),
+            webServiceOnEntryStore = this.down('#webServicesOnEntryGrid').getStore(),
+            webServiceOnExitStore = this.down('#webServicesOnExitGrid').getStore();
 
         if (processOnEntryStore.getCount() > 0) {
             this.down('#noOnEntryProcessesAddedMsg').hide();
@@ -283,6 +434,20 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
         } else {
             this.down('#noOnExitProcessesAddedMsg').show();
             this.down('#processesOnExitGrid').hide();
+        }
+        if (webServiceOnEntryStore.getCount() > 0) {
+            this.down('#noOnEntryWebServicesAddedMsg').hide();
+            this.down('#webServicesOnEntryGrid').show();
+        } else {
+            this.down('#noOnEntryWebServicesAddedMsg').show();
+            this.down('#webServicesOnEntryGrid').hide();
+        }
+        if (webServiceOnExitStore.getCount() > 0) {
+            this.down('#noOnExitWebServicesAddedMsg').hide();
+            this.down('#webServicesOnExitGrid').show();
+        } else {
+            this.down('#noOnExitWebServicesAddedMsg').show();
+            this.down('#webServicesOnExitGrid').hide();
         }
     }
 });

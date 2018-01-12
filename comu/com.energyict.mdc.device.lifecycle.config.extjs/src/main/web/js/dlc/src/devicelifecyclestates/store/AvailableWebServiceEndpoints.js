@@ -2,13 +2,13 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses', {
+Ext.define('Dlc.devicelifecyclestates.store.AvailableWebServiceEndpoints', {
     extend: 'Ext.data.Store',
     requires: [
-        'Dlc.devicelifecyclestates.model.TransitionBusinessProcess'
+        'Dlc.devicelifecyclestates.model.WebServiceEndpoint'
     ],
-    model: 'Dlc.devicelifecyclestates.model.TransitionBusinessProcess',
-    storeId: 'AvailableTransitionBusinessProcesses',
+    model: 'Dlc.devicelifecyclestates.model.WebServiceEndpoint',
+    storeId: 'AvailableWebServiceEndpoints',
     remoteFilter: false,
     sorters: [{
         property: 'name',
@@ -17,10 +17,10 @@ Ext.define('Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses
 
     proxy: {
         type: 'rest',
-        url: '/api/dld/devicelifecycles/statechangebusinessprocesses',
+        url: '/api/dld/devicelifecycles/statechangewebserviceendpoints',
         reader: {
             type: 'json',
-            root: 'stateChangeBusinessProcesses'
+            root: 'stateChangeWebServiceEndpoints'
         },
         startParam: undefined,
         limitParam: undefined,

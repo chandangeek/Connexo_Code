@@ -93,6 +93,22 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                                     action: 'showAvailableExitTransitionProcesses',
                                                     dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
                                                     dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable
+                                                },
+                                                addEntryEndpoints: {
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addWebServiceEndpoints', 'DLC', 'Add web service endpoints'),
+                                                    route: 'entryendpoints',
+                                                    controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
+                                                    action: 'showAvailableEntryWebServiceEndpoints',
+                                                    dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
+                                                    dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable
+                                                },
+                                                addExitEndpoints: {
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addWebServiceEndpoints', 'DLC', 'Add web service endpoints'),
+                                                    route: 'exitendpoints',
+                                                    controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
+                                                    action: 'showAvailableExitWebServiceEndpoints',
+                                                    dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
+                                                    dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable
                                                 }
                                             }
                                         },
@@ -124,6 +140,22 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                                     route: 'exitprocesses',
                                                     controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
                                                     action: 'showAvailableExitTransitionProcesses',
+                                                    dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
+                                                    dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable
+                                                },
+                                                addEntryEndpoints: {
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addWebServiceEndpoints', 'DLC', 'Add web service endpoints'),
+                                                    route: 'entryendpoints',
+                                                    controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
+                                                    action: 'showAvailableEntryWebServiceEndpoints',
+                                                    dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
+                                                    dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable
+                                                },
+                                                addExitEndpoints: {
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addWebServiceEndpoints', 'DLC', 'Add web service endpoints'),
+                                                    route: 'exitendpoints',
+                                                    controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
+                                                    action: 'showAvailableExitWebServiceEndpoints',
                                                     dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
                                                     dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable
                                                 }

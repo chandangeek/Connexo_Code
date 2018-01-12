@@ -8,14 +8,18 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
     views: [
         'Dlc.devicelifecyclestates.view.Setup',
         'Dlc.devicelifecyclestates.view.Edit',
-        'Dlc.devicelifecyclestates.view.AddProcessesToState'
+        'Dlc.devicelifecyclestates.view.AddProcessesToState',
+        'Dlc.devicelifecyclestates.view.AddWebServicesToState'
     ],
 
     stores: [
         'Dlc.devicelifecyclestates.store.DeviceLifeCycleStates',
         'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses',
+        'Dlc.devicelifecyclestates.store.AvailableWebServiceEndpoints',
         'Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnEntry',
         'Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnExit',
+        'Dlc.devicelifecyclestates.store.WebServiceEndpointsOnEntry',
+        'Dlc.devicelifecyclestates.store.WebServiceEndpointsOnExit',
         'Dlc.devicelifecyclestates.store.Stages'
     ],
 
@@ -44,6 +48,10 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         {
             ref: 'addProcessesToState',
             selector: 'AddProcessesToState'
+        },
+        {
+            ref: 'addWebServicesToState',
+            selector: 'AddWebServicesToState'
         }
     ],
     deviceLifeCycleState: null,
@@ -84,6 +92,21 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             },
             'AddProcessesToState add-process-to-state-selection-grid': {
                 selectionchange: this.enableAddBtn
+            },
+            'AddWebServicesToState button[name=cancel]': {
+                click: this.forwardToPreviousPage
+            },
+            'AddWebServicesToState button[name=add]': {
+                click: this.addSelectedEndpoints
+            },
+            'AddWebServicesToState add-web-services-to-state-selection-grid': {
+                selectionchange: this.enableAddEndpointsBtn
+            },
+            'device-life-cycle-state-edit #addOnEntryWebServiceEndpoints': {
+                click: this.addEntryWebServiceEndpointsToState
+            },
+            'device-life-cycle-state-edit #addOnExitWebServiceEndpoints': {
+                click: this.addExitWebServiceEndpointsToState
             }
         });
     },
@@ -114,6 +137,8 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
                 : Uni.I18n.translate('deviceLifeCycleStates.saved', 'DLC', 'State saved'),
             entryProcessesStore = editForm.down('#processesOnEntryGrid').getStore(),
             exitProcessesStore = editForm.down('#processesOnExitGrid').getStore(),
+            entryWebServicesStore = editForm.down('#webServicesOnEntryGrid').getStore(),
+            exitWebServicesStore = editForm.down('#webServicesOnExitGrid').getStore(),
             backUrl,
             record;
 
@@ -131,6 +156,8 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         editForm.setLoading();
         record.set('onEntry', me.getProcessItemsFromStore(entryProcessesStore));
         record.set('onExit', me.getProcessItemsFromStore(exitProcessesStore));
+        record.set('onEntryEndPointConfigurations', me.getProcessItemsFromStore(entryWebServicesStore));
+        record.set('onExitEndPointConfigurations ', me.getProcessItemsFromStore(exitWebServicesStore));
         if (me.fromAddTransition) {
             backUrl = router.getRoute('administration/devicelifecycles/devicelifecycle/transitions/add').buildUrl();
         } else if (me.fromEditTransition) {
@@ -372,6 +399,38 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
+    addEntryWebServiceEndpointsToState: function () {
+        this.addWebServiceEndpointsToState('onEntry');
+    },
+
+    addExitWebServiceEndpointsToState: function () {
+        this.addWebServiceEndpointsToState('onExit');
+    },
+
+    addWebServiceEndpointsToState: function (storeToUpdate) {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            editForm = me.getLifeCycleStatesEditForm();
+        editForm.updateRecord();
+        router.getRoute(router.currentRoute + (storeToUpdate === 'onEntry' ? '/addEntryEndpoints' : '/addExitEndpoints')).forward();
+    },
+
+    showAvailableEntryWebServiceEndpoints: function () {
+        this.showAvailableWebServiceEndpoints('Dlc.devicelifecyclestates.store.WebServiceEndpointsOnEntry');
+    },
+
+    showAvailableExitWebServiceEndpoints: function () {
+        this.showAvailableWebServiceEndpoints('Dlc.devicelifecyclestates.store.WebServiceEndpointsOnExit');
+    },
+
+    showAvailableWebServiceEndpoints: function (storeToUpdate) {
+        var store = Ext.data.StoreManager.lookup(storeToUpdate),
+            router = this.getController('Uni.controller.history.Router'),
+            widget = Ext.widget('AddWebServicesToState', {storeToUpdate: store, stateId: router.arguments.id});
+
+        this.getApplication().fireEvent('changecontentevent', widget);
+    },
+
     //Just like 'go back to next page' ????
     forwardToPreviousPage: function () {
         var me = this;
@@ -397,6 +456,26 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
 
     enableAddBtn: function (selectionModel) {
         var addBtn = Ext.ComponentQuery.query('AddProcessesToState button[action=addTransitionBusinessProcess]')[0];
+        if (addBtn) {
+            addBtn.setDisabled(selectionModel.getSelection().length === 0);
+        }
+    },
+
+    addSelectedEndpoints: function () {
+        var widget = this.getAddWebServicesToState(),
+            selection = widget.getSelection();
+
+        if (!Ext.isEmpty(selection)) {
+            var store = widget.storeToUpdate;
+            Ext.each(selection, function (transitionBusinessProcess) {
+                store.add(transitionBusinessProcess);
+            });
+        }
+        this.forwardToPreviousPage();
+    },
+
+    enableAddEndpointsBtn: function (selectionModel) {
+        var addBtn = Ext.ComponentQuery.query('AddWebServicesToState button[action=addWebService]')[0];
         if (addBtn) {
             addBtn.setDisabled(selectionModel.getSelection().length === 0);
         }
