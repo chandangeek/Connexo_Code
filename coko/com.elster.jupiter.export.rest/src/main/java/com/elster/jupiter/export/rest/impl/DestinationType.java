@@ -11,7 +11,8 @@ public enum DestinationType implements DestinationInfoFactory {
     FILE(new FileDestinationInfoFactory()),
     EMAIL(new EmailDestinationInfoFactory()),
     FTP(new FtpDestinationInfoFactory()),
-    FTPS(new FtpsDestinationInfoFactory());
+    FTPS(new FtpsDestinationInfoFactory()),
+    SFTP(new SftpDestinationInfoFactory());
 
     private final DestinationInfoFactory factory;
 
