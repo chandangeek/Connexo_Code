@@ -125,7 +125,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
     private void validateCustomPropertySetValues(Device device, CustomAttributesImportRecord data) {
         List<CustomPropertySet> customPropertySets = device.getDeviceType().getCustomPropertySets().stream()
                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
-                .filter(cps -> data.getCustomAttributes().keySet().stream().allMatch(k -> k.contains(cps.getId())))
+                .filter(cps -> data.getCustomAttributes().keySet().stream().anyMatch(k -> k.contains(cps.getId())))
                 .collect(Collectors.toList());
         checkUnusedCustomPropertySets(customPropertySets, data);
         for (CustomPropertySet<Object, ? extends PersistentDomainExtension> customPropertySet : customPropertySets) {
@@ -270,7 +270,10 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
             CustomPropertySetValues values = getValuesVersion(businessObject, customPropertySet, data, versionId.get(), additionalPrimaryKeyObject);
             if (!values.isEmpty()) {
                 values = updateValues(customPropertySet, data, values);
-                Range<Instant> range = data.isAutoResolution() ? getRangeToUpdate(startTime, endTime, values.getEffectiveRange()) : getRangeToCreate(startTime, endTime);
+                if(!endTime.isPresent() && data.getCustomAttributes().entrySet().stream().anyMatch(e -> e.getKey().equalsIgnoreCase(customPropertySet.getId() + ".endTime"))){
+                    endTime = Optional.of(Instant.EPOCH);
+                }
+                Range<Instant> range = getRangeToUpdate(startTime, endTime, values.getEffectiveRange());
                 OverlapCalculatorBuilder overlapCalculatorBuilder;
                 if (additionalPrimaryKeyObject != null) {
                     overlapCalculatorBuilder = getContext().getCustomPropertySetService()
@@ -308,12 +311,7 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
                         data.getDeviceIdentifier());
             }
         } else {
-            if(!endTime.isPresent()){
-                throw new ProcessorException(MessageSeeds.NO_ENDTIME_SPECIFIED,
-                        data.getLineNumber(),
-                        customPropertySet.getId(),
-                        data.getDeviceIdentifier());
-            } else if(!startTime.isPresent()){
+            if(!startTime.isPresent()){
                 throw new ProcessorException(MessageSeeds.NO_STARTTIME_SPECIFIED,
                         data.getLineNumber(),
                         customPropertySet.getId(),
@@ -383,7 +381,11 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
             return oldRange;
         } else if (!startTime.isPresent()) {
             if (oldRange.hasLowerBound()) {
-                return Range.closedOpen(oldRange.lowerEndpoint(), endTime.get());
+                if(!endTime.get().equals(Instant.EPOCH)) {
+                    return Range.closedOpen(oldRange.lowerEndpoint(), endTime.get());
+                } else {
+                    return Range.atLeast(oldRange.lowerEndpoint());
+                }
             } else if (endTime.get().equals(Instant.EPOCH)) {
                 return Range.all();
             } else {
@@ -391,7 +393,11 @@ public class CustomAttributesImportProcessor extends AbstractDeviceDataFileImpor
             }
         } else if (!endTime.isPresent()) {
             if (oldRange.hasUpperBound()) {
-                return Range.closedOpen(startTime.get(), oldRange.upperEndpoint());
+                if(!startTime.get().equals(Instant.EPOCH)) {
+                    return Range.closedOpen(startTime.get(), oldRange.upperEndpoint());
+                } else {
+                    return Range.lessThan(oldRange.upperEndpoint());
+                }
             } else if (startTime.get().equals(Instant.EPOCH)) {
                 return Range.all();
             } else {
