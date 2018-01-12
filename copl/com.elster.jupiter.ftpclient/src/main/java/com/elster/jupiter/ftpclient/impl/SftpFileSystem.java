@@ -69,6 +69,7 @@ class SftpFileSystem extends AbstractFtpFileSystem {
             Matcher matcher = AUTH.matcher(userInfo);
             if (matcher.matches()) {
                 ftpClient.setRemoteHost(getHost());
+                ftpClient.getValidator().loadKnownHosts(((System.getProperty("os.name").toLowerCase().contains("win")) ? System.getProperty("user.home") : "~") + "/.ssh/known_hosts");
                 if (getUri().getPort() != -1) {
                     ftpClient.setRemotePort(getUri().getPort());
                 }
