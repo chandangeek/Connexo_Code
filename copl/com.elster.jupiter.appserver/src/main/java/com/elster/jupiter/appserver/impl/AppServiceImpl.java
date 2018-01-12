@@ -136,8 +136,8 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
     AppServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, MessageService messageService,
                    CronExpressionParser cronExpressionParser, JsonService jsonService, FileImportService fileImportService, TaskService taskService,
                    UserService userService, QueryService queryService, BundleContext bundleContext, ThreadPrincipalService threadPrincipalService,
-                   WebServicesService webServicesService,
-                   UpgradeService upgradeService, EndPointConfigurationService endPointConfigurationService, EventService eventService) {
+                   WebServicesService webServicesService, UpgradeService upgradeService,
+                   EndPointConfigurationService endPointConfigurationService, EventService eventService, EndPointService endPointService) {
         this();
         setThreadPrincipalService(threadPrincipalService);
         setOrmService(ormService);
@@ -154,6 +154,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
         setUpgradeService(upgradeService);
         setEndPointConfigurationService(endPointConfigurationService);
         setEventService(eventService);
+        setEndPointService(endPointService);
         activate(bundleContext);
     }
 

@@ -21,6 +21,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.tasks.TaskService;
@@ -93,6 +94,8 @@ public class AppServerCommandHandlerTest {
     @Mock
     private EventService eventService;
     @Mock
+    private EndPointService endPointService;
+    @Mock
     private TaskService taskService;
     @Mock
     private OrmService ormService;
@@ -142,7 +145,7 @@ public class AppServerCommandHandlerTest {
         doReturn(Optional.of(appServer)).when(dataMapper).getOptional("bvn");
         appService = new AppServiceImpl(ormService, nlsService, transactionService, messageService, cronExpressionParser, jsonService,
                 fileImportService, taskService, userService, queryService, bundleContext, threadPrincipleService, webServicesService,
-                upgradeService, endPointConfigurationService, eventService);
+                upgradeService, endPointConfigurationService, eventService, endPointService);
 
 
     }

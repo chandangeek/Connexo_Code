@@ -31,6 +31,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.Transaction;
@@ -160,6 +161,8 @@ public class AppServiceImplTest {
     private EndPointConfigurationService endPointConfigurationService;
     @Mock
     private EventService eventService;
+    @Mock
+    private EndPointService endPointService;
 
     @SuppressWarnings("unchecked")
 	@Before
@@ -198,7 +201,7 @@ public class AppServiceImplTest {
 
         appService = new AppServiceImpl(ormService, nlsService, transactionService, messageService, new DefaultCronExpressionParser(),
                 jsonService, fileImportService, taskService, userService, queryService, bundleContext, threadPrincipalService,
-                webServicesService, upgradeService, endPointConfigurationService, eventService);
+                webServicesService, upgradeService, endPointConfigurationService, eventService, endPointService);
     }
 
     @SuppressWarnings("unchecked")
