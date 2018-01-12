@@ -10,6 +10,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -46,6 +47,8 @@ public class AppServerApplicationTest extends FelixRestApplicationJerseyTest {
     EndPointConfigurationService endPointConfigurationService;
     @Mock
     WebServicesService webServicesService;
+    @Mock
+    PropertyValueInfoService propertyValueInfoService;
 
 
     @Override
@@ -63,6 +66,7 @@ public class AppServerApplicationTest extends FelixRestApplicationJerseyTest {
         application.setDataExportService(dataExportService);
         application.setEndPointConfigurationService(endPointConfigurationService);
         application.setWebServicesService(webServicesService);
+        application.setPropertyValueInfoService(propertyValueInfoService);
         application.setFileSystem(fileSystem);
         return application;
     }
