@@ -117,3 +117,19 @@ com.elster.jupiter.nls.config.directory=./language-packs
 # com.elster.jupiter.yellowfin.externalurl=https://hostname/facts
 # upgrade=true
 
+
+#Geolocation
+
+#Enable Geolocation layer; values[true, false]
+#com.elster.jupiter.geolocation.isGeolocationEnabled=false
+
+#URL of tile layer containing app id, tokens etc(as provider requires)
+#Example with Mapbox ['https://api.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiaG9uZXltYXN0ZXIiLCJhIjoiY2piNmo0bm5zOHUwNTJ3cnpuYno1bmE2eiJ9.btH4z4_v-TWmEajkMSvw8Q']
+#If no tileLayer is set, at the moment, Google is set by default;
+#com.elster.jupiter.geolocation.tileLayer=
+
+#Some map providers require type of map. Example for Google Maps ['roardmap']
+#com.elster.jupiter.geolocation.type=
+
+#Zoom level; values[ex. 18]
+#com.elster.jupiter.geolocation.maxZoom=18
