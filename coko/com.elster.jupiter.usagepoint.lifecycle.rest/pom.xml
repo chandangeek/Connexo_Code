@@ -108,6 +108,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>soap.whiteboard.cxf</artifactId>
+        </dependency>
 
         <!-- TEST -->
         <dependency>
