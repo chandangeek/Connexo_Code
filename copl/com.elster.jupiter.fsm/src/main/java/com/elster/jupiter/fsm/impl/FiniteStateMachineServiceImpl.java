@@ -7,6 +7,7 @@ package com.elster.jupiter.fsm.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
+import com.elster.jupiter.fsm.EndPointConfigurationReference;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -30,6 +31,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
@@ -87,6 +90,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     private volatile Publisher publisher;
     private volatile UpgradeService upgradeService;
     private volatile BpmService bpmService;
+    private volatile EndPointConfigurationService endPointConfigurationService;
 
     private final RegistrationHandler registrationHandler = new DelayedRegistrationHandler();
 
@@ -97,7 +101,10 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     // For unit testing purposes
     @Inject
-    public FiniteStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, TransactionService transactionService, Publisher publisher, UpgradeService upgradeService, BpmService bpmService) {
+    public FiniteStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService,
+                                         EventService eventService, TransactionService transactionService,
+                                         Publisher publisher, UpgradeService upgradeService, BpmService bpmService,
+                                         EndPointConfigurationService endPointConfigurationService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -107,6 +114,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         setPublisher(publisher);
         setUpgradeService(upgradeService);
         setBpmService(bpmService);
+        setEndPointConfigurationService(endPointConfigurationService);
         this.activate();
     }
 
@@ -199,6 +207,11 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     @Reference(name = "theBpmService")
     public void setBpmService(BpmService bpmService) {
         this.bpmService = bpmService;
+    }
+
+    @Reference(name = "theEndPointConfigurationService")
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     @Reference(name = "thePublisher")
@@ -363,6 +376,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     private FiniteStateMachineBuilder.StateBuilder cloneState(State source, FiniteStateMachineBuilder builder) {
         FiniteStateMachineBuilder.StateBuilder stateBuilder = this.startCloning(source, builder);
         this.cloneProcesses(source, stateBuilder);
+        this.cloneEndPointConfigurations(source, stateBuilder);
         return stateBuilder;
     }
 
@@ -404,6 +418,19 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     private void cloneOnExitProcess(ProcessReference processReference, FiniteStateMachineBuilder.StateBuilder builder) {
         builder.onExit(processReference.getStateChangeBusinessProcess());
+    }
+
+    private void cloneEndPointConfigurations(State source, FiniteStateMachineBuilder.StateBuilder builder) {
+        source.getOnEntryEndPointConfigurations().stream().forEach(p -> this.cloneOnEntryEndPointConfiguration(p, builder));
+        source.getOnExitEndPointConfigurations().stream().forEach(p -> this.cloneOnExitEndPointConfiguration(p, builder));
+    }
+
+    private void cloneOnEntryEndPointConfiguration(EndPointConfigurationReference endPointConfigurationReference, FiniteStateMachineBuilder.StateBuilder builder) {
+        builder.onEntry(endPointConfigurationReference.getStateChangeEndPointConfiguration());
+    }
+
+    private void cloneOnExitEndPointConfiguration(EndPointConfigurationReference endPointConfigurationReference, FiniteStateMachineBuilder.StateBuilder builder) {
+        builder.onExit(endPointConfigurationReference.getStateChangeEndPointConfiguration());
     }
 
     private void cloneTransitions(FiniteStateMachine source, long sourceStateId, FiniteStateMachineBuilder.StateBuilder builder, Map<Long, FiniteStateMachineBuilder.StateBuilder> otherBuilders) {

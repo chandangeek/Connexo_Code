@@ -6,6 +6,7 @@ package com.elster.jupiter.fsm;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -99,6 +100,26 @@ public interface FiniteStateMachineBuilder {
         StateBuilder onExit(BpmProcessDefinition process);
 
         /**
+         * Adds the {@link EndPointConfiguration} to the list of
+         * end point configurations that need to execute when the {@link State}
+         * that is currently being built is entered.
+         *
+         * @param endPointConfiguration The EndPointConfiguration
+         * @return The StateBuilder
+         */
+        StateBuilder onEntry(EndPointConfiguration endPointConfiguration);
+
+        /**
+         * Adds the {@link EndPointConfiguration} to the list of
+         * end point configurations that need to execute when the {@link State}
+         * that is currently being built is entered.
+         *
+         * @param endPointConfiguration The EndPointConfiguration
+         * @return The StateBuilder
+         */
+        StateBuilder onExit(EndPointConfiguration endPointConfiguration);
+
+        /**
          * Assists in building a {@link StateTransition} from the {@link State}
          * that is being built here to another State when the specified
          * {@link StateTransitionEventType} occurs.
@@ -120,5 +141,4 @@ public interface FiniteStateMachineBuilder {
         StateBuilder transitionTo(StateBuilder stateBuilder, String name);
         StateBuilder transitionTo(StateBuilder stateBuilder, TranslationKey translationKey);
     }
-
 }

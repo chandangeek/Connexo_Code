@@ -46,6 +46,10 @@ public interface State extends HasId {
 
     public List<ProcessReference> getOnExitProcesses();
 
+    public List<EndPointConfigurationReference> getOnEntryEndPointConfigurations();
+
+    public List<EndPointConfigurationReference> getOnExitEndPointConfigurations();
+
     public long getVersion();
 
     /**
@@ -63,5 +67,4 @@ public interface State extends HasId {
     public Instant getModifiedTimestamp();
 
     Optional<Stage> getStage();
-
 }

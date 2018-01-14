@@ -12,6 +12,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 import java.util.Optional;
 
@@ -188,6 +189,18 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
         }
 
         @Override
+        public StateBuilder onEntry(EndPointConfiguration endPointConfiguration) {
+            this.underConstruction.addOnEntry(endPointConfiguration);
+            return this;
+        }
+
+        @Override
+        public StateBuilder onExit(EndPointConfiguration endPointConfiguration) {
+            this.underConstruction.addOnExit(endPointConfiguration);
+            return this;
+        }
+
+        @Override
         public State complete() {
             FiniteStateMachineBuilderImpl.this.underConstruction.validateAndAdd(this.underConstruction);
             return this.underConstruction;
@@ -260,5 +273,4 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
             return this.continuation;
         }
     }
-
 }

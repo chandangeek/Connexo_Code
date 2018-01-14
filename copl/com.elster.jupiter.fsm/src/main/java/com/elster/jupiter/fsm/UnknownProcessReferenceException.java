@@ -7,6 +7,7 @@ package com.elster.jupiter.fsm;
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 /**
  * Models the exceptional situation that occurs when an attempt
@@ -25,4 +26,10 @@ public final class UnknownProcessReferenceException extends LocalizedException {
         this.set("stateName", state.getName());
     }
 
+    public UnknownProcessReferenceException(Thesaurus thesaurus, State state, EndPointConfiguration endPointConfiguration) {
+        super(thesaurus, MessageSeeds.NO_SUCH_ENDPOINT_CONFUGURATION_ON_STATE, endPointConfiguration.getId(), state.getName(), state.getFiniteStateMachine().getName());
+        this.set("finiteStateMachineId", state.getFiniteStateMachine().getId());
+        this.set("endPointConfigurationId", endPointConfiguration.getId());
+        this.set("stateName", state.getName());
+    }
 }

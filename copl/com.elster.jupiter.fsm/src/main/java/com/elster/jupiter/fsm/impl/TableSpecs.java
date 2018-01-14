@@ -5,6 +5,7 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.fsm.EndPointConfigurationReference;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.Stage;
@@ -18,6 +19,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
@@ -175,6 +177,33 @@ public enum TableSpecs {
         }
     },
 
+    FSM_ENDPOINT_CONFIGURATION {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EndPointConfigurationReference> table = dataModel.addTable(this.name(), EndPointConfigurationReference.class);
+            table.map(EndPointConfigurationReferenceImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.column("PURPOSE").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map(EndPointConfigurationReferenceImpl.Fields.PURPOSE.fieldName()).add();
+            Column endPointConfiguration = table.column("ENDPOINTCONFIG").number().notNull().add();
+            Column state = table.column("STATE").number().notNull().add();
+            table.primaryKey("PK_FSM_ENDPOINTCONFIG").on(id).add();
+            table.setJournalTableName("FSM_ENDPOINTCONFIGJRNL").since(version(10, 4));
+            table.addAuditColumns().forEach(column -> column.since(version(10, 4)));
+            table.foreignKey("FK_FSM_ENDPOINTCONFIG")
+                    .on(endPointConfiguration)
+                    .references(EndPointConfiguration.class)
+                    .map(EndPointConfigurationReferenceImpl.Fields.ENDPOINT_CONFIGURATION.fieldName())
+                    .add();
+            table.foreignKey("FK_FSM_ENDPOINTCONFIG_STATE")
+                    .on(state)
+                    .references(FSM_STATE.name())
+                    .map(ProcessReferenceImpl.Fields.STATE.fieldName())
+                    .reverseMap(StateImpl.Fields.ENDPOINT_CONFIGURATION_REFERENCES.fieldName())
+                    .composition()
+                    .add();
+        }
+    },
+
     FSM_STATE_TRANSITION {
         @Override
         void addTo(DataModel dataModel) {
@@ -219,5 +248,4 @@ public enum TableSpecs {
     };
 
     abstract void addTo(DataModel dataModel);
-
 }

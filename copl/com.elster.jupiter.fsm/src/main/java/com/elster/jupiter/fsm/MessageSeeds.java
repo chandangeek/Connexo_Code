@@ -29,6 +29,7 @@ public enum MessageSeeds implements MessageSeed {
     // State
     UNIQUE_STATE_NAME(300, Keys.UNIQUE_STATE_NAME, "Name must be unique"),
     NO_SUCH_PROCESS_ON_STATE(301, Keys.NO_SUCH_PROCESS_ON_STATE, "No external business process with deployment id {0} and process id {1} is linked to state {2} of finite state machine {3}"),
+    NO_SUCH_ENDPOINT_CONFUGURATION_ON_STATE(302, Keys.NO_SUCH_ENDPOINT_CONFUGURATION_ON_STATE, "No external business process with deployment id {0} and end point configuration id {1} is linked to state {2} of finite state machine {3}"),
 
     // FiniteStateMachine
     UNIQUE_FINITE_STATE_MACHINE_NAME(400, Keys.UNIQUE_FINITE_STATE_MACHINE_NAME, "Name must be unique"),
@@ -97,10 +98,10 @@ public enum MessageSeeds implements MessageSeed {
         public static final String UNKNOWN_STATE = "finite.state.machine.unknown.state";
         public static final String UNKNOWN_STATE_TRANSITION = "finite.state.machine.unknown.state.transition";
         public static final String NO_SUCH_PROCESS_ON_STATE = "finite.state.machine.unknown.state.process";
+        public static final String NO_SUCH_ENDPOINT_CONFUGURATION_ON_STATE = "finite.state.machine.unknown.state.endpoint.configuration";
         public static final String DUPLICATE_STATE_TRANSITION = "finite.state.machine.duplicate.state.transition";
         public static final String AT_LEAST_ONE_STAGE = "stage.set.min1stage";
         public static final String UNIQUE_STAGE_SET_NAME = "stage.set.unique.name";
         public static final String NO_DUPLICATE_STAGE_NAME = "stage.set.no.duplicate.stage.name";
     }
-
 }

@@ -5,6 +5,7 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.fsm.EndPointConfigurationReference;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
@@ -16,6 +17,7 @@ import com.elster.jupiter.fsm.UnknownStateException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -176,12 +178,6 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         }
 
         @Override
-        public StateUpdater removeOnEntry(BpmProcessDefinition process) {
-            this.underConstruction.removeOnEntry(process);
-            return this;
-        }
-
-        @Override
         public StateUpdater onExit(BpmProcessDefinition process) {
             if (this.underConstruction.getOnExitProcesses().stream().map(ProcessReference::getStateChangeBusinessProcess)
                     .noneMatch(p -> {return p.getId() == process.getId();})){
@@ -191,8 +187,44 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         }
 
         @Override
+        public StateUpdater onEntry(EndPointConfiguration endPointConfiguration) {
+            if (this.underConstruction.getOnEntryEndPointConfigurations().stream().map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
+                    .noneMatch(p -> {return p.getId() == endPointConfiguration.getId();})){
+                this.underConstruction.addOnEntry(endPointConfiguration);
+            }
+            return this;
+        }
+
+        @Override
+        public StateUpdater onExit(EndPointConfiguration endPointConfiguration) {
+            if (this.underConstruction.getOnExitEndPointConfigurations().stream().map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
+                    .noneMatch(p -> {return p.getId() == endPointConfiguration.getId();})){
+                this.underConstruction.addOnExit(endPointConfiguration);
+            }
+            return this;
+        }
+
+        @Override
+        public StateUpdater removeOnEntry(BpmProcessDefinition process) {
+            this.underConstruction.removeOnEntry(process);
+            return this;
+        }
+
+        @Override
         public StateUpdater removeOnExit(BpmProcessDefinition process) {
             this.underConstruction.removeOnExit(process);
+            return this;
+        }
+
+        @Override
+        public StateUpdater removeOnEntry(EndPointConfiguration endPointConfiguration) {
+            this.underConstruction.removeOnEntry(endPointConfiguration);
+            return this;
+        }
+
+        @Override
+        public StateUpdater removeOnExit(EndPointConfiguration endPointConfiguration) {
+            this.underConstruction.removeOnExit(endPointConfiguration);
             return this;
         }
 
@@ -253,6 +285,18 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         @Override
         public StateBuilder onExit(BpmProcessDefinition process) {
             this.underConstruction.addOnExit(process);
+            return this;
+        }
+
+        @Override
+        public StateBuilder onEntry(EndPointConfiguration endPointConfiguration) {
+            this.underConstruction.addOnEntry(endPointConfiguration);
+            return this;
+        }
+
+        @Override
+        public StateBuilder onExit(EndPointConfiguration endPointConfiguration) {
+            this.underConstruction.addOnExit(endPointConfiguration);
             return this;
         }
 
@@ -403,5 +447,4 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
             return this.continuation;
         }
     }
-
 }

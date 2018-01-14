@@ -5,6 +5,7 @@
 package com.elster.jupiter.fsm;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -98,16 +99,6 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
         StateUpdater onEntry(BpmProcessDefinition process);
 
         /**
-         * Removes the {@link BpmProcessDefinition} from the list of
-         * processes that need to execute when the {@link State}
-         * that is currently being built is entered.
-         *
-         * @param process The BpmProcessDefinition
-         * @return The StateBuilder
-         */
-        StateUpdater removeOnEntry(BpmProcessDefinition process);
-
-        /**
          * Adds the {@link BpmProcessDefinition} to the list of
          * processes that need to execute when the {@link State}
          * that is currently being built is exited.
@@ -118,6 +109,36 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
         StateUpdater onExit(BpmProcessDefinition process);
 
         /**
+         * Adds the {@link EndPointConfiguration} to the list of
+         * end point configurations that need to execute when the {@link State}
+         * that is currently being built is entered.
+         *
+         * @param endPointConfiguration The EndPointConfiguration
+         * @return The StateBuilder
+         */
+        StateUpdater onEntry(EndPointConfiguration endPointConfiguration);
+
+        /**
+         * Adds the {@link EndPointConfiguration} to the list of
+         * end point configurations that need to execute when the {@link State}
+         * that is currently being built is exited.
+         *
+         * @param endPointConfiguration The EndPointConfiguration
+         * @return The StateBuilder
+         */
+        StateUpdater onExit(EndPointConfiguration endPointConfiguration);
+
+        /**
+         * Removes the {@link BpmProcessDefinition} from the list of
+         * processes that need to execute when the {@link State}
+         * that is currently being built is entered.
+         *
+         * @param process The BpmProcessDefinition
+         * @return The StateBuilder
+         */
+        StateUpdater removeOnEntry(BpmProcessDefinition process);
+
+        /**
          * Removes the {@link BpmProcessDefinition} from the list of
          * processes that need to execute when the {@link State}
          * that is currently being built is exited.
@@ -126,6 +147,26 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
          * @return The StateBuilder
          */
         StateUpdater removeOnExit(BpmProcessDefinition process);
+
+        /**
+         * Removes the {@link EndPointConfiguration} from the list of
+         * end point configurations that need to execute when the {@link State}
+         * that is currently being built is entered.
+         *
+         * @param endPointConfiguration The EndPointConfiguration
+         * @return The StateBuilder
+         */
+        StateUpdater removeOnEntry(EndPointConfiguration endPointConfiguration);
+
+        /**
+         * Removes the {@link EndPointConfiguration} from the list of
+         * end point configurations that need to execute when the {@link State}
+         * that is currently being built is exited.
+         *
+         * @param endPointConfiguration The EndPointConfiguration
+         * @return The StateBuilder
+         */
+        StateUpdater removeOnExit(EndPointConfiguration endPointConfiguration);
 
         /**
          * Assists in building a {@link StateTransition} from the {@link State}
@@ -160,5 +201,4 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
         StateUpdater transitionTo(String stateName);
         StateUpdater transitionTo(long stateId);
     }
-
 }

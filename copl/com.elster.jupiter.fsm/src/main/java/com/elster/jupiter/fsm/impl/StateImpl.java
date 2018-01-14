@@ -7,6 +7,7 @@ package com.elster.jupiter.fsm.impl;
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.fsm.EndPointConfigurationReference;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
@@ -20,11 +21,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-import java.sql.Ref;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (15:20)
  */
-@Unique(message = MessageSeeds.Keys.UNIQUE_STATE_NAME, groups = { Save.Create.class, Save.Update.class })
+@Unique(message = MessageSeeds.Keys.UNIQUE_STATE_NAME, groups = {Save.Create.class, Save.Update.class})
 public final class StateImpl implements State {
 
     public enum Fields {
@@ -50,6 +51,7 @@ public final class StateImpl implements State {
         CUSTOM("custom"),
         FINITE_STATE_MACHINE("finiteStateMachine"),
         PROCESS_REFERENCES("processReferences"),
+        ENDPOINT_CONFIGURATION_REFERENCES("endPointConfigurationReferences"),
         STAGE("stage");
 
         private final String javaFieldName;
@@ -63,15 +65,15 @@ public final class StateImpl implements State {
         }
 
     }
-    private final DataModel dataModel;
 
+    private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final Clock clock;
+
     @SuppressWarnings("unused")
     private long id;
-
-    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
-    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
     private Instant obsoleteTimestamp;
     private boolean custom;
@@ -80,6 +82,8 @@ public final class StateImpl implements State {
     private Reference<FiniteStateMachine> finiteStateMachine = Reference.empty();
     @Valid
     private List<ProcessReferenceImpl> processReferences = new ArrayList<>();
+    @Valid
+    private List<EndPointConfigurationReferenceImpl> endPointConfigurationReferences = new ArrayList<>();
     private Reference<Stage> stage = Reference.empty();
     @SuppressWarnings("unused")
     private String userName;
@@ -89,6 +93,7 @@ public final class StateImpl implements State {
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+
     @Inject
     protected StateImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock) {
         super();
@@ -194,8 +199,25 @@ public final class StateImpl implements State {
         return this.getProcessReferences(ProcessReferenceImpl::isOnExit);
     }
 
+    @Override
+    public List<EndPointConfigurationReference> getOnEntryEndPointConfigurations() {
+        return this.getEndPointConfigurationReferences(EndPointConfigurationReferenceImpl::isOnEntry);
+    }
+
+    @Override
+    public List<EndPointConfigurationReference> getOnExitEndPointConfigurations() {
+        return this.getEndPointConfigurationReferences(EndPointConfigurationReferenceImpl::isOnExit);
+    }
+
     private List<ProcessReference> getProcessReferences(Predicate<? super ProcessReferenceImpl> predicate) {
         return this.processReferences
+                .stream()
+                .filter(predicate)
+                .collect(Collectors.toList());
+    }
+
+    private List<EndPointConfigurationReference> getEndPointConfigurationReferences(Predicate<? super EndPointConfigurationReferenceImpl> predicate) {
+        return this.endPointConfigurationReferences
                 .stream()
                 .filter(predicate)
                 .collect(Collectors.toList());
@@ -209,12 +231,28 @@ public final class StateImpl implements State {
         this.processReferences.add(this.dataModel.getInstance(ProcessReferenceImpl.class).onExit(this, process));
     }
 
+    void addOnEntry(EndPointConfiguration endPointConfiguration) {
+        this.endPointConfigurationReferences.add(this.dataModel.getInstance(EndPointConfigurationReferenceImpl.class).onEntry(this, endPointConfiguration));
+    }
+
+    void addOnExit(EndPointConfiguration endPointConfiguration) {
+        this.endPointConfigurationReferences.add(this.dataModel.getInstance(EndPointConfigurationReferenceImpl.class).onExit(this, endPointConfiguration));
+    }
+
     void removeOnEntry(BpmProcessDefinition process) {
         this.removeProcessReferences(process, ProcessReferenceImpl::isOnEntry);
     }
 
     void removeOnExit(BpmProcessDefinition process) {
         this.removeProcessReferences(process, ProcessReferenceImpl::isOnExit);
+    }
+
+    void removeOnEntry(EndPointConfiguration endPointConfiguration) {
+        this.removeEndPointConfigurationReferences(endPointConfiguration, EndPointConfigurationReferenceImpl::isOnEntry);
+    }
+
+    void removeOnExit(EndPointConfiguration endPointConfiguration) {
+        this.removeEndPointConfigurationReferences(endPointConfiguration, EndPointConfigurationReferenceImpl::isOnExit);
     }
 
     private void removeProcessReferences(BpmProcessDefinition process, Predicate<ProcessReferenceImpl> isEntryOrExit) {
@@ -225,14 +263,27 @@ public final class StateImpl implements State {
                 .collect(Collectors.toList());
         if (obsoleteReferences.isEmpty()) {
             throw new UnknownProcessReferenceException(this.thesaurus, this, process);
-        }
-        else {
+        } else {
             this.processReferences.removeAll(obsoleteReferences);
+        }
+    }
+
+    private void removeEndPointConfigurationReferences(EndPointConfiguration endPointConfiguration, Predicate<EndPointConfigurationReferenceImpl> isEntryOrExit) {
+        List<EndPointConfigurationReferenceImpl> obsoleteReferences = this.endPointConfigurationReferences
+                .stream()
+                .filter(isEntryOrExit)
+                .filter(p -> p.matches(endPointConfiguration))
+                .collect(Collectors.toList());
+        if (obsoleteReferences.isEmpty()) {
+            throw new UnknownProcessReferenceException(this.thesaurus, this, endPointConfiguration);
+        } else {
+            this.endPointConfigurationReferences.removeAll(obsoleteReferences);
         }
     }
 
     void prepareDelete() {
         this.processReferences.clear();
+        this.endPointConfigurationReferences.clear();
     }
 
     void makeObsolete() {
