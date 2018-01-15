@@ -36,7 +36,6 @@ import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.tasks.TaskService;
@@ -115,7 +114,6 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
     private volatile WebServicesService webServicesService;
     private volatile UpgradeService upgradeService;
     private volatile EndPointConfigurationService endPointConfigurationService;
-    private volatile EndPointService endPointService;
 
     private volatile AppServerImpl appServer;
     private volatile List<? extends SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
@@ -137,7 +135,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
                    CronExpressionParser cronExpressionParser, JsonService jsonService, FileImportService fileImportService, TaskService taskService,
                    UserService userService, QueryService queryService, BundleContext bundleContext, ThreadPrincipalService threadPrincipalService,
                    WebServicesService webServicesService, UpgradeService upgradeService,
-                   EndPointConfigurationService endPointConfigurationService, EventService eventService, EndPointService endPointService) {
+                   EndPointConfigurationService endPointConfigurationService, EventService eventService) {
         this();
         setThreadPrincipalService(threadPrincipalService);
         setOrmService(ormService);
@@ -154,7 +152,6 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
         setUpgradeService(upgradeService);
         setEndPointConfigurationService(endPointConfigurationService);
         setEventService(eventService);
-        setEndPointService(endPointService);
         activate(bundleContext);
     }
 
@@ -183,7 +180,6 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
                     bind(WebServicesService.class).toInstance(webServicesService);
                     bind(UserService.class).toInstance(userService);
                     bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
-                    bind(EndPointService.class).toInstance(endPointService);
                 }
             });
 
@@ -517,11 +513,6 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
     @Reference
     public void setWebServicesService(WebServicesService webServicesService) {
         this.webServicesService = webServicesService;
-    }
-
-    @Reference
-    public void setEndPointService(EndPointService endPointService) {
-        this.endPointService = endPointService;
     }
 
     @Override
