@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle.config.rest.info;
 
+import com.elster.jupiter.fsm.EndPointConfigurationReference;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
@@ -29,9 +30,12 @@ public class DeviceLifeCycleStateInfo {
     public IdWithNameInfo stage;
     public List<TransitionBusinessProcessInfo> onEntry = new ArrayList<>();
     public List<TransitionBusinessProcessInfo> onExit = new ArrayList<>();
+    public List<TransitionEndPointConfigurationInfo> onEntryEndPointConfigurations = new ArrayList<>();
+    public List<TransitionEndPointConfigurationInfo> onExitEndPointConfigurations = new ArrayList<>();
     public VersionInfo<Long> parent;
 
-    public DeviceLifeCycleStateInfo() {}
+    public DeviceLifeCycleStateInfo() {
+    }
 
     public DeviceLifeCycleStateInfo(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DeviceLifeCycle deviceLifeCycle, State state) {
         this.id = state.getId();
@@ -46,12 +50,21 @@ public class DeviceLifeCycleStateInfo {
         }
         addAllBusinessProcessInfos(onEntry, state.getOnEntryProcesses());
         addAllBusinessProcessInfos(onExit, state.getOnExitProcesses());
+        addAllEndPointConfigurationInfos(onEntryEndPointConfigurations, state.getOnEntryEndPointConfigurations());
+        addAllEndPointConfigurationInfos(onExitEndPointConfigurations, state.getOnExitEndPointConfigurations());
     }
 
-    private void addAllBusinessProcessInfos(List<TransitionBusinessProcessInfo> target, List<ProcessReference> source){
+    private void addAllBusinessProcessInfos(List<TransitionBusinessProcessInfo> target, List<ProcessReference> source) {
         source.stream()
                 .map(ProcessReference::getStateChangeBusinessProcess)
                 .map(x -> new TransitionBusinessProcessInfo(x.getId(), x.getProcessName(), x.getVersion()))
+                .forEach(target::add);
+    }
+
+    private void addAllEndPointConfigurationInfos(List<TransitionEndPointConfigurationInfo> target, List<EndPointConfigurationReference> source) {
+        source.stream()
+                .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
+                .map(x -> new TransitionEndPointConfigurationInfo(x.getId(), x.getName(), x.getVersion()))
                 .forEach(target::add);
     }
 }

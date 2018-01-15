@@ -63,7 +63,7 @@ public class DeviceLifeCycleResource {
     private final Provider<DeviceLifeCycleStateResource> lifeCycleStateResourceProvider;
     private final Provider<DeviceLifeCycleActionResource> lifeCycleStateTransitionsResourceProvider;
     private final Provider<TransitionBusinessProcessResource> transitionBusinessProcessResourceProvider;
-    private final Provider<TransitionWebServiceEndpointResource> transitionWebServiceEndpointProvider;
+    private final Provider<TransitionEndPointConfigurationResource> transitionWebServiceEndpointProvider;
     private final DeviceLifeCycleFactory deviceLifeCycleFactory;
     private final DeviceLifeCyclePrivilegeFactory deviceLifeCyclePrivilegeFactory;
     private final StateTransitionEventTypeFactory stateTransitionEventTypeFactory;
@@ -75,7 +75,7 @@ public class DeviceLifeCycleResource {
                                    Provider<DeviceLifeCycleStateResource> lifeCycleStateResourceProvider,
                                    Provider<DeviceLifeCycleActionResource> lifeCycleStateTransitionsResourceProvider,
                                    Provider<TransitionBusinessProcessResource> transitionBusinessProcessResourceProvider,
-                                   Provider<TransitionWebServiceEndpointResource> transitionWebServiceEndpointProvider,
+                                   Provider<TransitionEndPointConfigurationResource> transitionWebServiceEndpointProvider,
                                    DeviceLifeCycleFactory deviceLifeCycleFactory,
                                    DeviceLifeCyclePrivilegeFactory deviceLifeCyclePrivilegeFactory,
                                    StateTransitionEventTypeFactory stateTransitionEventTypeFactory) {
@@ -214,8 +214,8 @@ public class DeviceLifeCycleResource {
         return this.transitionBusinessProcessResourceProvider.get();
     }
 
-    @Path("/statechangewebserviceendpoints")
-    public TransitionWebServiceEndpointResource getTransitionWebServiceEndpointResource() {
+    @Path("/statechangeendpointconfigurations")
+    public TransitionEndPointConfigurationResource getTransitionWebServiceEndpointResource() {
         return this.transitionWebServiceEndpointProvider.get();
     }
 

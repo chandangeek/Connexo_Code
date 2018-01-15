@@ -35,7 +35,7 @@ import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCy
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleStateResource;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.ResourceHelper;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.TransitionBusinessProcessResource;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.TransitionWebServiceEndpointResource;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.TransitionEndPointConfigurationResource;
 import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfoFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivilegeFactory;
@@ -43,7 +43,7 @@ import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateF
 import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckInfoFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.StateTransitionEventTypeFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionBusinessProcessInfoFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionWebServiceEndpointInfoFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionEndPointConfigurationInfoFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
 
 import com.google.common.collect.ImmutableSet;
@@ -104,7 +104,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
                 DeviceLifeCycleStateResource.class,
                 DeviceLifeCycleActionResource.class,
                 TransitionBusinessProcessResource.class,
-                TransitionWebServiceEndpointResource.class,
+                TransitionEndPointConfigurationResource.class,
                 RestValidationExceptionMapper.class);
     }
 
@@ -225,7 +225,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
             bind(DeviceLifeCycleFactory.class).to(DeviceLifeCycleFactory.class);
             bind(MicroActionAndCheckInfoFactory.class).to(MicroActionAndCheckInfoFactory.class);
             bind(TransitionBusinessProcessInfoFactory.class).to(TransitionBusinessProcessInfoFactory.class);
-            bind(TransitionWebServiceEndpointInfoFactory.class).to(TransitionWebServiceEndpointInfoFactory.class);
+            bind(TransitionEndPointConfigurationInfoFactory.class).to(TransitionEndPointConfigurationInfoFactory.class);
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);
             bind(eventService).to(EventService.class);

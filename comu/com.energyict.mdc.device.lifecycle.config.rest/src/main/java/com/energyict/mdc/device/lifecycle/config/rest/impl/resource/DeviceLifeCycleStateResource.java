@@ -6,8 +6,8 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.fsm.EndPointConfigurationReference;
 import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.Stage;
@@ -19,6 +19,8 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
@@ -29,6 +31,7 @@ import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfoF
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionBusinessProcessInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionEndPointConfigurationInfo;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -50,29 +53,30 @@ import java.util.stream.Collectors;
 
 public class DeviceLifeCycleStateResource {
     private final ExceptionFactory exceptionFactory;
-    private final FiniteStateMachineService finiteStateMachineService;
     private final DeviceLifeCycleStateFactory deviceLifeCycleStateFactory;
     private final AuthorizedActionInfoFactory authorizedActionInfoFactory;
     private final ResourceHelper resourceHelper;
     private final BpmService bpmService;
+    private final EndPointConfigurationService endPointConfigurationService;
 
     @Inject
     public DeviceLifeCycleStateResource(
             ExceptionFactory exceptionFactory,
-            FiniteStateMachineService finiteStateMachineService,
             DeviceLifeCycleStateFactory deviceLifeCycleStateFactory,
             AuthorizedActionInfoFactory authorizedActionInfoFactory,
             ResourceHelper resourceHelper,
-            BpmService bpmService) {
+            BpmService bpmService,
+            EndPointConfigurationService endPointConfigurationService) {
         this.exceptionFactory = exceptionFactory;
-        this.finiteStateMachineService = finiteStateMachineService;
         this.deviceLifeCycleStateFactory = deviceLifeCycleStateFactory;
         this.authorizedActionInfoFactory = authorizedActionInfoFactory;
         this.resourceHelper = resourceHelper;
         this.bpmService = bpmService;
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getStatesForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @BeanParam JsonQueryParameters queryParams) {
@@ -85,7 +89,8 @@ public class DeviceLifeCycleStateResource {
         return PagedInfoList.fromPagedList("deviceLifeCycleStates", ListPager.of(states).from(queryParams).find(), queryParams);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{stateId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
@@ -95,8 +100,8 @@ public class DeviceLifeCycleStateResource {
         return Response.ok(deviceLifeCycleStateFactory.from(deviceLifeCycle, state)).build();
     }
 
-
-    @POST @Transactional
+    @POST
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
@@ -109,6 +114,8 @@ public class DeviceLifeCycleStateResource {
         FiniteStateMachineUpdater.StateBuilder stateUpdater = fsmUpdater.newCustomState(stateInfo.name, stage);
         stateInfo.onEntry.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onEntry);
         stateInfo.onExit.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onExit);
+        stateInfo.onEntryEndPointConfigurations.stream().map(this::findEndPointConfiguration).forEach(stateUpdater::onEntry);
+        stateInfo.onExitEndPointConfigurations.stream().map(this::findEndPointConfiguration).forEach(stateUpdater::onExit);
 
         State newState = stateUpdater.complete();
         boolean firstState = deviceLifeCycle.getFiniteStateMachine().getStates().isEmpty();
@@ -124,7 +131,8 @@ public class DeviceLifeCycleStateResource {
         return () -> new IllegalStateException("Default stage set not installed correctly");
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{stateId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -143,6 +151,7 @@ public class DeviceLifeCycleStateResource {
         StageSet stageSet = deviceLifeCycle.getFiniteStateMachine().getStageSet().orElseThrow(getDefaultStageSetException());
         Stage stage = stageSet.getStageByName((String) info.stage.id).orElseThrow(getDefaultStageSetException());
         stateUpdater.stage(stage);
+
         info.onEntry.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onEntry);
         info.onExit.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onExit);
         // remove 'obsolete' onEntry processes:
@@ -156,13 +165,26 @@ public class DeviceLifeCycleStateResource {
                 .filter(x -> isObsoleteBpmBusinessProcess(info.onExit, x))
                 .forEach(stateUpdater::removeOnExit);
 
+        info.onEntryEndPointConfigurations.stream().map(this::findEndPointConfiguration).forEach(stateUpdater::onEntry);
+        info.onExitEndPointConfigurations.stream().map(this::findEndPointConfiguration).forEach(stateUpdater::onExit);
+        // remove 'obsolete' onEntry end point configurations:
+        stateForEdit.getOnEntryEndPointConfigurations().stream()
+                .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
+                .filter(x -> isObsoleteEndPointConfigurations(info.onEntryEndPointConfigurations, x))
+                .forEach(stateUpdater::removeOnEntry);
+        //remove 'obsolete' onExit end point configurations
+        stateForEdit.getOnExitEndPointConfigurations().stream()
+                .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
+                .filter(x -> isObsoleteEndPointConfigurations(info.onExitEndPointConfigurations, x))
+                .forEach(stateUpdater::removeOnExit);
+
         State stateAfterEdit = stateUpdater.complete();
         fsmUpdater.complete();
         deviceLifeCycle.save(); // increase parent version
         return Response.ok(deviceLifeCycleStateFactory.from(deviceLifeCycle, stateAfterEdit)).build();
     }
 
-    private BpmProcessDefinition findBpmBusinessProcess(TransitionBusinessProcessInfo businessProcessInfo){
+    private BpmProcessDefinition findBpmBusinessProcess(TransitionBusinessProcessInfo businessProcessInfo) {
         Optional<BpmProcessDefinition> process = bpmService.findBpmProcessDefinition(businessProcessInfo.id);
         if (!process.isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.STATE_CHANGE_BUSINESS_PROCESS_NOT_FOUND, businessProcessInfo.id);
@@ -170,11 +192,22 @@ public class DeviceLifeCycleStateResource {
         return process.get();
     }
 
-    private boolean isObsoleteBpmBusinessProcess(List<TransitionBusinessProcessInfo> transitionBussinessProcessInfos, BpmProcessDefinition bpmProcessDefinition){
+    private boolean isObsoleteBpmBusinessProcess(List<TransitionBusinessProcessInfo> transitionBussinessProcessInfos, BpmProcessDefinition bpmProcessDefinition) {
         return transitionBussinessProcessInfos.stream().noneMatch(x -> x.id == bpmProcessDefinition.getId());
     }
 
-    @PUT @Transactional
+    private EndPointConfiguration findEndPointConfiguration(TransitionEndPointConfigurationInfo endPointConfigurationInfo) {
+        Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService
+                .findAndLockEndPointConfigurationByIdAndVersion(endPointConfigurationInfo.id, endPointConfigurationInfo.version);
+        return endPointConfiguration.orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.STATE_CHANGE_ENDPOINT_CONFIGURATION_NOT_FOUND, endPointConfigurationInfo.id));
+    }
+
+    private boolean isObsoleteEndPointConfigurations(List<TransitionEndPointConfigurationInfo> endPointConfigurationInfos, EndPointConfiguration endPointConfiguration) {
+        return endPointConfigurationInfos.stream().noneMatch(x -> x.id == endPointConfiguration.getId());
+    }
+
+    @PUT
+    @Transactional
     @Path("/{stateId}/status")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -190,7 +223,8 @@ public class DeviceLifeCycleStateResource {
         return Response.ok(deviceLifeCycleStateFactory.from(deviceLifeCycle, stateForEdit)).build();
     }
 
-    @DELETE @Transactional
+    @DELETE
+    @Transactional
     @Path("/{stateId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
@@ -218,10 +252,10 @@ public class DeviceLifeCycleStateResource {
     private void checkStateHasTransitions(DeviceLifeCycle deviceLifeCycle, State stateForDeletion) {
         List<Long> transitionIds = deviceLifeCycle.getFiniteStateMachine().getTransitions().stream()
                 .filter(transition -> transition.getFrom().getId() == stateForDeletion.getId()
-                                      || transition.getTo().getId() == stateForDeletion.getId())
+                        || transition.getTo().getId() == stateForDeletion.getId())
                 .map(StateTransition::getId)
                 .collect(Collectors.toList());
-        if (!transitionIds.isEmpty()){
+        if (!transitionIds.isEmpty()) {
             String transitionNames = deviceLifeCycle.getAuthorizedActions().stream()
                     .filter(aa -> aa instanceof AuthorizedTransitionAction)
                     .filter(aa -> transitionIds.contains(((AuthorizedTransitionAction) aa).getStateTransition().getId()))
@@ -234,13 +268,13 @@ public class DeviceLifeCycleStateResource {
     }
 
     private void checkStateIsTheLatest(DeviceLifeCycle deviceLifeCycle) {
-        if (deviceLifeCycle.getFiniteStateMachine().getStates().size() == 1){
+        if (deviceLifeCycle.getFiniteStateMachine().getStates().size() == 1) {
             throw exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_STATE_IS_THE_LATEST_STATE);
         }
     }
 
     private void checkStateIsInitial(State stateForDeletion) {
-        if (stateForDeletion.isInitial()){
+        if (stateForDeletion.isInitial()) {
             throw exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_STATE_IS_THE_INITIAL_STATE);
         }
     }
@@ -251,5 +285,4 @@ public class DeviceLifeCycleStateResource {
                 .notEmpty(stateInfo.stage, "stage", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
                 .validate();
     }
-
 }
