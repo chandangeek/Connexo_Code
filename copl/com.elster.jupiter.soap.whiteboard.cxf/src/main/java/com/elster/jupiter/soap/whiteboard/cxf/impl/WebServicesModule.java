@@ -6,7 +6,6 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.soap.whiteboard.cxf.CxfSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointService;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
@@ -26,6 +25,5 @@ public class WebServicesModule extends AbstractModule {
         bind(WebServicesService.class).to(WebServicesServiceImpl.class).in(Scopes.SINGLETON);
         bind(EndPointConfigurationService.class).to(EndPointConfigurationServiceImpl.class).in(Scopes.SINGLETON);
         bind(SoapProviderSupportFactory.class).to(CxfSupportFactory.class).in(Scopes.SINGLETON);
-        bind(EndPointService.class).to(EndPointServiceImpl.class).in(Scopes.SINGLETON);
     }
 }

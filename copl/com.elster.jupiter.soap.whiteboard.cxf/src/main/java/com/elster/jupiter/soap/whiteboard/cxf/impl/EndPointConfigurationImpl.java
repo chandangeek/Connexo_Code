@@ -15,8 +15,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.collections.ArrayDiffList;
@@ -80,7 +80,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     private long version;
 
     private final DataModel dataModel;
-    private final EndPointService endPointService;
+    private final WebServicesService webServicesService;
 
     private List<EndPointProperty> properties = new ArrayList<>();
 
@@ -93,11 +93,11 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
                     INBOUND_WEBSERVICE_DISCRIMINATOR, InboundEndPointConfigurationImpl.class,
                     OUTBOUND_WEBSERVICE_DISCRIMINATOR, OutboundEndPointConfigurationImpl.class);
 
-    public EndPointConfigurationImpl(Clock clock, DataModel dataModel, TransactionService transactionService, EndPointService endPointService) {
+    public EndPointConfigurationImpl(Clock clock, DataModel dataModel, TransactionService transactionService, WebServicesService webServicesService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.transactionService = transactionService;
-        this.endPointService = endPointService;
+        this.webServicesService = webServicesService;
     }
 
     public void delete() {
@@ -313,7 +313,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return endPointService.getWebServicePropertySpecs(getWebServiceName());
+        return webServicesService.getWebServicePropertySpecs(getWebServiceName());
     }
 
     @Override

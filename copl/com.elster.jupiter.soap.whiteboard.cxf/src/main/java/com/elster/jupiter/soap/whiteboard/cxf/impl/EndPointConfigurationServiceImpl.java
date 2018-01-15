@@ -19,7 +19,6 @@ import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointService;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -60,7 +59,6 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     private volatile TransactionService transactionService;
     private volatile HttpService httpService;
     private volatile WebServicesService webServicesService;
-    private volatile EndPointService endPointService;
 
     // OSGi
     public EndPointConfigurationServiceImpl() {
@@ -69,8 +67,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     @Inject // Test purposes only
     public EndPointConfigurationServiceImpl(EventService eventService, NlsService nlsService, OrmService ormService,
                                             UserService userService, TransactionService transactionService,
-                                            HttpService httpService, WebServicesService webServicesService,
-                                            EndPointService endPointService) {
+                                            HttpService httpService, WebServicesService webServicesService) {
         setEventService(eventService);
         setNlsService(nlsService);
         setOrmService(ormService);
@@ -78,7 +75,6 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         setTransactionService(transactionService);
         setHttpService(httpService);
         setWebServicesService(webServicesService);
-        setEndPointService(endPointService);
         activate();
     }
 
@@ -143,11 +139,6 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         this.webServicesService = webServicesService;
     }
 
-    @Reference
-    public void setEndPointService(EndPointService endPointService) {
-        this.endPointService = endPointService;
-    }
-
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -161,7 +152,6 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(HttpService.class).toInstance(httpService);
                 bind(WebServicesService.class).toInstance(webServicesService);
-                bind(EndPointService.class).toInstance(endPointService);
             }
         };
     }

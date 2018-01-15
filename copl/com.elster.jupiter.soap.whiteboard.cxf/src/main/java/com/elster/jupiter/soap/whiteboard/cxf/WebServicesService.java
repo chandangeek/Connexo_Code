@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf;
 
+import com.elster.jupiter.properties.PropertySpec;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
@@ -67,5 +69,13 @@ public interface WebServicesService {
      * All endpoints created for the local appserver will be removed
      */
     void removeAllEndPoints();
+
+    /**
+     * Get a list of web service's property specs by the name on the web service
+     * @param webServiceName the name on the web service
+     *
+     * @return a list of property specs of the web service
+     */
+    List<PropertySpec> getWebServicePropertySpecs(String webServiceName);
 
 }
