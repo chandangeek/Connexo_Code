@@ -10,7 +10,6 @@ import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
@@ -42,8 +41,6 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
     @Mock
     UserService userService;
     @Mock
-    EndPointService endPointService;
-    @Mock
     PropertyValueInfoService propertyValueInfoService;
 
     @Override
@@ -54,7 +51,6 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         webServicesApplication.setEndPointConfigurationService(endPointConfigurationService);
         webServicesApplication.setWebServicesService(webServicesService);
         webServicesApplication.setUserService(userService);
-        webServicesApplication.setEndPointService(endPointService);
         webServicesApplication.setPropertyValueInfoService(propertyValueInfoService);
         return webServicesApplication;
     }
