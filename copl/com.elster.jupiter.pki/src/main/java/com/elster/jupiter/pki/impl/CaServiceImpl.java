@@ -320,7 +320,10 @@ public class CaServiceImpl implements CaService {
         }
 
         try {
-            PrivateKey privateKey = privateKeyWrapper.getPrivateKey();
+            if (!privateKeyWrapper.getPrivateKey().isPresent()) {
+                throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, "No private key for superadmin found");
+            }
+            PrivateKey privateKey = privateKeyWrapper.getPrivateKey().get();
             KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
             keyStore.load(null, null);

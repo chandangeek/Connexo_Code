@@ -5,14 +5,13 @@
 package com.elster.jupiter.pki.impl.gogo;
 
 import com.elster.jupiter.pki.CaService;
-import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeypairWrapper;
 import com.elster.jupiter.pki.PlaintextPrivateKeyWrapper;
-import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.RevokeStatus;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.CertificateSearchFilterImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -34,6 +33,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -77,7 +77,7 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=checkRevocationStatus",
                 "osgi.command.function=getLatestCRL",
                 "osgi.command.function=importSuperadmin",
-                "osgi.command.function=deleteSuperadmin"
+                "osgi.command.function=trustedCertificateStore"
         },
         immediate = true)
 public class PkiGogoCommand {
@@ -183,24 +183,45 @@ public class PkiGogoCommand {
         MYSQL_PRINT.printTable(collect);
     }
 
-    public void revokeCertificate() throws NoSuchAlgorithmException, OperatorCreationException {
+    public void revokeCertificate() {
+        System.out.println("Revokes certificate");
+        System.out.println("usage: revokeCertificate <certificate s/n> <issuer DN>");
+    }
+
+    public void revokeCertificate(String serialNumber, String issuerDN) {
+        BigInteger sn;
         List<List<?>> collect = new ArrayList<>();
-        PKCS10CertificationRequest csr = generateTestCsr();
-        collect.add(0, Arrays.asList("Sending CSR with X500 name"));
-        collect.add(1, Arrays.asList(csr.getSubject()));
-        MYSQL_PRINT.printTable(collect);
-        X509Certificate x509Certificate = caService.signCsr(csr);
-        collect.clear();
-        collect.add(0, Arrays.asList("Received  certificate S/N"));
-        collect.add(1, Arrays.asList(x509Certificate.getSerialNumber()));
-        MYSQL_PRINT.printTable(collect);
         CertificateSearchFilterImpl certificateSearchFilter = new CertificateSearchFilterImpl();
-        certificateSearchFilter.setSerialNumber(x509Certificate.getSerialNumber());
-        certificateSearchFilter.setIssuerDN(x509Certificate.getIssuerDN().getName());
+        try {
+            sn = new BigInteger(serialNumber);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Specify valid serial number");
+        }
+        certificateSearchFilter.setSerialNumber(sn);
+        certificateSearchFilter.setIssuerDN(issuerDN);
         collect.clear();
-        collect.add(0, Arrays.asList("Revoking with reason REVOCATION_REASON_CERTIFICATEHOLD"));
+        collect.add(0, Arrays.asList("Revoking certificate with reason certificate hold"));
         MYSQL_PRINT.printTable(collect);
         caService.revokeCertificate(certificateSearchFilter, 6);
+    }
+
+
+    public void checkRevocationStatus() {
+        System.out.println("Checks certificate revocation status");
+        System.out.println("usage: checkRevocationStatus <certificate s/n> <issuer DN>");
+    }
+
+    public void checkRevocationStatus(String serialNumber, String issuerDN) {
+        BigInteger sn;
+        List<List<?>> collect = new ArrayList<>();
+        CertificateSearchFilterImpl certificateSearchFilter = new CertificateSearchFilterImpl();
+        try {
+            sn = new BigInteger(serialNumber);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Specify valid serial number");
+        }
+        certificateSearchFilter.setSerialNumber(sn);
+        certificateSearchFilter.setIssuerDN(issuerDN);
         collect.clear();
         collect.add(0, Arrays.asList("Checking certificate revocation status"));
         MYSQL_PRINT.printTable(collect);
@@ -211,29 +232,6 @@ public class PkiGogoCommand {
         MYSQL_PRINT.printTable(collect);
     }
 
-    public void checkRevocationStatus() throws NoSuchAlgorithmException, OperatorCreationException {
-        List<List<?>> collect = new ArrayList<>();
-        PKCS10CertificationRequest csr = generateTestCsr();
-        collect.add(0, Arrays.asList("Sending CSR with X500 name"));
-        collect.add(1, Arrays.asList(csr.getSubject()));
-        MYSQL_PRINT.printTable(collect);
-        X509Certificate x509Certificate = caService.signCsr(csr);
-        collect.clear();
-        collect.add(0, Arrays.asList("Received  certificate S/N"));
-        collect.add(1, Arrays.asList(x509Certificate.getSerialNumber()));
-        MYSQL_PRINT.printTable(collect);
-        CertificateSearchFilterImpl certificateSearchFilter = new CertificateSearchFilterImpl();
-        certificateSearchFilter.setSerialNumber(x509Certificate.getSerialNumber());
-        certificateSearchFilter.setIssuerDN(x509Certificate.getIssuerDN().getName());
-        collect.clear();
-        collect.add(0, Arrays.asList("Checking certificate revocation status"));
-        MYSQL_PRINT.printTable(collect);
-        RevokeStatus revokeStatus = caService.checkRevocationStatus(certificateSearchFilter);
-        collect.clear();
-        collect.add(0, Arrays.asList("Received revocation status"));
-        collect.add(1, Arrays.asList(revokeStatus));
-        MYSQL_PRINT.printTable(collect);
-    }
 
     public void getLatestCRL() {
         System.out.println("Usage: getlatestcrl <caName> <true|false>");
@@ -303,26 +301,6 @@ public class PkiGogoCommand {
         System.out.println("Usage: deleteSuperadmin <alias");
     }
 
-    public void deleteSuperadmin(String pkcs12Alias) {
-        String alias = Optional.of(pkcs12Alias).orElseThrow(() -> new IllegalArgumentException("Specify valid alias"));
-        threadPrincipalService.set(() -> "Console");
-        try (TransactionContext context = transactionService.getContext()) {
-            CertificateWrapper clientCertificateWrapper = securityManagementService.findCertificateWrapper(alias)
-                    .orElseThrow(() -> new IllegalArgumentException("No such certificate"));
-            PrivateKeyWrapper privateKeyWrapper = ((ClientCertificateWrapper) clientCertificateWrapper).getPrivateKeyWrapper();
-            if (privateKeyWrapper == null) {
-                throw new IllegalArgumentException("No such private key");
-            }
-            privateKeyWrapper.delete();
-            context.commit();
-        }
-        try (TransactionContext context = transactionService.getContext()) {
-            securityManagementService.findCertificateWrapper(alias).orElseThrow(() -> new IllegalArgumentException("No such certificate"))
-                    .delete();
-            context.commit();
-        }
-    }
-
     public void keypairs() {
         List<List<?>> lists = securityManagementService.findAllKeypairs()
                 .stream()
@@ -377,11 +355,11 @@ public class PkiGogoCommand {
             fileOutputStream = new FileOutputStream(filename);
             fileOutputStream.write(keypairWrapper.getPublicKey().get().getEncoded());
             fileOutputStream.flush();
-            System.out.println("Wrote "+filename);
+            System.out.println("Wrote " + filename);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (fileOutputStream!=null) {
+            if (fileOutputStream != null) {
                 fileOutputStream.close();
             }
         }
@@ -404,9 +382,9 @@ public class PkiGogoCommand {
             keypairWrapper.save();
             context.commit();
         } catch (FileNotFoundException e) {
-            throw new IllegalArgumentException("No such file: "+file);
+            throw new IllegalArgumentException("No such file: " + file);
         } catch (IOException e) {
-            throw new IllegalArgumentException("Error reading file: "+file+" : "+e);
+            throw new IllegalArgumentException("Error reading file: " + file + " : " + e);
         }
     }
 
@@ -433,13 +411,28 @@ public class PkiGogoCommand {
             keypairWrapper.save();
             context.commit();
         } catch (FileNotFoundException e) {
-            throw new IllegalArgumentException("No such file: "+privateKeyFile);
+            throw new IllegalArgumentException("No such file: " + privateKeyFile);
         } catch (IOException e) {
-            throw new IllegalArgumentException("Error reading file: "+privateKeyFile+" : "+e);
+            throw new IllegalArgumentException("Error reading file: " + privateKeyFile + " : " + e);
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException("No such algorithm: "+e);
+            throw new IllegalArgumentException("No such algorithm: " + e);
         } catch (InvalidKeySpecException e) {
-            throw new IllegalArgumentException("Invalid key spec: "+e);
+            throw new IllegalArgumentException("Invalid key spec: " + e);
+        }
+    }
+
+    public void trustedCertificateStore() {
+        List<List<?>> collect = new ArrayList<>();
+        List<TrustStore> trustStores = securityManagementService.getAllTrustStores();
+        for (TrustStore trustStore : trustStores) {
+            collect.clear();
+            collect.add(0, Arrays.asList(trustStore.getName()));
+            List<String> certs = trustStore.getCertificates()
+                    .stream()
+                    .map(trustedCertificate -> "Alias: " + trustedCertificate.getAlias() + " s/n: " + trustedCertificate.getCertificate().get().getSerialNumber())
+                    .collect(toList());
+            collect.add(1, certs);
+            MYSQL_PRINT.printTable(collect);
         }
     }
 
