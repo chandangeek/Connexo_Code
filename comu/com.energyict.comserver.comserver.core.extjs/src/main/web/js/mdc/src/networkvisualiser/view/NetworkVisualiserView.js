@@ -8,12 +8,12 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
     title: Uni.I18n.translate('general.networkVisualizer', 'MDC', 'Network visualizer'),
     ui: 'large',
     menu: 'Mdc.networkvisualiser.view.NetworkVisualiserMenu',
-    header:{
+    header: {
         titlePosition: 0,
         style: {
             paddingRight: '0px'
         },
-        items:[]
+        items: []
     },
     contextMenuItems: [
         {
@@ -21,7 +21,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             text: Uni.I18n.translate('general.navigateTo.deviceLandingPage', 'MDC', 'Navigate to device landing page'),
             itemId: 'mdc-network-visualiser-landingpage-menu-item',
             section: 3, /*SECTION_VIEW*/
-            handler: function(menuItem) {
+            handler: function (menuItem) {
                 menuItem.visualiser.router.getRoute('devices/device').forwardInNewTab({
                     deviceId: menuItem.visualiser.chart.getItem(menuItem.chartNodeId).d.name
                 });
@@ -32,7 +32,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             text: Uni.I18n.translate('general.navigateTo.communicationTopology', 'MDC', 'Navigate to communication topology'),
             itemId: 'mdc-network-visualiser-topology-menu-item',
             section: 3, /*SECTION_VIEW*/
-            handler: function(menuItem) {
+            handler: function (menuItem) {
                 menuItem.visualiser.router.getRoute('devices/device/topology').forwardInNewTab({
                     deviceId: menuItem.visualiser.chart.getItem(menuItem.chartNodeId).d.name
                 });
@@ -43,7 +43,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             text: Uni.I18n.translate('general.sendCommands', 'MDC', 'Send commands'),
             itemId: 'mdc-network-visualiser-sendcommands-menu-item',
             section: 1, /*SECTION_ACTION*/
-            handler: function(menuItem) {
+            handler: function (menuItem) {
                 menuItem.visualiser.router.getRoute('devices/device/commands/add').forwardInNewTab({
                     deviceId: menuItem.visualiser.chart.getItem(menuItem.chartNodeId).d.name
                 });
@@ -54,12 +54,16 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             text: Uni.I18n.translate('general.retriggerCommTasks', 'MDC', 'Retrigger communication tasks'),
             section: 1, /*SECTION_ACTION*/
             itemId: 'mdc-network-visualiser-retrigger-menu-item',
-            handler: function(menuItem) {
+            handler: function (menuItem) {
                 menuItem.visualiser.fireEvent('showretriggerwindow', menuItem.visualiser.chart.getItem(menuItem.chartNodeId).d.name);
             }
         }
     ],
     propertyViewerTitle: Uni.I18n.translate('general.deviceSummary', 'MDC', 'Device summary'),
+    geoLocationlayer: '',
+    geoLocationZoom: '',
+    geoLocationType: '',
+
 
     initComponent: function () {
         if (this.getHeader().items.length === 0) {
@@ -75,28 +79,28 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         this.callParent();
     },
 
-    showLinkQuality: function(){
+    showLinkQuality: function () {
         var me = this;
-            // Commented code = temporary code to be able to play with (more) colors and thickness
-            // linkColors = [
-            //     'grey',
-            //     '#FF0000',
-            //     '#FF8000',
-            //     '#FFFF00',
-            //     '#80FF00',
-            //     '#00FF00'
-            // ],
-            // linkColors = [
-            //     'grey',
-            //     '#C00000',
-            //     '#C06000',
-            //     '#C0C000',
-            //     '#60C000',
-            //     '#00C000'
-            // ],
-            // counter = 0;
+        // Commented code = temporary code to be able to play with (more) colors and thickness
+        // linkColors = [
+        //     'grey',
+        //     '#FF0000',
+        //     '#FF8000',
+        //     '#FFFF00',
+        //     '#80FF00',
+        //     '#00FF00'
+        // ],
+        // linkColors = [
+        //     'grey',
+        //     '#C00000',
+        //     '#C06000',
+        //     '#C0C000',
+        //     '#60C000',
+        //     '#00C000'
+        // ],
+        // counter = 0;
 
-        me.forEachLink(function(link){
+        me.forEachLink(function (link) {
             return {
                 id: link.id,
                 w: link.d.linkQuality ? 3 : 2,
@@ -106,11 +110,11 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             };
         });
 
-        var icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+me.badLinkQualityColor+'"></span>';
+        var icon = '<span class="' + me.linkIcon + '" style="display:inline-block; font-size:16px; color:' + me.badLinkQualityColor + '"></span>';
         me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.bad', 'MDC', 'Link quality <= 51'));
-        icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+me.goodLinkQualityColor+'"></span>';
+        icon = '<span class="' + me.linkIcon + '" style="display:inline-block; font-size:16px; color:' + me.goodLinkQualityColor + '"></span>';
         me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.good', 'MDC', 'Link quality > 51'));
-        icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:grey"></span>';
+        icon = '<span class="' + me.linkIcon + '" style="display:inline-block; font-size:16px; color:grey"></span>';
         me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.undefined', 'MDC', 'Link quality undefined'));
         // icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+linkColors[1]+'"></span>';
         // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.less.64', 'MDC', '0 < Link quality <= 64'));
@@ -124,42 +128,57 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         // me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.255', 'MDC', 'Link quality = 255'));
     },
 
-    showDeviceType: function(){
+    showDeviceType: function () {
         var me = this,
             deviceTypeColors = {},
             icon,
-            colorIndex = 0;
+            colorIndex = 0,
+            optionsMenu = Ext.ComponentQuery.query('#uni-visualiser-menu')[0].down('#mdc-visualiser-layer-maps').checked;
 
-        me.forEachNode(function(node){
-            if(node.d && !Ext.isEmpty(node.d.gateway) && node.d.gateway){
+        me.forEachNode(function (node) {
+            if (node.d && !Ext.isEmpty(node.d.gateway) && node.d.gateway) {
                 icon = KeyLines.getFontIcon(me.gatewayIcon);
             } else {
                 icon = KeyLines.getFontIcon(me.deviceIcon);
             }
+
             if (Ext.isEmpty(deviceTypeColors[node.d.deviceType])) {
                 deviceTypeColors[node.d.deviceType] = me.colors[colorIndex++];
             }
-            return {
-                id: node.id,
-                b: null,
-                fi: {
-                    c: deviceTypeColors[node.d.deviceType],
-                    t: icon
+
+            if (optionsMenu) {
+                return {
+                    id: node.id,
+                    b: null,
+                    fi: {
+                        c: node.d.hasCoordonates ? deviceTypeColors[node.d.deviceType] : '#a19fa3',
+                        t: icon
+                    }
+                }
+            }
+            else {
+                return {
+                    id: node.id,
+                    b: null,
+                    fi: {
+                        c: deviceTypeColors[node.d.deviceType],
+                        t: icon
+                    }
                 }
             }
         });
 
         for (var type in deviceTypeColors) {
-            icon = '<span class="'+me.deviceIcon+'" style="display:inline-block; font-size:16px; color:'+deviceTypeColors[type]+'"></span>';
+            icon = '<span class="' + me.deviceIcon + '" style="display:inline-block; font-size:16px; color:' + deviceTypeColors[type] + '"></span>';
             me.addLegendItem(icon, type);
         }
     },
 
-    showIssuesAndAlarms: function(){
+    showIssuesAndAlarms: function () {
         var me = this,
             glyphs;
 
-        me.forEachNode(function(node){
+        me.forEachNode(function (node) {
             if (node.d.alarms || node.d.issues) {
                 if (node.d.alarms && node.d.issues) {
                     glyphs = [
@@ -198,13 +217,13 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             }
         });
 
-        var icon = '<span class="'+me.issueAlarmIcon+'" style="display:inline-block; margin-bottom: 22px; font-size:16px; color:'+me.issueAlarmColor+'"></span>';
+        var icon = '<span class="' + me.issueAlarmIcon + '" style="display:inline-block; margin-bottom: 22px; font-size:16px; color:' + me.issueAlarmColor + '"></span>';
         me.addLegendItem(icon, Uni.I18n.translate('legend.alarms', 'MDC', '# Alarms'));
-        icon = '</sub><span class="'+me.issueAlarmIcon+'" style="display:inline-block; margin-top: 7px; font-size:16px; color:'+me.issueAlarmColor+'"></span>';
+        icon = '</sub><span class="' + me.issueAlarmIcon + '" style="display:inline-block; margin-top: 7px; font-size:16px; color:' + me.issueAlarmColor + '"></span>';
         me.addLegendItem(icon, Uni.I18n.translate('legend.issues', 'MDC', '# Issues'));
     },
 
-    showHopLevel: function(){
+    showHopLevel: function () {
         var me = this,
             hopLevelsByNodeIds = me.chart.graph().distances(this.top),
             hopLevel,
@@ -212,15 +231,15 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             icon;
 
         // Determine the hopLevelColors
-        Ext.Array.each(Object.keys(hopLevelsByNodeIds), function(nodeId) {
+        Ext.Array.each(Object.keys(hopLevelsByNodeIds), function (nodeId) {
             hopLevel = hopLevelsByNodeIds[nodeId];
             if (Ext.isEmpty(hopLevelColors[hopLevel])) {
                 hopLevelColors[hopLevel] = me.colors[hopLevel];
             }
         });
 
-        me.forEachNode(function(node){
-            if(node.d && !Ext.isEmpty(node.d.gateway) && node.d.gateway){
+        me.forEachNode(function (node) {
+            if (node.d && !Ext.isEmpty(node.d.gateway) && node.d.gateway) {
                 icon = KeyLines.getFontIcon(me.gatewayIcon);
             } else {
                 icon = KeyLines.getFontIcon(me.deviceIcon);
@@ -236,19 +255,51 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         });
 
         for (hopLevel in hopLevelColors) {
-            icon = '<span class="'+me.deviceIcon+'" style="display:inline-block; font-size:16px; color:'+hopLevelColors[hopLevel]+'"></span>';
+            icon = '<span class="' + me.deviceIcon + '" style="display:inline-block; font-size:16px; color:' + hopLevelColors[hopLevel] + '"></span>';
             me.addLegendItem(icon, Uni.I18n.translatePlural('legend.hop.level', Number(hopLevel), 'MDC', 'No hops', '{0} hop', '{0} hops'));
         }
     },
 
-    showDeviceLifeCycleStatus: function(){
+    showMap: function () {
+
+        var me = this;
+        me.chart.map().show();
+        if (Ext.isEmpty(geoLocationlayer)) {
+            me.changeMapProvider('1');
+        } else {
+            me.changeMapProvider('2');
+        }
+    },
+
+    hideMap: function () {
+        var me = this;
+        me.chart.map().hide();
+    },
+
+    changeMapProvider: function (option) {
+        var me = this;
+        leafletMap = me.chart.map().leafletMap();
+        switch (option) {
+            case '1':
+                var mutant = L.gridLayer.googleMutant({maxZoom: geoLocationZoom, type: geoLocationType});
+                mutant.addTo(leafletMap);
+                break;
+            case '2':
+                L.tileLayer(geoLocationlayer, {
+                    maxZoom: geoLocationZoom
+                }).addTo(leafletMap);
+                break;
+        }
+    },
+
+    showDeviceLifeCycleStatus: function () {
         var me = this,
             deviceTypeColors = {},
             icon,
             colorIndex = 0;
 
-        me.forEachNode(function(node){
-            if(node.d && !Ext.isEmpty(node.d.gateway) && node.d.gateway){
+        me.forEachNode(function (node) {
+            if (node.d && !Ext.isEmpty(node.d.gateway) && node.d.gateway) {
                 icon = KeyLines.getFontIcon(me.gatewayIcon);
             } else {
                 icon = KeyLines.getFontIcon(me.deviceIcon);
@@ -267,15 +318,15 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         });
 
         for (var type in deviceTypeColors) {
-            icon = '<span class="'+me.deviceIcon+'" style="display:inline-block; font-size:16px; color:'+deviceTypeColors[type]+'"></span>';
+            icon = '<span class="' + me.deviceIcon + '" style="display:inline-block; font-size:16px; color:' + deviceTypeColors[type] + '"></span>';
             me.addLegendItem(icon, type);
         }
     },
 
-    showCommunicationStatus: function() {
+    showCommunicationStatus: function () {
         var me = this;
 
-        me.forEachNode(function(node){
+        me.forEachNode(function (node) {
             if (node.d.failedCommunications > 0) {
                 return {
                     id: node.id,
@@ -288,11 +339,11 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             }
         });
 
-        var icon = '<span class="'+me.failedCommunicationIcon+'" style="display:inline-block; font-size:16px; color:'+me.failedCommunicationStatusColor+'"></span>';
+        var icon = '<span class="' + me.failedCommunicationIcon + '" style="display:inline-block; font-size:16px; color:' + me.failedCommunicationStatusColor + '"></span>';
         me.addLegendItem(icon, Uni.I18n.translate('legend.failingComTasks', 'MDC', 'Failed communication tasks'));
     },
 
-    displayNodeProperties: function(id){
+    displayNodeProperties: function (id) {
         if (this.chart.combo().isCombo(id)) {
             return;
         }
@@ -300,20 +351,20 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             graphData = me.chart.getItem(id).d,
             downStream = me.getDownStreamNodesLinks(id),
             shortestPaths = me.chart.graph().shortestPaths(me.top[0], id, {direction: 'any'}),
-            parentIndex = shortestPaths.one.length-2;
+            parentIndex = shortestPaths.one.length - 2;
 
-        graphData.parent = parentIndex<0 ? '-' : this.chart.getItem(shortestPaths.one[parentIndex]).d.name;
-        graphData.hopLevel = shortestPaths.one.length-1;
+        graphData.parent = parentIndex < 0 ? '-' : this.chart.getItem(shortestPaths.one[parentIndex]).d.name;
+        graphData.hopLevel = shortestPaths.one.length - 1;
         graphData.descendants = downStream.nodes.length;
         me.fireEvent('showdevicesummary', graphData);
     },
 
-    onRefresh: function(buttonPressed) {
+    onRefresh: function (buttonPressed) {
         var visualiserPanel = buttonPressed.up('visualiserpanel'),
             layersToQuery = [],
             layerName = undefined,
-            getMatchingLayerName = function(methodName) {
-                switch(methodName) {
+            getMatchingLayerName = function (methodName) {
+                switch (methodName) {
                     case 'showDeviceType':
                         return 'topology.GraphLayer.DeviceType';
                     case 'showLinkQuality':
@@ -324,12 +375,14 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
                         return 'topology.GraphLayer.DeviceLifeCycleStatus';
                     case 'showCommunicationStatus':
                         return 'topology.GraphLayer.CommunicationStatus';
+                    case 'showMap':
+                        return 'topology.GraphLayer.DeviceGeoCoordinatesLayer';
                     default:
                         return undefined;
                 }
             };
 
-        Ext.each(visualiserPanel.activeLayers, function(layerFunction) {
+        Ext.each(visualiserPanel.activeLayers, function (layerFunction) {
             layerName = getMatchingLayerName(layerFunction.name);
             if (!Ext.isEmpty(layerName)) {
                 layersToQuery.push(layerName);
@@ -346,11 +399,12 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             }
         ]));
         visualiserPanel.refreshGraph();
+        this.showMap();
     },
 
-    preprocessSingleSelectionMenuItemsBeforeShowing: function(menu, doShowMenuFunction) {
+    preprocessSingleSelectionMenuItemsBeforeShowing: function (menu, doShowMenuFunction) {
         var menuWillBeShown = false;
-        menu.items.each(function(menuItem) {
+        menu.items.each(function (menuItem) {
             if (menuItem.xtype !== 'menuseparator') {
                 var chartItem = menuItem.visualiser.chart.getItem(menuItem.chartNodeId),
                     collapsedNode = menuItem.visualiser.chart.combo().isCombo(menuItem.chartNodeId);
