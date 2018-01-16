@@ -23,9 +23,6 @@ Ext.define('Dlc.devicelifecyclestates.view.AddWebServicesToStateGrid', {
             {
                 header: Uni.I18n.translate('geeral.name', 'DLC', 'Name'),
                 dataIndex: 'name',
-                renderer: function (value, metaData, record) {
-                    return value + ' (' + record.get('version') + ')';
-                },
                 sortable: false,
                 menuDisabled: true,
                 ascSortCls: Ext.baseCSSPrefix,          //No arrow

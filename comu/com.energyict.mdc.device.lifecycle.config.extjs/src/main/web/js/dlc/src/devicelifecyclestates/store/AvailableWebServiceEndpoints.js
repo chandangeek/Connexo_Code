@@ -17,7 +17,7 @@ Ext.define('Dlc.devicelifecyclestates.store.AvailableWebServiceEndpoints', {
 
     proxy: {
         type: 'rest',
-        url: '/api/dld/devicelifecycles/statechangewebserviceendpoints',
+        url: '/api/dld/devicelifecycles/statechangeendpointconfigurations',
         reader: {
             type: 'json',
             root: 'stateChangeWebServiceEndpoints'

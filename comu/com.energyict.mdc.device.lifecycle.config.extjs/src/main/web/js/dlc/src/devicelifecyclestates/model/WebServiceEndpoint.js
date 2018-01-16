@@ -3,7 +3,7 @@
  */
 
 Ext.define('Dlc.devicelifecyclestates.model.WebServiceEndpoint', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     alias: 'webServiceEndpoint',
     fields: [
         {name: 'id', type: 'int', useNull: true},
