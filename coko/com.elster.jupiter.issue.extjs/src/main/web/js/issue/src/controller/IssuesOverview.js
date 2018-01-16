@@ -152,7 +152,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         var me = this,
             preview = me.getPreview(),
             previewActionMenu = me.getPreviewActionMenu();
-        if (preview.itemId.startsWith('alarm')) {
+        if (Ext.String.startsWith(preview.itemId, 'alarm')) {
             var subEl = new Ext.get('alarm-status-field-sub-tpl');
         }
         else {
