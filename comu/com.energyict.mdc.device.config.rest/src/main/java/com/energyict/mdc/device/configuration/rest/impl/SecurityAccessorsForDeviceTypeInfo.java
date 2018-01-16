@@ -12,5 +12,5 @@ import java.util.List;
 public class SecurityAccessorsForDeviceTypeInfo {
     public String name;
     public long version;
-    public List<SecurityAccessorInfo> securityAccessors;
+    public List<SecurityAccessorTypeInfo> securityAccessors;
 }

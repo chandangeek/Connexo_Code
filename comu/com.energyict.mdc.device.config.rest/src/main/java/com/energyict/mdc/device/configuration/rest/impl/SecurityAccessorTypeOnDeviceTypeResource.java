@@ -36,11 +36,11 @@ import java.util.stream.Stream;
 public class SecurityAccessorTypeOnDeviceTypeResource {
     private final ResourceHelper resourceHelper;
     private final SecurityManagementService securityManagementService;
-    private final KeyFunctionTypeInfoFactory keyFunctionTypeInfoFactory;
+    private final SecurityAccessorTypeInfoFactory keyFunctionTypeInfoFactory;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public SecurityAccessorTypeOnDeviceTypeResource(ResourceHelper resourceHelper, SecurityManagementService securityManagementService, KeyFunctionTypeInfoFactory keyFunctionTypeInfoFactory, ExceptionFactory exceptionFactory) {
+    public SecurityAccessorTypeOnDeviceTypeResource(ResourceHelper resourceHelper, SecurityManagementService securityManagementService, SecurityAccessorTypeInfoFactory keyFunctionTypeInfoFactory, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.securityManagementService = securityManagementService;
         this.keyFunctionTypeInfoFactory = keyFunctionTypeInfoFactory;
@@ -53,7 +53,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceTypeSecurityAccessors(@PathParam("deviceTypeId") long id, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        List<SecurityAccessorInfo> infos = deviceType.getSecurityAccessorTypes().stream()
+        List<SecurityAccessorTypeInfo> infos = deviceType.getSecurityAccessorTypes().stream()
                 .map(keyFunctionTypeInfoFactory::from)
                 .sorted(Comparator.comparing(k -> k.name, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
@@ -67,7 +67,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @Path("/unassigned")
     public PagedInfoList getSecurityAccessorsUnassignedToDeviceType(@PathParam("deviceTypeId") long id, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        List<SecurityAccessorInfo> infos = subtract(securityManagementService.getSecurityAccessorTypes(), deviceType.getSecurityAccessorTypes())
+        List<SecurityAccessorTypeInfo> infos = subtract(securityManagementService.getSecurityAccessorTypes(), deviceType.getSecurityAccessorTypes())
                 .map(keyFunctionTypeInfoFactory::from)
                 .sorted(Comparator.comparing(k -> k.name, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
@@ -85,7 +85,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     @Path("/{securityAccessorId}")
-    public SecurityAccessorInfo getDeviceTypeSecurityAccessor(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, @BeanParam JsonQueryParameters queryParameters) {
+    public SecurityAccessorTypeInfo getDeviceTypeSecurityAccessor(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<SecurityAccessorType> securityAccessorTypes = deviceType.getSecurityAccessorTypes();
         return securityAccessorTypes.stream()

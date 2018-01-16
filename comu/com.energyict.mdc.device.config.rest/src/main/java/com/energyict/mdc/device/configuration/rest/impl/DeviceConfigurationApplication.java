@@ -35,6 +35,9 @@ import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
 import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTranslationKeys;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorResourceHelper;
+import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -98,6 +101,9 @@ public class DeviceConfigurationApplication extends Application implements Messa
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile SecurityManagementService securityManagementService;
     private volatile MdcPropertyUtils mdcPropertyUtils;
+    private volatile SecurityAccessorResourceHelper securityAccessorResourceHelper;
+    private volatile SecurityAccessorInfoFactory securityAccessorInfoFactory;
+    private volatile TrustStoreValuesProvider trustStoreValuesProvider;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -299,6 +305,21 @@ public class DeviceConfigurationApplication extends Application implements Messa
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
+    @Reference
+    public void setSecurityAccessorResourceHelper(SecurityAccessorResourceHelper securityAccessorResourceHelper) {
+        this.securityAccessorResourceHelper = securityAccessorResourceHelper;
+    }
+
+    @Reference
+    public void setSecurityAccessorInfoFactory(SecurityAccessorInfoFactory securityAccessorInfoFactory) {
+        this.securityAccessorInfoFactory = securityAccessorInfoFactory;
+    }
+
+    @Reference
+    public void setTrustStoreValuesProvider(TrustStoreValuesProvider trustStoreValuesProvider) {
+        this.trustStoreValuesProvider = trustStoreValuesProvider;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -316,7 +337,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
             bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
             bind(SecurityPropertySetInfoFactory.class).to(SecurityPropertySetInfoFactory.class);
-            bind(KeyFunctionTypeInfoFactory.class).to(KeyFunctionTypeInfoFactory.class);
+            bind(SecurityAccessorTypeInfoFactory.class).to(SecurityAccessorTypeInfoFactory.class);
             bind(ExecutionLevelInfoFactory.class).to(ExecutionLevelInfoFactory.class);
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
@@ -346,6 +367,9 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(LoadProfileSpecInfoFactory.class).to(LoadProfileSpecInfoFactory.class);
             bind(LoadProfileTypeInfoFactory.class).to(LoadProfileTypeInfoFactory.class);
             bind(LoadProfileTypeOnDeviceTypeInfoFactory.class).to(LoadProfileTypeOnDeviceTypeInfoFactory.class);
+            bind(securityAccessorResourceHelper).to(SecurityAccessorResourceHelper.class);
+            bind(securityAccessorInfoFactory).to(SecurityAccessorInfoFactory.class);
+            bind(trustStoreValuesProvider).to(TrustStoreValuesProvider.class);
         }
     }
 }

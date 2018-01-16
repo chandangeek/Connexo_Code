@@ -5,22 +5,35 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.AliasParameterFilter;
+import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityAccessorType.Builder;
 import com.elster.jupiter.pki.SecurityAccessorTypeUpdater;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.rest.AliasInfo;
 import com.elster.jupiter.pki.security.Privileges;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.PathPrependingConstraintViolationException;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorResourceHelper;
+import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -32,24 +45,46 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-// TODO: move to pki?
+import static java.util.stream.Collectors.toList;
+
+// TODO: move to pki.rest?
 @Path("/securityaccessors")
 public class SecurityAccessorTypeResource {
+    private static final String CURRENT_PROPERTIES_PATH = "defaultValue.currentProperties";
+    private static final String TEMP_PROPERTIES_PATH = "defaultValue.tempProperties";
+
     private final ResourceHelper resourceHelper;
     private final SecurityManagementService securityManagementService;
-    private final KeyFunctionTypeInfoFactory keyFunctionTypeInfoFactory;
+    private final SecurityAccessorTypeInfoFactory keyFunctionTypeInfoFactory;
     private final ExceptionFactory exceptionFactory;
+    private final SecurityAccessorResourceHelper securityAccessorResourceHelper;
+    private final SecurityAccessorInfoFactory securityAccessorInfoFactory;
+    private final TrustStoreValuesProvider trustStoreValuesProvider;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public SecurityAccessorTypeResource(ResourceHelper resourceHelper, SecurityManagementService securityManagementService, KeyFunctionTypeInfoFactory keyFunctionTypeInfoFactory, ExceptionFactory exceptionFactory) {
+    public SecurityAccessorTypeResource(ResourceHelper resourceHelper,
+                                        SecurityManagementService securityManagementService,
+                                        SecurityAccessorTypeInfoFactory keyFunctionTypeInfoFactory,
+                                        ExceptionFactory exceptionFactory,
+                                        SecurityAccessorResourceHelper securityAccessorResourceHelper,
+                                        SecurityAccessorInfoFactory securityAccessorInfoFactory,
+                                        TrustStoreValuesProvider trustStoreValuesProvider,
+                                        Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.securityManagementService = securityManagementService;
         this.keyFunctionTypeInfoFactory = keyFunctionTypeInfoFactory;
         this.exceptionFactory = exceptionFactory;
+        this.securityAccessorResourceHelper = securityAccessorResourceHelper;
+        this.securityAccessorInfoFactory = securityAccessorInfoFactory;
+        this.trustStoreValuesProvider = trustStoreValuesProvider;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -57,7 +92,7 @@ public class SecurityAccessorTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
     public PagedInfoList getSecurityAccessorTypes(@BeanParam JsonQueryParameters queryParameters) {
-        List<SecurityAccessorInfo> infoList = securityManagementService.getSecurityAccessorTypes().stream()
+        List<SecurityAccessorTypeInfo> infoList = securityManagementService.getSecurityAccessorTypes().stream()
                 .map(keyFunctionTypeInfoFactory::from)
                 .sorted(Comparator.comparing(k -> k.name, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
@@ -69,9 +104,15 @@ public class SecurityAccessorTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
     @Path("/{id}")
-    public SecurityAccessorInfo getSecurityAccessorType(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
+    public SecurityAccessorTypeInfo getSecurityAccessorType(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters,
+                                                            @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider) {
         return securityManagementService.findSecurityAccessorTypeById(id)
-                .map(keyFunctionTypeInfoFactory::withSecurityLevels)
+                .map(sat -> {
+                    SecurityAccessorTypeInfo info = keyFunctionTypeInfoFactory.withSecurityLevels(sat);
+                    securityManagementService.getDefaultValues(sat)
+                            .ifPresent(value -> info.defaultValue = securityAccessorInfoFactory.asCertificate(value, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider));
+                    return info;
+                })
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
     }
 
@@ -104,39 +145,98 @@ public class SecurityAccessorTypeResource {
                 .collect(Collectors.toList());
     }
 
+    @GET
+    @Transactional
+    @Path("/certificates/aliases")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.EDIT_SECURITY_ACCESSORS)
+    public PagedInfoList aliasSource(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
+        List<AliasInfo> collect = securityManagementService.getAliasesByFilter(new AliasParameterFilter(securityManagementService, jsonQueryFilter))
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getAlias)
+                .map(AliasInfo::new)
+                .collect(toList());
+        return PagedInfoList.fromPagedList("aliases", collect, queryParameters);
+    }
+
+    @POST
+    @Transactional
+    @Path("/previewproperties")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.EDIT_SECURITY_ACCESSORS)
+    public SecurityAccessorInfo previewValueProperties(@BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider,
+                                                       SecurityAccessorTypeInfo securityAccessorTypeInfo) {
+        List<PropertySpec> propertySpecs;
+        if (securityAccessorTypeInfo.keyType != null && securityAccessorTypeInfo.keyType.name != null) {
+            KeyType keyType = securityManagementService.getKeyType(securityAccessorTypeInfo.keyType.name)
+                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_KEY_TYPE_FOUND_NAME, securityAccessorTypeInfo.keyType.name));
+            propertySpecs = securityManagementService.getPropertySpecs(keyType, securityAccessorTypeInfo.storageMethod);
+        } else {
+            propertySpecs = Collections.emptyList();
+        }
+        return securityAccessorInfoFactory.asCertificateProperties(propertySpecs, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
+    }
+
     @POST
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.EDIT_SECURITY_ACCESSORS)
-    public SecurityAccessorInfo addSecurityAccessorType(SecurityAccessorInfo securityAccessorInfo) {
-        if (securityAccessorInfo.keyType == null || securityAccessorInfo.keyType.name == null) {
+    public SecurityAccessorTypeInfo addSecurityAccessorType(@BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider,
+                                                            SecurityAccessorTypeInfo securityAccessorTypeInfo) {
+        if (securityAccessorTypeInfo.keyType == null || securityAccessorTypeInfo.keyType.name == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "keyType");
         }
-        KeyType keyType = securityManagementService.getKeyType(securityAccessorInfo.keyType.name)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_KEY_TYPE_FOUND_NAME, securityAccessorInfo.keyType.name));
-        Builder keyFunctionTypeBuilder = securityManagementService.addSecurityAccessorType(securityAccessorInfo.name, keyType)
-                .keyEncryptionMethod(securityAccessorInfo.storageMethod)
-                .description(securityAccessorInfo.description);
+        KeyType keyType = securityManagementService.getKeyType(securityAccessorTypeInfo.keyType.name)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_KEY_TYPE_FOUND_NAME, securityAccessorTypeInfo.keyType.name));
+        Builder keyFunctionTypeBuilder = securityManagementService.addSecurityAccessorType(securityAccessorTypeInfo.name, keyType)
+                .keyEncryptionMethod(securityAccessorTypeInfo.storageMethod)
+                .description(securityAccessorTypeInfo.description);
         if (keyType.getCryptographicType() != null && !keyType.getCryptographicType().isKey()) {
-            TrustStore trustStore = securityManagementService.findTrustStore(securityAccessorInfo.trustStoreId)
-                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_TRUST_STORE_FOUND, securityAccessorInfo.trustStoreId));
+            TrustStore trustStore = securityManagementService.findTrustStore(securityAccessorTypeInfo.trustStoreId)
+                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_TRUST_STORE_FOUND, securityAccessorTypeInfo.trustStoreId));
             keyFunctionTypeBuilder.trustStore(trustStore);
         }
-        if (securityAccessorInfo.duration != null && keyType.getCryptographicType().requiresDuration()) {
-            keyFunctionTypeBuilder.duration(getDuration(securityAccessorInfo));
+        if (securityAccessorTypeInfo.duration != null && keyType.getCryptographicType().requiresDuration()) {
+            keyFunctionTypeBuilder.duration(getDuration(securityAccessorTypeInfo));
         } else {
             keyFunctionTypeBuilder.duration(null);
         }
+        if (securityAccessorTypeInfo.defaultValue != null) {
+            keyFunctionTypeBuilder.managedCentrally();
+        }
         SecurityAccessorType keyFunctionType = keyFunctionTypeBuilder.add();
-        return keyFunctionTypeInfoFactory.from(keyFunctionType);
+        SecurityAccessorTypeInfo resultInfo = keyFunctionTypeInfoFactory.from(keyFunctionType);
+
+        if (securityAccessorTypeInfo.defaultValue != null) {
+            CertificateWrapper actualValue = wrapValidationExceptions(CURRENT_PROPERTIES_PATH,
+                    () -> securityAccessorResourceHelper.createMandatoryCertificateWrapper(keyFunctionType, securityAccessorTypeInfo.defaultValue.currentProperties));
+            CertificateWrapper tempValue = wrapValidationExceptions(TEMP_PROPERTIES_PATH,
+                    () -> securityAccessorResourceHelper.createCertificateWrapper(keyFunctionType, securityAccessorTypeInfo.defaultValue.tempProperties))
+                    .orElse(null);
+            SecurityAccessor<CertificateWrapper> certificateAccessor = securityManagementService.setDefaultValues(keyFunctionType, actualValue, tempValue);
+            resultInfo.defaultValue = securityAccessorInfoFactory.asCertificate(certificateAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
+        }
+        return resultInfo;
     }
 
-    private static TimeDuration getDuration(SecurityAccessorInfo securityAccessorInfo) {
+    private static TimeDuration getDuration(SecurityAccessorTypeInfo securityAccessorInfo) {
         try {
             return securityAccessorInfo.duration.asTimeDuration();
         } catch (Exception e) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_TIME_DURATION, "duration");
+        }
+    }
+
+    private <T> T wrapValidationExceptions(String pathPrefix, Supplier<T> action) {
+        try {
+            return action.get();
+        } catch (ConstraintViolationException e) {
+            throw new PathPrependingConstraintViolationException(thesaurus, e, pathPrefix);
+        } catch (LocalizedFieldValidationException e) {
+            throw e.fromSubField(pathPrefix);
         }
     }
 
@@ -146,25 +246,41 @@ public class SecurityAccessorTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.EDIT_SECURITY_ACCESSORS)
-    public SecurityAccessorInfo changeSecurityAccessorType(@PathParam("id") long id, SecurityAccessorInfo securityAccessorInfo) {
+    public SecurityAccessorTypeInfo changeSecurityAccessorType(@PathParam("id") long id,
+                                                               @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider,
+                                                               SecurityAccessorTypeInfo securityAccessorTypeInfo) {
         SecurityAccessorType securityAccessorType =
-                resourceHelper.lockSecurityAccessorTypeOrThrowException(id, securityAccessorInfo.version, securityAccessorInfo.name);
+                resourceHelper.lockSecurityAccessorTypeOrThrowException(id, securityAccessorTypeInfo.version, securityAccessorTypeInfo.name);
         SecurityAccessorTypeUpdater updater = securityAccessorType.startUpdate();
-        updater.name(securityAccessorInfo.name);
-        updater.description(securityAccessorInfo.description);
-        if (securityAccessorInfo.duration != null && securityAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
-            updater.duration(getDuration(securityAccessorInfo));
+        updater.name(securityAccessorTypeInfo.name);
+        updater.description(securityAccessorTypeInfo.description);
+        if (securityAccessorTypeInfo.duration != null && securityAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
+            updater.duration(getDuration(securityAccessorTypeInfo));
         } else {
             updater.duration(null);
         }
         securityAccessorType.getUserActions()
                 .forEach(updater::removeUserAction);
-        securityAccessorInfo.viewLevels
+        securityAccessorTypeInfo.viewLevels
                 .forEach(level -> updater.addUserAction(SecurityAccessorUserAction.forPrivilege(level.id).get()));
-        securityAccessorInfo.editLevels
+        securityAccessorTypeInfo.editLevels
                 .forEach(level -> updater.addUserAction(SecurityAccessorUserAction.forPrivilege(level.id).get()));
         SecurityAccessorType updated = updater.complete();
-        return keyFunctionTypeInfoFactory.from(updated);
+        SecurityAccessorTypeInfo resultInfo = keyFunctionTypeInfoFactory.from(updated);
+        if (updated.isManagedCentrally()) {
+            validateDefaultValuePresence(securityAccessorTypeInfo);
+            SecurityAccessor<CertificateWrapper> certificateAccessor = (SecurityAccessor<CertificateWrapper>) resourceHelper
+                    .lockSecurityAccessorOrThrowException(updated, securityAccessorTypeInfo.defaultValue.version);
+            boolean actualUpdated = wrapValidationExceptions(CURRENT_PROPERTIES_PATH,
+                    () -> securityAccessorResourceHelper.updateActualCertificateIfNeeded(certificateAccessor, securityAccessorTypeInfo.defaultValue.currentProperties, true));
+            boolean tempUpdated = wrapValidationExceptions(TEMP_PROPERTIES_PATH,
+                    () -> securityAccessorResourceHelper.updateTempCertificateIfNeeded(certificateAccessor, securityAccessorTypeInfo.defaultValue.tempProperties));
+            if (actualUpdated || tempUpdated) {
+                certificateAccessor.save();
+            }
+            resultInfo.defaultValue = securityAccessorInfoFactory.asCertificate(certificateAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
+        }
+        return resultInfo;
     }
 
     @DELETE
@@ -173,10 +289,22 @@ public class SecurityAccessorTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.EDIT_SECURITY_ACCESSORS)
-    public Response removeSecurityAccessorType(@PathParam("id") long id, SecurityAccessorInfo securityAccessorInfo) {
+    public Response removeSecurityAccessorType(@PathParam("id") long id, SecurityAccessorTypeInfo securityAccessorTypeInfo) {
         SecurityAccessorType keyFunctionType =
-                resourceHelper.lockSecurityAccessorTypeOrThrowException(id, securityAccessorInfo.version, securityAccessorInfo.name);
+                resourceHelper.lockSecurityAccessorTypeOrThrowException(id, securityAccessorTypeInfo.version, securityAccessorTypeInfo.name);
+        if (keyFunctionType.isManagedCentrally()) {
+            validateDefaultValuePresence(securityAccessorTypeInfo);
+            SecurityAccessor securityAccessor =
+                    resourceHelper.lockSecurityAccessorOrThrowException(keyFunctionType, securityAccessorTypeInfo.defaultValue.version);
+            securityAccessor.delete();
+        }
         keyFunctionType.delete();
         return Response.noContent().build();
+    }
+
+    private static void validateDefaultValuePresence(SecurityAccessorTypeInfo securityAccessorTypeInfo) {
+        if (securityAccessorTypeInfo.defaultValue == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "defaultValue");
+        }
     }
 }

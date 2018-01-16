@@ -130,7 +130,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
 
     @Test
     public void testAddKeyAccessorType() throws Exception {
-        SecurityAccessorInfo info = new SecurityAccessorInfo();
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
         info.id = 1;
         info.description = DESCRIPTION;
         info.name = NAME;
@@ -168,7 +168,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
 
     @Test
     public void testAddCertificateAccessorType() throws Exception {
-        SecurityAccessorInfo info = new SecurityAccessorInfo();
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
         info.id = 1;
         info.description = DESCRIPTION;
         info.name = NAME;
@@ -212,7 +212,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
     public void testEditSecurityAccessorType() throws Exception {
         SecurityAccessorType securityAccessorType = mockKeyAccessorType(1, 1, "Name", "Epic description");
         when(securityManagementService.findAndLockSecurityAccessorType(1, 1)).thenReturn(Optional.of(securityAccessorType));
-        SecurityAccessorInfo info = new SecurityAccessorInfo();
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
         info.id = 1;
         info.version = 1;
         info.description = "New Description";
@@ -240,7 +240,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         SecurityAccessorType securityAccessorType = mockKeyAccessorType(1, 2, "New_Key_Name", "Epic description");
         when(securityManagementService.findAndLockSecurityAccessorType(1, 1)).thenReturn(Optional.empty());
         when(securityManagementService.findSecurityAccessorTypeById(1)).thenReturn(Optional.of(securityAccessorType));
-        SecurityAccessorInfo info = new SecurityAccessorInfo();
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
         info.id = 1;
         info.version = 1;
         info.description = "New Description";
@@ -260,7 +260,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         SecurityAccessorType securityAccessorType = mockKeyAccessorType(1, 1, "Name", "Epic description");
         when(securityManagementService.findAndLockSecurityAccessorType(1, 1)).thenReturn(Optional.of(securityAccessorType));
 
-        SecurityAccessorInfo info = new SecurityAccessorInfo();
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
         info.id = 1;
         info.version = 1;
         info.name = "Name";
@@ -274,7 +274,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
     public void testDeleteFailed() throws IOException {
         when(securityManagementService.findAndLockSecurityAccessorType(1, 1)).thenReturn(Optional.empty());
         when(securityManagementService.findSecurityAccessorTypeById(1)).thenReturn(Optional.empty());
-        SecurityAccessorInfo info = new SecurityAccessorInfo();
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
         info.id = 1;
         info.version = 1;
         info.name = "Key name";

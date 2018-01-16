@@ -6,6 +6,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfo;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SecurityAccessorInfo {
+public class SecurityAccessorTypeInfo {
     public long id;
     public long version;
     public String name;
@@ -26,4 +27,5 @@ public class SecurityAccessorInfo {
     public List<ExecutionLevelInfo> defaultEditLevels = new ArrayList<>();
     public List<ExecutionLevelInfo> viewLevels = new ArrayList<>();
     public List<ExecutionLevelInfo> defaultViewLevels = new ArrayList<>();
+    public SecurityAccessorInfo defaultValue;
 }

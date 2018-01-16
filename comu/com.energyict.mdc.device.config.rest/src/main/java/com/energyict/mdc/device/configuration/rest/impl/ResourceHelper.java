@@ -10,8 +10,10 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -168,9 +170,23 @@ public class ResourceHelper {
                         .supplier());
     }
 
+    public SecurityAccessor<? extends SecurityValueWrapper> lockSecurityAccessorOrThrowException(SecurityAccessorType securityAccessorType, long version) {
+        return securityManagementService.lockDefaultValues(securityAccessorType, version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(securityAccessorType.getName())
+                        .withActualVersion(() -> getCurrentSecurityAccessorVersion(securityAccessorType))
+                        .withActualParent(securityAccessorType::getVersion, securityAccessorType.getId())
+                        .supplier());
+    }
+
     public Long getCurrentSecurityAccessorTypeVersion(long id) {
         return securityManagementService.findSecurityAccessorTypeById(id)
                 .map(SecurityAccessorType::getVersion)
+                .orElse(null);
+    }
+
+    public Long getCurrentSecurityAccessorVersion(SecurityAccessorType type) {
+        return securityManagementService.getDefaultValues(type)
+                .map(SecurityAccessor::getVersion)
                 .orElse(null);
     }
 

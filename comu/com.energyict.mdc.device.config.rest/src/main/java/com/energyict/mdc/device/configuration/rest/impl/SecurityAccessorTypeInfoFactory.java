@@ -16,18 +16,18 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-public class KeyFunctionTypeInfoFactory {
+public class SecurityAccessorTypeInfoFactory {
     private final ExecutionLevelInfoFactory executionLevelInfoFactory;
     private final UserService userService;
 
     @Inject
-    public KeyFunctionTypeInfoFactory(ExecutionLevelInfoFactory executionLevelInfoFactory, UserService userService) {
+    public SecurityAccessorTypeInfoFactory(ExecutionLevelInfoFactory executionLevelInfoFactory, UserService userService) {
         this.executionLevelInfoFactory = executionLevelInfoFactory;
         this.userService = userService;
     }
 
-    public SecurityAccessorInfo from(SecurityAccessorType securityAccessorType) {
-        SecurityAccessorInfo info = new SecurityAccessorInfo();
+    public SecurityAccessorTypeInfo from(SecurityAccessorType securityAccessorType) {
+        SecurityAccessorTypeInfo info = new SecurityAccessorTypeInfo();
         info.id = securityAccessorType.getId();
         info.version = securityAccessorType.getVersion();
         info.name = securityAccessorType.getName();
@@ -42,8 +42,8 @@ public class KeyFunctionTypeInfoFactory {
         return info;
     }
 
-    public SecurityAccessorInfo withSecurityLevels(SecurityAccessorType securityAccessorType) {
-        SecurityAccessorInfo info = from(securityAccessorType);
+    public SecurityAccessorTypeInfo withSecurityLevels(SecurityAccessorType securityAccessorType) {
+        SecurityAccessorTypeInfo info = from(securityAccessorType);
         Set<SecurityAccessorUserAction> allUserActions = EnumSet.allOf(SecurityAccessorUserAction.class);
         List<Group> groups = userService.getGroups();
         Set<SecurityAccessorUserAction> keyAccessorTypeUserActions = securityAccessorType.getUserActions();

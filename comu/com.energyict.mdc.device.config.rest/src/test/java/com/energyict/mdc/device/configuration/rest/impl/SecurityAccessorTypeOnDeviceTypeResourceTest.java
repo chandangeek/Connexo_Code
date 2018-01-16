@@ -183,10 +183,10 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         DeviceType deviceType = mockDeviceType("device type 1", 66);
         when(deviceConfigurationService.findAndLockDeviceType(66, 13)).thenReturn(Optional.of(deviceType));
 
-        SecurityAccessorInfo info1 = new SecurityAccessorInfo();
+        SecurityAccessorTypeInfo info1 = new SecurityAccessorTypeInfo();
         info1.id = 1;
         info1.version = 2;
-        SecurityAccessorInfo info2 = new SecurityAccessorInfo();
+        SecurityAccessorTypeInfo info2 = new SecurityAccessorTypeInfo();
         info2.id = 2;
         info2.version = 1;
 
@@ -213,10 +213,10 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(deviceConfigurationService.findAndLockDeviceType(66, 13)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceType(66)).thenReturn(Optional.of(deviceType));
 
-        SecurityAccessorInfo info1 = new SecurityAccessorInfo();
+        SecurityAccessorTypeInfo info1 = new SecurityAccessorTypeInfo();
         info1.id = 1;
         info1.version = 2;
-        SecurityAccessorInfo info2 = new SecurityAccessorInfo();
+        SecurityAccessorTypeInfo info2 = new SecurityAccessorTypeInfo();
         info2.id = 2;
         info2.version = 1;
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
@@ -239,10 +239,10 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         DeviceType deviceType = mockDeviceType("device type 1", 66);
         when(deviceConfigurationService.findAndLockDeviceType(66, 13)).thenReturn(Optional.of(deviceType));
 
-        SecurityAccessorInfo info1 = new SecurityAccessorInfo();
+        SecurityAccessorTypeInfo info1 = new SecurityAccessorTypeInfo();
         info1.id = 1;
         info1.version = 2;
-        SecurityAccessorInfo info2 = new SecurityAccessorInfo();
+        SecurityAccessorTypeInfo info2 = new SecurityAccessorTypeInfo();
         info2.id = 2;
         info2.version = 1;
         info2.name = "Certificate";
