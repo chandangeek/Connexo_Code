@@ -6,6 +6,8 @@ package com.energyict.mdc.pluggable.rest;
 
 import com.elster.jupiter.properties.PropertySpec;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.net.URI;
 import java.util.Optional;
 
@@ -13,6 +15,7 @@ import java.util.Optional;
  * This provider defines the REST resource where possible values for a Property can be obtained.
  * Type ahead filtering is supported on this resource, by using the standard Extjs JSON query parameter 'filter'
  */
+@ConsumerType
 public interface PropertyValuesResourceProvider {
     /**
      * The URI on which the possible values can be retrieved by using HTTP GET. A query parameter 'filter' can be

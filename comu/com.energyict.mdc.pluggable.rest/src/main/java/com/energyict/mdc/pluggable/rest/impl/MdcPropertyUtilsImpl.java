@@ -201,7 +201,10 @@ public class MdcPropertyUtilsImpl implements MdcPropertyUtils {
         return propertyInfoList;
     }
 
-    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, PropertyValuesResourceProvider valuesResourceProvider, PropertyDefaultValuesProvider valuesProvider) {
+    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs,
+                                                                  TypedProperties properties,
+                                                                  PropertyValuesResourceProvider valuesResourceProvider,
+                                                                  PropertyDefaultValuesProvider valuesProvider) {
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
         for (PropertySpec propertySpec : propertySpecs) {
             PropertyInfo propertyInfo = propertyValueInfoService.getPropertyInfo(propertySpec, properties.getLocalValue(propertySpec.getName()) != null ? properties::getLocalValue : null);
@@ -283,11 +286,12 @@ public class MdcPropertyUtilsImpl implements MdcPropertyUtils {
                 editable);
     }
 
+    @Override
     public Object findPropertyValue(PropertySpec propertySpec, Collection<PropertyInfo> propertyInfos) {
-        return findPropertyValue(propertySpec, propertyInfos.toArray(new PropertyInfo[propertyInfos.size()]));
+        return propertyValueInfoService.findPropertyValue(propertySpec, propertyInfos);
     }
 
-    //find propertyValue in info
+    @Override
     public Object findPropertyValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos) {
         return propertyValueInfoService.findPropertyValue(propertySpec, Arrays.asList(propertyInfos));
     }
