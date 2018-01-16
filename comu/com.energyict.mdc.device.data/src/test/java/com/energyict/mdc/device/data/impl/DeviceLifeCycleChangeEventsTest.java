@@ -18,11 +18,9 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreferencesService;
@@ -36,11 +34,8 @@ import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.google.common.collect.Range;
 
@@ -101,13 +96,7 @@ public class DeviceLifeCycleChangeEventsTest {
     @Mock
     private ServerDeviceService deviceService;
     @Mock
-    private MetrologyConfigurationService metrologyConfigurationService;
-    @Mock
     private ValidationService validationService;
-    @Mock
-    private ServerConnectionTaskService connectionTaskService;
-    @Mock
-    private ServerCommunicationTaskService communicationTaskService;
     @Mock
     private DeviceLifeCycle deviceLifeCycle;
     @Mock
@@ -124,12 +113,6 @@ public class DeviceLifeCycleChangeEventsTest {
     private Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
     @Mock
     private Provider<ComTaskExecutionImpl> scheduledComTaskExecutionProvider;
-    @Mock
-    private ProtocolPluggableService protocolPluggableService;
-    @Mock
-    private Provider<ComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
-    @Mock
-    private Provider<ComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     @Mock
     private MeteringGroupsService meteringGroupsService;
     @Mock
@@ -155,8 +138,6 @@ public class DeviceLifeCycleChangeEventsTest {
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private LockService lockService;
-    @Mock
-    private SecurityManagementService securityManagementService;
 
     @Before
     public void initializeMocks() {
@@ -364,7 +345,9 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.readingTypeUtilService,
                 this.threadPrincipalService,
                 this.userPreferencesService,
-                this.deviceConfigurationService, deviceService, lockService, securityManagementService)
+                this.deviceConfigurationService,
+                deviceService,
+                lockService)
                 .initialize(this.deviceConfiguration, "Hello world", Instant.now());
         device.save();
         return device;

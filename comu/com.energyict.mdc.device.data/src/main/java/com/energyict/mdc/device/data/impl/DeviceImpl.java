@@ -63,8 +63,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
@@ -109,7 +109,6 @@ import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -118,6 +117,7 @@ import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
@@ -258,7 +258,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final CustomPropertySetService customPropertySetService;
     private final ServerDeviceService deviceService;
     private final LockService lockService;
-    private final SecurityManagementService securityManagementService;
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final ThreadPrincipalService threadPrincipalService;
@@ -353,8 +352,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             UserPreferencesService userPreferencesService,
             DeviceConfigurationService deviceConfigurationService,
             ServerDeviceService deviceService,
-            LockService lockService,
-            SecurityManagementService securityManagementService) {
+            LockService lockService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -376,7 +374,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.lockService = lockService;
         // Helper to get activation info... from 'Kore'
         this.koreHelper = new SyncDeviceWithKoreForInfo(this, this.deviceService, this.readingTypeUtilService, clock, this.eventService);
-        this.securityManagementService = securityManagementService;
         this.koreHelper.syncWithKore(this);
     }
 
@@ -3296,18 +3293,23 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public List<SecurityAccessor> getSecurityAccessors() {
-        return Collections.unmodifiableList(this.keyAccessors);
+        // TODO NOW: add wrappers for security accessor types with default values
+        return Collections.unmodifiableList(keyAccessors);
     }
 
     @Override
     public Optional<SecurityAccessor> getSecurityAccessor(SecurityAccessorType securityAccessorType) {
-        return this.keyAccessors.stream().filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId() == securityAccessorType
-                .getId()).findAny();
+        // TODO NOW: add wrappers for security accessor types with default values
+        return keyAccessors.stream()
+                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId() == securityAccessorType.getId())
+                .findAny();
     }
 
     @Override
     public SecurityAccessor newSecurityAccessor(SecurityAccessorType securityAccessorType) {
-        switch (securityAccessorType.getKeyType().getCryptographicType()) {
+        // TODO NOW: prohibit adding security accessor for type with default values
+        CryptographicType cryptographicType = securityAccessorType.getKeyType().getCryptographicType();
+        switch (cryptographicType) {
             case Certificate:
             case ClientCertificate:
             case TrustedCertificate:
@@ -3326,13 +3328,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 this.keyAccessors.add(passphraseAccessor);
                 return passphraseAccessor;
             case AsymmetricKey:
-                break; // TODO implement? will this occur?
+                return null; // TODO implement? will this occur?
+            default:
+                throw new IllegalArgumentException("Unknown cryptographic type " + cryptographicType.name());
         }
-        return null; // TODO throw exception
     }
 
     @Override
     public void removeSecurityAccessor(SecurityAccessor securityAccessor) {
+        // TODO NOW: prohibit removing security accessor for type with default values
         this.getSecurityAccessor(securityAccessor.getKeyAccessorType()).ifPresent(keyAccessors::remove);
     }
 

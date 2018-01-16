@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.impl.search;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.Expiration;
 import com.elster.jupiter.properties.ExpirationFactory;
@@ -32,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@LiteralSql
 public class SecurityExpirationSearchableProperty extends AbstractSearchableDeviceProperty {
 
     static final String PROPERTY_NAME = "device.security.expiration";
@@ -73,6 +75,7 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
+        // TODO: update with default values, specific tech spike for this
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         Comparison comparison = (Comparison) condition;
