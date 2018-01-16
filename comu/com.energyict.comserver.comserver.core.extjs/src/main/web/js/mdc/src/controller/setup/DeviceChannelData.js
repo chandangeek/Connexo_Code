@@ -1274,7 +1274,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             window.down('#form-errors').show();
                             if (Ext.isArray(responseText.errors)) {
                                 adjustedPropertyFormErrors = responseText.errors.map(function (error) {
-                                    if (error.id.startsWith('properties.')) {
+                                    if (Ext.String.startsWith(error.id, 'properties.')) {
                                         error.id = error.id.slice(11);
                                     }
                                     return error;
