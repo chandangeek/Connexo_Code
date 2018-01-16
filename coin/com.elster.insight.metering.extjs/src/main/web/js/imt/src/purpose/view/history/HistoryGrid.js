@@ -183,7 +183,7 @@ Ext.define('Imt.purpose.view.history.HistoryGrid', {
 
         if (!Ext.isEmpty(record.get('readingQualities'))) {
             Ext.Array.forEach(record.get('readingQualities'), function (readingQualityObject) {
-                if (readingQualityObject.cimCode.startsWith('1.')) {
+                if (Ext.String.startsWith(readingQualityObject.cimCode, '1.')) {
                     showDeviceQualityIcon |= true;
                     tooltipContent += readingQualityObject.indexName + '<br>';
                 }
