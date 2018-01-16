@@ -98,20 +98,8 @@
 
         <!--  EJBCA library dependencies -->
         <dependency>
-            <groupId>org.ejbca.cesecore</groupId>
-            <artifactId>cesecore-interfaces</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.ejbca</groupId>
-            <artifactId>ejbca-ws-cli</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ejbca</groupId>
-            <artifactId>ejbca-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ejbca</groupId>
-            <artifactId>ejbca-ws</artifactId>
+            <artifactId>ejbca-elster-bundle</artifactId>
         </dependency>
 
         <dependency>
