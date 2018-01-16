@@ -296,11 +296,6 @@ public class PkiGogoCommand {
         }
     }
 
-    public void deleteSuperadmin() {
-        System.out.println("Deletes client superadmin certificate and private key");
-        System.out.println("Usage: deleteSuperadmin <alias");
-    }
-
     public void keypairs() {
         List<List<?>> lists = securityManagementService.findAllKeypairs()
                 .stream()
