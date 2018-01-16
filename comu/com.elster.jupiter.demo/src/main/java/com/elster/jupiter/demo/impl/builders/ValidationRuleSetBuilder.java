@@ -46,7 +46,8 @@ public class ValidationRuleSetBuilder extends NamedBuilder<ValidationRuleSet, Va
 
     @Override
     public Optional<ValidationRuleSet> find() {
-        return validationService.getValidationRuleSet(getName());
+        return validationService.getValidationRuleSet(getName())
+                .filter(rule -> rule.getQualityCodeSystem().equals(this.qualityCodeSystem));
     }
 
     @Override
