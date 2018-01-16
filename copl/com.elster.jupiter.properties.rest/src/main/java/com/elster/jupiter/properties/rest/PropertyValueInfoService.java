@@ -8,6 +8,7 @@ import com.elster.jupiter.properties.PropertySpec;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -40,7 +41,15 @@ public interface PropertyValueInfoService {
 
     List<PropertyInfo> getPropertyInfos(List<PropertySpec> propertySpecs, Map<String, Object> propertyValues, Map<String, Object> inheritedPropertyValues);
 
+    /**
+     * @deprecated Please use {@link #findPropertyValue(PropertySpec, Collection)}
+     */
+    @Deprecated
     Object findPropertyValue(PropertySpec propertySpec, List<PropertyInfo> propertyInfos);
+
+    Object findPropertyValue(PropertySpec propertySpec, Collection<PropertyInfo> propertyInfos);
+
+    Map<String, Object> findPropertyValues(Collection<PropertySpec> propertySpecs, Collection<PropertyInfo> propertyInfos);
 
     PropertyValueInfoService getEmptyPropertyValueInfoService();
 

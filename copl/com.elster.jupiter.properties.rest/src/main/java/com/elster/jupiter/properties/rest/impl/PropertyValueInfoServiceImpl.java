@@ -26,6 +26,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -136,8 +137,14 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 .collect(Collectors.toList());
     }
 
+    @Deprecated
     @Override
     public Object findPropertyValue(PropertySpec propertySpec, List<PropertyInfo> propertyInfos) {
+        return findPropertyValue(propertySpec, (Collection<PropertyInfo>) propertyInfos);
+    }
+
+    @Override
+    public Object findPropertyValue(PropertySpec propertySpec, Collection<PropertyInfo> propertyInfos) {
         for (PropertyInfo propertyInfo : propertyInfos) {
             if (propertySpec.getName().equals(propertyInfo.key) && hasValue(propertyInfo)) {
                 return getConverter(propertySpec).convertInfoToValue(propertySpec, propertyInfo.propertyValueInfo.getValue());
@@ -145,6 +152,21 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         }
         return null;
     }
+
+    @Override
+    public Map<String, Object> findPropertyValues(Collection<PropertySpec> propertySpecs, Collection<PropertyInfo> propertyInfos) {
+        Map<String, PropertySpec> propertySpecsByNames = propertySpecs.stream()
+                .collect(Collectors.toMap(PropertySpec::getName, Function.identity()));
+        Map<String, Object> result = new HashMap<>(propertySpecs.size(), 1);
+        for (PropertyInfo propertyInfo : propertyInfos) {
+            PropertySpec propertySpec = propertySpecsByNames.get(propertyInfo.key);
+            if (propertySpec != null && hasValue(propertyInfo)) {
+                result.put(propertyInfo.key, getConverter(propertySpec).convertInfoToValue(propertySpec, propertyInfo.propertyValueInfo.getValue()));
+            }
+        }
+        return result;
+    }
+
 
     @Override
     public PropertyValueInfoService getEmptyPropertyValueInfoService() {
