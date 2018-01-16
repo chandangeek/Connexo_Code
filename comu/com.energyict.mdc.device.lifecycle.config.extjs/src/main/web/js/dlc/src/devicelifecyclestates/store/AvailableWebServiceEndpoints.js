@@ -20,7 +20,7 @@ Ext.define('Dlc.devicelifecyclestates.store.AvailableWebServiceEndpoints', {
         url: '/api/dld/devicelifecycles/statechangeendpointconfigurations',
         reader: {
             type: 'json',
-            root: 'stateChangeWebServiceEndpoints'
+            root: 'stateChangeEndPointConfigurations'
         },
         startParam: undefined,
         limitParam: undefined,
