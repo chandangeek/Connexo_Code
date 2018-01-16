@@ -6,6 +6,7 @@ package com.elster.jupiter.pki.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.*;
+import com.elster.jupiter.pki.rest.AliasInfo;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.rest.util.*;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
