@@ -7,14 +7,12 @@ package com.energyict.mdc.device.data.rest;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
-import com.energyict.mdc.device.data.CertificateAccessor;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.SecurityAccessor;
-import com.energyict.mdc.device.data.rest.impl.SecurityAccessorInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyDefaultValuesProvider;
 import com.energyict.mdc.pluggable.rest.PropertyValuesResourceProvider;
@@ -30,34 +28,29 @@ import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.SHOW_VALUES;
 
 public class SecurityAccessorInfoFactory {
-
     private final MdcPropertyUtils mdcPropertyUtils;
     private final Thesaurus thesaurus;
     private final UserService userService;
     private final ExecutionLevelInfoFactory executionLevelInfoFactory;
+    private final com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory securityAccessorInfoFactory;
 
     @Inject
-    public SecurityAccessorInfoFactory(MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus, UserService userService, ExecutionLevelInfoFactory executionLevelInfoFactory) {
+    public SecurityAccessorInfoFactory(MdcPropertyUtils mdcPropertyUtils,
+                                       Thesaurus thesaurus,
+                                       UserService userService,
+                                       ExecutionLevelInfoFactory executionLevelInfoFactory,
+                                       com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory securityAccessorInfoFactory) {
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.thesaurus = thesaurus;
         this.userService = userService;
         this.executionLevelInfoFactory = executionLevelInfoFactory;
+        this.securityAccessorInfoFactory = securityAccessorInfoFactory;
     }
 
     private SecurityAccessorInfo from(SecurityAccessor<?> securityAccessor) {
-        SecurityAccessorInfo info = new SecurityAccessorInfo();
-        info.id = securityAccessor.getKeyAccessorType().getId();
-        info.name = securityAccessor.getKeyAccessorType().getName();
-        info.description = securityAccessor.getKeyAccessorType().getDescription();
-        info.swapped = securityAccessor.isSwapped();
-        info.version = securityAccessor.getVersion();
-        info.modificationDate = securityAccessor.getModTime();
+        SecurityAccessorInfo info = securityAccessorInfoFactory.from(securityAccessor);
         info.status = thesaurus.getFormat(securityAccessor.getStatus()).format();
         info.canGeneratePassiveKey = KeyAccessorStatus.COMPLETE.equals(securityAccessor.getStatus());
-        info.hasTempValue = securityAccessor.getTempValue().isPresent();
-        info.hasActualValue = securityAccessor.getActualValue().isPresent();
-        securityAccessor.getActualValue().ifPresent(ka->ka.getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration));
-
         return info;
     }
 
@@ -65,7 +58,7 @@ public class SecurityAccessorInfoFactory {
         SecurityAccessorInfo info = from(securityAccessor);
         List<PropertySpec> propertySpecs = securityAccessor.getPropertySpecs();
 
-        TypedProperties actualTypedProperties = getPropertiesActualValue(securityAccessor);
+        TypedProperties actualTypedProperties = securityAccessorInfoFactory.getPropertiesActualValue(securityAccessor);
         boolean userHasViewPrivilege = securityAccessor.getKeyAccessorType().isCurrentUserAllowedToViewProperties("MDC");
         boolean userHasEditPrivilege = securityAccessor.getKeyAccessorType().isCurrentUserAllowedToEditProperties("MDC");
 
@@ -73,7 +66,7 @@ public class SecurityAccessorInfoFactory {
         MdcPropertyUtils.PrivilegePresence withoutPrivileges = userHasViewPrivilege ? WITH_PRIVILEGES : WITHOUT_PRIVILEGES;
         info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties, valueVisibility, withoutPrivileges);
 
-        TypedProperties tempTypedProperties = getPropertiesTempValue(securityAccessor);
+        TypedProperties tempTypedProperties = securityAccessorInfoFactory.getPropertiesTempValue(securityAccessor);
         info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties, valueVisibility, withoutPrivileges);
         return info;
     }
@@ -89,36 +82,14 @@ public class SecurityAccessorInfoFactory {
         return info;
     }
 
-    public SecurityAccessorInfo asCertificate(SecurityAccessor<?> securityAccessor, PropertyValuesResourceProvider aliasTypeAheadPropertyValueProvider, PropertyDefaultValuesProvider trustStoreValuesProvider) {
-        List<PropertySpec> propertySpecs = securityAccessor.getPropertySpecs();
-        SecurityAccessorInfo info = from(securityAccessor);
-        TypedProperties actualTypedProperties = getPropertiesActualValue(securityAccessor);
-
-        info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
-        info.currentProperties.sort((PropertyInfo info1, PropertyInfo info2) -> info1.key.equals("trustStore") ? -1 : 0);
-
-        TypedProperties tempTypedProperties = getPropertiesTempValue(securityAccessor);
-        info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
-        info.tempProperties.sort((PropertyInfo info1, PropertyInfo info2) -> info1.key.equals("trustStore") ? -1 : 0);
-
-        if (securityAccessor instanceof CertificateAccessor) {
-            ((CertificateAccessor) securityAccessor).getActualValue()
-                    .ifPresent(cw -> cw.getLastReadDate().ifPresent(date -> info.lastReadDate = date));
-        }
+    public SecurityAccessorInfo asCertificate(SecurityAccessor<?> securityAccessor,
+                                              PropertyValuesResourceProvider aliasTypeAheadPropertyResourceProvider,
+                                              PropertyDefaultValuesProvider trustStoreValuesProvider) {
+        SecurityAccessorInfo info = securityAccessorInfoFactory.asCertificate(securityAccessor, aliasTypeAheadPropertyResourceProvider, trustStoreValuesProvider);
+        info.status = thesaurus.getFormat(securityAccessor.getStatus()).format();
+        info.canGeneratePassiveKey = KeyAccessorStatus.COMPLETE.equals(securityAccessor.getStatus());
+        // TODO NOW: fill in 'editable' flag
 
         return info;
     }
-
-    private TypedProperties getPropertiesTempValue(SecurityAccessor<?> securityAccessor) {
-        TypedProperties tempTypedProperties = TypedProperties.empty();
-        securityAccessor.getTempValue().ifPresent(ka -> ka.getProperties().forEach(tempTypedProperties::setProperty));
-        return tempTypedProperties;
-    }
-
-    private TypedProperties getPropertiesActualValue(SecurityAccessor<?> securityAccessor) {
-        TypedProperties actualTypedProperties = TypedProperties.empty();
-        securityAccessor.getActualValue().ifPresent(ka -> ka.getProperties().forEach(actualTypedProperties::setProperty));
-        return actualTypedProperties;
-    }
-
 }

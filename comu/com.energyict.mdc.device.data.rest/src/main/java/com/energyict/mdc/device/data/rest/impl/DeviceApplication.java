@@ -60,6 +60,8 @@ import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
+import com.energyict.mdc.device.configuration.rest.SecurityAccessorResourceHelper;
+import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -177,7 +179,9 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile IssueInfoFactoryService issueInfoFactoryService;
     private volatile OrmService ormService;
     private volatile com.elster.jupiter.tasks.TaskService tskService;
-
+    private volatile SecurityAccessorResourceHelper securityAccessorResourceHelper;
+    private volatile com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory securityAccessorInfoFactory;
+    private volatile TrustStoreValuesProvider trustStoreValuesProvider;
 
     private volatile RegisteredDevicesKpiService registeredDevicesKpiService;
 
@@ -399,6 +403,21 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setMdcPropertyUtils(MdcPropertyUtils mdcPropertyUtils) {
         this.mdcPropertyUtils = mdcPropertyUtils;
+    }
+
+    @Reference
+    public void setSecurityAccessorResourceHelper(SecurityAccessorResourceHelper securityAccessorResourceHelper) {
+        this.securityAccessorResourceHelper = securityAccessorResourceHelper;
+    }
+
+    @Reference
+    public void setSecurityAccessorInfoFactory(com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory securityAccessorInfoFactory) {
+        this.securityAccessorInfoFactory = securityAccessorInfoFactory;
+    }
+
+    @Reference
+    public void setTrustStoreValuesProvider(TrustStoreValuesProvider trustStoreValuesProvider) {
+        this.trustStoreValuesProvider = trustStoreValuesProvider;
     }
 
     @Override
@@ -689,6 +708,9 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(issueActionService).to(IssueActionService.class);
             bind(issueInfoFactoryService).to(IssueInfoFactoryService.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
+            bind(securityAccessorResourceHelper).to(SecurityAccessorResourceHelper.class);
+            bind(securityAccessorInfoFactory).to(com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory.class);
+            bind(trustStoreValuesProvider).to(TrustStoreValuesProvider.class);
         }
     }
 }
