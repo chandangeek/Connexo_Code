@@ -4,7 +4,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
-import aQute.bnd.annotation.ConsumerType;
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.Optional;
 import java.util.Set;
@@ -18,7 +18,7 @@ import java.util.Set;
  * map keys to SecurityAccessorType by name, that is, the keys from the shipment file will be labelled, the label matches the
  * name of a SecurityAccessor.
  */
-@ConsumerType
+@ProviderType
 public interface SecurityAccessorType extends HasId, HasName  {
 
     /**
@@ -79,6 +79,8 @@ public interface SecurityAccessorType extends HasId, HasName  {
 
     void delete();
 
+    boolean isManagedCentrally();
+
     interface Builder {
         /**
          * Provide a user understandable description of this key's function
@@ -94,7 +96,7 @@ public interface SecurityAccessorType extends HasId, HasName  {
         Builder keyEncryptionMethod(String keyEncryptionMethod);
 
         /**
-         * If a KeyAcccessorType with a KeyType of CryptographicType Certificate (sor subset) is being created, a
+         * If a KeyAccessorType with a KeyType of CryptographicType Certificate (sor subset) is being created, a
          * TrustStore needs to be linked to the KeyAccessorType. This allows the users of the certificate contained in
          * the value of this KeyAccessorType to be validated against a specific TrustStore.
          * @param trustStore The trust by which a chain of trust for certificates for this KeyAccessor will be validated
@@ -102,9 +104,14 @@ public interface SecurityAccessorType extends HasId, HasName  {
         Builder trustStore(TrustStore trustStore);
 
         /**
-         * Symmetric keys require a durarion to be provided.
+         * Symmetric keys require a duration to be provided.
          */
         Builder duration(TimeDuration duration);
+
+        /**
+         * Makes this type of security accessors managed centrally.
+         */
+        Builder managedCentrally();
 
         SecurityAccessorType add();
     }

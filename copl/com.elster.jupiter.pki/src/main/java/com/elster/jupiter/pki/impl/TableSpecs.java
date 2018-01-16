@@ -12,8 +12,10 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.KeypairWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.impl.accessors.AbstractSecurityAccessorImpl;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
 import com.elster.jupiter.pki.impl.accessors.UserActionRecord;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
@@ -271,7 +273,7 @@ public enum TableSpecs {
                     .on(id)
                     .upTo(Version.version(10, 4))
                     .add();
-            table.primaryKey("PK_PKI_SECACCESSOR")
+            table.primaryKey("PK_PKI_SECACCESSORTYPE")
                     .on(id)
                     .since(Version.version(10, 4))
                     .previously(oldPrimaryKey)
@@ -325,8 +327,42 @@ public enum TableSpecs {
                     .previously(oldPrimaryKey)
                     .add();
         }
-    }
+    },
 
+    PKI_SECACCESSOR {
+        @Override
+        void addTo(DataModel dataModel, Encrypter encrypter) {
+            Table<SecurityAccessor> table = dataModel.addTable(name(), SecurityAccessor.class).since(version(10, 4));
+            table.map(AbstractSecurityAccessorImpl.IMPLEMENTERS);
+            Column keyAccessorType = table.column("SECACCESSORTYPE").number().notNull().add();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
+
+            Column actualCertificate = table.column("ACTUAL_CERT").number().add();
+            Column tempCertificate = table.column("TEMP_CERT").number().add();
+            table.column("SWAPPED")
+                    .bool()
+                    .map(AbstractSecurityAccessorImpl.Fields.SWAPPED.fieldName())
+                    .add();
+            table.addAuditColumns();
+
+            table.primaryKey("PK_PKI_SECACCESSOR").on(keyAccessorType).add();
+            table.foreignKey("FK_PKI_SECACC_2_TYPE")
+                    .on(keyAccessorType)
+                    .references(SecurityAccessorType.class)
+                    .map(AbstractSecurityAccessorImpl.Fields.KEY_ACCESSOR_TYPE.fieldName())
+                    .add();
+            table.foreignKey("FK_PKI_SECACC_2_ACT_CERT")
+                    .on(actualCertificate)
+                    .references(CertificateWrapper.class)
+                    .map(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName())
+                    .add();
+            table.foreignKey("FK_PKI_SECACC_2_TEMP_CERT")
+                    .on(tempCertificate)
+                    .references(CertificateWrapper.class)
+                    .map(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName())
+                    .add();
+        }
+    }
     ;
 
     abstract void addTo(DataModel component, Encrypter encrypter);

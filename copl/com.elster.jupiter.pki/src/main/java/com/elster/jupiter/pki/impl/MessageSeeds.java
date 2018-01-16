@@ -56,7 +56,10 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_TRUSTSTORE(1040, "noSuchTrustStore", "The trust store could not be found"),
     INVALID_DN(1041, "InvalidDN", "Invalid distinguished name encountered"),
     EXCESSIVE_TIME_DURATION(1042, Keys.EXCESSIVE_TIME_DURATION, "Validity period must be shorter than or equal to 30 years."),
-    VETO_TRUSTSTORE_DELETION(1043, "trustStoreXstillInUse", "Trust store {0} is still in use");
+    VETO_TRUSTSTORE_DELETION(1043, "trustStoreXstillInUse", "Trust store {0} is still in use"),
+    TEMP_VALUE_NOT_SET(1044, "NoTempValue", "The security accessor does not contain a temporary value"),
+    NO_ACTUAL_CERTIFICATE(1045, "NoActualCertificate", "Certificate renewal requires an actual value in order to create a distinguished name"),
+    ACTUAL_VALUE_NOT_SET(1046, "NoActualValue", "The security accessor does not contain an actual value");
 
     private final int number;
     private final String key;

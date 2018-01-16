@@ -60,6 +60,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     private Reference<TrustStore> trustStore = Reference.empty();
     private Set<SecurityAccessorUserAction> userActions = EnumSet.noneOf(SecurityAccessorUserAction.class);
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
+    private boolean managedCentrally;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -162,7 +163,6 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     public void delete() {
         eventService.postEvent(EventType.SECURITY_ACCESSOR_TYPE_VALIDATE_DELETE.topic(), this);
         userActionRecords.clear();
-//        save();
         dataModel.remove(this);
         eventService.postEvent(EventType.SECURITY_ACCESSOR_TYPE_DELETED.topic(), this);
     }
@@ -185,6 +185,10 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
 
     protected void setDuration(TimeDuration duration) {
         this.duration = duration;
+    }
+
+    protected void setManagedCentrally(boolean managedCentrally) {
+        this.managedCentrally = managedCentrally;
     }
 
     @Override
@@ -267,6 +271,11 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     @Override
     public String toString() {
         return getClass().getName() + ": " + name;
+    }
+
+    @Override
+    public boolean isManagedCentrally() {
+        return managedCentrally;
     }
 
     @Override

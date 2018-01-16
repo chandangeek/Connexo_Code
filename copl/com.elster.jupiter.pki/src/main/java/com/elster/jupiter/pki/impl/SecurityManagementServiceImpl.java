@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -34,6 +35,7 @@ import com.elster.jupiter.pki.PassphraseFactory;
 import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.PrivateKeyFactory;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
@@ -42,6 +44,8 @@ import com.elster.jupiter.pki.SymmetricAlgorithm;
 import com.elster.jupiter.pki.SymmetricKeyFactory;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.pki.impl.accessors.AbstractSecurityAccessorImpl;
+import com.elster.jupiter.pki.impl.accessors.CertificateAccessorImpl;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeBuilder;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
@@ -351,8 +355,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs(SecurityAccessorType securityAccessorType) {
-        switch (securityAccessorType.getKeyType().getCryptographicType()) {
+    public List<PropertySpec> getPropertySpecs(KeyType keyType, String keyEncryptionMethod) {
+        switch (keyType.getCryptographicType()) {
             case Certificate:
                 return getDataModel().getInstance(RequestableCertificateWrapperImpl.class).getPropertySpecs();
             case ClientCertificate:
@@ -360,14 +364,19 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
             case TrustedCertificate:
                 return getDataModel().getInstance(TrustedCertificateImpl.class).getPropertySpecs();
             case SymmetricKey:
-                return getSymmetricKeyFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
+                return getSymmetricKeyFactoryOrThrowException(keyEncryptionMethod).getPropertySpecs();
             case Passphrase:
-                return getPassphraseFactoryOrThrowException(securityAccessorType.getKeyEncryptionMethod()).getPropertySpecs();
+                return getPassphraseFactoryOrThrowException(keyEncryptionMethod).getPropertySpecs();
             case AsymmetricKey:
                 return Collections.emptyList(); // There is currently no need for visibility on asymmetric keys
             default:
                 throw new RuntimeException("A new case was added: implement it");
         }
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs(SecurityAccessorType securityAccessorType) {
+        return getPropertySpecs(securityAccessorType.getKeyType(), securityAccessorType.getKeyEncryptionMethod());
     }
 
     @Override
@@ -829,6 +838,43 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     @Override
     public Optional<SecurityAccessorType> findAndLockSecurityAccessorType(long id, long version) {
         return dataModel.mapper(SecurityAccessorType.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Optional<SecurityAccessor<? extends SecurityValueWrapper>> getDefaultValues(SecurityAccessorType securityAccessorType) {
+        if (securityAccessorType.isManagedCentrally()) {
+            return dataModel.mapper(SecurityAccessor.class).getOptional(securityAccessorType)
+                    .map(securityAccessor -> (SecurityAccessor<? extends SecurityValueWrapper>) securityAccessor);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public <T extends SecurityValueWrapper> SecurityAccessor<T> setDefaultValues(SecurityAccessorType securityAccessorType, T actualValue, T tempValue) {
+        switch (securityAccessorType.getKeyType().getCryptographicType()) {
+            case Certificate:
+            case ClientCertificate:
+            case TrustedCertificate:
+                if (actualValue instanceof CertificateWrapper && (tempValue == null || tempValue instanceof CertificateWrapper)) {
+                    AbstractSecurityAccessorImpl<T> certificateAccessor = (AbstractSecurityAccessorImpl<T>) dataModel.getInstance(CertificateAccessorImpl.class);
+                    certificateAccessor.init(securityAccessorType);
+                    certificateAccessor.setActualValue(actualValue);
+                    certificateAccessor.setTempValue(tempValue);
+                    Save.CREATE.save(dataModel, certificateAccessor);
+                    return certificateAccessor;
+                } else {
+                    throw new IllegalArgumentException("Wrong type of actual or temp value; must be " + CertificateWrapper.class.getSimpleName());
+                }
+            default:
+                throw new UnsupportedOperationException("It is only possible to set default values for certificate accessor type.");
+        }
+    }
+
+    @Override
+    public Optional<SecurityAccessor<? extends SecurityValueWrapper>> lockDefaultValues(SecurityAccessorType securityAccessorType, long version) {
+        return dataModel.mapper(SecurityAccessor.class)
+                .lockObjectIfVersion(version, securityAccessorType)
+                .map(securityAccessor -> (SecurityAccessor<? extends SecurityValueWrapper>) securityAccessor);
     }
 
     private class ClientCertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {

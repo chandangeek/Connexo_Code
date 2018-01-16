@@ -118,6 +118,13 @@ public interface SecurityManagementService {
      */
     PasswordTypeBuilder newPassphraseType(String name);
 
+    /**
+     * List the PropertySpecs that can be expected for the described Wrapper type
+     * @param keyType The key type describing the {@link CryptographicType}
+     * @param keyEncryptionMethod The key encryption type
+     * @return List of to-be-expected property specs
+     */
+    List<PropertySpec> getPropertySpecs(KeyType keyType, String keyEncryptionMethod);
 
     /**
      * List the PropertySpecs that can be expected for the described Wrapper type
@@ -428,6 +435,12 @@ public interface SecurityManagementService {
      * @return Locked security accessor type with given id & version if exists.
      */
     Optional<SecurityAccessorType> findAndLockSecurityAccessorType(long id, long version);
+
+    Optional<SecurityAccessor<? extends SecurityValueWrapper>> getDefaultValues(SecurityAccessorType securityAccessorType);
+
+    <T extends SecurityValueWrapper> SecurityAccessor<T> setDefaultValues(SecurityAccessorType securityAccessorType, T actualValue, T tempValue);
+
+    Optional<SecurityAccessor<? extends SecurityValueWrapper>> lockDefaultValues(SecurityAccessorType securityAccessorType, long version);
 
     interface PasswordTypeBuilder {
         PasswordTypeBuilder description(String description);
