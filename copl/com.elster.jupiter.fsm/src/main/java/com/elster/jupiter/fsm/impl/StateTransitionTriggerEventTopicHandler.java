@@ -9,6 +9,7 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.fsm.EndPointConfigurationReference;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
@@ -17,6 +18,7 @@ import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
+import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.properties.HasIdAndName;
 
 import com.github.oxo42.stateless4j.StateConfiguration;
@@ -24,8 +26,11 @@ import com.github.oxo42.stateless4j.StateMachine;
 import com.github.oxo42.stateless4j.StateMachineConfig;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +50,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-04 (10:40)
  */
-@Component(name="com.elster.jupiter.fsm.trigger", service = TopicHandler.class, immediate = true)
+@Component(name = "com.elster.jupiter.fsm.trigger", service = TopicHandler.class, immediate = true)
 @SuppressWarnings("unused")
 public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
 
@@ -54,13 +59,16 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     private volatile BpmService bpmService;
     private volatile StateTransitionPropertiesProvider usagePointProvider;
 
+    private final List<StateTransitionWebServiceClient> stateTransitionWebServiceClients = new ArrayList<>();
+
     // For OSGi purposes
     public StateTransitionTriggerEventTopicHandler() {
         super();
     }
 
     // For testing purposes
-    public StateTransitionTriggerEventTopicHandler(EventService eventService, BpmService bpmService, StateTransitionPropertiesProvider usagePointProvider) {
+    public StateTransitionTriggerEventTopicHandler(EventService eventService, BpmService bpmService,
+                                                   StateTransitionPropertiesProvider usagePointProvider) {
         this();
         this.setEventService(eventService);
         this.setBpmService(bpmService);
@@ -82,6 +90,19 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         this.usagePointProvider = usagePointProvider;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addStateTransitionWebServiceClient(StateTransitionWebServiceClient stateTransitionWebServiceClient) {
+        stateTransitionWebServiceClients.add(stateTransitionWebServiceClient);
+    }
+
+    public void removeStateTransitionWebServiceClient(StateTransitionWebServiceClient stateTransitionWebServiceClient) {
+        stateTransitionWebServiceClients.remove(stateTransitionWebServiceClient);
+    }
+
+    public List<StateTransitionWebServiceClient> getStateTransitionWebServiceClients() {
+        return Collections.unmodifiableList(this.stateTransitionWebServiceClients);
+    }
+
     @Override
     public String getTopicMatcher() {
         return EventType.TRIGGER_EVENT.topic();
@@ -95,9 +116,8 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     private void handle(StateTransitionTriggerEvent triggerEvent) {
         Optional<State> currentState = triggerEvent.getFiniteStateMachine().getState(triggerEvent.getSourceCurrentStateName());
         if (currentState.isPresent()) {
-            this.handle(triggerEvent, currentState.get(), bpmService, usagePointProvider);
-        }
-        else {
+            this.handle(triggerEvent, currentState.get(), bpmService, usagePointProvider, getStateTransitionWebServiceClients());
+        } else {
             this.logger.fine(ignoreEventMessageSupplier(triggerEvent));
         }
     }
@@ -106,26 +126,28 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         return () -> "Ignoring event '" + triggerEvent.getType().getSymbol() + "' for finite state machine '" + triggerEvent.getFiniteStateMachine().getName() + "' relating to source object '" + triggerEvent.getSourceId() + "' because current state '" + triggerEvent.getSourceCurrentStateName() + "' does not exist in the finite state machine definition";
     }
 
-    private void handle(StateTransitionTriggerEvent triggerEvent, State currentState, BpmService bpmService, StateTransitionPropertiesProvider usagePointProvider) {
-        this.handle(triggerEvent, new ActualState(currentState), bpmService, usagePointProvider);
+    private void handle(StateTransitionTriggerEvent triggerEvent, State currentState, BpmService bpmService,
+                        StateTransitionPropertiesProvider usagePointProvider,
+                        List<StateTransitionWebServiceClient> stateTransitionWebServiceClients) {
+        this.handle(triggerEvent, new ActualState(currentState), bpmService, usagePointProvider, stateTransitionWebServiceClients);
     }
 
-    private void handle(StateTransitionTriggerEvent triggerEvent, ActualState currentState, BpmService bpmService, StateTransitionPropertiesProvider usagePointProvider) {
+    private void handle(StateTransitionTriggerEvent triggerEvent, ActualState currentState, BpmService bpmService,
+                        StateTransitionPropertiesProvider usagePointProvider,
+                        List<StateTransitionWebServiceClient> stateTransitionWebServiceClients) {
         FiniteStateMachine finiteStateMachine = triggerEvent.getFiniteStateMachine();
         ActualStatesAndTriggers actualStatesAndTriggers = new ActualStatesAndTriggers(finiteStateMachine, triggerEvent.getSourceId(), triggerEvent.getSourceType());
-        StateMachineConfig<ActualState, Trigger> stateMachineConfiguration = this.configureStateMachine(actualStatesAndTriggers, bpmService, usagePointProvider);
+        StateMachineConfig<ActualState, Trigger> stateMachineConfiguration = this.configureStateMachine(actualStatesAndTriggers, bpmService, usagePointProvider, stateTransitionWebServiceClients);
         StateMachine<ActualState, Trigger> stateMachine = new StateMachine<>(currentState, stateMachineConfiguration);
         try {
             stateMachine.fire(actualStatesAndTriggers.get(triggerEvent.getType()));
             ActualState newState = stateMachine.getState();
             if (newState.equals(currentState)) {
                 this.logger.fine(() -> "Event '" + triggerEvent.getType().getSymbol() + "' did not cause a state change for source object '" + triggerEvent.getSourceId() + "' because current state '" + triggerEvent.getSourceCurrentStateName() + "'. The latter will remain in state '" + currentState.getName() + "'.");
-            }
-            else {
+            } else {
                 this.publishChange(currentState, newState, triggerEvent);
             }
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
             this.logger.fine(() -> "Ignoring event '" + triggerEvent.getType().getSymbol() + "' for finite state machine '" + triggerEvent.getFiniteStateMachine().getName() + "' relating to source object '" + triggerEvent.getSourceId() + "' because it is not allowed for current state '" + triggerEvent.getSourceCurrentStateName());
         }
     }
@@ -135,9 +157,12 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         changeEvent.publish();
     }
 
-    private StateMachineConfig<ActualState, Trigger> configureStateMachine(ActualStatesAndTriggers actualStatesAndTriggers, BpmService bpmService, StateTransitionPropertiesProvider usagePointProvider) {
+    private StateMachineConfig<ActualState, Trigger> configureStateMachine(ActualStatesAndTriggers actualStatesAndTriggers,
+                                                                           BpmService bpmService,
+                                                                           StateTransitionPropertiesProvider usagePointProvider,
+                                                                           List<StateTransitionWebServiceClient> stateTransitionWebServiceClients) {
         StateMachineConfig<ActualState, Trigger> configuration = new StateMachineConfig<>();
-        actualStatesAndTriggers.addToConfiguration(configuration, bpmService, usagePointProvider);
+        actualStatesAndTriggers.addToConfiguration(configuration, bpmService, usagePointProvider, stateTransitionWebServiceClients);
         return configuration;
     }
 
@@ -187,19 +212,19 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
             startProcess(processReference);
         }
 
-        private void startProcess(ProcessReference processReference){
-            if(sourceType.equals(DEVICE)){
+        private void startProcess(ProcessReference processReference) {
+            if (sourceType.equals(DEVICE)) {
                 Optional<BpmProcessDefinition> bpmProcess = bpmService.findBpmProcessDefinition(processReference.getStateChangeBusinessProcess()
                         .getId());
-                if(bpmProcess.isPresent() && isProcessAvailableForDeviceTransition(bpmProcess.get())){
+                if (bpmProcess.isPresent() && isProcessAvailableForDeviceTransition(bpmProcess.get())) {
                     Map<String, Object> expectedParams = new HashMap<>();
                     expectedParams.put("deviceId", usagePointProvider.getDeviceMRID(Long.valueOf(sourceId)));
                     bpmService.startProcess(bpmProcess.get(), expectedParams);
                 }
-            }else if(sourceType.equals(USAGEPOINT)){
+            } else if (sourceType.equals(USAGEPOINT)) {
                 Optional<BpmProcessDefinition> bpmProcess = bpmService.findBpmProcessDefinition(processReference.getStateChangeBusinessProcess()
                         .getId());
-                if(bpmProcess.isPresent() && isProcessAvailableForUsagePointTransition(bpmProcess.get())){
+                if (bpmProcess.isPresent() && isProcessAvailableForUsagePointTransition(bpmProcess.get())) {
                     Map<String, Object> expectedParams = new HashMap<>();
                     expectedParams.put("usagePointId", usagePointProvider.getUsagePointMRID(Long.valueOf(sourceId)));
                     bpmService.startProcess(bpmProcess.get(), expectedParams);
@@ -207,12 +232,12 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
             }
         }
 
-        private boolean isProcessAvailableForUsagePointTransition(BpmProcessDefinition bpmProcess){
+        private boolean isProcessAvailableForUsagePointTransition(BpmProcessDefinition bpmProcess) {
             return bpmProcess.getAssociation().equals(USAGEPOINT_ASSOCIATION) &&
                     usagePointProvider.areProcessPropertiesAvailableForUP(bpmProcess.getProperties(), Long.valueOf(sourceId));
         }
 
-        private boolean isProcessAvailableForDeviceTransition(BpmProcessDefinition bpmProcess){
+        private boolean isProcessAvailableForDeviceTransition(BpmProcessDefinition bpmProcess) {
             //noinspection unchecked
             return bpmProcess.getAssociation().equals(DEVICE_ASSOCIATION) &&
                     List.class.isInstance(bpmProcess.getProperties().get(PROCESS_KEY_DEVICE_STATES)) &&
@@ -224,6 +249,58 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
                                     .equals(String.valueOf(state.getId())));
         }
 
+    }
+
+    private abstract static class CallWebServiceClient {
+
+        private Logger logger = Logger.getLogger(StateTransitionTriggerEventTopicHandler.class.getName());
+        private final List<EndPointConfigurationReference> endPointConfigurationReferences;
+        private final String sourceId;
+        private final String sourceType;
+        private final State state;
+        private final List<StateTransitionWebServiceClient> stateTransitionWebServiceClients;
+        private static final String DEVICE = "com.energyict.mdc.device.data.Device";
+
+        CallWebServiceClient(List<StateTransitionWebServiceClient> stateTransitionWebServiceClients,
+                             List<EndPointConfigurationReference> endPointConfigurationReferences,
+                             String sourceId, State state, String sourceType) {
+            super();
+            this.sourceId = sourceId;
+            this.state = state;
+            this.endPointConfigurationReferences = new ArrayList<>(endPointConfigurationReferences);
+            this.stateTransitionWebServiceClients = stateTransitionWebServiceClients;
+            this.sourceType = sourceType;
+        }
+
+        void callAll() {
+            this.endPointConfigurationReferences.forEach(this::send);
+        }
+
+        protected abstract void send(EndPointConfigurationReference endPointConfigurationReference);
+
+        private void logCall(EndPointConfigurationReference endPointConfigurationReference) {
+            this.logger.fine(() -> "Calling web service client with endPointConfigurationId: " + endPointConfigurationReference.getStateChangeEndPointConfiguration().getId());
+        }
+
+        void sendOnEntry(EndPointConfigurationReference endPointConfigurationReference) {
+            this.logCall(endPointConfigurationReference);
+            callWebServiceClient(endPointConfigurationReference);
+        }
+
+        void sendOnExit(EndPointConfigurationReference endPointConfigurationReference) {
+            this.logCall(endPointConfigurationReference);
+            callWebServiceClient(endPointConfigurationReference);
+        }
+
+        private void callWebServiceClient(EndPointConfigurationReference endPointConfigurationReference) {
+            if (sourceType.equals(DEVICE)) {
+                stateTransitionWebServiceClients.stream()
+                        .filter(client -> client.getWebServiceName().equals(endPointConfigurationReference.getStateChangeEndPointConfiguration().getWebServiceName()))
+                        .forEach(stateTransitionWebServiceClient -> {
+                            stateTransitionWebServiceClient.call(Long.valueOf(sourceId), endPointConfigurationReference.getStateChangeEndPointConfiguration());
+                        });
+            }
+        }
     }
 
     private static class StartExternalProcessesOnEntry extends StartExternalProcesses {
@@ -245,6 +322,32 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         @Override
         protected void start(ProcessReference processReference) {
             this.startOnExit(processReference);
+        }
+    }
+
+    private static class CallWebServiceClientOnEntry extends CallWebServiceClient {
+        CallWebServiceClientOnEntry(List<StateTransitionWebServiceClient> stateTransitionWebServiceClients,
+                                    List<EndPointConfigurationReference> endPointConfigurationReferences,
+                                    String sourceId, State state, String sourceType) {
+            super(stateTransitionWebServiceClients, endPointConfigurationReferences, sourceId, state, sourceType);
+        }
+
+        @Override
+        protected void send(EndPointConfigurationReference endPointConfigurationReference) {
+            this.sendOnEntry(endPointConfigurationReference);
+        }
+    }
+
+    private static class CallWebServiceClientOnExit extends CallWebServiceClient {
+        CallWebServiceClientOnExit(List<StateTransitionWebServiceClient> stateTransitionWebServiceClients,
+                                   List<EndPointConfigurationReference> endPointConfigurationReferences,
+                                   String sourceId, State state, String sourceType) {
+            super(stateTransitionWebServiceClients, endPointConfigurationReferences, sourceId, state, sourceType);
+        }
+
+        @Override
+        protected void send(EndPointConfigurationReference endPointConfigurationReference) {
+            this.sendOnExit(endPointConfigurationReference);
         }
     }
 
@@ -296,6 +399,14 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
 
         private List<ProcessReference> getOnExitProcesses() {
             return this.state.getOnExitProcesses();
+        }
+
+        private List<EndPointConfigurationReference> getOnEntryEndPointConfigurations() {
+            return this.state.getOnEntryEndPointConfigurations();
+        }
+
+        private List<EndPointConfigurationReference> getOnExitEndPointConfigurations() {
+            return this.state.getOnExitEndPointConfigurations();
         }
 
         private List<StateTransition> getOutgoingStateTransitions() {
@@ -360,18 +471,14 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
             this.sourceType = sourceType;
             this.states = stateMachine.getStates().stream()
                     .map(ActualState::new)
-                    .collect(Collectors.toMap(
-                        ActualState::getId,
-                        Function.identity()));
+                    .collect(Collectors.toMap(ActualState::getId, Function.identity()));
             this.triggers = stateMachine
                     .getTransitions()
                     .stream()
                     .map(StateTransition::getEventType)
                     .map(Trigger::new)
                     .distinct()
-                    .collect(Collectors.toMap(
-                        Trigger::getId,
-                        Function.identity()));
+                    .collect(Collectors.toMap(Trigger::getId, Function.identity()));
         }
 
         private ActualState get(State state) {
@@ -382,17 +489,25 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
             return this.triggers.get(eventType.getId());
         }
 
-        private void addToConfiguration(StateMachineConfig<ActualState, Trigger> configuration, BpmService bpmService, StateTransitionPropertiesProvider usagePointProvider) {
-            this.states.values().forEach(s -> this.addToConfiguration(s, configuration, bpmService, usagePointProvider));
+        private void addToConfiguration(StateMachineConfig<ActualState, Trigger> configuration, BpmService bpmService,
+                                        StateTransitionPropertiesProvider usagePointProvider,
+                                        List<StateTransitionWebServiceClient> stateTransitionWebServiceClients) {
+            this.states.values().forEach(s -> this.addToConfiguration(s, configuration, bpmService, usagePointProvider, stateTransitionWebServiceClients));
         }
 
-        private void addToConfiguration(ActualState state, StateMachineConfig<ActualState, Trigger> configuration, BpmService bpmService, StateTransitionPropertiesProvider usagePointProvider) {
-            this.addToConfiguration(state, configuration.configure(state), bpmService, usagePointProvider);
+        private void addToConfiguration(ActualState state, StateMachineConfig<ActualState, Trigger> configuration,
+                                        BpmService bpmService, StateTransitionPropertiesProvider usagePointProvider,
+                                        List<StateTransitionWebServiceClient> stateTransitionWebServiceClients) {
+            this.addToConfiguration(state, configuration.configure(state), bpmService, usagePointProvider, stateTransitionWebServiceClients);
         }
 
-        private void addToConfiguration(ActualState state, StateConfiguration<ActualState, Trigger> configuration, BpmService bpmService, StateTransitionPropertiesProvider usagePointProvider) {
+        private void addToConfiguration(ActualState state, StateConfiguration<ActualState, Trigger> configuration,
+                                        BpmService bpmService, StateTransitionPropertiesProvider usagePointProvider,
+                                        List<StateTransitionWebServiceClient> stateTransitionWebServiceClients) {
             configuration.onEntry(() -> new StartExternalProcessesOnEntry(bpmService, usagePointProvider, state.getOnEntryProcesses(), this.sourceId, state.state, this.sourceType).startAll());
             configuration.onExit(() -> new StartExternalProcessesOnExit(bpmService, usagePointProvider, state.getOnExitProcesses(), this.sourceId, state.state, this.sourceType).startAll());
+            configuration.onEntry(() -> new CallWebServiceClientOnEntry(stateTransitionWebServiceClients, state.getOnEntryEndPointConfigurations(), this.sourceId, state.state, this.sourceType).callAll());
+            configuration.onExit(() -> new CallWebServiceClientOnExit(stateTransitionWebServiceClients, state.getOnExitEndPointConfigurations(), this.sourceId, state.state, this.sourceType).callAll());
             state.getOutgoingStateTransitions().forEach(t -> this.addToConfiguration(t, configuration));
         }
 
@@ -401,12 +516,10 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
                 configuration.permit(
                         this.get(transition.getEventType()),
                         this.get(transition.getTo()));
-            }
-            else {
+            } else {
                 // Transition to the same state
                 configuration.permitReentry(this.get(transition.getEventType()));
             }
         }
     }
-
 }
