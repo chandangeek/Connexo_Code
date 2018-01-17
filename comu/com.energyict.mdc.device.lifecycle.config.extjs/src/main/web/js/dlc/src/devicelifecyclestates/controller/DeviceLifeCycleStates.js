@@ -157,7 +157,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         record.set('onEntry', me.getProcessItemsFromStore(entryProcessesStore));
         record.set('onExit', me.getProcessItemsFromStore(exitProcessesStore));
         record.set('onEntryEndPointConfigurations', me.getProcessItemsFromStore(entryWebServicesStore));
-        record.set('onExitEndPointConfigurations ', me.getProcessItemsFromStore(exitWebServicesStore));
+        record.set('onExitEndPointConfigurations', me.getProcessItemsFromStore(exitWebServicesStore));
         if (me.fromAddTransition) {
             backUrl = router.getRoute('administration/devicelifecycles/devicelifecycle/transitions/add').buildUrl();
         } else if (me.fromEditTransition) {

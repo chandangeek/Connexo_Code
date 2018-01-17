@@ -224,9 +224,6 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                             columns: [
                                 {
                                     dataIndex: 'name',
-                                    renderer: function (value, metaData, record) {
-                                        return value + ' (' + record.get('version') + ')';
-                                    },
                                     flex: 1
                                 },
                                 {
@@ -302,9 +299,6 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                             columns: [
                                 {
                                     dataIndex: 'name',
-                                    renderer: function (value, metaData, record) {
-                                        return value + ' (' + record.get('version') + ')';
-                                    },
                                     flex: 1
                                 },
                                 {
@@ -404,7 +398,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                 var webServicesOnExitStore = this.down('#webServicesOnExitGrid').getStore();
                 if (webServicesOnExitStore.modelId !== record.getId()) {
                     webServicesOnExitStore.removeAll();
-                    Ext.each(record.get("onExitEndPointConfigurations "), function (webServices) {
+                    Ext.each(record.get("onExitEndPointConfigurations"), function (webServices) {
                         webServicesOnExitStore.add(webServices);
                     });
                     webServicesOnExitStore.modelId = record.getId();
