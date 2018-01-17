@@ -1142,47 +1142,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         }
     }
 
-    @Test(expected = DeviceConfigurationChangeException.class)
-    public void cannotChangeToADataLoggerEnabledConfig() {
-        Device device;
-
-        DeviceConfiguration secondDeviceConfiguration;
-        try (TransactionContext context = getTransactionService().getContext()) {
-            RegisterType registerType = getRegisterTypeForReadingType(readingTypeMRID1);
-            enhanceDeviceTypeWithRegisterTypes(this.deviceType, registerType);
-            DeviceType.DeviceConfigurationBuilder configBuilder1 = deviceType.newConfiguration("cannotChangeToADataLoggerEnabledConfig1");
-            configBuilder1.newNumericalRegisterSpec(registerType)
-                    .numberOfFractionDigits(0)
-                    .overflowValue(BigDecimal.valueOf(100000000L));
-            DeviceConfiguration firstDeviceConfiguration = configBuilder1.add();
-            firstDeviceConfiguration.activate();
-            DeviceType.DeviceConfigurationBuilder configBuilder2 = deviceType.newConfiguration("cannotChangeToADataLoggerEnabledConfig2");
-            configBuilder2.newNumericalRegisterSpec(registerType)
-                    .numberOfFractionDigits(0)
-                    .overflowValue(BigDecimal.valueOf(100000000L));
-            configBuilder2.dataloggerEnabled(true);
-            secondDeviceConfiguration = configBuilder2.add();
-            secondDeviceConfiguration.activate();
-
-            device = inMemoryPersistence.getDeviceService()
-                    .newDevice(firstDeviceConfiguration, "DeviceName", "RegularDevice", inMemoryPersistence.getClock()
-                            .instant());
-            device.save();
-            context.commit();
-        }
-        try {
-            Device modifiedDevice = inMemoryPersistence.getDeviceService()
-                    .changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion(), secondDeviceConfiguration
-                            .getId(), secondDeviceConfiguration.getVersion());
-        } catch (DeviceConfigurationChangeException e) {
-            if (e.getMessageSeed().equals(MessageSeeds.CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED)) {
-                throw e;
-            } else {
-                fail("Should have gotten an exception indicating that you can not change the config to a datalogger enabled config.");
-            }
-        }
-    }
-
     private ComTaskEnablement createComTaskEnablement(ComTask comTaskForTesting, DeviceConfiguration firstDeviceConfiguration, SecurityPropertySet firstSecurityPropertySet) {
         return firstDeviceConfiguration.enableComTask(comTaskForTesting, firstSecurityPropertySet)
                 .useDefaultConnectionTask(true)
