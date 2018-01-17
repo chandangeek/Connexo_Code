@@ -95,4 +95,8 @@ public class ExtendedRegisterChannelIndex {
     public ObisCode getObisCode() {
         return obisCode;
     }
+
+    public List<CapturedObject> getCaptureObjects() {
+        return captureObjects;
+    }
 }
