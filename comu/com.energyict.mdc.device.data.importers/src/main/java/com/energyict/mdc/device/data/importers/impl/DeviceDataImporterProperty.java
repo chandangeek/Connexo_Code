@@ -97,7 +97,7 @@ public enum DeviceDataImporterProperty {
                 throw new LocalizedFieldValidationException(MessageSeeds.CAN_NOT_BE_SPACE_OR_EMPTY,"properties." + delimiter.get().getName());
             }
             Optional<FileImporterProperty> numberFormat = properties.stream().filter(p -> NUMBER_FORMAT.isMatchKey(p.getName())).findFirst();
-            if (delimiter.isPresent() && numberFormat.isPresent()) {
+            if (delimiter.isPresent() && !"".equals(delimiter.get().getValue()) && numberFormat.isPresent()) {
                 char delimiterValue = ((String) delimiter.get().getValue()).charAt(0);
                 SupportedNumberFormat numberFormatValue = ((SupportedNumberFormat.SupportedNumberFormatInfo) numberFormat.get().getValue()).getFormat();
                 if (delimiterValue == numberFormatValue.getDecimalSeparator() ||

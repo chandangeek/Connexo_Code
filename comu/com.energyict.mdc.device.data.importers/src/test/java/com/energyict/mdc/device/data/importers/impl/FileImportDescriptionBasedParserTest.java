@@ -6,16 +6,19 @@ package com.energyict.mdc.device.data.importers.impl;
 
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.csvimport.FieldParser;
 import com.elster.jupiter.fileimport.csvimport.fields.CommonField;
 import com.elster.jupiter.fileimport.csvimport.fields.FileImportField;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.energyict.mdc.device.data.importers.impl.parsers.LiteralStringParser;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.junit.Before;
@@ -25,7 +28,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
@@ -35,8 +37,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FileImportDescriptionBasedParserTest {
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private DeviceDataImporterContext context;
     @Mock
@@ -61,7 +62,7 @@ public class FileImportDescriptionBasedParserTest {
     }
 
     private static class RepetitiveDescription implements FileImportDescription<RepetitiveRecord> {
-
+        private LiteralStringParser stringParser = new LiteralStringParser();
         private final RepetitiveRecord record;
 
         private RepetitiveDescription(RepetitiveRecord record) {
@@ -74,35 +75,37 @@ public class FileImportDescriptionBasedParserTest {
         }
 
         @Override
-        public List<FileImportField<?>> getFields(RepetitiveRecord record) {
-            List<FileImportField<?>> fields = new ArrayList<>();
-            LiteralStringParser stringParser = new LiteralStringParser();
-            fields.add(CommonField.withParser(stringParser)
+        public Map<String, FileImportField<?>> getFields(RepetitiveRecord record) {
+            Map<String, FileImportField<?>> fields = new LinkedHashMap<>();
+            fields.put("deviceIdentifier", CommonField.withParser(stringParser)
+                    .withName("Device Identifier")
                     .withSetter(record::setDeviceIdentifier)
                     .markMandatory()
                     .build());
-            fields.add(CommonField.withParser(stringParser)
+            fields.put("reading", CommonField.withParser(stringParser)
+                    .withName("Reading")
                     .withSetter(record::addReading)
                     .markMandatory()
                     .markRepetitive()
                     .build());
-            fields.add(CommonField.withParser(stringParser)
+            fields.put("value", CommonField.withParser(stringParser)
+                    .withName("Value")
                     .withSetter(record::addValue)
                     .markMandatory()
                     .markRepetitive()
                     .build());
             return fields;
         }
-    }
 
+        @Override
+        public Map<Class, FieldParser> getParsers() {
+            return Collections.singletonMap(String.class, stringParser);
+        }
+    }
 
     @Before
     public void beforeTest() {
-        reset(logger, context, thesaurus);
-        when(thesaurus.getFormat(any(TranslationKey.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
-        when(thesaurus.getFormat(any(MessageSeed.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
+        reset(logger, context);
         when(context.getThesaurus()).thenReturn(thesaurus);
     }
 
@@ -137,34 +140,44 @@ public class FileImportDescriptionBasedParserTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         RepetitiveRecord record = spy(new RepetitiveRecord());
         FileImportParser<FileImportRecord> parser = new FileImportDescriptionBasedParser(new FileImportDescription<RepetitiveRecord>() {
+            private LiteralStringParser stringParser = new LiteralStringParser();
+
             @Override
             public RepetitiveRecord getFileImportRecord() {
                 return record;
             }
 
             @Override
-            public List<FileImportField<?>> getFields(RepetitiveRecord record) {
-                List<FileImportField<?>> fields = new ArrayList<>();
-                LiteralStringParser stringParser = new LiteralStringParser();
-                fields.add(CommonField.withParser(stringParser)
+            public Map<String, FileImportField<?>> getFields(RepetitiveRecord record) {
+                Map<String, FileImportField<?>> fields = new LinkedHashMap<>();
+                fields.put("deviceIdentifier", CommonField.withParser(stringParser)
+                        .withName("Device Identifier")
                         .withSetter(record::setDeviceIdentifier)
                         .markMandatory()
                         .build());
-                fields.add(CommonField.withParser(stringParser)
+                fields.put("readingDate", CommonField.withParser(stringParser)
+                        .withName("Reading date")
                         .withSetter(record::setDeviceIdentifier)
                         .markMandatory()
                         .build());
-                fields.add(CommonField.withParser(stringParser)
+                fields.put("reading", CommonField.withParser(stringParser)
+                        .withName("Reading")
                         .withSetter(record::addReading)
                         .markMandatory()
                         .markRepetitive()
                         .build());
-                fields.add(CommonField.withParser(stringParser)
+                fields.put("value", CommonField.withParser(stringParser)
+                        .withName("Value")
                         .withSetter(record::addValue)
                         .markMandatory()
                         .markRepetitive()
                         .build());
                 return fields;
+            }
+
+            @Override
+            public Map<Class, FieldParser> getParsers() {
+                return Collections.singletonMap(String.class, stringParser);
             }
         });
         FileImportProcessor<FileImportRecord> processor = mock(FileImportProcessor.class);
@@ -184,28 +197,37 @@ public class FileImportDescriptionBasedParserTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         RepetitiveRecord record = spy(new RepetitiveRecord());
         FileImportParser<FileImportRecord> parser = new FileImportDescriptionBasedParser(new FileImportDescription<RepetitiveRecord>() {
+            private LiteralStringParser stringParser = new LiteralStringParser();
+
             @Override
             public RepetitiveRecord getFileImportRecord() {
                 return record;
             }
 
             @Override
-            public List<FileImportField<?>> getFields(RepetitiveRecord record) {
-                List<FileImportField<?>> fields = new ArrayList<>();
-                LiteralStringParser stringParser = new LiteralStringParser();
-                fields.add(CommonField.withParser(stringParser)
+            public Map<String, FileImportField<?>> getFields(RepetitiveRecord record) {
+                Map<String, FileImportField<?>> fields = new LinkedHashMap<>();
+                fields.put("deviceIdentifier", CommonField.withParser(stringParser)
+                        .withName("Device Identifier")
                         .withSetter(record::setDeviceIdentifier)
                         .markMandatory()
                         .build());
-                fields.add(CommonField.withParser(stringParser)
+                fields.put("reading", CommonField.withParser(stringParser)
+                        .withName("Reading")
                         .withSetter(record::addReading)
                         .markMandatory()
                         .build());
-                fields.add(CommonField.withParser(stringParser)
+                fields.put("value", CommonField.withParser(stringParser)
+                        .withName("Value")
                         .withSetter(record::addValue)
                         .markMandatory()
                         .build());
                 return fields;
+            }
+
+            @Override
+            public Map<Class, FieldParser> getParsers() {
+                return Collections.singletonMap(String.class, stringParser);
             }
         });
         FileImportProcessor<FileImportRecord> processor = mock(FileImportProcessor.class);
@@ -225,29 +247,39 @@ public class FileImportDescriptionBasedParserTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         RepetitiveRecord record = spy(new RepetitiveRecord());
         FileImportParser<FileImportRecord> parser = new FileImportDescriptionBasedParser(new FileImportDescription<RepetitiveRecord>() {
+            private LiteralStringParser stringParser = new LiteralStringParser();
+
             @Override
             public RepetitiveRecord getFileImportRecord() {
                 return record;
             }
 
             @Override
-            public List<FileImportField<?>> getFields(RepetitiveRecord record) {
-                List<FileImportField<?>> fields = new ArrayList<>();
-                LiteralStringParser stringParser = new LiteralStringParser();
-                fields.add(CommonField.withParser(stringParser)
+            public Map<String, FileImportField<?>> getFields(RepetitiveRecord record) {
+                Map<String, FileImportField<?>> fields = new LinkedHashMap<>();
+                fields.put("deviceIdentifier", CommonField.withParser(stringParser)
+                        .withName("Device Identifier")
                         .withSetter(record::setDeviceIdentifier)
                         .markMandatory()
                         .build());
-                fields.add(CommonField.withParser(stringParser)
+                fields.put("reading", CommonField.withParser(stringParser)
+                        .withName("Reading")
                         .withSetter(record::addReading)
                         .build());
-                fields.add(CommonField.withParser(stringParser)
+                fields.put("value1", CommonField.withParser(stringParser)
+                        .withName("Value1")
                         .withSetter(record::addValue)
                         .build());
-                fields.add(CommonField.withParser(stringParser)
+                fields.put("value2", CommonField.withParser(stringParser)
+                        .withName("Value2")
                         .withSetter(record::addValue)
                         .build());
                 return fields;
+            }
+
+            @Override
+            public Map<Class, FieldParser> getParsers() {
+                return Collections.singletonMap(String.class, stringParser);
             }
         });
         FileImportProcessor<FileImportRecord> processor = mock(FileImportProcessor.class);
@@ -259,5 +291,4 @@ public class FileImportDescriptionBasedParserTest {
         verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
         //assert no errors
     }
-
 }
