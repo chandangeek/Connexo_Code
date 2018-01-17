@@ -10,6 +10,7 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -176,6 +177,14 @@ public class ResourceHelper {
                         .withActualVersion(() -> getCurrentSecurityAccessorVersion(securityAccessorType))
                         .withActualParent(securityAccessorType::getVersion, securityAccessorType.getId())
                         .supplier());
+    }
+
+    public SecurityAccessor<? extends SecurityValueWrapper> lockSecurityAccessorOrThrowException(SecurityAccessorType securityAccessorType,
+                                                                                                 SecurityAccessorTypeInfo securityAccessorTypeInfo) {
+        if (securityAccessorTypeInfo.defaultValue == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "defaultValue");
+        }
+        return lockSecurityAccessorOrThrowException(securityAccessorType, securityAccessorTypeInfo.defaultValue.version);
     }
 
     public Long getCurrentSecurityAccessorTypeVersion(long id) {

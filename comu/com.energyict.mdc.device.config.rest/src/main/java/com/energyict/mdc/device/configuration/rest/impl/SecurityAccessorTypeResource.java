@@ -268,9 +268,8 @@ public class SecurityAccessorTypeResource {
         SecurityAccessorType updated = updater.complete();
         SecurityAccessorTypeInfo resultInfo = keyFunctionTypeInfoFactory.from(updated);
         if (updated.isManagedCentrally()) {
-            validateDefaultValuePresence(securityAccessorTypeInfo);
             SecurityAccessor<CertificateWrapper> certificateAccessor = (SecurityAccessor<CertificateWrapper>) resourceHelper
-                    .lockSecurityAccessorOrThrowException(updated, securityAccessorTypeInfo.defaultValue.version);
+                    .lockSecurityAccessorOrThrowException(updated, securityAccessorTypeInfo);
             boolean actualUpdated = wrapValidationExceptions(CURRENT_PROPERTIES_PATH,
                     () -> securityAccessorResourceHelper.updateActualCertificateIfNeeded(certificateAccessor, securityAccessorTypeInfo.defaultValue.currentProperties, true));
             boolean tempUpdated = wrapValidationExceptions(TEMP_PROPERTIES_PATH,
@@ -285,6 +284,48 @@ public class SecurityAccessorTypeResource {
 
     @DELETE
     @Transactional
+    @Path("/{id}/tempvalue")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.EDIT_SECURITY_ACCESSORS)
+    public Response clearTempValue(@PathParam("id") long id,
+                                   @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider,
+                                   SecurityAccessorTypeInfo securityAccessorTypeInfo) {
+        SecurityAccessorType securityAccessorType =
+                resourceHelper.lockSecurityAccessorTypeOrThrowException(id, securityAccessorTypeInfo.version, securityAccessorTypeInfo.name);
+        SecurityAccessorTypeInfo resultInfo = keyFunctionTypeInfoFactory.from(securityAccessorType);
+        if (securityAccessorType.isManagedCentrally()) {
+            SecurityAccessor<CertificateWrapper> certificateAccessor = (SecurityAccessor<CertificateWrapper>) resourceHelper
+                    .lockSecurityAccessorOrThrowException(securityAccessorType, securityAccessorTypeInfo);
+            certificateAccessor.clearTempValue();
+            resultInfo.defaultValue = securityAccessorInfoFactory.asCertificate(certificateAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
+        }
+        return Response.ok(resultInfo).build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{id}/swap")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.EDIT_SECURITY_ACCESSORS)
+    public Response swapCertificateValues(@PathParam("id") long id,
+                                          @BeanParam AliasTypeAheadPropertyValueProvider aliasTypeAheadPropertyValueProvider,
+                                          SecurityAccessorTypeInfo securityAccessorTypeInfo) {
+        SecurityAccessorType securityAccessorType =
+                resourceHelper.lockSecurityAccessorTypeOrThrowException(id, securityAccessorTypeInfo.version, securityAccessorTypeInfo.name);
+        SecurityAccessorTypeInfo resultInfo = keyFunctionTypeInfoFactory.from(securityAccessorType);
+        if (securityAccessorType.isManagedCentrally()) {
+            SecurityAccessor<CertificateWrapper> certificateAccessor = (SecurityAccessor<CertificateWrapper>) resourceHelper
+                    .lockSecurityAccessorOrThrowException(securityAccessorType, securityAccessorTypeInfo);
+            certificateAccessor.swapValues();
+            resultInfo.defaultValue = securityAccessorInfoFactory.asCertificate(certificateAccessor, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
+        }
+        return Response.ok(resultInfo).build();
+    }
+
+    @DELETE
+    @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
@@ -293,18 +334,10 @@ public class SecurityAccessorTypeResource {
         SecurityAccessorType keyFunctionType =
                 resourceHelper.lockSecurityAccessorTypeOrThrowException(id, securityAccessorTypeInfo.version, securityAccessorTypeInfo.name);
         if (keyFunctionType.isManagedCentrally()) {
-            validateDefaultValuePresence(securityAccessorTypeInfo);
-            SecurityAccessor securityAccessor =
-                    resourceHelper.lockSecurityAccessorOrThrowException(keyFunctionType, securityAccessorTypeInfo.defaultValue.version);
-            securityAccessor.delete();
+            resourceHelper.lockSecurityAccessorOrThrowException(keyFunctionType, securityAccessorTypeInfo)
+                    .delete();
         }
         keyFunctionType.delete();
         return Response.noContent().build();
-    }
-
-    private static void validateDefaultValuePresence(SecurityAccessorTypeInfo securityAccessorTypeInfo) {
-        if (securityAccessorTypeInfo.defaultValue == null) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "defaultValue");
-        }
     }
 }
