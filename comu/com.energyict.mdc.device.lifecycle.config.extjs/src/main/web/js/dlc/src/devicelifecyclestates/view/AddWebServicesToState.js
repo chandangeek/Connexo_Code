@@ -71,7 +71,6 @@ Ext.define('Dlc.devicelifecyclestates.view.AddWebServicesToState', {
 
         availableWebServices.getProxy().setExtraParam('stateId', me.stateId);
         me.callParent(arguments);
-        console.log(availableWebServices);
         if (availableWebServices) {
             availableWebServices.load(function(records, operation, success){
                if (success) {
