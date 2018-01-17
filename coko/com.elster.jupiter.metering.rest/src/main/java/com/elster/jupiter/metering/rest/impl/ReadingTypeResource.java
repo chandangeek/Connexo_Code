@@ -483,9 +483,9 @@ public class ReadingTypeResource {
     private Condition getReadingTypeFilterCondition(String dbSearchText) {
         String regex = "*" + dbSearchText.replace(" ", "*") + "*";
         return Where.where("fullAliasName").likeIgnoreCase(regex)
-                .and(mrIdMatchOfNormalRegisters()
+                .and((mrIdMatchOfNormalRegisters()
                         .or(mrIdMatchOfBillingRegisters())
-                        .or(mrIdMatchOfPeriodRelatedRegisters()));
+                        .or(mrIdMatchOfPeriodRelatedRegisters())));
     }
 
     private Condition mrIdMatchOfPeriodRelatedRegisters() {
