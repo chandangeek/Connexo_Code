@@ -22,19 +22,18 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -63,9 +62,11 @@ public class A1860 extends AbstractDlmsProtocol {
     private A1860StoredValues storedValues;
     private HHUSignOnV2 hhuSignOn;
     private OfflineDevice offlineDevice;
+    private final NlsService nlsService;
 
-    public A1860(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public A1860(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService) {
         super(propertySpecService, collectedDataFactory, issueFactory);
+        this.nlsService = nlsService;
     }
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("1.0.96.1.0.255");
@@ -82,7 +83,7 @@ public class A1860 extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList(new NoParamsDeviceProtocolDialect());
+        return Collections.singletonList(new NoParamsDeviceProtocolDialect(getNlsService()));
     }
 
     @Override
@@ -243,5 +244,9 @@ public class A1860 extends AbstractDlmsProtocol {
     @Override
     public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return null;
+    }
+
+    public NlsService getNlsService() {
+        return nlsService;
     }
 }
