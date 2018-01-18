@@ -106,6 +106,9 @@ Ext.define('Mtr.controller.ReadingTypesGroup', {
             '#reading-types-set-bulk-action-button': {
                 click: this.showSetBulkAction
             },
+            '#reading-types-add-action-button-disabled-fileds': {  // lori CXO-8276
+                click: this.uploadAddForm
+            },
             'reading-types-action-menu': {
                 click: this.chooseAction
             },
@@ -149,6 +152,44 @@ Ext.define('Mtr.controller.ReadingTypesGroup', {
 
         addController.qString = router.getQueryStringValues();
         router.getRoute('administration/readingtypes/add').forward();
+    },
+
+    uploadAddForm: function () {   // lori CXO-8276
+        var router = this.getController('Uni.controller.history.Router'),
+            me = this,
+            addController = this.getController('Mtr.controller.AddReadingTypesInReadingTypesGroup');
+        gridView = me.getReadingTypesInGroupGrid().getView(),
+            record = gridView.getSelectionModel().getLastSelected();
+
+        var mRID = "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0";
+        if (record) {
+            mRID = record.get('mRID');
+        }
+
+        var cimValues = mRID.split(".").map(function (item, index) {
+            if (index == 5 || index == 4 || index == 6 || index == 16)
+                return parseInt(item, 10);
+            return 0;
+        });
+
+        mRID = cimValues.join('.');
+
+
+        addController.qString = router.getQueryStringValues();
+
+        //var queryString = Ext.String.urlAppend( router.getQueryStringValues(), "mRID=" + mRID);
+        // create a new route : administration/readingtypes/aliasName/readingtypes/add
+        router.getRoute('administration/readingtypes/readingtypes/add').forward({aliasName: router.arguments.aliasName},
+            {
+                mRID: mRID
+            });
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            view = Ext.widget('reading-types-in-group', {
+                router: router
+            });
+
+        me.fromDetail = true;
     },
 
     showReadingTypesGroupDetails: function (aliasName) {

@@ -4,7 +4,7 @@
 Ext.define('Mtr.controller.readingtypesgroup.processors.UnitProcessor', {
     extend: 'Mtr.controller.readingtypesgroup.processors.ComboProcessor',
 
-
+    disabledForLoad: false,
     isDisabled: function (measurementKind) {
         return measurementKind === null || measurementKind === this.NOT_APPLICABLE;
     },
@@ -15,7 +15,7 @@ Ext.define('Mtr.controller.readingtypesgroup.processors.UnitProcessor', {
             measurementKind = me.controller.getBasicMeasurementKind().getValue(),
             disabled = me.isDisabled(measurementKind);
 
-        combo.setDisabled(disabled);
+        combo.setDisabled(disabled || this.disabledForLoad);
         me.resetComboValue();
         if (!disabled) {
             combo.getStore().getProxy().setExtraParam('filter', measurementKind);

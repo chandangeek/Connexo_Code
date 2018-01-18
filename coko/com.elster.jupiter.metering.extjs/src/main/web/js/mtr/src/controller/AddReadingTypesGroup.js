@@ -123,7 +123,17 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
         {
             ref: 'tabPanel',
             selector: '#reading-types-add-group-tab-panel'
+        },
+        {
+            ref: 'specifyByRadioGroup',
+            selector: '#add-reading-types-group #specify-by-radiogroup'
+        },
+        {
+            ref: 'aliasName',
+            selector: '#add-reading-types-group  #alias-name'
         }
+
+
     ],
 
     qString: null,
@@ -164,12 +174,20 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
     showOverview: function () {
         var me = this,
             widget,
+            router = me.getController('Uni.controller.history.Router'),
             record = Ext.create('Mtr.model.AddReadingTypeGroup');
+        me.firstRun = true;
         widget = Ext.widget('add-reading-types-group');
+
+        if (router.arguments.aliasName) {
+            // me.getSpecifyByRadioGroup().setDisabled(!!router.arguments.aliasName);
+            record.set('aliasName', router.arguments.aliasName);
+            me.getAliasName().setDisabled(!!router.arguments.aliasName);
+
+        }
         widget.loadRecord(record);
         me.getApplication().fireEvent('changecontentevent', widget);
         me.preloadComboBoxes();
-
     },
 
     /**
@@ -177,7 +195,9 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
      * the Add Register Type page
      */
     preloadComboBoxes: function (){
-        var me = this;
+        var me = this,
+            router = me.getController('Uni.controller.history.Router')
+        ;
 
         if (!me.cimHandler) {
             me.cimHandler = Ext.create('Mtr.controller.readingtypesgroup.processors.CIMHandler', {});
@@ -187,8 +207,13 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
                 controller: me
             });
         }
+
         // All combos are linked to the commodity one. If commodity has a preload value,
         // it will tell all the other combos to process
+        // set flag for add with predifined values
+
+        var flag = !!(router.arguments.aliasName);
+        me.factory.getProcessor(me.getBasicCommodity()).disabledForLoad = flag;
         me.factory.getProcessor(me.getBasicCommodity()).process();
 
         // Need to set the controller value for all processors every time we get on the page
@@ -206,6 +231,7 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
         var me = this;
         if (me.firstRun) {
             me.firstRun = false;
+
             me.comboProcessors.push(me.factory.getProcessor(me.getBasicMeasurementKind()));
             me.comboProcessors.push(me.factory.getProcessor(me.getBasicFlowDirection()));
             me.comboProcessors.push(me.factory.getProcessor(me.getBasicMacroPeriod()));
@@ -221,10 +247,17 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
 
     basicCommodityChange: function (combo, commodity) {
         var me = this;
+        var router = me.getController('Uni.controller.history.Router');
+        var flag = !!(router.arguments.aliasName);
         me.getNoAdditionalParameters().setVisible(commodity === 0);
         me.registerProcessors();
+
+        me.factory.getProcessor(me.getBasicFlowDirection()).disabledForLoad = flag;
+        me.factory.getProcessor(me.getBasicMeasurementKind()).disabledForLoad = flag;
+        me.factory.getProcessor(me.getBasicUnit()).disabledForLoad = flag;
         me.comboProcessors.forEach(function (item){
-           item.process();
+
+            item.process();
         });
     },
 

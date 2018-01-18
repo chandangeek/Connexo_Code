@@ -29,7 +29,6 @@ Ext.define('Mtr.controller.history.Setup', {
                             action: 'showOverview'
                         },
                         bulk: {
-
                             title: Uni.I18n.translate('general.bulk', 'MTR', 'Bulk action'),
                             route: '{aliasName}/bulk',
                             controller: 'Mtr.controller.BulkAction',
@@ -42,7 +41,6 @@ Ext.define('Mtr.controller.history.Setup', {
                                 }, {single: true});
                                 return this;
                             }
-
                         },
                         view: {
                             title: Uni.I18n.translate('readingtypegroups.readingtypegroup', 'MTR', 'Reading type'),
@@ -64,6 +62,16 @@ Ext.define('Mtr.controller.history.Setup', {
                             controller: 'Mtr.controller.ReadingTypesGroup',
                             privileges: Mtr.privileges.ReadingTypes.admin,
                             action: 'showReadingTypesInGroup',
+                            items: {
+                                add: {  // lori add reading type in reading types {aliasName}
+                                    title: Uni.I18n.translate('readingtypes.readingTypes.add', 'MTR', 'Add reading type'),
+                                    route: 'add',
+                                    controller: 'Mtr.controller.AddReadingTypesGroup',
+                                    privileges: Mtr.privileges.ReadingTypes.admin,
+                                    action: 'showOverview'
+                                }
+                            },
+
                             callback: function (route) {
                                 this.getApplication().on('groupdetailsloaded', function (readingTypeGroupName) {
                                     route.setTitle(readingTypeGroupName);

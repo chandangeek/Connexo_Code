@@ -3,8 +3,13 @@
  */
 Ext.define('Mtr.controller.readingtypesgroup.processors.CommodityProcessor', {
     extend: 'Mtr.controller.readingtypesgroup.processors.ComboProcessor',
-
+    disabledForLoad: false,
     process: function(){
+        var me = this,
+            combo = me.getCombo();
+
+        combo.setDisabled(me.disabledForLoad);
+
         if (this.cloneValue){
             this.setComboValue();
         }

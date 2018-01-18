@@ -57,6 +57,13 @@ Ext.define('Mtr.view.ReadingTypesGrid', {
                         {
                             xtype: 'button',
                             privileges: Mtr.privileges.ReadingTypes.admin,
+                            action: 'add',
+                            itemId: 'reading-types-add-action-button-disabled-fileds',   // lori CXO-8276
+                            text: Uni.I18n.translate('readingtypes.readingTypes.add', 'MTR', 'Add reading type')
+                        },
+                        {
+                            xtype: 'button',
+                            privileges: Mtr.privileges.ReadingTypes.admin,
                             action: 'bulk',
                             itemId: 'reading-types-set-bulk-action-button',
                             text: Uni.I18n.translate('general.bulk', 'MTR', 'Bulk action')
