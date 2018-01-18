@@ -26,7 +26,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_USAGE_POINT_WITH_NAME(14, "NoUsagePointWithName", "No usage point with name {0}"),
     REQUIRED(15, "field.required", "This field is required"),
     READINGTYPE_ALREADY_EXISTS_IN_GROUP(16, "readingtype.alreadyExistsinGroup", "Reading type {0} already exists in group {1}."),
-    ALIAS_ALREADY_EXISTS(17, "readingtype.aliasAlreadyExists", "Alias {0} already exists.");
+    ALIAS_ALREADY_EXISTS(17, "readingtype.aliasAlreadyExists", "Alias {0} already exists."),
+    READINGTYPE_UPDATING_FAIL(18, "readingtype.updatingFail", "Failed updating reading types.");
 
     private final int number;
     private final String key;

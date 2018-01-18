@@ -13,21 +13,38 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ListPager;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -166,6 +183,28 @@ public class ReadingTypeResource {
                 .map(readingType -> readingTypeInfoFactory.from(Collections.singletonList(readingType)))
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
+
+    @GET
+    @Path("/groupinfo/{aliasName}")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response createBasicReadingTypeCount(@PathParam("aliasName") String aliasName) {
+
+        CreateReadingTypeInfo readingTypeInfo = new CreateReadingTypeInfo();
+
+        List<ReadingType> readingTypeInfos = meteringService.findReadingTypeByAlias(aliasName)
+                .stream()
+                .collect(Collectors.toList());
+        readingTypeInfo.aliasName = aliasName;
+        readingTypeInfo.commodity = readingTypeInfos.stream().map(x -> Integer.valueOf(x.getCommodity().getId())).distinct().collect(Collectors.toList());
+        readingTypeInfo.measurementKind = readingTypeInfos.stream().map(x -> Integer.valueOf(x.getMeasurementKind().getId())).distinct().collect(Collectors.toList());
+        readingTypeInfo.unit = readingTypeInfos.stream().map(x -> Integer.valueOf(x.getUnit().getId())).distinct().collect(Collectors.toList());
+        readingTypeInfo.flowDirection = readingTypeInfos.stream().map(x -> Integer.valueOf(x.getFlowDirection().getId())).distinct().collect(Collectors.toList());
+
+        return Response.ok().entity(readingTypeInfo).build();
+        //return createReadingTypeCount(CreateReadingTypeInfo.fromBasicCreateReadingTypeInfo(createBasicReadingTypeInfo), queryParameters);
+    }
+
 
     @GET
     @Path("/{mRID}/calculated")
