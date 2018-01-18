@@ -370,7 +370,9 @@ public class FileImportScheduleResource {
         propertiesSpecs
                 .forEach(spec -> {
                     Object value = propertyValueInfoService.findPropertyValue(spec, info.properties);
-                    importSchedule.setProperty(spec.getName(), value);
+                    if (value != null ) {
+                        importSchedule.setProperty(spec.getName(), value);
+                    }
                 });
     }
 
