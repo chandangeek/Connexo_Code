@@ -116,6 +116,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.upl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
