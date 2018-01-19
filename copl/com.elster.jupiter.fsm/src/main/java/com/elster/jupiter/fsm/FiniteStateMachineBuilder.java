@@ -77,6 +77,7 @@ public interface FiniteStateMachineBuilder {
      * Assists in building {@link State}s that will be added
      * to the main builder when completed.
      */
+    @ProviderType
     interface StateBuilder {
 
         /**
