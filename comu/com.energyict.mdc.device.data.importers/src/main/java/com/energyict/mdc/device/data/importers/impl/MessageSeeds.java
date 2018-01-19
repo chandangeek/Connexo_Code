@@ -18,6 +18,7 @@ public enum MessageSeeds implements MessageSeed {
     FILE_FORMAT_ERROR(5, "FileFormatError", "File format error: wrong number of columns in the line {0}. Importer service expects {1} but was {2}.", Level.SEVERE),
     LINE_MISSING_VALUE_ERROR(6, "LineMissingValueError", "Format error for line {0}: missing value for column ''{1}''.", Level.SEVERE),
     LINE_FORMAT_ERROR(7, "LineFormatError", "Format error for line {0}: wrong value format for column ''{1}'' (expected format = ''{2}'')", Level.SEVERE),
+    WRONG_LINE_SIZE(8, "HeaderSizeDoesNotMatchLineSize", "Format error for line {0}: header size doesn''t match line size", Level.SEVERE),
 
     NO_DEVICE_TYPE(101, "ImportProcessorNoDeviceType", "Can''t process line {0}: No device type found with name: {1}.", Level.WARNING),
     NO_DEVICE_CONFIGURATION(102, "ImportProcessorNoDeviceConfiguration", "Can''t process line {0}: No device configuration found with name: {1}.", Level.WARNING),
@@ -106,7 +107,29 @@ public enum MessageSeeds implements MessageSeed {
     ILLEGAL_KEY(537, "NoAValidPublicKey", "The key is not a valid public key: {0}", Level.SEVERE),
     DEVICE_WITH_NAME_DOES_NOT_EXIST(538, "NoDeviceWithName", "No device with name ''{0}'' could be found, skipped by importer", Level.WARNING),
     BOTH_VALUES_ALREADY_EXIST(539, "ActualAndPassiveAlreadyExist", "Can''t process device ''{1}'': security accessor ''{0}'' already has both 'active' and 'passive' values, skipped.", Level.WARNING),
-    ;
+    COULD_NOT_EXTRACT_SECURITY_ACCESSOR_TYPE(540, "CouldNotExtractSecurityAccessorType", "The security accessor type could not be extracted from the certificate {0}", Level.SEVERE),
+    COULD_NOT_EXTRACT_SERIAL_NUMBER(541, "CouldNotExtractSerialNumber", "The device serial number could not be extracted from the filename {0}", Level.SEVERE),
+    COULD_NOT_EXTRACT_CERTIFICATE_NAME(542, "CouldNotExtractCertificateName", "The certificate name could not be extracted from the filename {0}", Level.SEVERE),
+    CERTIFICATE_NO_SUCH_KEY_ACCESSOR_TYPE(543, "CertificateNoSuchKeyAccessorType", "Can''t process certificate {0}. The security key that starts with X is not available", Level.WARNING),
+    NO_SERIAL_NUMBER(544, "ImportZipProcessorNoMatchingDevice", "Can''t process serialNumber {0}: No device found: {1}.", Level.WARNING),
+    NO_READINGTYPE_ON_DEVICE(545, "NoReadingtypeOnDeviceX", "Can''t process line {0}: reading type {1} is not found on device {2}", Level.WARNING),
+    NO_CUSTOMATTRIBUTE_ON_DEVICE(546, "NoCustomAttributeOnDeviceX", "Can''t process line {0}: can''t find custom attribute set {1} on device {2}", Level.WARNING),
+    NO_CUSTOMATTRIBUTE_ON_READINGTYPE_OF_DEVICE(547, "NoCustomAttributeOnReadingTypeOfDeviceX", "Can''t process line {0}: can''t find custom attribute set {1} on reading type {2} of device {3}", Level.WARNING),
+    NO_CUSTOMATTRIBUTE_VERSION_ON_DEVICE(548, "NoCustomAttributeVersionOnDeviceX", "Can''t process line {0}:  custom attribute set version with start date {1} is not found on device {2}", Level.WARNING),
+    UNRESOLVABLE_CUSTOMATTRIBUTE_CONFLICT(549, "UnresolvableCustomAttributesConflict", "Can''t process line {0}:  conflict of versions is found for custom attribute set {1} but conflicts resolution is switched off on device {2}", Level.WARNING),
+    MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE_ON_DEVICE(550, "MissingRequiredCustomAttributeValueOnDeviceX", "Can''t process line {0}: attribute {1} is required on custom attribute set {2} on device {3}", Level.WARNING),
+    INVALID_RANGE(551, "InvalidRange", "Can''t process line {0}: start time exceeds end time of custom attribute set {1} on device {2}", Level.WARNING),
+    WRONG_QUANTITY_FORMAT(552, "WrongQuantitiyFormat", "Can''t process line {0}: wrong unit format for column {1}. Supported multipliers: {2}, supported units: {3}", Level.WARNING),
+    WRONG_ENUM_FORMAT(553, "WrongEnumFormat", "Can''t process line {0}: wrong enumeration value for column {1}. Possible values: {2}", Level.WARNING),
+    INVALID_CUSTIMATTRIBUTE_HEADER(554, "InvalidCustomAttributeFileHeader", "File should contain at least 3 columns separated by ''{0}''. Please check the delimiter.", Level.WARNING),
+    NO_ENDTIME_SPECIFIED(555, "NoEndtimeSpecified", "Can''t process line {0}: end time is not specified for new version of custom attribute set {1} on device {2}", Level.WARNING),
+    NO_STARTTIME_SPECIFIED(556, "NoStarttimeSpecified", "Can''t process line {0}: start time is not specified for new version of custom attribute set {1} on device {2}", Level.WARNING),
+
+    ATTRIBUTE_INVALID_VALUE(601, "AttributeInvalidValue", "Can''t process line {0}: Value ''{1}'' is invalid for attribute ''{2}''", Level.WARNING),
+    NO_DEVICE_PROTOCOL_DIALECT_ON_DEVICE(602, "NoSuchProtocolDialectOnDevice", "Can''t process line {0}: Protocol dialect ''{1}'' is not supported on the device.", Level.WARNING),
+    PROTOCOL_DIALECT_ATTRIBUTE_INVALID_VALUE(603, "ProtocolDialectAttributeInvalidValue", "Can''t process line {0}: Protocol dialect value ''{1}'' is invalid for attribute ''{2}''", Level.WARNING),
+    UNKNOWN_PROTOCOL_DIALECT_ATTRIBUTE(604, "UnknownProtocolDialectAttribute", "Note for file: Protocol dialect ''{0}'' doesn''t have following attribute(s): {1}", Level.INFO),
+    UNKNOWN_PROTOCOL_ATTRIBUTE(605, "UnknownProtocolAttribute", "Note for file: Device ''{0}'' doesn''t have following attribute(s): {1}", Level.INFO);
 
     private final int number;
     private final String key;

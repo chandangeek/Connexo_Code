@@ -19,6 +19,7 @@ import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImport
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
+import com.energyict.mdc.device.data.importers.impl.attributes.PropertySpecAwareConstraintViolationException;
 
 import javax.validation.ConstraintViolationException;
 import java.util.HashMap;

@@ -25,10 +25,9 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.LocationTemplateImpl;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -36,7 +35,6 @@ import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequiremen
 import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.parsers.DateParser;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
@@ -89,12 +87,9 @@ import static org.mockito.Mockito.withSettings;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceInstallationImporterFactoryTest {
-
     private DeviceDataImporterContext context;
     private LocationTemplate locationTemplate;
-
-    @Mock
-    private Thesaurus thesaurus;
+    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     @Mock
     private DataModel dataModel;
     @Mock
@@ -126,7 +121,7 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Before
     public void beforeTest() {
-        reset(logger, thesaurus, deviceService, topologyService, meteringService, deviceLifeCycleService, finiteStateMachineService);
+        reset(logger, deviceService, topologyService, meteringService, deviceLifeCycleService, finiteStateMachineService);
         this.setupTranslations();
         context = spy(new DeviceDataImporterContext());
         context.setDeviceService(deviceService);
@@ -171,10 +166,6 @@ public class DeviceInstallationImporterFactoryTest {
     }
 
     private void setupTranslations() {
-        when(thesaurus.getFormat(any(TranslationKey.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
-        when(thesaurus.getFormat(any(MessageSeed.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
         when(this.deviceLifeCycleConfigurationService.getDisplayName(any(DefaultState.class)))
                 .thenAnswer(invocationOnMock -> {
                     DefaultState state = (DefaultState) invocationOnMock.getArguments()[0];
@@ -346,7 +337,7 @@ public class DeviceInstallationImporterFactoryTest {
     @Test
     public void testBadDeviceName() {
         String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;countryCode;countryName;17;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;false;01/08/2015 00:30";
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -431,7 +422,7 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testBadMasterDeviceIdentifier() {
-        String csv = "name;installation date;countryCode;countryName;elevation;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
+        String csv = "name;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master name;usage point;service category;install inactive;start validation\n" +
                 "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;UP0001;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();

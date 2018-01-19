@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data.importers.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -12,6 +14,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
@@ -20,7 +23,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -42,8 +44,11 @@ public class DeviceDataImporterContext {
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile UserService userService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile SecurityManagementService securityManagementService;
+    private volatile FileImportService fileImportService;
     private volatile Clock clock;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile CustomPropertySetService customPropertySetService;
     private volatile DataModel dataModel;
 
     public DeviceDataImporterContext() {
@@ -61,8 +66,12 @@ public class DeviceDataImporterContext {
                                      FiniteStateMachineService finiteStateMachineService,
                                      UserService userService,
                                      ThreadPrincipalService threadPrincipalService,
+                                     SecurityManagementService securityManagementService,
+                                     FileImportService fileImportService,
                                      Clock clock,
-                                     MetrologyConfigurationService metrologyConfigurationService, OrmService ormService) {
+                                     MetrologyConfigurationService metrologyConfigurationService,
+                                     OrmService ormService,
+                                     CustomPropertySetService customPropertySetService) {
         setPropertySpecService(propertySpecService);
         setNlsService(nlsService);
         setDeviceConfigurationService(deviceConfigurationService);
@@ -74,9 +83,12 @@ public class DeviceDataImporterContext {
         setFiniteStateMachineService(finiteStateMachineService);
         setUserService(userService);
         setThreadPrincipalService(threadPrincipalService);
+        setSecurityManagementService(securityManagementService);
+        setFileImportService(fileImportService);
         setClock(clock);
         setMetrologyConfigurationService(metrologyConfigurationService);
         setOrmService(ormService);
+        setCustomPropertySetService(customPropertySetService);
     }
 
     public PropertySpecService getPropertySpecService() {
@@ -183,6 +195,15 @@ public class DeviceDataImporterContext {
         return threadPrincipalService;
     }
 
+    @Reference
+    public final void setSecurityManagementService(SecurityManagementService securityManagementService){
+        this.securityManagementService = securityManagementService;
+    }
+
+    public SecurityManagementService getSecurityManagementService() {
+        return securityManagementService;
+    }
+
     public Clock getClock() {
         return clock;
     }
@@ -204,4 +225,18 @@ public class DeviceDataImporterContext {
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
+
+    public CustomPropertySetService getCustomPropertySetService() {
+        return this.customPropertySetService;
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
+    public FileImportService getFileImportService(){return fileImportService;}
+
+    @Reference
+    public void setFileImportService(FileImportService fileImportService) { this.fileImportService =fileImportService;}
 }

@@ -6,7 +6,11 @@ package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.importers.impl.attributes.connection.ConnectionAttributesImportFactory;
+import com.energyict.mdc.device.data.importers.impl.attributes.protocoldialects.ProtocolDialectAttributesImportFactory;
+import com.energyict.mdc.device.data.importers.impl.attributes.protocols.ProtocolAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.attributes.security.SecurityAttributesImportFactory;
+import com.energyict.mdc.device.data.importers.impl.customattributes.CustomAttributesImportFactory;
+import com.energyict.mdc.device.data.importers.impl.certificatesimport.DeviceCertificatesImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.activation.DeviceActivationDeactivationImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.commission.DeviceCommissioningImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.decommission.DeviceDecommissioningImportFactory;
@@ -31,12 +35,14 @@ public enum TranslationKeys implements TranslationKey {
     IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS("ImportResultFailWithWarnAndErrors", "Failed to complete. {0} devices processed successfully of which {1} devices contain a note, {2} devices skipped due to errors."),
     IMPORT_RESULT_FAIL_WITH_WARN("ImportResultFailWithWarn", "Failed to complete. {0} devices processed successfully of which {1} devices contain a note."),
     IMPORT_RESULT_SUCCESS("ImportResultSuccess", "Finished successfully. {0} device(s) processed successfully."),
-    IMPORT_RESULT_SUCCESS_WITH_ERRORS("ImportResultSuccessWithErrors", "Finished successfully with (some) failures. {0} devices processed successfully, {1} devices skipped due to errors. "),
+    IMPORT_RESULT_SUCCESS_WITH_ERRORS("ImportResultSuccessWithErrors", "Finished successfully with (some) failures. {0} devices processed successfully, {1} devices skipped due to errors."),
     IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS("ImportResultSuccessWithWarnAndErrors", "Finished successfully with (some) failures and notes. {0} devices processed successfully of which {1} devices contain a note, {2} devices skipped due to errors."),
     IMPORT_RESULT_SUCCESS_WITH_WARN("ImportResultSuccessWithWarn", "Finished successfully with (some) note. {0} devices processed successfully of which {1} devices contain a note."),
     IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE("ImportDefaultProcessorErrorPrefix", "Can''t process line {0}: The device {1} can''t be processed: {2}"),
     IMPORT_MISSING_MANDATORY_PROCESSOR_ERROR_TEMPLATE("ImportMissingMandatoryProcessorErrorPrefix", "Can''t process line {0}: The device can''t be processed: property ''{1}'': {2}"),
     IMPORT_MISSING_MANDATORY_PROCESSOR_ERROR_PROPERTY_TEMPLATE("ImportMissingMandatoryProcessorErrorPrefixProperty", "Can''t process line {0}: The device can''t be processed: property ''{1}'': ''{2}'': {3}"),
+
+    IMPORT_ZIP_PROCESSOR_ERROR_TEMPLATE("ImportZipProcessorErrorPrefix", "Can''t process file {0}: The entry {1} can''t be processed: {2}"),
 
     READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED("ReadingsImportResultNoReadingsWereProcessed", "Failed to complete, no readings have been processed."),
     READINGS_IMPORT_RESULT_FAIL("ReadingsImportResultFail", "Failed to complete. {0} readings of {1} devices processed successfully."),
@@ -48,9 +54,21 @@ public enum TranslationKeys implements TranslationKey {
     READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS("ReadingsImportResultSuccessWithWarnAndErrors", "Finished successfully with (some) failures and notes. {0} readings of {1} devices processed successfully of which {2} readings contain a note, {3} readings of {4} devices skipped due to errors."),
     READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN("ReadingsImportResultSuccessWithWarn", "Finished successfully with (some) notes. {0} readings of {1} devices processed successfully of which {2} readings contain a note."),
 
+    CERTIFICATES_IMPORT_RESULT_NO_CERTIFICATES_WERE_PROCESSED("CertificatesImportImportResultNoCertificatesWereProcessed", "Failed to complete, no certificates have been processed."),
+    CERTIFICATES_IMPORT_RESULT_FAIL("CertificatesImportResultFail", "Failed to complete. {0} certificates of {1} devices processed successfully."),
+    CERTIFICATES_IMPORT_RESULT_FAIL_WITH_ERRORS("CertificatesImportResultFailWithErrors", "Failed to complete. {0} certificicates of {1} devices processed successfully, {2} certificicates of {3} devices skipped due to errors."),
+    CERTIFICATES_IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS("CertificatesImportResultFailWithWarnAndErrors", "Failed to complete. {0} certificates of {1} devices processed successfully of which {2} certificates contain a note, {3} certificates of {4} devices skipped due to errors."),
+    CERTIFICATES_IMPORT_RESULT_FAIL_WITH_WARN("CertificatesImportResultFailWithWarn", "Failed to complete. {0} certificates of {1} devices processed successfully of which {2} certificates contain a note."),
+    CERTIFICATES_IMPORT_RESULT_SUCCESS("CertificatesImportResultSuccess", "Finished successfully. {0} certificates of {1} device(s) processed successfully."),
+    CERTIFICATES_IMPORT_RESULT_SUCCESS_WITH_ERRORS("CertificatesImportResultSuccessWithErrors", "Finished successfully with (some) failures. {0} certificates of {1} devices processed successfully, {2} certificates of {3} devices skipped due to errors."),
+    CERTIFICATES_IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS("CertificatesImportResultSuccessWithWarnAndErrors", "Finished successfully with (some) failures and notes. {0} certificates of {1} devices processed successfully of which {2} certificates contain a note, {3} certificates of {4} devices skipped due to errors."),
+    CERTIFICATES_IMPORT_RESULT_SUCCESS_WITH_WARN("CertificatesImportResultSuccessWithWarn", "Finished successfully with (some) notes. {0} certificates of {1} devices processed successfully of which {2} certificates contain a note."),
+    CERTIFICATE_NO_SUCH_KEY_ACCESSOR_TYPE( "CertificateNoSuchKeyAccessorType", "Can''t process certificate {0}. The security key that starts with X is not available."),
+
+
     // Properties translations
     DEVICE_DATA_IMPORTER_DELIMITER("delimiter", "Delimiter"),
-    DEVICE_DATA_IMPORTER_DELIMITER_DESCRIPTION("delimiter", "The character that delimits the values for the different properties to import"),
+    DEVICE_DATA_IMPORTER_DELIMITER_DESCRIPTION("delimiter.description", "The character that delimits the values for the different properties to import"),
     DEVICE_DATA_IMPORTER_DATE_FORMAT("dateFormat", "Date format"),
     DEVICE_DATA_IMPORTER_DATE_FORMAT_DESCRIPTION("dateFormat.description", "The format that is used for date properties"),
     DEVICE_DATA_IMPORTER_TIMEZONE("timeZone", "Time zone"),
@@ -61,6 +79,9 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_DATA_IMPORTER_TRUSTSTORE_DESCRIPTION("truststore.description", "The trust store used to build a chain of trust for the certificate in the shipment file"),
     DEVICE_DATA_IMPORTER_PUBLICKEY("publickey", "Public key"),
     DEVICE_DATA_IMPORTER_PUBLICKEY_DESCRIPTION("publickey.description", "The public key to be used to verify the shipment file's signature. Only to be filled in if the shipment file signature does not contain a certificate"),
+
+    DEVICE_CERTIFICATES_IMPORTER_PUBLIC_KEY("publicKey","Public Key"),
+    DEVICE_CERTIFICATES_IMPORTER_PUBLIC_KEY_DESCRIPTION("publicKey.description","The public key needed to access the certificates"),
 
     MASTER_WILL_BE_OVERRIDDEN("MasterWillBeOverridden", "Note for line {0}: Master device (name: {1}) was overridden by new one (name: {2})"),
     NEW_USAGE_POINT_WILL_BE_CREATED("NewUsagePointWillBeCreated", "Note for line {0}: Usage point {1} is not found. New usage point was created based on Service Category value"),
@@ -77,14 +98,17 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_REMOVE_IMPORTER(DeviceRemoveImportFactory.NAME, "Devices remove importer [STD]"),
     DEVICE_CONNECTION_ATTRIBUTES_IMPORTER(ConnectionAttributesImportFactory.NAME, "Device connection attributes importer [STD]"),
     DEVICE_SECURITY_ATTRIBUTES_IMPORTER(SecurityAttributesImportFactory.NAME, "Device security attributes importer [STD]"),
+    DEVICE_COUSTOM_ATTRIBUTES_IMPORTER(CustomAttributesImportFactory.NAME, "Device custom attributes importer [STD]"),
+    DEVICE_CERTIFICATES_IMPORTER(DeviceCertificatesImporterFactory.NAME, "Certifcate importer [STD]"),
+    DEVICE_PROTOCOL_ATTRIBUTES_IMPORTER(ProtocolAttributesImportFactory.NAME, "Device protocol attributes importer [STD]"),
+    DEVICE_PROTOCOL_DIALECT_ATTRIBUTES_IMPORTER(ProtocolDialectAttributesImportFactory.NAME, "Device protocol dialect attributes importer [STD]"),
 
     STRING_FORMAT("StringFormat", "string"),
     NUMBER_FORMAT("NumberFormat", "number"),
     HEX_STRING_FORMAT("HexStringFormat", "hex string"),
     BOOLEAN_FORMAT("BooleanFormat", "boolean: 0 or 1"),
     INTEGER_FORMAT("IntegerFormat", "integer"),
-    OBIS_CODE_FORMAT("ObisCodeFormat", "obis code")
-    ;
+    OBIS_CODE_FORMAT("ObisCodeFormat", "obis code");
 
     private final String key;
     private final String defaultFormat;
