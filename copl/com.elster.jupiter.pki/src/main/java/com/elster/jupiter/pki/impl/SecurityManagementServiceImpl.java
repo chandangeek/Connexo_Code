@@ -862,6 +862,9 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
     @Override
     public <T extends SecurityValueWrapper> SecurityAccessor<T> setDefaultValues(SecurityAccessorType securityAccessorType, T actualValue, T tempValue) {
+        if (!securityAccessorType.isManagedCentrally()) {
+            throw new UnsupportedOperationException("Cannot set default values for security accessor type that is not managed centrally.");
+        }
         switch (securityAccessorType.getKeyType().getCryptographicType()) {
             case Certificate:
             case ClientCertificate:
