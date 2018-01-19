@@ -25,7 +25,6 @@ public interface StateTransitionWebServiceClient {
      *
      * @param id - business object id
      * @param endPointConfiguration - end point configuration
-     * @return true for success
      */
-    boolean call(long id, EndPointConfiguration endPointConfiguration);
+    void call(long id, EndPointConfiguration endPointConfiguration);
 }
