@@ -6,7 +6,6 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -104,17 +103,11 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
     }
 
     private void logInTransaction(LogLevel logLevel, String message) {
-        try (TransactionContext context = transactionService.getContext()) {
-            endPointConfiguration.log(logLevel, message);
-            context.commit();
-        }
+        endPointConfiguration.log(logLevel, message);
     }
 
     private void logInTransaction(String message, Exception exception) {
-        try (TransactionContext context = transactionService.getContext()) {
-            endPointConfiguration.log(message, exception);
-            context.commit();
-        }
+        endPointConfiguration.log(message, exception);
     }
 
     /**

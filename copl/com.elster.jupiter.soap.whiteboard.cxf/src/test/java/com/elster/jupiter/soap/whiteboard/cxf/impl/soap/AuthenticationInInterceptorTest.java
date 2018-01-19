@@ -114,7 +114,6 @@ public class AuthenticationInInterceptorTest {
         }
         verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: invalid credentials");
         verify(endPointConfiguration, never()).log(anyString(), any(Exception.class));
-        verify(context, atLeastOnce()).commit();
     }
 
     @Test
@@ -135,7 +134,6 @@ public class AuthenticationInInterceptorTest {
         }
         verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: not in role");
         verify(endPointConfiguration, never()).log(anyString(), any(Exception.class));
-        verify(context, atLeastOnce()).commit();
     }
 
     @Test
@@ -169,7 +167,6 @@ public class AuthenticationInInterceptorTest {
         }
         verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: invalid credentials");
         verify(endPointConfiguration, never()).log(anyString(), any(Exception.class));
-        verify(context, atLeastOnce()).commit();
     }
 
     @Test
@@ -189,8 +186,5 @@ public class AuthenticationInInterceptorTest {
             // This page left blank intentionally
         }
         verify(endPointConfiguration).log("Exception while logging in admin:", toBeThrown);
-        verify(context, atLeastOnce()).commit();
     }
-
-
 }

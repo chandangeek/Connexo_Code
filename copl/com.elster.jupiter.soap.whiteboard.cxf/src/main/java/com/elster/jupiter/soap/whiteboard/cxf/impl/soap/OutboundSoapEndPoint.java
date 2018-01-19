@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import javax.xml.ws.Service;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServiceFeature;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -106,7 +107,7 @@ public final class OutboundSoapEndPoint implements ManagedEndpoint {
                     endPointProvider.getService(),
                     port,
                     dict);
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException | WebServiceException e) {
             endPointConfiguration.log("Failed to publish endpoint", e);
             logger.log(Level.SEVERE, "Failed to publish endpoint: " + e.getMessage(), e);
         }
