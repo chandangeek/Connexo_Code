@@ -63,7 +63,6 @@ public class KeyAccessorTypeResource {
     @Path("/{keyAccessorTypeId}/renew")
     public Response renewKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
                              @Context UriInfo uriInfo) {
-
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
         SecurityAccessorType securityAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
