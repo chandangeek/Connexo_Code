@@ -35,6 +35,12 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
             return true;
         }
     },
+    BEACON_INBOUND("Beacon inbound event notification",
+            null,
+            Arrays.asList(LogBookTypeTpl.STANDARD_EVENT_LOG),
+            null,
+            null,
+            null),
     READ_ALL("Read all",
             Arrays.asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY, LoadProfileTypeTpl.DAILY_ELECTRICITY, LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
             Arrays.asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG),
@@ -83,7 +89,7 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
             null,
             null,
             null),
-    TOPOLOGY("Topology",
+    TOPOLOGY_VERIFY("Topology verify",
             null,
             null,
             null,

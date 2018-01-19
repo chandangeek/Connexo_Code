@@ -19,6 +19,8 @@ public class InboundComPortPoolBuilder extends NamedBuilder<InboundComPortPool, 
     private final EngineConfigurationService engineConfigurationService;
 
     private boolean isActive = false;
+    private String protocolPluggableClassName;
+    private ComPortType comPortType;
 
     @Inject
     public InboundComPortPoolBuilder(ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService) {
@@ -32,6 +34,16 @@ public class InboundComPortPoolBuilder extends NamedBuilder<InboundComPortPool, 
         return this;
     }
 
+    public InboundComPortPoolBuilder withInboundComPortPool(String protocolPluggableClass) {
+        this.protocolPluggableClassName = protocolPluggableClass;
+        return this;
+    }
+
+    public InboundComPortPoolBuilder withComPortType(ComPortType comPortType) {
+        this.comPortType = comPortType;
+        return this;
+    }
+
     @Override
     public Optional<InboundComPortPool> find() {
         return engineConfigurationService.findInboundComPortPoolByName(getName());
@@ -39,8 +51,8 @@ public class InboundComPortPoolBuilder extends NamedBuilder<InboundComPortPool, 
 
     @Override
     public InboundComPortPool create() {
-        InboundDeviceProtocolPluggableClass protocolPluggableClass = protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName("com.energyict.mdc.protocol.inbound.dlms.DlmsSerialNumberDiscover").get(0);
-        InboundComPortPool inboundComPortPool = engineConfigurationService.newInboundComPortPool(getName(), ComPortType.SERVLET, protocolPluggableClass, Collections.emptyMap());
+        InboundDeviceProtocolPluggableClass protocolPluggableClass = protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(protocolPluggableClassName).get(0);
+        InboundComPortPool inboundComPortPool = engineConfigurationService.newInboundComPortPool(getName(), comPortType, protocolPluggableClass, Collections.emptyMap());
         inboundComPortPool.setActive(isActive);
         inboundComPortPool.update();
         return inboundComPortPool;

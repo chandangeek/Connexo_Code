@@ -13,27 +13,7 @@ import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnection
 import com.elster.jupiter.demo.impl.builders.type.AttachDeviceTypeCPSPostBuilder;
 import com.elster.jupiter.demo.impl.commands.devices.CreateHANDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateSPEDeviceCommand;
-import com.elster.jupiter.demo.impl.templates.CalendarTpl;
-import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
-import com.elster.jupiter.demo.impl.templates.ComServerTpl;
-import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
-import com.elster.jupiter.demo.impl.templates.CommandRuleTpl;
-import com.elster.jupiter.demo.impl.templates.CreationRuleTpl;
-import com.elster.jupiter.demo.impl.templates.DataCollectionKpiTpl;
-import com.elster.jupiter.demo.impl.templates.DeviceDataQualityKpiTpl;
-import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
-import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
-import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
-import com.elster.jupiter.demo.impl.templates.InboundComPortPoolTpl;
-import com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl;
-import com.elster.jupiter.demo.impl.templates.LogBookTypeTpl;
-import com.elster.jupiter.demo.impl.templates.MetrologyConfigurationTpl;
-import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
-import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortTpl;
-import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
-import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
-import com.elster.jupiter.demo.impl.templates.UsagePointDataQualityKpiTpl;
-import com.elster.jupiter.demo.impl.templates.UsagePointGroupTpl;
+import com.elster.jupiter.demo.impl.templates.*;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
@@ -43,15 +23,11 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.ports.ComPortType;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -176,7 +152,10 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     }
 
     private void createComBackground() {
-        Builders.from(new InboundComPortPoolTpl(InboundComPortPoolTpl.INBOUND_SERVLET_POOL_NAME)).get();
+        Builders.from(new InboundComPortPoolTpl(InboundComPortPoolTpl.INBOUND_SERVLET_POOL_NAME, false,
+                "com.energyict.mdc.protocol.inbound.dlms.DlmsSerialNumberDiscover", ComPortType.SERVLET)).get();
+        Builders.from(new InboundComPortPoolTpl(InboundComPortPoolTpl.INBOUND_SERVLET_BEACON_PSK, true,
+                "com.energyict.mdc.protocol.inbound.g3.Beacon3100PushEventNotification", ComPortType.TCP)).get();
 
         ComServer comServer = Builders.from(ComServerTpl.DEITVS_099).get();
         Builders.from(OutboundTCPComPortTpl.OUTBOUND_TCP_1).withComServer(comServer).get();
@@ -188,6 +167,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
 
         Builders.from(OutboundTCPComPortPoolTpl.VODAFONE).get();
         Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get();
+        Builders.from(OutboundTCPComPortPoolTpl.OUTBOUND_TCP).get();
     }
 
     private void createRegisterTypes() {
@@ -223,9 +203,12 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         Builders.from(ComTaskTpl.READ_LOAD_PROFILE_DATA).get();
         Builders.from(ComTaskTpl.READ_REGISTER_DATA).get();
         Builders.from(ComTaskTpl.READ_LOG_BOOK_DATA).get();
-        Builders.from(ComTaskTpl.TOPOLOGY).get();
+        Builders.from(ComTaskTpl.TOPOLOGY_VERIFY).get();
+        Builders.from(ComTaskTpl.TOPOLOGY_UPDATE).get();
         Builders.from(ComTaskTpl.COMMANDS).get();
         Builders.from(ComTaskTpl.BASIC_CHECK).get();
+        Builders.from(ComTaskTpl.BEACON_INBOUND).get();
+        Builders.from(ComTaskTpl.READ_ALL).get();
     }
 
     private void createComSchedules() {
