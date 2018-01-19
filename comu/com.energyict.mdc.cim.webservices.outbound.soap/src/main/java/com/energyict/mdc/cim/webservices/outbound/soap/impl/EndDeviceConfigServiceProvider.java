@@ -6,8 +6,11 @@ package com.energyict.mdc.cim.webservices.outbound.soap.impl;
 
 import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 
+import org.apache.cxf.jaxws.JaxWsClientProxy;
+import org.apache.cxf.message.Message;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -15,7 +18,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
-import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.replymeterconfig.FaultMessage;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
@@ -23,6 +25,7 @@ import ch.iec.tc57._2011.replymeterconfig.MeterConfigPort;
 import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
 
 import javax.xml.ws.Service;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -67,8 +70,7 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
     }
 
     @Override
-    public boolean call(long id, EndPointConfiguration endPointConfiguration) {
-        MeterConfigResponseMessageType meterConfigResponseMessageType = null;
+    public void call(long id, EndPointConfiguration endPointConfiguration) {
         try {
             MeterConfigEventMessageType meterConfigEventMessageType = new MeterConfigEventMessageType();
             HeaderType header = cimMessageObjectFactory.createHeaderType();
@@ -83,10 +85,22 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
             replyType.setResult(ReplyType.Result.OK);
             meterConfigEventMessageType.setReply(replyType);
 
-            meterConfigResponseMessageType = stateMeterConfigPortServices.get(0).createdMeterConfig(meterConfigEventMessageType);
-        } catch (FaultMessage faultMessage) {
-            faultMessage.printStackTrace();
+            stateMeterConfigPortServices.stream()
+                    .filter(f -> getProxyFromMeterConfigPortService(f, endPointConfiguration.getUrl()))
+                    .findFirst()
+                    .ifPresent(meterConfigPort -> {
+                        try {
+                            meterConfigPort.createdMeterConfig(meterConfigEventMessageType);
+                        } catch (FaultMessage faultMessage) {
+                            endPointConfiguration.log(LogLevel.SEVERE, "");
+                        }
+                    });
+        } catch (RuntimeException ex) {
+            endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
         }
-        return meterConfigResponseMessageType == null;
+    }
+
+    private boolean getProxyFromMeterConfigPortService(MeterConfigPort meterConfigPort, String url) throws RuntimeException {
+        return url.contains((String) ((JaxWsClientProxy) (Proxy.getInvocationHandler(stateMeterConfigPortServices.get(0)))).getRequestContext().get(Message.ENDPOINT_ADDRESS));
     }
 }
