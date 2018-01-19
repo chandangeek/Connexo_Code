@@ -144,6 +144,8 @@ Ext.define('Mtr.controller.ReadingTypesGroup', {
 
         me.getGroupPreview().setTitle(Ext.String.htmlEncode(record.get('name')));
         me.getGroupPreviewForm().loadRecord(record);
+        me.getGroupPreview().down('readingTypesGroup-action-menu').record = record;
+
     },
 
     browseGroupAdd: function () {
@@ -207,6 +209,7 @@ Ext.define('Mtr.controller.ReadingTypesGroup', {
         groupModel.load(aliasName, {
             success: function (record) {
                 var detailsForm = view.down('readingTypesGroup-preview-form');
+                view.down('readingTypesGroup-action-menu').record = record;
                 me.getApplication().fireEvent('groupdetailsloaded', record.get('name'));
                 detailsForm.loadRecord(record);
             }
@@ -309,14 +312,14 @@ Ext.define('Mtr.controller.ReadingTypesGroup', {
     },
     chooseGroupAction: function (menu, item) {
         var me = this,
-            gridView = me.getReadingTypeGroupsGrid().getView(),
-            record = gridView.getSelectionModel().getLastSelected(),
-            model = me.getModel('Mtr.model.ReadingTypeGroup');
+            store = me.getStore('Mtr.store.ReadingTypesByAlias'),
+            record = menu.record;
 
         switch (item.action) {
             case 'edit':
                 me.msg = Uni.I18n.translate('readingtypesmanagment.saved', 'MTR', 'saved');
                 var editWindow = Ext.create('Mtr.view.EditAliasWindow');
+                editWindow.down('#edit-save-button').record = record;
                 editWindow.setTitle(Uni.I18n.translate('readingtypesmanagment.editalias', 'MTR', 'Edit {0}', record.get('name'), false));
                 editWindow.down('textfield').setValue(record.get('name'));
                 editWindow.show();
@@ -326,28 +329,26 @@ Ext.define('Mtr.controller.ReadingTypesGroup', {
 
     changeReadingGroup: function (action, record, aliasName) {
 
-        var me = this, callback,
+        var me = this,
             router = me.getController('Uni.controller.history.Router');
 
         var oldName = record.get('name');
 
-        callback = {
-            isNotEdit: true,
+        Ext.Ajax.request({
+            url: '/api/mtr/readingtypes/groups/' + oldName + '/' + aliasName,
+            method: 'PUT',
             success: function (response) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('readingtypesmanagment.readingTypeActivateDeactivate', 'MTR', 'Reading type {0}', [me.msg]));
                 router.getRoute('administration/readingtypes').forward(null,
                     router.getQueryStringValues()
                 );
             }
-        };
-        callback.url = '/api/mtr/readingtypes/groups/' + oldName + '/' + aliasName;
-        record.save(callback);
+        });
     },
-    changeAlias: function () {
+    changeAlias: function (button) {
         var me = this,
             aliasName = this.getReadingTypesEditAliasWindow().down('form').getValues().aliasName,
-            gridView = this.getReadingTypeGroupsGrid().getView(),
-            record = gridView.getSelectionModel().getLastSelected(),
+            record = button.record,
             action = 'edit';
         if (record.get('name') !== aliasName) {
             this.changeReadingGroup(action, record, aliasName);
