@@ -1065,9 +1065,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (getDeviceType().isDataloggerSlave()) {
             throw DeviceConfigurationChangeException.cannotChangeConfigOfDataLoggerSlave(thesaurus);
         }
-        if (destinationDeviceConfiguration.isDataloggerEnabled()) {
-            throw DeviceConfigurationChangeException.cannotchangeConfigToDataLoggerEnabled(thesaurus);
-        }
         if (getDeviceType().isMultiElementSlave()) {
             throw DeviceConfigurationChangeException.cannotChangeConfigOfMultiElementSubmeterDevice(thesaurus);
         }
@@ -1366,8 +1363,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Instant maximumPastEffectiveTimestamp = this.getDeviceType().getDeviceLifeCycle().getMaximumPastEffectiveTimestamp().atZone(this.clock.getZone())
                 .truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant maximumFutureEffectiveTimestamp = this.getDeviceType().getDeviceLifeCycle().getMaximumFutureEffectiveTimestamp();
-        if (koreHelper.getInitialMeterActivationStartDate().get().isBefore(maximumPastEffectiveTimestamp) ||
-                koreHelper.getInitialMeterActivationStartDate().get().isAfter(maximumFutureEffectiveTimestamp)) {
+        if (koreHelper.getInitialMeterActivationStartDate().get().isAfter(maximumFutureEffectiveTimestamp)) {
             throw new NoLifeCycleActiveAt(thesaurus, MessageSeeds.INVALID_SHIPMENT_DATE, koreHelper.getInitialMeterActivationStartDate()
                     .get(), maximumPastEffectiveTimestamp, maximumFutureEffectiveTimestamp);
         }

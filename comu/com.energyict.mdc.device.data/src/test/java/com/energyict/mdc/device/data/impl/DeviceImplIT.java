@@ -73,6 +73,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.metering.ReadingTypeInformation;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
@@ -216,7 +217,11 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .flow(FlowDirection.FORWARD)
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
-        this.averageForwardEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFrom(this.averageForwardEnergyReadingTypeMRID).get().getObisCode();
+        // averageForwardEnergyReadingTypeMRID doesn't map to an ObisCode. The F field is not matched because the MacroPeriod.DAILY F matcher is set to "DON'T CARE"(empty list)
+        // TODO: Investigate Matcher DONT_CARE logic
+        this.averageForwardEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFrom(this.averageForwardEnergyReadingTypeMRID)
+                .map(ReadingTypeInformation::getObisCode)
+                .orElse(null);
     }
 
     @Test

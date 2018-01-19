@@ -38,6 +38,7 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.metering.ReadingTypeInformation;
 
 import com.energyict.obis.ObisCode;
 
@@ -148,7 +149,10 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
                 .flow(FlowDirection.FORWARD)
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
-        inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFrom(averageForwardEnergyReadingTypeMRID).get().getObisCode();
+        // TODO: Why this call? Should the result be saved and used?
+        inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFrom(averageForwardEnergyReadingTypeMRID)
+                .map(ReadingTypeInformation::getObisCode)
+                .orElse(null);
     }
 
 
