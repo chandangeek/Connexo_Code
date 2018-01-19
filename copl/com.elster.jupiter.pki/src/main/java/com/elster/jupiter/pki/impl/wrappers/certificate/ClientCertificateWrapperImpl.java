@@ -15,7 +15,6 @@ import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.rest.util.ExceptionFactory;
 import org.bouncycastle.asn1.x500.X500Name;
 
 import javax.inject.Inject;
@@ -31,9 +30,8 @@ public class ClientCertificateWrapperImpl extends RequestableCertificateWrapperI
                                         Thesaurus thesaurus,
                                         PropertySpecService propertySpecService,
                                         EventService eventService,
-                                        ExceptionFactory exceptionFactory,
                                         SecurityManagementService securityManagementService) {
-        super(dataModel, thesaurus, propertySpecService, eventService, exceptionFactory, securityManagementService);
+        super(dataModel, thesaurus, propertySpecService, eventService, securityManagementService);
         this.dataModel = dataModel;
     }
 

@@ -22,8 +22,6 @@ import com.elster.jupiter.pki.impl.UniqueAlias;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 
@@ -97,8 +95,6 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     }
 
     private final Map<String, Integer> rdsOrder = new HashMap<>();
-    // TODO: why is it here? it is REST util
-    private final ExceptionFactory exceptionFactory;
 
     private long id;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -125,13 +121,11 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
                                           Thesaurus thesaurus,
                                           PropertySpecService propertySpecService,
                                           EventService eventService,
-                                          ExceptionFactory exceptionFactory,
                                           SecurityManagementService securityManagementService) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.eventService = eventService;
-        this.exceptionFactory = exceptionFactory;
         this.securityManagementService = securityManagementService;
     }
 
@@ -184,7 +178,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         } catch (CertificateEncodingException e) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.CERTIFICATE_ENCODING_EXCEPTION, e);
         } catch (InvalidNameException e) {
-            throw exceptionFactory.newException(MessageSeeds.INVALID_DN);
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.INVALID_DN, e);
         }
     }
 

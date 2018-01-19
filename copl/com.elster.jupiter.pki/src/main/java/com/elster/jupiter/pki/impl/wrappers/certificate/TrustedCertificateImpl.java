@@ -16,7 +16,6 @@ import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.rest.util.ExceptionFactory;
 
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
@@ -47,9 +46,8 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
                                   Thesaurus thesaurus,
                                   PropertySpecService propertySpecService,
                                   EventService eventService,
-                                  ExceptionFactory exceptionFactory,
                                   SecurityManagementService securityManagementService) {
-        super(dataModel, thesaurus, propertySpecService, eventService, exceptionFactory, securityManagementService);
+        super(dataModel, thesaurus, propertySpecService, eventService, securityManagementService);
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
     }
