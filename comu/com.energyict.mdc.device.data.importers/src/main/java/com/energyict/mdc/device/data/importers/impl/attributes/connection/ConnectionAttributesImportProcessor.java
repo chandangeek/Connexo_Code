@@ -216,6 +216,8 @@ public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileI
 
         void setKeyAccessor(String name, Object value) {
             SecurityAccessorType securityAccessorType = keyAccessorTypeGetter.apply(name);
+            securityManagementService.getDeviceSecretImporter(securityAccessorType); // to verify that security accessor type is supported by import
+            // TODO: try refactoring further code with DeviceSecretImporter
             SecurityAccessor<SecurityValueWrapper> securityAccessor = device.getSecurityAccessor(securityAccessorType)
                     .orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
             SecurityValueWrapper securityValueWrapper = securityAccessor.getActualValue()

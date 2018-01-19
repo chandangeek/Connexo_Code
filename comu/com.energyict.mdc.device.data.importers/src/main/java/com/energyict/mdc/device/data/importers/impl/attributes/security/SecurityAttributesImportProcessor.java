@@ -75,6 +75,8 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
                                     .getName()));
 
                     SecurityAccessorType securityAccessorType = securityProperty.getSecurityAccessorType();
+                    securityManagementService.getDeviceSecretImporter(securityAccessorType); // to verify that security accessor type is supported by import
+                    // TODO: try refactoring further code with DeviceSecretImporter
                     SecurityAccessor<SecurityValueWrapper> securityAccessor = device.getSecurityAccessor(securityAccessorType)
                             .orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
                     if (!securityAccessor.getActualValue().isPresent()) {

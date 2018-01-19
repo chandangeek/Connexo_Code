@@ -244,10 +244,11 @@ public class SecureDeviceShipmentImporter implements FileImporter {
 
             DeviceSecretImporter deviceSecretImporter = securityManagementService.getDeviceSecretImporter(securityAccessorType);
 
-            if (device.getSecurityAccessor(securityAccessorType).isPresent() && device.getSecurityAccessor(securityAccessorType).get().getActualValue().isPresent()) {
+            Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(securityAccessorType);
+            if (securityAccessorOptional.flatMap(SecurityAccessor::getActualValue).isPresent()) {
                 log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
             } else {
-                SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType).orElseGet(()->device.newSecurityAccessor(securityAccessorType));
+                SecurityAccessor securityAccessor = securityAccessorOptional.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
                 SecurityValueWrapper newWrapperValue = deviceSecretImporter.importSecret(encryptedDeviceKey, initializationVector, encryptedSymmetricKey, symmetricAlgorithm, asymmetricAlgorithm);
                 securityAccessor.setActualValue(newWrapperValue);
                 securityAccessor.save();

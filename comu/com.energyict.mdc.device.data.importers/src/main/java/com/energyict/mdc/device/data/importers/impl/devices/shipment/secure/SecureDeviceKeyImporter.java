@@ -240,22 +240,22 @@ public class SecureDeviceKeyImporter implements FileImporter {
             System.arraycopy(encryptedDeviceKey, 0, initializationVector, 0, 16);
             System.arraycopy(encryptedDeviceKey, 16, cipher, 0, encryptedDeviceKey.length - 16);
 
-
-            boolean hasActiveValue = device.getSecurityAccessor(securityAccessorType)
+            Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(securityAccessorType);
+            boolean hasActiveValue = securityAccessorOptional
                     .flatMap(SecurityAccessor::getActualValue)
                     .isPresent();
-            boolean hasPassiveValue = device.getSecurityAccessor(securityAccessorType)
+            boolean hasPassiveValue = securityAccessorOptional
                     .flatMap(SecurityAccessor::getTempValue)
                     .isPresent();
             if (hasActiveValue && hasPassiveValue) {
                 log(logger, MessageSeeds.BOTH_VALUES_ALREADY_EXIST, securityAccessorName, device.getName());
             } else {
-                SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType).orElseGet(()->device.newSecurityAccessor(securityAccessorType));
+                SecurityAccessor securityAccessor = securityAccessorOptional.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
                 SecurityValueWrapper newWrapperValue = deviceSecretImporter.importSecret(encryptedDeviceKey, initializationVector, encryptedSymmetricKey, symmetricAlgorithm, asymmetricAlgorithm);
-                if (!hasActiveValue) {
-                    securityAccessor.setActualValue(newWrapperValue);
-                } else {
+                if (hasActiveValue) {
                     securityAccessor.setTempValue(newWrapperValue);
+                } else {
+                    securityAccessor.setActualValue(newWrapperValue);
                 }
                 securityAccessor.save();
             }
