@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.GeneralPreview', {
     itemId: 'device-register-configuration-general-preview',
 
     requires: [
-        'Mdc.view.setup.deviceregisterconfiguration.ActionMenu'
+        'Mdc.view.setup.deviceregisterconfiguration.ActionMenu',
+        'Mdc.util.LinkPurpose'
     ],
 
     frame: true,
@@ -21,7 +22,10 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.GeneralPreview', {
             }
         }
     ],
-    linkPurpose: Mdc.util.LinkPurpose.NOT_APPLICABLE
+    // Make sure the Mdc.Util.LinkPurpose is defined when this class is loaded
+    linkPurpose: function(){
+        return Ext.ClassManager.getByAlias('LinkPurpose').NOT_APPLICABLE;
+    }
 });
 
 
