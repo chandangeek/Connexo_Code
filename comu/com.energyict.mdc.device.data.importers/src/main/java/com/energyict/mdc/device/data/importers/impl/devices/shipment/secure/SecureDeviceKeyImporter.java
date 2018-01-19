@@ -241,16 +241,14 @@ public class SecureDeviceKeyImporter implements FileImporter {
             System.arraycopy(encryptedDeviceKey, 16, cipher, 0, encryptedDeviceKey.length - 16);
 
 
-            boolean hasActiveValue = device.getSecurityAccessor(securityAccessorType).isPresent() && device.getSecurityAccessor(securityAccessorType)
-                    .get()
-                    .getActualValue()
+            boolean hasActiveValue = device.getSecurityAccessor(securityAccessorType)
+                    .flatMap(SecurityAccessor::getActualValue)
                     .isPresent();
-            boolean hasPassiveValue = device.getSecurityAccessor(securityAccessorType).isPresent() && device.getSecurityAccessor(securityAccessorType)
-                    .get()
-                    .getTempValue()
+            boolean hasPassiveValue = device.getSecurityAccessor(securityAccessorType)
+                    .flatMap(SecurityAccessor::getTempValue)
                     .isPresent();
             if (hasActiveValue && hasPassiveValue) {
-                log(logger, MessageSeeds.BOTH_VALUES_ALREADY_EXISTS, securityAccessorName, device.getName());
+                log(logger, MessageSeeds.BOTH_VALUES_ALREADY_EXIST, securityAccessorName, device.getName());
             } else {
                 SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType).orElseGet(()->device.newSecurityAccessor(securityAccessorType));
                 SecurityValueWrapper newWrapperValue = deviceSecretImporter.importSecret(encryptedDeviceKey, initializationVector, encryptedSymmetricKey, symmetricAlgorithm, asymmetricAlgorithm);
