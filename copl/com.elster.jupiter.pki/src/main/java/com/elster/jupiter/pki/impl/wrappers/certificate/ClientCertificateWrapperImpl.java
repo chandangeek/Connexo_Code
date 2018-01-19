@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -26,8 +27,13 @@ public class ClientCertificateWrapperImpl extends RequestableCertificateWrapperI
     private Reference<KeyType> keyTypeReference = ValueReference.absent();
 
     @Inject
-    public ClientCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService, ExceptionFactory exceptionFactory) {
-        super(dataModel, thesaurus, propertySpecService, eventService, exceptionFactory);
+    public ClientCertificateWrapperImpl(DataModel dataModel,
+                                        Thesaurus thesaurus,
+                                        PropertySpecService propertySpecService,
+                                        EventService eventService,
+                                        ExceptionFactory exceptionFactory,
+                                        SecurityManagementService securityManagementService) {
+        super(dataModel, thesaurus, propertySpecService, eventService, exceptionFactory, securityManagementService);
         this.dataModel = dataModel;
     }
 

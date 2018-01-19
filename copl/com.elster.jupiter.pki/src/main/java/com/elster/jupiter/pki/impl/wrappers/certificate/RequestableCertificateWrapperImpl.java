@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.RequestableCertificateWrapper;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
@@ -35,8 +36,13 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
 
 
     @Inject
-    public RequestableCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService, ExceptionFactory exceptionFactory) {
-        super(dataModel, thesaurus, propertySpecService, eventService, exceptionFactory);
+    public RequestableCertificateWrapperImpl(DataModel dataModel,
+                                             Thesaurus thesaurus,
+                                             PropertySpecService propertySpecService,
+                                             EventService eventService,
+                                             ExceptionFactory exceptionFactory,
+                                             SecurityManagementService securityManagementService) {
+        super(dataModel, thesaurus, propertySpecService, eventService, exceptionFactory, securityManagementService);
         this.thesaurus = thesaurus;
     }
 

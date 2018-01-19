@@ -59,7 +59,8 @@ public enum MessageSeeds implements MessageSeed {
     VETO_TRUSTSTORE_DELETION(1043, "trustStoreXstillInUse", "Trust store {0} is still in use"),
     TEMP_VALUE_NOT_SET(1044, "NoTempValue", "The security accessor does not contain a temporary value"),
     NO_ACTUAL_CERTIFICATE(1045, "NoActualCertificate", "Certificate renewal requires an actual value in order to create a distinguished name"),
-    ACTUAL_VALUE_NOT_SET(1046, "NoActualValue", "The security accessor does not contain an actual value");
+    ACTUAL_VALUE_NOT_SET(1046, "NoActualValue", "The security accessor does not contain an actual value"),
+    VETO_CERTIFICATE_DELETION(1047, "VetoCertificateDeletion", "This certificate is still in use.");
 
     private final int number;
     private final String key;

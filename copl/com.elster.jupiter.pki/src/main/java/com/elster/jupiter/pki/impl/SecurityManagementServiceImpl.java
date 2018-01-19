@@ -850,6 +850,17 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
     }
 
     @Override
+    public List<SecurityAccessor<? extends SecurityValueWrapper>> getDefaultValues(SecurityAccessorType... securityAccessorTypes) {
+        List<SecurityAccessorType> typesManagedCentrally = Arrays.stream(securityAccessorTypes)
+                .filter(SecurityAccessorType::isManagedCentrally)
+                .collect(Collectors.toList());
+        return typesManagedCentrally.isEmpty() ? Collections.emptyList() : dataModel.stream(SecurityAccessor.class)
+                .filter(Where.where(AbstractSecurityAccessorImpl.Fields.KEY_ACCESSOR_TYPE.fieldName()).in(typesManagedCentrally))
+                .map(sa -> (SecurityAccessor<? extends SecurityValueWrapper>) sa)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public <T extends SecurityValueWrapper> SecurityAccessor<T> setDefaultValues(SecurityAccessorType securityAccessorType, T actualValue, T tempValue) {
         switch (securityAccessorType.getKeyType().getCryptographicType()) {
             case Certificate:
@@ -866,7 +877,8 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                     throw new IllegalArgumentException("Wrong type of actual or temp value; must be " + CertificateWrapper.class.getSimpleName());
                 }
             default:
-                throw new UnsupportedOperationException("It is only possible to set default values for certificate accessor type.");
+                throw new UnsupportedOperationException("Default values are only supported for certificate accessor type.");
+                // when adding more cases pls modify com.energyict.mdc.device.data.impl.pki.AbstractCentrallyManagedDeviceSecurityAccessor
         }
     }
 
@@ -875,6 +887,15 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         return dataModel.mapper(SecurityAccessor.class)
                 .lockObjectIfVersion(version, securityAccessorType)
                 .map(securityAccessor -> (SecurityAccessor<? extends SecurityValueWrapper>) securityAccessor);
+    }
+
+    @Override
+    public boolean isUsedByCertificateAccessors(CertificateWrapper certificate) {
+        return dataModel.stream(SecurityAccessor.class)
+                .filter(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
+                        .or(Where.where(AbstractSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)))
+                .findAny()
+                .isPresent();
     }
 
     private class ClientCertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {

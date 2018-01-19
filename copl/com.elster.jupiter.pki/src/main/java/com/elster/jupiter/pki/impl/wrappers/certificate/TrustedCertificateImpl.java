@@ -8,6 +8,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.pki.impl.MessageSeeds;
@@ -42,8 +43,13 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
     private Reference<TrustStore> trustStoreReference = Reference.empty();
 
     @Inject
-    public TrustedCertificateImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService, ExceptionFactory exceptionFactory) {
-        super(dataModel, thesaurus, propertySpecService, eventService, exceptionFactory);
+    public TrustedCertificateImpl(DataModel dataModel,
+                                  Thesaurus thesaurus,
+                                  PropertySpecService propertySpecService,
+                                  EventService eventService,
+                                  ExceptionFactory exceptionFactory,
+                                  SecurityManagementService securityManagementService) {
+        super(dataModel, thesaurus, propertySpecService, eventService, exceptionFactory, securityManagementService);
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
     }

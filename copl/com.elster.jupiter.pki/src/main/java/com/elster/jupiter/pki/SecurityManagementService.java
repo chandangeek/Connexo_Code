@@ -438,9 +438,13 @@ public interface SecurityManagementService {
 
     Optional<SecurityAccessor<? extends SecurityValueWrapper>> getDefaultValues(SecurityAccessorType securityAccessorType);
 
+    List<SecurityAccessor<? extends SecurityValueWrapper>> getDefaultValues(SecurityAccessorType... securityAccessorTypes);
+
     <T extends SecurityValueWrapper> SecurityAccessor<T> setDefaultValues(SecurityAccessorType securityAccessorType, T actualValue, T tempValue);
 
     Optional<SecurityAccessor<? extends SecurityValueWrapper>> lockDefaultValues(SecurityAccessorType securityAccessorType, long version);
+
+    boolean isUsedByCertificateAccessors(CertificateWrapper certificate);
 
     interface PasswordTypeBuilder {
         PasswordTypeBuilder description(String description);
