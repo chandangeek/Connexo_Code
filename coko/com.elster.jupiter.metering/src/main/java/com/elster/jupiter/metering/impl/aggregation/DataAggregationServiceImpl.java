@@ -253,34 +253,32 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities = this.getEffectiveMetrologyConfigurationForUsagePointInPeriod(usagePoint, period);
         this.validateContractAppliesToUsagePoint(effectivities, usagePoint, contract, period);
         Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation = new LinkedHashMap<>();
-        if (this.clipToContractActivePeriod(effectivities, contract, period).isPresent()){
-            Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period).get();
-            List<MeterActivationSet> meterActivationSets = this.getMeterActivationSets(usagePoint, clippedPeriod);
-            if (meterActivationSets.isEmpty()) {
-                if (usagePoint.isVirtual()) {
+        Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period);
+        List<MeterActivationSet> meterActivationSets = this.getMeterActivationSets(usagePoint, clippedPeriod);
+        if (meterActivationSets.isEmpty()) {
+            if (usagePoint.isVirtual()) {
                 /* No meter activations is only supported for unmeasured usage points
                  * if all formulas of the contract are using only constants
                  * or expressions that behave as a constant (e.g. custom properties). */
-                    if (this.onlyConstantLikeExpressions(contract)) {
-                        MeterActivationSetImpl meterActivationSet =
-                                new MeterActivationSetImpl(
-                                        usagePoint,
-                                        (UsagePointMetrologyConfiguration) contract.getMetrologyConfiguration(),
-                                        1,
-                                        period,
-                                        period.lowerEndpoint());
-                        this.prepare(usagePoint, meterActivationSet, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation);
-                    } else {
-                        throw new VirtualUsagePointsOnlySupportConstantLikeExpressionsException(this.getThesaurus());
-                    }
+                if (this.onlyConstantLikeExpressions(contract)) {
+                    MeterActivationSetImpl meterActivationSet =
+                            new MeterActivationSetImpl(
+                                    usagePoint,
+                                    (UsagePointMetrologyConfiguration) contract.getMetrologyConfiguration(),
+                                    1,
+                                    period,
+                                    period.lowerEndpoint());
+                    this.prepare(usagePoint, meterActivationSet, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation);
+                } else {
+                    throw new VirtualUsagePointsOnlySupportConstantLikeExpressionsException(this.getThesaurus());
                 }
-            } else {
-                meterActivationSets.forEach(set -> {
-                    if (!set.getMeterActivations().isEmpty()) {
-                        this.prepare(usagePoint, set, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation);
-                    }
-                });
             }
+        } else {
+            meterActivationSets.forEach(set -> {
+                if (!set.getMeterActivations().isEmpty()) {
+                    this.prepare(usagePoint, set, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation);
+                }
+            });
         }
 
         return deliverablesPerMeterActivation;
@@ -312,19 +310,15 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         }
     }
 
-    private Optional<Range<Instant>> clipToContractActivePeriod(List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities, MetrologyContract contract, Range<Instant> period) {
-        Optional<Range<Instant>> clippedPeriod = effectivities
+    private Range<Instant> clipToContractActivePeriod(List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities, MetrologyContract contract, Range<Instant> period) {
+        Range<Instant> clippedPeriod = effectivities
                 .stream()
                 .filter(each -> !each.getRange().isEmpty())
                 .filter(each -> this.hasContract(each, contract))
+                .filter(each -> each.getRange().isConnected(period))
                 .findFirst()
-                .map(e -> e.getUsagePoint().getUsedCalendars().getCalendars().isEmpty()
-                        ? Optional.of(e.getRange())
-                        : e.getUsagePoint().getUsedCalendars().getCalendars().values().stream()
-                        .flatMap(Collection::stream)
-                        .map(UsagePoint.CalendarUsage::getRange)
-                        .filter(range -> Ranges.nonEmptyIntersection(range, period).isPresent())
-                        .findAny())
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getRange)
+                .map(period::intersection)
                 .orElseThrow(() -> new IllegalStateException("Validation that contract was active on contract failed before"));
         if (!clippedPeriod.equals(period)) {
             Loggers.ANALYSIS.debug(() -> "Requested period clipped to effectivity of the contract: " + clippedPeriod);
@@ -604,7 +598,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     private void addMissingRecord(ReadingType readingType, Instant timestamp, List<CalculatedReadingRecordImpl> readingRecords, UsagePoint usagePoint) {
         CalculatedReadingRecordImpl crr = new CalculatedReadingRecordImpl(this.truncaterFactory, this.sourceChannelSetFactory);
-        crr.initMissing(usagePoint, (IReadingType)readingType, timestamp);
+        crr.initMissing(usagePoint, (IReadingType) readingType, timestamp);
         readingRecords.add(crr);
     }
 
