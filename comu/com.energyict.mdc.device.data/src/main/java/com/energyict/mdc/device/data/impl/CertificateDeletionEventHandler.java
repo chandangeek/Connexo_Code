@@ -10,7 +10,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
-import com.energyict.mdc.device.data.DeviceDataServices;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.VetoDeleteCertificateException;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.SecurityAccessor;
 
@@ -59,7 +60,7 @@ public class CertificateDeletionEventHandler implements TopicHandler {
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.SERVICE);
+        this.thesaurus = nlsService.getThesaurus(SecurityManagementService.COMPONENTNAME, Layer.DOMAIN);
     }
 
 }

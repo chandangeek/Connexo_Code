@@ -65,6 +65,7 @@ import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
@@ -137,9 +138,11 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskSche
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
+import com.energyict.mdc.device.data.impl.pki.CentrallyManagedDeviceSecurityAccessor;
 import com.energyict.mdc.device.data.impl.pki.CertificateAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.PassphraseAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.UnmanageableSecurityAccessorException;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForInfo;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForMultiplierChange;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForRemoval;
@@ -258,6 +261,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final CustomPropertySetService customPropertySetService;
     private final ServerDeviceService deviceService;
     private final LockService lockService;
+    private final SecurityManagementService securityManagementService;
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final ThreadPrincipalService threadPrincipalService;
@@ -352,7 +356,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             UserPreferencesService userPreferencesService,
             DeviceConfigurationService deviceConfigurationService,
             ServerDeviceService deviceService,
-            LockService lockService) {
+            LockService lockService,
+            SecurityManagementService securityManagementService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -374,6 +379,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.lockService = lockService;
         // Helper to get activation info... from 'Kore'
         this.koreHelper = new SyncDeviceWithKoreForInfo(this, this.deviceService, this.readingTypeUtilService, clock, this.eventService);
+        this.securityManagementService = securityManagementService;
         this.koreHelper.syncWithKore(this);
     }
 
@@ -3293,21 +3299,44 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public List<SecurityAccessor> getSecurityAccessors() {
-        // TODO NOW: add wrappers for security accessor types with default values
-        return Collections.unmodifiableList(keyAccessors);
+        List<SecurityAccessor> securityAccessorsManagedCentrally = getSecurityAccessorsManagedCentrally();
+        List<SecurityAccessor> securityAccessors = new ArrayList<>(keyAccessors.size() + securityAccessorsManagedCentrally.size());
+        securityAccessors.addAll(this.keyAccessors);
+        securityAccessors.addAll(securityAccessorsManagedCentrally);
+        return securityAccessors;
     }
 
     @Override
     public Optional<SecurityAccessor> getSecurityAccessor(SecurityAccessorType securityAccessorType) {
-        // TODO NOW: add wrappers for security accessor types with default values
-        return keyAccessors.stream()
+        Optional<SecurityAccessor> securityAccessor = keyAccessors.stream()
                 .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId() == securityAccessorType.getId())
                 .findAny();
+        if (securityAccessor.isPresent()) {
+            return securityAccessor;
+        }
+        return getDeviceType().getSecurityAccessorTypes().stream()
+                .filter(sat -> sat.getId() == securityAccessorType.getId())
+                .findAny()
+                .flatMap(securityManagementService::getDefaultValues)
+                .map(sa -> CentrallyManagedDeviceSecurityAccessor.of(thesaurus, this, sa));
+    }
+
+    private List<SecurityAccessor> getSecurityAccessorsManagedCentrally() {
+        List<SecurityAccessorType> securityAccessorTypes = getDeviceType().getSecurityAccessorTypes();
+        return securityManagementService.getDefaultValues(securityAccessorTypes.toArray(new SecurityAccessorType[securityAccessorTypes.size()])).stream()
+                .map(sa -> CentrallyManagedDeviceSecurityAccessor.of(thesaurus, this, sa))
+                .collect(toList());
+    }
+
+    private void validateManageable(SecurityAccessorType securityAccessorType) {
+        if (securityAccessorType.isManagedCentrally()) {
+            throw new UnmanageableSecurityAccessorException(thesaurus, securityAccessorType);
+        }
     }
 
     @Override
     public SecurityAccessor newSecurityAccessor(SecurityAccessorType securityAccessorType) {
-        // TODO NOW: prohibit adding security accessor for type with default values
+        validateManageable(securityAccessorType);
         CryptographicType cryptographicType = securityAccessorType.getKeyType().getCryptographicType();
         switch (cryptographicType) {
             case Certificate:
@@ -3336,7 +3365,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void removeSecurityAccessor(SecurityAccessor securityAccessor) {
-        // TODO NOW: prohibit removing security accessor for type with default values
+        validateManageable(securityAccessor.getKeyAccessorType());
         this.getSecurityAccessor(securityAccessor.getKeyAccessorType()).ifPresent(keyAccessors::remove);
     }
 

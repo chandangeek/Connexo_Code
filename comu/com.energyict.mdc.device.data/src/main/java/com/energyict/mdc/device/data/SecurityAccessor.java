@@ -28,4 +28,10 @@ public interface SecurityAccessor<T extends SecurityValueWrapper> extends com.el
      * @return Complete if ready for use, Incomplete otherwise.
      */
     KeyAccessorStatus getStatus();
+
+    /**
+     *
+     * @return {@code true} if it's allowed to change this security accessor or its values (properties) on device level, {@code false} otherwise.
+     */
+    boolean isEditable();
 }

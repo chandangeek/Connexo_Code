@@ -125,4 +125,9 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
         }
         return KeyAccessorStatus.COMPLETE;
     }
+
+    @Override
+    public boolean isEditable() {
+        return true;
+    }
 }

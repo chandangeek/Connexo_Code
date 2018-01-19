@@ -616,11 +616,12 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public boolean usedByKeyAccessor(CertificateWrapper certificate) {
-        return !deviceDataModelService.dataModel()
-                .query(SecurityAccessor.class)
-                .select(where(AbstractDeviceSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
+        return deviceDataModelService.dataModel()
+                .stream(SecurityAccessor.class)
+                .filter(where(AbstractDeviceSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
                         .or(where(AbstractDeviceSecurityAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)))
-                .isEmpty();
+                .findAny()
+                .isPresent();
     }
 
     private SqlBuilder deleteOutdatedComTaskExecutionTriggersSqlBuilder() {

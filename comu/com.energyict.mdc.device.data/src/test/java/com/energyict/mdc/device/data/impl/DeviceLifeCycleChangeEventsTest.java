@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreferencesService;
@@ -138,6 +139,8 @@ public class DeviceLifeCycleChangeEventsTest {
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private LockService lockService;
+    @Mock
+    private SecurityManagementService securityManagementService;
 
     @Before
     public void initializeMocks() {
@@ -347,7 +350,8 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.userPreferencesService,
                 this.deviceConfigurationService,
                 deviceService,
-                lockService)
+                lockService,
+                securityManagementService)
                 .initialize(this.deviceConfiguration, "Hello world", Instant.now());
         device.save();
         return device;
