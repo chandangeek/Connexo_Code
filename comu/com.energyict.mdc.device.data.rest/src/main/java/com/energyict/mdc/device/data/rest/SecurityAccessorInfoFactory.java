@@ -88,8 +88,7 @@ public class SecurityAccessorInfoFactory {
         SecurityAccessorInfo info = securityAccessorInfoFactory.asCertificate(securityAccessor, aliasTypeAheadPropertyResourceProvider, trustStoreValuesProvider);
         info.status = thesaurus.getFormat(securityAccessor.getStatus()).format();
         info.canGeneratePassiveKey = KeyAccessorStatus.COMPLETE.equals(securityAccessor.getStatus());
-        // TODO NOW: fill in 'editable' flag
-
+        info.editable = securityAccessor.isEditable();
         return info;
     }
 }

@@ -158,4 +158,9 @@ public class SecurityAccessorPlaceHolder implements SecurityAccessor {
     public KeyAccessorStatus getStatus() {
         return KeyAccessorStatus.INCOMPLETE;
     }
+
+    @Override
+    public boolean isEditable() {
+        return true;
+    }
 }
