@@ -75,7 +75,6 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.DayMonthTime;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import org.osgi.framework.BundleContext;
@@ -89,6 +88,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -182,6 +182,16 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
+    public Finder<ReadingType> findReadingTypesByAlias(ReadingTypeFilter filter, String aliasName) {
+        return DefaultFinder.of(ReadingType.class, where("aliasName").like(aliasName).and(filter.getCondition()), dataModel).sorted("fullAliasName", true);
+    }
+
+    @Override
+    public Finder<ReadingType> findReadingTypeByAlias(String aliasName) {
+        return DefaultFinder.of(ReadingType.class, where("aliasName").like(aliasName), dataModel);
+    }
+
+    @Override
     public Optional<ReadingType> findAndLockReadingTypeByIdAndVersion(String mRID, long version) {
         return dataModel.mapper(ReadingType.class).lockObjectIfVersion(version, mRID);
     }
@@ -261,6 +271,13 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Optional<EndDevice> findEndDeviceByName(String name) {
         return dataModel.mapper(EndDevice.class).getUnique("name", name, "obsoleteTime", null);
+    }
+
+    @Override
+    public Finder<EndDevice> findEndDevices(Set<String> mRIDs, Set<String> deviceNames) {
+        Condition condition = ListOperator.IN.contains("mRID", mRIDs.stream().collect(Collectors.toList()))
+                .or(ListOperator.IN.contains("name", deviceNames.stream().collect(Collectors.toList())));
+        return DefaultFinder.of(EndDevice.class, condition, dataModel).defaultSortColumn("name");
     }
 
     @Override
@@ -494,6 +511,11 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public ReadingTypeFieldsFactory getReadingTypeFieldCodesFactory() {
         return new ReadingTypeLocalizedFieldsFactory(this.meteringDataModelService.getThesaurus());
+    }
+
+    @Override
+    public ReadingTypeFieldsFactory getReadingTypeGroupFieldCodesFactory(Integer filterBy) {
+        return new ReadingTypeGroupLocalizedFieldsFactory(this.meteringDataModelService.getThesaurus(), filterBy);
     }
 
     @Override

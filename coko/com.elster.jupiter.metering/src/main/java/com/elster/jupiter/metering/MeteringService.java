@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -15,14 +16,13 @@ import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
-
-import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ProviderType
 public interface MeteringService {
@@ -46,6 +46,10 @@ public interface MeteringService {
     List<ReadingType> findReadingTypes(List<String> mRids);
 
     Finder<ReadingType> findReadingTypes(ReadingTypeFilter filter);
+
+    Finder<ReadingType> findReadingTypesByAlias(ReadingTypeFilter filter, String aliasName);
+
+    Finder<ReadingType> findReadingTypeByAlias(String aliasName);
 
     Optional<ReadingType> findAndLockReadingTypeByIdAndVersion(String mRID, long version);
 
@@ -78,6 +82,8 @@ public interface MeteringService {
     Optional<EndDevice> findEndDeviceByMRID(String mRID);
 
     Optional<EndDevice> findEndDeviceByName(String name);
+
+    Finder<EndDevice> findEndDevices(Set<String> mRIDs, Set<String> deviceNames);
 
     Finder<Meter> findMeters(MeterFilter filter);
 
@@ -169,6 +175,8 @@ public interface MeteringService {
     Finder<UsagePoint> getUsagePoints(@NotNull UsagePointFilter filter);
 
     ReadingTypeFieldsFactory getReadingTypeFieldCodesFactory();
+
+    ReadingTypeFieldsFactory getReadingTypeGroupFieldCodesFactory(Integer filterBy);
 
     Finder<ReadingType> getReadingTypesByMridFilter(@NotNull ReadingTypeMridFilter filter);
 
