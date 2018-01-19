@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema
-        targetNamespace="http://www.iec.ch/TC57/2011/EndDeviceEventsMessage"
-        xmlns:tns="http://www.iec.ch/TC57/2011/EndDeviceEventsMessage"
-        xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:msg="http://www.iec.ch/TC57/2011/schema/message"
-        xmlns:obj="http://iec.ch/TC57/2011/EndDeviceEvents#"
-        elementFormDefault="qualified"
-        attributeFormDefault="unqualified"
-        version="1.0.0">
-
+<xs:schema xmlns:tns="http://iec.ch/TC57/2011/EndDeviceEventsMessage" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msg="http://iec.ch/TC57/2011/schema/message" xmlns:obj="http://iec.ch/TC57/2011/EndDeviceEvents#" targetNamespace="http://iec.ch/TC57/2011/EndDeviceEventsMessage" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.0">
     <!-- Base Message Definitions -->
-    <xs:import namespace="http://www.iec.ch/TC57/2011/schema/message" schemaLocation="Message.xsd"/>
+    <xs:import namespace="http://iec.ch/TC57/2011/schema/message" schemaLocation="Message.xsd"/>
     <!-- CIM Information Object Definition -->
     <xs:import namespace="http://iec.ch/TC57/2011/EndDeviceEvents#" schemaLocation="EndDeviceEvents.xsd"/>
-
     <!-- PayloadType Definition -->
     <xs:complexType name="EndDeviceEventsPayloadType">
         <xs:sequence>
@@ -31,7 +21,6 @@
             </xs:element>
         </xs:sequence>
     </xs:complexType>
-
     <!-- Message Types -->
     <!-- RequestMessageType -->
     <xs:complexType name="EndDeviceEventsRequestMessageType">
@@ -62,7 +51,6 @@
             <xs:element name="Reply" type="msg:ReplyType"/>
         </xs:sequence>
     </xs:complexType>
-
     <xs:element name="CreateEndDeviceEvents" type="tns:EndDeviceEventsRequestMessageType"/>
     <xs:element name="ChangeEndDeviceEvents" type="tns:EndDeviceEventsRequestMessageType"/>
     <xs:element name="CancelEndDeviceEvents" type="tns:EndDeviceEventsRequestMessageType"/>
@@ -75,5 +63,4 @@
     <xs:element name="DeletedEndDeviceEvents" type="tns:EndDeviceEventsEventMessageType"/>
     <xs:element name="EndDeviceEventsResponseMessage" type="tns:EndDeviceEventsResponseMessageType"/>
     <xs:element name="EndDeviceEventsFaultMessage" type="tns:EndDeviceEventsFaultMessageType"/>
-
 </xs:schema>
