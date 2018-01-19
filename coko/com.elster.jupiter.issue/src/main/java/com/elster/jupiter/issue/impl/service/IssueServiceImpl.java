@@ -25,7 +25,7 @@ import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
 import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
 import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.CreatedEndDeviceEventsWebServiceClient;
+import com.elster.jupiter.issue.share.OutboundEndDeviceEventsWebServiceClient;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
@@ -156,7 +156,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private final List<IssueProvider> issueProviders = new ArrayList<>();
     private final List<IssueWebServiceClient> issueWebServiceClients = new ArrayList<>();
     private final List<IssueCreationValidator> issueCreationValidators = new CopyOnWriteArrayList<>();
-    private final List<CreatedEndDeviceEventsWebServiceClient> endDeviceEventsClients = new ArrayList<>();
+    private final List<OutboundEndDeviceEventsWebServiceClient> endDeviceEventsClients = new ArrayList<>();
 
     public IssueServiceImpl() {
     }
@@ -441,15 +441,15 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addCreatedEndDeviceEventsClient(CreatedEndDeviceEventsWebServiceClient endDeviceEventsClient) {
+    public void addCreatedEndDeviceEventsClient(OutboundEndDeviceEventsWebServiceClient endDeviceEventsClient) {
         endDeviceEventsClients.add(endDeviceEventsClient);
     }
 
-    public void removeCreatedEndDeviceEventsClient(CreatedEndDeviceEventsWebServiceClient endDeviceEventsClient) {
+    public void removeCreatedEndDeviceEventsClient(OutboundEndDeviceEventsWebServiceClient endDeviceEventsClient) {
         endDeviceEventsClients.remove(endDeviceEventsClient);
     }
 
-    public List<CreatedEndDeviceEventsWebServiceClient> getCreatedEndDeviceEventsClients() {
+    public List<OutboundEndDeviceEventsWebServiceClient> getCreatedEndDeviceEventsClients() {
         return Collections.unmodifiableList(this.endDeviceEventsClients);
     }
 

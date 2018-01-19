@@ -7,9 +7,9 @@ package com.elster.jupiter.issue.share;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
-public interface CreatedEndDeviceEventsWebServiceClient {
+public interface OutboundEndDeviceEventsWebServiceClient {
 
-    String NAME = "CreatedEndDeviceEvents";
+    String NAME = "OutboundEndDeviceEvents";
 
     /**
      * Get the registered web service name
@@ -23,7 +23,6 @@ public interface CreatedEndDeviceEventsWebServiceClient {
      *
      * @param issue - issue object
      * @param endPointConfiguration - end point configuration
-     * @return true for success
      */
-    boolean call(Issue issue, EndPointConfiguration endPointConfiguration);
+    void call(Issue issue, EndPointConfiguration endPointConfiguration);
 }

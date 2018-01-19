@@ -13,7 +13,7 @@ import com.elster.jupiter.issue.impl.records.CreationRuleBuilderImpl;
 import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
-import com.elster.jupiter.issue.share.CreatedEndDeviceEventsWebServiceClient;
+import com.elster.jupiter.issue.share.OutboundEndDeviceEventsWebServiceClient;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
@@ -291,11 +291,10 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                     endPointConfigurationService.findEndPointConfigurations().find().stream()
                             .filter(epc -> !epc.isInbound())
                             .filter(EndPointConfiguration::isActive)
-                            .filter(epc -> epc.getWebServiceName().equals(CreatedEndDeviceEventsWebServiceClient.NAME))
+                            .filter(epc -> epc.getWebServiceName().equals(OutboundEndDeviceEventsWebServiceClient.NAME))
                             .collect(Collectors.toList());
 
             ((IssueServiceImpl) issueService).getCreatedEndDeviceEventsClients().stream()
-                    .filter(client -> client.getWebServiceName().equals(CreatedEndDeviceEventsWebServiceClient.NAME))
                     .forEach(client -> {
                         for (EndPointConfiguration endPointConfiguration : endPointConfigurations) {
                             client.call(issue, endPointConfiguration);
