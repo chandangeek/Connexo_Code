@@ -31,7 +31,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pubsub.Publisher;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -96,7 +95,6 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     // For OSGi purposes
     public FiniteStateMachineServiceImpl() {
-        super();
     }
 
     // For unit testing purposes
@@ -305,11 +303,9 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         List<StateTransitionEventType> eventTypes = this.dataModel.query(StateTransitionEventType.class, com.elster.jupiter.events.EventType.class).select(custom.or(standard));
         if (eventTypes.isEmpty()) {
             return Optional.empty();
-        }
-        else if (eventTypes.size() > 1) {
+        } else if (eventTypes.size() > 1) {
             throw new NotUniqueException(symbol);
-        }
-        else {
+        } else {
             return Optional.of(eventTypes.get(0));
         }
     }
@@ -342,7 +338,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     @Override
     public FiniteStateMachine cloneFiniteStateMachine(FiniteStateMachine source, String name) {
         FiniteStateMachineBuilder builder;
-        if(!source.getStageSet().isPresent()) {
+        if (!source.getStageSet().isPresent()) {
             builder = this.newFiniteStateMachine(name);
         } else {
             builder = this.newFiniteStateMachine(name, source.getStageSet().get());
@@ -382,7 +378,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     private FiniteStateMachineBuilder.StateBuilder startCloning(State source, FiniteStateMachineBuilder builder) {
         boolean hasStage = source.getStage().isPresent();
-        if(!hasStage) {
+        if (!hasStage) {
             return addStateWithoutStage(source, builder);
         } else {
             return addStageWithStage(source, builder);
@@ -392,8 +388,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     private FiniteStateMachineBuilder.StateBuilder addStateWithoutStage(State source, FiniteStateMachineBuilder builder) {
         if (source.isCustom()) {
             return builder.newCustomState(source.getName());
-        }
-        else {
+        } else {
             return builder.newStandardState(source.getName());
         }
     }
@@ -401,8 +396,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     private FiniteStateMachineBuilder.StateBuilder addStageWithStage(State source, FiniteStateMachineBuilder builder) {
         if (source.isCustom()) {
             return builder.newCustomState(source.getName(), source.getStage().get());
-        }
-        else {
+        } else {
             return builder.newStandardState(source.getName(), source.getStage().get());
         }
     }
@@ -451,18 +445,16 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     private void cloneTransition(StateTransition source, FiniteStateMachineBuilder.StateBuilder builder, Map<Long, FiniteStateMachineBuilder.StateBuilder> otherBuilders) {
         if (source.getName().isPresent()) {
             builder
-                .on(source.getEventType())
-                .transitionTo(otherBuilders.get(source.getTo().getId()), source.getName().get());
-        }
-        else if (source.getTranslationKey().isPresent()) {
+                    .on(source.getEventType())
+                    .transitionTo(otherBuilders.get(source.getTo().getId()), source.getName().get());
+        } else if (source.getTranslationKey().isPresent()) {
             builder
-                .on(source.getEventType())
-                .transitionTo(otherBuilders.get(source.getTo().getId()), new TranslationKeyFromString(source.getTranslationKey().get()));
-        }
-        else {
+                    .on(source.getEventType())
+                    .transitionTo(otherBuilders.get(source.getTo().getId()), new TranslationKeyFromString(source.getTranslationKey().get()));
+        } else {
             builder
-                .on(source.getEventType())
-                .transitionTo(otherBuilders.get(source.getTo().getId()));
+                    .on(source.getEventType())
+                    .transitionTo(otherBuilders.get(source.getTo().getId()));
         }
     }
 
@@ -473,17 +465,15 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     @Override
     public Optional<FiniteStateMachine> findFiniteStateMachineByName(String name) {
-        Condition condition =     where(FiniteStateMachineImpl.Fields.NAME.fieldName()).isEqualTo(name)
-                             .and(where(FiniteStateMachineImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).isNull());
+        Condition condition = where(FiniteStateMachineImpl.Fields.NAME.fieldName()).isEqualTo(name)
+                .and(where(FiniteStateMachineImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).isNull());
         List<FiniteStateMachine> finiteStateMachines = this.dataModel.query(FiniteStateMachine.class).select(condition);
         // Expecting at most one
         if (finiteStateMachines.isEmpty()) {
             return Optional.empty();
-        }
-        else if (finiteStateMachines.size() > 1) {
+        } else if (finiteStateMachines.size() > 1) {
             throw new NotUniqueException(name);
-        }
-        else {
+        } else {
             return Optional.of(finiteStateMachines.get(0));
         }
     }
@@ -508,6 +498,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     private class TranslationKeyFromString implements TranslationKey {
         private final String key;
+
         private TranslationKeyFromString(String key) {
             super();
             this.key = key;
@@ -531,11 +522,9 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         // Expecting at most one
         if (stageSets.isEmpty()) {
             return Optional.empty();
-        }
-        else if (stageSets.size() > 1) {
+        } else if (stageSets.size() > 1) {
             throw new NotUniqueException(name);
-        }
-        else {
+        } else {
             return Optional.of(stageSets.get(0));
         }
     }

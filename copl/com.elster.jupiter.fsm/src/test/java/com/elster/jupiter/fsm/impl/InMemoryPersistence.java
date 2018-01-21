@@ -20,6 +20,9 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -35,6 +38,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.security.Principal;
 import java.sql.SQLException;
@@ -64,6 +68,7 @@ public class InMemoryPersistence {
     private BundleContext bundleContext;
     private EventAdmin eventAdmin;
     private DataModel dataModel;
+    private HttpService httpService;
     private FiniteStateMachineServiceImpl finiteStateMachineService;
     private ThreadPrincipalService threadPrincipalService;
 
@@ -89,7 +94,8 @@ public class InMemoryPersistence {
                 new UtilModule(),
                 new DomainUtilModule(),
                 new NlsModule(),
-                new DataVaultModule()
+                new DataVaultModule(),
+                new WebServicesModule()
         );
     }
 
@@ -111,6 +117,8 @@ public class InMemoryPersistence {
             this.injector.getInstance(NlsService.class);
             this.injector.getInstance(EventService.class);
             this.injector.getInstance(BpmService.class);
+            this.injector.getInstance(EndPointConfigurationService.class);
+            this.injector.getInstance(WebServicesService.class);
             this.finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
             this.dataModel = this.finiteStateMachineService.getDataModel();
             ctx.commit();
@@ -129,6 +137,7 @@ public class InMemoryPersistence {
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(Principal.class);
+        this.httpService = mock(HttpService.class);
         when(this.principal.getName()).thenReturn(testName);
     }
 
@@ -140,7 +149,7 @@ public class InMemoryPersistence {
         return this.transactionService;
     }
 
-    public ThreadPrincipalService getThreadPrincipalService(){
+    public ThreadPrincipalService getThreadPrincipalService() {
         return threadPrincipalService;
     }
 
@@ -162,8 +171,8 @@ public class InMemoryPersistence {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(DataModel.class).toProvider(() -> dataModel);
+            bind(HttpService.class).toInstance(httpService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
-
 }
