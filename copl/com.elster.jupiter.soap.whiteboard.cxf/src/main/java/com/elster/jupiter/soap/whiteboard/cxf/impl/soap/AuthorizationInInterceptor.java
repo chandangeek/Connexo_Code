@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.transaction.TransactionService;
@@ -40,12 +41,14 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
     private final UserService userService;
     private InboundEndPointConfiguration endPointConfiguration;
     private final TransactionService transactionService;
+    private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
-    public AuthorizationInInterceptor(UserService userService, TransactionService transactionService) {
+    public AuthorizationInInterceptor(UserService userService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService) {
         super(Phase.PRE_INVOKE);
         this.userService = userService;
         this.transactionService = transactionService;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     public void handleMessage(Message message) throws Fault {
@@ -53,22 +56,18 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
         HttpSession httpSession = request.getSession();
         boolean newSession = false;
 
-        String userName = (String) httpSession.getAttribute(USER_NAME);
+        String userName = null;
         String password = null;
-
-        if (userName != null) {
-            password = (String) httpSession.getAttribute(PASSWORD);
+        AuthorizationPolicy policy = message.get(AuthorizationPolicy.class);
+        if (policy != null) {
+            userName = policy.getUserName();
+            password = policy.getPassword();
+            newSession = true;
         } else {
-            AuthorizationPolicy policy = message.get(AuthorizationPolicy.class);
-            if (policy != null) {
-                userName = policy.getUserName();
-                password = policy.getPassword();
-                newSession = true;
-            } else {
-                fail("Authentication required", HttpURLConnection.HTTP_UNAUTHORIZED);
-            }
+            fail("Authentication required", HttpURLConnection.HTTP_UNAUTHORIZED);
         }
         try {
+            this.userService.findUser(userName).ifPresent(threadPrincipalService::set);
             Optional<User> user = userService.authenticateBase64(Base64Utility.encode((userName + ":" + password).getBytes()), request
                     .getRemoteAddr());
             if (!user.isPresent()) {
@@ -88,12 +87,19 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
                     httpSession.setAttribute(PASSWORD, password);
                 }
             }
-        } catch (Fault e) {
+        } catch (
+                Fault e)
+
+        {
             throw e;
-        } catch (Exception e) {
+        } catch (
+                Exception e)
+
+        {
             logInTransaction("Exception while logging in " + userName + ":", e);
             fail("Not authorized", HttpURLConnection.HTTP_FORBIDDEN);
         }
+
     }
 
     private void fail(String message, int statusCode) {
