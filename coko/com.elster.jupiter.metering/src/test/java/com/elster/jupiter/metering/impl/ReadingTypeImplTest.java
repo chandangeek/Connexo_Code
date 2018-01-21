@@ -10,16 +10,18 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+
 import com.google.common.collect.ImmutableList;
+
+import java.util.Currency;
+import java.util.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Currency;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -38,9 +40,9 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     private final String aliasWithMacroPeriod = "[Daily] Delta PlainAlias";
     private final String primaryAliasWithMacroPeriod = "[Daily] Primary Delta PlainAlias";
     private final String secondaryAliasWithMacroPeriod = "[Daily] Secondary Delta PlainAlias";
-    private final String aliasWithMeasuringPeriod = "[15-minute] Delta PlainAlias";
-    private final String primaryAliasWithMeasuringPeriod = "[15-minute] Primary Delta PlainAlias";
-    private final String secondaryAliasWithMeasuringPeriod = "[15-minute] Secondary Delta PlainAlias";
+    private final String aliasWithMeasuringPeriod = "[15-minutes] Delta PlainAlias";
+    private final String primaryAliasWithMeasuringPeriod = "[15-minutes] Primary Delta PlainAlias";
+    private final String secondaryAliasWithMeasuringPeriod = "[15-minutes] Secondary Delta PlainAlias";
     private final String aliasWithUnit = "Delta PlainAlias (Wh)";
     private final String primaryAliasWithUnit = "Primary Delta PlainAlias (Wh)";
     private final String secondaryAliasWithUnit = "Secondary Delta PlainAlias (Wh)";
