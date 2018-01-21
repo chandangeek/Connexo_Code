@@ -36,6 +36,9 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -58,7 +61,6 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.lifecycle.impl.DeviceLifeCycleModule;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
@@ -74,6 +76,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -120,10 +123,10 @@ public class InMemoryPersistence {
     private TopologyService topologyService;
     private MultiElementDeviceService multiElementDeviceService;
     private DataVaultService dataVaultService;
-    private CustomPropertySetService customPropertySetService;
     private LicenseService licenseService;
     private SearchService searchService;
     private TimeService timeService;
+    private HttpService httpService;
 
     /**
      * Returns a new InMemoryPersistence that uses all the defaults
@@ -157,7 +160,8 @@ public class InMemoryPersistence {
                 new DeviceLifeCycleModule(),
                 new UsagePointLifeCycleConfigurationModule(),
                 new UsagePointLifeCycleModule(),
-                new ServiceCallModule()
+                new ServiceCallModule(),
+                new WebServicesModule()
         );
     }
 
@@ -177,6 +181,8 @@ public class InMemoryPersistence {
             this.injector.getInstance(NlsService.class);
             this.injector.getInstance(EventService.class);
             this.injector.getInstance(CustomPropertySetService.class);
+            this.injector.getInstance(EndPointConfigurationService.class);
+            this.injector.getInstance(WebServicesService.class);
             this.injector.getInstance(FiniteStateMachineService.class);
             this.injector.getInstance(PartyService.class);
             this.injector.getInstance(MeteringDataModelService.class);
@@ -225,6 +231,7 @@ public class InMemoryPersistence {
         this.licenseService = mock(LicenseService.class);
         this.searchService = mock(SearchService.class);
         this.timeService = mock(TimeService.class);
+        this.httpService = mock(HttpService.class);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -263,11 +270,10 @@ public class InMemoryPersistence {
             bind(SearchService.class).toInstance(searchService);
             bind(TimeService.class).toInstance(timeService);
             bind(LicenseService.class).toInstance(licenseService);
+            bind(HttpService.class).toInstance(httpService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(PropertyValueInfoService.class).toInstance(mock(PropertyValueInfoService.class));
             bind(MdcPropertyValueConverterFactory.class).toInstance(mock(MdcPropertyValueConverterFactory.class));
         }
-
     }
-
 }

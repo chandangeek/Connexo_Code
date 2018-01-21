@@ -21,7 +21,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_LIFECYCLE_STATE_IS_THE_INITIAL_STATE(8, "unable.to.remove.initial.state", "This state cannot be removed from this device life cycle because it is the initial state. Set another state as initial state first."),
     DEVICE_LIFECYCLE_IS_USED_BY_DEVICE_TYPE(9, "device.lifecycle.is.used.by.device.type", "This operation cannot be performed for this device life cycle because one or more device types use this device life cycle."),
     STATE_CHANGE_BUSINESS_PROCESS_NOT_FOUND(10, "device.lifecycle.state.process.not.found", "State change business process ''{0}'' doesn't exist"),
-    STATE_CHANGE_ENDPOINT_CONFIGURATION_NOT_FOUND(10, "device.lifecycle.state.endpoint.configuration.not.found", "State change end point configuration ''{0}'' doesn't exist");
+    STATE_CHANGE_ENDPOINT_CONFIGURATION_NOT_FOUND(11, "device.lifecycle.state.endpoint.configuration.not.found", "State change end point configuration ''{0}'' doesn't exist");
 
     private final int number;
     private final String key;
@@ -63,5 +63,4 @@ public enum MessageSeeds implements MessageSeed {
     public Level getLevel() {
         return this.level;
     }
-
 }

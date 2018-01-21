@@ -19,6 +19,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -73,6 +74,8 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     protected DeviceLifeCycleService deviceLifeCycleService;
     @Mock
     protected BpmService bpmService;
+    @Mock
+    protected EndPointConfigurationService endPointConfigurationService;
 
     @Override
     protected Application getApplication() {
@@ -85,6 +88,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         application.setFiniteStateMachineService(finiteStateMachineService);
         application.setEventService(eventService);
         application.setBpmService(bpmService);
+        application.setEndPointConfigurationService(endPointConfigurationService);
         application.setDeviceConfigurationService(deviceConfigurationService);
         application.setDeviceLifeCycleService(deviceLifeCycleService);
         application.setPropertyValueConverterFactory(mock(MdcPropertyValueConverterFactory.class));
@@ -359,7 +363,6 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
                 .getDefaultFormat(), states.get(1), states.get(0)));
         return actions;
     }
-
 
     protected BpmProcessDefinition mockStateChangeBusinessProcess(long id, String processName, String version) {
         BpmProcessDefinition process = mock(BpmProcessDefinition.class);
