@@ -66,8 +66,8 @@ public class LanguagesTest {
         Path path = fileSystem.getPath("c:/languages/pulse_de.csv");
         Files.createDirectories(path.getParent());
         try (Writer writer = new OutputStreamWriter(Files.newOutputStream(path, StandardOpenOption.CREATE_NEW), Charset.forName("UTF-8"))) {
-            writer.write("MTR;REST;readingtypesmanagment.addReadingType.addConfirmationXXX[1];{0} Ablesetyp hinzufügen?;\n"+
-                    "MTR;REST;readingTypes.attribute.currency;Währung;\n");
+            writer.write("MTR;REST;readingtypesmanagment.addReadingType.addConfirmationXXX[1];{0} Add a reading type?;{0} Ablesetyp hinzufügen?;\n"+
+                    "MTR;REST;readingTypes.attribute.currency;Currency;Währung;\n");
         }
 
         Languages languages = Languages.withSettingsOf(nlsService);
