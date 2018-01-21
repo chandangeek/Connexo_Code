@@ -356,11 +356,5 @@
             <artifactId>reflections</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <!-- TODO get rid of this, see usages of ExceptionFactory in pki -->
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>rest.util</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>
