@@ -6,7 +6,6 @@ package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
@@ -28,7 +27,7 @@ import ch.iec.tc57._2011.schema.message.ReplyType;
 
 import javax.inject.Inject;
 
-public class ExecuteMeterConfigEndpoint implements MeterConfigPort, EndPointProp {
+public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
 
     private static final String NOUN = "MeterConfig";
 

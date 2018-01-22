@@ -6,7 +6,6 @@ package com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents;
 
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
@@ -28,7 +27,7 @@ import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 
-public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort, EndPointProp {
+public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
     private static final String GET_END_DEVICE_EVENTS = "GetEndDeviceEvents";
     private static final String METERS_ITEM = GET_END_DEVICE_EVENTS + ".Meters";
 

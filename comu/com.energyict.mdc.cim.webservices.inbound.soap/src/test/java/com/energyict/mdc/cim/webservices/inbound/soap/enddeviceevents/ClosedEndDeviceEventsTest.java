@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockEndDeviceEvents;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
@@ -59,7 +60,7 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
 
         Finder<OpenDeviceAlarm> finder = mockFinder(Collections.singletonList(openAlarm));
-        when(deviceAlarmService.findOpenAlarmByDeviceIdAndEventType(any(Long.class), anyString())).thenReturn(finder);
+        when(deviceAlarmService.findOpenDeviceAlarms(any(Condition.class))).thenReturn(finder);
         when(openAlarm.addComment(anyString(), any())).thenReturn(Optional.empty());
         when(openAlarm.close(any(IssueStatus.class))).thenReturn(closedAlarm);
 

@@ -18,6 +18,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
@@ -43,6 +44,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class EndDeviceEventsBuilder {
     private static final String ALARM_CLOSURE_COMMENT = "Alarm closed on %s call";
@@ -154,7 +157,12 @@ public class EndDeviceEventsBuilder {
             IssueStatus issueStatus = issueService.findStatus(IssueStatus.RESOLVED).get();
             User user = (User) threadPrincipalService.getPrincipal();
 
-            List<HistoricalDeviceAlarm> closedAlarms = deviceAlarmService.findOpenAlarmByDeviceIdAndEventType(endDevice.getId(), eventTypeCode).find()
+            EndDeviceEventType eventType = meteringService.getEndDeviceEventType(eventTypeCode)
+                    .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_END_DEVICE_EVENT_TYPE_WITH_REF, eventTypeCode));
+
+            Condition condition = where("deviceAlarmRelatedEvents.endDeviceId").isEqualTo(endDevice.getId())
+                    .and(where("deviceAlarmRelatedEvents.eventTypeCode").isEqualTo(eventType.getMRID()));
+            List<HistoricalDeviceAlarm> closedAlarms = deviceAlarmService.findOpenDeviceAlarms(condition).find()
                     .stream().map(alarm -> {
                         alarm.addComment(String.format(ALARM_CLOSURE_COMMENT, user.getName()), user);
                         return alarm.close(issueStatus);
