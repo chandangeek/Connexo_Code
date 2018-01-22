@@ -81,7 +81,8 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         ENCRYPTIONMETHOD("keyEncryptionMethod"),
         DURATION("duration"),
         KEYTYPE("keyType"),
-        TRUSTSTORE("trustStore");
+        TRUSTSTORE("trustStore"),
+        MANAGED_CENTRALLY("managedCentrally");
 
         private final String javaFieldName;
         Fields(String javaFieldName) {

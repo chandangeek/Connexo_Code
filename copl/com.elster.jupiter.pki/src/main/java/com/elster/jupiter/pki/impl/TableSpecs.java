@@ -234,6 +234,12 @@ public enum TableSpecs {
                     .number()
                     .since(Version.version(10, 3))
                     .add();
+            table.column(SecurityAccessorTypeImpl.Fields.MANAGED_CENTRALLY.name())
+                    .bool()
+                    .map(SecurityAccessorTypeImpl.Fields.MANAGED_CENTRALLY.fieldName())
+                    .notNull()
+                    .since(Version.version(10, 4))
+                    .add();
             table.foreignKey("FK_DTC_KEYACCESSOR_DEVTYPE")
                     .on(deviceType)
                     // need to reference some existent table here to pass orm checks,
