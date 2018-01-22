@@ -6,7 +6,6 @@ package com.elster.jupiter.metering.cim.soap.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.getmeterreadings.GetMeterReadingsPort;
@@ -20,7 +19,7 @@ import javax.jws.WebParam;
 import javax.xml.ws.Holder;
 import java.time.Clock;
 
-class GetMeterReadingsPortImpl implements GetMeterReadingsPort, EndPointProp {
+class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
     private final ObjectFactory objectFactory = new ObjectFactory();
     private final MeteringService meteringService;
     private final MeteringGroupsService meteringGroupsService;
