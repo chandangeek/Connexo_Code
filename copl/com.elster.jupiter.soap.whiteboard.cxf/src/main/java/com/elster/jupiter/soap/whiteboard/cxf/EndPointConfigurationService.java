@@ -7,12 +7,15 @@ package com.elster.jupiter.soap.whiteboard.cxf;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.users.Group;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Map;
 import java.util.Optional;
 
 /**
  * Created by bvn on 5/4/16.
  */
+@ProviderType
 public interface EndPointConfigurationService {
     /**
      * Create a new configuration for inbound endpoints
@@ -88,6 +91,7 @@ public interface EndPointConfigurationService {
      */
     void delete(EndPointConfiguration endPointConfiguration);
 
+    @ProviderType
     interface InboundEndPointConfigBuilder {
         InboundEndPointConfigBuilder tracing();
 
@@ -108,6 +112,7 @@ public interface EndPointConfigurationService {
         EndPointConfiguration create();
     }
 
+    @ProviderType
     interface OutboundEndPointConfigBuilder {
         OutboundEndPointConfigBuilder tracing();
 

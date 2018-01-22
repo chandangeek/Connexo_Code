@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
@@ -343,7 +344,7 @@ public class WebServicesServiceImpl implements WebServicesService , BundleWaiter
         final EndPointFactory endPointFactory = webServices.get(webServiceName);
         if (endPointFactory != null && endPointFactory.getEndPointProvider() instanceof InboundSoapEndPointProvider) {
             InboundSoapEndPointProvider provider = (InboundSoapEndPointProvider) endPointFactory.getEndPointProvider();
-            return provider.get().getPropertySpecs();
+            return ((EndPointProp) provider.get()).getPropertySpecs();
         } else {
             return new ArrayList<>();
         }
