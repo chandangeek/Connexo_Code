@@ -76,12 +76,17 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
         this.fieldSeparator = ReadingDataFormatterFactory.FieldSeparator.PIPE.getSymbol();
     }
 
-    public ReadingDataFormatter(DataExportService dataExportService, Thesaurus thesaurus, Map<String, Object> propertyMap)  {
+    ReadingDataFormatter(DataExportService dataExportService, Thesaurus thesaurus, Map<String, Object> propertyMap) {
         this.dataExportService = dataExportService;
         this.thesaurus = thesaurus;
-        this.fieldSeparator = ReadingDataFormatterFactory.FieldSeparator.separatorForName(propertyMap.get(FormatterProperties.SEPARATOR.getKey()).toString());
-        this.tag = propertyMap.get(FormatterProperties.TAG.getKey()) != null ? propertyMap.get(FormatterProperties.TAG.getKey()).toString() :  "export";
-        this.updateTag =  propertyMap.get(FormatterProperties.UPDATE_TAG.getKey()) != null ? propertyMap.get(FormatterProperties.UPDATE_TAG.getKey()).toString() :  "update";
+        String separatorKey = FormatterProperties.SEPARATOR.getKey();
+        if (propertyMap.containsKey(separatorKey)) {
+            this.fieldSeparator = ReadingDataFormatterFactory.FieldSeparator.separatorForName(propertyMap.get(separatorKey).toString());
+        } else {
+            this.fieldSeparator = ReadingDataFormatterFactory.FieldSeparator.PIPE.getSymbol();
+        }
+        this.tag = propertyMap.get(FormatterProperties.TAG.getKey()) != null ? propertyMap.get(FormatterProperties.TAG.getKey()).toString() : "export";
+        this.updateTag = propertyMap.get(FormatterProperties.UPDATE_TAG.getKey()) != null ? propertyMap.get(FormatterProperties.UPDATE_TAG.getKey()).toString() : "update";
     }
 
     @Override
@@ -146,10 +151,10 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
             }
         }
 
-        public Stream<FormattedExportData> formatReadings(){
+        Stream<FormattedExportData> formatReadings() {
             List<IntervalReading> readings = intervalBlock.getIntervals();
             if (readings.isEmpty()) {
-                logger.finest(String.format("Nothing to export for meter %s", meter == null ? "" :  meter.getMRID()));
+                logger.finest(String.format("Nothing to export for meter %s", meter == null ? "" : meter.getMRID()));
                 return Stream.empty();
             }
             return readings.stream().map(reading -> TextLineExportData.of(createStructureMarker(), payload(reading)));
