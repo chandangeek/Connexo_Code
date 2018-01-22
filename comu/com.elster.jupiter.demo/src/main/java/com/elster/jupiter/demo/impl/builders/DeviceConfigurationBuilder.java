@@ -6,14 +6,22 @@ package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.elster.jupiter.demo.impl.templates.ComTaskCfgTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
-import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.energyict.obis.ObisCode;
+import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -31,7 +39,8 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
     private List<RegisterType> registerTypes;
     private List<LoadProfileType> loadProfileTypes;
     private List<LogBookType> logBookTypes;
-    private Map<ComTask, SecurityPropertySetTpl> comTasks;
+    private Map<ComTask, ComTaskCfgTpl> comTasks;
+    private Map<String, Object> generalAttributes;
     private List<SecurityPropertySetBuilder> securityPropertySetBuilders;
     private BigDecimal overflowValue = new BigDecimal(9999999999L);
     private boolean validateOnStore = true;
@@ -66,6 +75,11 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         return this;
     }
 
+    public DeviceConfigurationBuilder withGeneralAttributes(ImmutableMap<String, Object> generalAttributes) {
+        this.generalAttributes = generalAttributes;
+        return this;
+    }
+
     public DeviceConfigurationBuilder withDataLoggerEnabled(boolean dataLoggerEnabled) {
         this.dataLoggerEnabled = dataLoggerEnabled;
         return this;
@@ -91,7 +105,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         return this;
     }
 
-    public DeviceConfigurationBuilder withComTasks(Map<ComTask, SecurityPropertySetTpl> comTasks) {
+    public DeviceConfigurationBuilder withComTasks(Map<ComTask, ComTaskCfgTpl> comTasks) {
         this.comTasks = comTasks;
         return this;
     }
@@ -126,6 +140,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         addSecurityPropertySet(configuration);
         applyPostBuilders(configuration);
         addComTasks(configuration);
+        addGenetalAttributes(configuration);
         configuration.save();
         return configuration;
     }
@@ -173,17 +188,37 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         }
     }
 
-    public static void addComTask(DeviceConfiguration deviceConfiguration, ComTask comTask, SecurityPropertySetTpl spst) {
+    public static void addComTask(DeviceConfiguration deviceConfiguration, ComTask comTask, ComTaskCfgTpl comTaskCfg) {
         if (comTask != null && deviceConfiguration != null) {
             List<SecurityPropertySet> securityPropertySets = deviceConfiguration.getSecurityPropertySets();
             if (securityPropertySets.isEmpty()) {
                 throw new UnableToCreate("Please specify at least one security set");
             }
-            Optional<SecurityPropertySet> securityPropertySet = securityPropertySets.stream().filter(o -> o.getName().equals(spst.getName())).findFirst();
+            Optional<SecurityPropertySet> securityPropertySet = securityPropertySets.stream().filter(o -> o.getName().equals(comTaskCfg.getSecurityPropertySetTpl().getName())).findFirst();
             deviceConfiguration.enableComTask(comTask, securityPropertySet.get())
-                    .setIgnoreNextExecutionSpecsForInbound(false)
+                    .setIgnoreNextExecutionSpecsForInbound(comTaskCfg.getIgnoreNextExecutionSpecs())
+                    .setPartialConnectionTask(resolveConnectionTask(deviceConfiguration, comTaskCfg.getConnectionTask()))
                     .setPriority(100).add().save();
         }
+    }
+
+    public void addGenetalAttributes(DeviceConfiguration deviceConfiguration) {
+        DeviceProtocolConfigurationProperties deviceProtocolProperties = deviceConfiguration.getDeviceProtocolProperties();
+        if (generalAttributes != null) {
+            generalAttributes.forEach((name, value) -> {
+                deviceProtocolProperties.setProperty(name, resolveAttributeValue(deviceConfiguration, name, value));
+            });
+        }
+    }
+
+    private Object resolveAttributeValue(DeviceConfiguration deviceConfiguration, String name, Object value) {
+        if ((name.compareToIgnoreCase("PSKEncryptionKey") == 0) || (name.compareToIgnoreCase("PSK") == 0)) {
+            return deviceConfiguration.getDeviceType().getSecurityAccessorTypes().stream()
+                    .filter(securityAccessorType -> securityAccessorType.getName().compareToIgnoreCase(value.toString()) == 0)
+                    .findFirst()
+                    .orElse(null);
+        }
+        return value;
     }
 
     private static ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties(DeviceConfiguration configuration) {
@@ -197,5 +232,12 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
                 .filter(protocolDialectConfigurationProperties ->
                         protocolDialectConfigurationProperties.getDeviceProtocolDialectName().toLowerCase().contains("tcp"))
                 .findFirst();
+    }
+
+    private static PartialConnectionTask resolveConnectionTask(DeviceConfiguration deviceConfiguration, String connectionTask) {
+        return deviceConfiguration.getPartialConnectionTasks()
+                .stream()
+                .filter(pct -> pct.getName().equals(connectionTask))
+                .findFirst().orElse(null);
     }
 }

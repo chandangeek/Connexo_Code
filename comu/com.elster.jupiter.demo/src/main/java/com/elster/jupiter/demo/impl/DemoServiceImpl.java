@@ -26,6 +26,7 @@ import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
 import com.elster.jupiter.demo.impl.commands.CreateMetrologyConfigurationsCommand;
 import com.elster.jupiter.demo.impl.commands.CreateMultiElementDeviceSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateNetworkManagementCommand;
 import com.elster.jupiter.demo.impl.commands.CreateNetworkTopologyCommand;
 import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
 import com.elster.jupiter.demo.impl.commands.CreatePowerUserCommand;
@@ -72,8 +73,8 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
@@ -82,6 +83,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -146,7 +148,8 @@ import java.time.Clock;
         "osgi.command.function=createMetrologyConfigurations",
         "osgi.command.function=createPowerUser",
         "osgi.command.function=createRegisterDevice",
-        "osgi.command.function=createNetworkTopology"
+        "osgi.command.function=createNetworkTopology",
+        "osgi.command.function=createNetworkManagement"
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -194,6 +197,7 @@ public class DemoServiceImpl {
     private volatile CalendarService calendarService;
     private volatile com.elster.jupiter.tasks.TaskService platformTaskService;
     private volatile DataQualityKpiService dataQualityKpiService;
+    private volatile RegisteredDevicesKpiService registeredDevicesKpiService;
     private volatile CommandRuleService commandRuleService;
     private volatile UsagePointLifeCycleService usagePointLifeCycleService;
     private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
@@ -256,6 +260,7 @@ public class DemoServiceImpl {
             com.elster.jupiter.tasks.TaskService platformTaskService,
             CommandRuleService commandRuleService,
             DataQualityKpiService dataQualityKpiService,
+            RegisteredDevicesKpiService registeredDevicesKpiService,
             UsagePointLifeCycleService usagePointLifeCycleService,
             UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
             SecurityManagementService securityManagementService,
@@ -311,6 +316,7 @@ public class DemoServiceImpl {
         setTopologyService(topologyService);
         setCommandRuleService(commandRuleService);
         setDataQualityKpiService(dataQualityKpiService);
+        setRegisteredDevicesKpiService(registeredDevicesKpiService);
         setUsagePointLifeCycleService(usagePointLifeCycleService);
         setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
         setSecurityManagementService(securityManagementService);
@@ -377,6 +383,7 @@ public class DemoServiceImpl {
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(CommandRuleService.class).toInstance(commandRuleService);
                 bind(DataQualityKpiService.class).toInstance(dataQualityKpiService);
+                bind(RegisteredDevicesKpiService.class).toInstance(registeredDevicesKpiService);
                 bind(UsagePointLifeCycleService.class).toInstance(usagePointLifeCycleService);
                 bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
@@ -650,6 +657,13 @@ public class DemoServiceImpl {
     }
 
     @Reference
+    @SuppressWarnings("unused")
+    public void setRegisteredDevicesKpiService(RegisteredDevicesKpiService registeredDevicesKpiService) {
+        this.registeredDevicesKpiService = registeredDevicesKpiService;
+    }
+
+
+    @Reference
     public void setCommandRuleService(CommandRuleService commandRuleService) {
         this.commandRuleService = commandRuleService;
     }
@@ -777,6 +791,16 @@ public class DemoServiceImpl {
         command.setLevelCount(levelcount);
         command.runInTransaction();
     }
+
+    @SuppressWarnings("unused")
+    public void createNetworkManagement(int rootCount, int childcount, int levelcount) {
+        CreateNetworkManagementCommand command = injector.getInstance(CreateNetworkManagementCommand.class);
+        command.setMasterDeviceCount(rootCount);
+        command.setSlaveDeviceCount(childcount);
+        command.setLevelCount(levelcount);
+        command.runInTransaction();
+    }
+
 
     @SuppressWarnings("unused")
     public void createG3DemoBoardDevices() {

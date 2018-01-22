@@ -61,12 +61,19 @@ public enum SecurityPropertySetTpl implements Template<SecurityPropertySet, Secu
             3,  //MESSAGE_ENCRYPTION_AND_AUTHENTICATION
             Arrays.asList(KeyAccessorTpl.ENCRYPTION_KEY_BEACON2, KeyAccessorTpl.AUTHENTICATION_KEY_BEACON2)
     ),
+    GMAC("GMAC 5:3",
+            1,
+            -1,
+            5,  //HIGH_LEVEL_GMAC
+            3,  //MESSAGE_ENCRYPTION_AND_AUTHENTICATION
+            Arrays.asList(KeyAccessorTpl.ENCRYPTION_KEY_10_YEARS, KeyAccessorTpl.AUTHENTICATION_KEY_10_YEARS, KeyAccessorTpl.PASSWORD_10_YEARS)
+    ),
     PASSWORD_ONLY("Password only",
             1,
             -1,
             1,  //LOW_LEVEL
             0,  //NO_ENCRYPTION
-            Arrays.asList(KeyAccessorTpl.ENCRYPTION_KEY, KeyAccessorTpl.AUTHENTICATION_KEY, KeyAccessorTpl.PASSWORD)
+            Arrays.asList(KeyAccessorTpl.ENCRYPTION_KEY_10_YEARS, KeyAccessorTpl.AUTHENTICATION_KEY_10_YEARS, KeyAccessorTpl.PASSWORD_10_YEARS)
     ),
     ;
     private String name;

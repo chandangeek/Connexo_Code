@@ -28,6 +28,8 @@ public enum DeviceGroupTpl implements Template<EndDeviceGroup, DeviceGroupBuilde
             DeviceTypeTpl.BK_GF),
     WATER_DEVICES("Water devices", null,
             DeviceTypeTpl.V200PR_6),
+    BEACON_DEVICES("Beacon devices", Constants.Device.BEACON_PREFIX + "*",
+            DeviceTypeTpl.BEACON_3100, DeviceTypeTpl.AM540_DLMS),
     ;
 
     private String name;

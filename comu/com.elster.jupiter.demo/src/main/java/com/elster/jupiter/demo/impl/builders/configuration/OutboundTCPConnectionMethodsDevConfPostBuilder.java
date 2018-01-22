@@ -11,6 +11,7 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -29,6 +30,11 @@ public class OutboundTCPConnectionMethodsDevConfPostBuilder implements Consumer<
     private final ProtocolPluggableService protocolPluggableService;
     private int retryDelayInMinutes = DEFAULT_RETRY_DELAY_MINUTUES;
     private Map<String, Object> properties = new HashMap<>();
+    private String name = "Outbound TCP";
+    private ConnectionFunction connectionFunction;
+    private String protocolDialectName = "tcp";
+    private OutboundTCPComPortPoolTpl comPortPool = OutboundTCPComPortPoolTpl.ORANGE;
+    private boolean isDefault = true;
 
     @Inject
     public OutboundTCPConnectionMethodsDevConfPostBuilder(ProtocolPluggableService protocolPluggableService) {
@@ -40,8 +46,38 @@ public class OutboundTCPConnectionMethodsDevConfPostBuilder implements Consumer<
         return this;
     }
 
+    public OutboundTCPConnectionMethodsDevConfPostBuilder withName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public OutboundTCPConnectionMethodsDevConfPostBuilder withConnectionFunction(ConnectionFunction connectionFunction) {
+        this.connectionFunction = connectionFunction;
+        return this;
+    }
+
+    public OutboundTCPConnectionMethodsDevConfPostBuilder withProperties(Map<String, Object> properties) {
+        this.properties.putAll(properties);
+        return this;
+    }
+
     public OutboundTCPConnectionMethodsDevConfPostBuilder withRetryDelay(int retryDelayInMinutes) {
         this.retryDelayInMinutes =  retryDelayInMinutes;
+        return this;
+    }
+
+    public OutboundTCPConnectionMethodsDevConfPostBuilder withProtocolDialectName(String protocolDialectName) {
+        this.protocolDialectName = protocolDialectName;
+        return this;
+    }
+
+    public OutboundTCPConnectionMethodsDevConfPostBuilder withComPortPool(OutboundTCPComPortPoolTpl comPortPool) {
+        this.comPortPool = comPortPool;
+        return this;
+    }
+
+    public OutboundTCPConnectionMethodsDevConfPostBuilder withDefault(boolean isDefault) {
+        this.isDefault = isDefault;
         return this;
     }
 
@@ -55,10 +91,11 @@ public class OutboundTCPConnectionMethodsDevConfPostBuilder implements Consumer<
     public void accept(DeviceConfiguration configuration) {
         ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByNameTranslationKey("OutboundTcpIpConnectionType").get();
         final PartialScheduledConnectionTaskBuilder builder = configuration
-                .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(retryDelayInMinutes, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE, getProtocolDialectConfigurationProperties(configuration))
-                .comPortPool(Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get())
+                .newPartialScheduledConnectionTask(name, pluggableClass, new TimeDuration(retryDelayInMinutes, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE, getProtocolDialectConfigurationProperties(configuration))
+                .comPortPool(Builders.from(comPortPool).get())
+                .connectionFunction(connectionFunction)
                 .setNumberOfSimultaneousConnections(1)
-                .asDefault(true);
+                .asDefault(isDefault);
         this.properties.entrySet().stream().forEach(x-> addProperty(builder, x));
         builder.build();
     }
@@ -71,8 +108,9 @@ public class OutboundTCPConnectionMethodsDevConfPostBuilder implements Consumer<
         Optional<ProtocolDialectConfigurationProperties> tcpDialect = configuration.getProtocolDialectConfigurationPropertiesList()
                         .stream()
                         .filter(protocolDialectConfigurationProperties ->
-                                protocolDialectConfigurationProperties.getDeviceProtocolDialectName().toLowerCase().contains("tcp"))
+                                protocolDialectConfigurationProperties.getDeviceProtocolDialectName().toLowerCase().contains(protocolDialectName.toLowerCase()))
                         .findFirst();
         return tcpDialect.orElse(configuration.getProtocolDialectConfigurationPropertiesList().get(0));
     }
+
 }
