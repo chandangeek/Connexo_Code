@@ -302,12 +302,8 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     }
 
     @Override
-    public Finder<OpenDeviceAlarm> findOpenAlarmByDeviceIdAndEventType(long id, String eventType) {
-        Condition condition = where("deviceAlarmRelatedEvents.endDeviceId").isEqualTo(id)
-                .and(where("deviceAlarmRelatedEvents.eventTypeCode").isEqualTo(eventType));
-        List<Class<?>> eagerClasses =  new ArrayList<>();
-        eagerClasses.add(OpenDeviceAlarmRelatedEvent.class);
-        return DefaultFinder.of(OpenDeviceAlarm.class, condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
+    public Finder<OpenDeviceAlarm> findOpenDeviceAlarms(Condition condition) {
+        return DefaultFinder.of(OpenDeviceAlarm.class, condition, dataModel, OpenDeviceAlarmRelatedEvent.class);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
