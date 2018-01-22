@@ -37,7 +37,7 @@ Ext.define('Fwc.devicefirmware.view.Setup', {
         me.content = {
             xtype: 'tabpanel',
             ui: 'large',
-            title: me.title,
+            title: Uni.I18n.translate('general.firmware', 'FWC', 'Firmware'),
             itemId: 'firmware-TabPanel',
             activeTab: me.activeTab,
             items: [
