@@ -33,7 +33,8 @@ Ext.define('MdcApp.Application', {
         'Mdc.privileges.CommandLimitationRules',
         'Dal.privileges.Alarm',
         'Mdc.privileges.RegisteredDevicesKpi',
-        'Mdc.privileges.TaskManagement'
+        'Mdc.privileges.TaskManagement',
+        'Mdc.privileges.SecurityAccessor'
     ],
     controllers: [
         'MdcApp.controller.Main'
