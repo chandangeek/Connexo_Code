@@ -46,7 +46,7 @@ public enum Commodity {
 	PM25(38,"Particulate matter maximum size 2.5 \u00B5m"),
 	SOX(39,"Sulfur oxides"),
 	WEATHER(40,"Weather or meterological conditions"),
-	DEVICE(41,"End device condition");
+	DEVICE(41, "Device");  //CXO-8254
 	
 	private final int id;
 	private final String description;
