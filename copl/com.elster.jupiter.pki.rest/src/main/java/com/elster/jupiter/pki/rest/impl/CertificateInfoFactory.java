@@ -8,6 +8,7 @@ import com.elster.jupiter.pki.CertificateFormatter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import javax.inject.Inject;
@@ -40,6 +41,7 @@ public class CertificateInfoFactory implements CertificateFormatter {
         info.hasCSR = certificateWrapper.hasCSR();
         info.hasCertificate = certificateWrapper.getCertificate().isPresent();
         info.hasPrivateKey = certificateWrapper.hasPrivateKey();
+        info.isObsolete = certificateWrapper.isObsolete();
 
         info.alias = certificateWrapper.getAlias();
         info.status = certificateWrapper.getStatus();

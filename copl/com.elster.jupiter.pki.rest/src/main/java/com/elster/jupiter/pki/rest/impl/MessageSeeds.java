@@ -32,7 +32,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_KEYPAIR(19, "NoSuchKeypair", "No such keypair could be located"),
     NO_PUBLIC_KEY_PRESENT(20, "NoPublicKeyPresent", "No public key found"),
     INVALID_PUBLIC_KEY(21, "InvalidPublicKey", "File does not contain a valid public key"),
-    INVALID_KEY(22,"InvalidKey","Invalid key");
+    INVALID_KEY(22,"InvalidKey","Invalid key"),
+    CERTIFICATE_IN_USE(23, "CertificateInUse", "Can not mark obsolete since certificate used by: {0}");
 
     private final int number;
     private final String key;
