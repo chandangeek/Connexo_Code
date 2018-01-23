@@ -59,6 +59,11 @@ public class CreateReadingTypeInfo {
         return (value == null) ? Collections.emptyList() : Collections.singletonList(value);
     }
 
+    private static List<Integer> ensureList(List<Integer> list) {
+        return (list == null) ? Collections.emptyList() : list;
+    }
+
+
     static CreateReadingTypeInfo fromBasicCreateReadingTypeInfo(CreateBasicReadingTypeInfo createBasicReadingTypeInfo) {
         CreateReadingTypeInfo createReadingTypeInfo = new CreateReadingTypeInfo();
 
@@ -85,5 +90,30 @@ public class CreateReadingTypeInfo {
         createReadingTypeInfo.unit = makeList(createBasicReadingTypeInfo.basicUnit);
         createReadingTypeInfo.currency = makeList(null);
         return createReadingTypeInfo;
+    }
+
+    void fixNullLists() {
+        macroPeriod = ensureList(macroPeriod);
+        aggregate = ensureList(aggregate);
+        measuringPeriod = ensureList(measuringPeriod);
+        accumulation = ensureList(accumulation);
+        flowDirection = ensureList(flowDirection);
+        commodity = ensureList(commodity);
+
+
+        measurementKind = ensureList(measurementKind);
+        interHarmonicNumerator = ensureList(interHarmonicNumerator);
+        interHarmonicDenominator = ensureList(interHarmonicDenominator);
+        argumentNumerator = ensureList(argumentNumerator);
+        argumentDenominator = ensureList(argumentDenominator);
+        tou = ensureList(tou);
+        cpp = ensureList(cpp);
+
+        consumptionTier = ensureList(consumptionTier);
+        phases = ensureList(phases);
+        metricMultiplier = ensureList(metricMultiplier);
+        currency = ensureList(currency);
+        unit = ensureList(unit);
+
     }
 }

@@ -202,7 +202,6 @@ public class ReadingTypeResource {
         readingTypeInfo.flowDirection = readingTypeInfos.stream().map(x -> Integer.valueOf(x.getFlowDirection().getId())).distinct().collect(Collectors.toList());
 
         return Response.ok().entity(readingTypeInfo).build();
-        //return createReadingTypeCount(CreateReadingTypeInfo.fromBasicCreateReadingTypeInfo(createBasicReadingTypeInfo), queryParameters);
     }
 
 
@@ -257,6 +256,9 @@ public class ReadingTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response createReadingTypeCount(CreateReadingTypeInfo createReadingTypeInfo, @BeanParam JsonQueryParameters queryParameters) {
 
+
+        createReadingTypeInfo.fixNullLists();
+
         List<String> newMridCodes;
         if (!Checks.is(createReadingTypeInfo.mRID).emptyOrOnlyWhiteSpace()) {
             if (meteringService.getReadingType(createReadingTypeInfo.mRID).isPresent()) {
@@ -302,9 +304,27 @@ public class ReadingTypeResource {
     }
 
     @POST
+    @Path("/checkAliasName/")    //CXO-8276
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response checkAliasNameAlreadyExists(CreateBasicReadingTypeInfo createBasicReadingTypeInfo, @BeanParam JsonQueryParameters queryParameters) {
+        if (!Checks.is(createBasicReadingTypeInfo.aliasName).emptyOrOnlyWhiteSpace()) {
+            final List<String> existsMrids = meteringService.getAvailableReadingTypes()
+                    .stream()
+                    .filter(rt -> rt.getAliasName().equalsIgnoreCase(createBasicReadingTypeInfo.aliasName))
+                    .map(ReadingType::getMRID)
+                    .collect(Collectors.toList());
+            PagedInfoList infoList = PagedInfoList.fromCompleteList("MRIDs", existsMrids, queryParameters);
+            return Response.ok().entity(infoList).build();
+        }
+        throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.REQUIRED, "aliasName");
+    }
+
+    @POST
     @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response createReadingType(CreateReadingTypeInfo createReadingTypeInfo,@BeanParam  JsonQueryParameters queryParameters) {
+        createReadingTypeInfo.fixNullLists();
         List<String> mRIDs = new ArrayList<>();
         if (!Checks.is(createReadingTypeInfo.mRID).emptyOrOnlyWhiteSpace()) {
             if (meteringService.getReadingType(createReadingTypeInfo.mRID).isPresent()) {
