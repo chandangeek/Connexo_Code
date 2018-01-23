@@ -13,7 +13,6 @@ import com.elster.jupiter.pki.KeypairWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.keypair.KeypairWrapperImpl;
-import javafx.scene.chart.ValueAxis;
 
 import static com.elster.jupiter.orm.ColumnConversion.BLOB2BYTE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
@@ -115,6 +114,11 @@ public enum TableSpecs {
             table.column("KEYUSAGESCSV")
                     .varChar()
                     .map(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName())
+                    .since(Version.version(10, 4))
+                    .add();
+            table.column("OBSOLETE")
+                    .bool()
+                    .map(AbstractCertificateWrapperImpl.Fields.OBSOLETE.fieldName())
                     .since(Version.version(10, 4))
                     .add();
             Column trustStoreColumn = table.column("TRUSTSTORE")

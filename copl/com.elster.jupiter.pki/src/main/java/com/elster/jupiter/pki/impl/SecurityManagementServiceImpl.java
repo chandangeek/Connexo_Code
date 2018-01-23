@@ -10,10 +10,38 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.pki.*;
+import com.elster.jupiter.pki.AliasParameterFilter;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.ClientCertificateWrapper;
+import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.DeviceSecretImporter;
+import com.elster.jupiter.pki.ExpirationSupport;
+import com.elster.jupiter.pki.ExtendedKeyUsage;
+import com.elster.jupiter.pki.IssuerParameterFilter;
+import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.KeyUsage;
+import com.elster.jupiter.pki.KeyUsagesParameterFilter;
+import com.elster.jupiter.pki.KeypairWrapper;
+import com.elster.jupiter.pki.PassphraseFactory;
+import com.elster.jupiter.pki.PassphraseWrapper;
+import com.elster.jupiter.pki.PrivateKeyFactory;
+import com.elster.jupiter.pki.PrivateKeyWrapper;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.pki.SubjectParameterFilter;
+import com.elster.jupiter.pki.SymmetricAlgorithm;
+import com.elster.jupiter.pki.SymmetricKeyFactory;
+import com.elster.jupiter.pki.SymmetricKeyWrapper;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.wrappers.asymmetric.AbstractPlaintextPrivateKeyWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.AbstractCertificateWrapperImpl;
 import com.elster.jupiter.pki.impl.wrappers.certificate.ClientCertificateWrapperImpl;
@@ -32,17 +60,27 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.operator.KeyWrapper;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Security;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -700,6 +738,11 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
         pagedList.forEach((CertificateWrapper certificateWrapper) -> trustedCertificates.add(certificateWrapper));
         return trustedCertificates;
+    }
+
+    @Override
+    public void checkCertificateUsages(CertificateWrapper certificateWrapper) {
+        //TODO: check global security accessors and importers
     }
 
     @Override

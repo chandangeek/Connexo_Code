@@ -20,6 +20,7 @@ import com.elster.jupiter.pki.impl.UniqueAlias;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 
@@ -29,9 +30,20 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchProviderException;
-import java.security.cert.*;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.CertificateParsingException;
+import java.security.cert.X509Certificate;
 import java.time.Instant;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -67,7 +79,8 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         ID("id"),
         SUBJECT("subject"),
         ISSUER("issuer"),
-        KEY_USAGES("keyUsagesCsv");
+        KEY_USAGES("keyUsagesCsv"),
+        OBSOLETE("obsolete");
 
         private final String fieldName;
 
@@ -102,6 +115,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+    private boolean obsolete;
 
     public AbstractCertificateWrapperImpl(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, EventService eventService) {
         this.dataModel = dataModel;
@@ -180,6 +194,9 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
      */
     protected Optional<TranslationKeys> getInternalStatus() {
         if (this.getCertificate().isPresent()) {
+            if (isObsolete()) {
+                return Optional.of(TranslationKeys.OBSOLETE);
+            }
             try {
                 getCertificate().get().checkValidity();
                 return Optional.of(TranslationKeys.AVAILABLE);
@@ -376,4 +393,19 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         return this.keyUsagesCsv;
     }
 
+    @Override
+    public void setObsoleteFlagAndSave(boolean obsolete) {
+        if (obsolete){
+            //post and handle event
+            eventService.postEvent(EventType.CERTIFICATE_VALIDATE_OBSOLETE.topic(), this);
+        }
+        this.obsolete = obsolete;
+        save();
+
+    }
+
+    @Override
+    public boolean isObsolete() {
+        return obsolete;
+    }
 }

@@ -12,6 +12,7 @@ public enum TranslationKeys implements TranslationKey {
     AVAILABLE("Available", "Available"),
     REQUESTED("Requested", "Requested"),
     EXPIRED("Expired", "Expired"),
+    OBSOLETE("Obsolete", "Obsolete"),
     NOT_YET_VALID("notYetValid", "Not yet valid"),
     TRUSTSTORE("TrustStore", "Trust store"),
     PUBLIC_KEY("PublicKey", "Public key");
