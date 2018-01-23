@@ -4,31 +4,58 @@
 Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.security-accessors-action-menu',
-    deviceTypeId: null,
 
     initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.changePrivileges', 'MDC', 'Change privileges'),
-                // privileges: Mdc.privileges.DeviceType.canAdministrate(),
-                hidden: this.deviceTypeId && !(!Ext.isEmpty(this.record) && this.record.get('isKey')),
+                privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
+                // hidden: this.deviceTypeId && !(!Ext.isEmpty(this.record) && this.record.get('isKey')),
                 action: 'changePrivileges',
+                itemId: 'menu-sa-change-privileges',
                 section: this.SECTION_EDIT
             },
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                // privileges: Mdc.privileges.DeviceType.canAdministrate(),
+                privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
                 action: 'edit',
+                itemId: 'menu-sa-edit',
                 hidden: !!this.deviceTypeId,
                 section: this.SECTION_EDIT
             },
             {
                 text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                // privileges: Mdc.privileges.DeviceType.canAdministrate(),
+                privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
                 action: 'remove',
+                itemId: 'menu-sa-remove',
                 section: this.SECTION_REMOVE
+            },
+            {
+                text: Uni.I18n.translate('general.clearPassiveCertificate', 'MDC', 'Clear passive certificate'),
+                privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
+                checkPassive: true,
+                action: 'clearPassiveCertificate',
+                itemId: 'menu-sa-clear-passive-certificate',
+                // hidden: !Ext.isEmpty(this.record.get('defaultValue')),
+                section: this.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('general.activatePassiveCertificate', 'MDC', 'Activate passive certificate'),
+                privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
+                checkPassive: true,
+                // hidden: !Ext.isEmpty(this.record.get('defaultValue')),
+                action: 'activatePassiveCertificate',
+                itemId: 'menu-sa-activate-passive-certificate',
+                section: this.SECTION_EDIT
             }
         ];
         this.callParent(arguments);
+    },
+    listeners: {
+        beforeshow: function (menu) {
+            var record = menu.record;
+            menu.down('#menu-sa-clear-passive-certificate').setVisible(record.get('defaultValue'));
+            menu.down('#menu-sa-activate-passive-certificate').setVisible(record.get('defaultValue'));
+        }
     }
 });

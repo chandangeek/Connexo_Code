@@ -24,21 +24,19 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu', {
                 section: me.SECTION_EDIT
             },
             {
-                text: me.keyMode
-                    ? Uni.I18n.translate('general.activatePassiveKey', 'MDC', 'Activate passive key')
-                    : Uni.I18n.translate('general.activatePassiveCertificate', 'MDC', 'Activate passive certificate'),
+                text: Uni.I18n.translate('general.activatePassiveKey', 'MDC', 'Activate passive key'),
                 privileges: Mdc.privileges.Device.canAdministrateDevice(),
                 checkPassive: true,
-                action: me.keyMode ? 'activatePassiveKey' : 'activatePassiveCertificate',
+                action: 'activatePassiveKey',
+                hidden: !me.keyMode,
                 section: me.SECTION_EDIT
             },
             {
-                text: me.keyMode
-                    ? Uni.I18n.translate('general.clearPassiveKey', 'MDC', 'Clear passive key')
-                    : Uni.I18n.translate('general.clearPassiveCertificate', 'MDC', 'Clear passive certificate'),
+                text: Uni.I18n.translate('general.clearPassiveKey', 'MDC', 'Clear passive key'),
                 privileges: Mdc.privileges.Device.canAdministrateDevice(),
                 checkPassive: true,
-                action: me.keyMode ? 'clearPassiveKey' : 'clearPassiveCertificate',
+                action: 'clearPassiveKey',
+                hidden: !me.keyMode,
                 section: me.SECTION_EDIT
             },
             {

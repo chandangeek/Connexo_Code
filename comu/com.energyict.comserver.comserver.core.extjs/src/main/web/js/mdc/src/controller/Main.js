@@ -450,7 +450,7 @@ Ext.define('Mdc.controller.Main', {
             );
         }
 
-        // if (Mdc.privileges.MetrologyConfiguration.full()) { //SA privileges!!
+        if (Mdc.privileges.SecurityAccessor.all()) { //SA privileges!!
             Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.security', 'MDC', 'Security'),
                 portal: 'administration',
@@ -463,7 +463,7 @@ Ext.define('Mdc.controller.Main', {
                     }
                 ]
             }));
-        // }
+        }
 
         me.addTaskManagement();
     },

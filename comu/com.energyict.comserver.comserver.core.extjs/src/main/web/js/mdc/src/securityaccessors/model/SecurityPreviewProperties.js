@@ -1,10 +1,11 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
-Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
+Ext.define('Mdc.securityaccessors.model.SecurityPreviewProperties', {
     extend: 'Uni.model.Version',
+
     requires: [
-        'Mdc.securityaccessors.model.KeyType'
+        'Uni.property.model.Property'
     ],
     fields: [
         {name: 'id', type: 'int', useNull: true},
@@ -18,7 +19,8 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
         {name: 'editLevels', type: 'auto', useNull: true},
         {name: 'defaultViewLevels', type: 'auto', useNull: true},
         {name: 'defaultEditLevels', type: 'auto', useNull: true},
-        {name: 'defaultValue', type: 'auto', useNull: true, defaultValue: null},
+        {name: 'currentProperties', type: 'auto'},
+        {name: 'tempProperties', type: 'auto'},
         {
             name: 'viewLevelsInfo',
             persist: false,
@@ -45,29 +47,30 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
             mapping: function (data) {
                 return Ext.isEmpty(data) || Ext.isEmpty(data.keyType) ? false : data.keyType.isKey;
             }
+        },
+    ],
+
+    associations: [
+        {
+            name: 'currentProperties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'currentProperties', foreignKey: 'currentProperties',
+            getTypeDiscriminator: function (node) {
+                return 'Uni.property.model.Property';
+            }
+        },
+        {
+            name: 'tempProperties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'tempProperties', foreignKey: 'tempProperties',
+            getTypeDiscriminator: function (node) {
+                return 'Uni.property.model.Property';
+            }
         }
     ],
 
     proxy: {
         type: 'rest',
-        url: '/api/dtc/securityaccessors',
+        url: '/api/dtc/securityaccessors/previewproperties',
         reader: {
             type: 'json'
-        },
+        }
+    }
 
-        setUrl: function (deviceTypeId) {
-            this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId);
-        }
-    },
-    associations: [
-        {
-            name: 'keyType',
-            type: 'hasOne',
-            model: 'Mdc.securityaccessors.model.KeyType',
-            associationKey: 'keyType',
-            getterName: 'getKeyType',
-            setterName: 'setKeyType',
-            foreignKey: 'keyType'
-        }
-    ]
 });
