@@ -8,10 +8,10 @@ Ext.define('Mtr.controller.readingtypesgroup.processors.AlwaysVisibleComboProces
         return commodity === this.NOT_APPLICABLE;
     },
 
-    process: function(){
+    process: function (value) {
         var me = this,
             combo = me.getCombo(),
-            commodity = me.controller.getBasicCommodity().getValue(),
+            commodity = value || me.controller.getBasicCommodity().getValue(),
             disabled = me.isDisabled(commodity);
 
         combo.setDisabled(disabled || this.disabledForLoad);

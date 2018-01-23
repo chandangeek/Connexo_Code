@@ -12,8 +12,12 @@
 Ext.define('Mtr.controller.readingtypesgroup.processors.CIMHandler', {
 
     cimValues: null,
+    /*
+        constructor: function () {
 
-    constructor: function () {
+        },*/
+
+    process: function () {
         var me = this,
             queryValues = Uni.util.QueryString.getQueryStringValues(false);
 

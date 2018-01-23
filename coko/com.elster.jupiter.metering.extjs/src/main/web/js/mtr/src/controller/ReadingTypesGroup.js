@@ -16,7 +16,8 @@ Ext.define('Mtr.controller.ReadingTypesGroup', {
 
     models: ['Mtr.model.ReadingTypeGroup'],
 
-    requires: ['Mtr.view.Details',
+    requires: [
+        'Mtr.view.Details',
         'Mtr.util.readingtypesgroup.FilterTopPanel'
     ],
 
@@ -106,7 +107,7 @@ Ext.define('Mtr.controller.ReadingTypesGroup', {
             '#reading-types-set-bulk-action-button': {
                 click: this.showSetBulkAction
             },
-            '#reading-types-add-action-button-disabled-fileds': {  // lori CXO-8276
+            '#reading-types-add-action-button-disabled-fields': {  // CXO-8276
                 click: this.uploadAddForm
             },
             'reading-types-action-menu': {
@@ -128,6 +129,7 @@ Ext.define('Mtr.controller.ReadingTypesGroup', {
 
         me.getPreview().setTitle(Ext.String.htmlEncode(record.get('fullAliasName')));
         me.getPreviewForm().loadRecord(record);
+
     },
 
     showOverview: function () {
@@ -156,10 +158,10 @@ Ext.define('Mtr.controller.ReadingTypesGroup', {
         router.getRoute('administration/readingtypes/add').forward();
     },
 
-    uploadAddForm: function () {   // lori CXO-8276
+    uploadAddForm: function () {   // CXO-8276
         var router = this.getController('Uni.controller.history.Router'),
             me = this,
-            addController = this.getController('Mtr.controller.AddReadingTypesInReadingTypesGroup');
+            addController = this.getController('Mtr.controller.AddReadingTypesGroup');
         gridView = me.getReadingTypesInGroupGrid().getView(),
             record = gridView.getSelectionModel().getLastSelected();
 
@@ -185,12 +187,6 @@ Ext.define('Mtr.controller.ReadingTypesGroup', {
             {
                 mRID: mRID
             });
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            view = Ext.widget('reading-types-in-group', {
-                router: router
-            });
-
         me.fromDetail = true;
     },
 

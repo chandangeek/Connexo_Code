@@ -48,7 +48,32 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
         'Mtr.store.attributes.basic.Phase',
         'Mtr.store.attributes.basic.TimeOfUse',
         'Mtr.store.attributes.basic.CriticalPeakPeriod',
-        'Mtr.store.attributes.basic.ConsumptionTier'
+        'Mtr.store.attributes.basic.ConsumptionTier',
+
+        'Mtr.controller.readingtypesgroup.processors.AccumulationProcessor',
+        'Mtr.controller.readingtypesgroup.processors.AdditionalParamsProcessor',
+        'Mtr.controller.readingtypesgroup.processors.AggregateProcessor',
+        'Mtr.controller.readingtypesgroup.processors.AlwaysVisibleComboProcessor',
+        'Mtr.controller.readingtypesgroup.processors.CIMHandler',
+        'Mtr.controller.readingtypesgroup.processors.ComboProcessor',
+        'Mtr.controller.readingtypesgroup.processors.ComboProcessorFactory',
+        'Mtr.controller.readingtypesgroup.processors.CommodityProcessor',
+        'Mtr.controller.readingtypesgroup.processors.ConsumptionTierProcessor',
+        'Mtr.controller.readingtypesgroup.processors.CriticalPeakPeriodProcessor',
+        'Mtr.controller.readingtypesgroup.processors.FlowProcessor',
+        'Mtr.controller.readingtypesgroup.processors.MacroPeriodProcessor',
+        'Mtr.controller.readingtypesgroup.processors.MeasurementKindProcessor',
+        'Mtr.controller.readingtypesgroup.processors.MeasuringPeriodProcessor',
+        'Mtr.controller.readingtypesgroup.processors.MetricMultiplierProcessor',
+        'Mtr.controller.readingtypesgroup.processors.PhasesProcessor',
+        'Mtr.controller.readingtypesgroup.processors.TimeOfUseProcessor',
+        'Mtr.controller.readingtypesgroup.processors.UnitProcessor',
+        'Mtr.controller.readingtypesgroup.processors.ExtendedFieldsProcessor',
+        'Mtr.controller.readingtypesgroup.processors.CommodityExtendedProcessor',
+        'Mtr.controller.readingtypesgroup.processors.FlowExtendedProcessor',
+        'Mtr.controller.readingtypesgroup.processors.KindExtendedProcessor',
+        'Mtr.controller.readingtypesgroup.processors.UnitExtendedProcessor'
+
     ],
 
     refs: [
@@ -117,6 +142,23 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
             selector: '#add-reading-types-group #reading-types-groups-add-basic-tab cimcombobox[name=basicConsumptionTier]'
         },
         {
+            ref: 'extendedCommodity',
+            selector: '#add-reading-types-group #reading-types-groups-add-extended-tab cimcombobox[name=commodity]'
+        },
+        {
+            ref: 'extendedKind',
+            selector: '#add-reading-types-group #reading-types-groups-add-extended-tab cimcombobox[name=measurementKind]'
+        },
+        {
+            ref: 'extendedFlow',
+            selector: '#add-reading-types-group #reading-types-groups-add-extended-tab cimcombobox[name=flowDirection]'
+        },
+        {
+            ref: 'extendedUnit',
+            selector: '#add-reading-types-group #reading-types-groups-add-extended-tab cimcombobox[name=unit]'
+        },
+
+        {
             ref: 'noAdditionalParameters',
             selector: '#add-reading-types-group #no-additional-parameters'
         },
@@ -176,12 +218,10 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
             widget,
             router = me.getController('Uni.controller.history.Router'),
             record = Ext.create('Mtr.model.AddReadingTypeGroup');
-        me.firstRun = true;
         widget = Ext.widget('add-reading-types-group');
 
         if (router.arguments.aliasName) {
-            // me.getSpecifyByRadioGroup().setDisabled(!!router.arguments.aliasName);
-            record.set('aliasName', router.arguments.aliasName);
+            record.set('aliasName', decodeURIComponent(router.arguments.aliasName));
             me.getAliasName().setDisabled(!!router.arguments.aliasName);
 
         }
@@ -202,6 +242,9 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
         if (!me.cimHandler) {
             me.cimHandler = Ext.create('Mtr.controller.readingtypesgroup.processors.CIMHandler', {});
         }
+        me.cimHandler.process();
+
+
         if (!me.factory) {
             me.factory = Ext.create('Mtr.controller.readingtypesgroup.processors.ComboProcessorFactory', {
                 controller: me
@@ -210,11 +253,20 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
 
         // All combos are linked to the commodity one. If commodity has a preload value,
         // it will tell all the other combos to process
-        // set flag for add with predifined values
+        // set uploadAddflag for upload add form with predifined values
 
-        var flag = !!(router.arguments.aliasName);
-        me.factory.getProcessor(me.getBasicCommodity()).disabledForLoad = flag;
-        me.factory.getProcessor(me.getBasicCommodity()).process();
+        var uploadAddflag = !!(router.arguments.aliasName);
+        var basicCommodityProcessor = me.factory.getProcessor(me.getBasicCommodity());
+        basicCommodityProcessor.disabledForLoad = uploadAddflag;
+        if (uploadAddflag) {
+            basicCommodityProcessor.cloneValue = me.cimHandler.getValue(me.getBasicCommodity().cimIndex);
+        }
+        basicCommodityProcessor.process();
+
+        if (uploadAddflag) {
+            me.processExtendedProcessors(uploadAddflag);
+        }
+
 
         // Need to set the controller value for all processors every time we get on the page
         if (!me.firstRun) {
@@ -222,6 +274,26 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
                 item.setController(me);
             });
         }
+    },
+    processExtendedProcessors: function (uploadFormforAddFlag) {
+        var me = this;
+
+        var extendedCombos = [
+            me.getExtendedCommodity(),
+            me.getExtendedKind(),
+            me.getExtendedFlow(),
+            me.getExtendedUnit()
+        ];
+
+        extendedCombos.forEach(function (item) {
+            var processor = me.factory.getProcessor(item);
+            processor.disabledForLoad = uploadFormforAddFlag;
+            if (uploadFormforAddFlag) {
+                processor.cloneValue = me.cimHandler.getValue(item.cimIndex);
+            }
+            processor.process();
+        });
+
     },
 
     /**
@@ -248,16 +320,24 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
     basicCommodityChange: function (combo, commodity) {
         var me = this;
         var router = me.getController('Uni.controller.history.Router');
-        var flag = !!(router.arguments.aliasName);
+        var uploadAddFlag = !!(router.arguments.aliasName);
         me.getNoAdditionalParameters().setVisible(commodity === 0);
         me.registerProcessors();
 
-        me.factory.getProcessor(me.getBasicFlowDirection()).disabledForLoad = flag;
-        me.factory.getProcessor(me.getBasicMeasurementKind()).disabledForLoad = flag;
-        me.factory.getProcessor(me.getBasicUnit()).disabledForLoad = flag;
-        me.comboProcessors.forEach(function (item){
+        var flowProcessor = me.factory.getProcessor(me.getBasicFlowDirection()),
+            kindProcessor = me.factory.getProcessor(me.getBasicMeasurementKind()),
+            unitProcessor = me.factory.getProcessor(me.getBasicUnit());
 
-            item.process();
+        flowProcessor.disabledForLoad = uploadAddFlag;
+        kindProcessor.disabledForLoad = uploadAddFlag;
+        unitProcessor.disabledForLoad = uploadAddFlag;
+        if (uploadAddFlag) {
+            flowProcessor.cloneValue = me.cimHandler.getValue(me.getBasicFlowDirection().cimIndex);
+            kindProcessor.cloneValue = me.cimHandler.getValue(me.getBasicMeasurementKind().cimIndex);
+            unitProcessor.cloneValue = me.cimHandler.getValue(me.getBasicUnit().cimIndex);
+        }
+        me.comboProcessors.forEach(function (item){
+            item.process(commodity);
         });
     },
 
@@ -270,8 +350,7 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
         this.factory.getProcessor(this.getBasicMeasuringPeriod()).process();
     },
 
-
-    addGeneralButtonClick: function () {
+    addGeneralButtonClick: function () { //add with check for aliasName
         var me = this,
             tabPanel = me.getTabPanel(),
             activeTab = tabPanel.getActiveTab(),
@@ -285,23 +364,24 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
 
         if (form.isValid()) {
             if (addCount > 0) {
-                errorMsg.hide();
-                var urlCount = isBasic ? '/basiccount' : '/extendedcount';
-                var urlSave = isBasic ? '/basic' : '/extended';
-                if (specifyBy == 'form') {
-                    record.set('mRID', null);
-                    record.getProxy().setUrl(urlCount);
-                } else if (specifyBy == 'cim') {
-                    record.getProxy().setUrl(urlSave);
-                }
 
-                record.phantom = true;
-                record.save({
-                    callback: function (record, operation, success) {
-                        if (success) {
+                if (router.arguments.aliasName) {
+                    this.addReadingTypes();
+                }
+                else {
+                    var urlAliasName = '/checkAliasName';
+
+                    crtAliasName = record.get('aliasName');
+
+                    var checkAliasRecord = Ext.create('Mtr.model.AddBasicReadingTypeGroup');
+                    checkAliasRecord.set('aliasName', crtAliasName);
+                    checkAliasRecord.getProxy().setUrl(urlAliasName);
+
+                    checkAliasRecord.save({
+                        success: function (record, operation) {
                             var resp = Ext.JSON.decode(operation.response.responseText),
                                 count = resp.total;
-                            if (specifyBy == 'form' && count > 0) {
+                            if (count > 0) {
                                 Ext.widget('confirmation-window', {
                                     confirmBtnUi: 'action',
                                     confirmText: Uni.I18n.translate('general.add', 'MTR', 'Add')
@@ -309,43 +389,30 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
                                     closable: false,
                                     fn: function (btnId) {
                                         if (btnId == 'confirm') {
-                                            me.addReadingTypesRequest(record, isBasic);
+                                            me.addReadingTypes();
                                         }
                                     },
-                                    msg: Uni.I18n.translate('readingtypesmanagment.addReadingType.addMsg', 'MTR', "This could produce reading types that won't be used"),
-                                    title: Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.addConfirmationXXX', count, 'MTR', 'Add {0} reading types?', 'Add {0} reading type?', 'Add {0} reading types?')
+                                    title: Uni.I18n.translate('readingtypesmanagment.addReadingType.addWithConfirmation', 'MTR', "The alias name {0} already exists.", [crtAliasName]),
+                                    msg: Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.addConfirmation', addCount, 'MTR', 'Add {0} reading types to existing set?', 'Add {0} reading type to existing set?', 'Add {0} reading types to existing set?')
                                 });
-                            } else if (count == 0) {
-                                errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.readingTypesExists', 'MTR', 'Reading types already exists'));
-                                errorMsg.show()
-                            } else if (specifyBy == 'cim') {
-                                if (me.goBackWithOptions(resp) === false) {
-                                    router.getRoute('administration/readingtypes').forward();
-                                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('readingtypesmanagment.addReadingType.acknowledge', 'MTR', '{0} reading types added', [count]));
-                                }
                             }
-                        }
-                    },
-
-                    failure: function (response, operation) {
-                        var baseForm = form.getForm();
-                        if (operation.response.status == 400) {
-                            if (!Ext.isEmpty(operation.response.responseText)) {
-                                var json = Ext.JSON.decode(operation.response.responseText);
-                                if (json && json.errors) {
-                                    Ext.each(json.errors, function (error) {
-                                        me.getCimCode().markInvalid(error.msg);
-                                    });
-                                    Ext.suspendLayouts();
-                                    errorMsg.show();
-                                    baseForm.markInvalid(json.errors);
-                                    Ext.resumeLayouts(true);
-                                }
+                            else {
+                                me.addReadingTypes();
                             }
-                        }
 
-                    }
-                });
+                        }//,
+                        // failure: function (record, operation) {
+                        //     var json = Ext.decode(operation.response.responseText, true);
+                        //
+                        //     if (json && !Ext.isEmpty(json.errors)) {
+                        //         Ext.suspendLayouts();
+                        //         errorMsg.show();
+                        //         form.markInvalid(json.errors);
+                        //         Ext.resumeLayouts(true);
+                        //     }
+                        // }
+                    });
+                }
             } // if addCount > 0
             else {
                 errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.noAttrSpecified', 'MTR', 'No attributes specified'));
@@ -356,6 +423,80 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
             errorMsg.setText(errorMsg.defaultText);
             errorMsg.show();
         }
+    },
+
+    addReadingTypes: function () {
+        var me = this,
+            tabPanel = me.getTabPanel(),
+            activeTab = tabPanel.getActiveTab(),
+            router = this.getController('Uni.controller.history.Router'),
+            form = me.getAddReadingTypeForm(),
+            errorMsg = me.getAddReadingTypeFormErrorMessage(),
+            isBasic = activeTab.itemId === 'reading-types-groups-add-basic-tab',
+            record = form.getRecord(isBasic),
+            specifyBy = record.get('specifyBy'),
+            addCount = (specifyBy == 'form') ? me.getAddReadingTypeForm().getCount(isBasic) : 1;
+
+        errorMsg.hide();
+        var urlCount = isBasic ? '/basiccount' : '/extendedcount';
+        var urlSave = isBasic ? '/basic' : '/extended';
+        if (specifyBy == 'form') {
+            record.set('mRID', null);
+            record.getProxy().setUrl(urlCount);
+        } else if (specifyBy == 'cim') {
+            record.getProxy().setUrl(urlSave);
+        }
+
+        record.phantom = true;
+        record.save({
+            callback: function (record, operation, success) {
+                if (success) {
+                    var resp = Ext.JSON.decode(operation.response.responseText),
+                        count = resp.total;
+                    if (specifyBy == 'form' && count > 0) {
+                        Ext.widget('confirmation-window', {
+                            confirmBtnUi: 'action',
+                            confirmText: Uni.I18n.translate('general.add', 'MTR', 'Add')
+                        }).show({
+                            closable: false,
+                            fn: function (btnId) {
+                                if (btnId == 'confirm') {
+                                    me.addReadingTypesRequest(record, isBasic);
+                                }
+                            },
+                            msg: Uni.I18n.translate('readingtypesmanagment.addReadingType.addMsg', 'MTR', "This could produce reading types that won't be used"),
+                            title: Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.addConfirmation', count, 'MTR', 'Add {0} reading types?', 'Add {0} reading type?', 'Add {0} reading types?')
+                        });
+                    } else if (count == 0) {
+                        errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.readingTypesExists', 'MTR', 'Reading types already exists'));
+                        errorMsg.show()
+                    } else if (specifyBy == 'cim') {
+                        if (me.goBackWithOptions(resp) === false) {
+                            router.getRoute('administration/readingtypes').forward();
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('readingtypesmanagment.addReadingType.acknowledge', 'MTR', '{0} reading types added', [count]));
+                        }
+                    }
+                }
+            },
+
+            failure: function (response, operation) {
+                var baseForm = form.getForm();
+                if (operation.response.status == 400) {  // lori asta mai este necesara ????
+                    if (!Ext.isEmpty(operation.response.responseText)) {
+                        var json = Ext.JSON.decode(operation.response.responseText);
+                        if (json && json.errors) {
+                            Ext.each(json.errors, function (error) {
+                                me.getCimCode().markInvalid(error.msg);
+                            });
+                            Ext.suspendLayouts();
+                            errorMsg.show();
+                            baseForm.markInvalid(json.errors);
+                            Ext.resumeLayouts(true);
+                        }
+                    }
+                }
+            }
+        });
     },
 
     addReadingTypesRequest: function (record, isBasic) {

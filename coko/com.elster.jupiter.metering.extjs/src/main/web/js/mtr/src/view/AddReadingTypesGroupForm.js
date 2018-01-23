@@ -51,6 +51,7 @@ Ext.define('Mtr.view.AddReadingTypesGroupForm', {
         }
         me.setBasicAddCount(count);
     },
+
     setExtendedAddCount: function (count) {
         this.addExtendedCount = count;
         this.down('#add-reading-types-count').setValue(Uni.I18n.translatePlural('readingTypesManagement.addreadingtypes',
@@ -220,7 +221,6 @@ Ext.define('Mtr.view.AddReadingTypesGroupForm', {
                         else {
                             me.updateExtendedAddCount();
                         }
-
                     }
                 },
 

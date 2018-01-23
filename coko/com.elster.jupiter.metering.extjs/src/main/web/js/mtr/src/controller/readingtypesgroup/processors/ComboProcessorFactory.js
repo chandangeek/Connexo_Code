@@ -111,6 +111,32 @@ Ext.define('Mtr.controller.readingtypesgroup.processors.ComboProcessorFactory', 
                     controller: me.controller
                 });
                 break;
+            case "commodity":
+                processor = Ext.create('Mtr.controller.readingtypesgroup.processors.CommodityExtendedProcessor', {
+                    cloneValue: cloneValue,
+                    controller: me.controller
+                });
+                break;
+
+            case "measurementKind":
+                processor = Ext.create('Mtr.controller.readingtypesgroup.processors.KindExtendedProcessor', {
+                    cloneValue: cloneValue,
+                    controller: me.controller
+                });
+                break;
+            case "flowDirection":
+                processor = Ext.create('Mtr.controller.readingtypesgroup.processors.FlowExtendedProcessor', {
+                    cloneValue: cloneValue,
+                    controller: me.controller
+                });
+                break;
+            case "unit":
+                processor = Ext.create('Mtr.controller.readingtypesgroup.processors.UnitExtendedProcessor', {
+                    cloneValue: cloneValue,
+                    controller: me.controller
+                });
+                break;
+
         }
 
         if (processor) {
