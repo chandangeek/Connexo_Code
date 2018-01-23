@@ -393,7 +393,7 @@ Ext.define('Mtr.controller.AddReadingTypesGroup', {
                                         }
                                     },
                                     title: Uni.I18n.translate('readingtypesmanagment.addReadingType.addWithConfirmation', 'MTR', "The alias name {0} already exists.", [crtAliasName]),
-                                    msg: Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.addConfirmation', addCount, 'MTR', 'Add {0} reading types to existing set?', 'Add {0} reading type to existing set?', 'Add {0} reading types to existing set?')
+                                    msg: Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.addConfirmationToSet', addCount, 'MTR', 'Add {0} reading types to existing set?', 'Add {0} reading type to existing set?', 'Add {0} reading types to existing set?')
                                 });
                             }
                             else {
