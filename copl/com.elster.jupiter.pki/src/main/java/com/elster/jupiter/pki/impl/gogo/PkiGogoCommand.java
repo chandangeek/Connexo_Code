@@ -77,7 +77,7 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=checkRevocationStatus",
                 "osgi.command.function=getLatestCRL",
                 "osgi.command.function=importSuperadmin",
-                "osgi.command.function=trustedCertificateStore"
+                "osgi.command.function=printTrustedCertificates"
         },
         immediate = true)
 public class PkiGogoCommand {
@@ -416,7 +416,7 @@ public class PkiGogoCommand {
         }
     }
 
-    public void trustedCertificateStore() {
+    public void printTrustedCertificates() {
         List<List<?>> collect = new ArrayList<>();
         List<TrustStore> trustStores = securityManagementService.getAllTrustStores();
         for (TrustStore trustStore : trustStores) {

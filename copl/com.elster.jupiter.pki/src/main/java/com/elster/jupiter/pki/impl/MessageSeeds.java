@@ -60,8 +60,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_TRUSTSTORE(1040, "noSuchTrustStore", "The trust store could not be found"),
     INVALID_DN(1041, "InvalidDN", "Invalid distinguished name encountered"),
     PROPERTY_VALUE_REQUIRED(1042, "InvalidPropertyValue", "Value for property {0} is required"),
-    CA_RUNTIME_ERROR(1043, "CaError", "CA runtime error {0}"),
-    INVALID_REVOCATION_REASON(1044, "InvalidRevocationReason", "Invalid revocation reason {0}");
+    CA_RUNTIME_ERROR(1043, "CaError", "CA runtime error: {0}"),
+    INVALID_REVOCATION_REASON(1044, "InvalidRevocationReason", "Invalid revocation reason: {0}");
 
 
     private final int number;

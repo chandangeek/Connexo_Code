@@ -6,7 +6,7 @@ package com.elster.jupiter.pki;
 
 import com.elster.jupiter.pki.impl.CertificateSearchFilter;
 
-import aQute.bnd.annotation.ConsumerType;
+import aQute.bnd.annotation.ProviderType;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import java.security.cert.X509CRL;
@@ -19,7 +19,7 @@ import java.util.Optional;
  * to integrate with an external CA. Configuration for an external CA can be done in a separate component. Place an
  * artificial @service-constraint to make sure the config is enabled before the custom implementation is activated.
  */
-@ConsumerType
+@ProviderType
 public interface CaService {
 
     String COMPONENTNAME = "PKI";

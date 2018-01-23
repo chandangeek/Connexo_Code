@@ -128,6 +128,7 @@ public class CaServiceImplTest {
         when(certificateSearchFilter.getSerialNumber()).thenReturn(new BigInteger("1"));
         when(rs.getReason()).thenReturn(REVOCATION_REASON_CERTIFICATEHOLD);
         when(ejbcaWS.checkRevokationStatus(any(String.class), any(String.class))).thenReturn(rs);
+        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
     }
 
     @After
@@ -147,49 +148,41 @@ public class CaServiceImplTest {
 
     @Test
     public void testGetPkiHostProperty() {
-        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
         verify(bundleContext, times(1)).getProperty(PKI_HOST_PROPERTY);
     }
 
     @Test
     public void testGetPkiPortProperty() {
-        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
         verify(bundleContext, times(1)).getProperty(PKI_PORT_PROPERTY);
     }
 
     @Test
     public void testGetCxoTruststoreProperty() {
-        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
         verify(bundleContext, times(1)).getProperty(CXO_TRUSTSTORE_PROPERTY);
     }
 
     @Test
     public void testGetSuperAdminAliasProperty() {
-        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
         verify(bundleContext, times(1)).getProperty(SUPER_ADMIN_CLIENT_CERTIFICATE_ALIAS_PROPERTY);
     }
 
     @Test
     public void testGetCaNameProperty() {
-        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
         verify(bundleContext, times(1)).getProperty(CA_NAME_PROPERTY);
     }
 
     @Test
     public void testGetCertProfileNameProperty() {
-        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
         verify(bundleContext, times(1)).getProperty(CERT_PROFILE_NAME_PROPERTY);
     }
 
     @Test
     public void testGetEndEntityProfileNameProperty() {
-        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
         verify(bundleContext, times(1)).getProperty(EE_PROFILE_NAME_PROPERTY);
     }
 
     @Test
     public void testGetPkiCaNames() throws AuthorizationDeniedException_Exception, EjbcaException_Exception {
-        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
         caService.init(ejbcaWS);
         caService.getPkiCaNames();
         verify(ejbcaWS, times(1)).getAvailableCAs();
@@ -197,7 +190,6 @@ public class CaServiceImplTest {
 
     @Test
     public void testGetPkiInfo() throws AuthorizationDeniedException_Exception, EjbcaException_Exception {
-        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
         caService.init(ejbcaWS);
         caService.getPkiInfo();
         verify(ejbcaWS, times(1)).getEjbcaVersion();
@@ -211,7 +203,6 @@ public class CaServiceImplTest {
             throws AuthorizationDeniedException_Exception, EjbcaException_Exception, OperatorCreationException, ApprovalException_Exception,
             UserDoesntFullfillEndEntityProfile_Exception, NotFoundException_Exception, WaitingForApprovalException_Exception,
             NoSuchAlgorithmException {
-        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
         caService.init(ejbcaWS);
         PKCS10CertificationRequest csr = generateCsr();
         caService.signCsr(csr);
@@ -221,7 +212,6 @@ public class CaServiceImplTest {
 
     @Test
     public void testGetLatestCRL() throws EjbcaException_Exception, CADoesntExistsException_Exception {
-        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
         caService.init(ejbcaWS);
         caService.getLatestCRL(CA_NAME_PROPERTY_VALUE);
         verify(ejbcaWS, times(1)).getLatestCRL(CA_NAME_PROPERTY_VALUE, NOT_DELTA);
@@ -229,7 +219,6 @@ public class CaServiceImplTest {
 
     @Test
     public void testGetLatestDeltaCRL() throws EjbcaException_Exception, CADoesntExistsException_Exception {
-        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
         caService.init(ejbcaWS);
         caService.getLatestDeltaCRL(CA_NAME_PROPERTY_VALUE);
         verify(ejbcaWS, times(1)).getLatestCRL(CA_NAME_PROPERTY_VALUE, DELTA);
@@ -240,7 +229,6 @@ public class CaServiceImplTest {
             throws EjbcaException_Exception, CADoesntExistsException_Exception, AlreadyRevokedException_Exception,
             WaitingForApprovalException_Exception, NotFoundException_Exception, ApprovalException_Exception,
             AuthorizationDeniedException_Exception {
-        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
         caService.init(ejbcaWS);
         caService.revokeCertificate(certificateSearchFilter, REVOCATION_REASON_CERTIFICATEHOLD);
         verify(ejbcaWS, times(1)).revokeCert("testIssuerDN", "1", REVOCATION_REASON_CERTIFICATEHOLD);
@@ -249,7 +237,6 @@ public class CaServiceImplTest {
     @Test
     public void testCheckRevocationStatus()
             throws EjbcaException_Exception, CADoesntExistsException_Exception, AuthorizationDeniedException_Exception {
-        caService = new CaServiceImpl(bundleContext, securityManagementService, nlsService);
         caService.init(ejbcaWS);
         com.elster.jupiter.pki.RevokeStatus revokeStatus = caService.checkRevocationStatus(certificateSearchFilter);
         verify(ejbcaWS, times(1)).checkRevokationStatus("testIssuerDN", "1");

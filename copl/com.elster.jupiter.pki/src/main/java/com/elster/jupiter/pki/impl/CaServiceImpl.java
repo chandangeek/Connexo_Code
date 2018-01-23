@@ -168,7 +168,7 @@ public class CaServiceImpl implements CaService {
     }
 
     private Optional<String> getPkiProperty(BundleContext context, String property) {
-        return Optional.of(context.getProperty(property));
+        return Optional.ofNullable(context.getProperty(property));
     }
 
     @Override
@@ -368,7 +368,7 @@ public class CaServiceImpl implements CaService {
         }
     }
 
-    public void init(EjbcaWS ejbcaWS) {
+    void init(EjbcaWS ejbcaWS) {
         this.ejbcaWS = ejbcaWS;
     }
 
