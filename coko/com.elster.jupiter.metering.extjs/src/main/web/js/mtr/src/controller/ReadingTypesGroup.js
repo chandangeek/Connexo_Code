@@ -181,7 +181,6 @@ Ext.define('Mtr.controller.ReadingTypesGroup', {
 
         addController.qString = router.getQueryStringValues();
 
-        //var queryString = Ext.String.urlAppend( router.getQueryStringValues(), "mRID=" + mRID);
         // create a new route : administration/readingtypes/aliasName/readingtypes/add
         router.getRoute('administration/readingtypes/readingtypes/add').forward({aliasName: router.arguments.aliasName},
             {

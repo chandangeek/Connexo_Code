@@ -332,6 +332,7 @@ Ext.define('Mtr.view.AddReadingTypesGroupForm', {
                                         margin: '0 0 0 260',
                                         xtype: 'uni-form-empty-message',
                                         itemId: 'no-additional-parameters',
+                                        disabled: false,
                                         text: Uni.I18n.translate('readingTypesManagement.addReadingTypes.additional.noCommodity', 'MTR', 'Select a Commodity to specify additional parameters')
                                     },
 
@@ -576,7 +577,7 @@ Ext.define('Mtr.view.AddReadingTypesGroupForm', {
                 margin: '0 0 0 0',
                 fieldCls: 'x-panel-body-form-error',
                 itemId: 'add-reading-types-count',
-                value: Uni.I18n.translate('readingtypesmanagement.addreadingtypes.defaultCountMsg', 'MTR', 'You are going to add 1 reading type. 1000 is the limit')
+                value: Uni.I18n.translate('readingtypesmanagement.addreadingtypes.defaultCountMsg', 'MTR', 'No reading types will be added')
             },
             {
                 xtype: 'fieldcontainer',
