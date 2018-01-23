@@ -52,6 +52,6 @@ public class CommodityAdapter extends MapBasedXmlAdapter<Commodity> {
         register("Particulate matter < 2.5 \u00B5m",Commodity.PM25);
         register("Sulfur Oxides (SO\u2093)",Commodity.SOX);
         register("Weather or meteorological conditions",Commodity.WEATHER);
-        register("End device condition",Commodity.DEVICE);
+        register("Device", Commodity.DEVICE);   //CXO-8254
     }
 }
