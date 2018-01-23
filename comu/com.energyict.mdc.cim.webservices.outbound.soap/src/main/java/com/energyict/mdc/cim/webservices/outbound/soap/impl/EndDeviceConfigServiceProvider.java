@@ -4,13 +4,13 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.impl;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 
 import com.energyict.mdc.cim.webservices.outbound.soap.meterconfig.MeterConfigFactory;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import org.apache.cxf.jaxws.JaxWsClientProxy;
 import org.apache.cxf.message.Message;
@@ -31,6 +31,7 @@ import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
 import javax.inject.Inject;
 import javax.xml.ws.Service;
 import java.lang.reflect.Proxy;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -92,24 +93,28 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
     }
 
     @Override
-    public void call(long id, EndPointConfiguration endPointConfiguration) {
-        try {
-            stateMeterConfigPortServices.stream()
-                    .filter(meterConfigPort -> getProxyFromMeterConfigPortService(meterConfigPort, endPointConfiguration.getUrl()))
-                    .findFirst()
-                    .ifPresent(meterConfigPortService -> {
-                        try {
-                            meterConfigPortService.changedMeterConfig(createResponseMessage(deviceService.findDeviceById(id).get()));
-                        } catch (FaultMessage faultMessage) {
-                            endPointConfiguration.log(LogLevel.SEVERE, "");
-                        }
-                    });
-        } catch (RuntimeException ex) {
-            endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
-        }
+    public void call(long id, List<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate) {
+        endPointConfigurations.forEach(endPointConfiguration -> {
+            try {
+                stateMeterConfigPortServices.stream()
+                        .filter(meterConfigPort -> getProxyFromMeterConfigPortService(meterConfigPort, endPointConfiguration.getUrl()))
+                        .findFirst()
+                        .ifPresent(meterConfigPortService -> {
+                            deviceService.findDeviceById(id).ifPresent(device -> {
+                                try {
+                                    meterConfigPortService.changedMeterConfig(createResponseMessage(meterConfigFactory.asMeterConfig(device, state, effectiveDate)));
+                                } catch (FaultMessage faultMessage) {
+                                    endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
+                                }
+                            });
+                        });
+            } catch (RuntimeException ex) {
+                endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
+            }
+        });
     }
 
-    private MeterConfigEventMessageType createResponseMessage(Device device) {
+    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig) {
         MeterConfigEventMessageType meterConfigEventMessageType = new MeterConfigEventMessageType();
 
         // set header
@@ -126,7 +131,6 @@ public class EndDeviceConfigServiceProvider implements StateTransitionWebService
         // set payload
         MeterConfigPayloadType payloadType = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
         meterConfigEventMessageType.setPayload(payloadType);
-        MeterConfig meterConfig = meterConfigFactory.asMeterConfig(device);
         payloadType.setMeterConfig(meterConfig);
         meterConfigEventMessageType.setPayload(payloadType);
 

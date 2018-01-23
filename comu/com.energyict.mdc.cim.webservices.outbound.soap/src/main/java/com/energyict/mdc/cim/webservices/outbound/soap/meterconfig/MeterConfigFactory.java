@@ -15,12 +15,14 @@ import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 public class MeterConfigFactory {
 
-    public MeterConfig asMeterConfig(Device device) {
+    public MeterConfig asMeterConfig(Device device, String state, Instant effectiveDate) {
         MeterConfig meterConfig = new MeterConfig();
         Meter meter = createMeter(device);
+        meter.setStatus(createStatus(DefaultState.fromKey(state).map(DefaultState::getDefaultFormat).orElse(state), effectiveDate));
         meterConfig.getMeter().add(meter);
         SimpleEndDeviceFunction simpleEndDeviceFunction = createSimpleEndDeviceFunction(device, meter);
         meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
@@ -36,11 +38,6 @@ public class MeterConfigFactory {
         meter.setEndDeviceInfo(createEndDeviceInfo(device));
         meter.setType(device.getDeviceConfiguration().getDeviceType().getName());
         meter.getMeterMultipliers().add(createMultiplier(device.getMultiplier()));
-        String stateKey = device.getState().getName();
-        String stateName = DefaultState.fromKey(stateKey)
-                .map(DefaultState::getDefaultFormat)
-                .orElse(stateKey);
-        meter.setStatus(createStatus(stateName));
         return meter;
     }
 
@@ -96,9 +93,10 @@ public class MeterConfigFactory {
         return nameBean;
     }
 
-    private Status createStatus(String state) {
+    private Status createStatus(String state, Instant effectiveDate) {
         Status status = new Status();
         status.setValue(state);
+        status.setDateTime(effectiveDate);
         return status;
     }
 
