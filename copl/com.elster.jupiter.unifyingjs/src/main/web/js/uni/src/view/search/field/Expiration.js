@@ -23,6 +23,8 @@ Ext.define('Uni.view.search.field.Expiration', {
             this.down('#uni-expiration-radio-expires-1month').setValue(true);
         } else if (criterium == 'expires_3months') {
             this.down('#uni-expiration-radio-expires-3months').setValue(true);
+        } else if (criterium == 'obsolete') {
+            this.down('#uni-expiration-radio-expires-3months').setValue(true);
         }
     },
 
@@ -34,6 +36,8 @@ Ext.define('Uni.view.search.field.Expiration', {
             criterium = 'expires_1month';
         } else if (this.down('#uni-expiration-radio-expires-3months').getValue()) {
             criterium = 'expires_3months';
+        } else if (this.down('#uni-expiration-radio-obsolete').getValue()) {
+            criterium = 'obsolete';
         }
         return [Ext.create('Uni.model.search.Value', {
             operator: '==',
@@ -77,6 +81,15 @@ Ext.define('Uni.view.search.field.Expiration', {
                 name: me.dataIndex,
                 inputValue: "0",
                 itemId: 'uni-expiration-radio-expires-3months',
+                handler: me.onValueChange,
+                scope: me
+            },
+            {
+                xtype: 'radiofield',
+                boxLabel: Uni.I18n.translate('general.expiration.obsolete', 'UNI', 'Obsolete'),
+                name: me.dataIndex,
+                inputValue: "0",
+                itemId: 'uni-expiration-radio-obsolete',
                 handler: me.onValueChange,
                 scope: me
             }
