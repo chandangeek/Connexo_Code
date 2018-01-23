@@ -77,21 +77,28 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
 
         Comparison comparison = (Comparison) condition;
         if (comparison.getValues().length == 1) {
-            // the condition coming from FE as 'device.security.expiration ==  Expiration.Type.EXPIRED || Expiration.Type.EXPIRES_1WEEK || Expiration.Type.EXPIRES_1MONTH || Expiration.Type.EXPIRES_3MONTHS
+            // the condition coming from FE as 'device.security.expiration ==  Expiration.Type.EXPIRED || Expiration.Type.EXPIRES_1WEEK
+            // || Expiration.Type.EXPIRES_1MONTH || Expiration.Type.EXPIRES_3MONTHS || Expiration.Type.OBSOLETE
             Expiration expiration = (Expiration) comparison.getValues()[0];
 
             sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN ");
             sqlBuilder.openBracket();
             //Devices having an actual certificate that is expired
             sqlBuilder.append("SELECT DEVICE FROM DDC_KEYACCESSOR, PKI_CERTIFICATE WHERE (DDC_KEYACCESSOR.DISCRIMINATOR = 'C' AND DDC_KEYACCESSOR.ACTUAL_CERT = PKI_CERTIFICATE.ID AND ");
-            sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.EXPIRATION", (Comparison) expiration.isExpired("PKI_CERTIFICATE.EXPIRATION", now)));
+            if (Expiration.Type.OBSOLETE == expiration.getType()){
+                sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.OBSOLETE", (Comparison) expiration.isObsolete("PKI_CERTIFICATE.OBSOLETE")));
+            } else {
+                sqlBuilder.add(new ComparisonFragment(this, "PKI_CERTIFICATE.EXPIRATION", (Comparison) expiration.isExpired("PKI_CERTIFICATE.EXPIRATION", now)));
+            }
             sqlBuilder.closeBracket();
 
-            // Devices having an actual passphrase that is expired
-            getPassPhrasePairTableNames().forEach(passPhraseTableName -> appendExpiredKeyClause(sqlBuilder, "P", "ACTUALPASSPHRASEID" ,passPhraseTableName, expiration, now));
-            // Devices having an actual symmetric key that is expired
-            getSymmetricKeyTableNames().forEach(symmetricKeyTableName -> appendExpiredKeyClause(sqlBuilder, "S", "ACTUALSYMKEYID", symmetricKeyTableName, expiration, now));
-            //
+            if (expiration.getType() != Expiration.Type.OBSOLETE){
+                // Devices having an actual passphrase that is expired
+                getPassPhrasePairTableNames().forEach(passPhraseTableName -> appendExpiredKeyClause(sqlBuilder, "P", "ACTUALPASSPHRASEID" ,passPhraseTableName, expiration, now));
+                // Devices having an actual symmetric key that is expired
+                getSymmetricKeyTableNames().forEach(symmetricKeyTableName -> appendExpiredKeyClause(sqlBuilder, "S", "ACTUALSYMKEYID", symmetricKeyTableName, expiration, now));
+            }
+
             sqlBuilder.closeBracket();
         }
         return sqlBuilder;
@@ -99,9 +106,10 @@ public class SecurityExpirationSearchableProperty extends AbstractSearchableDevi
 
     @Override
     public void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
-        Long expirationDateAsEpochMillis = (Long) value;
-        if (expirationDateAsEpochMillis != null) {
-            statement.setLong(bindPosition, expirationDateAsEpochMillis);
+        if (value instanceof Long) {
+            statement.setLong(bindPosition, (Long) value);
+        } else if (value instanceof String) {
+            statement.setString(bindPosition, (String) value);
         } else {
             statement.setNull(bindPosition, java.sql.Types.NUMERIC);
         }

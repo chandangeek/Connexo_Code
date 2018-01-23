@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
- */
-
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.events.LocalEvent;
@@ -21,22 +17,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Listens for delete events of {@link com.elster.jupiter.pki.CertificateWrapper}s
- * and will veto the deletion if the {@link com.elster.jupiter.pki.CertificateWrapper} is still referenced by any {@link SecurityAccessor}
+ * Listens for obsolete events of {@link com.elster.jupiter.pki.CertificateWrapper}`s
+ * and will veto the obsolete marking if the {@link com.elster.jupiter.pki.CertificateWrapper} is still referenced by any {@link SecurityAccessor}
  */
-@Component(name="com.energyict.mdc.device.config.delete.certificate.eventhandler", service = TopicHandler.class, immediate = true)
-public class CertificateDeletionEventHandler implements TopicHandler {
+@Component(name = "com.energyict.mdc.device.config.markobsolete.certificate.eventhandler", service = TopicHandler.class, immediate = true)
+public class CertificateMarkObsoleteEventHandler implements TopicHandler {
+
 
     private volatile DeviceService deviceService;
     private volatile Thesaurus thesaurus;
 
     // OSGi
-    public CertificateDeletionEventHandler() {
+    public CertificateMarkObsoleteEventHandler() {
         super();
     }
 
     // For testing purposes only
-    public CertificateDeletionEventHandler(DeviceService deviceService, NlsService nlsService) {
+    public CertificateMarkObsoleteEventHandler(DeviceService deviceService, NlsService nlsService) {
         this();
         this.setDeviceService(deviceService);
         this.setNlsService(nlsService);
@@ -50,14 +47,15 @@ public class CertificateDeletionEventHandler implements TopicHandler {
             List<String> deviceNames = accessors.stream()
                     .map(securityAccessor -> securityAccessor.getDevice().getName())
                     .collect(Collectors.toList());
-            throw new VetoDeleteCertificateException(thesaurus, source, deviceNames);
+            throw new VetoCertificateMarkObsoleteException(thesaurus, source, deviceNames);
         }
     }
 
     @Override
     public String getTopicMatcher() {
-        return "com/elster/jupiter/pki/certificate/VALIDATE_DELETE";
+        return "com/elster/jupiter/pki/certificate/VALIDATE_OBSOLETE";
     }
+
 
     @Reference
     public void setDeviceService(DeviceService deviceService) {
@@ -68,5 +66,4 @@ public class CertificateDeletionEventHandler implements TopicHandler {
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.SERVICE);
     }
-
 }

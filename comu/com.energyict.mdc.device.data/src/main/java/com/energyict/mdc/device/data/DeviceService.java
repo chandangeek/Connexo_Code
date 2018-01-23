@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.pki.CertificateWrapper;
@@ -17,6 +16,8 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.List;
@@ -186,6 +187,6 @@ public interface DeviceService {
      * @param certificate The to-be-checked for usage {@link CertificateWrapper}
      * @return true if in use, false otherwise
      */
-    boolean usedByKeyAccessor(CertificateWrapper certificate);
+    List<SecurityAccessor> getAssociatedKeyAccessors(CertificateWrapper certificate);
 
 }
